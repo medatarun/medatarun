@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":libs:model"))
     implementation(libs.kotlinReflect)
+    implementation(libs.bundles.kotlinxEcosystem)
 }
 
 application {

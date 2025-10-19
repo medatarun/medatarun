@@ -1,4 +1,4 @@
-package io.medatarun.app.io.medatarun.runtime
+package io.medatarun.runtime
 
 import kotlin.reflect.KClass
 

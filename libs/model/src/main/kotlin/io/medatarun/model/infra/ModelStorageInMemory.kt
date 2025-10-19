@@ -3,13 +3,7 @@ package io.medatarun.model.infra
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorage
 
-class ModelStorageInMemory : ModelStorage {
-    val models = mutableListOf<ModelInMemory>()
-    override fun findById(id: ModelId): Model {
-        return models.first { model -> model.id == id } ?: throw ModelNotFoundException(id)
-    }
 
-}
 
 data class ModelInMemory(
     override val id: ModelId,
@@ -37,6 +31,17 @@ data class ModelEntityInMemory(
     override fun getAttribute(id: ModelAttributeId): ModelAttribute {
         return map[id] ?: throw ModelEntityAttributeNotFoundException(this.id, id)
     }
+
+    companion object {
+        fun of(other: ModelEntity): ModelEntityInMemory {
+            return ModelEntityInMemory(
+                id = other.id,
+                name = other.name,
+                description = other.description,
+                attributes = other.attributes.map(ModelAttributeInMemory::of),
+            )
+        }
+    }
 }
 
 data class ModelAttributeInMemory(
@@ -45,4 +50,16 @@ data class ModelAttributeInMemory(
     override val description: LocalizedMarkdown?,
     override val type: ModelTypeId,
     override val optional: Boolean
-) : ModelAttribute
+) : ModelAttribute {
+    companion object {
+        fun of(other: ModelAttribute): ModelAttributeInMemory {
+            return ModelAttributeInMemory(
+                id = other.id,
+                name = other.name,
+                description = other.description,
+                type = other.type,
+                optional = other.optional
+            )
+        }
+    }
+}

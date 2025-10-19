@@ -1,9 +1,10 @@
 package io.medatarun.app
 
-import io.medatarun.app.io.medatarun.cli.AppCLIResources
-import io.medatarun.app.io.medatarun.cli.AppCLIRunner
-import io.medatarun.app.io.medatarun.runtime.internal.AppRuntimeBuilder
+import io.medatarun.cli.AppCLIResources
+import io.medatarun.cli.AppCLIRunner
+import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.utils.Printer
+import kotlin.io.path.Path
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -21,6 +22,7 @@ fun main(args: Array<String>) {
         println("i = $i")
     }
 
+    println(Path("package.json").toAbsolutePath().toString())
 
     val runtime = AppRuntimeBuilder().build()
     val cliResources = AppCLIResources(runtime)

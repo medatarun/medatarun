@@ -28,7 +28,7 @@ inline fun <reified T> valueClassSerializer(
             wrap(decoder.decodeString())
     }
 
-object LocalizedTextSerializer : KSerializer<LocalizedText> {
+class LocalizedTextSerializer: KSerializer<LocalizedText> {
     override val descriptor = JsonElement.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: LocalizedText) {
@@ -54,7 +54,8 @@ class ModelJsonConverter() {
         serializersModule = SerializersModule {
             contextual(ModelId::class, valueClassSerializer(::ModelId) { it.value })
             contextual(ModelEntityId::class, valueClassSerializer(::ModelEntityId) { it.value })
-            contextual(LocalizedText::class, LocalizedTextSerializer)
+            contextual(ModelAttributeId::class, valueClassSerializer(::ModelAttributeId) { it.value })
+            contextual(LocalizedText::class, LocalizedTextSerializer())
         }
     }
 
@@ -84,7 +85,7 @@ class ModelJsonConverter() {
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
 
-    fun fromJson(jsonString: String): Model {
+    fun fromJson(jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
             id = ModelId(modelJson.id),
@@ -133,8 +134,8 @@ class ModelAttributeJson(
 class ModelJson(
     val id: String,
     val version: String,
-    val name: LocalizedText? = null,
-    val description: LocalizedMarkdown? = null,
+    val name: @Contextual LocalizedText? = null,
+    val description: @Contextual LocalizedMarkdown? = null,
     val entities: List<ModelEntityJson>
 )
 

@@ -1,6 +1,6 @@
-package io.medatarun.app.io.medatarun.cli
+package io.medatarun.cli
 
-import io.medatarun.app.io.medatarun.runtime.getLogger
+import io.medatarun.runtime.getLogger
 import kotlin.collections.contains
 import kotlin.collections.get
 import kotlin.reflect.KParameter
@@ -15,12 +15,12 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
     }
 
     init {
-        logger.debug("Called with arguments : ${args.joinToString(" ")}")
+        logger.debug("Called with arguments: ${args.joinToString(" ")}")
     }
 
     fun handleCLI() {
         if (args.size < 2) {
-            logger.error("Usage : app <resource> <function> [--param valeur]")
+            logger.error("Usage: app <resource> <function> [--param valeur]")
             return
         }
 
@@ -45,13 +45,13 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
 
         val resourceProperty = AppCLIResources::class.memberProperties
             .find { it.name == resourceName } ?: run {
-            logger.error("Ressource inconnue : $resourceName")
+            logger.error("Unknown command: $resourceName")
             return
         }
 
         val resourceInstance = resourceProperty.getter.call(sys)
         val fn = resourceInstance!!::class.functions.find { it.name == functionName } ?: run {
-            logger.error("Fonction inconnue : $functionName")
+            logger.error("Unknown function: $functionName")
             return
         }
 
@@ -61,8 +61,8 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
             .mapNotNull { it.name }
 
         if (missing.isNotEmpty()) {
-            logger.error("Erreur : paramètre${if (missing.size > 1) "s" else ""} manquant${if (missing.size > 1) "s" else ""} : ${missing.joinToString(", ")}")
-            logger.error("Usage attendu : ${resourceName} ${functionName} " +
+            logger.error("Error, missing parameter${if (missing.size > 1) "s" else ""}: ${missing.joinToString(", ")}")
+            logger.error("Expected usage: $resourceName $functionName " +
                     fn.parameters.filter { it.kind == KParameter.Kind.VALUE }
                         .joinToString(" ") { "--${it.name}=<${it.type.toString().substringAfterLast('.') }>" })
             return

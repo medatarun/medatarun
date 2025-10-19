@@ -1,6 +1,6 @@
 package io.medatarun.model.model
 
-interface LocalizedText {
+sealed interface LocalizedText {
     val isLocalized: Boolean
     val name: String
     fun get(locale: String): String
