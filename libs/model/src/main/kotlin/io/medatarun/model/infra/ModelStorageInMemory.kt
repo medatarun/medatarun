@@ -13,15 +13,36 @@ class ModelStorageInMemory : ModelStorage {
 
 data class ModelInMemory(
     override val id: ModelId,
+    override val name: LocalizedText?,
+    override val description: LocalizedMarkdown?,
+    override val version: ModelVersion,
     override val entities: List<ModelEntityInMemory>
 ) : Model {
 
 }
 
-data class ModelEntityInMemory(override val id: String, override val name: LocalizedText) : ModelEntity {
+data class ModelEntityInMemory(
+    override val id: ModelEntityId,
+    override val name: LocalizedText?,
+    override val attributes: List<ModelAttributeInMemory>,
+    override val description: LocalizedMarkdown?,
+) : ModelEntity {
 
+    private val map = attributes.associateBy { it.id }
+
+    override fun countAttributes(): Int {
+        return attributes.size
+    }
+
+    override fun getAttribute(id: ModelAttributeId): ModelAttribute {
+        return map[id] ?: throw ModelEntityAttributeNotFoundException(this.id, id)
+    }
 }
 
-data class LocalizedTextNotLocalized(override val name: String) : LocalizedText {
-    override fun get(locale: String): String = name
-}
+data class ModelAttributeInMemory(
+    override val id: ModelAttributeId,
+    override val name: LocalizedText?,
+    override val description: LocalizedMarkdown?,
+    override val type: ModelTypeId,
+    override val optional: Boolean
+) : ModelAttribute
