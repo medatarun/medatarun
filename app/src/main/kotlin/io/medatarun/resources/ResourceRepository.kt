@@ -1,7 +1,7 @@
 package io.medatarun.app.io.medatarun.resources
 
+import io.ktor.http.*
 import io.medatarun.cli.AppCLIResources
-import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.model.model.MedatarunException
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -40,10 +40,14 @@ class ResourceRepository(private val resources: AppCLIResources) {
             }
     )
 
-    fun findAllDescriptors(): Collection<ResourceDescriptor> { return resourceDescriptors.values}
+    fun findAllDescriptors(): Collection<ResourceDescriptor> {
+        return resourceDescriptors.values
+    }
+
     fun findDescriptorByIdOptional(resourceName: String): ResourceDescriptor? {
         return resourceDescriptors[resourceName]
     }
+
     fun findResourceInstanceById(resourceName: String): Any? {
         return findDescriptorByIdOptional(resourceName = resourceName)
             ?.property
@@ -75,4 +79,16 @@ class ResourceRepository(private val resources: AppCLIResources) {
     }
 }
 
-class ResourceNotFoundException(resourceName: String): MedatarunException("Unknown resource $resourceName")
+data class ResourceInvocationRequest(
+    val resource: String,
+    val function: String,
+    val parameters: Map<String, String>
+)
+
+class ResourceInvocationException(
+    val status: HttpStatusCode,
+    message: String,
+    val payload: Map<String, String> = emptyMap()
+) : MedatarunException(message)
+
+class ResourceNotFoundException(resourceName: String) : MedatarunException("Unknown resource $resourceName")

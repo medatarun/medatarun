@@ -59,18 +59,20 @@ class ModelResource(private val runtime: AppRuntime) {
         )
     }
     @Suppress("unused")
-    fun inspect() {
+    fun inspect(): String {
+        val buf = StringBuilder()
         val modelId = runtime.modelQueries.findAllIds()
         modelId.forEach { modelId ->
             val model = runtime.modelQueries.findById(modelId)
-            logger.cli("🌐 ${model.id.value}")
+            buf.appendLine("🌐 ${model.id.value}")
             model.entities.forEach { entity ->
-                logger.cli("  📦 ${entity.id.value}")
+                buf.appendLine("  📦 ${entity.id.value}")
                 entity.attributes.forEach { attribute ->
-                    logger.cli("    ${attribute.id.value}: ${attribute.type.value}${if (attribute.optional) "?" else ""}")
+                    buf.appendLine("    ${attribute.id.value}: ${attribute.type.value}${if (attribute.optional) "?" else ""}")
                 }
             }
         }
+        return buf.toString()
     }
     companion object {
         private val logger = getLogger(ModelResource::class)

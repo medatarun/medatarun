@@ -9,8 +9,11 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
+import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.app.io.medatarun.resources.ResourceRepository
 import io.medatarun.cli.AppCLIResources
+import io.medatarun.model.model.MedatarunException
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import kotlinx.serialization.Serializable
@@ -18,7 +21,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.functions
 
 /**
@@ -77,12 +82,8 @@ class RestApi(
             }
 
             route("/api/{resource}/{function}") {
-                get {
-                    handleInvocation(call)
-                }
-                post {
-                    handleInvocation(call)
-                }
+                get { processInvocation(call) }
+                post { processInvocation(call) }
             }
         }
     }
@@ -105,50 +106,74 @@ class RestApi(
     }
 
 
-    private suspend fun handleInvocation(call: ApplicationCall) {
-        val resourceName = call.parameters["resource"] ?: run {
-            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing resource name"))
-            return
+    private suspend fun processInvocation(call: ApplicationCall) {
+        try {
+            val invocation = call.toInvocationRequest()
+            val payload = handleInvocation(invocation)
+            call.respond(HttpStatusCode.OK, payload)
+        } catch (exception: ResourceInvocationException) {
+            call.respond(exception.status, exception.payload)
         }
-        val functionName = call.parameters["function"] ?: run {
-            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing function name"))
-            return
-        }
+    }
 
-        val resourceDescriptor = resourceRepository.findDescriptorByIdOptional(resourceName) ?: run {
-            call.respond(HttpStatusCode.NotFound, mapOf("error" to "Unknown resource '$resourceName'"))
-            return
-        }
 
-        val resourceInstance = resourceRepository.findResourceInstanceById(resourceName) ?: run {
-            call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Resource '$resourceName' unavailable"))
-            return
-        }
+    private suspend fun ApplicationCall.toInvocationRequest(): ResourceInvocationRequest {
+        val resourceName = parameters["resource"] ?: throw ResourceInvocationException(
+            HttpStatusCode.BadRequest,
+            message = "Missing resource name",
 
-        val function = resourceInstance::class.functions.find { it.name == functionName } ?: run {
-            call.respond(
-                HttpStatusCode.NotFound,
-                mapOf("error" to "Unknown function '$functionName' on '$resourceName'")
             )
-            return
-        }
+        val functionName = parameters["function"] ?: throw ResourceInvocationException(
+            HttpStatusCode.BadRequest,
+            "Missing function name",
+
+            )
 
         val rawParams = mutableMapOf<String, String>()
-        rawParams.putAll(call.request.queryParameters.toSingleValueMap())
-        rawParams.putAll(call.readBodyParameters())
+        rawParams.putAll(request.queryParameters.toSingleValueMap())
+        rawParams.putAll(readBodyParameters())
+
+        return ResourceInvocationRequest(
+            resource = resourceName,
+            function = functionName,
+            parameters = rawParams.toMap()
+        )
+    }
+
+    fun handleInvocation(invocation: ResourceInvocationRequest): Any {
+        val (resourceName, functionName, rawParams) = invocation
+
+        resourceRepository.findDescriptorByIdOptional(resourceName)
+            ?: throw ResourceInvocationException(
+                HttpStatusCode.NotFound,
+                "Unknown resource '$resourceName'"
+
+            )
+
+        val resourceInstance = resourceRepository.findResourceInstanceById(resourceName)
+            ?: throw ResourceInvocationException(
+                HttpStatusCode.InternalServerError,
+                "Resource '$resourceName' unavailable"
+            )
+
+        val function = resourceInstance::class.functions.find { it.name == functionName }
+            ?: throw ResourceInvocationException(
+                HttpStatusCode.NotFound,
+                "Unknown function '$functionName' on '$resourceName'"
+            )
 
         val missing = function.parameters
             .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in rawParams.keys }
             .mapNotNull { it.name }
+
         if (missing.isNotEmpty()) {
-            call.respond(
+            throw ResourceInvocationException(
                 HttpStatusCode.BadRequest,
+                "Missing parameter(s): ${missing.joinToString(", ")}",
                 mapOf(
-                    "error" to "Missing parameter(s): ${missing.joinToString(", ")}",
                     "usage" to buildUsageHint(resourceName, function)
                 )
             )
-            return
         }
 
         val callArgs = mutableMapOf<KParameter, Any?>()
@@ -160,13 +185,9 @@ class RestApi(
                 KParameter.Kind.VALUE -> {
                     val raw = parameter.name?.let(rawParams::get)
                     if (raw != null) {
-                        val conversion = convert(raw, parameter.type.classifier)
-                        if (conversion is ConversionResult.Error) {
-                            conversionErrors += conversion.message
-                        } else if (conversion is ConversionResult.Value) {
-                            callArgs[parameter] = conversion.value
-                        } else {
-                            callArgs[parameter] = null
+                        when (val conversion = convert(raw, parameter.type.classifier)) {
+                            is ConversionResult.Error -> conversionErrors += conversion.message
+                            is ConversionResult.Value -> callArgs[parameter] = conversion.value
                         }
                     }
                 }
@@ -176,36 +197,35 @@ class RestApi(
         }
 
         if (conversionErrors.isNotEmpty()) {
-            call.respond(
+            throw ResourceInvocationException(
                 HttpStatusCode.BadRequest,
+                "Invalid parameter values",
                 mapOf(
-                    "error" to "Invalid parameter values",
-                    "details" to conversionErrors
+
+                    "details" to conversionErrors.joinToString(", ")
                 )
             )
-            return
         }
 
-        val result = runCatching { function.callBy(callArgs) }.onFailure { throwable ->
-            logger.error("Invocation failed for $resourceName.$functionName", throwable)
-        }.getOrElse {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                mapOf(
-                    "error" to "Invocation failed",
-                    "message" to (it.message ?: it::class.simpleName)
+        val result = runCatching { function.callBy(callArgs) }
+            .onFailure { throwable ->
+                logger.error("Invocation failed for $resourceName.$functionName", throwable)
+            }
+            .getOrElse {
+                throw ResourceInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    "Invocation failed",
+                    mapOf(
+                        "details" to (it.message ?: it::class.simpleName).toString()
+                    )
                 )
-            )
-            return
-        }
+            }
 
-        val payload = when (result) {
+        return when (result) {
             null, Unit -> mapOf("status" to "ok")
             is String -> result.toString()
             else -> mapOf("status" to "ok", "result" to result.toString())
         }
-
-        call.respond(HttpStatusCode.OK, payload)
     }
 
     private suspend fun ApplicationCall.readBodyParameters(): Map<String, String> {
