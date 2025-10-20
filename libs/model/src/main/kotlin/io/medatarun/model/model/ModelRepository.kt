@@ -3,6 +3,7 @@ package io.medatarun.model.model
 interface ModelRepository {
     fun findByIdOptional(id: ModelId): Model?
     fun create(model: Model)
+    fun delete(modelId: ModelId)
     fun createEntity(modelId: ModelId, e: ModelEntity)
     fun deleteEntity(modelId: ModelId, entityId: ModelEntityId)
     fun findAllIds(): List<ModelId>

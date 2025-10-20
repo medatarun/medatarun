@@ -12,6 +12,7 @@ import io.medatarun.model.model.ModelId
 interface ModelStorage {
     fun findById(id: ModelId): Model
     fun create(mode:Model)
+    fun delete(modelId: ModelId)
     fun findAllIds(): List<ModelId>
     fun createEntity(modelId: ModelId, e: ModelEntity)
     fun deleteEntity(modelId: ModelId, entityId: ModelEntityId)

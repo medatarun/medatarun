@@ -22,6 +22,11 @@ class ModelStorageComposite(
         repositories.first().create(model)
     }
 
+    override fun delete(modelId: ModelId) {
+        val repo = findRepoWithModel(modelId)
+        repo.delete(modelId)
+    }
+
     override fun createEntity(modelId: ModelId, e: ModelEntity) {
         val repo = findRepoWithModel(modelId)
         repo.createEntity(modelId, e)

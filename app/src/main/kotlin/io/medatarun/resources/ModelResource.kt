@@ -7,7 +7,6 @@ import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
 import io.medatarun.runtime.AppRuntime
-import io.medatarun.runtime.getLogger
 import org.slf4j.LoggerFactory
 
 class ModelResource(private val runtime: AppRuntime) {
@@ -24,6 +23,16 @@ class ModelResource(private val runtime: AppRuntime) {
             description = description?.let { LocalizedTextNotLocalized(it) },
             version = version ?: ModelVersion("1.0.0")
         )
+    }
+
+    @ResourceCommandDoc(
+        title = "Delete model definition",
+        description = "Removes a model and all of its entities from the runtime."
+    )
+    @Suppress("unused")
+    fun delete(id: String) {
+        logger.info("Delete model $id")
+        runtime.modelCmd.delete(ModelId(id))
     }
 
     @ResourceCommandDoc(

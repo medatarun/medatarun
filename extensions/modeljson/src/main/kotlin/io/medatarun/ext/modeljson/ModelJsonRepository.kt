@@ -41,6 +41,13 @@ class ModelJsonRepository(
         persistModel(model)
     }
 
+    override fun delete(modelId: ModelId) {
+        val path = discoveredModels.remove(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        if (!path.deleteIfExists()) {
+            throw ModelJsonRepositoryException("Failed to delete model file for ${modelId.value} at $path")
+        }
+    }
+
     override fun createEntity(modelId: ModelId, e: ModelEntity) {
         val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         val next = model.copy(

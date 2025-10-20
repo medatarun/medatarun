@@ -18,6 +18,10 @@ class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
         storage.create(model)
     }
 
+    override fun delete(modelId: ModelId) {
+        storage.delete(modelId)
+    }
+
     override fun createEntity(modelId: ModelId, entityId: ModelEntityId, name: LocalizedText?, description: LocalizedMarkdown?) {
         storage.createEntity(modelId, ModelEntityInMemory(
             id = entityId,
