@@ -8,6 +8,7 @@ import io.medatarun.model.model.ModelAttributeId
 import io.medatarun.model.model.ModelEntity
 import io.medatarun.model.model.ModelEntityId
 import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.ModelTypeId
 
 interface ModelStorage {
     fun findById(id: ModelId): Model
@@ -23,5 +24,7 @@ interface ModelStorage {
     fun updateEntityAttributeName(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, newAttributeId: ModelAttributeId)
     fun updateEntityAttributeTitle(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, title: LocalizedText?)
     fun updateEntityAttributeDescription(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, description: LocalizedMarkdown?)
+    fun updateEntityAttributeType(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, type: ModelTypeId)
+    fun updateEntityAttributeOptional(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, optional: Boolean)
     fun deleteEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId)
 }

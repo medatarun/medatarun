@@ -14,5 +14,7 @@ interface ModelRepository {
     fun updateEntityAttributeName(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, newAttributeId: ModelAttributeId)
     fun updateEntityAttributeTitle(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, title: LocalizedText?)
     fun updateEntityAttributeDescription(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, description: LocalizedMarkdown?)
+    fun updateEntityAttributeType(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, type: ModelTypeId)
+    fun updateEntityAttributeOptional(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, optional: Boolean)
     fun deleteEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId)
 }

@@ -219,6 +219,46 @@ class ModelResource(private val runtime: AppRuntime) {
     }
 
     @ResourceCommandDoc(
+        title = "Update entity attribute type",
+        description = "Changes the declared type of an entity attribute."
+    )
+    @Suppress("unused")
+    fun updateEntityAttributeType(
+        modelId: String,
+        entityId: String,
+        attributeId: String,
+        type: String
+    ) {
+        logger.info("Update attribute type $modelId.$entityId.$attributeId -> $type")
+        runtime.modelCmd.updateEntityAttributeType(
+            modelId = ModelId(modelId),
+            entityId = ModelEntityId(entityId),
+            attributeId = ModelAttributeId(attributeId),
+            type = ModelTypeId(type)
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Update entity attribute optionality",
+        description = "Changes whether an entity attribute is optional."
+    )
+    @Suppress("unused")
+    fun updateEntityAttributeOptional(
+        modelId: String,
+        entityId: String,
+        attributeId: String,
+        optional: Boolean
+    ) {
+        logger.info("Update attribute optional $modelId.$entityId.$attributeId -> $optional")
+        runtime.modelCmd.updateEntityAttributeOptional(
+            modelId = ModelId(modelId),
+            entityId = ModelEntityId(entityId),
+            attributeId = ModelAttributeId(attributeId),
+            optional = optional
+        )
+    }
+
+    @ResourceCommandDoc(
         title = "Delete entity attribute",
         description = "Removes an attribute from an entity within a model."
     )

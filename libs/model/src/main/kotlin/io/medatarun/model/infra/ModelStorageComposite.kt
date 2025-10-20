@@ -91,6 +91,26 @@ class ModelStorageComposite(
         repo.updateEntityAttributeDescription(modelId, entityId, attributeId, description)
     }
 
+    override fun updateEntityAttributeType(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        type: ModelTypeId
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityAttributeType(modelId, entityId, attributeId, type)
+    }
+
+    override fun updateEntityAttributeOptional(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        optional: Boolean
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityAttributeOptional(modelId, entityId, attributeId, optional)
+    }
+
     override fun deleteEntityAttribute(
         modelId: ModelId,
         entityId: ModelEntityId,

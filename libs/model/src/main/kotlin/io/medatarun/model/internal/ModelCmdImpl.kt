@@ -70,6 +70,24 @@ class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
         storage.updateEntityAttributeDescription(modelId, entityId, attributeId, description)
     }
 
+    override fun updateEntityAttributeType(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        type: ModelTypeId
+    ) {
+        storage.updateEntityAttributeType(modelId, entityId, attributeId, type)
+    }
+
+    override fun updateEntityAttributeOptional(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        optional: Boolean
+    ) {
+        storage.updateEntityAttributeOptional(modelId, entityId, attributeId, optional)
+    }
+
     override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
         storage.deleteEntity(modelId, entityId)
     }
