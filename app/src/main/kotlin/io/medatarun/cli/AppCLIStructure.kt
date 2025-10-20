@@ -54,13 +54,6 @@ class ModelCLIResource(private val runtime: AppRuntime) {
             description =description?.let { LocalizedTextNotLocalized(it) },
         )
     }
-
-    companion object {
-        private val logger = getLogger(ModelCLIResource::class)
-    }
-}
-
-class ModelConfigCLIResource(private val runtime: AppRuntime) {
     @Suppress("unused")
     fun inspect() {
         val modelId = runtime.modelQueries.findAllIds()
@@ -74,7 +67,16 @@ class ModelConfigCLIResource(private val runtime: AppRuntime) {
                 }
             }
         }
+    }
+    companion object {
+        private val logger = getLogger(ModelCLIResource::class)
+    }
+}
 
+class ModelConfigCLIResource(private val runtime: AppRuntime) {
+    @Suppress("unused")
+    fun inspect() {
+        logger.cli(runtime.extensionRegistry.inspectHumanReadable())
     }
 
     companion object {

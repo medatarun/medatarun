@@ -89,7 +89,24 @@ class ExtensionRegistryImpl(
         }
     }
 
-    override fun <CONTRIB : Any> findContributionsWithOrigin(extensionPoint: KClass<CONTRIB>): List<ContributionWithOrigin<CONTRIB>> {
-        TODO("Not yet implemented")
+    override fun inspectHumanReadable(): String {
+        val report = StringBuilder()
+        for (extension in extensions) {
+            report.appendLine("📦 ${extension.id}")
+            for (contributionPoint in contributionPoints.filter { it.value.extensionId == extension.id }.values) {
+                report.appendLine("   🖇️  ${contributionPoint.id} ${contributionPoint.api.simpleName}")
+                for (contrib in (contributions[contributionPoint.id] ?: emptyList())) {
+                    report.appendLine ("      - " + contrib.fromExtensionId + " - " + contrib.instance::class.simpleName)
+                }
+            }
+            for (contributionList in contributions.values) {
+                for (contrib in contributionList) {
+                    if (contrib.fromExtensionId == extension.id) {
+                        report.appendLine("   🔗 "+ contrib.instance::class.simpleName + " -> " + contrib.toContributinoPointId)
+                    }
+                }
+            }
+        }
+        return report.toString()
     }
 }

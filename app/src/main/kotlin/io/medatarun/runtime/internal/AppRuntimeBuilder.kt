@@ -2,6 +2,7 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
+import io.medatarun.kernel.internal.ExtensionRegistryImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelStorageComposite
 import io.medatarun.model.internal.ModelCmdImpl
@@ -27,7 +28,7 @@ class AppRuntimeBuilder {
         return object : AppRuntime {
             override val modelCmd: ModelCmd = cmd
             override val modelQueries: ModelQueries = queries
-
+            override val extensionRegistry = platform.extensionRegistry
         }
     }
 }

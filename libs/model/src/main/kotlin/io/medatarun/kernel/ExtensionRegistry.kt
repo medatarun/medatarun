@@ -1,5 +1,7 @@
 package io.medatarun.kernel
 
+import io.medatarun.kernel.internal.ContributionImpl
+import io.medatarun.kernel.internal.ContributionPoint
 import kotlin.reflect.KClass
 
 /**
@@ -24,19 +26,7 @@ interface ExtensionRegistry {
     fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB>;
 
     /**
-     * Find all contributions to a contribution point with origin.
-     *
-     * Meant to be used by services where you need to know where the
-     * contributions come from (for example when you need to display errors in declarations)
-     *
-     * This shall not be used in React components because the returned list is not
-     * guaranteed to always have strict equality (===) and therefore could provoke
-     * unnecessary refreshes.
+     * Returns a human readable report for inspection
      */
-    fun <CONTRIB : Any> findContributionsWithOrigin(extensionPoint: KClass<CONTRIB>): List<ContributionWithOrigin<CONTRIB>>
-}
-
-interface ContributionWithOrigin<CONTRIB : Any> {
-    val extensionId: String
-    val item: CONTRIB
+    fun inspectHumanReadable(): String
 }
