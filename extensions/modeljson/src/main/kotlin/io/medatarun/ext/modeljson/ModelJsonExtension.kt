@@ -5,9 +5,11 @@ import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRE
 import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_REPOSITORY_PATH_KEY
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.model.model.ModelRepository
 import kotlin.io.path.isDirectory
 
 class ModelJsonExtension : MedatarunExtension {
+    override val id: String = "modeljson"
     override fun init(ctx: MedatarunExtensionCtx) {
 
         val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
@@ -24,7 +26,7 @@ class ModelJsonExtension : MedatarunExtension {
             configRepoPath, ModelJsonConverter(configPrettyPrint == "true")
         )
 
-        ctx.registerRepository(repo)
+        ctx.register(ModelRepository::class, repo)
 
     }
 
