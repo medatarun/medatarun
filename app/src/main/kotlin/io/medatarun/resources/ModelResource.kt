@@ -10,6 +10,10 @@ import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 
 class ModelResource(private val runtime: AppRuntime) {
+    @ResourceCommandDoc(
+        title = "Create model definition",
+        description = "Initializes a new model with the provided identifier, display name, optional description, and version."
+    )
     @Suppress("unused")
     fun create(id: String, name: String, description: String? = null, version: ModelVersion? = null) {
         logger.cli("Create model $id ($name)")
@@ -21,6 +25,10 @@ class ModelResource(private val runtime: AppRuntime) {
         )
     }
 
+    @ResourceCommandDoc(
+        title = "Create model entity",
+        description = "Adds an entity to an existing model, optionally supplying user-facing name and description."
+    )
     @Suppress("unused")
     fun createEntity(
         modelId: String,
@@ -37,6 +45,10 @@ class ModelResource(private val runtime: AppRuntime) {
         )
     }
 
+    @ResourceCommandDoc(
+        title = "Create entity attribute",
+        description = "Declares an attribute on an entity with its type, optional flag, and optional metadata."
+    )
     @Suppress("unused")
     fun createEntityAttribute(
         modelId: String,
@@ -58,6 +70,10 @@ class ModelResource(private val runtime: AppRuntime) {
             description =description?.let { LocalizedTextNotLocalized(it) },
         )
     }
+    @ResourceCommandDoc(
+        title = "Inspect models",
+        description = "Produces a tree view of registered models, entities, and attributes in the runtime."
+    )
     @Suppress("unused")
     fun inspect(): String {
         val buf = StringBuilder()

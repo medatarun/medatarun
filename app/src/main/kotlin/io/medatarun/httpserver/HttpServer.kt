@@ -127,7 +127,10 @@ class RestApi(
             .findAllDescriptors().associate { res ->
                 res.name to res.commands.map { cmd ->
                     ApiDescriptionFunction(
-                        cmd.name, cmd.parameters.map { p ->
+                        name = cmd.name,
+                        title = cmd.title ?: cmd.name,
+                        description = cmd.description,
+                        parameters = cmd.parameters.map { p ->
                             ApiDescriptionParam(
                                 name = p.name,
                                 type = p.type.toString(),
@@ -223,6 +226,8 @@ class RestApi(
 @Serializable
 data class ApiDescriptionFunction(
     val name: String,
+    val title: String,
+    val description: String?,
     val parameters: List<ApiDescriptionParam>
 )
 

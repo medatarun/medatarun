@@ -9,6 +9,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)
+        private val HELP_FLAGS = setOf("help", "--help", "-h")
     }
 
     private val resourceRepository = ResourceRepository(resources)
@@ -18,8 +19,14 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
     }
 
     fun handleCLI() {
+        if (args.isEmpty() || args[0] in HELP_FLAGS) {
+            printHelp()
+            return
+        }
+
         if (args.size < 2) {
             logger.error("Usage: app <resource> <function> [--param valeur]")
+            printHelp()
             return
         }
 
@@ -73,5 +80,32 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
     private fun logPayload(payload: Map<String, String>) {
         payload["usage"]?.let { logger.error(it) }
         payload["details"]?.let { logger.error(it) }
+    }
+
+    private fun printHelp() {
+        logger.cli("Available resources and commands:")
+        val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name }
+        descriptors.forEach { descriptor ->
+            logger.cli("  ${descriptor.name}:")
+            descriptor.commands.sortedBy { it.name }.forEach { command ->
+                val signature = buildCommandSignature(descriptor.name, command)
+                val title = command.title ?: command.name
+                val description = command.description?.takeIf { it.isNotBlank() }
+                logger.cli("    $signature")
+                logger.cli("      $title")
+                description?.let { logger.cli("      $it") }
+            }
+        }
+    }
+
+    private fun buildCommandSignature(resourceName: String, command: ResourceRepository.ResourceCommand): String {
+        if (command.parameters.isEmpty()) {
+            return "$resourceName ${command.name}"
+        }
+        val renderedParameters = command.parameters.joinToString(" ") { param ->
+            val rendered = "--${param.name}=<${param.type}>"
+            if (param.optional) "[${rendered}]" else rendered
+        }
+        return "$resourceName ${command.name} $renderedParameters"
     }
 }

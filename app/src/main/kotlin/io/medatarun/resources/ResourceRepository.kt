@@ -9,6 +9,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KVisibility
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 
@@ -30,6 +31,7 @@ class ResourceRepository(private val resources: AppCLIResources) {
     }
 
     private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand {
+        val metadata = function.findAnnotation<ResourceCommandDoc>()
         val parameters = function.parameters
             .filter { it.kind == KParameter.Kind.VALUE }
             .map { param ->
@@ -42,8 +44,8 @@ class ResourceRepository(private val resources: AppCLIResources) {
         val resultType = function.returnType
         return ResourceCommand(
             name = function.name,
-            title = null,
-            description = null,
+            title = metadata?.title?.takeIf { it.isNotBlank() },
+            description = metadata?.description?.takeIf { it.isNotBlank() },
             resultType = resultType,
             parameters = parameters
         )
