@@ -8,6 +8,7 @@ import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
+import org.slf4j.LoggerFactory
 
 class ModelResource(private val runtime: AppRuntime) {
     @ResourceCommandDoc(
@@ -16,7 +17,7 @@ class ModelResource(private val runtime: AppRuntime) {
     )
     @Suppress("unused")
     fun create(id: String, name: String, description: String? = null, version: ModelVersion? = null) {
-        logger.cli("Create model $id ($name)")
+        logger.info("Create model $id ($name)")
         runtime.modelCmd.create(
             id = ModelId(id),
             name = LocalizedTextNotLocalized(name),
@@ -36,7 +37,7 @@ class ModelResource(private val runtime: AppRuntime) {
         name: String?=null,
         description: String? = null,
     ) {
-        logger.cli("Create entity $entityId in model $modelId ($name)")
+        logger.info("Create entity $entityId in model $modelId ($name)")
         runtime.modelCmd.createEntity(
             modelId = ModelId(modelId),
             entityId = ModelEntityId(entityId),
@@ -59,7 +60,7 @@ class ModelResource(private val runtime: AppRuntime) {
         name: String?=null,
         description: String? = null
     ) {
-        logger.cli("Create attribute $modelId.$entityId.$attributeId")
+        logger.info("Create attribute $modelId.$entityId.$attributeId")
         runtime.modelCmd.createEntityAttribute(
             modelId= ModelId(modelId),
             entityId= ModelEntityId(entityId),
@@ -68,6 +69,24 @@ class ModelResource(private val runtime: AppRuntime) {
             optional = optional,
             name = name?.let { LocalizedTextNotLocalized(it) },
             description =description?.let { LocalizedTextNotLocalized(it) },
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Delete entity attribute",
+        description = "Removes an attribute from an entity within a model."
+    )
+    @Suppress("unused")
+    fun deleteEntityAttribute(
+        modelId: String,
+        entityId: String,
+        attributeId: String
+    ) {
+        logger.info("Delete attribute $modelId.$entityId.$attributeId")
+        runtime.modelCmd.deleteEntityAttribute(
+            modelId = ModelId(modelId),
+            entityId = ModelEntityId(entityId),
+            attributeId = ModelAttributeId(attributeId)
         )
     }
     @ResourceCommandDoc(
@@ -91,6 +110,6 @@ class ModelResource(private val runtime: AppRuntime) {
         return buf.toString()
     }
     companion object {
-        private val logger = getLogger(ModelResource::class)
+        private val logger = LoggerFactory.getLogger(ModelResource::class.java)
     }
 }

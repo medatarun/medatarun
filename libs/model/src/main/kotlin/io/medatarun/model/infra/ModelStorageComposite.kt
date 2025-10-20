@@ -36,6 +36,15 @@ class ModelStorageComposite(
         repo.createEntityAttribute(modelId, entityId, attr)
     }
 
+    override fun deleteEntityAttribute(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.deleteEntityAttribute(modelId, entityId, attributeId)
+    }
+
     private fun findRepoWithModel(id: ModelId): ModelRepository {
         for (repository in repositories) {
             val found = repository.findByIdOptional(id)

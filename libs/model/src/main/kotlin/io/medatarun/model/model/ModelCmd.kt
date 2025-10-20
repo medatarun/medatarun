@@ -12,4 +12,9 @@ interface ModelCmd {
         name: LocalizedText?,
         description: LocalizedMarkdown?
     )
+    fun deleteEntityAttribute(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId
+    )
 }

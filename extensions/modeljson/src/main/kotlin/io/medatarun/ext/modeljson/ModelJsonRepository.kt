@@ -68,6 +68,34 @@ class ModelJsonRepository(
         persistModel(next)
     }
 
+    override fun deleteEntityAttribute(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId
+    ) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var entityFound = false
+        var attributeRemoved = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            entityFound = true
+            val nextAttributes = entity.attributes.filterNot { attribute ->
+                if (attribute.id == attributeId) {
+                    attributeRemoved = true
+                    true
+                } else {
+                    false
+                }
+            }
+            entity.copy(attributes = nextAttributes)
+        }
+        if (!entityFound || !attributeRemoved) {
+            throw ModelEntityAttributeNotFoundException(entityId, attributeId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
     fun persistModel(model: Model) {
         val json = modelJsonConverter.toJson(model)
         val path = repositoryPath.resolve(model.id.value + ".json")
