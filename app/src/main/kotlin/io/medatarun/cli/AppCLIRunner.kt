@@ -1,8 +1,8 @@
 package io.medatarun.cli
 
-import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
-import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
-import io.medatarun.app.io.medatarun.resources.ResourceRepository
+import io.medatarun.resources.ResourceInvocationException
+import io.medatarun.resources.ResourceInvocationRequest
+import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
 
 class AppCLIRunner(private val args: Array<String>, private val resources: AppCLIResources) {

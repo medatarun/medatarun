@@ -1,36 +1,42 @@
-package io.medatarun.httpserver
+package io.medatarun.httpserver.mcp
 
-import io.ktor.server.sse.ServerSSESession
+import io.ktor.server.sse.*
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCMessage
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCRequest
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCResponse
-import io.modelcontextprotocol.kotlin.sdk.server.Server
-import io.modelcontextprotocol.kotlin.sdk.shared.McpJson
 import io.modelcontextprotocol.kotlin.sdk.RequestId
+import io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport
+import io.modelcontextprotocol.kotlin.sdk.shared.McpJson
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.job
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.job
-import org.slf4j.LoggerFactory
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
-import io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport
+import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.seconds
 
-private val logger = LoggerFactory.getLogger("StreamableHttpTransport")
 
-private const val MAX_STORED_EVENTS = 1_000
-
-internal sealed interface StreamableHttpResponse {
-    data class Json(val message: JSONRPCMessage) : StreamableHttpResponse
-    data object Accepted : StreamableHttpResponse
-}
-
-private data class StreamableEvent(val id: Long, val payload: String)
-
-internal class StreamableHttpTransport(
+/**
+ * StreamableHTTP transport used by the MCP server for a single session.
+ *
+ * Responsibilities:
+ * - Acts as the bridge between the MCP `Server` and the HTTP layer: incoming HTTP POST payloads
+ *   are decoded and passed to `_onMessage`, while outbound MCP messages are fanned out to SSE
+ *   clients or stored as pending JSON-RPC responses.
+ * - Tracks in-flight request/response pairs via `pendingResponses` so synchronous POST callers
+ *   get their result (or timeout) while still supporting async notifications.
+ * - Buffers outbound events (`events`) to replay them when a client reconnects with
+ *   `Last-Event-ID`, keeping long-lived streams consistent.
+ * - Manages the set of SSE connections (`connections`), replaying on attach and detaching when
+ *   the coroutine completes or transmission fails.
+ * - Provides session-scoped teardown: `close()` cancels pending work, closes SSE channels, and
+ *   notifies the MCP server through `_onClose()` to reclaim resources cleanly.
+ *
+ * Implementation mirrors the official TypeScript StreamableHTTP transport but uses Kotlin
+ * concurrency primitives (coroutines, Mutex, CompletableDeferred) instead of Promises.
+ */
+internal class McpStreamableHttpTransport(
     val sessionId: String,
 ) : AbstractTransport() {
 
@@ -202,50 +208,12 @@ internal class StreamableHttpTransport(
             pendingResponses.remove(id)
         }
     }
-}
 
-internal class StreamableHttpSession(
-    val id: String,
-    private val server: Server,
-    val transport: StreamableHttpTransport,
-) {
-    suspend fun close() {
-        try {
-            server.close()
-        } catch (_: Throwable) {
-        }
+    companion object {
 
-        try {
-            transport.close()
-        } catch (_: Throwable) {
-        }
-    }
-}
+        private val logger = LoggerFactory.getLogger("StreamableHttpTransport")
 
-internal class StreamableHttpSessionManager(
-    private val serverFactory: () -> Server,
-) {
-    private val sessions = ConcurrentHashMap<String, StreamableHttpSession>()
+        private const val MAX_STORED_EVENTS = 1_000
 
-    suspend fun createSession(): StreamableHttpSession {
-        val sessionId = UUID.randomUUID().toString()
-        val transport = StreamableHttpTransport(sessionId)
-        val server = serverFactory()
-        server.connect(transport)
-
-        val session = StreamableHttpSession(sessionId, server, transport)
-        transport.onClose { sessions.remove(sessionId) }
-        server.onClose { sessions.remove(sessionId) }
-
-        sessions[sessionId] = session
-        return session
-    }
-
-    fun getSession(id: String): StreamableHttpSession? = sessions[id]
-
-    suspend fun closeSession(id: String): Boolean {
-        val removed = sessions.remove(id)
-        removed?.close()
-        return removed != null
     }
 }

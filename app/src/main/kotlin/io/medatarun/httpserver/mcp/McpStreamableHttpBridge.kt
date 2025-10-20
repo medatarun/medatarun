@@ -1,4 +1,4 @@
-package io.medatarun.app.io.medatarun.httpserver
+package io.medatarun.httpserver.mcp
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -8,23 +8,31 @@ import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.sse.ServerSSESession
-import io.medatarun.httpserver.StreamableHttpResponse
-import io.medatarun.httpserver.StreamableHttpSessionManager
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCMessage
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCRequest
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.shared.McpJson
 import kotlinx.coroutines.TimeoutCancellationException
 import org.slf4j.LoggerFactory
-import kotlin.text.isNullOrBlank
-import kotlin.text.toLongOrNull
 
-class StreamableHttpMcp(serverFactory: () -> Server) {
+/**
+ * Temporary bridge that exposes MCP over the [McpStreamableHttpTransport] transport while Ktor's native
+ * module is still JSON-RPC SSE only. We keep the same surface as the future official module so
+ * swapping back becomes trivial once upstream gains StreamableHttp support.
+ */
+class McpStreamableHttpBridge(serverFactory: () -> Server) {
 
-    private val streamableSessions = StreamableHttpSessionManager(serverFactory)
+    private val streamableSessions = McpStreamableHttpSessionManager(serverFactory)
 
 
+    /**
+     * Handles the SSE leg of a StreamableHTTP session: validates the session id, resumes delivery
+     * of buffered events (honouring `Last-Event-ID` for replays), and hands control to the transport
+     * so it can stream MCP notifications back to the client until the SSE disconnects.
+     */
     suspend fun handleStreamableSse(session: ServerSSESession) {
+        // Clients must reconnect with the same session id, otherwise we cannot recover the
+        // transport state required to replay buffered events.
 
         val sessionId = session.call.request.headers[MCP_SESSION_ID_HEADER]
         if (sessionId.isNullOrBlank()) {
@@ -42,15 +50,24 @@ class StreamableHttpMcp(serverFactory: () -> Server) {
 
         session.call.response.headers.append(HttpHeaders.CacheControl, "no-store")
 
+        // We let the transport handle SSE attachments so it can restore inflight messages if
+        // the client presented a Last-Event-ID during a reconnect (important for long streams).
         runCatching {
-            streamSession.transport.attachSse(session, lastEventId)
+            streamSession.mcpTransport.attachSse(session, lastEventId)
         }.onFailure { throwable ->
             logger.warn("SSE stream failure for session $sessionId", throwable)
         }
     }
 
 
+    /**
+     * Handles the POST leg of StreamableHTTP: parses the JSON-RPC envelope, creates or resumes the
+     * associated session, forwards the message to the transport, and returns either the immediate
+     * JSON response or HTTP 202 when the answer will arrive asynchronously via SSE.
+     */
     suspend fun handleStreamablePost(call: ApplicationCall) {
+        // The POST leg bootstraps or continues the MCP conversation, so we do strict parsing
+        // here to control error responses instead of delegating to Ktor's built-in pipeline.
         val rawBody = runCatching { call.receiveText() }.getOrElse {
             call.respond(HttpStatusCode.BadRequest, "Invalid request body")
             return
@@ -74,6 +91,9 @@ class StreamableHttpMcp(serverFactory: () -> Server) {
                 return
             }
 
+            // No session id means the client is negotiating a brand new MCP session over HTTP.
+            // We mint one eagerly because StreamableHttp requires both REST and SSE legs to
+            // agree on the same identifier.
             streamableSessions.createSession().also {
                 call.response.headers.append(MCP_SESSION_ID_HEADER, it.id)
             }
@@ -87,7 +107,7 @@ class StreamableHttpMcp(serverFactory: () -> Server) {
             existing
         }
 
-        when (val outcome = runCatching { session.transport.processMessage(message) }.getOrElse { throwable ->
+        when (val outcome = runCatching { session.mcpTransport.processMessage(message) }.getOrElse { throwable ->
             if (throwable is TimeoutCancellationException) {
                 call.respond(HttpStatusCode.RequestTimeout, "MCP request timed out")
             } else {
@@ -102,11 +122,16 @@ class StreamableHttpMcp(serverFactory: () -> Server) {
             }
 
             StreamableHttpResponse.Accepted -> {
+                // Indicates the server deferred the response and will stream data through SSE.
                 call.respond(HttpStatusCode.Accepted)
             }
         }
     }
 
+    /**
+     * Handles explicit session teardown: validates the client-provided session id, closes the
+     * transport + MCP server pair, and reports whether a matching session still existed.
+     */
     suspend fun handleStreamableDelete(call: ApplicationCall) {
         val sessionId = call.request.headers[MCP_SESSION_ID_HEADER]
         if (sessionId.isNullOrBlank()) {
@@ -125,7 +150,7 @@ class StreamableHttpMcp(serverFactory: () -> Server) {
 
 
     companion object {
-        private val logger = LoggerFactory.getLogger(StreamableHttpMcp::class.java)
+        private val logger = LoggerFactory.getLogger(McpStreamableHttpBridge::class.java)
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
         private const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
     }

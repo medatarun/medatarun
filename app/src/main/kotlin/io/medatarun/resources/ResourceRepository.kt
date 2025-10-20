@@ -1,4 +1,4 @@
-package io.medatarun.app.io.medatarun.resources
+package io.medatarun.resources
 
 import io.ktor.http.*
 import io.medatarun.cli.AppCLIResources

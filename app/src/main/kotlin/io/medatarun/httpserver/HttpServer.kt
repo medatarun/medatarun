@@ -10,11 +10,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.app.io.medatarun.httpserver.StreamableHttpMcp
-import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
-import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
-import io.medatarun.app.io.medatarun.resources.ResourceRepository
+
+import io.medatarun.resources.ResourceInvocationException
+import io.medatarun.resources.ResourceInvocationRequest
+import io.medatarun.resources.ResourceRepository
 import io.medatarun.cli.AppCLIResources
+import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.CallToolRequest
 import io.modelcontextprotocol.kotlin.sdk.CallToolResult
@@ -82,7 +83,7 @@ class RestApi(
 
     private fun Application.configure() {
 
-        val streamableHttpMcp = StreamableHttpMcp(serverFactory = ::buildMcpServer )
+        val mcpStreamableHttpBridge = McpStreamableHttpBridge(serverFactory = ::buildMcpServer)
 
         install(ContentNegotiation) { json() }
         install(SSE)
@@ -107,10 +108,10 @@ class RestApi(
             }
 
             route("/mcp") {
-                post { streamableHttpMcp.handleStreamablePost(call) }
-                delete { streamableHttpMcp.handleStreamableDelete(call) }
+                post { mcpStreamableHttpBridge.handleStreamablePost(call) }
+                delete { mcpStreamableHttpBridge.handleStreamableDelete(call) }
                 sse {
-                    streamableHttpMcp.handleStreamableSse(this)
+                    mcpStreamableHttpBridge.handleStreamableSse(this)
                 }
             }
         }
@@ -137,7 +138,7 @@ class RestApi(
     private fun buildRegisteredTools(): List<RegisteredTool> {
         return resourceRepository.findAllDescriptors().flatMap { descriptor ->
             descriptor.commands.map { command ->
-                val toolName = "${descriptor.name}.${command.name}"
+                val toolName = buildToolName(descriptor.name, command.name)
                 val tool = Tool(
                     name = toolName,
                     title = null,
@@ -179,6 +180,20 @@ class RestApi(
             normalized.endsWith("boolean") -> "boolean"
             else -> "string"
         }
+    }
+
+    private fun buildToolName(resourceName: String, commandName: String): String {
+        val combined = "${resourceName}_${commandName}"
+        val builder = StringBuilder(combined.length)
+        for (char in combined) {
+            builder.append(
+                when (char) {
+                    in 'a'..'z', in 'A'..'Z', in '0'..'9', '-', '_' -> char
+                    else -> '_'
+                }
+            )
+        }
+        return builder.toString()
     }
 
     private suspend fun handleToolInvocation(
