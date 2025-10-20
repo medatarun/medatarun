@@ -9,6 +9,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.medatarun.app.io.medatarun.resources.ResourceRepository
 import io.medatarun.cli.AppCLIResources
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
@@ -17,14 +18,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty1
-import kotlin.reflect.KVisibility
+import kotlin.reflect.*
 import kotlin.reflect.full.functions
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * REST API server that mirrors the CLI reflection behaviour on top of Ktor.
@@ -34,10 +29,7 @@ class RestApi(
 ) {
     private val logger = getLogger(RestApi::class)
     private val resources = AppCLIResources(runtime)
-    private val resourceProperties: Map<String, KProperty1<AppCLIResources, *>> =
-        AppCLIResources::class.memberProperties
-            .filter { it.visibility == KVisibility.PUBLIC }
-            .associateBy { it.name }
+    private val resourceRepository = ResourceRepository(resources)
 
     @Volatile
     private var engine: EmbeddedServer<*, *>? = null
@@ -95,32 +87,22 @@ class RestApi(
         }
     }
 
-    private fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
-        logger.info("Building API description")
-        val result = resourceProperties
-            .mapValues { (_, property) ->
-                val resourceInstance = property.get(resources) ?: return@mapValues emptyList()
-                val functions = resourceInstance::class.functions
-                    .filter { it.name !in EXCLUDED_FUNCTIONS }
-                    .map { function -> buildApiFunctionDescription(function) }
-                return@mapValues functions
+    fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
+        return resourceRepository
+            .findAllDescriptors().associate { res ->
+                res.name to res.commands.map { cmd ->
+                    ApiDescriptionFunction(
+                        cmd.name, cmd.parameters.map { p ->
+                            ApiDescriptionParam(
+                                name = p.name,
+                                type = p.type,
+                                optional = p.optional
+                            )
+                        }
+                    )
+                }
             }
-        logger.info("test" + result.toString())
-        return result
     }
-
-    private fun buildApiFunctionDescription(function: KFunction<*>): ApiDescriptionFunction = ApiDescriptionFunction(
-        name = function.name,
-        parameters = function.parameters
-            .filter { it.kind == KParameter.Kind.VALUE }
-            .map { param ->
-                ApiDescriptionParam(
-                    name = param.name ?: "unknown",
-                    type = param.type.toString(),
-                    optional = (param.isOptional || param.type.isMarkedNullable),
-                )
-            }
-    )
 
 
     private suspend fun handleInvocation(call: ApplicationCall) {
@@ -133,12 +115,12 @@ class RestApi(
             return
         }
 
-        val property = resourceProperties[resourceName] ?: run {
+        val resourceDescriptor = resourceRepository.findDescriptorByIdOptional(resourceName) ?: run {
             call.respond(HttpStatusCode.NotFound, mapOf("error" to "Unknown resource '$resourceName'"))
             return
         }
 
-        val resourceInstance = property.get(resources) ?: run {
+        val resourceInstance = resourceRepository.findResourceInstanceById(resourceName) ?: run {
             call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Resource '$resourceName' unavailable"))
             return
         }
