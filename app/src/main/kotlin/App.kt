@@ -27,11 +27,16 @@ fun main(args: Array<String>) {
 
     val runtime = AppRuntimeBuilder().build()
     val cliResources = AppCLIResources(runtime)
-    val cliRunner = AppCLIRunner(args, cliResources)
 
-    val rest = RestApi(runtime).start(wait = true)
+    if (args[0] == "serve") {
+        val rest = RestApi(runtime).start(wait = true)
+    } else {
+        val cliRunner = AppCLIRunner(args, cliResources)
+        cliRunner.handleCLI()
+    }
 
-    cliRunner.handleCLI()
+
+
 
 
 }

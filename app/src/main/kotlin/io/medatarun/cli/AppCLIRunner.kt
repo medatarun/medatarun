@@ -1,16 +1,17 @@
 package io.medatarun.cli
 
+import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
+import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
+import io.medatarun.app.io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.functions
-import kotlin.reflect.full.memberProperties
 
-
-class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResources) {
+class AppCLIRunner(private val args: Array<String>, private val resources: AppCLIResources) {
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)
     }
+
+    private val resourceRepository = ResourceRepository(resources)
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -24,75 +25,53 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
 
         val resourceName = args[0]
         val functionName = args[1]
-        val params = mutableMapOf<String, String>()
-        var i = 2
-        while (i < args.size) {
-            val arg = args[i]
-            if (arg.startsWith("--")) {
-                val split = arg.removePrefix("--").split("=", limit = 2)
+        val rawParameters = parseParameters(args)
+
+        val request = ResourceInvocationRequest(
+            resourceName = resourceName,
+            functionName = functionName,
+            rawParameters = rawParameters
+        )
+
+        val result = try {
+            resourceRepository.handleInvocation(request)
+        } catch (exception: ResourceInvocationException) {
+            logger.error("Invocation error: ${exception.message}")
+            logPayload(exception.payload)
+            return
+        }
+
+        if (result != null && result is String) {
+            logger.cli(result)
+        }
+    }
+
+    private fun parseParameters(args: Array<String>): Map<String, String> {
+        val parameters = LinkedHashMap<String, String>()
+        var index = 2
+        while (index < args.size) {
+            val argument = args[index]
+            if (argument.startsWith("--")) {
+                val split = argument.removePrefix("--").split("=", limit = 2)
                 val key = split[0]
-                val value = if (split.size == 2) split[1]
-                else args.getOrNull(i + 1)?.takeIf { !it.startsWith("--") }
+                val value = if (split.size == 2) {
+                    split[1]
+                } else {
+                    args.getOrNull(index + 1)?.takeIf { !it.startsWith("--") }
+                }
+
                 if (value != null) {
-                    params[key] = value
-                    if (split.size == 1) i++ // saute la valeur séparée
+                    parameters[key] = value
+                    if (split.size == 1) index++
                 }
             }
-            i++
+            index++
         }
+        return parameters
+    }
 
-        val resourceProperty = AppCLIResources::class.memberProperties
-            .find { it.name == resourceName } ?: run {
-            logger.error("Unknown command: $resourceName")
-            return
-        }
-
-        val resourceInstance = resourceProperty.getter.call(sys)
-        val fn = resourceInstance!!::class.functions.find { it.name == functionName } ?: run {
-            logger.error("Unknown function: $functionName")
-            return
-        }
-
-        // Vérification des paramètres requis
-        val missing = fn.parameters
-            .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in params.keys }
-            .mapNotNull { it.name }
-
-        if (missing.isNotEmpty()) {
-            logger.error("Error, missing parameter${if (missing.size > 1) "s" else ""}: ${missing.joinToString(", ")}")
-            logger.error(
-                "Expected usage: $resourceName $functionName " +
-                    fn.parameters.filter { it.kind == KParameter.Kind.VALUE }
-                        .joinToString(" ") { "--${it.name}=<${it.type.toString().substringAfterLast('.')}>" })
-            return
-        }
-
-        val callArgs = mutableMapOf<KParameter, Any?>()
-        for (param in fn.parameters) {
-            when (param.kind) {
-                KParameter.Kind.INSTANCE -> callArgs[param] = resourceInstance
-                KParameter.Kind.VALUE -> {
-                    val raw = params[param.name]
-                    val type = param.type.classifier
-                    val converted = when (type) {
-                        Int::class -> raw?.toInt()
-                        Boolean::class -> raw?.toBoolean()
-                        else -> raw
-                    }
-                    if (converted != null) callArgs[param] = converted
-                }
-
-                else -> {}
-            }
-        }
-
-        // Print results to console
-
-        val result = fn.callBy(callArgs)
-        if (result != null) {
-            when (result) {
-                is String -> logger.cli(result)
-            }
-        }
+    private fun logPayload(payload: Map<String, String>) {
+        payload["usage"]?.let { logger.error(it) }
+        payload["details"]?.let { logger.error(it) }
     }
 }
