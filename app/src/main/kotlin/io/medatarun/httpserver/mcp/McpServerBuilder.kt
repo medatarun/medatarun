@@ -42,10 +42,12 @@ class McpServerBuilder(private val resourceRepository: ResourceRepository) {
         return resourceRepository.findAllDescriptors().flatMap { descriptor ->
             descriptor.commands.map { command ->
                 val toolName = buildToolName(descriptor.name, command.name)
+                val toolTitle = command.title ?: command.name
+                val toolDescription = command.description ?: "Invoke ${descriptor.name}.${command.name}"
                 val tool = Tool(
                     name = toolName,
-                    title = null,
-                    description = "Invoke ${descriptor.name}.${command.name}",
+                    title = toolTitle,
+                    description = toolDescription,
                     inputSchema = buildToolInput(command),
                     outputSchema = null,
                     annotations = null

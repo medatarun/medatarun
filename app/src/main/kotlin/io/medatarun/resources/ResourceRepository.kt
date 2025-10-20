@@ -29,9 +29,8 @@ class ResourceRepository(private val resources: AppCLIResources) {
 
     }
 
-    private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand = ResourceCommand(
-        name = function.name,
-        parameters = function.parameters
+    private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand {
+        val parameters = function.parameters
             .filter { it.kind == KParameter.Kind.VALUE }
             .map { param ->
                 ResourceCommandParam(
@@ -40,7 +39,15 @@ class ResourceRepository(private val resources: AppCLIResources) {
                     optional = (param.isOptional || param.type.isMarkedNullable),
                 )
             }
-    )
+        val resultType = function.returnType
+        return ResourceCommand(
+            name = function.name,
+            title = null,
+            description = null,
+            resultType = resultType,
+            parameters = parameters
+        )
+    }
 
     fun findAllDescriptors(): Collection<ResourceDescriptor> {
         return resourceDescriptors.values
@@ -163,6 +170,9 @@ class ResourceRepository(private val resources: AppCLIResources) {
 
     data class ResourceCommand(
         val name: String,
+        val title: String?,
+        val description: String?,
+        val resultType: KType,
         val parameters: List<ResourceCommandParam>
     )
 
