@@ -47,6 +47,22 @@ class ModelResource(private val runtime: AppRuntime) {
     }
 
     @ResourceCommandDoc(
+        title = "Delete model entity",
+        description = "Removes an entity and all its attributes from the given model."
+    )
+    @Suppress("unused")
+    fun deleteEntity(
+        modelId: String,
+        entityId: String
+    ) {
+        logger.info("Delete entity $entityId from model $modelId")
+        runtime.modelCmd.deleteEntity(
+            modelId = ModelId(modelId),
+            entityId = ModelEntityId(entityId)
+        )
+    }
+
+    @ResourceCommandDoc(
         title = "Create entity attribute",
         description = "Declares an attribute on an entity with its type, optional flag, and optional metadata."
     )

@@ -14,6 +14,7 @@ interface ModelStorage {
     fun create(mode:Model)
     fun findAllIds(): List<ModelId>
     fun createEntity(modelId: ModelId, e: ModelEntity)
+    fun deleteEntity(modelId: ModelId, entityId: ModelEntityId)
     fun createEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attr: ModelAttribute)
     fun deleteEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId)
 }

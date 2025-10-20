@@ -50,6 +50,24 @@ class ModelJsonRepository(
 
     }
 
+    override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var removed = false
+        val nextEntities = model.entities.filterNot { entity ->
+            if (entity.id == entityId) {
+                removed = true
+                true
+            } else {
+                false
+            }
+        }
+        if (!removed) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
     override fun createEntityAttribute(
         modelId: ModelId,
         entityId: ModelEntityId,

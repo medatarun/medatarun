@@ -27,6 +27,10 @@ class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
         ))
     }
 
+    override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
+        storage.deleteEntity(modelId, entityId)
+    }
+
     override fun createEntityAttribute(
         modelId: ModelId,
         entityId: ModelEntityId,
