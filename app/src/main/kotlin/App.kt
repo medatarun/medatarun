@@ -2,7 +2,7 @@ package io.medatarun.app
 
 import io.medatarun.cli.AppCLIResources
 import io.medatarun.cli.AppCLIRunner
-import io.medatarun.rest.RestApi
+import io.medatarun.httpserver.RestApi
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.utils.Printer
 import kotlin.io.path.Path

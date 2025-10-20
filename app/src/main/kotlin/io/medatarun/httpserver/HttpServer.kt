@@ -1,4 +1,4 @@
-package io.medatarun.rest
+package io.medatarun.httpserver
 
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -14,7 +14,6 @@ import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.app.io.medatarun.resources.ResourceRepository
 import io.medatarun.cli.AppCLIResources
 import io.medatarun.runtime.AppRuntime
-import io.medatarun.runtime.getLogger
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
