@@ -32,6 +32,21 @@ class ModelStorageComposite(
         repo.createEntity(modelId, e)
     }
 
+    override fun updateEntityName(modelId: ModelId, entityId: ModelEntityId, newEntityId: ModelEntityId) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityName(modelId, entityId, newEntityId)
+    }
+
+    override fun updateEntityTitle(modelId: ModelId, entityId: ModelEntityId, title: LocalizedText?) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityTitle(modelId, entityId, title)
+    }
+
+    override fun updateEntityDescription(modelId: ModelId, entityId: ModelEntityId, description: LocalizedMarkdown?) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityDescription(modelId, entityId, description)
+    }
+
     override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
         val repo = findRepoWithModel(modelId)
         repo.deleteEntity(modelId, entityId)
@@ -44,6 +59,36 @@ class ModelStorageComposite(
     ) {
         val repo = findRepoWithModel(modelId)
         repo.createEntityAttribute(modelId, entityId, attr)
+    }
+
+    override fun updateEntityAttributeName(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        newAttributeId: ModelAttributeId
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityAttributeName(modelId, entityId, attributeId, newAttributeId)
+    }
+
+    override fun updateEntityAttributeTitle(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        title: LocalizedText?
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityAttributeTitle(modelId, entityId, attributeId, title)
+    }
+
+    override fun updateEntityAttributeDescription(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        description: LocalizedMarkdown?
+    ) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateEntityAttributeDescription(modelId, entityId, attributeId, description)
     }
 
     override fun deleteEntityAttribute(

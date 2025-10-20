@@ -12,6 +12,12 @@ interface ModelCmd {
         name: LocalizedText?,
         description: LocalizedMarkdown?
     )
+    fun updateEntityName(modelId: ModelId, entityId: ModelEntityId, newEntityId: ModelEntityId)
+    fun updateEntityTitle(modelId: ModelId, entityId: ModelEntityId, title: LocalizedText?)
+    fun updateEntityDescription(modelId: ModelId, entityId: ModelEntityId, description: LocalizedMarkdown?)
+    fun updateEntityAttributeName(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, newAttributeId: ModelAttributeId)
+    fun updateEntityAttributeTitle(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, title: LocalizedText?)
+    fun updateEntityAttributeDescription(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, description: LocalizedMarkdown?)
     fun delete(modelId: ModelId)
     fun deleteEntity(modelId: ModelId, entityId: ModelEntityId)
     fun deleteEntityAttribute(

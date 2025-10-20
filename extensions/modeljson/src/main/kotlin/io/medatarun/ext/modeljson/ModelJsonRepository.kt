@@ -57,6 +57,54 @@ class ModelJsonRepository(
 
     }
 
+    override fun updateEntityName(modelId: ModelId, entityId: ModelEntityId, newEntityId: ModelEntityId) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        if (model.entities.any { it.id == newEntityId && it.id != entityId }) {
+            throw ModelJsonRepositoryException("Entity with id ${newEntityId.value} already exists in model ${modelId.value}")
+        }
+        var updated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            updated = true
+            entity.copy(id = newEntityId)
+        }
+        if (!updated) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
+    override fun updateEntityTitle(modelId: ModelId, entityId: ModelEntityId, title: LocalizedText?) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var updated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            updated = true
+            entity.copy(name = title)
+        }
+        if (!updated) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
+    override fun updateEntityDescription(modelId: ModelId, entityId: ModelEntityId, description: LocalizedMarkdown?) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var updated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            updated = true
+            entity.copy(description = description)
+        }
+        if (!updated) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
     override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
         val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         var removed = false
@@ -90,6 +138,96 @@ class ModelJsonRepository(
                 ) else e
             }
         )
+        persistModel(next)
+    }
+
+    override fun updateEntityAttributeName(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        newAttributeId: ModelAttributeId
+    ) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var entityFound = false
+        var attributeUpdated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            entityFound = true
+            if (entity.attributes.any { it.id == newAttributeId && it.id != attributeId }) {
+                throw ModelJsonRepositoryException("Attribute with id ${newAttributeId.value} already exists in entity ${entityId.value}")
+            }
+            val nextAttributes = entity.attributes.map { attribute ->
+                if (attribute.id != attributeId) return@map attribute
+                attributeUpdated = true
+                attribute.copy(id = newAttributeId)
+            }
+            entity.copy(attributes = nextAttributes)
+        }
+        if (!entityFound) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        if (!attributeUpdated) {
+            throw ModelEntityAttributeNotFoundException(entityId, attributeId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
+    override fun updateEntityAttributeTitle(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        title: LocalizedText?
+    ) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var entityFound = false
+        var attributeUpdated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            entityFound = true
+            val nextAttributes = entity.attributes.map { attribute ->
+                if (attribute.id != attributeId) return@map attribute
+                attributeUpdated = true
+                attribute.copy(name = title)
+            }
+            entity.copy(attributes = nextAttributes)
+        }
+        if (!entityFound) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        if (!attributeUpdated) {
+            throw ModelEntityAttributeNotFoundException(entityId, attributeId)
+        }
+        val next = model.copy(entities = nextEntities)
+        persistModel(next)
+    }
+
+    override fun updateEntityAttributeDescription(
+        modelId: ModelId,
+        entityId: ModelEntityId,
+        attributeId: ModelAttributeId,
+        description: LocalizedMarkdown?
+    ) {
+        val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        var entityFound = false
+        var attributeUpdated = false
+        val nextEntities = model.entities.map { entity ->
+            if (entity.id != entityId) return@map entity
+            entityFound = true
+            val nextAttributes = entity.attributes.map { attribute ->
+                if (attribute.id != attributeId) return@map attribute
+                attributeUpdated = true
+                attribute.copy(description = description)
+            }
+            entity.copy(attributes = nextAttributes)
+        }
+        if (!entityFound) {
+            throw ModelEntityNotFoundException(modelId, entityId)
+        }
+        if (!attributeUpdated) {
+            throw ModelEntityAttributeNotFoundException(entityId, attributeId)
+        }
+        val next = model.copy(entities = nextEntities)
         persistModel(next)
     }
 
