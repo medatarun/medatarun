@@ -21,6 +21,8 @@ dependencies {
     implementation(libs.ktorServerNetty)
     implementation(libs.ktorServerContentNegotiation)
     implementation(libs.ktorSerializationKotlinxJson)
+    implementation(libs.ktorServerSse)
+    implementation(libs.mcpKotlinServer)
     implementation(libs.bundles.slf4j)
 }
 

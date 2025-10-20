@@ -9,17 +9,31 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sse.*
 import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
 import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.app.io.medatarun.resources.ResourceRepository
 import io.medatarun.cli.AppCLIResources
 import io.medatarun.runtime.AppRuntime
+import io.modelcontextprotocol.kotlin.sdk.CallToolRequest
+import io.modelcontextprotocol.kotlin.sdk.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.Implementation
+import io.modelcontextprotocol.kotlin.sdk.ServerCapabilities
+import io.modelcontextprotocol.kotlin.sdk.TextContent
+import io.modelcontextprotocol.kotlin.sdk.Tool
+import io.modelcontextprotocol.kotlin.sdk.server.RegisteredTool
+import io.modelcontextprotocol.kotlin.sdk.server.Server
+import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
+import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.put
 import org.slf4j.LoggerFactory
+import java.util.Locale
 
 /**
  * REST API server that mirrors the CLI reflection behaviour on top of Ktor.
@@ -66,6 +80,8 @@ class RestApi(
 
     private fun Application.configure() {
         install(ContentNegotiation) { json() }
+        install(SSE)
+
 
         routing {
             get("/health") {
@@ -80,7 +96,125 @@ class RestApi(
                 get { processInvocation(call) }
                 post { processInvocation(call) }
             }
+
+            mcp {
+                return@mcp buildMcpServer()
+            }
         }
+    }
+
+    private fun buildMcpServer(): Server {
+        val server = Server(
+            serverInfo = Implementation(
+                name = "medatarun-mcp",
+                version = resolveServerVersion()
+            ),
+            options = ServerOptions(
+                capabilities = ServerCapabilities(
+                    tools = ServerCapabilities.Tools(listChanged = false)
+                )
+            )
+        )
+
+        server.addTools(buildRegisteredTools())
+        return server
+    }
+
+    private fun buildRegisteredTools(): List<RegisteredTool> {
+        return resourceRepository.findAllDescriptors().flatMap { descriptor ->
+            descriptor.commands.map { command ->
+                val toolName = "${descriptor.name}.${command.name}"
+                val tool = Tool(
+                    name = toolName,
+                    title = null,
+                    description = "Invoke ${descriptor.name}.${command.name}",
+                    inputSchema = buildToolInput(command),
+                    outputSchema = null,
+                    annotations = null
+                )
+
+                RegisteredTool(tool) { request ->
+                    handleToolInvocation(descriptor.name, command.name, request)
+                }
+            }
+        }
+    }
+
+    private fun buildToolInput(command: ResourceRepository.ResourceCommand): Tool.Input {
+        val properties = buildJsonObject {
+            command.parameters.forEach { param ->
+                put(param.name, buildJsonObject {
+                    put("type", mapParameterType(param.type))
+                })
+            }
+        }
+        val required = command.parameters
+            .filterNot { it.optional }
+            .map { it.name }
+
+        return Tool.Input(
+            properties = properties,
+            required = required.takeIf { it.isNotEmpty() }
+        )
+    }
+
+    private fun mapParameterType(parameterType: String): String {
+        val normalized = parameterType.lowercase(Locale.ROOT)
+        return when {
+            normalized.endsWith("int") -> "integer"
+            normalized.endsWith("boolean") -> "boolean"
+            else -> "string"
+        }
+    }
+
+    private suspend fun handleToolInvocation(
+        resourceName: String,
+        functionName: String,
+        request: CallToolRequest
+    ): CallToolResult {
+        val rawParameters = jsonObjectToStringMap(request.arguments)
+        val invocationRequest = ResourceInvocationRequest(
+            resourceName = resourceName,
+            functionName = functionName,
+            rawParameters = rawParameters
+        )
+
+        return try {
+            val result = resourceRepository.handleInvocation(invocationRequest)
+            CallToolResult(
+                content = listOf(TextContent(formatInvocationResult(result)))
+            )
+        } catch (exception: ResourceInvocationException) {
+            CallToolResult(
+                content = listOf(TextContent(buildMcpErrorMessage(exception))),
+                isError = true
+            )
+        } catch (throwable: Throwable) {
+            logger.error("Unhandled error while invoking $resourceName.$functionName", throwable)
+            CallToolResult(
+                content = listOf(
+                    TextContent("Invocation failed: ${throwable.message ?: throwable::class.simpleName}")
+                ),
+                isError = true
+            )
+        }
+    }
+
+    private fun resolveServerVersion(): String =
+        RestApi::class.java.`package`?.implementationVersion ?: "dev"
+
+    private fun formatInvocationResult(result: Any?): String = when (result) {
+        null, Unit -> "ok"
+        is String -> result
+        else -> result.toString()
+    }
+
+    private fun buildMcpErrorMessage(exception: ResourceInvocationException): String {
+        val parts = mutableListOf(exception.message ?: "Invocation error")
+        exception.payload.forEach { (key, value) ->
+            parts += "$key: $value"
+        }
+        return parts.joinToString(separator = "\n")
     }
 
     fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
