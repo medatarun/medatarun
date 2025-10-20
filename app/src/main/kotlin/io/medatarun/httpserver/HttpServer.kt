@@ -130,7 +130,7 @@ class RestApi(
                         cmd.name, cmd.parameters.map { p ->
                             ApiDescriptionParam(
                                 name = p.name,
-                                type = p.type,
+                                type = p.type.toString(),
                                 optional = p.optional
                             )
                         }
