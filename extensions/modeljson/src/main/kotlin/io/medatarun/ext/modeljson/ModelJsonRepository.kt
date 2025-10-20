@@ -1,7 +1,11 @@
-package io.medatarun.model.infra
+package io.medatarun.ext.modeljson
 
+import io.medatarun.model.infra.ModelAttributeInMemory
+import io.medatarun.model.infra.ModelEntityInMemory
+import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import java.nio.file.Path
+import kotlin.collections.plus
 import kotlin.io.path.*
 
 
@@ -40,7 +44,7 @@ class ModelJsonRepository(
     override fun createEntity(modelId: ModelId, e: ModelEntity) {
         val model = findByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         val next = model.copy(
-            entities = model.entities + ModelEntityInMemory.of(e)
+            entities = model.entities + ModelEntityInMemory.Companion.of(e)
         )
         persistModel(next)
 
@@ -55,7 +59,7 @@ class ModelJsonRepository(
         val next = model.copy(
             entities = model.entities.map { e ->
                 if (e.id == entityId) e.copy(
-                    attributes = e.attributes + ModelAttributeInMemory.of(
+                    attributes = e.attributes + ModelAttributeInMemory.Companion.of(
                         attr
                     )
                 ) else e

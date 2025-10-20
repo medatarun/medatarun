@@ -1,4 +1,5 @@
-import io.medatarun.model.infra.ModelJsonConverter
+package io.medatarun.ext.modeljson
+
 import io.medatarun.model.model.ModelAttributeId
 import io.medatarun.model.model.ModelEntityId
 import io.medatarun.model.model.ModelId
@@ -11,6 +12,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class ModelJsonTest {
+
+    private val instance = ModelJsonConverter(prettyPrint = true)
+
     /**
      * Validates the deserialization of a JSON model into a model object and verifies the properties
      * of the deserialized object.
@@ -20,7 +24,7 @@ internal class ModelJsonTest {
      */
     @Test
     fun surface_test() {
-        val modelRead = ModelJsonConverter().fromJson(sampleModel)
+        val modelRead = instance.fromJson(sampleModel)
         assertEquals(modelRead.id, ModelId("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entities.size, 2)
@@ -75,8 +79,8 @@ internal class ModelJsonTest {
      */
     @Test
     fun writes_as_read_with_minimum_changes() {
-        val modelRead = ModelJsonConverter().fromJson(sampleModel)
-        val modelWrite = ModelJsonConverter().toJson(modelRead)
+        val modelRead = instance.fromJson(sampleModel)
+        val modelWrite = instance.toJson(modelRead)
         val src = normalizeJson(sampleModel)
         val dest = normalizeJson(modelWrite)
         assertEquals(src, dest)

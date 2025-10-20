@@ -1,5 +1,8 @@
-package io.medatarun.model.infra
+package io.medatarun.ext.modeljson
 
+import io.medatarun.model.infra.ModelAttributeInMemory
+import io.medatarun.model.infra.ModelEntityInMemory
+import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
@@ -49,8 +52,9 @@ class LocalizedTextSerializer: KSerializer<LocalizedText> {
     }
 }
 
-class ModelJsonConverter() {
+class ModelJsonConverter(private val prettyPrint: Boolean) {
     val json = Json {
+        prettyPrint = this@ModelJsonConverter.prettyPrint
         serializersModule = SerializersModule {
             contextual(ModelId::class, valueClassSerializer(::ModelId) { it.value })
             contextual(ModelEntityId::class, valueClassSerializer(::ModelEntityId) { it.value })

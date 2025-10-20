@@ -34,15 +34,7 @@ class AppRuntimeScanner {
 
         val medatarunConfig = jsonObject["medatarun"]?.jsonObject ?: throw NotMedataProjectException()
 
-        val modelJsonRepositoryPathStr = medatarunConfig["modelJsonRepository"]?.jsonPrimitive?.contentOrNull
-            ?: throw ModelJsonRepositoryNotConfiguredException()
-
-        val modelJsonRepositoryPath = projectDir.resolve(modelJsonRepositoryPathStr).toAbsolutePath()
-        if (!modelJsonRepositoryPath.isDirectory()) {
-            throw ModelJsonRepositoryNotFoundException(modelJsonRepositoryPath.toString())
-        }
-
-        return AppRuntimeConfig(projectDir, modelJsonRepositoryPath)
+        return AppRuntimeConfig(projectDir, medatarunConfig)
 
     }
 
@@ -58,8 +50,6 @@ class RootDirNotFoundException() :
 class NotMedataProjectException() :
     MedatarunException("This project is not a Medatarun project. You must have a package.json file (the same as NodeJS projects) add a 'medatarun' key in your package.json")
 
-class ModelJsonRepositoryNotConfiguredException() :
-    MedatarunException("There should be an entry 'medatarun.modelJsonRepository' in your package.json the points to the directory where your models' Json files are stored.")
 
-class ModelJsonRepositoryNotFoundException(path: String) :
-    MedatarunException("medatarun.modelJsonRepository specifies path '$path' that does not point to a valid existing directory.")
+
+

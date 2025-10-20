@@ -22,5 +22,6 @@ plugins {
 include(":app")
 include(":utils")
 include(":libs:model")
+include(":extensions:modeljson")
 
 rootProject.name = "medatarun-core"

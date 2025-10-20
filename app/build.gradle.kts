@@ -11,6 +11,7 @@ dependencies {
     // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
     implementation(project(":utils"))
     implementation(project(":libs:model"))
+    implementation(project(":extensions:modeljson"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
 }
