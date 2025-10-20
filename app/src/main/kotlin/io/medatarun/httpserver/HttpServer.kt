@@ -10,6 +10,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.app.io.medatarun.httpserver.commons.HttpAdapters
+import io.medatarun.app.io.medatarun.httpserver.mcp.McpServerBuilder
 
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
@@ -46,6 +48,7 @@ class RestApi(
     private val logger = LoggerFactory.getLogger(RestApi::class.java)
     private val resources = AppCLIResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
+    private val mcpServerBuilder = McpServerBuilder(resourceRepository)
 
 
     @Volatile
@@ -83,7 +86,7 @@ class RestApi(
 
     private fun Application.configure() {
 
-        val mcpStreamableHttpBridge = McpStreamableHttpBridge(serverFactory = ::buildMcpServer)
+        val mcpStreamableHttpBridge = McpStreamableHttpBridge(serverFactory = mcpServerBuilder::buildMcpServer)
 
         install(ContentNegotiation) { json() }
         install(SSE)
@@ -104,7 +107,7 @@ class RestApi(
             }
 
             mcp {
-                return@mcp buildMcpServer()
+                return@mcp mcpServerBuilder.buildMcpServer()
             }
 
             route("/mcp") {
@@ -117,134 +120,7 @@ class RestApi(
         }
     }
 
-    private fun buildMcpServer(): Server {
-        val server = Server(
-            serverInfo = Implementation(
-                name = "medatarun-mcp",
-                version = resolveServerVersion()
-            ),
-            options = ServerOptions(
-                capabilities = ServerCapabilities(
-                    tools = ServerCapabilities.Tools(listChanged = false)
-                )
-            )
-        )
 
-        server.addTools(buildRegisteredTools())
-        return server
-    }
-
-
-    private fun buildRegisteredTools(): List<RegisteredTool> {
-        return resourceRepository.findAllDescriptors().flatMap { descriptor ->
-            descriptor.commands.map { command ->
-                val toolName = buildToolName(descriptor.name, command.name)
-                val tool = Tool(
-                    name = toolName,
-                    title = null,
-                    description = "Invoke ${descriptor.name}.${command.name}",
-                    inputSchema = buildToolInput(command),
-                    outputSchema = null,
-                    annotations = null
-                )
-
-                RegisteredTool(tool) { request ->
-                    handleToolInvocation(descriptor.name, command.name, request)
-                }
-            }
-        }
-    }
-
-    private fun buildToolInput(command: ResourceRepository.ResourceCommand): Tool.Input {
-        val properties = buildJsonObject {
-            command.parameters.forEach { param ->
-                put(param.name, buildJsonObject {
-                    put("type", mapParameterType(param.type))
-                })
-            }
-        }
-        val required = command.parameters
-            .filterNot { it.optional }
-            .map { it.name }
-
-        return Tool.Input(
-            properties = properties,
-            required = required.takeIf { it.isNotEmpty() }
-        )
-    }
-
-    private fun mapParameterType(parameterType: String): String {
-        val normalized = parameterType.lowercase(Locale.ROOT)
-        return when {
-            normalized.endsWith("int") -> "integer"
-            normalized.endsWith("boolean") -> "boolean"
-            else -> "string"
-        }
-    }
-
-    private fun buildToolName(resourceName: String, commandName: String): String {
-        val combined = "${resourceName}_${commandName}"
-        val builder = StringBuilder(combined.length)
-        for (char in combined) {
-            builder.append(
-                when (char) {
-                    in 'a'..'z', in 'A'..'Z', in '0'..'9', '-', '_' -> char
-                    else -> '_'
-                }
-            )
-        }
-        return builder.toString()
-    }
-
-    private suspend fun handleToolInvocation(
-        resourceName: String,
-        functionName: String,
-        request: CallToolRequest
-    ): CallToolResult {
-        val rawParameters = jsonObjectToStringMap(request.arguments)
-        val invocationRequest = ResourceInvocationRequest(
-            resourceName = resourceName,
-            functionName = functionName,
-            rawParameters = rawParameters
-        )
-
-        return try {
-            val result = resourceRepository.handleInvocation(invocationRequest)
-            CallToolResult(
-                content = listOf(TextContent(formatInvocationResult(result)))
-            )
-        } catch (exception: ResourceInvocationException) {
-            CallToolResult(
-                content = listOf(TextContent(buildMcpErrorMessage(exception))),
-                isError = true
-            )
-        } catch (throwable: Throwable) {
-            logger.error("Unhandled error while invoking $resourceName.$functionName", throwable)
-            CallToolResult(
-                content = listOf(
-                    TextContent("Invocation failed: ${throwable.message ?: throwable::class.simpleName}")
-                ),
-                isError = true
-            )
-        }
-    }
-
-    private fun resolveServerVersion(): String =
-        RestApi::class.java.`package`?.implementationVersion ?: "dev"
-
-    private fun formatInvocationResult(result: Any?): String = when (result) {
-        null, Unit -> "ok"
-        is String -> result
-        else -> result.toString()
-    }
-
-    private fun buildMcpErrorMessage(exception: ResourceInvocationException): String {
-        val parts = mutableListOf(exception.message ?: "Invocation error")
-        exception.payload.forEach { (key, value) ->
-            parts += "$key: $value"
-        }
-        return parts.joinToString(separator = "\n")
-    }
 
     fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
         return resourceRepository
@@ -314,7 +190,7 @@ class RestApi(
         val contentType = call.request.contentType()
         return when {
             contentType.match(ContentType.Application.Json) ->
-                runCatching { call.receiveNullable<JsonObject>() }.getOrNull()?.let(::jsonObjectToStringMap).orEmpty()
+                runCatching { call.receiveNullable<JsonObject>() }.getOrNull()?.let(HttpAdapters::jsonObjectToStringMap).orEmpty()
 
             contentType.match(ContentType.Application.FormUrlEncoded) ->
                 runCatching { call.receiveParameters() }
@@ -326,13 +202,6 @@ class RestApi(
         }
     }
 
-    private fun jsonObjectToStringMap(jsonObject: JsonObject): Map<String, String> =
-        jsonObject.entries.mapNotNull { (key, value) -> toPrimitiveString(value)?.let { key to it } }.toMap()
-
-    private fun toPrimitiveString(element: JsonElement): String? = when (element) {
-        is JsonPrimitive -> element.contentOrNull ?: element.toString()
-        else -> element.toString()
-    }
 
     private fun toSingleValueMap(parameters: Parameters): Map<String, String> =
         parameters.entries().mapNotNull { entry ->
