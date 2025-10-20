@@ -10,6 +10,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.app.io.medatarun.httpserver.StreamableHttpMcp
 import io.medatarun.app.io.medatarun.resources.ResourceInvocationException
 import io.medatarun.app.io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.app.io.medatarun.resources.ResourceRepository
@@ -45,6 +46,7 @@ class RestApi(
     private val resources = AppCLIResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
 
+
     @Volatile
     private var engine: EmbeddedServer<*, *>? = null
 
@@ -79,6 +81,9 @@ class RestApi(
     }
 
     private fun Application.configure() {
+
+        val streamableHttpMcp = StreamableHttpMcp(serverFactory = ::buildMcpServer )
+
         install(ContentNegotiation) { json() }
         install(SSE)
 
@@ -100,6 +105,14 @@ class RestApi(
             mcp {
                 return@mcp buildMcpServer()
             }
+
+            route("/mcp") {
+                post { streamableHttpMcp.handleStreamablePost(call) }
+                delete { streamableHttpMcp.handleStreamableDelete(call) }
+                sse {
+                    streamableHttpMcp.handleStreamableSse(this)
+                }
+            }
         }
     }
 
@@ -119,6 +132,7 @@ class RestApi(
         server.addTools(buildRegisteredTools())
         return server
     }
+
 
     private fun buildRegisteredTools(): List<RegisteredTool> {
         return resourceRepository.findAllDescriptors().flatMap { descriptor ->
@@ -319,6 +333,8 @@ class RestApi(
         else -> mapOf("status" to "ok", "result" to result.toString())
     }
 }
+
+
 
 @Serializable
 data class ApiDescriptionFunction(
