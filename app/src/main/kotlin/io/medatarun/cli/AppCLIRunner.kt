@@ -1,8 +1,6 @@
 package io.medatarun.cli
 
 import io.medatarun.runtime.getLogger
-import kotlin.collections.contains
-import kotlin.collections.get
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -62,9 +60,10 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
 
         if (missing.isNotEmpty()) {
             logger.error("Error, missing parameter${if (missing.size > 1) "s" else ""}: ${missing.joinToString(", ")}")
-            logger.error("Expected usage: $resourceName $functionName " +
+            logger.error(
+                "Expected usage: $resourceName $functionName " +
                     fn.parameters.filter { it.kind == KParameter.Kind.VALUE }
-                        .joinToString(" ") { "--${it.name}=<${it.type.toString().substringAfterLast('.') }>" })
+                        .joinToString(" ") { "--${it.name}=<${it.type.toString().substringAfterLast('.')}>" })
             return
         }
 
@@ -82,10 +81,18 @@ class AppCLIRunner(private val args: Array<String>, private val sys: AppCLIResou
                     }
                     if (converted != null) callArgs[param] = converted
                 }
+
                 else -> {}
             }
         }
 
-        fn.callBy(callArgs)
+        // Print results to console
+
+        val result = fn.callBy(callArgs)
+        if (result != null) {
+            when (result) {
+                is String -> logger.cli(result)
+            }
+        }
     }
 }

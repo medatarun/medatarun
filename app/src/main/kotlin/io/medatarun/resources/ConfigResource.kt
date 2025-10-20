@@ -5,8 +5,8 @@ import io.medatarun.runtime.getLogger
 
 class ConfigResource(private val runtime: AppRuntime) {
     @Suppress("unused")
-    fun inspect() {
-        logger.cli(runtime.extensionRegistry.inspectHumanReadable())
+    fun inspect(): String {
+        return runtime.extensionRegistry.inspectHumanReadable()
     }
 
     companion object {

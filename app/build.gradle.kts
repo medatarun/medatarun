@@ -5,6 +5,9 @@ plugins {
 
     // Apply the Application plugin to add support for building an executable JVM application.
     application
+
+    // Apply Kotlin Serialization plugin from `gradle/libs.versions.toml`.
+    alias(libs.plugins.kotlinPluginSerialization)
 }
 
 dependencies {
@@ -14,6 +17,11 @@ dependencies {
     implementation(project(":extensions:modeljson"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
+    implementation(libs.ktorServerCore)
+    implementation(libs.ktorServerNetty)
+    implementation(libs.ktorServerContentNegotiation)
+    implementation(libs.ktorSerializationKotlinxJson)
+    implementation(libs.bundles.slf4j)
 }
 
 application {
