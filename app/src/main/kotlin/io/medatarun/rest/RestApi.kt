@@ -103,13 +103,19 @@ class RestApi(
 
 
     private suspend fun processInvocation(call: ApplicationCall) {
-        var resourceForLog = call.parameters["resource"]
-        var functionForLog = call.parameters["function"]
+        val resourcePathValue = call.parameters["resource"]
+        val functionPathValue = call.parameters["function"]
         try {
-            val resourceName = requirePathParameter(call.parameters, "resource", "Missing resource name")
-            val functionName = requirePathParameter(call.parameters, "function", "Missing function name")
-            resourceForLog = resourceName
-            functionForLog = functionName
+            val resourceName = resourcePathValue ?: throw ResourceInvocationException(
+                HttpStatusCode.BadRequest,
+                message = "Missing resource name",
+
+                )
+            val functionName = functionPathValue ?: throw ResourceInvocationException(
+                HttpStatusCode.BadRequest,
+                "Missing function name",
+
+                )
 
             val rawParameters = LinkedHashMap<String, String>()
             rawParameters.putAll(toSingleValueMap(call.request.queryParameters))
@@ -121,21 +127,19 @@ class RestApi(
                 rawParameters = rawParameters
             )
 
-            logger.info(request.toString())
-
             val result = resourceRepository.handleInvocation(request)
             call.respond(HttpStatusCode.OK, buildResponsePayload(result))
         } catch (exception: ResourceInvocationException) {
-            val resource = resourceForLog ?: "unknown"
-            val function = functionForLog ?: "unknown"
+            val resourceForLog = resourcePathValue ?: "unknown"
+            val functionForLog = functionPathValue ?: "unknown"
             if (exception.status.value >= 500) {
                 logger.error(
-                    "Invocation failed for $resource.$function",
+                    "Invocation failed for $resourceForLog.$functionForLog",
                     exception
                 )
             } else {
                 logger.warn(
-                    "Invocation error for $resource.$function: ${exception.message}"
+                    "Invocation error for $resourceForLog.$functionForLog: ${exception.message}"
                 )
             }
             call.respond(exception.status, exception.payload)
@@ -175,9 +179,6 @@ class RestApi(
 
     private fun allowsBody(method: HttpMethod): Boolean =
         method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch || method == HttpMethod.Delete
-
-    private fun requirePathParameter(parameters: Parameters, name: String, missingMessage: String): String =
-        parameters[name] ?: throw ResourceInvocationException(HttpStatusCode.BadRequest, missingMessage)
 
     private fun buildResponsePayload(result: Any?): Any = when (result) {
         null, Unit -> mapOf("status" to "ok")
