@@ -3,8 +3,8 @@ package io.medatarun.resources
 import io.medatarun.model.model.LocalizedMarkdownNotLocalized
 import io.medatarun.model.model.LocalizedText
 import io.medatarun.model.model.LocalizedTextNotLocalized
-import io.medatarun.model.model.ModelAttributeId
-import io.medatarun.model.model.ModelEntityId
+import io.medatarun.model.model.AttributeDefId
+import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
@@ -54,9 +54,9 @@ class ModelResource(private val runtime: AppRuntime) {
         description: String? = null,
     ) {
         logger.info("Create entity $entityId in model $modelId ($name)")
-        runtime.modelCmd.createEntity(
+        runtime.modelCmd.createEntityDef(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
+            entityDefId = EntityDefId(entityId),
             name = name?.let { LocalizedTextNotLocalized(it) },
             description = description?.let { LocalizedTextNotLocalized(it) },
         )
@@ -75,8 +75,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update entity name $modelId.$entityId -> $newName")
         runtime.modelCmd.updateEntityName(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            newEntityId = ModelEntityId(newName)
+            entityDefId = EntityDefId(entityId),
+            newEntityId = EntityDefId(newName)
         )
     }
 
@@ -93,7 +93,7 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update entity title $modelId.$entityId")
         runtime.modelCmd.updateEntityTitle(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
+            entityId = EntityDefId(entityId),
             title = LocalizedTextNotLocalized(title)
         )
     }
@@ -111,7 +111,7 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update entity description $modelId.$entityId")
         runtime.modelCmd.updateEntityDescription(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
+            entityId = EntityDefId(entityId),
             description = description?.let { LocalizedMarkdownNotLocalized(it) }
         )
     }
@@ -128,7 +128,7 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Delete entity $entityId from model $modelId")
         runtime.modelCmd.deleteEntity(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId)
+            entityId = EntityDefId(entityId)
         )
     }
 
@@ -147,10 +147,10 @@ class ModelResource(private val runtime: AppRuntime) {
         description: String? = null
     ) {
         logger.info("Create attribute $modelId.$entityId.$attributeId")
-        runtime.modelCmd.createEntityAttribute(
+        runtime.modelCmd.createEntityDefAttributeDef(
             modelId= ModelId(modelId),
-            entityId= ModelEntityId(entityId),
-            attributeId= ModelAttributeId(attributeId),
+            entityDefId= EntityDefId(entityId),
+            attributeDefId= AttributeDefId(attributeId),
             type = ModelTypeId(type),
             optional = optional,
             name = name?.let { LocalizedTextNotLocalized(it) },
@@ -172,9 +172,9 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update attribute name $modelId.$entityId.$attributeId -> $newName")
         runtime.modelCmd.updateEntityAttributeName(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId),
-            newAttributeId = ModelAttributeId(newName)
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId),
+            newAttributeId = AttributeDefId(newName)
         )
     }
 
@@ -192,8 +192,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update attribute title $modelId.$entityId.$attributeId")
         runtime.modelCmd.updateEntityAttributeTitle(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId),
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId),
             title = LocalizedTextNotLocalized(title)
         )
     }
@@ -212,8 +212,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update attribute description $modelId.$entityId.$attributeId")
         runtime.modelCmd.updateEntityAttributeDescription(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId),
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId),
             description = description?.let { LocalizedMarkdownNotLocalized(it) }
         )
     }
@@ -232,8 +232,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update attribute type $modelId.$entityId.$attributeId -> $type")
         runtime.modelCmd.updateEntityAttributeType(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId),
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId),
             type = ModelTypeId(type)
         )
     }
@@ -252,8 +252,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Update attribute optional $modelId.$entityId.$attributeId -> $optional")
         runtime.modelCmd.updateEntityAttributeOptional(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId),
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId),
             optional = optional
         )
     }
@@ -271,8 +271,8 @@ class ModelResource(private val runtime: AppRuntime) {
         logger.info("Delete attribute $modelId.$entityId.$attributeId")
         runtime.modelCmd.deleteEntityAttribute(
             modelId = ModelId(modelId),
-            entityId = ModelEntityId(entityId),
-            attributeId = ModelAttributeId(attributeId)
+            entityId = EntityDefId(entityId),
+            attributeId = AttributeDefId(attributeId)
         )
     }
     @ResourceCommandDoc(
@@ -286,7 +286,7 @@ class ModelResource(private val runtime: AppRuntime) {
         modelId.forEach { modelId ->
             val model = runtime.modelQueries.findById(modelId)
             buf.appendLine("🌐 ${model.id.value}")
-            model.entities.forEach { entity ->
+            model.entityDefs.forEach { entity ->
                 buf.appendLine("  📦 ${entity.id.value}")
                 entity.attributes.forEach { attribute ->
                     buf.appendLine("    ${attribute.id.value}: ${attribute.type.value}${if (attribute.optional) "?" else ""}")
@@ -312,7 +312,7 @@ class ModelResource(private val runtime: AppRuntime) {
                         put("name", localizedTextToJson(model.name))
                         put("description", localizedTextToJson(model.description))
                         put("entities", buildJsonArray {
-                            model.entities.forEach { entity ->
+                            model.entityDefs.forEach { entity ->
                                 add(buildJsonObject {
                                     put("id", entity.id.value)
                                     put("name", localizedTextToJson(entity.name))

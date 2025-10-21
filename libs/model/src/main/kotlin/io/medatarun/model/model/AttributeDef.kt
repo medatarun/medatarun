@@ -1,10 +1,10 @@
 package io.medatarun.model.model
 
 @JvmInline
-value class ModelAttributeId(val value: String)
+value class AttributeDefId(val value: String)
 
-interface ModelAttribute {
-    val id: ModelAttributeId
+interface AttributeDef {
+    val id: AttributeDefId
     val name: LocalizedText?
     val type: ModelTypeId
     val optional: Boolean

@@ -6,123 +6,123 @@ import io.medatarun.model.ports.ModelStorage
 class ModelStorageComposite(
     val repositories: List<ModelRepository>
 ) : ModelStorage {
-    override fun findById(id: ModelId): Model {
+    override fun findModelById(id: ModelId): Model {
         for (repository in repositories) {
-            val found = repository.findByIdOptional(id)
+            val found = repository.findModelByIdOptional(id)
             if (found != null) return found
         }
         throw ModelNotFoundException(id)
     }
 
-    override fun findAllIds(): List<ModelId> {
-        return repositories.map { it.findAllIds() }.flatten()
+    override fun findAllModelIds(): List<ModelId> {
+        return repositories.map { it.findAllModelIds() }.flatten()
     }
 
-    override fun create(model: Model) {
-        repositories.first().create(model)
+    override fun createModel(model: Model) {
+        repositories.first().createModel(model)
     }
 
-    override fun delete(modelId: ModelId) {
+    override fun deleteModel(modelId: ModelId) {
         val repo = findRepoWithModel(modelId)
-        repo.delete(modelId)
+        repo.deleteModel(modelId)
     }
 
-    override fun createEntity(modelId: ModelId, e: ModelEntity) {
+    override fun createEntityDef(modelId: ModelId, e: EntityDef) {
         val repo = findRepoWithModel(modelId)
-        repo.createEntity(modelId, e)
+        repo.createEntityDef(modelId, e)
     }
 
-    override fun updateEntityName(modelId: ModelId, entityId: ModelEntityId, newEntityId: ModelEntityId) {
+    override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityId: EntityDefId) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityName(modelId, entityId, newEntityId)
+        repo.updateEntityDefId(modelId, entityDefId, newEntityId)
     }
 
-    override fun updateEntityTitle(modelId: ModelId, entityId: ModelEntityId, title: LocalizedText?) {
+    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, title: LocalizedText?) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityTitle(modelId, entityId, title)
+        repo.updateEntityDefTitle(modelId, entityDefId, title)
     }
 
-    override fun updateEntityDescription(modelId: ModelId, entityId: ModelEntityId, description: LocalizedMarkdown?) {
+    override fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityDescription(modelId, entityId, description)
+        repo.updateEntityDefDescription(modelId, entityDefId, description)
     }
 
-    override fun deleteEntity(modelId: ModelId, entityId: ModelEntityId) {
+    override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
         val repo = findRepoWithModel(modelId)
-        repo.deleteEntity(modelId, entityId)
+        repo.deleteEntityDef(modelId, entityDefId)
     }
 
-    override fun createEntityAttribute(
+    override fun createEntityDefAttributeDef(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attr: ModelAttribute
+        entityDefId: EntityDefId,
+        attr: AttributeDef
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.createEntityAttribute(modelId, entityId, attr)
+        repo.createEntityDefAttributeDef(modelId, entityDefId, attr)
     }
 
-    override fun updateEntityAttributeName(
+    override fun updateEntityDefAttributeDefId(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId,
-        newAttributeId: ModelAttributeId
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
+        newAttributeDefId: AttributeDefId
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityAttributeName(modelId, entityId, attributeId, newAttributeId)
+        repo.updateEntityDefAttributeDefName(modelId, entityDefId, attributeDefId, newAttributeDefId)
     }
 
-    override fun updateEntityAttributeTitle(
+    override fun updateEntityDefAttributeDefName(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId,
-        title: LocalizedText?
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
+        name: LocalizedText?
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityAttributeTitle(modelId, entityId, attributeId, title)
+        repo.updateEntityDefAttributeDefTitle(modelId, entityDefId, attributeDefId, name)
     }
 
-    override fun updateEntityAttributeDescription(
+    override fun updateEntityDefAttributeDefDescription(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         description: LocalizedMarkdown?
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityAttributeDescription(modelId, entityId, attributeId, description)
+        repo.updateEntityDefAttributeDefDescription(modelId, entityDefId, attributeDefId, description)
     }
 
-    override fun updateEntityAttributeType(
+    override fun updateEntityDefAttributeDefType(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         type: ModelTypeId
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityAttributeType(modelId, entityId, attributeId, type)
+        repo.updateEntityDefAttributeDefType(modelId, entityDefId, attributeDefId, type)
     }
 
-    override fun updateEntityAttributeOptional(
+    override fun updateEntityDefAttributeDefOptional(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         optional: Boolean
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityAttributeOptional(modelId, entityId, attributeId, optional)
+        repo.updateEntityDefAttributeDefOptional(modelId, entityDefId, attributeDefId, optional)
     }
 
-    override fun deleteEntityAttribute(
+    override fun deleteEntityDefAttributeDef(
         modelId: ModelId,
-        entityId: ModelEntityId,
-        attributeId: ModelAttributeId
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.deleteEntityAttribute(modelId, entityId, attributeId)
+        repo.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 
     private fun findRepoWithModel(id: ModelId): ModelRepository {
         for (repository in repositories) {
-            val found = repository.findByIdOptional(id)
+            val found = repository.findModelByIdOptional(id)
             if (found != null) return repository
         }
         throw RepositoryNotFoundException(id)

@@ -1,7 +1,7 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.model.ModelAttributeId
-import io.medatarun.model.model.ModelEntityId
+import io.medatarun.model.model.AttributeDefId
+import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
@@ -27,37 +27,37 @@ internal class ModelJsonTest {
         val modelRead = instance.fromJson(sampleModel)
         assertEquals(modelRead.id, ModelId("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
-        assertEquals(modelRead.entities.size, 2)
+        assertEquals(modelRead.entityDefs.size, 2)
 
 
-        val contactEntity = modelRead.entities[0]
-        assertEquals(contactEntity.id, ModelEntityId("contact"))
+        val contactEntity = modelRead.entityDefs[0]
+        assertEquals(contactEntity.id, EntityDefId("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
 
-        val companyEntity = modelRead.entities[1]
-        assertEquals(companyEntity.id, ModelEntityId("company"))
+        val companyEntity = modelRead.entityDefs[1]
+        assertEquals(companyEntity.id, EntityDefId("company"))
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
 
         assertEquals(companyEntity.countAttributes(), 3)
 
-        val companyName = companyEntity.getAttribute(ModelAttributeId("name"))
-        assertEquals(companyName.id, ModelAttributeId("name"))
+        val companyName = companyEntity.getAttribute(AttributeDefId("name"))
+        assertEquals(companyName.id, AttributeDefId("name"))
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
         assertEquals(companyName.type, ModelTypeId("String"))
 
-        val companyProfileUrl = companyEntity.getAttribute(ModelAttributeId("profile_url"))
-        assertEquals(companyProfileUrl.id, ModelAttributeId("profile_url"))
+        val companyProfileUrl = companyEntity.getAttribute(AttributeDefId("profile_url"))
+        assertEquals(companyProfileUrl.id, AttributeDefId("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
         assertEquals(companyProfileUrl.type, ModelTypeId("String"))
 
-        val companyInfos = companyEntity.getAttribute(ModelAttributeId("informations"))
-        assertEquals(companyInfos.id, ModelAttributeId("informations"))
+        val companyInfos = companyEntity.getAttribute(AttributeDefId("informations"))
+        assertEquals(companyInfos.id, AttributeDefId("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
         assertEquals(companyInfos.description?.name, "La description est au format Markdown et doit provenir de leur site internet !")
         assertEquals(companyInfos.optional, true)

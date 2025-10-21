@@ -1,20 +1,29 @@
 package io.medatarun.model.model
 
 interface ModelRepository {
-    fun findByIdOptional(id: ModelId): Model?
-    fun create(model: Model)
-    fun delete(modelId: ModelId)
-    fun createEntity(modelId: ModelId, e: ModelEntity)
-    fun updateEntityName(modelId: ModelId, entityId: ModelEntityId, newEntityId: ModelEntityId)
-    fun updateEntityTitle(modelId: ModelId, entityId: ModelEntityId, title: LocalizedText?)
-    fun updateEntityDescription(modelId: ModelId, entityId: ModelEntityId, description: LocalizedMarkdown?)
-    fun deleteEntity(modelId: ModelId, entityId: ModelEntityId)
-    fun findAllIds(): List<ModelId>
-    fun createEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attr: ModelAttribute)
-    fun updateEntityAttributeName(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, newAttributeId: ModelAttributeId)
-    fun updateEntityAttributeTitle(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, title: LocalizedText?)
-    fun updateEntityAttributeDescription(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, description: LocalizedMarkdown?)
-    fun updateEntityAttributeType(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, type: ModelTypeId)
-    fun updateEntityAttributeOptional(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId, optional: Boolean)
-    fun deleteEntityAttribute(modelId: ModelId, entityId: ModelEntityId, attributeId: ModelAttributeId)
+
+    // Manage models -> entity def
+
+    fun findAllModelIds(): List<ModelId>
+    fun findModelByIdOptional(id: ModelId): Model?
+    fun createModel(model: Model)
+    fun deleteModel(modelId: ModelId)
+
+    // Manage model -> entity def
+
+    fun createEntityDef(modelId: ModelId, e: EntityDef)
+    fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId)
+    fun updateEntityDefTitle(modelId: ModelId, entityDefId: EntityDefId, title: LocalizedText?)
+    fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?)
+    fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
+
+    // Manage model -> entity def -> attribute def
+
+    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attr: AttributeDef)
+    fun updateEntityDefAttributeDefName(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, newAttributeId: AttributeDefId)
+    fun updateEntityDefAttributeDefTitle(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, title: LocalizedText?)
+    fun updateEntityDefAttributeDefDescription(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, description: LocalizedMarkdown?)
+    fun updateEntityDefAttributeDefType(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, type: ModelTypeId)
+    fun updateEntityDefAttributeDefOptional(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, optional: Boolean)
+    fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
 }

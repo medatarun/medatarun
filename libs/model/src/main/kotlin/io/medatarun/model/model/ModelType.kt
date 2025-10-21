@@ -4,7 +4,7 @@ package io.medatarun.model.model
 value class ModelTypeId(val value : String )
 
 interface  ModelType {
-    val id: ModelEntityId
+    val id: EntityDefId
     val name: LocalizedText
     val description: LocalizedText
 }

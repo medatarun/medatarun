@@ -1,8 +1,8 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.model.model.ModelAttributeId
-import io.medatarun.model.model.ModelEntity
-import io.medatarun.model.model.ModelEntityId
+import io.medatarun.model.model.AttributeDefId
+import io.medatarun.model.model.EntityDef
+import io.medatarun.model.model.EntityDefId
 import org.commonmark.Extension
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
@@ -24,14 +24,14 @@ internal class MarkdownAdapter {
     private val parser: Parser = Parser.builder().extensions(markdownExtensions).build()
     private val renderer: MarkdownRenderer = MarkdownRenderer.builder().build()
 
-    fun renderEntityContent(
-        entityDef: ModelEntity,
-        values: Map<ModelAttributeId, Any?>
-    ): String {
+    fun createMarkdownString(
+        entityDef: EntityDef,
+        values: Map<AttributeDefId, Any?>
+    ): MarkdownString {
         val frontmatterLines = buildFrontmatterLines(entityDef, values)
         val bodyContent = buildBodyContent(entityDef, values)
 
-        return buildString {
+        val str = buildString {
             appendLine("---")
             frontmatterLines.forEach { appendLine(it) }
             appendLine("---")
@@ -42,15 +42,17 @@ internal class MarkdownAdapter {
                 }
             }
         }
+
+        return MarkdownString(str)
     }
 
     fun parseEntity(
-        entityDef: ModelEntity,
-        entityDefId: ModelEntityId,
-        entityIdAttribute: ModelAttributeId,
-        content: String
+        entityDef: EntityDef,
+        entityDefId: EntityDefId,
+        entityIdAttribute: AttributeDefId,
+        content: MarkdownString
     ): ParsedValues {
-        val document = parser.parse(content)
+        val document = parser.parse(content.value)
 
         val frontmatterVisitor = YamlFrontMatterVisitor()
         document.accept(frontmatterVisitor)
@@ -60,7 +62,7 @@ internal class MarkdownAdapter {
 
         val bodyValues = parseBodySections(document)
 
-        val values = mutableMapOf<ModelAttributeId, Any?>()
+        val values = mutableMapOf<AttributeDefId, Any?>()
         entityDef.attributes.forEach { attribute ->
             val attributeId = attribute.id
             val value = if (attribute.type.value == MARKDOWN_TYPE) {
@@ -82,8 +84,8 @@ internal class MarkdownAdapter {
     }
 
     private fun buildFrontmatterLines(
-        entityDef: ModelEntity,
-        values: Map<ModelAttributeId, Any?>
+        entityDef: EntityDef,
+        values: Map<AttributeDefId, Any?>
     ): List<String> {
         return entityDef.attributes
             .filter { it.type.value != MARKDOWN_TYPE }
@@ -94,8 +96,8 @@ internal class MarkdownAdapter {
     }
 
     private fun buildBodyContent(
-        entityDef: ModelEntity,
-        values: Map<ModelAttributeId, Any?>
+        entityDef: EntityDef,
+        values: Map<AttributeDefId, Any?>
     ): String {
         val sections = entityDef.attributes
             .filter { it.type.value == MARKDOWN_TYPE }
@@ -189,6 +191,6 @@ internal class MarkdownAdapter {
 
     data class ParsedValues(
         val entityId: String,
-        val values: MutableMap<ModelAttributeId, Any?>
+        val values: MutableMap<AttributeDefId, Any?>
     )
 }

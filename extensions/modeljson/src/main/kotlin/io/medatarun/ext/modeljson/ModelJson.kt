@@ -1,7 +1,7 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.infra.ModelAttributeInMemory
-import io.medatarun.model.infra.ModelEntityInMemory
+import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import kotlinx.serialization.Contextual
@@ -57,8 +57,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         prettyPrint = this@ModelJsonConverter.prettyPrint
         serializersModule = SerializersModule {
             contextual(ModelId::class, valueClassSerializer(::ModelId) { it.value })
-            contextual(ModelEntityId::class, valueClassSerializer(::ModelEntityId) { it.value })
-            contextual(ModelAttributeId::class, valueClassSerializer(::ModelAttributeId) { it.value })
+            contextual(EntityDefId::class, valueClassSerializer(::EntityDefId) { it.value })
+            contextual(AttributeDefId::class, valueClassSerializer(::AttributeDefId) { it.value })
             contextual(LocalizedText::class, LocalizedTextSerializer())
         }
     }
@@ -69,7 +69,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = model.version.value,
             name = model.name,
             description = model.description,
-            entities = model.entities.map { entity ->
+            entities = model.entityDefs.map { entity ->
                 ModelEntityJson(
                     id = entity.id.value,
                     name = entity.name,
@@ -96,14 +96,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = ModelVersion(modelJson.version),
             name = modelJson.name,
             description = modelJson.description,
-            entities = modelJson.entities.map { entityJson ->
-                ModelEntityInMemory(
-                    id = ModelEntityId(entityJson.id),
+            entityDefs = modelJson.entities.map { entityJson ->
+                EntityDefInMemory(
+                    id = EntityDefId(entityJson.id),
                     name = entityJson.name,
                     description = entityJson.description,
                     attributes = entityJson.attributes.map { attributeJson ->
-                        ModelAttributeInMemory(
-                            id = ModelAttributeId(attributeJson.id),
+                        AttributeDefInMemory(
+                            id = AttributeDefId(attributeJson.id),
                             name = attributeJson.name,
                             description = attributeJson.description,
                             optional = attributeJson.optional,

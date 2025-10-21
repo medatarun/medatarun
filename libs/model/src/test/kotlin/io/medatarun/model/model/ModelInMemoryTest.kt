@@ -1,7 +1,7 @@
 package io.medatarun.model.model
 
-import io.medatarun.model.infra.ModelAttributeInMemory
-import io.medatarun.model.infra.ModelEntityInMemory
+import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,54 +12,54 @@ class ModelInMemoryTest {
     @Test
     fun `model contains person and company entities`() {
         val model = createModel()
-        val entityIds = model.entities.map { it.id }.toSet()
-        assertEquals(setOf(ModelEntityId("person"), ModelEntityId("company")), entityIds)
+        val entityIds = model.entityDefs.map { it.id }.toSet()
+        assertEquals(setOf(EntityDefId("person"), EntityDefId("company")), entityIds)
 
-        val person = model.entities.first { it.id == ModelEntityId("person") }
+        val person = model.entityDefs.first { it.id == EntityDefId("person") }
         assertEquals(5, person.countAttributes())
-        assertEquals(ModelTypeId("Markdown"), person.getAttribute(ModelAttributeId("infos")).type)
+        assertEquals(ModelTypeId("Markdown"), person.getAttribute(AttributeDefId("infos")).type)
 
-        val company = model.entities.first { it.id == ModelEntityId("company") }
-        assertTrue(company.getAttribute(ModelAttributeId("location")).optional)
-        assertTrue(company.getAttribute(ModelAttributeId("website")).optional)
+        val company = model.entityDefs.first { it.id == EntityDefId("company") }
+        assertTrue(company.getAttribute(AttributeDefId("location")).optional)
+        assertTrue(company.getAttribute(AttributeDefId("website")).optional)
     }
 
     private fun createModel(): ModelInMemory {
-        val personEntity = ModelEntityInMemory(
-            id = ModelEntityId("person"),
+        val personEntity = EntityDefInMemory(
+            id = EntityDefId("person"),
             name = LocalizedTextNotLocalized("Person"),
             description = null,
             attributes = listOf(
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("id"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("firstName"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("lastName"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("phoneNumber"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("infos"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
                     type = ModelTypeId("Markdown"),
@@ -68,34 +68,34 @@ class ModelInMemoryTest {
             )
         )
 
-        val companyEntity = ModelEntityInMemory(
-            id = ModelEntityId("company"),
+        val companyEntity = EntityDefInMemory(
+            id = EntityDefId("company"),
             name = LocalizedTextNotLocalized("Company"),
             description = null,
             attributes = listOf(
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("id"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("name"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = false
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("location"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
                     type = ModelTypeId("String"),
                     optional = true
                 ),
-                ModelAttributeInMemory(
-                    id = ModelAttributeId("website"),
+                AttributeDefInMemory(
+                    id = AttributeDefId("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
                     type = ModelTypeId("String"),
@@ -109,7 +109,7 @@ class ModelInMemoryTest {
             name = LocalizedTextNotLocalized("Test Model"),
             description = null,
             version = ModelVersion("1.0.0"),
-            entities = listOf(personEntity, companyEntity)
+            entityDefs = listOf(personEntity, companyEntity)
         )
     }
 }

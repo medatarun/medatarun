@@ -11,8 +11,9 @@ interface Model {
     val name: LocalizedText?
     val description: LocalizedMarkdown?
     val version: ModelVersion
-    val entities: List<ModelEntity>
-
+    val entityDefs: List<EntityDef>
+    fun findEntityDefOptional(entityDefId: EntityDefId): EntityDef? = entityDefs.firstOrNull { it.id == entityDefId }
+    fun findEntityDef(entityDefId: EntityDefId): EntityDef = findEntityDefOptional(entityDefId) ?: throw EntityDefNotInModelException(id, entityDefId)
 }
 
 

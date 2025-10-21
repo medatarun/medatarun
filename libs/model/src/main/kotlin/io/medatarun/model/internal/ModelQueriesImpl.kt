@@ -7,10 +7,10 @@ import io.medatarun.model.ports.ModelStorage
 
 class ModelQueriesImpl(private val storage: ModelStorage) : ModelQueries {
     override fun findAllIds(): List<ModelId> {
-        return storage.findAllIds()
+        return storage.findAllModelIds()
     }
 
     override fun findById(modelId: ModelId): Model {
-        return storage.findById(modelId)
+        return storage.findModelById(modelId)
     }
 }
