@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":libs:model"))
     implementation(project(":extensions:modeljson"))
+    implementation(project(":extensions:data-md-file"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.ktorServerCore)

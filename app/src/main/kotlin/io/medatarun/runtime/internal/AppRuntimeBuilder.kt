@@ -1,8 +1,8 @@
 package io.medatarun.runtime.internal
 
+import io.medatarun.data.DataMdFileExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
-import io.medatarun.kernel.internal.ExtensionRegistryImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelStorageComposite
 import io.medatarun.model.internal.ModelCmdImpl
@@ -19,6 +19,7 @@ class AppRuntimeBuilder {
         val extensions = listOf(
             ModelExtension(),
             ModelJsonExtension(),
+            DataMdFileExtension()
         )
         val platform = ExtensionPlaformImpl(extensions, config)
         val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)

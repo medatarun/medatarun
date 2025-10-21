@@ -1,7 +1,6 @@
 package io.medatarun.kernel.internal
 
 import io.medatarun.kernel.*
-import io.medatarun.model.model.ModelRepository
 import java.nio.file.Path
 import kotlin.reflect.KClass
 
@@ -15,7 +14,6 @@ class ExtensionRegistryImpl(
 
     private val contributions: MutableMap<ContributionPointId, List<ContributionImpl<*>>> = mutableMapOf()
 
-    private val repositories: MutableList<ModelRepository> = mutableListOf()
 
     fun init() {
         val counts = extensions.groupBy { it.id }.mapValues { it.value.size }.filter { it.value > 1 }
@@ -35,10 +33,6 @@ class ExtensionRegistryImpl(
 
                 override fun resolveProjectPath(relativePath: String): Path {
                     return config.projectDir.resolve(relativePath).toAbsolutePath()
-                }
-
-                override fun registerRepository(repo: ModelRepository) {
-                    repositories.add(repo)
                 }
 
                 override fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>) {
@@ -78,7 +72,7 @@ class ExtensionRegistryImpl(
             instance = instance
         )
         // Add to map considering the key may have no value yet (append or create + append)
-        contributions.compute(c.toContributinoPointId) { _, v -> (v ?: emptyList()) + c}
+        contributions.compute(c.toContributinoPointId) { _, v -> (v ?: emptyList()) + c }
     }
 
     override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
@@ -96,13 +90,13 @@ class ExtensionRegistryImpl(
             for (contributionPoint in contributionPoints.filter { it.value.extensionId == extension.id }.values) {
                 report.appendLine("   🖇️  ${contributionPoint.id} ${contributionPoint.api.simpleName}")
                 for (contrib in (contributions[contributionPoint.id] ?: emptyList())) {
-                    report.appendLine ("      - " + contrib.fromExtensionId + " - " + contrib.instance::class.simpleName)
+                    report.appendLine("      - " + contrib.fromExtensionId + " - " + contrib.instance::class.simpleName)
                 }
             }
             for (contributionList in contributions.values) {
                 for (contrib in contributionList) {
                     if (contrib.fromExtensionId == extension.id) {
-                        report.appendLine("   🔗 "+ contrib.instance::class.simpleName + " -> " + contrib.toContributinoPointId)
+                        report.appendLine("   🔗 " + contrib.instance::class.simpleName + " -> " + contrib.toContributinoPointId)
                     }
                 }
             }
