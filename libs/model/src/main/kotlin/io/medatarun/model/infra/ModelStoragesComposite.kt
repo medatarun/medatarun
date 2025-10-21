@@ -135,10 +135,10 @@ class ModelStoragesComposite(
             val found = repository.findModelByIdOptional(id)
             if (found != null) return repository
         }
-        throw RepositoryNotFoundException(id)
+        throw RepositoryNotFoundForModelException(id)
     }
 
 
 }
 
-class RepositoryNotFoundException(id: ModelId) : MedatarunException("No repository currently has model ${id.value}")
+class RepositoryNotFoundForModelException(id: ModelId) : MedatarunException("No repository currently has model ${id.value}")
