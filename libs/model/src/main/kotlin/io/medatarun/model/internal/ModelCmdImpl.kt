@@ -130,3 +130,4 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
 
 class UpdateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) : MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
 class UpdateEntityDefIdDuplicateIdException(entityDefId: EntityDefId) : MedatarunException("Another entity $entityDefId already exists in the same model")
+class CreateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) : MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
