@@ -4,9 +4,9 @@ import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
-import io.medatarun.model.ports.ModelStorage
+import io.medatarun.model.ports.ModelStorages
 
-class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
+class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion) {
         val model = ModelInMemory(
             id = id,

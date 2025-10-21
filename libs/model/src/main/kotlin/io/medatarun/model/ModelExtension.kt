@@ -12,5 +12,4 @@ class ModelExtension: MedatarunExtension {
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
     }
-
 }

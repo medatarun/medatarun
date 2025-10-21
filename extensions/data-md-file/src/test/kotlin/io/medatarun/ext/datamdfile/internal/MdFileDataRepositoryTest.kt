@@ -11,7 +11,6 @@ import io.medatarun.model.model.LocalizedTextNotLocalized
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
 import java.nio.file.Files
 import kotlin.test.Test

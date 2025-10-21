@@ -2,11 +2,16 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
-import io.medatarun.model.ports.ModelStorage
+import io.medatarun.model.ports.ModelStorages
 
-class ModelStorageComposite(
+/**
+ * Default implementation of [ModelStorages] that acts by using all
+ * available [ModelRepository] declared in the contribution point.
+ */
+class ModelStoragesComposite(
     val repositories: List<ModelRepository>
-) : ModelStorage {
+) : ModelStorages {
+
     override fun findModelById(id: ModelId): Model {
         for (repository in repositories) {
             val found = repository.findModelByIdOptional(id)
@@ -43,7 +48,11 @@ class ModelStorageComposite(
         repo.updateEntityDefName(modelId, entityDefId, name)
     }
 
-    override fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?) {
+    override fun updateEntityDefDescription(
+        modelId: ModelId,
+        entityDefId: EntityDefId,
+        description: LocalizedMarkdown?
+    ) {
         val repo = findRepoWithModel(modelId)
         repo.updateEntityDefDescription(modelId, entityDefId, description)
     }

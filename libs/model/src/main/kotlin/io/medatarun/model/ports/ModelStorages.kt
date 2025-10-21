@@ -1,23 +1,17 @@
 package io.medatarun.model.ports
 
-import io.medatarun.model.model.LocalizedMarkdown
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDef
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelTypeId
+import io.medatarun.model.model.*
 
 /**
- * A storage represents a single storage for models.
+ * Represents an aggregation of multiple repositories for models.
  *
- * Do not confuse with [ModelRepository] which can aggregate multiple storages.
+ * Do not confuse with [ModelRepository] which represents only ONE repository at a time.
  *
- * This is the one extensions should implement to offer model storage capabilities
+ * Implementations shall be able to aggregate multiple repositories as declared in the contribution point for repositories.
+ *
+ * [ModelStorages] contains multiple [ModelRepository]
  */
-interface ModelStorage {
+interface ModelStorages {
 
     // Models
 
@@ -26,17 +20,19 @@ interface ModelStorage {
     fun createModel(model: Model)
     fun deleteModel(modelId: ModelId)
 
-
     // Models -> EntityDef
 
+    //@formatter:off
     fun createEntityDef(modelId: ModelId, e: EntityDef)
     fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId)
     fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?)
     fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?)
     fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
+    //@formatter:on
 
     // Model -> EntityDef -> AttributeDef
 
+    //@formatter:off
     fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attr: AttributeDef)
     fun updateEntityDefAttributeDefId(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, newAttributeDefId: AttributeDefId)
     fun updateEntityDefAttributeDefName(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, name: LocalizedText?)
@@ -44,4 +40,5 @@ interface ModelStorage {
     fun updateEntityDefAttributeDefType(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, type: ModelTypeId)
     fun updateEntityDefAttributeDefOptional(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, optional: Boolean)
     fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
+    //@formatter:on
 }
