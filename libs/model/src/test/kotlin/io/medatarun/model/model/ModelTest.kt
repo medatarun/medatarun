@@ -14,13 +14,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class ModelTest {
-    val repo1 = ModelRepositoryInMemory("repo1")
-    val repo2 = ModelRepositoryInMemory("repo2")
-    val storages = ModelStoragesComposite(listOf(repo1, repo2))
-    val query: ModelQueries = ModelQueriesImpl(storages)
-    val cmd: ModelCmd = ModelCmdImpl(storages)
-
-
 
     @Test
     fun `can not instantiate storages without repositories`() {
@@ -61,6 +54,7 @@ class ModelTest {
         }
         assertNotNull(repo1.findModelByIdOptional(modelId))
     }
+
     @Test
     fun `create model ok with multiple storages and specified storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
@@ -72,11 +66,11 @@ class ModelTest {
         val modelId = ModelId("m1")
         cmd.createModel(
             modelId,
-                LocalizedTextNotLocalized("M1"),
-                null,
-                ModelVersion("1.0.0"),
-                RepositoryRef.Id(repo2.repositoryId)
-            )
+            LocalizedTextNotLocalized("M1"),
+            null,
+            ModelVersion("1.0.0"),
+            RepositoryRef.Id(repo2.repositoryId)
+        )
         assertDoesNotThrow { query.findModelById(modelId) }
 
         assertNull(repo1.findModelByIdOptional(modelId))
