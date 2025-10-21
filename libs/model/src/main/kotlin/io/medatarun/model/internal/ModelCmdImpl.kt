@@ -50,6 +50,7 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd) {
         ensureModelExists(modelId)
         val model = storage.findModelById(modelId)
+        model.findEntityDef(entityDefId)
         if (cmd is EntityDefUpdateCmd.Id) {
             if (model.entityDefs.any { it.id == cmd.value && it.id != entityDefId }) {
                 throw UpdateEntityDefIdDuplicateIdException(entityDefId)

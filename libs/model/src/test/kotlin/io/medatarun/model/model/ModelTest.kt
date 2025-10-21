@@ -3,6 +3,7 @@ package io.medatarun.model.model
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelCmdImpl
 import io.medatarun.model.internal.ModelQueriesImpl
+import io.medatarun.model.internal.UpdateEntityDefIdDuplicateIdException
 import io.medatarun.model.ports.RepositoryRef
 import io.medatarun.model.ports.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
@@ -163,6 +164,37 @@ class ModelTest {
         }
     }
 
+    class TestEnvEntityUpdate {
+        val repo = ModelRepositoryInMemory("repo-entity-update")
+        val storages = ModelStoragesComposite(listOf(repo))
+        val cmd: ModelCmd = ModelCmdImpl(storages)
+        val query: ModelQueries = ModelQueriesImpl(storages)
+        val modelId = ModelId("model-entity-update")
+        val primaryEntityId = EntityDefId("entity-primary")
+        val secondaryEntityId = EntityDefId("entity-secondary")
+
+        init {
+            cmd.createModel(
+                modelId,
+                LocalizedTextNotLocalized("Model entity update"),
+                null,
+                ModelVersion("1.0.0")
+            )
+            cmd.createEntityDef(
+                modelId,
+                primaryEntityId,
+                LocalizedTextNotLocalized("Entity primary"),
+                LocalizedMarkdownNotLocalized("Entity primary description")
+            )
+            cmd.createEntityDef(
+                modelId,
+                secondaryEntityId,
+                LocalizedTextNotLocalized("Entity secondary"),
+                LocalizedMarkdownNotLocalized("Entity secondary description")
+            )
+        }
+    }
+
     @Test
     fun `updates on model name persists the name`() {
         val env = TestEnvOneModel()
@@ -299,10 +331,21 @@ class ModelTest {
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
     }
+
     @Test
     fun `create entity with null name then name shall be null`() {
-        TODO("Implement this")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-null-name")
+        val description = LocalizedMarkdownNotLocalized("Entity without name")
+
+        env.cmd.createEntityDef(env.modelId, entityId, null, description)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertEquals(entityId, reloaded.id)
+        assertNull(reloaded.name)
+        assertEquals(description, reloaded.description)
     }
+
     @Test
     fun `create entity with null description then description shall be null`() {
         val env = TestEnvOneModel()
@@ -320,42 +363,118 @@ class ModelTest {
 
     @Test
     fun `update entity with wrong model id throws ModelNotFoundException`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val wrongModelId = ModelId("unknown-model")
+
+        assertFailsWith<ModelNotFoundException> {
+            env.cmd.updateEntityDef(
+                wrongModelId,
+                env.primaryEntityId,
+                EntityDefUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
+            )
+        }
     }
 
     @Test
     fun `update entity with wrong entity id throws EntityDefNotFoundException`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val wrongEntityId = EntityDefId("unknown-entity")
+
+        assertFailsWith<EntityDefNotInModelException> {
+            env.cmd.updateEntityDef(
+                env.modelId,
+                wrongEntityId,
+                EntityDefUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
+            )
+        }
     }
 
     @Test
     fun `update entity id with duplicate id throws exception`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val duplicateId = env.secondaryEntityId
+
+        assertFailsWith<UpdateEntityDefIdDuplicateIdException> {
+            env.cmd.updateEntityDef(
+                env.modelId,
+                env.primaryEntityId,
+                EntityDefUpdateCmd.Id(duplicateId)
+            )
+        }
     }
 
     @Test
     fun `update entity id with correct id ok`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val newId = EntityDefId("entity-renamed")
+
+        env.cmd.updateEntityDef(
+            env.modelId,
+            env.primaryEntityId,
+            EntityDefUpdateCmd.Id(newId)
+        )
+
+        val reloaded = env.query.findModelById(env.modelId)
+        assertNull(reloaded.findEntityDefOptional(env.primaryEntityId))
+        assertNotNull(reloaded.findEntityDefOptional(newId))
     }
 
     @Test
     fun `update entity name not null persisted`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val newName = LocalizedTextNotLocalized("Entity primary updated")
+
+        env.cmd.updateEntityDef(
+            env.modelId,
+            env.primaryEntityId,
+            EntityDefUpdateCmd.Name(newName)
+        )
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertEquals(newName, reloaded.name)
     }
 
     @Test
     fun `update entity name null then name is null`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+
+        env.cmd.updateEntityDef(
+            env.modelId,
+            env.primaryEntityId,
+            EntityDefUpdateCmd.Name(null)
+        )
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertNull(reloaded.name)
     }
 
     @Test
     fun `update entity description not null persisted`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+        val newDescription = LocalizedMarkdownNotLocalized("Primary entity updated description")
+
+        env.cmd.updateEntityDef(
+            env.modelId,
+            env.primaryEntityId,
+            EntityDefUpdateCmd.Description(newDescription)
+        )
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertEquals(newDescription, reloaded.description)
     }
 
     @Test
     fun `update entity description with null then description is null`() {
-        TODO("Implement this")
+        val env = TestEnvEntityUpdate()
+
+        env.cmd.updateEntityDef(
+            env.modelId,
+            env.primaryEntityId,
+            EntityDefUpdateCmd.Description(null)
+        )
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertNull(reloaded.description)
     }
 
 
