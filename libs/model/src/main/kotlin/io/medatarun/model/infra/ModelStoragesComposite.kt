@@ -18,12 +18,24 @@ class ModelStoragesComposite(
         if (repositories.isEmpty()) throw ModelStorageCompositeNoRepositoryException()
     }
 
-    override fun findModelById(id: ModelId): Model {
+    override fun existsModelById(modelId: ModelId): Boolean {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(id)
+            val found = repository.findModelByIdOptional(modelId)
+            if (found != null) return true
+        }
+        return false
+    }
+
+    override fun findModelByIdOptional(modelId: ModelId): Model? {
+        for (repository in repositories) {
+            val found = repository.findModelByIdOptional(modelId)
             if (found != null) return found
         }
-        throw ModelNotFoundException(id)
+        return null
+    }
+
+    override fun findModelById(id: ModelId): Model {
+        return findModelByIdOptional(id) ?: throw RepositoryNotFoundForModelException(id)
     }
 
     override fun findAllModelIds(): List<ModelId> {
@@ -32,6 +44,21 @@ class ModelStoragesComposite(
 
     override fun createModel(model: Model, repositoryRef: RepositoryRef) {
         selectRepository(repositoryRef).createModel(model)
+    }
+
+    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateModelName(modelId, name)
+    }
+
+    override fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateModelDescription(modelId, description)
+    }
+
+    override fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
+        val repo = findRepoWithModel(modelId)
+        repo.updateModelVersion(modelId, version)
     }
 
     override fun deleteModel(modelId: ModelId) {
@@ -172,3 +199,5 @@ class ModelStorageCompositeRepositoryNotFoundException(val id: ModelRepositoryId
 
 class ModelStorageAmbiguousException :
     MedatarunException("Action should specify with which repository we must proceed.")
+
+

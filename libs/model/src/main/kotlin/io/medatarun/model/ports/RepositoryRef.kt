@@ -20,4 +20,8 @@ sealed interface RepositoryRef {
      * If this repository can not be found an exception is raised.
      */
     data class Id(val id: ModelRepositoryId) : RepositoryRef
+
+    companion object {
+        fun ModelRepositoryId.ref() = Id(this)
+    }
 }

@@ -51,6 +51,24 @@ class ModelJsonRepository(
         persistModel(model)
     }
 
+    private fun updateModel(modelId: ModelId, block:(model: ModelInMemory) -> ModelInMemory) {
+        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        val next = block(model)
+        persistModel(next)
+    }
+
+    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
+        updateModel(modelId) { it.copy(name = name) }
+    }
+
+    override fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?) {
+        updateModel(modelId) { it.copy(description = description) }
+    }
+
+    override fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
+        updateModel(modelId) { it.copy(version = version) }
+    }
+
     override fun deleteModel(modelId: ModelId) {
         val path = discoveredModels.remove(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         if (!path.deleteIfExists()) {
@@ -59,78 +77,75 @@ class ModelJsonRepository(
     }
 
     override fun createEntityDef(modelId: ModelId, e: EntityDef) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        val next = model.copy(
-            entityDefs = model.entityDefs + EntityDefInMemory.Companion.of(e)
-        )
-        persistModel(next)
-
+        updateModel(modelId) {
+            it.copy(entityDefs = it.entityDefs + EntityDefInMemory.of(e))
+        }
     }
 
     override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        if (model.entityDefs.any { it.id == newEntityDefId && it.id != entityDefId }) {
-            throw ModelJsonRepositoryException("Entity with id ${newEntityDefId.value} already exists in model ${modelId.value}")
+        updateModel(modelId) { model ->
+            if (model.entityDefs.any { it.id == newEntityDefId && it.id != entityDefId }) {
+                throw ModelJsonRepositoryException("Entity with id ${newEntityDefId.value} already exists in model ${modelId.value}")
+            }
+            var updated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                updated = true
+                entity.copy(id = newEntityDefId)
+            }
+            if (!updated) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        var updated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            updated = true
-            entity.copy(id = newEntityDefId)
-        }
-        if (!updated) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var updated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            updated = true
-            entity.copy(name = name)
+        updateModel(modelId) { model ->
+            var updated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                updated = true
+                entity.copy(name = name)
+            }
+            if (!updated) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!updated) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var updated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            updated = true
-            entity.copy(description = description)
+        updateModel(modelId) { model ->
+            var updated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                updated = true
+                entity.copy(description = description)
+            }
+            if (!updated) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!updated) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var removed = false
-        val nextEntities = model.entityDefs.filterNot { entity ->
-            if (entity.id == entityDefId) {
-                removed = true
-                true
-            } else {
-                false
+        updateModel(modelId) { model ->
+            var removed = false
+            val nextEntities = model.entityDefs.filterNot { entity ->
+                if (entity.id == entityDefId) {
+                    removed = true
+                    true
+                } else {
+                    false
+                }
             }
+            if (!removed) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!removed) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun createEntityDefAttributeDef(
@@ -138,17 +153,17 @@ class ModelJsonRepository(
         entityDefId: EntityDefId,
         attr: AttributeDef
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        val next = model.copy(
-            entityDefs = model.entityDefs.map { e ->
-                if (e.id == entityDefId) e.copy(
-                    attributes = e.attributes + AttributeDefInMemory.Companion.of(
-                        attr
-                    )
-                ) else e
-            }
-        )
-        persistModel(next)
+        updateModel(modelId) { model ->
+            model.copy(
+                entityDefs = model.entityDefs.map { e ->
+                    if (e.id == entityDefId) e.copy(
+                        attributes = e.attributes + AttributeDefInMemory.Companion.of(
+                            attr
+                        )
+                    ) else e
+                }
+            )
+        }
     }
 
     override fun updateEntityDefAttributeDefId(
@@ -157,30 +172,30 @@ class ModelJsonRepository(
         attributeDefId: AttributeDefId,
         newAttributeDefId: AttributeDefId
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeUpdated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            if (entity.attributes.any { it.id == newAttributeDefId && it.id != attributeDefId }) {
-                throw ModelJsonRepositoryException("Attribute with id ${newAttributeDefId.value} already exists in entity ${entityDefId.value}")
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeUpdated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                if (entity.attributes.any { it.id == newAttributeDefId && it.id != attributeDefId }) {
+                    throw ModelJsonRepositoryException("Attribute with id ${newAttributeDefId.value} already exists in entity ${entityDefId.value}")
+                }
+                val nextAttributes = entity.attributes.map { attribute ->
+                    if (attribute.id != attributeDefId) return@map attribute
+                    attributeUpdated = true
+                    attribute.copy(id = newAttributeDefId)
+                }
+                entity.copy(attributes = nextAttributes)
             }
-            val nextAttributes = entity.attributes.map { attribute ->
-                if (attribute.id != attributeDefId) return@map attribute
-                attributeUpdated = true
-                attribute.copy(id = newAttributeDefId)
+            if (!entityFound) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!attributeUpdated) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        if (!attributeUpdated) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefAttributeDefName(
@@ -189,27 +204,27 @@ class ModelJsonRepository(
         attributeDefId: AttributeDefId,
         name: LocalizedText?
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeUpdated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            val nextAttributes = entity.attributes.map { attribute ->
-                if (attribute.id != attributeDefId) return@map attribute
-                attributeUpdated = true
-                attribute.copy(name = name)
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeUpdated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                val nextAttributes = entity.attributes.map { attribute ->
+                    if (attribute.id != attributeDefId) return@map attribute
+                    attributeUpdated = true
+                    attribute.copy(name = name)
+                }
+                entity.copy(attributes = nextAttributes)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!entityFound) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            if (!attributeUpdated) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        if (!attributeUpdated) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefAttributeDefDescription(
@@ -218,27 +233,27 @@ class ModelJsonRepository(
         attributeDefId: AttributeDefId,
         description: LocalizedMarkdown?
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeUpdated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            val nextAttributes = entity.attributes.map { attribute ->
-                if (attribute.id != attributeDefId) return@map attribute
-                attributeUpdated = true
-                attribute.copy(description = description)
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeUpdated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                val nextAttributes = entity.attributes.map { attribute ->
+                    if (attribute.id != attributeDefId) return@map attribute
+                    attributeUpdated = true
+                    attribute.copy(description = description)
+                }
+                entity.copy(attributes = nextAttributes)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!entityFound) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            if (!attributeUpdated) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        if (!attributeUpdated) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefAttributeDefType(
@@ -247,27 +262,27 @@ class ModelJsonRepository(
         attributeDefId: AttributeDefId,
         type: ModelTypeId
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeUpdated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            val nextAttributes = entity.attributes.map { attribute ->
-                if (attribute.id != attributeDefId) return@map attribute
-                attributeUpdated = true
-                attribute.copy(type = type)
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeUpdated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                val nextAttributes = entity.attributes.map { attribute ->
+                    if (attribute.id != attributeDefId) return@map attribute
+                    attributeUpdated = true
+                    attribute.copy(type = type)
+                }
+                entity.copy(attributes = nextAttributes)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!entityFound) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            if (!attributeUpdated) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        if (!attributeUpdated) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun updateEntityDefAttributeDefOptional(
@@ -276,27 +291,27 @@ class ModelJsonRepository(
         attributeDefId: AttributeDefId,
         optional: Boolean
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeUpdated = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            val nextAttributes = entity.attributes.map { attribute ->
-                if (attribute.id != attributeDefId) return@map attribute
-                attributeUpdated = true
-                attribute.copy(optional = optional)
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeUpdated = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                val nextAttributes = entity.attributes.map { attribute ->
+                    if (attribute.id != attributeDefId) return@map attribute
+                    attributeUpdated = true
+                    attribute.copy(optional = optional)
+                }
+                entity.copy(attributes = nextAttributes)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!entityFound) {
+                throw ModelEntityNotFoundException(modelId, entityDefId)
+            }
+            if (!attributeUpdated) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound) {
-            throw ModelEntityNotFoundException(modelId, entityDefId)
-        }
-        if (!attributeUpdated) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     override fun deleteEntityDefAttributeDef(
@@ -304,27 +319,27 @@ class ModelJsonRepository(
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId
     ) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
-        var entityFound = false
-        var attributeRemoved = false
-        val nextEntities = model.entityDefs.map { entity ->
-            if (entity.id != entityDefId) return@map entity
-            entityFound = true
-            val nextAttributes = entity.attributes.filterNot { attribute ->
-                if (attribute.id == attributeDefId) {
-                    attributeRemoved = true
-                    true
-                } else {
-                    false
+        updateModel(modelId) { model ->
+            var entityFound = false
+            var attributeRemoved = false
+            val nextEntities = model.entityDefs.map { entity ->
+                if (entity.id != entityDefId) return@map entity
+                entityFound = true
+                val nextAttributes = entity.attributes.filterNot { attribute ->
+                    if (attribute.id == attributeDefId) {
+                        attributeRemoved = true
+                        true
+                    } else {
+                        false
+                    }
                 }
+                entity.copy(attributes = nextAttributes)
             }
-            entity.copy(attributes = nextAttributes)
+            if (!entityFound || !attributeRemoved) {
+                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+            }
+            model.copy(entityDefs = nextEntities)
         }
-        if (!entityFound || !attributeRemoved) {
-            throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
-        }
-        val next = model.copy(entityDefs = nextEntities)
-        persistModel(next)
     }
 
     fun persistModel(model: Model) {

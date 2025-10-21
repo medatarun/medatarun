@@ -31,6 +31,9 @@ interface ModelRepository {
     fun findAllModelIds(): List<ModelId>
     fun findModelByIdOptional(id: ModelId): Model?
     fun createModel(model: Model)
+    fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized)
+    fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?)
+    fun updateModelVersion(modelId: ModelId, version: ModelVersion)
     fun deleteModel(modelId: ModelId)
 
     // Models -> EntityDef
@@ -53,8 +56,5 @@ interface ModelRepository {
     fun updateEntityDefAttributeDefType(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, type: ModelTypeId)
     fun updateEntityDefAttributeDefOptional(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, optional: Boolean)
     fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
-
-
-
     //@formatter:on
 }

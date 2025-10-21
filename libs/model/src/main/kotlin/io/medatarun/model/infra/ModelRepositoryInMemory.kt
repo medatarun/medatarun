@@ -28,21 +28,46 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         models[model.id] = ModelInMemory.of(model)
     }
 
+    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
+        val model = models[modelId] ?: throw ModelRepositoryInMemoryModelNotFoundException(modelId)
+        models[modelId] = block(model)
+    }
+
+    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
+        updateModel(modelId) { it.copy(name = name) }
+    }
+
+    override fun updateModelDescription(
+        modelId: ModelId,
+        description: LocalizedTextNotLocalized?
+    ) {
+        updateModel(modelId) { it.copy(description = description) }
+    }
+
+    override fun updateModelVersion(
+        modelId: ModelId,
+        version: ModelVersion
+    ) {
+        updateModel(modelId) { it.copy(version = version) }
+    }
+
     override fun deleteModel(modelId: ModelId) {
         models.remove(modelId)
     }
 
     override fun createEntityDef(modelId: ModelId, e: EntityDef) {
-        val curr = models[modelId] ?: throw ModelNotFoundException(modelId)
-        models[modelId] = curr.copy(entityDefs = curr.entityDefs + EntityDefInMemory.of(e))
+        updateModel(modelId) {
+            it.copy(entityDefs = it.entityDefs + EntityDefInMemory.of(e))
+        }
     }
 
     fun modifyingEntityDef(modelId: ModelId, e: EntityDefId, block: (EntityDefInMemory) -> EntityDefInMemory?) {
-        val curr = models[modelId] ?: throw ModelNotFoundException(modelId)
-        models[modelId] = curr.copy(
-            entityDefs = curr.entityDefs.mapNotNull { entityDef ->
-                if (entityDef.id != e) entityDef else block(entityDef)
-            })
+        updateModel(modelId) {
+            it.copy(
+                entityDefs = it.entityDefs.mapNotNull { entityDef ->
+                    if (entityDef.id != e) entityDef else block(entityDef)
+                })
+        }
     }
 
     fun modifyingEntityDefAttributeDef(
@@ -51,15 +76,16 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         attributeDefId: AttributeDefId,
         block: (AttributeDefInMemory) -> AttributeDefInMemory?
     ) {
-        val curr = models[modelId] ?: throw ModelNotFoundException(modelId)
-        models[modelId] = curr.copy(
-            entityDefs = curr.entityDefs.map { entityDef ->
-                if (entityDef.id != e) entityDef else entityDef.copy(
-                    attributes = entityDef.attributes.mapNotNull { attr ->
-                        if (attr.id != attributeDefId) attr else block(attr)
-                    }
-                )
-            })
+        updateModel(modelId) {
+            it.copy(
+                entityDefs = it.entityDefs.map { entityDef ->
+                    if (entityDef.id != e) entityDef else entityDef.copy(
+                        attributes = entityDef.attributes.mapNotNull { attr ->
+                            if (attr.id != attributeDefId) attr else block(attr)
+                        }
+                    )
+                })
+        }
     }
 
 

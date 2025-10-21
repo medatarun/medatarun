@@ -10,6 +10,9 @@ interface ModelCmd {
     // Model
 
     fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef = RepositoryRef.Auto)
+    fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized)
+    fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?)
+    fun updateModelVersion(modelId: ModelId, version: ModelVersion)
     fun deleteModel(modelId: ModelId)
 
     // Model -> EntityDef
@@ -27,6 +30,7 @@ interface ModelCmd {
     fun updateEntityDefAttributeDefName(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, name: LocalizedText?)
     fun updateEntityDefAttributeDefDescription(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, description: LocalizedMarkdown?)
     fun updateEntityDefAttributeDefType(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, type: ModelTypeId)
-    fun updateEntityDefAttributeDefOptional(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, optional: Boolean)
+    fun updateEntityDefAttributeDefOptional(modelId: ModelId,    entityDefId: EntityDefId, attributeDefId: AttributeDefId, optional: Boolean)
     fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
+
 }
