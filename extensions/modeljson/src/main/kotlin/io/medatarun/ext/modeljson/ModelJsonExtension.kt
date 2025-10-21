@@ -5,7 +5,7 @@ import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRE
 import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_REPOSITORY_PATH_KEY
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
-import io.medatarun.model.model.ModelRepository
+import io.medatarun.model.ports.ModelRepository
 import kotlin.io.path.isDirectory
 
 class ModelJsonExtension : MedatarunExtension {

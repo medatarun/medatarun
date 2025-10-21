@@ -1,6 +1,7 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
+import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelStorage
 
 class ModelStorageComposite(
@@ -32,14 +33,14 @@ class ModelStorageComposite(
         repo.createEntityDef(modelId, e)
     }
 
-    override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityId: EntityDefId) {
+    override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityDefId(modelId, entityDefId, newEntityId)
+        repo.updateEntityDefId(modelId, entityDefId, newEntityDefId)
     }
 
-    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, title: LocalizedText?) {
+    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityDefTitle(modelId, entityDefId, title)
+        repo.updateEntityDefName(modelId, entityDefId, name)
     }
 
     override fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?) {
@@ -68,7 +69,7 @@ class ModelStorageComposite(
         newAttributeDefId: AttributeDefId
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityDefAttributeDefName(modelId, entityDefId, attributeDefId, newAttributeDefId)
+        repo.updateEntityDefAttributeDefId(modelId, entityDefId, attributeDefId, newAttributeDefId)
     }
 
     override fun updateEntityDefAttributeDefName(
@@ -78,7 +79,7 @@ class ModelStorageComposite(
         name: LocalizedText?
     ) {
         val repo = findRepoWithModel(modelId)
-        repo.updateEntityDefAttributeDefTitle(modelId, entityDefId, attributeDefId, name)
+        repo.updateEntityDefAttributeDefName(modelId, entityDefId, attributeDefId, name)
     }
 
     override fun updateEntityDefAttributeDefDescription(

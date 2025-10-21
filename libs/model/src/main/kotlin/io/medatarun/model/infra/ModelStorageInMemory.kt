@@ -8,10 +8,23 @@ data class ModelInMemory(
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
+    override val types: List<ModelType>,
     override val entityDefs: List<EntityDefInMemory>
-) : Model {
+) : Model
 
+
+data class ModelTypeInMemory(
+    override val id: ModelTypeId,
+    override val name: LocalizedText?,
+    override val description: LocalizedMarkdown?,
+) : ModelType {
+    companion object {
+        fun of(id: String): ModelTypeInMemory {
+            return ModelTypeInMemory(ModelTypeId(id), null, null)
+        }
+    }
 }
+
 
 data class EntityDefInMemory(
     override val id: EntityDefId,
@@ -22,11 +35,11 @@ data class EntityDefInMemory(
 
     private val map = attributes.associateBy { it.id }
 
-    override fun countAttributes(): Int {
+    override fun countAttributeDefs(): Int {
         return attributes.size
     }
 
-    override fun getAttribute(id: AttributeDefId): AttributeDef {
+    override fun getAttributeDef(id: AttributeDefId): AttributeDef {
         return map[id] ?: throw ModelEntityAttributeNotFoundException(this.id, id)
     }
 

@@ -4,6 +4,7 @@ import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
+import io.medatarun.model.ports.ModelRepository
 import java.nio.file.Path
 import kotlin.collections.plus
 import kotlin.io.path.*
@@ -75,13 +76,13 @@ class ModelJsonRepository(
         persistModel(next)
     }
 
-    override fun updateEntityDefTitle(modelId: ModelId, entityDefId: EntityDefId, title: LocalizedText?) {
+    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?) {
         val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         var updated = false
         val nextEntities = model.entityDefs.map { entity ->
             if (entity.id != entityDefId) return@map entity
             updated = true
-            entity.copy(name = title)
+            entity.copy(name = name)
         }
         if (!updated) {
             throw ModelEntityNotFoundException(modelId, entityDefId)
@@ -141,11 +142,11 @@ class ModelJsonRepository(
         persistModel(next)
     }
 
-    override fun updateEntityDefAttributeDefName(
+    override fun updateEntityDefAttributeDefId(
         modelId: ModelId,
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId,
-        newAttributeId: AttributeDefId
+        newAttributeDefId: AttributeDefId
     ) {
         val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         var entityFound = false
@@ -153,13 +154,13 @@ class ModelJsonRepository(
         val nextEntities = model.entityDefs.map { entity ->
             if (entity.id != entityDefId) return@map entity
             entityFound = true
-            if (entity.attributes.any { it.id == newAttributeId && it.id != attributeDefId }) {
-                throw ModelJsonRepositoryException("Attribute with id ${newAttributeId.value} already exists in entity ${entityDefId.value}")
+            if (entity.attributes.any { it.id == newAttributeDefId && it.id != attributeDefId }) {
+                throw ModelJsonRepositoryException("Attribute with id ${newAttributeDefId.value} already exists in entity ${entityDefId.value}")
             }
             val nextAttributes = entity.attributes.map { attribute ->
                 if (attribute.id != attributeDefId) return@map attribute
                 attributeUpdated = true
-                attribute.copy(id = newAttributeId)
+                attribute.copy(id = newAttributeDefId)
             }
             entity.copy(attributes = nextAttributes)
         }
@@ -173,11 +174,11 @@ class ModelJsonRepository(
         persistModel(next)
     }
 
-    override fun updateEntityDefAttributeDefTitle(
+    override fun updateEntityDefAttributeDefName(
         modelId: ModelId,
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId,
-        title: LocalizedText?
+        name: LocalizedText?
     ) {
         val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         var entityFound = false
@@ -188,7 +189,7 @@ class ModelJsonRepository(
             val nextAttributes = entity.attributes.map { attribute ->
                 if (attribute.id != attributeDefId) return@map attribute
                 attributeUpdated = true
-                attribute.copy(name = title)
+                attribute.copy(name = name)
             }
             entity.copy(attributes = nextAttributes)
         }

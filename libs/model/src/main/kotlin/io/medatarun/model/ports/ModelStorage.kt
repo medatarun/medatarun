@@ -10,20 +10,28 @@ import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelTypeId
 
+/**
+ * A storage represents a single storage for models.
+ *
+ * Do not confuse with [ModelRepository] which can aggregate multiple storages.
+ *
+ * This is the one extensions should implement to offer model storage capabilities
+ */
 interface ModelStorage {
 
     // Models
 
-    fun findModelById(id: ModelId): Model
-    fun createModel(mode: Model)
-    fun deleteModel(modelId: ModelId)
     fun findAllModelIds(): List<ModelId>
+    fun findModelById(id: ModelId): Model
+    fun createModel(model: Model)
+    fun deleteModel(modelId: ModelId)
+
 
     // Models -> EntityDef
 
     fun createEntityDef(modelId: ModelId, e: EntityDef)
-    fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityId: EntityDefId)
-    fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, title: LocalizedText?)
+    fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId)
+    fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?)
     fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?)
     fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
 

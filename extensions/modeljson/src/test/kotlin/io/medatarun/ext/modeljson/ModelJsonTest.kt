@@ -40,23 +40,23 @@ internal class ModelJsonTest {
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
 
-        assertEquals(companyEntity.countAttributes(), 3)
+        assertEquals(companyEntity.countAttributeDefs(), 3)
 
-        val companyName = companyEntity.getAttribute(AttributeDefId("name"))
+        val companyName = companyEntity.getAttributeDef(AttributeDefId("name"))
         assertEquals(companyName.id, AttributeDefId("name"))
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
         assertEquals(companyName.type, ModelTypeId("String"))
 
-        val companyProfileUrl = companyEntity.getAttribute(AttributeDefId("profile_url"))
+        val companyProfileUrl = companyEntity.getAttributeDef(AttributeDefId("profile_url"))
         assertEquals(companyProfileUrl.id, AttributeDefId("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
         assertEquals(companyProfileUrl.type, ModelTypeId("String"))
 
-        val companyInfos = companyEntity.getAttribute(AttributeDefId("informations"))
+        val companyInfos = companyEntity.getAttributeDef(AttributeDefId("informations"))
         assertEquals(companyInfos.id, AttributeDefId("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
         assertEquals(companyInfos.description?.name, "La description est au format Markdown et doit provenir de leur site internet !")

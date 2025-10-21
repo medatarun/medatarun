@@ -9,7 +9,7 @@ import io.medatarun.model.internal.ModelCmdImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelQueries
-import io.medatarun.model.model.ModelRepository
+import io.medatarun.model.ports.ModelRepository
 import io.medatarun.runtime.AppRuntime
 
 class AppRuntimeBuilder {

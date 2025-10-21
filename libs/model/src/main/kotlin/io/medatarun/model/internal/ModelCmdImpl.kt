@@ -7,31 +7,32 @@ import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorage
 
 class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
-    override fun create(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion) {
+    override fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion) {
         val model = ModelInMemory(
             id = id,
             name = name,
             description = description,
             version = version,
+            types = emptyList(),
             entityDefs = emptyList()
         )
         storage.createModel(model)
     }
 
-    override fun delete(modelId: ModelId) {
+    override fun deleteModel(modelId: ModelId) {
         storage.deleteModel(modelId)
     }
 
-    override fun updateEntityName(modelId: ModelId, entityDefId: EntityDefId, newEntityId: EntityDefId) {
-        storage.updateEntityDefId(modelId, entityDefId, newEntityId)
+    override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId) {
+        storage.updateEntityDefId(modelId, entityDefId, newEntityDefId)
     }
 
-    override fun updateEntityTitle(modelId: ModelId, entityId: EntityDefId, title: LocalizedText?) {
-        storage.updateEntityDefName(modelId, entityId, title)
+    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?) {
+        storage.updateEntityDefName(modelId, entityDefId, name)
     }
 
-    override fun updateEntityDescription(modelId: ModelId, entityId: EntityDefId, description: LocalizedMarkdown?) {
-        storage.updateEntityDefDescription(modelId, entityId, description)
+    override fun updateEntityDefDescription(modelId: ModelId, entityDefId: EntityDefId, description: LocalizedMarkdown?) {
+        storage.updateEntityDefDescription(modelId, entityDefId, description)
     }
 
     override fun createEntityDef(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?, description: LocalizedMarkdown?) {
@@ -43,53 +44,53 @@ class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
         ))
     }
 
-    override fun updateEntityAttributeName(
+    override fun updateEntityDefAttributeDefId(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId,
-        newAttributeId: AttributeDefId
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
+        newAttributeDefId: AttributeDefId
     ) {
-        storage.updateEntityDefAttributeDefId(modelId, entityId, attributeId, newAttributeId)
+        storage.updateEntityDefAttributeDefId(modelId, entityDefId, attributeDefId, newAttributeDefId)
     }
 
-    override fun updateEntityAttributeTitle(
+    override fun updateEntityDefAttributeDefName(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId,
-        title: LocalizedText?
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
+        name: LocalizedText?
     ) {
-        storage.updateEntityDefAttributeDefName(modelId, entityId, attributeId, title)
+        storage.updateEntityDefAttributeDefName(modelId, entityDefId, attributeDefId, name)
     }
 
-    override fun updateEntityAttributeDescription(
+    override fun updateEntityDefAttributeDefDescription(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         description: LocalizedMarkdown?
     ) {
-        storage.updateEntityDefAttributeDefDescription(modelId, entityId, attributeId, description)
+        storage.updateEntityDefAttributeDefDescription(modelId, entityDefId, attributeDefId, description)
     }
 
-    override fun updateEntityAttributeType(
+    override fun updateEntityDefAttributeDefType(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         type: ModelTypeId
     ) {
-        storage.updateEntityDefAttributeDefType(modelId, entityId, attributeId, type)
+        storage.updateEntityDefAttributeDefType(modelId, entityDefId, attributeDefId, type)
     }
 
-    override fun updateEntityAttributeOptional(
+    override fun updateEntityDefAttributeDefOptional(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
         optional: Boolean
     ) {
-        storage.updateEntityDefAttributeDefOptional(modelId, entityId, attributeId, optional)
+        storage.updateEntityDefAttributeDefOptional(modelId, entityDefId, attributeDefId, optional)
     }
 
-    override fun deleteEntity(modelId: ModelId, entityId: EntityDefId) {
-        storage.deleteEntityDef(modelId, entityId)
+    override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
+        storage.deleteEntityDef(modelId, entityDefId)
     }
 
     override fun createEntityDefAttributeDef(
@@ -110,11 +111,11 @@ class ModelCmdImpl(val storage: ModelStorage) : ModelCmd {
         ))
     }
 
-    override fun deleteEntityAttribute(
+    override fun deleteEntityDefAttributeDef(
         modelId: ModelId,
-        entityId: EntityDefId,
-        attributeId: AttributeDefId
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId
     ) {
-        storage.deleteEntityDefAttributeDef(modelId, entityId, attributeId)
+        storage.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 }

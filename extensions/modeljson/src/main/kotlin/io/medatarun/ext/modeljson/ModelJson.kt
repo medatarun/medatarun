@@ -96,6 +96,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = ModelVersion(modelJson.version),
             name = modelJson.name,
             description = modelJson.description,
+            types = emptyList(),
             entityDefs = modelJson.entities.map { entityJson ->
                 EntityDefInMemory(
                     id = EntityDefId(entityJson.id),
