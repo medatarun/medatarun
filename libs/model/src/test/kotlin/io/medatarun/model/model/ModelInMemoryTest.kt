@@ -4,11 +4,14 @@ import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.internal.ModelCmdImpl
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ModelInMemoryTest {
+
+
 
     @Test
     fun `model contains person and company entities`() {

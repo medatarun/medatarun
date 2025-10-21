@@ -17,7 +17,7 @@ interface ModelStorages {
 
     fun findAllModelIds(): List<ModelId>
     fun findModelById(id: ModelId): Model
-    fun createModel(model: Model)
+    fun createModel(model: Model, repositoryRef: RepositoryRef)
     fun deleteModel(modelId: ModelId)
 
     // Models -> EntityDef

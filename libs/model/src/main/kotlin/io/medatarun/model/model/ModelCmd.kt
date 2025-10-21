@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import io.medatarun.model.ports.RepositoryRef
+
 /**
  * Commands to change the model, entity definitions, entity definition's attributes definitions
  */
@@ -7,7 +9,7 @@ interface ModelCmd {
 
     // Model
 
-    fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion)
+    fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef = RepositoryRef.Auto)
     fun deleteModel(modelId: ModelId)
 
     // Model -> EntityDef

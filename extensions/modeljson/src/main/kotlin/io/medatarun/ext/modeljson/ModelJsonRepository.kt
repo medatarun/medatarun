@@ -5,6 +5,7 @@ import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
+import io.medatarun.model.ports.ModelRepositoryId
 import java.nio.file.Path
 import kotlin.collections.plus
 import kotlin.io.path.*
@@ -15,6 +16,10 @@ class ModelJsonRepository(
     private val modelJsonConverter: ModelJsonConverter
 ) : ModelRepository {
 
+    /**
+     * This repository currently handles only one storage.
+     */
+    private val repositoryId = ModelRepositoryId("json")
 
     private val discoveredModels = mutableMapOf<ModelId, Path>()
 
@@ -27,6 +32,10 @@ class ModelJsonRepository(
             val model = modelJsonConverter.fromJson(path.readText())
             discoveredModels[model.id] = path.toAbsolutePath()
         }
+    }
+
+    override fun matchesId(id: ModelRepositoryId): Boolean {
+        return id == repositoryId
     }
 
     override fun findModelByIdOptional(id: ModelId): ModelInMemory? {

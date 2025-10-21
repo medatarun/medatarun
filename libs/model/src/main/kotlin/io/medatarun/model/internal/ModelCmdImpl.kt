@@ -5,18 +5,20 @@ import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorages
+import io.medatarun.model.ports.RepositoryRef
 
 class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
-    override fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion) {
+    override fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef) {
         val model = ModelInMemory(
             id = id,
             name = name,
             description = description,
             version = version,
             types = emptyList(),
-            entityDefs = emptyList()
+            entityDefs = emptyList(),
+
         )
-        storage.createModel(model)
+        storage.createModel(model, repositoryRef)
     }
 
     override fun deleteModel(modelId: ModelId) {
