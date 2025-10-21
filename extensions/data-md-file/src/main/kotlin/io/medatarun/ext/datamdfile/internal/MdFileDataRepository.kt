@@ -1,38 +1,44 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.data.DataRepository
-import io.medatarun.data.Entity
-import io.medatarun.data.EntityInitializer
-import io.medatarun.data.EntityInstanceId
-import io.medatarun.data.EntityUpdater
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.ModelEntityId
-import io.medatarun.model.model.ModelId
+import io.medatarun.data.*
+import io.medatarun.model.model.*
 import java.nio.file.Path
 
 /**
- * This repository stores each entity from the model as files.
- *
- * - Every entityDefId matches a subfolder from repositoryRoot.
- * - Each entity "id" attribute is used as a filename (<repositoryRoot>/<entityDefId>/<entityId>.md)
- * - Each entity is stored a Markdown file
- * - Entity attributes are stored in the frontmatter of the Markdown file
- *   except attributes of type Markdown who are stored in the texte Body, each attribute being in a section,
- *   each section starting with "##".
- * - Attributes being in the frontmatter are always present, and marked as "null" if data is null ( creationDate : null )
- * - Attributes being in the body (type Markdown) are not present if null (section shall not be written)
- *
+ * Repository implementation backed by Markdown files stored per entity definition.
  */
-class MdFileDataRepository(private val repositoryRoot: Path): DataRepository {
+class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
+
+    private val markdownAdapter = MarkdownAdapter()
+    private val fileManager = RepositoryFileManager(repositoryRoot)
+
     override fun managedEntityDefs(modelId: ModelId): Set<ModelEntityId> {
-        TODO("Not yet implemented")
+        return fileManager.listEntityDefinitionIds()
     }
 
     override fun findAllEntities(
         model: Model,
         entityDefId: ModelEntityId
     ): List<Entity> {
-        TODO("Not yet implemented")
+        val entityDef = model.findEntity(entityDefId) ?: return emptyList()
+        val entityFiles = fileManager.listEntityFiles(entityDefId)
+        return entityFiles.map { entityFile ->
+            val content = fileManager.read(entityFile)
+            val parsed = markdownAdapter.parseEntity(
+                entityDef = entityDef,
+                entityDefId = entityDefId,
+                entityIdAttribute = ENTITY_ID_ATTRIBUTE,
+                content = content
+            )
+            MdEntity(
+                id = StringEntityInstanceId(parsed.entityId),
+                entityTypeId = entityDefId,
+                attributes = parsed.values
+                    .filterValues { it != null }
+                    .mapValues { it.value as Any }
+                    .mapKeys { it.key.value }
+            )
+        }
     }
 
     override fun createEntity(
@@ -40,7 +46,19 @@ class MdFileDataRepository(private val repositoryRoot: Path): DataRepository {
         entityDefId: ModelEntityId,
         entityInitializer: EntityInitializer
     ) {
-        TODO("Not yet implemented")
+        val entityDef = model.findEntityOrThrow(entityDefId)
+        val values = mutableMapOf<ModelAttributeId, Any?>()
+
+        entityDef.attributes.forEach { attribute ->
+            val value = entityInitializer.get<Any?>(attribute.id)
+            values[attribute.id] = value
+        }
+
+        val entityIdValue = values[ENTITY_ID_ATTRIBUTE]?.toString()
+            ?: throw MdFileEntityIdMissingException(entityDefId)
+
+        val content = markdownAdapter.renderEntityContent(entityDef, values)
+        fileManager.write(entityDefId, entityIdValue, content)
     }
 
     override fun updateEntity(
@@ -48,7 +66,42 @@ class MdFileDataRepository(private val repositoryRoot: Path): DataRepository {
         entityDefId: ModelEntityId,
         entityUpdater: EntityUpdater
     ) {
-        TODO("Not yet implemented")
+        val entityDef = model.findEntityOrThrow(entityDefId)
+
+        val currentEntityId = entityUpdater.id.asString()
+        if (!fileManager.exists(entityDefId, currentEntityId)) {
+            throw MdFileEntityNotFoundException(entityDefId, currentEntityId)
+        }
+
+        val existingContent = fileManager.read(entityDefId, currentEntityId)
+        val parsed = markdownAdapter.parseEntity(
+            entityDef = entityDef,
+            entityDefId = entityDefId,
+            entityIdAttribute = ENTITY_ID_ATTRIBUTE,
+            content = existingContent
+        )
+        val values = parsed.values
+        entityUpdater.list().forEach { instruction ->
+            when (instruction) {
+                is EntityUpdater.Instruction.InstructionUpdate -> {
+                    ensureAttributeExists(entityDef, instruction.attributeId)
+                    values[instruction.attributeId] = instruction.value
+                }
+                is EntityUpdater.Instruction.InstructionNone -> {
+                    ensureAttributeExists(entityDef, instruction.attributeId)
+                }
+            }
+        }
+
+        val updatedEntityId = values[ENTITY_ID_ATTRIBUTE]?.toString()
+            ?: throw MdFileEntityIdMissingException(entityDefId)
+
+        val content = markdownAdapter.renderEntityContent(entityDef, values)
+        fileManager.write(entityDefId, updatedEntityId, content)
+
+        if (updatedEntityId != currentEntityId) {
+            fileManager.delete(entityDefId, currentEntityId)
+        }
     }
 
     override fun deleteEntity(
@@ -56,7 +109,37 @@ class MdFileDataRepository(private val repositoryRoot: Path): DataRepository {
         entityDefId: ModelEntityId,
         entityId: EntityInstanceId
     ) {
-        TODO("Not yet implemented")
+        fileManager.delete(entityDefId, entityId.asString())
     }
 
+    private fun Model.findEntity(entityDefId: ModelEntityId) =
+        entities.firstOrNull { it.id == entityDefId }
+
+    private fun Model.findEntityOrThrow(entityDefId: ModelEntityId) =
+        findEntity(entityDefId) ?: throw MdFileEntityDefinitionNotManagedException(id, entityDefId)
+
+    private fun ensureAttributeExists(
+        entityDef: ModelEntity,
+        attributeId: ModelAttributeId
+    ) {
+        if (!entityDef.hasAttribute(attributeId)) {
+            throw MdFileEntityAttributeUnknownException(entityDef.id, attributeId)
+        }
+    }
+
+    private data class MdEntity(
+        override val id: EntityInstanceId,
+        override val entityTypeId: ModelEntityId,
+        override val attributes: Map<String, Any>
+    ) : Entity
+
+    private data class StringEntityInstanceId(
+        private val value: String
+    ) : EntityInstanceId {
+        override fun asString(): String = value
+    }
+
+    companion object {
+        private val ENTITY_ID_ATTRIBUTE = ModelAttributeId("id")
+    }
 }

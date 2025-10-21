@@ -6,6 +6,7 @@ value class ModelEntityId(val value: String)
 interface ModelEntity {
     fun countAttributes(): Int
     fun getAttribute(id: ModelAttributeId): ModelAttribute
+    fun hasAttribute(id: ModelAttributeId): Boolean
 
     val id: ModelEntityId
     val name: LocalizedText?

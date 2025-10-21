@@ -9,7 +9,7 @@ import java.nio.file.Path
 /**
  * Creates an in-memory filesystem based on Jimfs for tests and exposes the key directories used by the extension.
  */
-internal class FilesystemBuilder {
+internal class FilesystemFixture {
     private val fileSystem: FileSystem = Jimfs.newFileSystem(Configuration.unix())
     private val modelsDirectory: Path = Files.createDirectories(fileSystem.getPath("/app/medatarun/models"))
     private val storageDirectory: Path = Files.createDirectories(fileSystem.getPath("/data/medatarun/storage"))

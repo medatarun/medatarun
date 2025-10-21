@@ -32,6 +32,8 @@ data class ModelEntityInMemory(
         return map[id] ?: throw ModelEntityAttributeNotFoundException(this.id, id)
     }
 
+    override fun hasAttribute(id: ModelAttributeId): Boolean = map.containsKey(id)
+
     companion object {
         fun of(other: ModelEntity): ModelEntityInMemory {
             return ModelEntityInMemory(
