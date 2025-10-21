@@ -280,4 +280,46 @@ class ModelTest {
         assertNull(repo2.findModelByIdOptional(ModelId("m-to-delete-repo-2")))
 
     }
+
+    // ------------------------------------------------------------------------
+    // Entities
+    // ------------------------------------------------------------------------
+
+    @Test
+    fun `create entity then id name and description shall persist`() {
+        TODO("Not implemented")
+    }
+
+    @Test
+    fun `create entity with null description then description shall be null`() {
+        TODO("Not implemented")
+    }
+
+    @Test
+    fun `update entity id then id shall be changed`() {
+        TODO("Not implemented")
+    }
+
+    @Test
+    fun `update entity name then name shall be changed`() {
+        TODO("Not implemented")
+    }
+
+    @Test
+    fun `update entity description with value then description shall be changed`() {
+        TODO("Not implemented")
+    }
+
+    @Test
+    fun `update entity description with null then description shall be null`() {
+        TODO("Not implemented")
+    }
+    @Test
+    fun `delete entity in model then entity removed`() {
+        TODO("Not implemented")
+    }
+    @Test
+    fun `delete entity with same id in two models then only entity in the specified model is removed`() {
+        TODO("Not implemented")
+    }
 }
