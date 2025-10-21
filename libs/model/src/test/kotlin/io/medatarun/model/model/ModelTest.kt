@@ -287,39 +287,134 @@ class ModelTest {
 
     @Test
     fun `create entity then id name and description shall persist`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity")
+        val name = LocalizedTextNotLocalized("Order")
+        val description = LocalizedMarkdownNotLocalized("Order description")
+
+        env.cmd.createEntityDef(env.modelId, entityId, name, description)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertEquals(entityId, reloaded.id)
+        assertEquals(name, reloaded.name)
+        assertEquals(description, reloaded.description)
     }
 
     @Test
     fun `create entity with null description then description shall be null`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-null-description")
+        val name = LocalizedTextNotLocalized("Entity without description")
+
+        env.cmd.createEntityDef(env.modelId, entityId, name, null)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertEquals(entityId, reloaded.id)
+        assertEquals(name, reloaded.name)
+        assertNull(reloaded.description)
     }
 
     @Test
     fun `update entity id then id shall be changed`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-old-id")
+        val newEntityId = EntityDefId("entity-new-id")
+
+        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity"), null)
+        env.cmd.updateEntityDefId(env.modelId, entityId, newEntityId)
+
+        val reloaded = env.query.findModelById(env.modelId)
+        assertNull(reloaded.findEntityDefOptional(entityId))
+        assertEquals(newEntityId, reloaded.findEntityDef(newEntityId).id)
     }
 
     @Test
     fun `update entity name then name shall be changed`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-name")
+        val updatedName = LocalizedTextNotLocalized("Entity renamed")
+
+        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity name"), null)
+        env.cmd.updateEntityDefName(env.modelId, entityId, updatedName)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertEquals(updatedName, reloaded.name)
     }
 
     @Test
     fun `update entity description with value then description shall be changed`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-description")
+        val description = LocalizedMarkdownNotLocalized("Entity description updated")
+
+        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity name"), null)
+        env.cmd.updateEntityDefDescription(env.modelId, entityId, description)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertEquals(description, reloaded.description)
     }
 
     @Test
     fun `update entity description with null then description shall be null`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-description-null")
+
+        env.cmd.createEntityDef(
+            env.modelId,
+            entityId,
+            LocalizedTextNotLocalized("Entity name"),
+            LocalizedMarkdownNotLocalized("Entity description original")
+        )
+        env.cmd.updateEntityDefDescription(env.modelId, entityId, null)
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertNull(reloaded.description)
     }
+
     @Test
     fun `delete entity in model then entity removed`() {
-        TODO("Not implemented")
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-to-delete")
+
+        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("To delete"), null)
+        env.cmd.deleteEntityDef(env.modelId, entityId)
+
+        val reloaded = env.query.findModelById(env.modelId)
+        assertNull(reloaded.findEntityDefOptional(entityId))
     }
+
     @Test
     fun `delete entity with same id in two models then only entity in the specified model is removed`() {
-        TODO("Not implemented")
+        val repo = ModelRepositoryInMemory("repo")
+        val storages = ModelStoragesComposite(listOf(repo))
+        val cmd: ModelCmd = ModelCmdImpl(storages)
+        val query: ModelQueries = ModelQueriesImpl(storages)
+
+        val modelId1 = ModelId("model-1")
+        val modelId2 = ModelId("model-2")
+        val entityId = EntityDefId("shared-entity")
+
+        cmd.createModel(
+            modelId1,
+            LocalizedTextNotLocalized("Model 1"),
+            null,
+            ModelVersion("1.0.0")
+        )
+        cmd.createModel(
+            modelId2,
+            LocalizedTextNotLocalized("Model 2"),
+            null,
+            ModelVersion("1.0.0")
+        )
+        cmd.createEntityDef(modelId1, entityId, LocalizedTextNotLocalized("Entity"), null)
+        cmd.createEntityDef(modelId2, entityId, LocalizedTextNotLocalized("Entity"), null)
+
+        cmd.deleteEntityDef(modelId1, entityId)
+
+        val reloadedModel1 = query.findModelById(modelId1)
+        val reloadedModel2 = query.findModelById(modelId2)
+
+        assertNull(reloadedModel1.findEntityDefOptional(entityId))
+        assertNotNull(reloadedModel2.findEntityDefOptional(entityId))
     }
 }
