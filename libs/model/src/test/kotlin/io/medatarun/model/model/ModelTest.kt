@@ -299,7 +299,10 @@ class ModelTest {
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
     }
-
+    @Test
+    fun `create entity with null name then name shall be null`() {
+        TODO("Implement this")
+    }
     @Test
     fun `create entity with null description then description shall be null`() {
         val env = TestEnvOneModel()
@@ -314,62 +317,47 @@ class ModelTest {
         assertNull(reloaded.description)
     }
 
+
     @Test
-    fun `update entity id then id shall be changed`() {
-        val env = TestEnvOneModel()
-        val entityId = EntityDefId("entity-old-id")
-        val newEntityId = EntityDefId("entity-new-id")
-
-        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity"), null)
-        env.cmd.updateEntityDefId(env.modelId, entityId, newEntityId)
-
-        val reloaded = env.query.findModelById(env.modelId)
-        assertNull(reloaded.findEntityDefOptional(entityId))
-        assertEquals(newEntityId, reloaded.findEntityDef(newEntityId).id)
+    fun `update entity with wrong model id throws ModelNotFoundException`() {
+        TODO("Implement this")
     }
 
     @Test
-    fun `update entity name then name shall be changed`() {
-        val env = TestEnvOneModel()
-        val entityId = EntityDefId("entity-name")
-        val updatedName = LocalizedTextNotLocalized("Entity renamed")
-
-        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity name"), null)
-        env.cmd.updateEntityDefName(env.modelId, entityId, updatedName)
-
-        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
-        assertEquals(updatedName, reloaded.name)
+    fun `update entity with wrong entity id throws EntityDefNotFoundException`() {
+        TODO("Implement this")
     }
 
     @Test
-    fun `update entity description with value then description shall be changed`() {
-        val env = TestEnvOneModel()
-        val entityId = EntityDefId("entity-description")
-        val description = LocalizedMarkdownNotLocalized("Entity description updated")
-
-        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("Entity name"), null)
-        env.cmd.updateEntityDefDescription(env.modelId, entityId, description)
-
-        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
-        assertEquals(description, reloaded.description)
+    fun `update entity id with duplicate id throws exception`() {
+        TODO("Implement this")
     }
 
     @Test
-    fun `update entity description with null then description shall be null`() {
-        val env = TestEnvOneModel()
-        val entityId = EntityDefId("entity-description-null")
-
-        env.cmd.createEntityDef(
-            env.modelId,
-            entityId,
-            LocalizedTextNotLocalized("Entity name"),
-            LocalizedMarkdownNotLocalized("Entity description original")
-        )
-        env.cmd.updateEntityDefDescription(env.modelId, entityId, null)
-
-        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
-        assertNull(reloaded.description)
+    fun `update entity id with correct id ok`() {
+        TODO("Implement this")
     }
+
+    @Test
+    fun `update entity name not null persisted`() {
+        TODO("Implement this")
+    }
+
+    @Test
+    fun `update entity name null then name is null`() {
+        TODO("Implement this")
+    }
+
+    @Test
+    fun `update entity description not null persisted`() {
+        TODO("Implement this")
+    }
+
+    @Test
+    fun `update entity description with null then description is null`() {
+        TODO("Implement this")
+    }
+
 
     @Test
     fun `delete entity in model then entity removed`() {
@@ -417,4 +405,5 @@ class ModelTest {
         assertNull(reloadedModel1.findEntityDefOptional(entityId))
         assertNotNull(reloadedModel2.findEntityDefOptional(entityId))
     }
+
 }

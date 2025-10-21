@@ -47,24 +47,17 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         storage.updateModelVersion(modelId, version)
     }
 
-    override fun updateEntityDefId(modelId: ModelId, entityDefId: EntityDefId, newEntityDefId: EntityDefId) {
+    override fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd) {
         ensureModelExists(modelId)
-        storage.updateEntityDefId(modelId, entityDefId, newEntityDefId)
+        val model = storage.findModelById(modelId)
+        if (cmd is EntityDefUpdateCmd.Id) {
+            if (model.entityDefs.any { it.id == cmd.value && it.id != entityDefId }) {
+                throw UpdateEntityDefIdDuplicateIdException(entityDefId)
+            }
+        }
+        storage.updateEntityDef(modelId, entityDefId, cmd)
     }
 
-    override fun updateEntityDefName(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefName(modelId, entityDefId, name)
-    }
-
-    override fun updateEntityDefDescription(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        description: LocalizedMarkdown?
-    ) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefDescription(modelId, entityDefId, description)
-    }
 
     override fun createEntityDef(
         modelId: ModelId,
@@ -82,56 +75,6 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
             )
         )
     }
-
-    override fun updateEntityDefAttributeDefId(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        newAttributeDefId: AttributeDefId
-    ) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefAttributeDefId(modelId, entityDefId, attributeDefId, newAttributeDefId)
-    }
-
-    override fun updateEntityDefAttributeDefName(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        name: LocalizedText?
-    ) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefAttributeDefName(modelId, entityDefId, attributeDefId, name)
-    }
-
-    override fun updateEntityDefAttributeDefDescription(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        description: LocalizedMarkdown?
-    ) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefAttributeDefDescription(modelId, entityDefId, attributeDefId, description)
-    }
-
-    override fun updateEntityDefAttributeDefType(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        type: ModelTypeId
-    ) {
-        ensureModelExists(modelId)
-        storage.updateEntityDefAttributeDefType(modelId, entityDefId, attributeDefId, type)
-    }
-
-    override fun updateEntityDefAttributeDefOptional(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        optional: Boolean
-    ) {
-        storage.updateEntityDefAttributeDefOptional(modelId, entityDefId, attributeDefId, optional)
-    }
-
     override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
         storage.deleteEntityDef(modelId, entityDefId)
     }
@@ -164,7 +107,25 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         storage.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 
+    override fun updateEntityDefAttributeDef(
+        modelId: ModelId,
+        entityDefId: EntityDefId,
+        attributeDefId: AttributeDefId,
+        target: AttributeDefUpdateCmd
+    ) {
+        val entity = storage.findModelById(modelId).findEntityDef(entityDefId)
+        if (target is AttributeDefUpdateCmd.Id) {
+            if (entity.attributes.any { it.id == target.value && it.id != attributeDefId }) {
+                throw UpdateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
+            }
+        }
+        storage.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, target)
+    }
+
     fun ensureModelExists(modelId: ModelId) {
         if (!storage.existsModelById(modelId)) throw ModelNotFoundException(modelId)
     }
 }
+
+class UpdateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) : MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
+class UpdateEntityDefIdDuplicateIdException(entityDefId: EntityDefId) : MedatarunException("Another entity $entityDefId already exists in the same model")

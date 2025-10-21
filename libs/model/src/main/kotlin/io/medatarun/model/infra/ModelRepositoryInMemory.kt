@@ -89,33 +89,17 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     }
 
 
-    override fun updateEntityDefId(
+    override fun updateEntityDef(
         modelId: ModelId,
         entityDefId: EntityDefId,
-        newEntityDefId: EntityDefId
+        cmd: EntityDefUpdateCmd
     ) {
         modifyingEntityDef(modelId, entityDefId) { previous ->
-            previous.copy(id = newEntityDefId)
-        }
-    }
-
-    override fun updateEntityDefName(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        name: LocalizedText?
-    ) {
-        modifyingEntityDef(modelId, entityDefId) { previous ->
-            previous.copy(name = name)
-        }
-    }
-
-    override fun updateEntityDefDescription(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        description: LocalizedMarkdown?
-    ) {
-        modifyingEntityDef(modelId, entityDefId) { previous ->
-            previous.copy(description = description)
+            when(cmd) {
+                is EntityDefUpdateCmd.Id -> previous.copy(id = cmd.value)
+                is EntityDefUpdateCmd.Name -> previous.copy(name = cmd.value)
+                is EntityDefUpdateCmd.Description -> previous.copy(description = cmd.value)
+            }
         }
     }
 
@@ -136,60 +120,23 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         }
     }
 
-    override fun updateEntityDefAttributeDefId(
+    override fun updateEntityDefAttributeDef(
         modelId: ModelId,
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId,
-        newAttributeDefId: AttributeDefId
+        target: AttributeDefUpdateCmd
     ) {
         modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            a.copy(id = attributeDefId)
+            when (target) {
+                is AttributeDefUpdateCmd.Id -> a.copy(id = target.value)
+                is AttributeDefUpdateCmd.Name -> a.copy(name = target.value)
+                is AttributeDefUpdateCmd.Description -> a.copy(description = target.value)
+                is AttributeDefUpdateCmd.Type -> a.copy(type = target.value)
+                is AttributeDefUpdateCmd.Optional -> a.copy(optional = target.value)
+            }
         }
     }
 
-    override fun updateEntityDefAttributeDefName(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        name: LocalizedText?
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            a.copy(name = name)
-        }
-    }
-
-    override fun updateEntityDefAttributeDefDescription(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        description: LocalizedMarkdown?
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            a.copy(description = description)
-        }
-    }
-
-    override fun updateEntityDefAttributeDefType(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        type: ModelTypeId
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            a.copy(type = type)
-        }
-    }
-
-    override fun updateEntityDefAttributeDefOptional(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        optional: Boolean
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            a.copy(optional = optional)
-        }
-    }
 
     override fun deleteEntityDefAttributeDef(
         modelId: ModelId,
