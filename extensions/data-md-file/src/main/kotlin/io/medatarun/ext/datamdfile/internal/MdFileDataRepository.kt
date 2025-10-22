@@ -24,23 +24,14 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         val entityFiles = fileManager.listEntityFiles(entityDefId)
         return entityFiles.map { entityFile ->
             val content = fileManager.read(entityFile)
-            val parsed = markdownAdapter.parseEntity(
+            markdownAdapter.parseEntity(
                 entityDef = entityDef,
                 entityDefId = entityDefId,
                 entityIdAttribute = ENTITY_ID_ATTRIBUTE,
                 content = content
             )
-            MdEntity(
-                id = StringEntityInstanceId(parsed.entityId),
-                entityTypeId = entityDefId,
-                attributes = parsed.values
-                    .filterValues { it != null }
-                    .mapValues { it.value as Any }
-                    .mapKeys { it.key.value }
-            )
         }
     }
-
 
 
     override fun createEntity(
@@ -59,7 +50,13 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         val entityIdValue = values[ENTITY_ID_ATTRIBUTE]?.toString()
             ?: throw MdFileEntityIdMissingException(entityDefId)
 
-        val content = markdownAdapter.createMarkdownString(entityDef, values)
+        val entity = MdEntityMutable(
+            EntityInstanceIdString(entityIdValue),
+            entityDefId,
+            values
+        )
+
+        val content = markdownAdapter.createMarkdownString(entityDef, entity)
         fileManager.write(entityDefId, entityIdValue, content)
     }
 
@@ -76,29 +73,30 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         }
 
         val existingContent = fileManager.read(entityDefId, currentEntityId)
-        val parsed = markdownAdapter.parseEntity(
+        val entity = markdownAdapter.parseEntity(
             entityDef = entityDef,
             entityDefId = entityDefId,
             entityIdAttribute = ENTITY_ID_ATTRIBUTE,
             content = existingContent
         )
-        val values = parsed.values
+
         entityUpdater.list().forEach { instruction ->
             when (instruction) {
                 is EntityUpdater.Instruction.InstructionUpdate -> {
                     entityDef.ensureAttributeDefExists(instruction.attributeId)
-                    values[instruction.attributeId] = instruction.value
+                    entity.attributes[instruction.attributeId] = instruction.value
                 }
+
                 is EntityUpdater.Instruction.InstructionNone -> {
                     entityDef.ensureAttributeDefExists(instruction.attributeId)
                 }
             }
         }
 
-        val updatedEntityId = values[ENTITY_ID_ATTRIBUTE]?.toString()
+        val updatedEntityId = entity.attributes[ENTITY_ID_ATTRIBUTE]?.toString()
             ?: throw MdFileEntityIdMissingException(entityDefId)
 
-        val content = markdownAdapter.createMarkdownString(entityDef, values)
+        val content = markdownAdapter.createMarkdownString(entityDef, entity)
         fileManager.write(entityDefId, updatedEntityId, content)
 
         if (updatedEntityId != currentEntityId) {
@@ -114,12 +112,6 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         fileManager.delete(entityDefId, entityId.asString())
     }
 
-
-    private data class StringEntityInstanceId(
-        private val value: String
-    ) : EntityInstanceId {
-        override fun asString(): String = value
-    }
 
     companion object {
         private val ENTITY_ID_ATTRIBUTE = AttributeDefId("id")

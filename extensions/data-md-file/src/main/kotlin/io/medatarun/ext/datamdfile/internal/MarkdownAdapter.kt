@@ -26,10 +26,10 @@ internal class MarkdownAdapter {
 
     fun createMarkdownString(
         entityDef: EntityDef,
-        values: Map<AttributeDefId, Any?>
+        entity: MdEntityMutable
     ): MarkdownString {
-        val frontmatterLines = buildFrontmatterLines(entityDef, values)
-        val bodyContent = buildBodyContent(entityDef, values)
+        val frontmatterLines = buildFrontmatterLines(entityDef, entity.attributes)
+        val bodyContent = buildBodyContent(entityDef, entity.attributes)
 
         val str = buildString {
             appendLine("---")
@@ -51,7 +51,7 @@ internal class MarkdownAdapter {
         entityDefId: EntityDefId,
         entityIdAttribute: AttributeDefId,
         content: MarkdownString
-    ): ParsedValues {
+    ): MdEntityMutable {
         val document = parser.parse(content.value)
 
         val frontmatterVisitor = YamlFrontMatterVisitor()
@@ -77,9 +77,14 @@ internal class MarkdownAdapter {
             ?: throw MdFileEntityIdMissingException(entityDefId)
         values[entityIdAttribute] = entityIdValue
 
-        return ParsedValues(
-            entityId = entityIdValue,
-            values = values
+        return MdEntityMutable(
+            id = EntityInstanceIdString(entityIdValue),
+            entityTypeId = entityDefId,
+            attributes = values
+                .filterValues { it != null }
+                .mapValues { it.value as Any }
+                .mapKeys { AttributeDefId(it.key.value) }
+                .toMutableMap()
         )
     }
 

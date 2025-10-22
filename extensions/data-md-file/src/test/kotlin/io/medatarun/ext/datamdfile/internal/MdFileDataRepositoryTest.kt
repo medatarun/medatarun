@@ -290,7 +290,7 @@ internal class MdFileDataRepositoryTest {
             return values[attributeId] as T
         }
 
-        class Builder internal constructor() {
+        class Builder {
             val attr: MutableMap<String, Any?> = linkedMapOf()
 
             fun toModelMap(): Map<AttributeDefId, Any?> =
@@ -316,8 +316,8 @@ internal class MdFileDataRepositoryTest {
 
         override fun list(): List<EntityUpdater.Instruction> = orderedInstructions
 
-        class Builder internal constructor() {
-            internal val instructions: MutableList<EntityUpdater.Instruction> = mutableListOf()
+        class Builder {
+            val instructions: MutableList<EntityUpdater.Instruction> = mutableListOf()
 
             fun update(attribute: String, value: Any) {
                 instructions += EntityUpdater.Instruction.InstructionUpdate(AttributeDefId(attribute), value)
