@@ -87,8 +87,10 @@ class RestApi(
                 post { restCommandInvocation.processInvocation(call) }
             }
 
-            mcp {
-                return@mcp mcpServerBuilder.buildMcpServer()
+            route("/sse") {
+                mcp {
+                    return@mcp mcpServerBuilder.buildMcpServer()
+                }
             }
 
             route("/mcp") {
@@ -100,7 +102,6 @@ class RestApi(
             }
         }
     }
-
 
 
 }
