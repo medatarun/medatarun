@@ -2,7 +2,6 @@ package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDef
-import io.medatarun.model.model.EntityDefId
 import org.commonmark.Extension
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
@@ -24,9 +23,12 @@ internal class MarkdownAdapter {
     private val parser: Parser = Parser.builder().extensions(markdownExtensions).build()
     private val renderer: MarkdownRenderer = MarkdownRenderer.builder().build()
 
-    fun createMarkdownString(
+    /**
+     * Converts [EntityMarkdownMutable] to [MarkdownString]
+     */
+    fun toMarkdownString(
         entityDef: EntityDef,
-        entity: MdEntityMutable
+        entity: EntityMarkdownMutable
     ): MarkdownString {
         val frontmatterLines = buildFrontmatterLines(entityDef, entity.attributes)
         val bodyContent = buildBodyContent(entityDef, entity.attributes)
@@ -45,13 +47,13 @@ internal class MarkdownAdapter {
 
         return MarkdownString(str)
     }
-
-    fun parseEntity(
+    /**
+     * Converts [MarkdownString] to [EntityMarkdownMutable]
+     */
+    fun toEntityMarkdown(
         entityDef: EntityDef,
-        entityDefId: EntityDefId,
-        entityIdAttribute: AttributeDefId,
         content: MarkdownString
-    ): MdEntityMutable {
+    ): EntityMarkdownMutable {
         val document = parser.parse(content.value)
 
         val frontmatterVisitor = YamlFrontMatterVisitor()
@@ -73,13 +75,12 @@ internal class MarkdownAdapter {
             values[attributeId] = value
         }
 
-        val entityIdValue = values[entityIdAttribute]?.toString()
-            ?: throw MdFileEntityIdMissingException(entityDefId)
-        values[entityIdAttribute] = entityIdValue
+        val entityIdValue = values[entityDef.entityIdAttributeDefId()]?.toString()
+            ?: throw MdFileEntityIdMissingException(entityDef.id)
 
-        return MdEntityMutable(
+        return EntityMarkdownMutable(
             id = EntityInstanceIdString(entityIdValue),
-            entityTypeId = entityDefId,
+            entityDefId = entityDef.id,
             attributes = values
                 .filterValues { it != null }
                 .mapValues { it.value as Any }

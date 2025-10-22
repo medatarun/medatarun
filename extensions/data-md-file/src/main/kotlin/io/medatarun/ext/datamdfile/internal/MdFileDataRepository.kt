@@ -24,10 +24,8 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         val entityFiles = fileManager.listEntityFiles(entityDefId)
         return entityFiles.map { entityFile ->
             val content = fileManager.read(entityFile)
-            markdownAdapter.parseEntity(
+            markdownAdapter.toEntityMarkdown(
                 entityDef = entityDef,
-                entityDefId = entityDefId,
-                entityIdAttribute = ENTITY_ID_ATTRIBUTE,
                 content = content
             )
         }
@@ -47,16 +45,16 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
             values[attribute.id] = value
         }
 
-        val entityIdValue = values[ENTITY_ID_ATTRIBUTE]?.toString()
+        val entityIdValue = values[entityDef.entityIdAttributeDefId()]?.toString()
             ?: throw MdFileEntityIdMissingException(entityDefId)
 
-        val entity = MdEntityMutable(
+        val entity = EntityMarkdownMutable(
             EntityInstanceIdString(entityIdValue),
             entityDefId,
             values
         )
 
-        val content = markdownAdapter.createMarkdownString(entityDef, entity)
+        val content = markdownAdapter.toMarkdownString(entityDef, entity)
         fileManager.write(entityDefId, entityIdValue, content)
     }
 
@@ -73,10 +71,8 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
         }
 
         val existingContent = fileManager.read(entityDefId, currentEntityId)
-        val entity = markdownAdapter.parseEntity(
+        val entity = markdownAdapter.toEntityMarkdown(
             entityDef = entityDef,
-            entityDefId = entityDefId,
-            entityIdAttribute = ENTITY_ID_ATTRIBUTE,
             content = existingContent
         )
 
@@ -93,10 +89,10 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
             }
         }
 
-        val updatedEntityId = entity.attributes[ENTITY_ID_ATTRIBUTE]?.toString()
+        val updatedEntityId = entity.attributes[entityDef.entityIdAttributeDefId()]?.toString()
             ?: throw MdFileEntityIdMissingException(entityDefId)
 
-        val content = markdownAdapter.createMarkdownString(entityDef, entity)
+        val content = markdownAdapter.toMarkdownString(entityDef, entity)
         fileManager.write(entityDefId, updatedEntityId, content)
 
         if (updatedEntityId != currentEntityId) {
@@ -113,7 +109,4 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
     }
 
 
-    companion object {
-        private val ENTITY_ID_ATTRIBUTE = AttributeDefId("id")
-    }
 }

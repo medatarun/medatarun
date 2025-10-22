@@ -51,6 +51,12 @@ interface EntityDef {
         getAttributeDef(id)
     }
 
+    /**
+     * Returns the attribute name that serves as entity unique identifier
+     * amongst other entities in the same [EntityDef].
+     */
+    fun entityIdAttributeDefId() = AttributeDefId("id")
+
 
 
 }

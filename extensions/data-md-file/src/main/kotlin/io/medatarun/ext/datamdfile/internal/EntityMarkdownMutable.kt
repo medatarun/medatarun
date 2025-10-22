@@ -5,8 +5,8 @@ import io.medatarun.data.EntityInstanceId
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDefId
 
-data class MdEntityMutable(
+data class EntityMarkdownMutable(
     override val id: EntityInstanceId,
-    override val entityTypeId: EntityDefId,
+    override val entityDefId: EntityDefId,
     override val attributes: MutableMap<AttributeDefId, Any?>
 ) : Entity

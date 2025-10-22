@@ -5,6 +5,6 @@ import io.medatarun.model.model.EntityDefId
 
 interface Entity {
     val id: EntityInstanceId
-    val entityTypeId: EntityDefId
+    val entityDefId: EntityDefId
     val attributes: Map<AttributeDefId, Any?>
 }
