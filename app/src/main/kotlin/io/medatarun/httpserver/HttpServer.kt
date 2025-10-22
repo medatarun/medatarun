@@ -8,11 +8,11 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.app.io.medatarun.httpserver.mcp.McpServerBuilder
-import io.medatarun.cli.AppCLIResources
+import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
+import io.medatarun.resources.AppCLIResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp

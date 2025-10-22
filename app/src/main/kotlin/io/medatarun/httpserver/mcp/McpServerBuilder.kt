@@ -1,6 +1,7 @@
-package io.medatarun.app.io.medatarun.httpserver.mcp
+package io.medatarun.httpserver.mcp
 
-import io.medatarun.app.io.medatarun.httpserver.commons.HttpAdapters
+
+import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository

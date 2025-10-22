@@ -1,14 +1,8 @@
 package io.medatarun.resources
 
 import io.ktor.http.*
-import io.medatarun.cli.AppCLIResources
 import io.medatarun.model.model.MedatarunException
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.KProperty1
-import kotlin.reflect.KType
-import kotlin.reflect.KVisibility
+import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -147,6 +141,7 @@ class ResourceRepository(private val resources: AppCLIResources) {
                 onSuccess = { ConversionResult.Value(it) },
                 onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
             )
+
         Boolean::class -> ConversionResult.Value(raw.toBoolean())
         String::class -> ConversionResult.Value(raw)
         is KClass<*> -> ConversionResult.Value(raw)

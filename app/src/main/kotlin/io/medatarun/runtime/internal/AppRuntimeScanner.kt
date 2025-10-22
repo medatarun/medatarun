@@ -3,11 +3,8 @@ package io.medatarun.runtime.internal
 import io.medatarun.model.model.MedatarunException
 import io.medatarun.runtime.getLogger
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import java.nio.file.Path
-import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.readText
 

@@ -1,21 +1,8 @@
 package io.medatarun.resources
 
-import io.medatarun.model.model.LocalizedMarkdownNotLocalized
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.LocalizedTextNotLocalized
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.AttributeDefUpdateCmd
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityDefUpdateCmd
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelTypeId
-import io.medatarun.model.model.ModelVersion
+import io.medatarun.model.model.*
 import io.medatarun.runtime.AppRuntime
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class ModelResource(private val runtime: AppRuntime) {
@@ -52,7 +39,7 @@ class ModelResource(private val runtime: AppRuntime) {
     fun createEntity(
         modelId: String,
         entityId: String,
-        name: String?=null,
+        name: String? = null,
         description: String? = null,
     ) {
         logger.info("Create entity $entityId in model $modelId ($name)")
@@ -145,18 +132,18 @@ class ModelResource(private val runtime: AppRuntime) {
         attributeId: String,
         type: String,
         optional: Boolean = false,
-        name: String?=null,
+        name: String? = null,
         description: String? = null
     ) {
         logger.info("Create attribute $modelId.$entityId.$attributeId")
         runtime.modelCmd.createEntityDefAttributeDef(
-            modelId= ModelId(modelId),
-            entityDefId= EntityDefId(entityId),
-            attributeDefId= AttributeDefId(attributeId),
+            modelId = ModelId(modelId),
+            entityDefId = EntityDefId(entityId),
+            attributeDefId = AttributeDefId(attributeId),
             type = ModelTypeId(type),
             optional = optional,
             name = name?.let { LocalizedTextNotLocalized(it) },
-            description =description?.let { LocalizedTextNotLocalized(it) },
+            description = description?.let { LocalizedTextNotLocalized(it) },
         )
     }
 
@@ -277,6 +264,7 @@ class ModelResource(private val runtime: AppRuntime) {
             attributeDefId = AttributeDefId(attributeId)
         )
     }
+
     @ResourceCommandDoc(
         title = "Inspect models",
         description = "Produces a tree view of registered models, entities, and attributes in the runtime."

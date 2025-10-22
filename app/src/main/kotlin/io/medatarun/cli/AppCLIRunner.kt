@@ -1,5 +1,6 @@
 package io.medatarun.cli
 
+import io.medatarun.resources.AppCLIResources
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
@@ -109,7 +110,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
         logger.cli("")
         logger.cli("  $resourceId $commandId ")
         logger.cli("")
-        command.title?.let  { logger.cli("  " + it) }
+        command.title?.let { logger.cli("  " + it) }
         logger.cli("")
         command.description?.let { logger.cli("  " + it) }
         logger.cli("")

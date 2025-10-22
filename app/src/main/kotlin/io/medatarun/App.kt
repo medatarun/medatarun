@@ -1,8 +1,8 @@
-package io.medatarun.app
+package io.medatarun
 
-import io.medatarun.cli.AppCLIResources
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.httpserver.RestApi
+import io.medatarun.resources.AppCLIResources
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.utils.Printer
 import kotlin.io.path.Path
@@ -34,9 +34,6 @@ fun main(args: Array<String>) {
         val cliRunner = AppCLIRunner(args, cliResources)
         cliRunner.handleCLI()
     }
-
-
-
 
 
 }

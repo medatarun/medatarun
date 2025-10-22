@@ -1,7 +1,7 @@
 package io.medatarun.httpserver.mcp
 
 import io.modelcontextprotocol.kotlin.sdk.server.Server
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**

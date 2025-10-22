@@ -26,8 +26,9 @@ object Ansi {
 }
 
 fun getLogger(clazz: KClass<*>): AppLogger {
-    return getLogger(clazz.simpleName?:"")
+    return getLogger(clazz.simpleName ?: "")
 }
+
 fun getLogger(name: String): AppLogger {
     return object : AppLogger {
 

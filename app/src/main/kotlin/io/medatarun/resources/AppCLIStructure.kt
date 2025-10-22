@@ -1,8 +1,5 @@
-package io.medatarun.cli
+package io.medatarun.resources
 
-import io.medatarun.resources.ConfigResource
-import io.medatarun.resources.DataResource
-import io.medatarun.resources.ModelResource
 import io.medatarun.runtime.AppRuntime
 
 
