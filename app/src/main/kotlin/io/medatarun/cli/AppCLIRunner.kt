@@ -20,7 +20,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
 
     fun handleCLI() {
         if (args.isEmpty() || args[0] in HELP_FLAGS) {
-            printHelp()
+            printHelp(args.getOrNull(1), args.getOrNull(2))
             return
         }
 
@@ -82,19 +82,67 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppCL
         payload["details"]?.let { logger.error(it) }
     }
 
-    private fun printHelp() {
-        logger.cli("Available resources and commands:")
+    private fun printHelp(resource: String? = null, command: String? = null) {
+        if (resource != null && command != null) {
+            printHelpCommand(resource, command)
+        } else if (resource != null) {
+            printHelpResource(resource)
+        } else {
+            printHelpRoot()
+        }
+    }
+
+    private fun printHelpCommand(resourceId: String, commandId: String) {
+        val resource = resourceRepository.findDescriptorByIdOptional(resourceId)
+        if (resource == null) {
+            logger.error("Resource not found: $resourceId")
+            return printHelpRoot()
+        }
+        val command = resource.commands.find { it.name == commandId }
+        if (command == null) {
+            logger.error("Command not found: $resourceId $commandId")
+            return printHelpResource(resourceId)
+        }
+
+
+
+        logger.cli("")
+        logger.cli("  $resourceId $commandId ")
+        logger.cli("")
+        command.title?.let  { logger.cli("  " + it) }
+        logger.cli("")
+        command.description?.let { logger.cli("  " + it) }
+        logger.cli("")
+        val renderedParameters = command.parameters.joinToString("\n") { param ->
+            "  --${param.name}=<${param.type}>"
+
+        }
+        logger.cli(renderedParameters)
+
+
+    }
+
+    private fun printHelpResource(resourceId: String) {
+
+        val resource = resourceRepository.findDescriptorByIdOptional(resourceId)
+        if (resource == null) {
+            logger.error("Resource not found: $resourceId")
+            printHelpRoot()
+        } else {
+            logger.cli("Get help on available commands: help $resourceId <commandName>")
+            val allCommands = resource.commands.sortedBy { it.name }
+            val maxKeySize = allCommands.map { it.name }.maxBy { it.length }?.length ?: 0
+            allCommands.forEach { command ->
+                logger.cli(command.name.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
+            }
+        }
+    }
+
+    private fun printHelpRoot() {
+        logger.cli("Get help on available resources:")
         val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name }
         descriptors.forEach { descriptor ->
-            logger.cli("  ${descriptor.name}:")
-            descriptor.commands.sortedBy { it.name }.forEach { command ->
-                val signature = buildCommandSignature(descriptor.name, command)
-                val title = command.title ?: command.name
-                val description = command.description?.takeIf { it.isNotBlank() }
-                logger.cli("    $signature")
-                logger.cli("      $title")
-                description?.let { logger.cli("      $it") }
-            }
+            logger.cli("  help ${descriptor.name}")
         }
     }
 
