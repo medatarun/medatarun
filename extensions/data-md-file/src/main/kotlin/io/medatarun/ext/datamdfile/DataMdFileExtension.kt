@@ -1,6 +1,6 @@
 package io.medatarun.ext.datamdfile
 
-import io.medatarun.data.DataRepository
+import io.medatarun.data.ports.DataRepository
 import io.medatarun.ext.datamdfile.internal.MdFileDataRepository
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx

@@ -1,9 +1,9 @@
-package io.medatarun.data
+package io.medatarun.data.model
 
 import io.medatarun.model.model.AttributeDefId
 
 interface EntityUpdater {
-    val id: EntityInstanceId
+    val id: EntityId
     fun get(attributeId: AttributeDefId): Instruction
     fun list(): List<Instruction>
 

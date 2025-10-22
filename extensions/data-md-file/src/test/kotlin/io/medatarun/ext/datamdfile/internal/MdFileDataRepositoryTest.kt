@@ -1,8 +1,9 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.data.EntityInitializer
-import io.medatarun.data.EntityInstanceId
-import io.medatarun.data.EntityUpdater
+import io.medatarun.data.model.EntityInitializer
+import io.medatarun.data.model.EntityId
+import io.medatarun.data.model.EntityUpdater
+import io.medatarun.data.adapters.EntityIdString
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
@@ -119,7 +120,7 @@ internal class MdFileDataRepositoryTest {
         repository.updateEntity(
             model,
             personEntityId,
-            MapEntityUpdater(TestEntityInstanceId(entityId)) {
+            MapEntityUpdater(EntityIdString(entityId)) {
                 update("lastName", "Doe-Smith")
                 update("phoneNumber", "+1 202 555 0199")
                 update("infos", "Updated bio.\n\nLoves tests.")
@@ -168,7 +169,7 @@ internal class MdFileDataRepositoryTest {
         repository.deleteEntity(
             model,
             companyEntityId,
-            TestEntityInstanceId(entityId)
+            EntityIdString(entityId)
         )
 
         assertFalse(Files.exists(entityPath), "Markdown file should be removed after delete")
@@ -266,12 +267,6 @@ internal class MdFileDataRepositoryTest {
         )
     }
 
-    private data class TestEntityInstanceId(
-        private val value: String
-    ) : EntityInstanceId {
-        override fun asString(): String = value
-    }
-
     private class MapEntityInitializer(
         build: Builder.() -> Unit
     ) : EntityInitializer {
@@ -299,7 +294,7 @@ internal class MdFileDataRepositoryTest {
     }
 
     private class MapEntityUpdater(
-        override val id: EntityInstanceId,
+        override val id: EntityId,
         build: Builder.() -> Unit
     ) : EntityUpdater {
         private val instructionsByAttribute: Map<AttributeDefId, EntityUpdater.Instruction>

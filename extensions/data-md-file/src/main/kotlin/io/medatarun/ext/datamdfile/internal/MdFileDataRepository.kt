@@ -1,6 +1,11 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.data.*
+import io.medatarun.data.adapters.EntityIdString
+import io.medatarun.data.model.Entity
+import io.medatarun.data.model.EntityId
+import io.medatarun.data.model.EntityInitializer
+import io.medatarun.data.model.EntityUpdater
+import io.medatarun.data.ports.DataRepository
 import io.medatarun.model.model.*
 import java.nio.file.Path
 
@@ -11,6 +16,12 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
 
     private val markdownAdapter = MarkdownAdapter()
     private val fileManager = RepositoryFileManager(repositoryRoot)
+    override fun matches(
+        modelId: ModelId,
+        entityDefId: EntityDefId
+    ): Boolean {
+        return true
+    }
 
     override fun managedEntityDefs(modelId: ModelId): Set<EntityDefId> {
         return fileManager.listEntityDefinitionIds()
@@ -49,7 +60,7 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
             ?: throw MdFileEntityIdMissingException(entityDefId)
 
         val entity = EntityMarkdownMutable(
-            EntityInstanceIdString(entityIdValue),
+            EntityIdString(entityIdValue),
             entityDefId,
             values
         )
@@ -103,7 +114,7 @@ class MdFileDataRepository(private val repositoryRoot: Path) : DataRepository {
     override fun deleteEntity(
         model: Model,
         entityDefId: EntityDefId,
-        entityId: EntityInstanceId
+        entityId: EntityId
     ) {
         fileManager.delete(entityDefId, entityId.asString())
     }

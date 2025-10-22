@@ -1,4 +1,4 @@
-package io.medatarun.data
+package io.medatarun.data.model
 
 import io.medatarun.model.model.AttributeDefId
 

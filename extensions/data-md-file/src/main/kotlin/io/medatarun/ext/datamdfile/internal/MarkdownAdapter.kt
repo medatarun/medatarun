@@ -1,16 +1,12 @@
 package io.medatarun.ext.datamdfile.internal
 
+import io.medatarun.data.adapters.EntityIdString
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDef
 import org.commonmark.Extension
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
-import org.commonmark.node.BulletList
-import org.commonmark.node.Heading
-import org.commonmark.node.Node
-import org.commonmark.node.OrderedList
-import org.commonmark.node.Paragraph
-import org.commonmark.node.Text
+import org.commonmark.node.*
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.markdown.MarkdownRenderer
 
@@ -79,7 +75,7 @@ internal class MarkdownAdapter {
             ?: throw MdFileEntityIdMissingException(entityDef.id)
 
         return EntityMarkdownMutable(
-            id = EntityInstanceIdString(entityIdValue),
+            id = EntityIdString(entityIdValue),
             entityDefId = entityDef.id,
             attributes = values
                 .filterValues { it != null }
