@@ -1,8 +1,8 @@
 package io.medatarun.model.model
 
 import io.medatarun.model.infra.ModelRepositoryInMemory
-import io.medatarun.model.infra.ModelStorageAmbiguousException
-import io.medatarun.model.infra.ModelStorageCompositeNoRepositoryException
+import io.medatarun.model.infra.ModelStoragesAmbiguousRepositoryException
+import io.medatarun.model.infra.ModelStoragesCompositeNoRepositoryException
 import io.medatarun.model.infra.ModelStoragesComposite
 import io.medatarun.model.internal.*
 import io.medatarun.model.ports.RepositoryRef
@@ -16,7 +16,7 @@ class ModelTest {
 
     @Test
     fun `can not instantiate storages without repositories`() {
-        assertFailsWith(ModelStorageCompositeNoRepositoryException::class) {
+        assertFailsWith(ModelStoragesCompositeNoRepositoryException::class) {
             ModelStoragesComposite(emptyList())
         }
     }
@@ -31,7 +31,7 @@ class ModelTest {
         val repo2 = ModelRepositoryInMemory("repo2")
         val storages = ModelStoragesComposite(listOf(repo1, repo2))
         val cmd: ModelCmd = ModelCmdImpl(storages)
-        assertFailsWith(ModelStorageAmbiguousException::class) {
+        assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
             cmd.createModel(
                 ModelId("m1"),
                 LocalizedTextNotLocalized("M1"),
@@ -379,7 +379,7 @@ class ModelTest {
         val env = TestEnvEntityUpdate()
         val wrongEntityId = EntityDefId("unknown-entity")
 
-        assertFailsWith<EntityDefNotInModelException> {
+        assertFailsWith<EntityDefNotFoundException> {
             env.cmd.updateEntityDef(
                 env.modelId,
                 wrongEntityId,
@@ -667,7 +667,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         env.createAttributeDef()
-        assertFailsWith<ModelEntityNotFoundException> {
+        assertFailsWith<EntityDefNotFoundException> {
             env.cmd.updateEntityDefAttributeDef(
                 modelId = env.sampleModelId,
                 entityDefId = EntityDefId("unknownEntity"),
@@ -683,7 +683,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         env.createAttributeDef()
-        assertFailsWith<ModelEntityAttributeNotFoundException> {
+        assertFailsWith<AttributeDefNotFoundException> {
             env.cmd.updateEntityDefAttributeDef(
                 modelId = env.sampleModelId,
                 entityDefId = env.sampleEntityDefId,

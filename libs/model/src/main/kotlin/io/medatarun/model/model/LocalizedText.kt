@@ -58,6 +58,3 @@ data class LocalizedTextMap(val values: Map<String, String>) : LocalizedText {
 typealias LocalizedMarkdown = LocalizedText
 typealias LocalizedMarkdownNotLocalized = LocalizedTextNotLocalized
 typealias LocalizedMarkdownMap = LocalizedTextMap
-
-class LocalizedTextMapEmptyException :
-    MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")

@@ -33,7 +33,7 @@ interface EntityDef {
     fun countAttributeDefs(): Int
 
     /**
-     * Get attribute by its id. Throws [ModelEntityAttributeNotFoundException] otherwise.
+     * Get attribute by its id. Throws [AttributeDefNotFoundException] otherwise.
      */
     fun getAttributeDef(id: AttributeDefId): AttributeDef
 
@@ -43,7 +43,7 @@ interface EntityDef {
     fun hasAttributeDef(id: AttributeDefId): Boolean
 
     /**
-     * Ensures that an attribute exists or throws [ModelEntityAttributeNotFoundException] otherwise.
+     * Ensures that an attribute exists or throws [AttributeDefNotFoundException] otherwise.
      * This is syntax sugar around [getAttributeDef]
      */
     fun ensureAttributeDefExists(id: AttributeDefId) {

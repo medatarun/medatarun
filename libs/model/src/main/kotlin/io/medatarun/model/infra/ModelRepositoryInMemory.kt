@@ -29,7 +29,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     }
 
     private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = models[modelId] ?: throw ModelRepositoryInMemoryModelNotFoundException(modelId)
+        val model = models[modelId] ?: throw ModelRepositoryInMemoryExceptions(modelId)
         models[modelId] = block(model)
     }
 
@@ -146,3 +146,6 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { null }
     }
 }
+
+class ModelRepositoryInMemoryExceptions(modelId: ModelId):
+    MedatarunException("Model not found in repository ${modelId.value}")

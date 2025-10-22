@@ -5,11 +5,20 @@ open class MedatarunException(message: String) : Exception(message)
 class ModelNotFoundException(id: ModelId) :
     MedatarunException("Model with id $id was not found")
 
-class ModelEntityNotFoundException(modelId: ModelId, entityId: EntityDefId) :
+class EntityDefNotFoundException(modelId: ModelId, entityId: EntityDefId) :
     MedatarunException("Entity with id $entityId not found in model $modelId")
 
-class ModelEntityAttributeNotFoundException(entityId: EntityDefId, attributeId: AttributeDefId) :
+class AttributeDefNotFoundException(entityId: EntityDefId, attributeId: AttributeDefId) :
     MedatarunException("Attribute with id $attributeId not found in entity $entityId")
 
-class EntityDefNotInModelException(modelId: ModelId, entityDefId: EntityDefId) :
-    MedatarunException("Entity definition with id $entityDefId does not exist in model $modelId")
+class LocalizedTextMapEmptyException :
+    MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")
+
+class UpdateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) :
+    MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
+
+class UpdateEntityDefIdDuplicateIdException(entityDefId: EntityDefId) :
+    MedatarunException("Another entity $entityDefId already exists in the same model")
+
+class CreateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) :
+    MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")

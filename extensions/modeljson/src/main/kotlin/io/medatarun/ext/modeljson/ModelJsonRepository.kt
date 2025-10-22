@@ -108,7 +108,7 @@ class ModelJsonRepository(
                 }
             }
             if (!removed) {
-                throw ModelEntityNotFoundException(modelId, entityDefId)
+                throw EntityDefNotFoundException(modelId, entityDefId)
             }
             model.copy(entityDefs = nextEntities)
         }
@@ -158,10 +158,10 @@ class ModelJsonRepository(
                 entity.copy(attributes = nextAttributes)
             }
             if (!entityFound) {
-                throw ModelEntityNotFoundException(modelId, entityDefId)
+                throw EntityDefNotFoundException(modelId, entityDefId)
             }
             if (!attributeUpdated) {
-                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+                throw AttributeDefNotFoundException(entityDefId, attributeDefId)
             }
             model.copy(entityDefs = nextEntities)
         }
@@ -191,7 +191,7 @@ class ModelJsonRepository(
                 entity.copy(attributes = nextAttributes)
             }
             if (!entityFound || !attributeRemoved) {
-                throw ModelEntityAttributeNotFoundException(entityDefId, attributeDefId)
+                throw AttributeDefNotFoundException(entityDefId, attributeDefId)
             }
             model.copy(entityDefs = nextEntities)
         }

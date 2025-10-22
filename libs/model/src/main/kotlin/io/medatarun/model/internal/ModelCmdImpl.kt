@@ -76,6 +76,7 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
             )
         )
     }
+
     override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
         storage.deleteEntityDef(modelId, entityDefId)
     }
@@ -89,6 +90,8 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         name: LocalizedText?,
         description: LocalizedMarkdown?
     ) {
+        val e = findEntityDefById(modelId, entityDefId)
+        if (e.hasAttributeDef(attributeDefId)) throw CreateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
         storage.createEntityDefAttributeDef(
             modelId, entityDefId, AttributeDefInMemory(
                 id = attributeDefId,
@@ -114,7 +117,8 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         attributeDefId: AttributeDefId,
         target: AttributeDefUpdateCmd
     ) {
-        val entity = storage.findModelById(modelId).findEntityDef(entityDefId)
+        val entity = findEntityDefById(modelId, entityDefId)
+        entity.ensureAttributeDefExists(attributeDefId)
         if (target is AttributeDefUpdateCmd.Id) {
             if (entity.attributes.any { it.id == target.value && it.id != attributeDefId }) {
                 throw UpdateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
@@ -126,8 +130,9 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     fun ensureModelExists(modelId: ModelId) {
         if (!storage.existsModelById(modelId)) throw ModelNotFoundException(modelId)
     }
-}
 
-class UpdateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) : MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
-class UpdateEntityDefIdDuplicateIdException(entityDefId: EntityDefId) : MedatarunException("Another entity $entityDefId already exists in the same model")
-class CreateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) : MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
+    fun findEntityDefById(modelId: ModelId, entityDefId: EntityDefId): EntityDef {
+        val m = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        return m.findEntityDef(entityDefId)
+    }
+}

@@ -15,7 +15,7 @@ class ModelStoragesComposite(
 ) : ModelStorages {
 
     init {
-        if (repositories.isEmpty()) throw ModelStorageCompositeNoRepositoryException()
+        if (repositories.isEmpty()) throw ModelStoragesCompositeNoRepositoryException()
     }
 
     override fun existsModelById(modelId: ModelId): Boolean {
@@ -35,7 +35,7 @@ class ModelStoragesComposite(
     }
 
     override fun findModelById(id: ModelId): Model {
-        return findModelByIdOptional(id) ?: throw RepositoryNotFoundForModelException(id)
+        return findModelByIdOptional(id) ?: throw ModelStoragesCompositeRepositoryNotFoundInModelException(id)
     }
 
     override fun findAllModelIds(): List<ModelId> {
@@ -114,19 +114,19 @@ class ModelStoragesComposite(
             val found = repository.findModelByIdOptional(id)
             if (found != null) return repository
         }
-        throw RepositoryNotFoundForModelException(id)
+        throw ModelStoragesCompositeRepositoryNotFoundInModelException(id)
     }
 
     fun selectRepository(ref: RepositoryRef): ModelRepository {
         return when (ref) {
             is RepositoryRef.Auto -> {
-                if (repositories.size > 1) throw ModelStorageAmbiguousException()
+                if (repositories.size > 1) throw ModelStoragesAmbiguousRepositoryException()
                 else repositories.first()
             }
 
             is RepositoryRef.Id -> {
                 repositories.firstOrNull { it.matchesId(ref.id) }
-                    ?: throw ModelStorageCompositeRepositoryNotFoundException(ref.id)
+                    ?: throw ModelStoragesCompositeRepositoryNotFoundException(ref.id)
             }
 
         }
@@ -134,16 +134,16 @@ class ModelStoragesComposite(
 
 }
 
-class RepositoryNotFoundForModelException(id: ModelId) :
+class ModelStoragesCompositeRepositoryNotFoundInModelException(id: ModelId) :
     MedatarunException("No repository currently has model ${id.value}")
 
-class ModelStorageCompositeNoRepositoryException :
+class ModelStoragesCompositeNoRepositoryException :
     MedatarunException("Could not find any repositories")
 
-class ModelStorageCompositeRepositoryNotFoundException(val id: ModelRepositoryId) :
+class ModelStoragesCompositeRepositoryNotFoundException(val id: ModelRepositoryId) :
     MedatarunException("Could not find repository with id ${id.value}")
 
-class ModelStorageAmbiguousException :
+class ModelStoragesAmbiguousRepositoryException :
     MedatarunException("Action should specify with which repository we must proceed.")
 
 

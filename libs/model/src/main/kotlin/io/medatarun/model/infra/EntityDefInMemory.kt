@@ -6,7 +6,7 @@ import io.medatarun.model.model.EntityDef
 import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.LocalizedMarkdown
 import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.ModelEntityAttributeNotFoundException
+import io.medatarun.model.model.AttributeDefNotFoundException
 
 /**
  * Default implementation of EntityDef
@@ -25,7 +25,7 @@ data class EntityDefInMemory(
     }
 
     override fun getAttributeDef(id: AttributeDefId): AttributeDef {
-        return map[id] ?: throw ModelEntityAttributeNotFoundException(this.id, id)
+        return map[id] ?: throw AttributeDefNotFoundException(this.id, id)
     }
 
     override fun hasAttributeDef(id: AttributeDefId): Boolean = map.containsKey(id)

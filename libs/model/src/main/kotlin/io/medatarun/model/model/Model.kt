@@ -42,9 +42,9 @@ interface Model {
      */
     fun findEntityDefOptional(entityDefId: EntityDefId): EntityDef? = entityDefs.firstOrNull { it.id == entityDefId }
     /**
-     * Returns entity definition by its id or throw [EntityDefNotInModelException]
+     * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
-    fun findEntityDef(entityDefId: EntityDefId): EntityDef = findEntityDefOptional(entityDefId) ?: throw EntityDefNotInModelException(id, entityDefId)
+    fun findEntityDef(entityDefId: EntityDefId): EntityDef = findEntityDefOptional(entityDefId) ?: throw EntityDefNotFoundException(id, entityDefId)
 }
 
 
