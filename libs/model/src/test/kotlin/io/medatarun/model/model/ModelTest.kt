@@ -893,6 +893,7 @@ class ModelTest {
             name: LocalizedText? = null,
             description: LocalizedMarkdown? = null
         ): AttributeDef {
+
             cmd.createEntityDefAttributeDef(
                 modelId = sampleModelId,
                 entityDefId = sampleEntityDefId,
@@ -968,6 +969,8 @@ class ModelTest {
     fun `create attribute with type boolean then type found`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
+        env.cmd.createType(env.sampleModelId, ModelTypeInitializer(ModelTypeId("Boolean"), null, null))
+
         val reloaded = env.createAttributeDef(type = ModelTypeId("Boolean"))
         assertEquals(ModelTypeId("Boolean"), reloaded.type)
     }
@@ -985,7 +988,11 @@ class ModelTest {
 
     @Test
     fun `create attribute unknown type then error`() {
-        TODO("Not yet implemented")
+        val env = TestEnvAttribute()
+        env.addSampleEntityDef()
+        assertFailsWith<TypeNotFoundException> {
+            env.createAttributeDef(attributeDefId = AttributeDefId("lastname"), type = ModelTypeId("UnknownType"))
+        }
     }
 
     @Test
@@ -1123,15 +1130,31 @@ class ModelTest {
     fun `update attribute type is persisted`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
+        val typeMarkdownId = ModelTypeId("Markdown")
+        env.cmd.createType(
+            env.sampleModelId,
+            ModelTypeInitializer(id = typeMarkdownId, name = null, description = null)
+        )
+
         val attr = env.createAttributeDef(type = ModelTypeId("String"))
-        val nextValue = ModelTypeId("Markdown")
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Type(nextValue))
-        assertEquals(nextValue, reloaded.type)
+
+        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Type(typeMarkdownId))
+        assertEquals(typeMarkdownId, reloaded.type)
     }
 
     @Test
     fun `update attribute unknown type then error`() {
-        TODO("Not yet implemented")
+        val env = TestEnvAttribute()
+        env.addSampleEntityDef()
+        val attr = env.createAttributeDef(type = ModelTypeId("String"))
+        assertThrows<TypeNotFoundException> {
+            env.cmd.updateEntityDefAttributeDef(
+                env.sampleModelId,
+                env.sampleEntityDefId,
+                attr.id,
+                AttributeDefUpdateCmd.Type(ModelTypeId("String2"))
+            )
+        }
     }
 
     @Test
@@ -1168,6 +1191,24 @@ class ModelTest {
         assertFalse(reloaded.hasAttributeDef(AttributeDefId("firstname")))
         assertTrue(reloaded.hasAttributeDef(AttributeDefId("lastname")))
 
+    }
+
+    @Test
+    fun `delete entity attribute used as identifier throws error`() {
+        val env = TestEnvAttribute()
+        env.addSampleEntityDef()
+        env.createAttributeDef(attributeDefId = AttributeDefId("bk"))
+        env.createAttributeDef(attributeDefId = AttributeDefId("firstname"))
+        env.createAttributeDef(attributeDefId = AttributeDefId("lastname"))
+
+        val reloaded = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
+        assertThrows<DeleteAttributeIdentifierException> {
+            env.cmd.deleteEntityDefAttributeDef(
+                env.sampleModelId,
+                env.sampleEntityDefId,
+                reloaded.entityIdAttributeDefId()
+            )
+        }
     }
 
 }

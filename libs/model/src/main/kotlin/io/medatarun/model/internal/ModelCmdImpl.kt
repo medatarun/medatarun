@@ -6,7 +6,6 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
-import javax.xml.validation.TypeInfoProvider
 
 class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun createModel(
@@ -130,6 +129,7 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
             entityDefId,
             attributeDefInitializer.attributeDefId
         )
+        ensureTypeExists(modelId, attributeDefInitializer.type)
         storage.createEntityDefAttributeDef(
             modelId, entityDefId, AttributeDefInMemory(
                 id = attributeDefInitializer.attributeDefId,
@@ -146,8 +146,9 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId
     ) {
-        // TODO can not delete attribute used as identifier
-
+        val entity = findEntityDefById(modelId, entityDefId)
+        if (entity.identifierAttributeDefId == attributeDefId)
+            throw DeleteAttributeIdentifierException(modelId, entityDefId, attributeDefId)
         storage.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 
@@ -157,21 +158,20 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         attributeDefId: AttributeDefId,
         cmd: AttributeDefUpdateCmd
     ) {
+        val model = findModelById(modelId)
         val entity = findEntityDefById(modelId, entityDefId)
         entity.ensureAttributeDefExists(attributeDefId)
 
         // TODO how do we ensure transactions here ?
 
-        // We can not have two attributes with the same id
+
         if (cmd is AttributeDefUpdateCmd.Id) {
+            // We can not have two attributes with the same id
             if (entity.attributes.any { it.id == cmd.value && it.id != attributeDefId }) {
                 throw UpdateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
             }
-        }
-
-        // If user wants to rename the Entity's identity attribute, we must rename in entity
-        // as well as the attribute's id, then apply changes on entity
-        if (cmd is AttributeDefUpdateCmd.Id) {
+            // If user wants to rename the Entity's identity attribute, we must rename in entity
+            // as well as the attribute's id, then apply changes on entity
             if (entity.identifierAttributeDefId == attributeDefId) {
                 storage.updateEntityDef(
                     modelId,
@@ -179,6 +179,9 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
                     EntityDefUpdateCmd.IdentifierAttribute(cmd.value)
                 )
             }
+        } else if (cmd is AttributeDefUpdateCmd.Type) {
+            // Attribute type shall exist when updating types
+            ensureTypeExists(modelId, cmd.value)
         }
 
         // Apply changes on attribute
@@ -194,8 +197,12 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         return model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
     }
 
+    fun findModelById(modelId: ModelId): Model {
+        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+    }
+
     fun findEntityDefById(modelId: ModelId, entityDefId: EntityDefId): EntityDef {
-        val m = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        val m = findModelById(modelId)
         return m.findEntityDef(entityDefId)
     }
 }

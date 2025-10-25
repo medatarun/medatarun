@@ -31,3 +31,6 @@ class TypeCreateDuplicateException(modelId: ModelId, typeId: ModelTypeId) :
 
 class TypeNotFoundException(modelId: ModelId, typeId: ModelTypeId) :
     MedatarunException("Type with id $typeId not found in model $modelId")
+
+class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityDefId, attributeId: AttributeDefId) :
+        MedatarunException("Can not delete attribute $attributeId in entity $entityId of model $modelId because it is used as the entity's identifier")
