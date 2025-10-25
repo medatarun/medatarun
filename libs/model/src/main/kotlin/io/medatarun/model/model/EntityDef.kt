@@ -28,6 +28,11 @@ interface EntityDef {
     val attributes: List<AttributeDef>
 
     /**
+     * Tells which attribute acts as entities' identifier
+     */
+    val identifierAttributeDefId: AttributeDefId
+
+    /**
      * Count attributes
      */
     fun countAttributeDefs(): Int

@@ -33,9 +33,11 @@ internal class ModelJsonTest {
         val contactEntity = modelRead.entityDefs[0]
         assertEquals(contactEntity.id, EntityDefId("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
+        assertEquals(AttributeDefId("name"), contactEntity.identifierAttributeDefId)
 
         val companyEntity = modelRead.entityDefs[1]
         assertEquals(companyEntity.id, EntityDefId("company"))
+        assertEquals(AttributeDefId("name"), companyEntity.identifierAttributeDefId)
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
@@ -95,14 +97,14 @@ internal class ModelJsonTest {
 }
 
 @Language("json")
-internal val sampleModel = """
-{
+internal val sampleModel = """{
   "id": "example",
   "version": "1.0.0",
   "entities": [
     {
       "id": "contact",
       "name": "Contact",
+      "identifierAttribute": "name",
       "attributes": [
         {
           "id": "name",
@@ -141,9 +143,10 @@ internal val sampleModel = """
     {
       "id": "company",
       "name": {
-      "fr": "Entreprise",
-      "en": "Company"
+        "fr": "Entreprise",
+        "en": "Company"
       },
+      "identifierAttribute": "name",
       "attributes": [
         {
           "id": "name",
@@ -160,7 +163,9 @@ internal val sampleModel = """
         {
           "id": "informations",
           "name": "Informations",
-          "description": { "fr" : "La description est au format Markdown et doit provenir de leur site internet !"},
+          "description": {
+            "fr": "La description est au format Markdown et doit provenir de leur site internet !"
+          },
           "type": "Markdown",
           "optional": true
         }

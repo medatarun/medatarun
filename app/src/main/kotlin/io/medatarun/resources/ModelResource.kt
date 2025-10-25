@@ -293,7 +293,11 @@ class ModelResource(private val runtime: AppRuntime) {
             model.entityDefs.forEach { entity ->
                 buf.appendLine("  📦 ${entity.id.value}")
                 entity.attributes.forEach { attribute ->
-                    buf.appendLine("    ${attribute.id.value}: ${attribute.type.value}${if (attribute.optional) "?" else ""}")
+                    val name = attribute.id.value
+                    val type = attribute.type.value
+                    val optional = if (attribute.optional) "?" else ""
+                    val pk = if (entity.identifierAttributeDefId == attribute.id) "🔑" else ""
+                    buf.appendLine("    $name: $type$optional $pk")
                 }
             }
         }
@@ -321,6 +325,7 @@ class ModelResource(private val runtime: AppRuntime) {
                                     put("id", entity.id.value)
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
+                                    put("identifierAttribute", entity.identifierAttributeDefId.value)
                                     put("attributes", buildJsonArray {
                                         entity.attributes.forEach { attribute ->
                                             add(buildJsonObject {

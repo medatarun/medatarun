@@ -16,6 +16,7 @@ data class EntityDefInMemory(
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
     override val description: LocalizedMarkdown?,
+    override val identifierAttributeDefId: AttributeDefId
 ) : EntityDef {
 
     private val map = attributes.associateBy { it.id }
@@ -38,6 +39,7 @@ data class EntityDefInMemory(
                 name = other.name,
                 description = other.description,
                 attributes = other.attributes.map(AttributeDefInMemory::of),
+                identifierAttributeDefId = other.identifierAttributeDefId
             )
         }
     }

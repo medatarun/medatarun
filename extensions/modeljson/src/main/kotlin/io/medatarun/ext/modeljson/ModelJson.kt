@@ -74,6 +74,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     id = entity.id.value,
                     name = entity.name,
                     description = entity.description,
+                    identifierAttribute = entity.identifierAttributeDefId.value,
                     attributes = entity.attributes.map { it ->
                         ModelAttributeJson(
                             id = it.id.value,
@@ -102,6 +103,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     id = EntityDefId(entityJson.id),
                     name = entityJson.name,
                     description = entityJson.description,
+                    identifierAttributeDefId = AttributeDefId(entityJson.identifierAttribute),
                     attributes = entityJson.attributes.map { attributeJson ->
                         AttributeDefInMemory(
                             id = AttributeDefId(attributeJson.id),
@@ -123,6 +125,7 @@ class ModelEntityJson(
     val id: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
+    val identifierAttribute: @Contextual String,
     val attributes: List<ModelAttributeJson>
 )
 

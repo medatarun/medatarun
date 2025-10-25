@@ -72,6 +72,7 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
                 id = entityDefInitializer.entityDefId,
                 name = entityDefInitializer.name,
                 description = entityDefInitializer.description,
+                identifierAttributeDefId = entityDefInitializer.identityAttribute.attributeDefId,
                 attributes = listOf(
                     AttributeDefInMemory(
                         id = entityDefInitializer.identityAttribute.attributeDefId,

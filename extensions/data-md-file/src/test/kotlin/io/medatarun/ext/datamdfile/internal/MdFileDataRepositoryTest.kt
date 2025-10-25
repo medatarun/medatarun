@@ -182,6 +182,7 @@ internal class MdFileDataRepositoryTest {
             id = EntityDefId("person"),
             name = LocalizedTextNotLocalized("Person"),
             description = null,
+            identifierAttributeDefId = AttributeDefId("id"),
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
@@ -225,6 +226,7 @@ internal class MdFileDataRepositoryTest {
             id = EntityDefId("company"),
             name = LocalizedTextNotLocalized("Company"),
             description = null,
+            identifierAttributeDefId = AttributeDefId("id"),
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
