@@ -22,3 +22,12 @@ class UpdateEntityDefIdDuplicateIdException(entityDefId: EntityDefId) :
 
 class CreateAttributeDefDuplicateIdException(entityDefId: EntityDefId, attributeDefId: AttributeDefId) :
     MedatarunException("Another attribute $attributeDefId already exists with the same id in entity $entityDefId")
+
+class ModelTypeDeleteUsedException(typeId: ModelTypeId) :
+    MedatarunException("Model with id $typeId could not be deleted as it's used in entities")
+
+class TypeCreateDuplicateException(modelId: ModelId, typeId: ModelTypeId) :
+    MedatarunException("Type with id $typeId already exists with the same id in model $modelId")
+
+class TypeNotFoundException(modelId: ModelId, typeId: ModelTypeId) :
+    MedatarunException("Type with id $typeId not found in model $modelId")

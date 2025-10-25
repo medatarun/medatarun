@@ -11,7 +11,6 @@ import io.medatarun.model.ports.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import javax.naming.directory.AttributeInUseException
 import kotlin.test.*
 
 class ModelTest {
@@ -281,6 +280,212 @@ class ModelTest {
 
         cmd.deleteModel(ModelId("m-to-preserve-repo-2"))
         assertNull(repo2.findModelByIdOptional(ModelId("m-to-delete-repo-2")))
+
+    }
+
+    // ------------------------------------------------------------------------
+    // Types
+    // ------------------------------------------------------------------------
+
+    class TestEnvTypes {
+        val repo = ModelRepositoryInMemory("repo1")
+        val storages = ModelStoragesComposite(listOf(repo))
+        val cmd: ModelCmd = ModelCmdImpl(storages)
+        val query: ModelQueries = ModelQueriesImpl(storages)
+        val modelId = ModelId("m1")
+
+        init {
+            cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
+        }
+
+        val model: Model
+            get() {
+                return query.findModelById(modelId)
+            }
+    }
+
+    @Test
+    fun `create type`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(
+            env.modelId,
+            ModelTypeInitializer(
+                ModelTypeId("String"),
+                LocalizedTextNotLocalized("Simple string"),
+                LocalizedTextNotLocalized("Simple string description")
+            )
+        )
+        assertEquals(1, env.model.types.size)
+        val type = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(type)
+        assertEquals(LocalizedTextNotLocalized("Simple string"), type.name)
+        assertEquals(LocalizedTextNotLocalized("Simple string description"), type.description)
+    }
+
+    @Test
+    fun `create type without name and description`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertEquals(1, env.model.types.size)
+        val type = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(type)
+        assertNull(type.name)
+        assertNull(type.description)
+    }
+
+    @Test
+    fun `create type on unknown model throw ModelNotFoundException`() {
+        val env = TestEnvTypes()
+        assertThrows<ModelNotFoundException> {
+            env.cmd.createType(
+                ModelId("unknown"),
+                ModelTypeInitializer(ModelTypeId("String"), null, null)
+            )
+        }
+    }
+
+    @Test
+    fun `create type with duplicate name throws DuplicateTypeException`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertThrows<TypeCreateDuplicateException> {
+            env.cmd.createType(
+                env.modelId,
+                ModelTypeInitializer(ModelTypeId("String"), null, null)
+            )
+        }
+    }
+
+    @Test
+    fun `update type name `() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.updateType(
+            env.modelId,
+            ModelTypeId("String"),
+            ModelTypeUpdateCmd.Name(LocalizedTextNotLocalized("This is a string"))
+        )
+        val t = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(t)
+        assertEquals(LocalizedTextNotLocalized("This is a string"), t.name)
+    }
+
+    @Test
+    fun `update type name with null`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.updateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Name(null))
+        val t = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(t)
+        assertNull(t.name)
+    }
+
+    @Test
+    fun `update type description`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.updateType(
+            env.modelId,
+            ModelTypeId("String"),
+            ModelTypeUpdateCmd.Description(LocalizedTextNotLocalized("This is a string"))
+        )
+        val t = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(t)
+        assertEquals(LocalizedTextNotLocalized("This is a string"), t.description)
+    }
+
+    @Test
+    fun `update type description with null`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.updateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Description(null))
+        val t = env.model.findTypeOptional(ModelTypeId("String"))
+        assertNotNull(t)
+        assertNull(t.description)
+    }
+
+    @Test
+    fun `update type with model not found`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertThrows<ModelNotFoundException> {
+            env.cmd.updateType(ModelId("unknown"), ModelTypeId("String"), ModelTypeUpdateCmd.Description(null))
+        }
+    }
+
+    @Test
+    fun `update type with type not found`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertThrows<TypeNotFoundException> {
+            env.cmd.updateType(env.modelId, ModelTypeId("String2"), ModelTypeUpdateCmd.Description(null))
+        }
+    }
+
+    @Test
+    fun `delete type model not found`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertThrows<ModelNotFoundException> {
+            env.cmd.deleteType(ModelId("unknown"), ModelTypeId("String"))
+        }
+    }
+
+    @Test
+    fun `delete type type not found`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        assertThrows<TypeNotFoundException> {
+            env.cmd.deleteType(env.modelId, ModelTypeId("String2"))
+        }
+    }
+
+    @Test
+    fun `delete type used in attributes then error`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null))
+        env.cmd.createEntityDef(
+            env.modelId, EntityDefInitializer(
+                entityDefId = EntityDefId("contact"), name = null, description = null,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("name"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
+        env.cmd.createEntityDefAttributeDef(
+            env.modelId,
+            EntityDefId("contact"),
+            AttributeDefInitializer(
+                attributeDefId = AttributeDefId("infos"),
+                type = ModelTypeId("Markdown"),
+                optional = false, name = null, description = null
+            )
+        )
+        assertThrows<ModelTypeDeleteUsedException> {
+            env.cmd.deleteType(env.modelId, ModelTypeId("String"))
+        }
+        assertThrows<ModelTypeDeleteUsedException> {
+            env.cmd.deleteType(env.modelId, ModelTypeId("Markdown"))
+        }
+        env.cmd.deleteType(env.modelId, ModelTypeId("Int"))
+
+    }
+
+    @Test
+    fun `delete type success`() {
+        val env = TestEnvTypes()
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
+        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null))
+        env.cmd.deleteType(env.modelId, ModelTypeId("Int"))
+        assertNull(env.model.findTypeOptional(ModelTypeId("Int")))
+        assertNotNull(env.model.findTypeOptional(ModelTypeId("String")))
+        assertNotNull(env.model.findTypeOptional(ModelTypeId("Markdown")))
 
     }
 

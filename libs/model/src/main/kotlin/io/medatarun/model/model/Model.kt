@@ -37,6 +37,8 @@ interface Model {
      */
     val entityDefs: List<EntityDef>
 
+    fun findTypeOptional(id: ModelTypeId): ModelType? = types.firstOrNull { it.id == id }
+
     /**
      * Returns entity definition by its id or null
      */
@@ -45,6 +47,7 @@ interface Model {
      * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
     fun findEntityDef(entityDefId: EntityDefId): EntityDef = findEntityDefOptional(entityDefId) ?: throw EntityDefNotFoundException(id, entityDefId)
+
 }
 
 

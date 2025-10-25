@@ -47,6 +47,36 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         storage.updateModelVersion(modelId, version)
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Types
+    // -----------------------------------------------------------------------------------------------------------------
+
+    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+        // Can not create a type if another has the same type
+        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        val existing = model.findTypeOptional(initializer.id)
+        if (existing != null) throw TypeCreateDuplicateException(modelId, initializer.id)
+        storage.createType(modelId, initializer)
+    }
+
+    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
+        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
+        storage.updateType(modelId, typeId, cmd)
+    }
+
+    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
+        // Can not delete type used in any entity
+        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == typeId } }
+        if (used) throw ModelTypeDeleteUsedException(typeId)
+        model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
+        storage.deleteType(modelId, typeId)
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Entities
+    // -----------------------------------------------------------------------------------------------------------------
+
     override fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd) {
         ensureModelExists(modelId)
         val model = storage.findModelById(modelId)
@@ -116,6 +146,8 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId
     ) {
+        // TODO can not delete attribute used as identifier
+
         storage.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 

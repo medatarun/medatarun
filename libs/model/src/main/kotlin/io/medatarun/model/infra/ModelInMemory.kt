@@ -16,7 +16,7 @@ data class ModelInMemory(
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
-    override val types: List<ModelType>,
+    override val types: List<ModelTypeInMemory>,
     override val entityDefs: List<EntityDefInMemory>
 ) : Model {
     companion object {

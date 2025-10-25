@@ -25,6 +25,11 @@ interface ModelStorages {
     fun updateModelVersion(modelId: ModelId, version: ModelVersion)
     fun deleteModel(modelId: ModelId)
 
+    // Models -> Type
+    fun createType(modelId: ModelId, initializer: ModelTypeInitializer)
+    fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd)
+    fun deleteType(modelId: ModelId, typeId: ModelTypeId)
+
     // Models -> EntityDef
 
     //@formatter:off

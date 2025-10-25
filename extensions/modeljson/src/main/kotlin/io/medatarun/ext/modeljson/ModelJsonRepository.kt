@@ -3,6 +3,7 @@ package io.medatarun.ext.modeljson
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryId
@@ -73,6 +74,27 @@ class ModelJsonRepository(
         val path = discoveredModels.remove(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         if (!path.deleteIfExists()) {
             throw ModelJsonRepositoryException("Failed to delete model file for ${modelId.value} at $path")
+        }
+    }
+
+    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+        updateModel(modelId) { model ->
+            model.copy(types = model.types + ModelTypeInMemory(id = initializer.id, name = initializer.name, description = initializer.description))
+        }
+    }
+
+    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
+        updateModel(modelId) { model ->
+            model.copy(types = model.types.map { type -> if (type.id != typeId) type else when(cmd) {
+                is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.value )
+                is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.value )
+            } })
+        }
+    }
+
+    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
+        updateModel(modelId) { model ->
+            model.copy(types = model.types.mapNotNull { type -> if (type.id != typeId) type else null })
         }
     }
 
