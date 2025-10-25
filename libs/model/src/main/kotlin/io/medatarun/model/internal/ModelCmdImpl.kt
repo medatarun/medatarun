@@ -128,6 +128,8 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         val entity = findEntityDefById(modelId, entityDefId)
         entity.ensureAttributeDefExists(attributeDefId)
 
+        // TODO how do we ensure transactions here ?
+
         // We can not have two attributes with the same id
         if (cmd is AttributeDefUpdateCmd.Id) {
             if (entity.attributes.any { it.id == cmd.value && it.id != attributeDefId }) {
