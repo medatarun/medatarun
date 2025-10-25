@@ -161,6 +161,7 @@ class ModelTest {
 
         init {
             cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
+            cmd.createType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
         }
     }
 
@@ -616,6 +617,7 @@ class ModelTest {
                 null,
                 ModelVersion("1.0.0")
             )
+            cmd.createType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
             cmd.createEntityDef(
                 modelId,
                 EntityDefInitializer(
@@ -805,12 +807,14 @@ class ModelTest {
             null,
             ModelVersion("1.0.0")
         )
+        cmd.createType(modelId1, ModelTypeInitializer(ModelTypeId("String"), null, null))
         cmd.createModel(
             modelId2,
             LocalizedTextNotLocalized("Model 2"),
             null,
             ModelVersion("1.0.0")
         )
+        cmd.createType(modelId2, ModelTypeInitializer(ModelTypeId("String"), null, null))
         cmd.createEntityDef(
             modelId1, EntityDefInitializer(
                 entityDefId = entityId, name = LocalizedTextNotLocalized("Entity"), description = null,
@@ -864,6 +868,7 @@ class ModelTest {
                 ModelVersion("1.0.0"),
                 repo1.repositoryId.ref()
             )
+            cmd.createType(sampleModelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
         }
 
         fun addSampleEntityDef() {
@@ -976,6 +981,11 @@ class ModelTest {
         assertFailsWith<CreateAttributeDefDuplicateIdException> {
             env.createAttributeDef(attributeDefId = AttributeDefId("lastname"))
         }
+    }
+
+    @Test
+    fun `create attribute unknown type then error`() {
+        TODO("Not yet implemented")
     }
 
     @Test
@@ -1117,6 +1127,11 @@ class ModelTest {
         val nextValue = ModelTypeId("Markdown")
         val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Type(nextValue))
         assertEquals(nextValue, reloaded.type)
+    }
+
+    @Test
+    fun `update attribute unknown type then error`() {
+        TODO("Not yet implemented")
     }
 
     @Test

@@ -6,6 +6,7 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
+import javax.xml.validation.TypeInfoProvider
 
 class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun createModel(
@@ -93,10 +94,9 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun createEntityDef(
         modelId: ModelId,
         entityDefInitializer: EntityDefInitializer
-
-
     ) {
-        ensureModelExists(modelId)
+
+        ensureTypeExists(modelId, entityDefInitializer.identityAttribute.type)
         storage.createEntityDef(
             modelId, EntityDefInMemory(
                 id = entityDefInitializer.entityDefId,
@@ -187,6 +187,11 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
 
     fun ensureModelExists(modelId: ModelId) {
         if (!storage.existsModelById(modelId)) throw ModelNotFoundException(modelId)
+    }
+
+    fun ensureTypeExists(modelId: ModelId, typeId: ModelTypeId): ModelType {
+        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+        return model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
     }
 
     fun findEntityDefById(modelId: ModelId, entityDefId: EntityDefId): EntityDef {
