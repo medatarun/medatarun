@@ -41,14 +41,26 @@ class ModelResource(private val runtime: AppRuntime) {
         entityId: String,
         name: String? = null,
         description: String? = null,
+        identityAttributeId: String,
+        identityAttributeType: ModelTypeId,
+        identityAttributeName: String? = null,
     ) {
         logger.info("Create entity $entityId in model $modelId ($name)")
         runtime.modelCmd.createEntityDef(
             modelId = ModelId(modelId),
-            entityDefId = EntityDefId(entityId),
-            name = name?.let { LocalizedTextNotLocalized(it) },
-            description = description?.let { LocalizedTextNotLocalized(it) },
-        )
+            entityDefInitializer = EntityDefInitializer(
+                entityDefId = EntityDefId(entityId),
+                name = name?.let { LocalizedTextNotLocalized(it) },
+                description = description?.let { LocalizedTextNotLocalized(it) },
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId(identityAttributeId),
+                    type = identityAttributeType,
+                    name = name?.let { LocalizedTextNotLocalized(it) },
+                    description = description?.let { LocalizedTextNotLocalized(it) },
+                )
+            ),
+
+            )
     }
 
     @ResourceCommandDoc(
@@ -139,11 +151,13 @@ class ModelResource(private val runtime: AppRuntime) {
         runtime.modelCmd.createEntityDefAttributeDef(
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
-            attributeDefId = AttributeDefId(attributeId),
-            type = ModelTypeId(type),
-            optional = optional,
-            name = name?.let { LocalizedTextNotLocalized(it) },
-            description = description?.let { LocalizedTextNotLocalized(it) },
+            attributeDefInitializer = AttributeDefInitializer(
+                attributeDefId = AttributeDefId(attributeId),
+                type = ModelTypeId(type),
+                optional = optional,
+                name = name?.let { LocalizedTextNotLocalized(it) },
+                description = description?.let { LocalizedTextNotLocalized(it) },
+            )
         )
     }
 

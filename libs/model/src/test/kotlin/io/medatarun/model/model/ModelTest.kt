@@ -2,9 +2,10 @@ package io.medatarun.model.model
 
 import io.medatarun.model.infra.ModelRepositoryInMemory
 import io.medatarun.model.infra.ModelStoragesAmbiguousRepositoryException
-import io.medatarun.model.infra.ModelStoragesCompositeNoRepositoryException
 import io.medatarun.model.infra.ModelStoragesComposite
-import io.medatarun.model.internal.*
+import io.medatarun.model.infra.ModelStoragesCompositeNoRepositoryException
+import io.medatarun.model.internal.ModelCmdImpl
+import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.ports.RepositoryRef
 import io.medatarun.model.ports.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
@@ -163,36 +164,6 @@ class ModelTest {
         }
     }
 
-    class TestEnvEntityUpdate {
-        val repo = ModelRepositoryInMemory("repo-entity-update")
-        val storages = ModelStoragesComposite(listOf(repo))
-        val cmd: ModelCmd = ModelCmdImpl(storages)
-        val query: ModelQueries = ModelQueriesImpl(storages)
-        val modelId = ModelId("model-entity-update")
-        val primaryEntityId = EntityDefId("entity-primary")
-        val secondaryEntityId = EntityDefId("entity-secondary")
-
-        init {
-            cmd.createModel(
-                modelId,
-                LocalizedTextNotLocalized("Model entity update"),
-                null,
-                ModelVersion("1.0.0")
-            )
-            cmd.createEntityDef(
-                modelId,
-                primaryEntityId,
-                LocalizedTextNotLocalized("Entity primary"),
-                LocalizedMarkdownNotLocalized("Entity primary description")
-            )
-            cmd.createEntityDef(
-                modelId,
-                secondaryEntityId,
-                LocalizedTextNotLocalized("Entity secondary"),
-                LocalizedMarkdownNotLocalized("Entity secondary description")
-            )
-        }
-    }
 
     @Test
     fun `updates on model name persists the name`() {
@@ -323,12 +294,29 @@ class ModelTest {
         val name = LocalizedTextNotLocalized("Order")
         val description = LocalizedMarkdownNotLocalized("Order description")
 
-        env.cmd.createEntityDef(env.modelId, entityId, name, description)
+        env.cmd.createEntityDef(
+            env.modelId, EntityDefInitializer(
+                entityDefId = entityId,
+                name = name,
+                description = description,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = LocalizedTextNotLocalized("Identifier"),
+                    description = LocalizedTextNotLocalized("Identifier description")
+                )
+            )
+        )
 
         val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
         assertEquals(entityId, reloaded.id)
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
+        assertEquals(1, reloaded.attributes.size)
+        val attrId = reloaded.attributes[0]
+        assertEquals(AttributeDefId("id"), attrId.id)
+        assertEquals("Identifier", attrId.name?.name)
+        assertEquals("Identifier description", attrId.description?.name)
     }
 
     @Test
@@ -337,12 +325,23 @@ class ModelTest {
         val entityId = EntityDefId("entity-null-name")
         val description = LocalizedMarkdownNotLocalized("Entity without name")
 
-        env.cmd.createEntityDef(env.modelId, entityId, null, description)
+        env.cmd.createEntityDef(
+            env.modelId, EntityDefInitializer(
+                entityId, null, description,
+                AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
 
         val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
         assertEquals(entityId, reloaded.id)
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
+        assertEquals(1, reloaded.attributes.size)
     }
 
     @Test
@@ -351,7 +350,20 @@ class ModelTest {
         val entityId = EntityDefId("entity-null-description")
         val name = LocalizedTextNotLocalized("Entity without description")
 
-        env.cmd.createEntityDef(env.modelId, entityId, name, null)
+        env.cmd.createEntityDef(
+            env.modelId,
+            EntityDefInitializer(
+                entityDefId = entityId,
+                name = name,
+                description = null,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("String"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
 
         val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
         assertEquals(entityId, reloaded.id)
@@ -359,6 +371,75 @@ class ModelTest {
         assertNull(reloaded.description)
     }
 
+    @Test
+    fun `create entity with null attribute name and description then name and desc shall be null`() {
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-null-attr-name")
+        val description = LocalizedMarkdownNotLocalized("Entity without name")
+
+        env.cmd.createEntityDef(
+            env.modelId, EntityDefInitializer(
+                entityId, null, description,
+                AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
+
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
+        assertNull(reloaded.attributes[0].name)
+        assertNull(reloaded.attributes[0].description)
+    }
+
+    class TestEnvEntityUpdate {
+        val repo = ModelRepositoryInMemory("repo-entity-update")
+        val storages = ModelStoragesComposite(listOf(repo))
+        val cmd: ModelCmd = ModelCmdImpl(storages)
+        val query: ModelQueries = ModelQueriesImpl(storages)
+        val modelId = ModelId("model-entity-update")
+        val primaryEntityId = EntityDefId("entity-primary")
+        val secondaryEntityId = EntityDefId("entity-secondary")
+
+        init {
+            cmd.createModel(
+                modelId,
+                LocalizedTextNotLocalized("Model entity update"),
+                null,
+                ModelVersion("1.0.0")
+            )
+            cmd.createEntityDef(
+                modelId,
+                EntityDefInitializer(
+                    entityDefId = primaryEntityId,
+                    name = LocalizedTextNotLocalized("Entity primary"),
+                    description = LocalizedMarkdownNotLocalized("Entity primary description"),
+                    identityAttribute = AttributeDefIdentityInitializer(
+                        attributeDefId = AttributeDefId("id"),
+                        type = ModelTypeId("String"),
+                        name = null,
+                        description = null
+                    )
+                )
+            )
+            cmd.createEntityDef(
+                modelId,
+                EntityDefInitializer(
+                    secondaryEntityId,
+                    LocalizedTextNotLocalized("Entity secondary"),
+                    LocalizedMarkdownNotLocalized("Entity secondary description"),
+                    identityAttribute = AttributeDefIdentityInitializer(
+                        attributeDefId = AttributeDefId("id"),
+                        type = ModelTypeId("String"),
+                        name = null,
+                        description = null
+                    )
+                )
+            )
+        }
+    }
 
     @Test
     fun `update entity with wrong model id throws ModelNotFoundException`() {
@@ -482,7 +563,19 @@ class ModelTest {
         val env = TestEnvOneModel()
         val entityId = EntityDefId("entity-to-delete")
 
-        env.cmd.createEntityDef(env.modelId, entityId, LocalizedTextNotLocalized("To delete"), null)
+        env.cmd.createEntityDef(
+            env.modelId, EntityDefInitializer(
+                entityDefId = entityId,
+                name = LocalizedTextNotLocalized("To delete"),
+                description = null,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
         env.cmd.deleteEntityDef(env.modelId, entityId)
 
         val reloaded = env.query.findModelById(env.modelId)
@@ -512,8 +605,28 @@ class ModelTest {
             null,
             ModelVersion("1.0.0")
         )
-        cmd.createEntityDef(modelId1, entityId, LocalizedTextNotLocalized("Entity"), null)
-        cmd.createEntityDef(modelId2, entityId, LocalizedTextNotLocalized("Entity"), null)
+        cmd.createEntityDef(
+            modelId1, EntityDefInitializer(
+                entityDefId = entityId, name = LocalizedTextNotLocalized("Entity"), description = null,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
+        cmd.createEntityDef(
+            modelId2, EntityDefInitializer(
+                entityDefId = entityId, name = LocalizedTextNotLocalized("Entity"), description = null,
+                identityAttribute = AttributeDefIdentityInitializer(
+                    attributeDefId = AttributeDefId("id"),
+                    type = ModelTypeId("String"),
+                    name = null,
+                    description = null
+                )
+            )
+        )
 
         cmd.deleteEntityDef(modelId1, entityId)
 
@@ -548,7 +661,18 @@ class ModelTest {
         }
 
         fun addSampleEntityDef() {
-            cmd.createEntityDef(sampleModelId, sampleEntityDefId, null, null)
+            cmd.createEntityDef(
+                sampleModelId,
+                EntityDefInitializer(
+                    entityDefId = sampleEntityDefId, name = null, description = null,
+                    identityAttribute = AttributeDefIdentityInitializer(
+                        attributeDefId = AttributeDefId("id"),
+                        type = ModelTypeId("String"),
+                        name = null,
+                        description = null
+                    )
+                )
+            )
         }
 
         fun createAttributeDef(
@@ -561,11 +685,13 @@ class ModelTest {
             cmd.createEntityDefAttributeDef(
                 modelId = sampleModelId,
                 entityDefId = sampleEntityDefId,
-                attributeDefId = attributeDefId,
-                type = type,
-                optional = optional,
-                name = name,
-                description = description,
+                attributeDefInitializer = AttributeDefInitializer(
+                    attributeDefId = attributeDefId,
+                    type = type,
+                    optional = optional,
+                    name = name,
+                    description = description,
+                )
             )
             val reloaded =
                 query.findModelById(sampleModelId).findEntityDef(sampleEntityDefId).getAttributeDef(attributeDefId)
@@ -590,15 +716,15 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val reloaded = env.createAttributeDef(
-            attributeDefId = AttributeDefId("id"),
+            attributeDefId = AttributeDefId("businesskey"),
             type = ModelTypeId("String"),
             optional = false,
-            name = LocalizedTextNotLocalized("Identifier"),
-            description = LocalizedTextNotLocalized("Unique identifier in database"),
+            name = LocalizedTextNotLocalized("Business Key"),
+            description = LocalizedTextNotLocalized("Unique business key"),
         )
-        assertEquals(AttributeDefId("id"), reloaded.id)
-        assertEquals(LocalizedTextNotLocalized("Identifier"), reloaded.name)
-        assertEquals(LocalizedTextNotLocalized("Unique identifier in database"), reloaded.description)
+        assertEquals(AttributeDefId("businesskey"), reloaded.id)
+        assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
+        assertEquals(LocalizedTextNotLocalized("Unique business key"), reloaded.description)
         assertEquals(ModelTypeId("String"), reloaded.type)
         assertEquals(false, reloaded.optional)
     }
@@ -797,13 +923,13 @@ class ModelTest {
     fun `delete entity attribute in model then attribute removed`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
-        env.createAttributeDef(attributeDefId = AttributeDefId("id"))
+        env.createAttributeDef(attributeDefId = AttributeDefId("bk"))
         env.createAttributeDef(attributeDefId = AttributeDefId("firstname"))
         env.createAttributeDef(attributeDefId = AttributeDefId("lastname"))
         env.cmd.deleteEntityDefAttributeDef(env.sampleModelId, env.sampleEntityDefId, AttributeDefId("firstname"))
         val reloaded = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
 
-        assertTrue(reloaded.hasAttributeDef(AttributeDefId("id")))
+        assertTrue(reloaded.hasAttributeDef(AttributeDefId("bk")))
         assertFalse(reloaded.hasAttributeDef(AttributeDefId("firstname")))
         assertTrue(reloaded.hasAttributeDef(AttributeDefId("lastname")))
 

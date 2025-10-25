@@ -17,13 +17,13 @@ interface ModelCmd {
 
     // Model -> EntityDef
 
-    fun createEntityDef(modelId: ModelId, entityDefId: EntityDefId, name: LocalizedText?, description: LocalizedMarkdown?)
+    fun createEntityDef(modelId: ModelId, entityDefInitializer: EntityDefInitializer)
     fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd)
     fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
 
     // Model -> EntityDef -> AttributeDef
 
-    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, type: ModelTypeId, optional: Boolean, name: LocalizedText?, description: LocalizedMarkdown?)
+    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefInitializer: AttributeDefInitializer)
     fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
     fun updateEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, target: AttributeDefUpdateCmd)
 }

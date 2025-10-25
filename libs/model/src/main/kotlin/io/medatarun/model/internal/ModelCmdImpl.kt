@@ -62,17 +62,25 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
 
     override fun createEntityDef(
         modelId: ModelId,
-        entityDefId: EntityDefId,
-        name: LocalizedText?,
-        description: LocalizedMarkdown?
+        entityDefInitializer: EntityDefInitializer
+
+
     ) {
         ensureModelExists(modelId)
         storage.createEntityDef(
             modelId, EntityDefInMemory(
-                id = entityDefId,
-                name = name,
-                description = description,
-                attributes = emptyList()
+                id = entityDefInitializer.entityDefId,
+                name = entityDefInitializer.name,
+                description = entityDefInitializer.description,
+                attributes = listOf(
+                    AttributeDefInMemory(
+                        id = entityDefInitializer.identityAttribute.attributeDefId,
+                        name = entityDefInitializer.identityAttribute.name,
+                        description = entityDefInitializer.identityAttribute.description,
+                        type = entityDefInitializer.identityAttribute.type,
+                        optional = false // because it's identity, can never be optional
+                    )
+                )
             )
         )
     }
@@ -84,21 +92,20 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     override fun createEntityDefAttributeDef(
         modelId: ModelId,
         entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        type: ModelTypeId,
-        optional: Boolean,
-        name: LocalizedText?,
-        description: LocalizedMarkdown?
+        attributeDefInitializer: AttributeDefInitializer,
     ) {
         val e = findEntityDefById(modelId, entityDefId)
-        if (e.hasAttributeDef(attributeDefId)) throw CreateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
+        if (e.hasAttributeDef(attributeDefInitializer.attributeDefId)) throw CreateAttributeDefDuplicateIdException(
+            entityDefId,
+            attributeDefInitializer.attributeDefId
+        )
         storage.createEntityDefAttributeDef(
             modelId, entityDefId, AttributeDefInMemory(
-                id = attributeDefId,
-                name = name,
-                description = description,
-                type = type,
-                optional = optional
+                id = attributeDefInitializer.attributeDefId,
+                name = attributeDefInitializer.name,
+                description = attributeDefInitializer.description,
+                type = attributeDefInitializer.type,
+                optional = attributeDefInitializer.optional
             )
         )
     }
