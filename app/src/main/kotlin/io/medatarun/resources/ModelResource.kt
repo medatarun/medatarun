@@ -177,7 +177,7 @@ class ModelResource(private val runtime: AppRuntime) {
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
             attributeDefId = AttributeDefId(attributeId),
-            target = AttributeDefUpdateCmd.Id(AttributeDefId(value))
+            cmd = AttributeDefUpdateCmd.Id(AttributeDefId(value))
         )
     }
 
@@ -197,7 +197,7 @@ class ModelResource(private val runtime: AppRuntime) {
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
             attributeDefId = AttributeDefId(attributeId),
-            target = AttributeDefUpdateCmd.Name(value?.let { LocalizedTextNotLocalized(it) })
+            cmd = AttributeDefUpdateCmd.Name(value?.let { LocalizedTextNotLocalized(it) })
         )
     }
 
@@ -217,7 +217,7 @@ class ModelResource(private val runtime: AppRuntime) {
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
             attributeDefId = AttributeDefId(attributeId),
-            target = AttributeDefUpdateCmd.Description(value?.let { LocalizedTextNotLocalized(it) })
+            cmd = AttributeDefUpdateCmd.Description(value?.let { LocalizedTextNotLocalized(it) })
         )
     }
 
@@ -237,7 +237,7 @@ class ModelResource(private val runtime: AppRuntime) {
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
             attributeDefId = AttributeDefId(attributeId),
-            target = AttributeDefUpdateCmd.Type(ModelTypeId(value))
+            cmd = AttributeDefUpdateCmd.Type(ModelTypeId(value))
         )
     }
 
@@ -257,7 +257,7 @@ class ModelResource(private val runtime: AppRuntime) {
             modelId = ModelId(modelId),
             entityDefId = EntityDefId(entityId),
             attributeDefId = AttributeDefId(attributeId),
-            target = AttributeDefUpdateCmd.Optional(value)
+            cmd = AttributeDefUpdateCmd.Optional(value)
         )
     }
 

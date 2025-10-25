@@ -123,16 +123,32 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         modelId: ModelId,
         entityDefId: EntityDefId,
         attributeDefId: AttributeDefId,
-        target: AttributeDefUpdateCmd
+        cmd: AttributeDefUpdateCmd
     ) {
         val entity = findEntityDefById(modelId, entityDefId)
         entity.ensureAttributeDefExists(attributeDefId)
-        if (target is AttributeDefUpdateCmd.Id) {
-            if (entity.attributes.any { it.id == target.value && it.id != attributeDefId }) {
+
+        // We can not have two attributes with the same id
+        if (cmd is AttributeDefUpdateCmd.Id) {
+            if (entity.attributes.any { it.id == cmd.value && it.id != attributeDefId }) {
                 throw UpdateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
             }
         }
-        storage.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, target)
+
+        // If user wants to rename the Entity's identity attribute, we must rename in entity
+        // as well as the attribute's id, then apply changes on entity
+        if (cmd is AttributeDefUpdateCmd.Id) {
+            if (entity.identifierAttributeDefId == attributeDefId) {
+                storage.updateEntityDef(
+                    modelId,
+                    entityDefId,
+                    EntityDefUpdateCmd.IdentifierAttribute(cmd.value)
+                )
+            }
+        }
+
+        // Apply changes on attribute
+        storage.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, cmd)
     }
 
     fun ensureModelExists(modelId: ModelId) {

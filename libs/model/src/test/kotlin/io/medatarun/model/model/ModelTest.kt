@@ -11,6 +11,7 @@ import io.medatarun.model.ports.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import javax.naming.directory.AttributeInUseException
 import kotlin.test.*
 
 class ModelTest {
@@ -782,7 +783,7 @@ class ModelTest {
                 modelId = ModelId("unknown"),
                 entityDefId = EntityDefId("unknownEntity"),
                 attributeDefId = AttributeDefId("unknownAttribute"),
-                target = AttributeDefUpdateCmd.Name(null)
+                cmd = AttributeDefUpdateCmd.Name(null)
             )
         }
 
@@ -798,7 +799,7 @@ class ModelTest {
                 modelId = env.sampleModelId,
                 entityDefId = EntityDefId("unknownEntity"),
                 attributeDefId = AttributeDefId("unknownAttribute"),
-                target = AttributeDefUpdateCmd.Name(null)
+                cmd = AttributeDefUpdateCmd.Name(null)
             )
         }
     }
@@ -814,7 +815,7 @@ class ModelTest {
                 modelId = env.sampleModelId,
                 entityDefId = env.sampleEntityDefId,
                 attributeDefId = AttributeDefId("unknownAttribute"),
-                target = AttributeDefUpdateCmd.Name(null)
+                cmd = AttributeDefUpdateCmd.Name(null)
             )
         }
     }
@@ -849,6 +850,20 @@ class ModelTest {
         assertEquals(AttributeDefId("nextname"), reloaded.id)
     }
 
+    @Test
+    fun `update attribute id of the entity identifier also changes the identifier id`() {
+        val env = TestEnvAttribute()
+        env.addSampleEntityDef()
+        val e = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
+        val attrId = e.identifierAttributeDefId
+        val attrIdNext = AttributeDefId("id_next")
+        // Be careful to specify "reloadId" because the attribute's id changed
+        env.updateAttributeDef(attrId, command = AttributeDefUpdateCmd.Id(attrIdNext), reloadId = attrIdNext)
+        val reloadedEntity = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
+        assertEquals(attrIdNext, reloadedEntity.identifierAttributeDefId)
+
+
+    }
 
     @Test
     fun `update attribute name is persisted`() {

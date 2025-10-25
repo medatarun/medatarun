@@ -65,6 +65,15 @@ internal class ModelJsonTest {
         assertEquals(companyInfos.optional, true)
         assertEquals(companyInfos.type, ModelTypeId("Markdown"))
     }
+    // TODO test updates on entity identifier
+    // TODO test updates on entity name
+    // TODO test updates on entity description
+
+    // TODO test updates on attribute identifier
+    // TODO test updates on attribute name
+    // TODO test updates on attribute description
+    // TODO test updates on attribute optional
+    // TODO test updates on attribute type
 
     /**
      * Tests whether a JSON model, serialized and deserialized using the `ModelJsonConverter`,

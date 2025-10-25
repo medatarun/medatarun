@@ -99,6 +99,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
                 is EntityDefUpdateCmd.Id -> previous.copy(id = cmd.value)
                 is EntityDefUpdateCmd.Name -> previous.copy(name = cmd.value)
                 is EntityDefUpdateCmd.Description -> previous.copy(description = cmd.value)
+                is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeDefId = cmd.value)
             }
         }
     }

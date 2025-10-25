@@ -90,6 +90,7 @@ class ModelJsonRepository(
                     is EntityDefUpdateCmd.Id -> entity.copy(id = cmd.value)
                     is EntityDefUpdateCmd.Name -> entity.copy(name = cmd.value)
                     is EntityDefUpdateCmd.Description -> entity.copy(description = cmd.value)
+                    is EntityDefUpdateCmd.IdentifierAttribute -> entity.copy(identifierAttributeDefId = cmd.value)
                 }
             }
             model.copy(entityDefs = nextEntities)
