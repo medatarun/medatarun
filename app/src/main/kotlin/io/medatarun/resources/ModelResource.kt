@@ -1,11 +1,15 @@
 package io.medatarun.resources
 
 import io.medatarun.model.model.*
+import io.medatarun.resources.actions.ModelInspectAction
+import io.medatarun.resources.actions.ModelInspectJsonAction
 import io.medatarun.runtime.AppRuntime
-import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class ModelResource(private val runtime: AppRuntime) {
+
+    private val inspectAction = ModelInspectAction(runtime)
+    private val inspectJsonAction = ModelInspectJsonAction(runtime)
 
     // ------------------------------------------------------------------------
     // Model
@@ -151,7 +155,6 @@ class ModelResource(private val runtime: AppRuntime) {
             typeId = ModelTypeId(typeId),
         )
     }
-
 
 
     // ------------------------------------------------------------------------
@@ -420,24 +423,9 @@ class ModelResource(private val runtime: AppRuntime) {
     )
     @Suppress("unused")
     fun inspect(): String {
-        val buf = StringBuilder()
-        val modelId = runtime.modelQueries.findAllModelIds()
-        modelId.forEach { modelId ->
-            val model = runtime.modelQueries.findModelById(modelId)
-            buf.appendLine("🌐 ${model.id.value}")
-            model.entityDefs.forEach { entity ->
-                buf.appendLine("  📦 ${entity.id.value}")
-                entity.attributes.forEach { attribute ->
-                    val name = attribute.id.value
-                    val type = attribute.type.value
-                    val optional = if (attribute.optional) "?" else ""
-                    val pk = if (entity.identifierAttributeDefId == attribute.id) "🔑" else ""
-                    buf.appendLine("    $name: $type$optional $pk")
-                }
-            }
-        }
-        return buf.toString()
+        return inspectAction.process()
     }
+
 
     @ResourceCommandDoc(
         title = "Inspect models (JSON)",
@@ -445,54 +433,9 @@ class ModelResource(private val runtime: AppRuntime) {
     )
     @Suppress("unused")
     fun inspectJson(): String {
-        val root = buildJsonObject {
-            put("models", buildJsonArray {
-                runtime.modelQueries.findAllModelIds().forEach { modelId ->
-                    val model = runtime.modelQueries.findModelById(modelId)
-                    add(buildJsonObject {
-                        put("id", model.id.value)
-                        put("version", model.version.value)
-                        put("name", localizedTextToJson(model.name))
-                        put("description", localizedTextToJson(model.description))
-                        put("entities", buildJsonArray {
-                            model.entityDefs.forEach { entity ->
-                                add(buildJsonObject {
-                                    put("id", entity.id.value)
-                                    put("name", localizedTextToJson(entity.name))
-                                    put("description", localizedTextToJson(entity.description))
-                                    put("identifierAttribute", entity.identifierAttributeDefId.value)
-                                    put("attributes", buildJsonArray {
-                                        entity.attributes.forEach { attribute ->
-                                            add(buildJsonObject {
-                                                put("id", attribute.id.value)
-                                                put("name", localizedTextToJson(attribute.name))
-                                                put("description", localizedTextToJson(attribute.description))
-                                                put("type", attribute.type.value)
-                                                put("optional", attribute.optional)
-                                            })
-                                        }
-                                    })
-                                })
-                            }
-                        })
-                    })
-                }
-            })
-        }
-        return root.toString()
+        return inspectJsonAction.process()
     }
 
-    private fun localizedTextToJson(value: LocalizedText?): JsonElement {
-        return value?.let { text ->
-            buildJsonObject {
-                put("values", buildJsonObject {
-                    text.all().forEach { (locale, content) ->
-                        put(locale, content)
-                    }
-                })
-            }
-        } ?: JsonNull
-    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModelResource::class.java)
