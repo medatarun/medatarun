@@ -6,12 +6,17 @@ import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class ModelResource(private val runtime: AppRuntime) {
+
+    // ------------------------------------------------------------------------
+    // Model
+    // ------------------------------------------------------------------------
+
     @ResourceCommandDoc(
         title = "Create model definition",
         description = "Initializes a new model with the provided identifier, display name, optional description, and version."
     )
     @Suppress("unused")
-    fun create(id: String, name: String, description: String? = null, version: ModelVersion? = null) {
+    fun createModel(id: String, name: String, description: String? = null, version: ModelVersion? = null) {
         logger.info("Create model $id ($name)")
         runtime.modelCmd.createModel(
             id = ModelId(id),
@@ -22,14 +27,136 @@ class ModelResource(private val runtime: AppRuntime) {
     }
 
     @ResourceCommandDoc(
+        title = "Update model name",
+        description = "Changes model name"
+    )
+    @Suppress("unused")
+    fun updateModelName(id: String, name: String) {
+        logger.info("Update model $id name $name")
+        runtime.modelCmd.updateModelName(
+            modelId = ModelId(id),
+            name = LocalizedTextNotLocalized(name),
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Update model description",
+        description = "Changes model description"
+    )
+    @Suppress("unused")
+    fun updateModelDescription(id: String, description: String?) {
+        logger.info("Update model $id description $description")
+        runtime.modelCmd.updateModelDescription(
+            modelId = ModelId(id),
+            description = description?.let { LocalizedTextNotLocalized(it) },
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Update model description",
+        description = "Changes model description"
+    )
+    @Suppress("unused")
+    fun updateModelVersion(id: String, version: String) {
+        logger.info("Update model $id version $version")
+        runtime.modelCmd.updateModelVersion(
+            modelId = ModelId(id),
+            version = ModelVersion(version),
+        )
+    }
+
+    @ResourceCommandDoc(
         title = "Delete model definition",
         description = "Removes a model and all of its entities from the runtime."
     )
     @Suppress("unused")
-    fun delete(id: String) {
+    fun deleteModel(id: String) {
         logger.info("Delete model $id")
         runtime.modelCmd.deleteModel(ModelId(id))
     }
+
+    // ------------------------------------------------------------------------
+    // Types
+    // ------------------------------------------------------------------------
+
+    @ResourceCommandDoc(
+        title = "Create type",
+        description = "Create type definition in an existing model, optionally supplying user-facing name and description."
+    )
+    @Suppress("unused")
+    fun createType(
+        modelId: String,
+        typeId: String,
+        name: String?,
+        description: String?
+    ) {
+        runtime.modelCmd.createType(
+            modelId = ModelId(modelId),
+            initializer = ModelTypeInitializer(
+                id = ModelTypeId(typeId),
+                name = name?.let { LocalizedTextNotLocalized(it) },
+                description = description?.let { LocalizedTextNotLocalized(it) },
+            )
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Update type name",
+        description = "Updates a type name"
+    )
+    @Suppress("unused")
+    fun updateTypeName(
+        modelId: String,
+        typeId: String,
+        name: String?
+    ) {
+        runtime.modelCmd.updateType(
+            modelId = ModelId(modelId),
+            typeId = ModelTypeId(typeId),
+            cmd = ModelTypeUpdateCmd.Name(name?.let { LocalizedTextNotLocalized(it) })
+        )
+    }
+
+    @ResourceCommandDoc(
+        title = "Update type description",
+        description = "Updates a type description"
+    )
+    @Suppress("unused")
+    fun updateTypeDescription(
+        modelId: String,
+        typeId: String,
+        description: String?
+    ) {
+        runtime.modelCmd.updateType(
+            modelId = ModelId(modelId),
+            typeId = ModelTypeId(typeId),
+            cmd = ModelTypeUpdateCmd.Description(description?.let { LocalizedTextNotLocalized(it) })
+        )
+    }
+
+
+    @ResourceCommandDoc(
+        title = "Delete type",
+        description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes."
+    )
+    @Suppress("unused")
+    fun deleteType(
+        modelId: String,
+        typeId: String,
+        name: String?,
+        description: String?
+    ) {
+        runtime.modelCmd.deleteType(
+            modelId = ModelId(modelId),
+            typeId = ModelTypeId(typeId),
+        )
+    }
+
+
+
+    // ------------------------------------------------------------------------
+    // Entities
+    // ------------------------------------------------------------------------
 
     @ResourceCommandDoc(
         title = "Create model entity",
@@ -132,6 +259,10 @@ class ModelResource(private val runtime: AppRuntime) {
             entityDefId = EntityDefId(entityId)
         )
     }
+
+    // ------------------------------------------------------------------------
+    // Entity attributes
+    // ------------------------------------------------------------------------
 
     @ResourceCommandDoc(
         title = "Create entity attribute",
@@ -278,6 +409,10 @@ class ModelResource(private val runtime: AppRuntime) {
             attributeDefId = AttributeDefId(attributeId)
         )
     }
+
+    // ------------------------------------------------------------------------
+    // Inspections
+    // ------------------------------------------------------------------------
 
     @ResourceCommandDoc(
         title = "Inspect models",

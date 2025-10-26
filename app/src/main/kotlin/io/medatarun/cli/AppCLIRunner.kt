@@ -1,12 +1,12 @@
 package io.medatarun.cli
 
-import io.medatarun.resources.AppCLIResources
+import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
 
-class AppCLIRunner(private val args: Array<String>, private val resources: AppCLIResources) {
+class AppCLIRunner(private val args: Array<String>, private val resources: AppResources) {
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)

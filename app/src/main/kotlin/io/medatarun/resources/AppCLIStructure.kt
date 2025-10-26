@@ -3,7 +3,7 @@ package io.medatarun.resources
 import io.medatarun.runtime.AppRuntime
 
 
-class AppCLIResources(private val runtime: AppRuntime) {
+class AppResources(private val runtime: AppRuntime) {
     @Suppress("unused")
     val model = ModelResource(runtime)
 

@@ -7,15 +7,15 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 
-class ResourceRepository(private val resources: AppCLIResources) {
+class ResourceRepository(private val resources: AppResources) {
 
-    private val resourceDescriptors = AppCLIResources::class.memberProperties
+    private val resourceDescriptors = AppResources::class.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
         .map { ResourceDescriptor(it.name, it, toCommands(it)) }
         .associateBy { it.name }
 
 
-    private fun toCommands(property: KProperty1<AppCLIResources, *>): List<ResourceCommand> {
+    private fun toCommands(property: KProperty1<AppResources, *>): List<ResourceCommand> {
         val resourceInstance = property.get(resources) ?: return emptyList()
         val functions = resourceInstance::class.functions
             .filter { it.name !in EXCLUDED_FUNCTIONS }
@@ -160,7 +160,7 @@ class ResourceRepository(private val resources: AppCLIResources) {
 
     data class ResourceDescriptor(
         val name: String,
-        val property: KProperty1<AppCLIResources, *>,
+        val property: KProperty1<AppResources, *>,
         val commands: List<ResourceCommand>,
     )
 

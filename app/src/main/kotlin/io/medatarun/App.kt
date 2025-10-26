@@ -2,7 +2,7 @@ package io.medatarun
 
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.httpserver.RestApi
-import io.medatarun.resources.AppCLIResources
+import io.medatarun.resources.AppResources
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.utils.Printer
 import kotlin.io.path.Path
@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
     println(Path("package.json").toAbsolutePath().toString())
 
     val runtime = AppRuntimeBuilder().build()
-    val cliResources = AppCLIResources(runtime)
+    val cliResources = AppResources(runtime)
 
     if (args[0] == "serve") {
         val rest = RestApi(runtime).start(wait = true)

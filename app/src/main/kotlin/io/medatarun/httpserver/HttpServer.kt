@@ -12,7 +12,7 @@ import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
-import io.medatarun.resources.AppCLIResources
+import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
@@ -25,7 +25,7 @@ class RestApi(
     private val runtime: AppRuntime,
 ) {
     private val logger = LoggerFactory.getLogger(RestApi::class.java)
-    private val resources = AppCLIResources(runtime)
+    private val resources = AppResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
     private val mcpServerBuilder = McpServerBuilder(resourceRepository)
     private val restApiDoc = RestApiDoc(resourceRepository)
