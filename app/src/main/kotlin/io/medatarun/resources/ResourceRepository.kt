@@ -1,7 +1,9 @@
 package io.medatarun.resources
 
 import io.ktor.http.*
+import io.ktor.util.rootCause
 import io.medatarun.model.model.MedatarunException
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
@@ -124,6 +126,25 @@ class ResourceRepository(private val resources: AppResources) {
 
         return try {
             function.callBy(callArgs)
+        } catch (e: InvocationTargetException) {
+            val cause = e.cause
+            if (cause != null) {
+                throw ResourceInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    cause::class.simpleName ?: "Invocation failed",
+                    mapOf(
+                        "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
+                    )
+                )
+            } else {
+                throw ResourceInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    "Invocation failed",
+                    mapOf(
+                        "details" to (e.message ?: e::class.simpleName).toString()
+                    )
+                )
+            }
         } catch (throwable: Throwable) {
             throw ResourceInvocationException(
                 HttpStatusCode.InternalServerError,

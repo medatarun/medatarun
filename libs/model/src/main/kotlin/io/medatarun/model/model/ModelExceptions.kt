@@ -34,3 +34,6 @@ class TypeNotFoundException(modelId: ModelId, typeId: ModelTypeId) :
 
 class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityDefId, attributeId: AttributeDefId) :
         MedatarunException("Can not delete attribute $attributeId in entity $entityId of model $modelId because it is used as the entity's identifier")
+
+class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
+        MedatarunException("Model with id [${modelId.value}] could not be validated. " + errors.joinToString(". ") { it.message })

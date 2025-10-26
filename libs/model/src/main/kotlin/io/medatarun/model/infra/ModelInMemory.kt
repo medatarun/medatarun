@@ -19,6 +19,7 @@ data class ModelInMemory(
     override val types: List<ModelTypeInMemory>,
     override val entityDefs: List<EntityDefInMemory>
 ) : Model {
+
     companion object {
         fun of(other: Model): ModelInMemory {
             return ModelInMemory(

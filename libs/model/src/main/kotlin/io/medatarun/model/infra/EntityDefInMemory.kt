@@ -25,9 +25,10 @@ data class EntityDefInMemory(
         return attributes.size
     }
 
-    override fun getAttributeDef(id: AttributeDefId): AttributeDef {
-        return map[id] ?: throw AttributeDefNotFoundException(this.id, id)
+    override fun getAttributeDefOptional(id: AttributeDefId): AttributeDef? {
+        return map[id]
     }
+
 
     override fun hasAttributeDef(id: AttributeDefId): Boolean = map.containsKey(id)
 

@@ -3,6 +3,7 @@ package io.medatarun.ext.modeljson
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
@@ -14,6 +15,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
+import javax.xml.validation.TypeInfoProvider
 
 
 inline fun <reified T> valueClassSerializer(
@@ -69,6 +71,13 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = model.version.value,
             name = model.name,
             description = model.description,
+            types = model.types.map { type ->
+              ModelTypeJson(
+                  id = type.id.value,
+                  name = type.name,
+                  description = type.description,
+              )
+            },
             entities = model.entityDefs.map { entity ->
                 ModelEntityJson(
                     id = entity.id.value,
@@ -97,7 +106,13 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = ModelVersion(modelJson.version),
             name = modelJson.name,
             description = modelJson.description,
-            types = emptyList(),
+            types = modelJson.types.map { typeJson ->
+                ModelTypeInMemory(
+                    id = ModelTypeId(typeJson.id),
+                    name = typeJson.name,
+                    description = typeJson.description
+                )
+            },
             entityDefs = modelJson.entities.map { entityJson ->
                 EntityDefInMemory(
                     id = EntityDefId(entityJson.id),
@@ -119,6 +134,13 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         return model
     }
 }
+
+@Serializable
+class ModelTypeJson(
+    val id: String,
+    val name: @Contextual LocalizedText? = null,
+    val description: @Contextual LocalizedMarkdown? = null,
+)
 
 @Serializable
 class ModelEntityJson(
@@ -144,6 +166,7 @@ class ModelJson(
     val version: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
+    val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>
 )
 

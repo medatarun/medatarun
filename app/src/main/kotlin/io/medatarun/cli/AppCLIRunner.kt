@@ -79,8 +79,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
     }
 
     private fun logPayload(payload: Map<String, String>) {
-        payload["usage"]?.let { logger.error(it) }
-        payload["details"]?.let { logger.error(it) }
+        logger.error(""+payload.toString())
     }
 
     private fun printHelp(resource: String? = null, command: String? = null) {

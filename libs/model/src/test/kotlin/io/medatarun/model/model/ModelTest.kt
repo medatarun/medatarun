@@ -1,11 +1,9 @@
 package io.medatarun.model.model
 
-import io.medatarun.model.infra.ModelRepositoryInMemory
-import io.medatarun.model.infra.ModelStoragesAmbiguousRepositoryException
-import io.medatarun.model.infra.ModelStoragesComposite
-import io.medatarun.model.infra.ModelStoragesCompositeNoRepositoryException
+import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelCmdImpl
 import io.medatarun.model.internal.ModelQueriesImpl
+import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.ports.RepositoryRef
 import io.medatarun.model.ports.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
@@ -15,10 +13,14 @@ import kotlin.test.*
 
 class ModelTest {
 
+    fun createStorages(vararg repo: ModelRepositoryInMemory): ModelStoragesComposite {
+        return ModelStoragesComposite(repo.toList(), ModelValidationImpl())
+    }
+
     @Test
     fun `can not instantiate storages without repositories`() {
         assertFailsWith(ModelStoragesCompositeNoRepositoryException::class) {
-            ModelStoragesComposite(emptyList())
+            ModelStoragesComposite(emptyList(), ModelValidationImpl())
         }
     }
 
@@ -30,7 +32,7 @@ class ModelTest {
     fun `create model fail with ambiguous storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val storages = ModelStoragesComposite(listOf(repo1, repo2))
+        val storages = createStorages(repo1, repo2)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
             cmd.createModel(
@@ -45,7 +47,7 @@ class ModelTest {
     @Test
     fun `create model ok with one storage mode auto`() {
         val repo1 = ModelRepositoryInMemory("repo1")
-        val storages = ModelStoragesComposite(listOf(repo1))
+        val storages = createStorages(repo1)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val modelId = ModelId("m1")
         assertDoesNotThrow {
@@ -63,7 +65,7 @@ class ModelTest {
     fun `create model ok with multiple storages and specified storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val storages = ModelStoragesComposite(listOf(repo1, repo2))
+        val storages = createStorages(repo1, repo2)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -85,7 +87,7 @@ class ModelTest {
     @Test
     fun `create model with name description and version when present`() {
         val repo = ModelRepositoryInMemory("repo")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -105,7 +107,7 @@ class ModelTest {
     @Test
     fun `create model keeps values without optional description`() {
         val repo = ModelRepositoryInMemory("repo")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -128,7 +130,7 @@ class ModelTest {
     @Test
     fun `updates on model fails if model not found`() {
         val repo = ModelRepositoryInMemory("repo1")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -152,9 +154,9 @@ class ModelTest {
         assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelById(modelId).name)
     }
 
-    class TestEnvOneModel() {
+    inner class TestEnvOneModel() {
         val repo = ModelRepositoryInMemory("repo1")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
         val modelId = ModelId("m1")
@@ -203,7 +205,7 @@ class ModelTest {
     fun `delete model fails if model Id not found in any storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val storages = ModelStoragesComposite(listOf(repo1, repo2))
+        val storages = createStorages(repo1, repo2)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         cmd.createModel(
             id = ModelId("m-to-delete-repo-1"),
@@ -228,7 +230,7 @@ class ModelTest {
     fun `delete model removes it from storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val storages = ModelStoragesComposite(listOf(repo1, repo2))
+        val storages = createStorages(repo1, repo2)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -288,9 +290,9 @@ class ModelTest {
     // Types
     // ------------------------------------------------------------------------
 
-    class TestEnvTypes {
+    inner class TestEnvTypes {
         val repo = ModelRepositoryInMemory("repo1")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
         val modelId = ModelId("m1")
@@ -601,9 +603,9 @@ class ModelTest {
         assertNull(reloaded.attributes[0].description)
     }
 
-    class TestEnvEntityUpdate {
+    inner class TestEnvEntityUpdate {
         val repo = ModelRepositoryInMemory("repo-entity-update")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
         val modelId = ModelId("model-entity-update")
@@ -793,7 +795,7 @@ class ModelTest {
     @Test
     fun `delete entity with same id in two models then only entity in the specified model is removed`() {
         val repo = ModelRepositoryInMemory("repo")
-        val storages = ModelStoragesComposite(listOf(repo))
+        val storages = createStorages(repo)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
 
@@ -851,10 +853,10 @@ class ModelTest {
     // Attributes
     // -----------------------------------------------------------------------------------------------------------------
 
-    class TestEnvAttribute() {
+    inner class TestEnvAttribute() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val storages = ModelStoragesComposite(listOf(repo1, repo2))
+        val storages = createStorages(repo1, repo2)
         val cmd: ModelCmd = ModelCmdImpl(storages)
         val query: ModelQueries = ModelQueriesImpl(storages)
         val sampleModelId = ModelId("model-1")
@@ -1209,6 +1211,72 @@ class ModelTest {
                 reloaded.entityIdAttributeDefId()
             )
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Validation process
+    // ------------------------------------------------------------------------
+
+    inner class TestEnvInvalidModel {
+        val repo = ModelRepositoryInMemory("repo1")
+        val storages = createStorages(repo)
+        val cmd = ModelCmdImpl(storages)
+        val query = ModelQueriesImpl(storages)
+        val modelId = ModelId("test")
+        val invalidModel = ModelInMemory(
+            id = modelId,
+            name = null,
+            description = null,
+            version = ModelVersion("0.0.1"),
+            types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
+            entityDefs = listOf(
+                EntityDefInMemory(
+                    id = EntityDefId("Contact"),
+                    name = null,
+                    description = null,
+                    // Error is here
+                    identifierAttributeDefId = AttributeDefId("unknown"),
+                    attributes = listOf(
+                        AttributeDefInMemory(
+                            id = AttributeDefId("id"),
+                            type = ModelTypeId("String"),
+                            name = null,
+                            description = null,
+                            optional = false
+                        )
+                    )
+                )
+            )
+        )
+
+        init {
+            repo.push(invalidModel)
+        }
+    }
+
+    @Test
+    fun `can not load model with errors`() {
+
+        // This test only checks loading and basic behaviour of model operations
+
+        // Each method that need checking shall be checked independently
+        // as some methods can effectively work on invalid models (for example to be able
+        // to correct them)
+
+        val env = TestEnvInvalidModel()
+
+        // Getting a model that has error shall fail with invalid exception
+        assertThrows<ModelInvalidException> { env.query.findModelById(env.modelId) }
+
+        // Find all model ids shall not validate models, just give their ids
+        assertDoesNotThrow { env.query.findAllModelIds() }
+
+        // Creating or trying to modify something in invalid model shall throw error
+        assertThrows<ModelInvalidException> {
+            env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
+        }
+
+
     }
 
 }

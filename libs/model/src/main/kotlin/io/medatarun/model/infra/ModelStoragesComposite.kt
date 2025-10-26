@@ -11,7 +11,8 @@ import io.medatarun.model.ports.RepositoryRef
  * available [ModelRepository] declared in the contribution point.
  */
 class ModelStoragesComposite(
-    val repositories: List<ModelRepository>
+    val repositories: List<ModelRepository>,
+    val modelValidation: ModelValidation,
 ) : ModelStorages {
 
     init {
@@ -29,7 +30,13 @@ class ModelStoragesComposite(
     override fun findModelByIdOptional(modelId: ModelId): Model? {
         for (repository in repositories) {
             val found = repository.findModelByIdOptional(modelId)
-            if (found != null) return found
+            if (found != null) {
+                when (val validation = modelValidation.validate(found)) {
+                    is ModelValidationState.Ok -> return found
+                    is ModelValidationState.Error -> throw ModelInvalidException(modelId, validation.errors)
+                }
+
+            }
         }
         return null
     }

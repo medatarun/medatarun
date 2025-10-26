@@ -10,6 +10,9 @@ import io.medatarun.model.model.*
  * Implementations shall be able to aggregate multiple repositories as declared in the contribution point for repositories.
  *
  * [ModelStorages] contains multiple [ModelRepository]
+ *
+ * [ModelStorages] role is also to be sure that no corrupted data shall enter the main business area.
+ * Invalid [Model] shall not be loaded by any means, and throw [ModelStoragesInvalidModelException]
  */
 interface ModelStorages {
 

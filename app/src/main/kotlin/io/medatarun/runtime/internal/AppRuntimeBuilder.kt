@@ -8,6 +8,7 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelStoragesComposite
 import io.medatarun.model.internal.ModelCmdImpl
 import io.medatarun.model.internal.ModelQueriesImpl
+import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelQueries
 import io.medatarun.model.ports.ModelRepository
@@ -25,7 +26,8 @@ class AppRuntimeBuilder {
         )
         val platform = ExtensionPlaformImpl(extensions, config)
         val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
-        val storage = ModelStoragesComposite(repositories)
+        val validation = ModelValidationImpl()
+        val storage = ModelStoragesComposite(repositories, validation)
         val queries = ModelQueriesImpl(storage)
         val cmd = ModelCmdImpl(storage)
         return object : AppRuntime {

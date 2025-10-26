@@ -38,9 +38,14 @@ interface EntityDef {
     fun countAttributeDefs(): Int
 
     /**
+     * Get attribute by its id if found
+     */
+    fun getAttributeDefOptional(id: AttributeDefId): AttributeDef?
+
+    /**
      * Get attribute by its id. Throws [AttributeDefNotFoundException] otherwise.
      */
-    fun getAttributeDef(id: AttributeDefId): AttributeDef
+    fun getAttributeDef(id: AttributeDefId): AttributeDef = getAttributeDefOptional(id) ?: throw AttributeDefNotFoundException(entityId = this.id , id)
 
     /**
      * @return true if this entity contains this attribute
