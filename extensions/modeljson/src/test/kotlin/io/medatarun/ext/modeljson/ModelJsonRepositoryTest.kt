@@ -1,0 +1,98 @@
+package io.medatarun.ext.modeljson
+
+import io.medatarun.model.model.ModelId
+import io.medatarun.model.ports.ModelRepositoryId
+import org.junit.jupiter.api.Assertions.assertFalse
+import kotlin.io.path.exists
+import kotlin.test.*
+
+class ModelJsonRepositoryTest {
+    private val converter = ModelJsonConverter(true)
+
+    internal inner class TestEnv {
+        val fs = ModelJsonFilesystemFixture()
+        val repositoryPath = fs.modelsDirectory()
+        val repo: ModelJsonRepository = ModelJsonRepository(repositoryPath, converter)
+        val sampleModel = converter.fromJson(sampleModelJson)
+        val sampleModel2 = sampleModel.copy(id = ModelId(sampleModel.id.value + "-2"))
+        fun importSample() {
+            repo.persistModel(sampleModel)
+        }
+
+        fun importSample2() {
+            repo.persistModel(sampleModel2)
+        }
+    }
+
+    @Test
+    fun testMatches() {
+        val env = TestEnv()
+        assertFalse(env.repo.matchesId(ModelRepositoryId("abc")))
+        assertTrue(env.repo.matchesId(ModelJsonRepository.REPOSITORY_ID))
+    }
+
+    @Test
+    fun `findModelById not found`() {
+        val env = TestEnv()
+        assertNull(env.repo.findModelByIdOptional(ModelId("unknwon")))
+        env.importSample()
+        assertNull(env.repo.findModelByIdOptional(ModelId("unknwon")))
+        env.importSample()
+    }
+
+    @Test
+    fun `findModelById found`() {
+        val env = TestEnv()
+        assertNull(env.repo.findModelByIdOptional(env.sampleModel.id))
+        env.importSample()
+        env.importSample2()
+        val m = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel.id))
+        assertEquals(env.sampleModel.id, m.id)
+        val m2 = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel2.id))
+        assertEquals(env.sampleModel2.id, m2.id)
+    }
+
+    @Test
+    fun `create then path is correct`() {
+        val env = TestEnv()
+        env.repo.createModel(env.sampleModel)
+        env.repo.createModel(env.sampleModel2)
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value+".json")
+        assertTrue(path1.exists())
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value+".json")
+        assertTrue(path2.exists())
+
+    }
+
+    @Test
+    fun `update id and path changed`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `update name`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `update description`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `delete then no file left`() {
+        val env = TestEnv()
+        env.repo.createModel(env.sampleModel)
+        env.repo.createModel(env.sampleModel2)
+        env.repo.deleteModel(env.sampleModel.id)
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value+".json")
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value+".json")
+        assertFalse(path1.exists())
+        assertTrue(path2.exists())
+        env.repo.deleteModel(env.sampleModel2.id)
+        assertFalse(path2.exists())
+
+
+    }
+}
+

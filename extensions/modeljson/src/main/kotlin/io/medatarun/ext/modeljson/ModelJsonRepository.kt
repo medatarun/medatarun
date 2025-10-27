@@ -20,7 +20,7 @@ class ModelJsonRepository(
     /**
      * This repository currently handles only one storage.
      */
-    private val repositoryId = ModelRepositoryId("json")
+    private val repositoryId = REPOSITORY_ID
 
     private val discoveredModels = mutableMapOf<ModelId, Path>()
 
@@ -225,6 +225,10 @@ class ModelJsonRepository(
         val path = repositoryPath.resolve(model.id.value + ".json")
         path.writeText(json)
         discoveredModels[model.id] = path
+    }
+
+    companion object {
+        val REPOSITORY_ID = ModelRepositoryId("json")
     }
 
 }

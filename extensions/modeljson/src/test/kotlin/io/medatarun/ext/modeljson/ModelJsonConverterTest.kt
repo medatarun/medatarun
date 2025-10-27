@@ -7,11 +7,10 @@ import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import org.intellij.lang.annotations.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class ModelJsonTest {
+internal class ModelJsonConverterTest {
 
     private val instance = ModelJsonConverter(prettyPrint = true)
 
@@ -24,7 +23,7 @@ internal class ModelJsonTest {
      */
     @Test
     fun surface_test() {
-        val modelRead = instance.fromJson(sampleModel)
+        val modelRead = instance.fromJson(sampleModelJson)
         assertEquals(modelRead.id, ModelId("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entityDefs.size, 2)
@@ -90,9 +89,9 @@ internal class ModelJsonTest {
      */
     @Test
     fun writes_as_read_with_minimum_changes() {
-        val modelRead = instance.fromJson(sampleModel)
+        val modelRead = instance.fromJson(sampleModelJson)
         val modelWrite = instance.toJson(modelRead)
-        val src = normalizeJson(sampleModel)
+        val src = normalizeJson(sampleModelJson)
         val dest = normalizeJson(modelWrite)
         assertEquals(src, dest)
 
@@ -105,80 +104,3 @@ internal class ModelJsonTest {
     }
 }
 
-@Language("json")
-internal val sampleModel = """{
-  "id": "example",
-  "version": "1.0.0",
-  "entities": [
-    {
-      "id": "contact",
-      "name": "Contact",
-      "identifierAttribute": "name",
-      "attributes": [
-        {
-          "id": "name",
-          "name": "Name",
-          "type": "String"
-        },
-        {
-          "id": "role",
-          "name": "Role",
-          "type": "String"
-        },
-        {
-          "id": "location",
-          "name": "Location",
-          "type": "String",
-          "optional": true
-        },
-        {
-          "id": "profile_url",
-          "name": "Profile URL",
-          "type": "String"
-        },
-        {
-          "id": "capture_date",
-          "name": "Capture date",
-          "type": "LocalDate"
-        },
-        {
-          "id": "informations",
-          "name": "Informations",
-          "type": "Markdown",
-          "optional": true
-        }
-      ]
-    },
-    {
-      "id": "company",
-      "name": {
-        "fr": "Entreprise",
-        "en": "Company"
-      },
-      "identifierAttribute": "name",
-      "attributes": [
-        {
-          "id": "name",
-          "name": "Name",
-          "type": "String"
-        },
-        {
-          "id": "profile_url",
-          "name": "Profile URL",
-          "description": "Website URL",
-          "type": "String",
-          "optional": true
-        },
-        {
-          "id": "informations",
-          "name": "Informations",
-          "description": {
-            "fr": "La description est au format Markdown et doit provenir de leur site internet !"
-          },
-          "type": "Markdown",
-          "optional": true
-        }
-      ]
-    }
-  ]
-}"""
