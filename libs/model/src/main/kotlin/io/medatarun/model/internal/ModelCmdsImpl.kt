@@ -205,7 +205,7 @@ class ModelCmdsImpl(
             is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
             is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
             is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
-            is ModelCmd.Dummy -> println("***Dummy*** : " + cmd.value)
+
         }
         return auditor.onCmdProcessed(cmd)
     }
