@@ -35,18 +35,6 @@ interface ModelCmds {
 
     // Model -> Relationship
 
-    //@formatter:off
-    fun createRelationshipDef(modelId: ModelId, initializer: RelationshipDef)
-    fun updateRelationshipDef(modelId: ModelId, relationshipDefId: RelationshipDefId, cmd: RelationshipDefUpdateCmd)
-    fun deleteRelationshipDef(modelId: ModelId, relationshipDefId: RelationshipDefId)
-    //@formatter:on
-
-    // Model -> Relationship -> AttributeDef
-
-    //@formatter:off
-    fun createRelationshipAttributeDef(modelId: ModelId, relationshipDefId: RelationshipDefId, attr: AttributeDef)
-    fun updateRelationshipAttributeDef(modelId: ModelId, relationshipDefId: RelationshipDefId, attributeDefId: AttributeDefId, cmd: AttributeDefUpdateCmd)
-    fun deleteRelationshipAttributeDef(modelId: ModelId, relationshipDefId: RelationshipDefId, attributeDefId: AttributeDefId)
-    //@formatter:on
+    fun dispatch(cmd: ModelCmd)
 
 }

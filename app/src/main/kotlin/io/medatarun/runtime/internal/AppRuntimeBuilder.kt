@@ -6,13 +6,16 @@ import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelStoragesComposite
+import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
+import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelCmds
 import io.medatarun.model.model.ModelQueries
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.runtime.AppRuntime
+import org.slf4j.LoggerFactory
 
 class AppRuntimeBuilder {
     fun build(): AppRuntime {
@@ -29,11 +32,19 @@ class AppRuntimeBuilder {
         val validation = ModelValidationImpl()
         val storage = ModelStoragesComposite(repositories, validation)
         val queries = ModelQueriesImpl(storage)
-        val cmd = ModelCmdsImpl(storage)
+        val auditor: ModelAuditor = object: ModelAuditor {
+            override fun onCmdProcessed(cmd: ModelCmd) {
+                logger.info("onCmdProcessed: $cmd")
+            }
+        }
+        val cmd = ModelCmdsImpl(storage, auditor)
         return object : AppRuntime {
             override val modelCmds: ModelCmds = cmd
             override val modelQueries: ModelQueries = queries
             override val extensionRegistry = platform.extensionRegistry
         }
+    }
+    companion object {
+        private val logger = LoggerFactory.getLogger("audit")
     }
 }

@@ -6,6 +6,8 @@ package io.medatarun.model.model
  * not what should happen. There is no lifecycle or business logic here.
  */
 interface RelationshipDef {
+
+
     /**
      * Unique identifier of the relationship within the model.
      * Used for referencing from other definitions or instances.
@@ -17,6 +19,7 @@ interface RelationshipDef {
      * Purely descriptive; has no structural or behavioral effect.
      */
     val name: LocalizedText?
+
     /**
      * Optional textual description providing semantic context.
      * This is explanatory metadata, not executable logic.
@@ -55,7 +58,20 @@ interface RelationshipDef {
      */
     val attributes: List<AttributeDef>
 
+
+    fun findAttributeDefOptional(attributeDefId: AttributeDefId): AttributeDef? =
+        attributes.firstOrNull { it.id == attributeDefId }
+
+    fun findAttributeDef(attributeDefId: AttributeDefId): AttributeDef =
+        findAttributeDefOptional(attributeDefId) ?: throw RelationshipAttributeDefNotFoundException(
+            this.id,
+            attributeDefId
+        )
+
+    fun ensureAttributeDefExists(attributeDefId: AttributeDefId): AttributeDef = findAttributeDef(attributeDefId)
+
 }
+
 /**
  * A RelationshipRole describes how an entity participates in a relationship.
  * This element is strictly structural: it does not express ownership,
@@ -97,5 +113,7 @@ interface RelationshipRole {
      * This is a structural constraint, not an execution rule.
      */
     val cardinality: RelationshipCardinality
+
+
 }
 

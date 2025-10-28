@@ -6,7 +6,6 @@ import io.medatarun.model.model.EntityDef
 import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.LocalizedMarkdown
 import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.AttributeDefNotFoundException
 
 /**
  * Default implementation of EntityDef

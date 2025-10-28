@@ -42,7 +42,9 @@ interface Model {
      */
     val relationshipDefs: List<RelationshipDef>
 
-    fun findTypeOptional(id: ModelTypeId): ModelType? = types.firstOrNull { it.id == id }
+    fun findTypeOptional(typeId: ModelTypeId): ModelType? = types.firstOrNull { it.id == typeId }
+    fun findType(typeId: ModelTypeId): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)
+    fun ensureTypeExists(typeId: ModelTypeId): ModelType = findType(typeId)
 
     /**
      * Returns entity definition by its id or null
@@ -57,6 +59,16 @@ interface Model {
      * Returns relationship definition by its id
      */
     fun findRelationshipDefOptional(id: RelationshipDefId): RelationshipDef? = relationshipDefs.firstOrNull { it.id == id }
+
+    /**
+     * Returns relationship definition by its id or throw [RelationshipDefNotFoundException]
+     */
+    fun findRelationshipDef(id: RelationshipDefId): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.id, id)
+
+    /**
+     * Syntax sugar to check if a relationship exists
+     */
+    fun ensureRelationshipExists(relationshipDefId: RelationshipDefId) = findRelationshipDef(relationshipDefId)
 
 }
 

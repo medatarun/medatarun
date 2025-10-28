@@ -185,7 +185,7 @@ class ModelJsonRepository(
                 throw EntityDefNotFoundException(modelId, entityDefId)
             }
             if (!attributeUpdated) {
-                throw AttributeDefNotFoundException(entityDefId, attributeDefId)
+                throw EntityAttributeDefNotFoundException(entityDefId, attributeDefId)
             }
             model.copy(entityDefs = nextEntities)
         }
@@ -215,7 +215,7 @@ class ModelJsonRepository(
                 entity.copy(attributes = nextAttributes)
             }
             if (!entityFound || !attributeRemoved) {
-                throw AttributeDefNotFoundException(entityDefId, attributeDefId)
+                throw EntityAttributeDefNotFoundException(entityDefId, attributeDefId)
             }
             model.copy(entityDefs = nextEntities)
         }
