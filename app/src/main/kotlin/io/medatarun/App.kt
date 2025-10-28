@@ -13,10 +13,10 @@ fun main(args: Array<String>) {
     val cliResources = AppResources(runtime)
 
     if (args[0] == "serve") {
-        RestApi(runtime).start(wait = true)
+        val rest = RestApi(runtime).start(wait = true)
     } else {
         val cliRunner = AppCLIRunner(args, cliResources)
         cliRunner.handleCLI()
     }
-    
+
 }
