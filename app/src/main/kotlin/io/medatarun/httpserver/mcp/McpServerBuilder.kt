@@ -66,11 +66,11 @@ class McpServerBuilder(private val resourceRepository: ResourceRepository) {
         functionName: String,
         request: CallToolRequest
     ): CallToolResult {
-        val rawParameters = HttpAdapters.jsonObjectToStringMap(request.arguments)
+
         val invocationRequest = ResourceInvocationRequest(
             resourceName = resourceName,
             functionName = functionName,
-            rawParameters = rawParameters
+            rawParameters = request.arguments
         )
 
         return try {

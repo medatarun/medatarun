@@ -5,6 +5,9 @@ import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class AppCLIRunner(private val args: Array<String>, private val resources: AppResources) {
 
@@ -54,7 +57,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
         }
     }
 
-    private fun parseParameters(args: Array<String>): Map<String, String> {
+    private fun parseParameters(args: Array<String>): JsonObject {
         val parameters = LinkedHashMap<String, String>()
         var index = 2
         while (index < args.size) {
@@ -75,11 +78,15 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
             }
             index++
         }
-        return parameters
+        return buildJsonObject {
+            for (entry in parameters) {
+                put(entry.key, entry.value)
+            }
+        }
     }
 
     private fun logPayload(payload: Map<String, String>) {
-        logger.error(""+payload.toString())
+        logger.error("" + payload.toString())
     }
 
     private fun printHelp(resource: String? = null, command: String? = null) {

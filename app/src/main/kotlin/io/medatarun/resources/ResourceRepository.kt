@@ -2,15 +2,11 @@ package io.medatarun.resources
 
 import io.ktor.http.*
 import io.medatarun.model.model.MedatarunException
+import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
-import kotlin.collections.contains
 import kotlin.reflect.*
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.functions
-import kotlin.reflect.full.hasAnnotation
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.*
 
 class ResourceRepository(private val resources: AppResources) {
 
@@ -171,10 +167,10 @@ class ResourceRepository(private val resources: AppResources) {
         resourceName: String,
         resourceInstance: ResourceContainer,
         functionName: String,
-        rawParams: Map<String, String>
+        rawParams: JsonObject
     ): Invoker {
 
-        val cls = resourceInstance.findCommandClass()?.sealedSubclasses?.firstOrNull{ it.simpleName == functionName }
+        val cls = resourceInstance.findCommandClass()?.sealedSubclasses?.firstOrNull { it.simpleName == functionName }
             ?: throw ResourceInvocationException(
                 HttpStatusCode.NotFound,
                 "Command $functionName not found"
@@ -200,7 +196,7 @@ class ResourceRepository(private val resources: AppResources) {
         resourceName: String,
         resourceInstance: ResourceContainer,
         functionName: String,
-        rawParams: Map<String, String>
+        rawParams: JsonObject
     ): Invoker {
 
         val function = resourceInstance::class.functions.find { it.name == functionName }
@@ -224,7 +220,13 @@ class ResourceRepository(private val resources: AppResources) {
         }
 
     }
-    fun createCallArgs(resourceName: String, resourceInstance: ResourceContainer, function: KFunction<*>, rawParams: Map<String,String>): MutableMap<KParameter, Any?> {
+
+    fun createCallArgs(
+        resourceName: String,
+        resourceInstance: ResourceContainer,
+        function: KFunction<*>,
+        rawParams: JsonObject
+    ): MutableMap<KParameter, Any?> {
         val missing = function.parameters
             .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in rawParams.keys }
             .mapNotNull { it.name }
@@ -271,15 +273,15 @@ class ResourceRepository(private val resources: AppResources) {
         return callArgs
     }
 
-    private fun convert(raw: String, classifier: Any?): ConversionResult = when (classifier) {
-        Int::class -> runCatching { raw.toInt() }
+    private fun convert(raw: JsonElement, classifier: Any?): ConversionResult = when (classifier) {
+        Int::class -> runCatching { raw.jsonPrimitive.int }
             .fold(
                 onSuccess = { ConversionResult.Value(it) },
                 onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
             )
 
-        Boolean::class -> ConversionResult.Value(raw.toBoolean())
-        String::class -> ConversionResult.Value(raw)
+        Boolean::class -> ConversionResult.Value(raw.jsonPrimitive.boolean)
+        String::class -> ConversionResult.Value(raw.jsonPrimitive.content)
         is KClass<*> -> {
             if (classifier.isValue) {
                 val ctor = classifier.primaryConstructor
@@ -290,13 +292,42 @@ class ResourceRepository(private val resources: AppResources) {
                 when (inner) {
                     is ConversionResult.Value ->
                         ConversionResult.Value(ctor.call(inner.value))
+
                     is ConversionResult.Error ->
                         inner
+                }
+            } else if (classifier.isData) {
+                val ctor = classifier.primaryConstructor
+                if (ctor == null) {
+                    ConversionResult.Error("No primary constructor for data class ${classifier.simpleName}")
+                } else {
+                    val obj = raw.jsonObject
+                    val args = mutableMapOf<KParameter, Any?>()
+                    var error: ConversionResult.Error? = null
+
+                    for (param in ctor.parameters) {
+                        val field = obj[param.name]
+                        if (field == null) {
+                            error = ConversionResult.Error("Missing field '${param.name}' for ${classifier.simpleName}")
+                            break
+                        }
+
+                        val converted = convert(field, param.type.classifier)
+                        if (converted is ConversionResult.Value)
+                            args[param] = converted.value
+                        else if (converted is ConversionResult.Error) {
+                            error = converted
+                            break
+                        }
+                    }
+
+                    if (error != null) error else ConversionResult.Value(ctor.callBy(args))
                 }
             } else {
                 ConversionResult.Error("Unsupported parameter type: ${classifier.simpleName}")
             }
         }
+
         else -> ConversionResult.Value(raw)
     }
 
@@ -350,7 +381,7 @@ class ResourceRepository(private val resources: AppResources) {
 data class ResourceInvocationRequest(
     val resourceName: String,
     val functionName: String,
-    val rawParameters: Map<String, String>
+    val rawParameters: JsonObject
 )
 
 class ResourceInvocationException(

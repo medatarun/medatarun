@@ -81,6 +81,5 @@ internal val sampleModelJson = """{
         }
       ]
     }
-  ],
-  "relationships": []
+  ]
 }"""
