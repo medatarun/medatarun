@@ -4,7 +4,7 @@ import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import kotlin.reflect.KClass
 
-class ConfigResource(private val runtime: AppRuntime): ResourceContainer {
+class ConfigResource(private val runtime: AppRuntime): ResourceContainer<Unit>{
     @Suppress("unused")
     @ResourceCommandDoc(
         title = "Inspect config",
@@ -15,7 +15,7 @@ class ConfigResource(private val runtime: AppRuntime): ResourceContainer {
     }
 
     override fun findCommandClass() = null
-    override fun dispatch(cmd: Any): Any?  = Unit
+    override fun dispatch(cmd: Unit): Any?  = Unit
 
     companion object {
         private val logger = getLogger(ConfigResource::class)

@@ -18,7 +18,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     private fun toCommands(property: KProperty1<AppResources, *>): List<ResourceCommand> {
 
-        val resourceInstance: ResourceContainer = (property.get(resources) ?: return emptyList()) as ResourceContainer
+        val resourceInstance: ResourceContainer<*> = (property.get(resources) ?: return emptyList()) as ResourceContainer<*>
 
         val functions = resourceInstance::class.functions
             .filter { it.name !in EXCLUDED_FUNCTIONS }
@@ -98,7 +98,7 @@ class ResourceRepository(private val resources: AppResources) {
                 "Unknown resource '$resourceName'"
             )
 
-        val resourceInstance = descriptor.property.get(resources) as ResourceContainer?
+        val resourceInstance = descriptor.property.get(resources) as ResourceContainer<Any>?
             ?: throw ResourceInvocationException(
                 HttpStatusCode.InternalServerError,
                 "Resource '$resourceName' unavailable"
@@ -165,7 +165,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     private fun createInvokerDispatch(
         resourceName: String,
-        resourceInstance: ResourceContainer,
+        resourceInstance: ResourceContainer<Any>,
         functionName: String,
         rawParams: JsonObject
     ): Invoker {
@@ -194,7 +194,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     private fun createInvokerFunction(
         resourceName: String,
-        resourceInstance: ResourceContainer,
+        resourceInstance: ResourceContainer<Any>,
         functionName: String,
         rawParams: JsonObject
     ): Invoker {
@@ -223,7 +223,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     fun createCallArgs(
         resourceName: String,
-        resourceInstance: ResourceContainer,
+        resourceInstance: ResourceContainer<Any>,
         function: KFunction<*>,
         rawParams: JsonObject
     ): MutableMap<KParameter, Any?> {

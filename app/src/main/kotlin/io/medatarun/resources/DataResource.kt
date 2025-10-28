@@ -4,7 +4,7 @@ import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import kotlin.reflect.KClass
 
-class DataResource(runtime: AppRuntime) : ResourceContainer {
+class DataResource(runtime: AppRuntime) : ResourceContainer<Unit> {
     @ResourceCommandDoc(
         title = "Import data",
         description = "Registers a local data file with the runtime so subsequent commands can consume it."
@@ -15,7 +15,7 @@ class DataResource(runtime: AppRuntime) : ResourceContainer {
     }
 
     override fun findCommandClass() = null
-    override fun dispatch(cmd: Any): Any? = Unit
+    override fun dispatch(cmd: Unit): Any? = Unit
 
     companion object {
         private val logger = getLogger(DataResource::class)
