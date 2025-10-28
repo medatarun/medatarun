@@ -18,6 +18,5 @@ fun main(args: Array<String>) {
         val cliRunner = AppCLIRunner(args, cliResources)
         cliRunner.handleCLI()
     }
-
-
+    
 }
