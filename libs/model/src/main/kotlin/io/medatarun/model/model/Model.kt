@@ -37,16 +37,26 @@ interface Model {
      */
     val entityDefs: List<EntityDef>
 
+    /**
+     * Relationship definitions in this model
+     */
+    val relationshipDefs: List<RelationshipDef>
+
     fun findTypeOptional(id: ModelTypeId): ModelType? = types.firstOrNull { it.id == id }
 
     /**
      * Returns entity definition by its id or null
      */
-    fun findEntityDefOptional(entityDefId: EntityDefId): EntityDef? = entityDefs.firstOrNull { it.id == entityDefId }
+    fun findEntityDefOptional(id: EntityDefId): EntityDef? = entityDefs.firstOrNull { it.id == id }
     /**
      * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
-    fun findEntityDef(entityDefId: EntityDefId): EntityDef = findEntityDefOptional(entityDefId) ?: throw EntityDefNotFoundException(id, entityDefId)
+    fun findEntityDef(id: EntityDefId): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.id, id)
+
+    /**
+     * Returns relationship definition by its id
+     */
+    fun findRelationshipDefOptional(id: RelationshipDefId): RelationshipDef? = relationshipDefs.firstOrNull { it.id == id }
 
 }
 

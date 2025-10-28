@@ -131,6 +131,11 @@ class ModelStoragesComposite(
         repo.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
     }
 
+    override fun dispatch(cmd: ModelCmd) {
+        val repo = findRepoWithModel(cmd.modelId)
+        repo.dispatch(cmd)
+    }
+
     private fun findRepoWithModel(id: ModelId): ModelRepository {
         for (repository in repositories) {
             val found = repository.findModelByIdOptional(id)

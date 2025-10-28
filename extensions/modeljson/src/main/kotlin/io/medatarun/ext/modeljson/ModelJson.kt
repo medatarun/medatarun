@@ -1,9 +1,6 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
-import io.medatarun.model.infra.ModelInMemory
-import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.infra.*
 import io.medatarun.model.model.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
@@ -15,7 +12,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
-import javax.xml.validation.TypeInfoProvider
 
 
 inline fun <reified T> valueClassSerializer(
@@ -33,7 +29,7 @@ inline fun <reified T> valueClassSerializer(
             wrap(decoder.decodeString())
     }
 
-class LocalizedTextSerializer: KSerializer<LocalizedText> {
+class LocalizedTextSerializer : KSerializer<LocalizedText> {
     override val descriptor = JsonElement.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: LocalizedText) {
@@ -72,11 +68,28 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             name = model.name,
             description = model.description,
             types = model.types.map { type ->
-              ModelTypeJson(
-                  id = type.id.value,
-                  name = type.name,
-                  description = type.description,
-              )
+                ModelTypeJson(
+                    id = type.id.value,
+                    name = type.name,
+                    description = type.description,
+                )
+            },
+            relationships = model.relationshipDefs.map { rel ->
+                RelationshipJson(
+                    id = rel.id.value,
+                    name = rel.name,
+                    description = rel.description,
+                    roles = rel.roles.map { role ->
+                        RelationshipRoleJson(
+                            id = role.id.value,
+                            entityId = role.entityId.value,
+                            name = role.name,
+                            cardinality = role.cardinality.code
+                        )
+                    },
+                    attributes = toAttributeJsonList(rel.attributes)
+
+                )
             },
             entities = model.entityDefs.map { entity ->
                 ModelEntityJson(
@@ -84,20 +97,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeDefId.value,
-                    attributes = entity.attributes.map { it ->
-                        ModelAttributeJson(
-                            id = it.id.value,
-                            name = it.name,
-                            description = it.description,
-                            type =  it.type.value,
-                            optional = it.optional,
-                        )
-                    }
+                    attributes = toAttributeJsonList(entity.attributes)
                 )
             }
         )
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
+
+
 
     fun fromJson(jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
@@ -119,19 +126,53 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = entityJson.name,
                     description = entityJson.description,
                     identifierAttributeDefId = AttributeDefId(entityJson.identifierAttribute),
-                    attributes = entityJson.attributes.map { attributeJson ->
-                        AttributeDefInMemory(
-                            id = AttributeDefId(attributeJson.id),
-                            name = attributeJson.name,
-                            description = attributeJson.description,
-                            optional = attributeJson.optional,
-                            type = ModelTypeId(attributeJson.type)
+                    attributes = toAttributeList(entityJson.attributes)
+                )
+            },
+            relationshipDefs = modelJson.relationships.map { relationJson ->
+                RelationshipDefInMemory(
+                    id = RelationshipDefId(relationJson.id),
+                    name = relationJson.name,
+                    description = relationJson.description,
+                    roles = relationJson.roles.map { roleJson ->
+                        RelationshipRoleInMemory(
+                            id = RelationshipRoleId(roleJson.id),
+                            name = roleJson.name,
+                            entityId = EntityDefId(roleJson.entityId),
+                            cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
-                    }
+                    },
+                    attributes = toAttributeList(relationJson.attributes)
                 )
             }
         )
         return model
+    }
+
+    companion object {
+        private fun toAttributeJsonList(attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
+            return attrs.map { it ->
+                ModelAttributeJson(
+                    id = it.id.value,
+                    name = it.name,
+                    description = it.description,
+                    type = it.type.value,
+                    optional = it.optional,
+                )
+            }
+        }
+
+        private fun toAttributeList(attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
+            return attrs.map { attributeJson ->
+                AttributeDefInMemory(
+                    id = AttributeDefId(attributeJson.id),
+                    name = attributeJson.name,
+                    description = attributeJson.description,
+                    optional = attributeJson.optional,
+                    type = ModelTypeId(attributeJson.type)
+                )
+            }
+        }
     }
 }
 
@@ -161,12 +202,30 @@ class ModelAttributeJson(
 )
 
 @Serializable
+class RelationshipRoleJson(
+    val id: String,
+    val entityId: String,
+    val name: @Contextual LocalizedText? = null,
+    val cardinality: String
+)
+
+@Serializable
+class RelationshipJson(
+    val id: String,
+    val name: @Contextual LocalizedText? = null,
+    val description: @Contextual LocalizedMarkdown? = null,
+    val roles: List<RelationshipRoleJson>,
+    val attributes: List<ModelAttributeJson>
+)
+
+@Serializable
 class ModelJson(
     val id: String,
     val version: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val types: List<ModelTypeJson>,
-    val entities: List<ModelEntityJson>
+    val entities: List<ModelEntityJson>,
+    val relationships: List<RelationshipJson>
 )
 

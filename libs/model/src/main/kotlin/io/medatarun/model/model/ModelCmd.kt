@@ -1,35 +1,42 @@
 package io.medatarun.model.model
 
-import io.medatarun.model.ports.RepositoryRef
+sealed interface ModelCmd {
+    val modelId: ModelId
 
-/**
- * Commands to change the model, entity definitions, entity definition's attributes definitions
- */
-interface ModelCmd {
+    class CreateRelationshipDef(
+        override val modelId: ModelId,
+        val initializer: RelationshipDef
+    ) : ModelCmd
 
-    // Model
+    class UpdateRelationshipDef(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val cmd: RelationshipDefUpdateCmd
+    ) : ModelCmd
 
-    fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef = RepositoryRef.Auto)
-    fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized)
-    fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?)
-    fun updateModelVersion(modelId: ModelId, version: ModelVersion)
-    fun deleteModel(modelId: ModelId)
+    class DeleteRelationshipDef(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId
+    ) : ModelCmd
 
-    // Model -> Type
 
-    fun createType(modelId: ModelId, initializer: ModelTypeInitializer)
-    fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd)
-    fun deleteType(modelId: ModelId, typeId: ModelTypeId)
+    class CreateRelationshipAttributeDef(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attr: AttributeDef
+    ) : ModelCmd
 
-    // Model -> EntityDef
+    class UpdateRelationshipAttributeDef(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId,
+        val cmd: AttributeDefUpdateCmd
+    ) : ModelCmd
 
-    fun createEntityDef(modelId: ModelId, entityDefInitializer: EntityDefInitializer)
-    fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd)
-    fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
+    class DeleteRelationshipAttributeDef(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId
+    ) : ModelCmd
 
-    // Model -> EntityDef -> AttributeDef
-
-    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefInitializer: AttributeDefInitializer)
-    fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
-    fun updateEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, cmd: AttributeDefUpdateCmd)
 }

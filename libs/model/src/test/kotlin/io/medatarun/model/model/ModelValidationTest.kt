@@ -36,7 +36,8 @@ class ModelValidationTest {
                         )
                     )
                 )
-            )
+            ),
+            relationshipDefs = emptyList()
         )
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)
@@ -69,7 +70,8 @@ class ModelValidationTest {
                         )
                     )
                 )
-            )
+            ),
+            relationshipDefs = emptyList()
         )
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)

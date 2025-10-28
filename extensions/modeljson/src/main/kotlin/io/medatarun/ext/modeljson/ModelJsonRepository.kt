@@ -3,6 +3,7 @@ package io.medatarun.ext.modeljson
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelInMemoryReducer
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
@@ -217,6 +218,12 @@ class ModelJsonRepository(
                 throw AttributeDefNotFoundException(entityDefId, attributeDefId)
             }
             model.copy(entityDefs = nextEntities)
+        }
+    }
+
+    override fun dispatch(cmd: ModelCmd) {
+        updateModel(cmd.modelId) { model ->
+            ModelInMemoryReducer().dispatch(model, cmd)
         }
     }
 

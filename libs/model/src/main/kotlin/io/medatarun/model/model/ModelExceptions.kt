@@ -37,3 +37,6 @@ class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityDefId
 
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
         MedatarunException("Model with id [${modelId.value}] could not be validated. " + errors.joinToString(". ") { it.message })
+
+class RelationshipDefNotFoundExceptino(modelId: ModelId, relationshipDefId: RelationshipDefId) :
+        MedatarunException("Relationship with id [${relationshipDefId.value}] not found in model [${modelId.value}]")

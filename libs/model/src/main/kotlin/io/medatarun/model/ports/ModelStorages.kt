@@ -12,7 +12,7 @@ import io.medatarun.model.model.*
  * [ModelStorages] contains multiple [ModelRepository]
  *
  * [ModelStorages] role is also to be sure that no corrupted data shall enter the main business area.
- * Invalid [Model] shall not be loaded by any means, and throw [ModelStoragesInvalidModelException]
+ * Invalid [Model] shall not be loaded by any means, and throw [ModelInvalidException]
  */
 interface ModelStorages {
 
@@ -48,4 +48,6 @@ interface ModelStorages {
     fun updateEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, cmd: AttributeDefUpdateCmd)
     fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
     //@formatter:on
+
+    fun dispatch(cmd: ModelCmd)
 }

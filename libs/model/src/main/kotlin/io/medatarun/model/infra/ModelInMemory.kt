@@ -17,7 +17,8 @@ data class ModelInMemory(
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
     override val types: List<ModelTypeInMemory>,
-    override val entityDefs: List<EntityDefInMemory>
+    override val entityDefs: List<EntityDefInMemory>,
+    override val relationshipDefs: List<RelationshipDefInMemory>
 ) : Model {
 
     companion object {
@@ -28,7 +29,8 @@ data class ModelInMemory(
                 description = other.description,
                 version = other.version,
                 types = other.types.map(ModelTypeInMemory::of),
-                entityDefs = other.entityDefs.map(EntityDefInMemory::of)
+                entityDefs = other.entityDefs.map(EntityDefInMemory::of),
+                relationshipDefs = other.relationshipDefs.map(RelationshipDefInMemory::of)
             )
         }
     }

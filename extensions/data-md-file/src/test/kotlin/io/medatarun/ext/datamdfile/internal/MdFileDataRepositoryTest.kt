@@ -265,7 +265,8 @@ internal class MdFileDataRepositoryTest {
             description = null,
             version = ModelVersion("1.0.0"),
             types = listOf(typeString, typeMarkdown),
-            entityDefs = listOf(personEntity, companyEntity)
+            entityDefs = listOf(personEntity, companyEntity),
+            relationshipDefs = emptyList()
         )
     }
 

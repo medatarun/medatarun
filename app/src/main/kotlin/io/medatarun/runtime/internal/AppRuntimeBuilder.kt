@@ -6,10 +6,10 @@ import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelStoragesComposite
-import io.medatarun.model.internal.ModelCmdImpl
+import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
-import io.medatarun.model.model.ModelCmd
+import io.medatarun.model.model.ModelCmds
 import io.medatarun.model.model.ModelQueries
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.runtime.AppRuntime
@@ -29,9 +29,9 @@ class AppRuntimeBuilder {
         val validation = ModelValidationImpl()
         val storage = ModelStoragesComposite(repositories, validation)
         val queries = ModelQueriesImpl(storage)
-        val cmd = ModelCmdImpl(storage)
+        val cmd = ModelCmdsImpl(storage)
         return object : AppRuntime {
-            override val modelCmd: ModelCmd = cmd
+            override val modelCmds: ModelCmds = cmd
             override val modelQueries: ModelQueries = queries
             override val extensionRegistry = platform.extensionRegistry
         }

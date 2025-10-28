@@ -7,8 +7,8 @@ internal val sampleModelJson = """{
   "id": "example",
   "version": "1.0.0",
   "types": [
-    { "id":  "String", "name":  null, "description": null },
-    { "id":  "Markdown", "name":  null, "description": null }
+    { "id":  "String", "name": "Simple text", "description": "Simple text max 255 chars" },
+    { "id":  "Markdown" }
   ],
   "entities": [
     {
@@ -81,5 +81,6 @@ internal val sampleModelJson = """{
         }
       ]
     }
-  ]
+  ],
+  "relationships": []
 }"""

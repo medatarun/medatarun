@@ -178,6 +178,11 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { null }
     }
 
+
+    override fun dispatch(cmd: ModelCmd) {
+        updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+    }
+
     /**
      * Pushes a model in the list of known models. Don't check if it's valid or not, on purpose.
      * Very dangerous to use, mostly for tests

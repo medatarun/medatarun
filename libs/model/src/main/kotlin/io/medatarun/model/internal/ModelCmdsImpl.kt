@@ -7,7 +7,7 @@ import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
 
-class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
+class ModelCmdsImpl(val storage: ModelStorages) : ModelCmds {
     override fun createModel(
         id: ModelId,
         name: LocalizedText,
@@ -22,8 +22,8 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
             version = version,
             types = emptyList(),
             entityDefs = emptyList(),
-
-            )
+            relationshipDefs = emptyList(),
+        )
         storage.createModel(model, repositoryRef)
     }
 
@@ -188,6 +188,53 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
         storage.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, cmd)
     }
 
+    // ------------------------------------------------------------------------
+    // Relationships
+    // ------------------------------------------------------------------------
+
+    override fun createRelationshipDef(modelId: ModelId, initializer: RelationshipDef) {
+        // TODO constraints
+        storage.dispatch(ModelCmd.CreateRelationshipDef(modelId, initializer))
+    }
+
+    override fun updateRelationshipDef(
+        modelId: ModelId,
+        relationshipDefId: RelationshipDefId,
+        cmd: RelationshipDefUpdateCmd
+    ) {
+        storage.dispatch(ModelCmd.UpdateRelationshipDef(modelId, relationshipDefId, cmd))
+    }
+
+    override fun deleteRelationshipDef(modelId: ModelId, relationshipDefId: RelationshipDefId) {
+        ensureRelationshipExists(modelId, relationshipDefId)
+        storage.dispatch(ModelCmd.DeleteRelationshipDef(modelId, relationshipDefId))
+    }
+
+    override fun createRelationshipAttributeDef(
+        modelId: ModelId,
+        relationshipDefId: RelationshipDefId,
+        attr: AttributeDef
+    ) {
+        storage.dispatch(ModelCmd.CreateRelationshipAttributeDef(modelId, relationshipDefId, attr))
+    }
+
+    override fun updateRelationshipAttributeDef(
+        modelId: ModelId,
+        relationshipDefId: RelationshipDefId,
+        attributeDefId: AttributeDefId,
+        cmd: AttributeDefUpdateCmd
+    ) {
+        storage.dispatch(ModelCmd.UpdateRelationshipAttributeDef(modelId, relationshipDefId, attributeDefId, cmd))
+    }
+
+    override fun deleteRelationshipAttributeDef(
+        modelId: ModelId,
+        relationshipDefId: RelationshipDefId,
+        attributeDefId: AttributeDefId
+    ) {
+        storage.dispatch(ModelCmd.DeleteRelationshipAttributeDef(modelId, relationshipDefId, attributeDefId))
+    }
+
     fun ensureModelExists(modelId: ModelId) {
         if (!storage.existsModelById(modelId)) throw ModelNotFoundException(modelId)
     }
@@ -195,6 +242,13 @@ class ModelCmdImpl(val storage: ModelStorages) : ModelCmd {
     fun ensureTypeExists(modelId: ModelId, typeId: ModelTypeId): ModelType {
         val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
         return model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
+    }
+
+    fun ensureRelationshipExists(modelId: ModelId, relationshipDefId: RelationshipDefId) {
+        findModelById(modelId).findRelationshipDefOptional(relationshipDefId) ?: throw RelationshipDefNotFoundExceptino(
+            modelId,
+            relationshipDefId
+        )
     }
 
     fun findModelById(modelId: ModelId): Model {
