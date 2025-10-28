@@ -5,8 +5,9 @@ import io.medatarun.resources.actions.ModelInspectAction
 import io.medatarun.resources.actions.ModelInspectJsonAction
 import io.medatarun.runtime.AppRuntime
 import org.slf4j.LoggerFactory
+import kotlin.reflect.KClass
 
-class ModelResource(private val runtime: AppRuntime) {
+class ModelResource(private val runtime: AppRuntime): ResourceContainer {
 
     private val inspectAction = ModelInspectAction(runtime)
     private val inspectJsonAction = ModelInspectJsonAction(runtime)
@@ -435,6 +436,9 @@ class ModelResource(private val runtime: AppRuntime) {
     fun inspectJson(): String {
         return inspectJsonAction.process()
     }
+
+
+    override fun findCommandClass()= ModelCmd::class
 
 
     companion object {

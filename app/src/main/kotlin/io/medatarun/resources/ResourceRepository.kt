@@ -1,12 +1,12 @@
 package io.medatarun.resources
 
 import io.ktor.http.*
-import io.ktor.util.rootCause
 import io.medatarun.model.model.MedatarunException
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
 
 class ResourceRepository(private val resources: AppResources) {
@@ -18,13 +18,43 @@ class ResourceRepository(private val resources: AppResources) {
 
 
     private fun toCommands(property: KProperty1<AppResources, *>): List<ResourceCommand> {
-        val resourceInstance = property.get(resources) ?: return emptyList()
+
+        val resourceInstance: ResourceContainer = (property.get(resources) ?: return emptyList()) as ResourceContainer
+
         val functions = resourceInstance::class.functions
             .filter { it.name !in EXCLUDED_FUNCTIONS }
+            .filter { it.hasAnnotation<ResourceCommandDoc>() }
             .map { function -> buildApiFunctionDescription(function) }
-        return functions
+
+        val cmds = resourceInstance.findCommandClass()
+            ?.sealedSubclasses
+            ?.map { sealed -> buildApiCommandDescription(sealed) }
+            ?: emptyList()
+
+        return functions + cmds
 
     }
+
+    /**
+     * Builds a [ResourceCommand] based on a ModelCmd.
+     *
+     * At invocation time, commands are launched via the dispatch() method
+     */
+    private fun buildApiCommandDescription(sealed: KClass<out Any>): ResourceCommand = ResourceCommand(
+        accessType = ResourceAccessType.DISPATCH,
+        name = sealed.simpleName ?: "",
+        description = null,
+        title = null,
+        resultType = typeOf<Unit>(),
+        parameters = sealed.memberProperties.map {
+            ResourceCommandParam(
+                name = it.name,
+                type = it.returnType,
+                optional = it.returnType.isMarkedNullable,
+            )
+        }
+
+    )
 
     private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand {
         val metadata = function.findAnnotation<ResourceCommandDoc>()
@@ -39,6 +69,7 @@ class ResourceRepository(private val resources: AppResources) {
             }
         val resultType = function.returnType
         return ResourceCommand(
+            accessType = ResourceAccessType.FUNCTION,
             name = function.name,
             title = metadata?.title?.takeIf { it.isNotBlank() },
             description = metadata?.description?.takeIf { it.isNotBlank() },
@@ -73,6 +104,74 @@ class ResourceRepository(private val resources: AppResources) {
                 HttpStatusCode.InternalServerError,
                 "Resource '$resourceName' unavailable"
             )
+
+        val commands = descriptor.commands.find { it.name == functionName }
+            ?: throw ResourceInvocationException(
+                HttpStatusCode.NotFound,
+                "Unknown function '$functionName' on '$resourceName'"
+            )
+
+        val invoker: Invoker = when (commands.accessType) {
+            ResourceAccessType.FUNCTION -> createInvokerFunction(
+                resourceName,
+                resourceInstance,
+                functionName,
+                rawParams
+            )
+
+            ResourceAccessType.DISPATCH -> createInvokerDispatch()
+        }
+
+        return try {
+            invoker.invoke()
+        } catch (e: InvocationTargetException) {
+            val cause = e.cause
+            if (cause != null) {
+                throw ResourceInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    cause::class.simpleName ?: "Invocation failed",
+                    mapOf(
+                        "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
+                    )
+                )
+            } else {
+                throw ResourceInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    "Invocation failed",
+                    mapOf(
+                        "details" to (e.message ?: e::class.simpleName).toString()
+                    )
+                )
+            }
+        } catch (throwable: Throwable) {
+            throw ResourceInvocationException(
+                HttpStatusCode.InternalServerError,
+                "Invocation failed",
+                mapOf(
+                    "details" to (throwable.message ?: throwable::class.simpleName).toString()
+                )
+            )
+        }
+    }
+
+    interface Invoker {
+        fun invoke(): Any?
+    }
+
+    private fun createInvokerDispatch(): Invoker {
+        return object : Invoker {
+            override fun invoke() {
+                TODO("Not yet implemented")
+            }
+        }
+    }
+
+    private fun createInvokerFunction(
+        resourceName: String,
+        resourceInstance: Any,
+        functionName: String,
+        rawParams: Map<String, String>
+    ): Invoker {
 
         val function = resourceInstance::class.functions.find { it.name == functionName }
             ?: throw ResourceInvocationException(
@@ -124,36 +223,15 @@ class ResourceRepository(private val resources: AppResources) {
             )
         }
 
-        return try {
-            function.callBy(callArgs)
-        } catch (e: InvocationTargetException) {
-            val cause = e.cause
-            if (cause != null) {
-                throw ResourceInvocationException(
-                    HttpStatusCode.InternalServerError,
-                    cause::class.simpleName ?: "Invocation failed",
-                    mapOf(
-                        "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
-                    )
-                )
-            } else {
-                throw ResourceInvocationException(
-                    HttpStatusCode.InternalServerError,
-                    "Invocation failed",
-                    mapOf(
-                        "details" to (e.message ?: e::class.simpleName).toString()
-                    )
-                )
+        return object : Invoker {
+            override fun invoke(): Any? {
+                val result = function.callBy(callArgs)
+                return result
             }
-        } catch (throwable: Throwable) {
-            throw ResourceInvocationException(
-                HttpStatusCode.InternalServerError,
-                "Invocation failed",
-                mapOf(
-                    "details" to (throwable.message ?: throwable::class.simpleName).toString()
-                )
-            )
+
+
         }
+
     }
 
     private fun convert(raw: String, classifier: Any?): ConversionResult = when (classifier) {
@@ -191,9 +269,18 @@ class ResourceRepository(private val resources: AppResources) {
         val title: String?,
         val description: String?,
         val resultType: KType,
-        val parameters: List<ResourceCommandParam>
+        val parameters: List<ResourceCommandParam>,
+        val accessType: ResourceAccessType
     )
 
+
+    enum class ResourceAccessType {
+        /** Access is reflective, using functions */
+        FUNCTION,
+
+        /** Create an event and send it using the dispatch method */
+        DISPATCH
+    }
 
     data class ResourceCommandParam(
         val name: String,

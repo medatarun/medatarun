@@ -226,6 +226,6 @@ class ModelJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
-    val relationships: List<RelationshipJson>
+    val relationships: List<RelationshipJson> = emptyList()
 )
 

@@ -130,8 +130,8 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
             printHelpRoot()
         } else {
             logger.cli("Get help on available commands: help $resourceId <commandName>")
-            val allCommands = resource.commands.sortedBy { it.name }
-            val maxKeySize = allCommands.map { it.name }.maxBy { it.length }?.length ?: 0
+            val allCommands = resource.commands.sortedBy { it.name.lowercase() }
+            val maxKeySize = allCommands.map { it.name }.maxByOrNull { it.length }?.length ?: 0
             allCommands.forEach { command ->
                 logger.cli(command.name.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
             }
@@ -140,7 +140,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
 
     private fun printHelpRoot() {
         logger.cli("Get help on available resources:")
-        val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name }
+        val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
             logger.cli("  help ${descriptor.name}")
         }
