@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
     val runtime = AppRuntimeBuilder().build()
     val cliResources = AppResources(runtime)
 
-    if (args[0] == "serve") {
+    if (args.isNotEmpty() && args[0] == "serve") {
         RestApi(runtime).start(wait = true)
     } else {
         val cliRunner = AppCLIRunner(args, cliResources)
