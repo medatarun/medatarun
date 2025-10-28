@@ -15,6 +15,8 @@ class ConfigResource(private val runtime: AppRuntime): ResourceContainer {
     }
 
     override fun findCommandClass() = null
+    override fun dispatch(cmd: Any): Any?  = Unit
+
     companion object {
         private val logger = getLogger(ConfigResource::class)
     }

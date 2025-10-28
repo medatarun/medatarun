@@ -45,6 +45,7 @@ class ModelInMemoryReducer() {
                     )
                 }
             )
+            is ModelCmd.Dummy -> model
         }
     }
 

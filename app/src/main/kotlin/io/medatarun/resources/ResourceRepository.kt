@@ -2,12 +2,15 @@ package io.medatarun.resources
 
 import io.ktor.http.*
 import io.medatarun.model.model.MedatarunException
+import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
+import kotlin.collections.contains
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 class ResourceRepository(private val resources: AppResources) {
 
@@ -99,11 +102,12 @@ class ResourceRepository(private val resources: AppResources) {
                 "Unknown resource '$resourceName'"
             )
 
-        val resourceInstance = descriptor.property.get(resources)
+        val resourceInstance = descriptor.property.get(resources) as ResourceContainer?
             ?: throw ResourceInvocationException(
                 HttpStatusCode.InternalServerError,
                 "Resource '$resourceName' unavailable"
             )
+
 
         val commands = descriptor.commands.find { it.name == functionName }
             ?: throw ResourceInvocationException(
@@ -119,7 +123,9 @@ class ResourceRepository(private val resources: AppResources) {
                 rawParams
             )
 
-            ResourceAccessType.DISPATCH -> createInvokerDispatch()
+            ResourceAccessType.DISPATCH -> createInvokerDispatch(
+                resourceName, resourceInstance, functionName, rawParams
+            )
         }
 
         return try {
@@ -127,6 +133,7 @@ class ResourceRepository(private val resources: AppResources) {
         } catch (e: InvocationTargetException) {
             val cause = e.cause
             if (cause != null) {
+                logger.error("Invocation failed", e)
                 throw ResourceInvocationException(
                     HttpStatusCode.InternalServerError,
                     cause::class.simpleName ?: "Invocation failed",
@@ -135,6 +142,7 @@ class ResourceRepository(private val resources: AppResources) {
                     )
                 )
             } else {
+                logger.error("Invocation failed", e)
                 throw ResourceInvocationException(
                     HttpStatusCode.InternalServerError,
                     "Invocation failed",
@@ -144,6 +152,7 @@ class ResourceRepository(private val resources: AppResources) {
                 )
             }
         } catch (throwable: Throwable) {
+            logger.error("Invocation failed", throwable)
             throw ResourceInvocationException(
                 HttpStatusCode.InternalServerError,
                 "Invocation failed",
@@ -158,17 +167,38 @@ class ResourceRepository(private val resources: AppResources) {
         fun invoke(): Any?
     }
 
-    private fun createInvokerDispatch(): Invoker {
+    private fun createInvokerDispatch(
+        resourceName: String,
+        resourceInstance: ResourceContainer,
+        functionName: String,
+        rawParams: Map<String, String>
+    ): Invoker {
+
+        val cls = resourceInstance.findCommandClass()?.sealedSubclasses?.firstOrNull{ it.simpleName == functionName }
+            ?: throw ResourceInvocationException(
+                HttpStatusCode.NotFound,
+                "Command $functionName not found"
+            )
+
+        val function = cls.primaryConstructor ?: throw ResourceInvocationException(
+            HttpStatusCode.InternalServerError,
+            "Command $functionName has no primary constructor"
+        )
+
+        val callArgs = createCallArgs(resourceName, resourceInstance, function, rawParams)
+        logger.debug("call args: {}", callArgs)
+
         return object : Invoker {
-            override fun invoke() {
-                TODO("Not yet implemented")
+            override fun invoke(): Any? {
+                val cmd = function.callBy(callArgs)
+                return resourceInstance.dispatch(cmd)
             }
         }
     }
 
     private fun createInvokerFunction(
         resourceName: String,
-        resourceInstance: Any,
+        resourceInstance: ResourceContainer,
         functionName: String,
         rawParams: Map<String, String>
     ): Invoker {
@@ -179,6 +209,22 @@ class ResourceRepository(private val resources: AppResources) {
                 "Unknown function '$functionName' on '$resourceName'"
             )
 
+
+        val callArgs = createCallArgs(
+            resourceName, resourceInstance, function, rawParams
+        )
+
+        return object : Invoker {
+            override fun invoke(): Any? {
+                val result = function.callBy(callArgs)
+                return result
+            }
+
+
+        }
+
+    }
+    fun createCallArgs(resourceName: String, resourceInstance: ResourceContainer, function: KFunction<*>, rawParams: Map<String,String>): MutableMap<KParameter, Any?> {
         val missing = function.parameters
             .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in rawParams.keys }
             .mapNotNull { it.name }
@@ -222,16 +268,7 @@ class ResourceRepository(private val resources: AppResources) {
                 )
             )
         }
-
-        return object : Invoker {
-            override fun invoke(): Any? {
-                val result = function.callBy(callArgs)
-                return result
-            }
-
-
-        }
-
+        return callArgs
     }
 
     private fun convert(raw: String, classifier: Any?): ConversionResult = when (classifier) {
@@ -243,7 +280,23 @@ class ResourceRepository(private val resources: AppResources) {
 
         Boolean::class -> ConversionResult.Value(raw.toBoolean())
         String::class -> ConversionResult.Value(raw)
-        is KClass<*> -> ConversionResult.Value(raw)
+        is KClass<*> -> {
+            if (classifier.isValue) {
+                val ctor = classifier.primaryConstructor
+                    ?: return ConversionResult.Error("No constructor for value class ${classifier.simpleName}")
+
+                val innerParam = ctor.parameters.single()
+                val inner = convert(raw, innerParam.type.classifier)
+                when (inner) {
+                    is ConversionResult.Value ->
+                        ConversionResult.Value(ctor.call(inner.value))
+                    is ConversionResult.Error ->
+                        inner
+                }
+            } else {
+                ConversionResult.Error("Unsupported parameter type: ${classifier.simpleName}")
+            }
+        }
         else -> ConversionResult.Value(raw)
     }
 
@@ -290,6 +343,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     companion object {
         private val EXCLUDED_FUNCTIONS = setOf("equals", "hashCode", "toString")
+        private val logger = LoggerFactory.getLogger(ResourceRepository::class.java)
     }
 }
 

@@ -39,4 +39,6 @@ sealed interface ModelCmd {
         val attributeDefId: AttributeDefId
     ) : ModelCmd
 
+    class Dummy(override val modelId: ModelId, val value: String) : ModelCmd
+
 }

@@ -439,7 +439,9 @@ class ModelResource(private val runtime: AppRuntime): ResourceContainer {
 
 
     override fun findCommandClass()= ModelCmd::class
-
+    override fun dispatch(cmd: Any): Any? {
+        return runtime.modelCmds.dispatch(cmd as ModelCmd)
+    }
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModelResource::class.java)
