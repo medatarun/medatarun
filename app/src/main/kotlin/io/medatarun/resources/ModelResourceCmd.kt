@@ -4,6 +4,12 @@ import io.medatarun.model.model.*
 
 sealed interface ModelResourceCmd {
 
+    // Models
+
+    class Import(val from: String) : ModelResourceCmd
+
+    // Relationships
+
     class CreateRelationshipDef(
         val modelId: ModelId,
         val initializer: RelationshipDef
@@ -39,6 +45,7 @@ sealed interface ModelResourceCmd {
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId
     ) : ModelResourceCmd
+
 
 
 }

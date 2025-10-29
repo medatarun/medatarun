@@ -50,4 +50,5 @@ interface ModelStorages {
     //@formatter:on
 
     fun dispatch(cmd: ModelCmd)
+
 }

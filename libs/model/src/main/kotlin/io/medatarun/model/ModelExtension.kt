@@ -11,5 +11,7 @@ class ModelExtension: MedatarunExtension {
     override val id: String = "model"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
+        ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
     }
+
 }

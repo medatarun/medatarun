@@ -31,6 +31,10 @@ class ModelCmdsImpl(
         storage.createModel(model, repositoryRef)
     }
 
+    override fun importModel(model: Model, repositoryRef: RepositoryRef) {
+        storage.createModel(model, repositoryRef)
+    }
+
     override fun deleteModel(modelId: ModelId) {
         ensureModelExists(modelId)
         storage.deleteModel(modelId)

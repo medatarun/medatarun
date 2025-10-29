@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":libs:model"))
     implementation(project(":extensions:modeljson"))
     implementation(project(":extensions:data-md-file"))
+    implementation(project(":extensions:frictionlessdata"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.ktorServerCore)

@@ -5,17 +5,18 @@ import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
+import io.medatarun.model.ports.ResourceLocator
 
-class FrictionlessConverter {
+class FrictionlessConverter() {
     val ser = DataPackageSerializer()
-    fun readString(name: String): Model {
+    fun readString(path: String, resourceLocator: ResourceLocator): Model {
         val types = FrictionlessTypes().all
-
-        val schema = runCatching { ser.readTableSchema(this::class.java.getResource(name).readText()) }
+        val location: ResourceLocator = resourceLocator.withPath(path)
+        val schema = runCatching { ser.readTableSchema(location.getRootContent()) }
             .also { result -> println(result.exceptionOrNull()) }
             .getOrNull()
 
-        val datapackage = runCatching { ser.readDataPackage(this::class.java.getResource(name).readText()) }
+        val datapackage = runCatching { ser.readDataPackage(location.getRootContent()) }
             .also { result -> println(result.exceptionOrNull()) }
             .getOrNull()
 
@@ -25,7 +26,7 @@ class FrictionlessConverter {
             return readAsDataPackage(types, datapackage)
         }
 
-        throw FrictionlessConverterUnsupportedFileFormatException(name)
+        throw FrictionlessConverterUnsupportedFileFormatException(path)
     }
 
     private fun readAsDataPackage(

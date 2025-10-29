@@ -11,16 +11,31 @@ import io.medatarun.model.model.ModelHumanPrinter
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelTypeId
 import io.medatarun.model.model.ModelVersion
+import io.medatarun.model.ports.ResourceLocator
 import org.junit.jupiter.api.Test
 
 class TableSchemaTest {
 
     val conv = FrictionlessConverter()
+    class TestResourceLocator(val path: String) : ResourceLocator {
+        override fun getRootContent(): String {
+            return this::class.java.getResource(path).readText()
+        }
 
+        override fun getContent(path: String): String {
+            TODO("Not yet implemented")
+        }
+
+        override fun withPath(path: String): ResourceLocator {
+            return TestResourceLocator(path)
+        }
+
+    }
     @Test
     fun test() {
         val resource = "/deliberations.json"
-        val model = conv.readString(resource)
+        val rl = TestResourceLocator(resource)
+        val model = conv.readString(resource, rl)
         println(ModelHumanPrinterEmoji().print(model))
     }
 }

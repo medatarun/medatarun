@@ -1,10 +1,13 @@
 package io.medatarun.resources
 
 import io.medatarun.model.model.*
+import io.medatarun.resources.actions.ModelImportAction
 import io.medatarun.resources.actions.ModelInspectAction
 import io.medatarun.resources.actions.ModelInspectJsonAction
 import io.medatarun.runtime.AppRuntime
 import org.slf4j.LoggerFactory
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
 
 class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelResourceCmd> {
 
@@ -445,43 +448,61 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
     override fun findCommandClass() = ModelResourceCmd::class
     override fun dispatch(cmd: ModelResourceCmd): Any? {
         val rc = cmd as ModelResourceCmd
-        val businessCmd = when (rc) {
-            is ModelResourceCmd.CreateRelationshipDef -> ModelCmd.CreateRelationshipDef(
-                modelId = rc.modelId,
-                initializer = rc.initializer
+
+        fun dispatch(businessCmd: ModelCmd) = runtime.modelCmds.dispatch(businessCmd)
+
+        val result = when (rc) {
+
+            is ModelResourceCmd.Import -> ModelImportAction(runtime, FileSystems.getDefault()).process(rc)
+
+            is ModelResourceCmd.CreateRelationshipDef -> dispatch(
+                ModelCmd.CreateRelationshipDef(
+                    modelId = rc.modelId,
+                    initializer = rc.initializer
+                )
             )
 
-            is ModelResourceCmd.UpdateRelationshipDef -> ModelCmd.UpdateRelationshipDef(
-                modelId = rc.modelId,
-                relationshipDefId = rc.relationshipDefId,
-                cmd = rc.cmd
+            is ModelResourceCmd.UpdateRelationshipDef -> dispatch(
+                ModelCmd.UpdateRelationshipDef(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    cmd = rc.cmd
+                )
             )
 
-            is ModelResourceCmd.DeleteRelationshipDef -> ModelCmd.DeleteRelationshipDef(
-                modelId = rc.modelId,
-                relationshipDefId = rc.relationshipDefId
+            is ModelResourceCmd.DeleteRelationshipDef -> dispatch(
+                ModelCmd.DeleteRelationshipDef(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId
+                )
             )
 
-            is ModelResourceCmd.CreateRelationshipAttributeDef -> ModelCmd.CreateRelationshipAttributeDef(
-                modelId = rc.modelId,
-                relationshipDefId = rc.relationshipDefId,
-                attr = rc.attr
+            is ModelResourceCmd.CreateRelationshipAttributeDef -> dispatch(
+                ModelCmd.CreateRelationshipAttributeDef(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    attr = rc.attr
+                )
             )
 
-            is ModelResourceCmd.UpdateRelationshipAttributeDef -> ModelCmd.UpdateRelationshipAttributeDef(
-                modelId = rc.modelId,
-                relationshipDefId = rc.relationshipDefId,
-                attributeDefId = rc.attributeDefId,
-                cmd = rc.cmd
+            is ModelResourceCmd.UpdateRelationshipAttributeDef -> dispatch(
+                ModelCmd.UpdateRelationshipAttributeDef(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    attributeDefId = rc.attributeDefId,
+                    cmd = rc.cmd
+                )
             )
 
-            is ModelResourceCmd.DeleteRelationshipAttributeDef -> ModelCmd.DeleteRelationshipAttributeDef(
-                modelId = rc.modelId,
-                relationshipDefId = rc.relationshipDefId,
-                attributeDefId = rc.attributeDefId,
+            is ModelResourceCmd.DeleteRelationshipAttributeDef -> dispatch(
+                ModelCmd.DeleteRelationshipAttributeDef(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    attributeDefId = rc.attributeDefId,
+                )
             )
         }
-        return runtime.modelCmds.dispatch(businessCmd)
+        return result
     }
 
     companion object {
