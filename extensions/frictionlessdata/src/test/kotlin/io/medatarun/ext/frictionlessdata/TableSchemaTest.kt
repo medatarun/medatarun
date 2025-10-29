@@ -33,7 +33,7 @@ class TableSchemaTest {
     }
     @Test
     fun test() {
-        val resource = "/deliberations.json"
+        val resource = "/datapackage-paysage.json"
         val rl = TestResourceLocator(resource)
         val model = conv.readString(resource, rl)
         println(ModelHumanPrinterEmoji().print(model))

@@ -23,7 +23,7 @@ class FrictionlessConverter() {
         if (schema != null && datapackage != null) {
             return readAsMixedTableSchema(types, datapackage, schema)
         } else if (datapackage != null) {
-            return readAsDataPackage(types, datapackage)
+            return readAsDataPackage(types, datapackage, resourceLocator)
         }
 
         throw FrictionlessConverterUnsupportedFileFormatException(path)
@@ -31,7 +31,8 @@ class FrictionlessConverter() {
 
     private fun readAsDataPackage(
         types: List<ModelTypeInMemory>,
-        datapackage: DataPackage
+        datapackage: DataPackage,
+        resourceLocator: ResourceLocator
     ): Model {
         val model = ModelInMemory(
             id = ModelId(datapackage.name ?: "unknown"),
@@ -41,38 +42,19 @@ class FrictionlessConverter() {
             types = types,
             entityDefs = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
-                when (schemaOrString) {
-                    null -> null
-                    is StringOrTableSchema.Str -> {
-                        throw DatapackageResourceSchemaAsPathNotSupported()
-                    }
-                    is StringOrTableSchema.Schema -> {
-                        val schema = schemaOrString.value
-                        EntityDefInMemory(
-                            id =  EntityDefId("unknown"),  // TODO
-                            name = null,  // TODO
-                            attributes = schema.fields.map { field ->
-                                AttributeDefInMemory(
-                                    id = AttributeDefId(field.name),
-                                    name = field.title?.let(::LocalizedTextNotLocalized),
-                                    description = field.description?.let(::LocalizedTextNotLocalized),
-                                    type = ModelTypeId(field.type),
-                                    optional = field.isOptional(), // TODO
-                                )
-                            },
-                            description = null, // TODO
-                            identifierAttributeDefId = AttributeDefId(
-                                schema.primaryKey?.values?.joinToString(";") ?: ""
-                            ), // TODO
-                        )
-                    }
-                }
-
+                val schema = getSchemaFromResource(schemaOrString, resourceLocator)
+                if (schema == null) null else toEntity(
+                    entityId = resource.name ?: "unknown",
+                    entityName = resource.title,
+                    entityDescription = resource.description,
+                    schema = schema
+                )
             },
             relationshipDefs = emptyList()
         )
         return model
     }
+
 
     private fun readAsMixedTableSchema(
         types: List<ModelTypeInMemory>,
@@ -81,7 +63,6 @@ class FrictionlessConverter() {
 
         ): ModelInMemory {
 
-
         val model = ModelInMemory(
             id = ModelId(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
@@ -89,26 +70,70 @@ class FrictionlessConverter() {
             version = ModelVersion(datapackage.version ?: "0.0.0"),
             types = types,
             entityDefs = listOf(
-                EntityDefInMemory(
-                    id = EntityDefId("unknown"),  // TODO
-                    name = null,  // TODO
-                    attributes = schema.fields.map { field ->
-                        AttributeDefInMemory(
-                            id = AttributeDefId(field.name),
-                            name = field.title?.let(::LocalizedTextNotLocalized),
-                            description = field.description?.let(::LocalizedTextNotLocalized),
-                            type = ModelTypeId(field.type),
-                            optional = field.isOptional(), // TODO
-                        )
-                    },
-                    description = null, // TODO
-                    identifierAttributeDefId = AttributeDefId(
-                        schema.primaryKey?.values?.joinToString(";") ?: ""
-                    ), // TODO
+                toEntity(
+                    entityId = datapackage.name ?: "unknown",
+                    entityName = datapackage.title,
+                    entityDescription = datapackage.description,
+                    schema = schema
                 )
             ),
             relationshipDefs = emptyList(),
         )
         return model
     }
+
+
+    private fun toEntity(
+        entityId: String,
+        entityName: String?,
+        entityDescription: String?,
+        schema: TableSchema
+    ): EntityDefInMemory {
+        val entity = EntityDefInMemory(
+            id = EntityDefId(entityId),
+            name = entityName?.let(::LocalizedTextNotLocalized),
+            description = entityDescription?.let(::LocalizedTextNotLocalized),
+            attributes = schema.fields.map { field ->
+                AttributeDefInMemory(
+                    id = AttributeDefId(field.name),
+                    name = field.title?.let(::LocalizedTextNotLocalized),
+                    description = field.description?.let(::LocalizedTextNotLocalized),
+                    type = ModelTypeId(field.type),
+                    optional = field.isOptional(),
+                )
+            },
+
+            identifierAttributeDefId = AttributeDefId(
+                schema.primaryKey?.values?.joinToString(";") ?: ""
+            ), // TODO
+        )
+        return entity
+    }
+
+    /**
+     * Follow string or schema embedded in DataResource
+     */
+    private fun getSchemaFromResource(
+        schemaOrString: StringOrTableSchema?,
+        resourceLocator: ResourceLocator
+    ): TableSchema? {
+        val schema = when (schemaOrString) {
+            null -> null
+            is StringOrTableSchema.Str -> {
+                val nextJsonStr = resourceLocator.getContent(schemaOrString.value)
+                val nextSchema = runCatching { ser.readTableSchema(nextJsonStr) }
+                    .also { result -> println(result.exceptionOrNull()) }
+                    .getOrNull()
+                nextSchema
+            }
+
+            is StringOrTableSchema.Schema -> {
+                schemaOrString.value
+
+            }
+        }
+        return schema
+    }
 }
+
+

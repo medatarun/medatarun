@@ -1,14 +1,8 @@
 package io.medatarun.ext.frictionlessdata
 
 import kotlinx.serialization.Contextual
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class TableSchema(
@@ -101,8 +95,13 @@ abstract class TableSchemaField {
      * Example
      *
      * An example value for the field.
+     *
+     * Implementation notes: we keep it as JsonElement as schemas seen on the web, even valided, use
+     * the same format for examples as their primitive data type (integer fields have sometimes integer
+     * examples). We don't want to assume too much and stay permissive, as our goal is mostly creating
+     * a domain model from the schema.
      */
-    abstract val example: String?
+    abstract val example: JsonElement?
 
     /**
      * Derivative function not in the spec
@@ -118,7 +117,7 @@ data class TableSchemaFieldString(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "string",
 
     /**
@@ -192,7 +191,7 @@ data class TableSchemaFieldNumber(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "number",
     /**
      * There are no format keyword options for `number`: only `default` is allowed.
@@ -258,7 +257,7 @@ data class TableSchemaFieldInteger(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "integer",
     /**
      * There are no format keyword options for `integer`: only `default` is allowed.
@@ -288,7 +287,7 @@ data class TableSchemaFieldDate(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "date",
     /**
      * The format keyword options for `date` are `default`, `any`, and `{PATTERN}`.
@@ -349,7 +348,7 @@ data class TableSchemaFieldTime(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "time",
     /**
      * The following `format` options are supported:
@@ -380,7 +379,7 @@ data class TableSchemaFieldDateTime(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "datetime",
     /**
      *
@@ -418,7 +417,7 @@ data class TableSchemaFieldYear(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "year",
     /**
      * There are no format keyword options for `year`: only `default` is allowed.
@@ -447,7 +446,7 @@ data class TableSchemaFieldYearMonth(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "yearmonth",
     /**
      * There are no format keyword options for `year`: only `default` is allowed.
@@ -477,7 +476,7 @@ data class TableSchemaFieldBoolean(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "boolean",
     /**
      * There are no format keyword options for `boolean`: only `default` is allowed.
@@ -516,7 +515,7 @@ data class TableSchemaFieldObject(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "object",
     /**
      * There are no format keyword options for `object`: only `default` is allowed.
@@ -557,7 +556,7 @@ data class TableSchemaFieldGeopoint(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "geopoint",
     /**
      * The format keyword options for `geopoint` are `default`,`array`, and `object`.
@@ -604,7 +603,7 @@ data class TableSchemaFieldGeoJson(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "geojson",
     /**
      * The format keyword options for `geojson` are `default` and `topojson`.
@@ -656,7 +655,7 @@ data class TableSchemaFieldArray(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "array",
     /**
      * There are no format keyword options for `array`: only `default` is allowed.
@@ -714,7 +713,7 @@ data class TableSchemaFieldDuration(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "duration",
     /**
      * There are no format keyword options for `array`: only `default` is allowed.
@@ -759,7 +758,7 @@ data class TableSchemaFieldAny(
     override val name: String,
     override val title: String? = null,
     override val description: String? = null,
-    override val example: String? = null,
+    override val example: JsonElement? = null,
     override val type: String = "any",
 
     /**
