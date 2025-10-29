@@ -5,6 +5,8 @@ import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
 import io.medatarun.model.ModelExtension
+import io.medatarun.model.model.ModelHumanPrinter
+import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.infra.ModelStoragesComposite
 import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
@@ -42,6 +44,8 @@ class AppRuntimeBuilder {
             override val modelCmds: ModelCmds = cmd
             override val modelQueries: ModelQueries = queries
             override val extensionRegistry = platform.extensionRegistry
+            override val modelHumanPrinter: ModelHumanPrinter = ModelHumanPrinterEmoji()
+
         }
     }
     companion object {
