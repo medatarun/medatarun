@@ -12,22 +12,34 @@ class FrictionlessConverter() {
     fun readString(path: String, resourceLocator: ResourceLocator): Model {
         val types = FrictionlessTypes().all
         val location: ResourceLocator = resourceLocator.withPath(path)
-        val schema = runCatching { ser.readTableSchema(location.getRootContent()) }
-            .also { result -> println(result.exceptionOrNull()) }
-            .getOrNull()
-
-        val datapackage = runCatching { ser.readDataPackage(location.getRootContent()) }
-            .also { result -> println(result.exceptionOrNull()) }
-            .getOrNull()
-
-        if (schema != null && datapackage != null) {
-            return readAsMixedTableSchema(types, datapackage, schema)
-        } else if (datapackage != null) {
-            return readAsDataPackage(types, datapackage, resourceLocator)
+        val something = readSomething(location)
+        if (something.schema != null && something.datapackage != null) {
+            return readAsMixedTableSchema(types, something.datapackage, something.schema)
+        } else if (something.datapackage != null) {
+            return readAsDataPackage(types, something.datapackage, resourceLocator)
         }
 
         throw FrictionlessConverterUnsupportedFileFormatException(path)
     }
+
+    private fun readSomething(location: ResourceLocator): ReadResult {
+        val content = location.getRootContent()
+        val schema = runCatching { ser.readTableSchema(content) }
+            .also { result -> println(result.exceptionOrNull()) }
+            .getOrNull()
+
+        val datapackage = runCatching { ser.readDataPackage(content) }
+            .also { result -> println(result.exceptionOrNull()) }
+            .getOrNull()
+
+        return ReadResult(datapackage, schema)
+
+    }
+
+    class ReadResult(
+        val datapackage: DataPackage?,
+        val schema: TableSchema?,
+    )
 
     private fun readAsDataPackage(
         types: List<ModelTypeInMemory>,
@@ -42,12 +54,12 @@ class FrictionlessConverter() {
             types = types,
             entityDefs = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
-                val schema = getSchemaFromResource(schemaOrString, resourceLocator)
-                if (schema == null) null else toEntity(
-                    entityId = resource.name ?: "unknown",
-                    entityName = resource.title,
-                    entityDescription = resource.description,
-                    schema = schema
+                val subresource = getSchemaFromResource(schemaOrString, resourceLocator)
+                if (subresource.schema == null) null else toEntity(
+                    entityId = subresource.datapackage?.name ?: resource.name ?: "unknown",
+                    entityName = subresource.datapackage?.title?: resource.title,
+                    entityDescription = subresource.datapackage?.description ?: resource.description,
+                    schema = subresource.schema
                 )
             },
             relationshipDefs = emptyList()
@@ -104,7 +116,9 @@ class FrictionlessConverter() {
             },
 
             identifierAttributeDefId = AttributeDefId(
-                schema.primaryKey?.values?.joinToString(";") ?: ""
+                schema.primaryKey?.values?.joinToString(";")
+                    ?: schema.fields.firstOrNull()?.name
+                    ?: "unknown"
             ), // TODO
         )
         return entity
@@ -116,23 +130,17 @@ class FrictionlessConverter() {
     private fun getSchemaFromResource(
         schemaOrString: StringOrTableSchema?,
         resourceLocator: ResourceLocator
-    ): TableSchema? {
-        val schema = when (schemaOrString) {
-            null -> null
+    ): ReadResult {
+        return when (schemaOrString) {
+            null -> ReadResult(null, null)
             is StringOrTableSchema.Str -> {
-                val nextJsonStr = resourceLocator.getContent(schemaOrString.value)
-                val nextSchema = runCatching { ser.readTableSchema(nextJsonStr) }
-                    .also { result -> println(result.exceptionOrNull()) }
-                    .getOrNull()
-                nextSchema
+                readSomething(resourceLocator.withPath(schemaOrString.value))
             }
 
             is StringOrTableSchema.Schema -> {
-                schemaOrString.value
-
+                ReadResult(null, schemaOrString.value)
             }
         }
-        return schema
     }
 }
 

@@ -32,7 +32,8 @@ class ResourceLocatorImpl(
     }
 
     override fun withPath(path: String): ResourceLocator {
-        return ResourceLocatorImpl(path, fileSystem)
+        val targetUri = resolveUri(path)
+        return ResourceLocatorImpl(targetUri.toString(), fileSystem)
     }
 
     private fun resolveUri(path: String): URI {
