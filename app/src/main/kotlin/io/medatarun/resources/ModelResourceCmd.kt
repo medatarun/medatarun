@@ -6,7 +6,10 @@ sealed interface ModelResourceCmd {
 
     // Models
 
-
+    @ResourceCommandDoc(
+        title = "Import model",
+        description = "Import a new model. The from attribute shall be an URL or a filesystem path. Detection is made based on the content of the file to detect original format. Supported formats depends on installed plugins."
+    )
     class Import(val from: String) : ModelResourceCmd
 
     @ResourceCommandDoc(
