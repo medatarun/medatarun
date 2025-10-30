@@ -71,7 +71,7 @@ class TableSchemaTest {
         val rl = TestResourceLocator(resource)
         val model = conv.readString(resource, rl)
         println(ModelHumanPrinterEmoji().print(model))
-        // TODO complete test
+        TODO("Complete tests on tableSchema")
     }
 
     @Test
@@ -80,6 +80,6 @@ class TableSchemaTest {
         val locator = TestResourceLocatorURL(resource)
         val model = conv.readString(resource.toString(), locator)
         println(ModelHumanPrinterEmoji().print(model))
-        // TODO complete test
+        TODO("Complete tests on DataPackage")
     }
 }
