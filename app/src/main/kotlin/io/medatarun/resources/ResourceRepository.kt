@@ -39,21 +39,24 @@ class ResourceRepository(private val resources: AppResources) {
      *
      * At invocation time, commands are launched via the dispatch() method
      */
-    private fun buildApiCommandDescription(sealed: KClass<out Any>): ResourceCommand = ResourceCommand(
-        accessType = ResourceAccessType.DISPATCH,
-        name = sealed.simpleName ?: "",
-        description = null,
-        title = null,
-        resultType = typeOf<Unit>(),
-        parameters = sealed.memberProperties.map {
-            ResourceCommandParam(
-                name = it.name,
-                type = it.returnType,
-                optional = it.returnType.isMarkedNullable,
-            )
-        }
+    private fun buildApiCommandDescription(sealed: KClass<out Any>): ResourceCommand {
+        val doc = sealed.findAnnotation<ResourceCommandDoc>()
+        return ResourceCommand(
+            accessType = ResourceAccessType.DISPATCH,
+            name = sealed.simpleName ?: "",
+            title = doc?.title,
+            description = doc?.description,
+            resultType = typeOf<Unit>(),
+            parameters = sealed.memberProperties.map {
+                ResourceCommandParam(
+                    name = it.name,
+                    type = it.returnType,
+                    optional = it.returnType.isMarkedNullable,
+                )
+            }
 
-    )
+        )
+    }
 
     private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand {
         val metadata = function.findAnnotation<ResourceCommandDoc>()

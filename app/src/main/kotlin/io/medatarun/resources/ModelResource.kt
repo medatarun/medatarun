@@ -6,13 +6,9 @@ import io.medatarun.resources.actions.ModelInspectAction
 import io.medatarun.resources.actions.ModelInspectJsonAction
 import io.medatarun.runtime.AppRuntime
 import org.slf4j.LoggerFactory
-import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 
 class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelResourceCmd> {
-
-    private val inspectAction = ModelInspectAction(runtime)
-    private val inspectJsonAction = ModelInspectJsonAction(runtime)
 
     // ------------------------------------------------------------------------
     // Model
@@ -420,25 +416,6 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
     // Inspections
     // ------------------------------------------------------------------------
 
-    @ResourceCommandDoc(
-        title = "Inspect models",
-        description = "Produces a tree view of registered models, entities, and attributes in the runtime."
-    )
-    @Suppress("unused")
-    fun inspect(): String {
-        return inspectAction.process()
-    }
-
-
-    @ResourceCommandDoc(
-        title = "Inspect models (JSON)",
-        description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model."
-    )
-    @Suppress("unused")
-    fun inspectJson(): String {
-        return inspectJsonAction.process()
-    }
-
 
     /**
      * Returns the list of supported commands. Note that we NEVER return the business model's commands
@@ -454,6 +431,8 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
         val result = when (rc) {
 
             is ModelResourceCmd.Import -> ModelImportAction(runtime, FileSystems.getDefault()).process(rc)
+            is ModelResourceCmd.Inspect -> ModelInspectAction(runtime).process()
+            is ModelResourceCmd.InspectJson -> ModelInspectJsonAction(runtime).process()
 
             is ModelResourceCmd.CreateRelationshipDef -> dispatch(
                 ModelCmd.CreateRelationshipDef(

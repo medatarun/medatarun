@@ -6,7 +6,20 @@ sealed interface ModelResourceCmd {
 
     // Models
 
+
     class Import(val from: String) : ModelResourceCmd
+
+    @ResourceCommandDoc(
+        title = "Inspect models",
+        description = "Produces a tree view of registered models, entities, and attributes in the runtime."
+    )
+    class Inspect() : ModelResourceCmd
+
+    @ResourceCommandDoc(
+        title = "Inspect models (JSON)",
+        description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model."
+    )
+    class InspectJson() : ModelResourceCmd
 
     // Relationships
 
