@@ -3,6 +3,10 @@ package io.medatarun.model.model
 sealed interface ModelCmd {
     val modelId: ModelId
 
+    // ------------------------------------------------------------------------
+    // Relationships
+    // ------------------------------------------------------------------------
+
     class CreateRelationshipDef(
         override val modelId: ModelId,
         val initializer: RelationshipDef
