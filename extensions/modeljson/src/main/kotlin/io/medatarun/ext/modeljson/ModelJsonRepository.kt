@@ -8,6 +8,7 @@ import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryCmd
+import io.medatarun.model.ports.ModelRepositoryCmdWithId
 import io.medatarun.model.ports.ModelRepositoryId
 import java.nio.file.Path
 import kotlin.collections.plus
@@ -71,7 +72,7 @@ class ModelJsonRepository(
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when (cmd) {
             is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            else -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepositoryCmdWithId -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
     }
 
