@@ -37,22 +37,18 @@ class ModelCmdsImpl(
     }
 
     private  fun deleteModel(cmd: ModelCmd.DeleteModel) {
-        ensureModelExists(cmd.modelId)
         storage.dispatch(ModelRepositoryCmd.DeleteModel(cmd.modelId))
     }
 
     private fun updateModelName(cmd: ModelCmd.UpdateModelName) {
-        ensureModelExists(cmd.modelId)
         storage.dispatch(ModelRepositoryCmd.UpdateModelName(cmd.modelId, cmd.name))
     }
 
     private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
-        ensureModelExists(cmd.modelId)
         storage.dispatch(ModelRepositoryCmd.UpdateModelDescription(cmd.modelId, cmd.description))
     }
 
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
-        ensureModelExists(cmd.modelId)
         storage.dispatch(ModelRepositoryCmd.UpdateModelVersion(cmd.modelId, cmd.version))
     }
 
