@@ -18,13 +18,13 @@ sealed interface ModelResourceCmd {
         title = "Inspect models",
         description = "Produces a tree view of registered models, entities, and attributes in the runtime."
     )
-    data class Inspect() : ModelResourceCmd
+    class Inspect() : ModelResourceCmd
 
     @ResourceCommandDoc(
         title = "Inspect models (JSON)",
         description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model."
     )
-    data class InspectJson() : ModelResourceCmd
+    class InspectJson() : ModelResourceCmd
 
     @ResourceCommandDoc(
         title = "Create model",
