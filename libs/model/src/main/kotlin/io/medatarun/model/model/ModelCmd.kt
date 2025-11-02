@@ -2,9 +2,12 @@ package io.medatarun.model.model
 
 import io.medatarun.model.ports.RepositoryRef
 
-sealed interface ModelCmdWithModelId: ModelCmd {
-    val modelId: ModelId
-}
+/**
+ * All possible commands that can be used to manage models, entity definitions, attributes,
+ * relationships definitions and their attributes.
+ *
+ * See that as the core business interface to manage models.
+ */
 sealed interface ModelCmd {
 
 
@@ -18,26 +21,28 @@ sealed interface ModelCmd {
         val description: LocalizedMarkdown?,
         val version: ModelVersion,
         val repositoryRef: RepositoryRef = RepositoryRef.Auto
-    ): ModelCmd
+    ) : ModelCmd
+
+    data class ImportModel(val model: Model, val repositoryRef: RepositoryRef = RepositoryRef.Auto) : ModelCmd
 
     data class UpdateModelName(
         override val modelId: ModelId,
         val name: LocalizedTextNotLocalized
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class UpdateModelDescription(
         override val modelId: ModelId,
         val description: LocalizedTextNotLocalized?
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class UpdateModelVersion(
         override val modelId: ModelId,
         val version: ModelVersion
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class DeleteModel(
         override val modelId: ModelId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     // ------------------------------------------------------------------------
     // Types
@@ -46,18 +51,18 @@ sealed interface ModelCmd {
     data class CreateType(
         override val modelId: ModelId,
         val initializer: ModelTypeInitializer
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class UpdateType(
         override val modelId: ModelId,
         val typeId: ModelTypeId,
         val cmd: ModelTypeUpdateCmd
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class DeleteType(
         override val modelId: ModelId,
         val typeId: ModelTypeId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     // ------------------------------------------------------------------------
     // Entity
@@ -66,18 +71,18 @@ sealed interface ModelCmd {
     data class CreateEntityDef(
         override val modelId: ModelId,
         val entityDefInitializer: EntityDefInitializer
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class UpdateEntityDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val cmd: EntityDefUpdateCmd
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     data class DeleteEntityDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     // ------------------------------------------------------------------------
     // Entity attributes
@@ -87,20 +92,20 @@ sealed interface ModelCmd {
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefInitializer: AttributeDefInitializer
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class DeleteEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class UpdateEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     // ------------------------------------------------------------------------
     // Relationships
@@ -109,38 +114,48 @@ sealed interface ModelCmd {
     class CreateRelationshipDef(
         override val modelId: ModelId,
         val initializer: RelationshipDef
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class UpdateRelationshipDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val cmd: RelationshipDefUpdateCmd
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class DeleteRelationshipDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
 
     class CreateRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attr: AttributeDef
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class UpdateRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
     class DeleteRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId
-    ) : ModelCmdWithModelId
+    ) : ModelCmdOnModel
 
 
+}
+
+/**
+ * Describes a command that can be run on an existing model.
+ *
+ * A [modelId] must be provided and the command will not perform and throw a [ModelNotFoundException]
+ * if the model doesn't exist.
+ */
+sealed interface ModelCmdOnModel : ModelCmd {
+    val modelId: ModelId
 }

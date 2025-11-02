@@ -26,8 +26,8 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepositoryCmd.CreateModel(model), cmd.repositoryRef)
     }
 
-    override fun importModel(model: Model, repositoryRef: RepositoryRef) {
-        storage.dispatch(ModelRepositoryCmd.CreateModel(model), repositoryRef)
+    private fun importModel(cmd: ModelCmd.ImportModel) {
+        storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
 
     private  fun deleteModel(cmd: ModelCmd.DeleteModel) {
@@ -193,9 +193,10 @@ class ModelCmdsImpl(
     // ------------------------------------------------------------------------
 
     override fun dispatch(cmd: ModelCmd) {
-        if (cmd is ModelCmdWithModelId) ensureModelExists(cmd.modelId)
+        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelId)
         when (cmd) {
             is ModelCmd.CreateModel -> createModel(cmd)
+            is ModelCmd.ImportModel -> importModel(cmd)
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
             is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)

@@ -1,17 +1,17 @@
 package io.medatarun.model.model
 
-import io.medatarun.model.ports.RepositoryRef
-
 /**
- * Commands to change the model, entity definitions, entity definition's attributes definitions
+ * Commands to create, delete and changes modes, entity definitions, entity definition's attributes definitions
+ * and relationships.
+ *
+ * This is a command based interface, meaning that all you can do is described by commands (see [ModelCmd] for the
+ * list of possible actions)
+ *
  */
 interface ModelCmds {
 
-    // Model
-
-    fun importModel(model: Model, repositoryRef: RepositoryRef = RepositoryRef.Auto)
-
+    /**
+     * Execute this command
+     */
     fun dispatch(cmd: ModelCmd)
-
-
 }

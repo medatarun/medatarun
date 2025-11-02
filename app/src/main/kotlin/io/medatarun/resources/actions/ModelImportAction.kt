@@ -1,6 +1,7 @@
 package io.medatarun.resources.actions
 
 import io.medatarun.model.ModelImporter
+import io.medatarun.model.model.ModelCmd
 import io.medatarun.resources.ModelResourceCmd
 import io.medatarun.runtime.AppRuntime
 import java.nio.file.FileSystem
@@ -15,7 +16,7 @@ class ModelImportAction(
         val resourceLocator = ResourceLocatorImpl(cmd.from, fileSystem)
         contribs.forEach { contrib ->
             val model = contrib.toModel(cmd.from, resourceLocator)
-            runtime.modelCmds.importModel(model)
+            runtime.modelCmds.dispatch(ModelCmd.ImportModel(model))
         }
 
     }
