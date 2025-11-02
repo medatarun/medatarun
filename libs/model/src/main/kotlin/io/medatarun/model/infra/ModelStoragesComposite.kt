@@ -2,6 +2,7 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
+import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
@@ -103,35 +104,7 @@ class ModelStoragesComposite(
         repo.deleteEntityDef(modelId, entityDefId)
     }
 
-    override fun createEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attr: AttributeDef
-    ) {
-        val repo = findRepoWithModel(modelId)
-        repo.createEntityDefAttributeDef(modelId, entityDefId, attr)
-    }
-
-    override fun updateEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        cmd: AttributeDefUpdateCmd
-    ) {
-        val repo = findRepoWithModel(modelId)
-        repo.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, cmd)
-    }
-
-    override fun deleteEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId
-    ) {
-        val repo = findRepoWithModel(modelId)
-        repo.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
-    }
-
-    override fun dispatch(cmd: ModelCmd) {
+    override fun dispatch(cmd: ModelRepositoryCmd) {
         val repo = findRepoWithModel(cmd.modelId)
         repo.dispatch(cmd)
     }

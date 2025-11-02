@@ -29,12 +29,6 @@ interface ModelCmds {
     fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd)
     fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
 
-    // Model -> EntityDef -> AttributeDef
-
-    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefInitializer: AttributeDefInitializer)
-    fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
-    fun updateEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, cmd: AttributeDefUpdateCmd)
-
     // Model -> Relationship
 
     fun dispatch(cmd: ModelCmd)

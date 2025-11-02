@@ -50,16 +50,9 @@ interface ModelRepository {
     fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
     //@formatter:on
 
-    // Model -> EntityDef -> AttributeDef
-
-    //@formatter:off
-    fun createEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attr: AttributeDef)
-    fun updateEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId, target: AttributeDefUpdateCmd)
-    fun deleteEntityDefAttributeDef(modelId: ModelId, entityDefId: EntityDefId, attributeDefId: AttributeDefId)
-    //@formatter:on
 
     // Model -> Relationship
 
-    fun dispatch(cmd: ModelCmd)
+    fun dispatch(cmd: ModelRepositoryCmd)
 
 }

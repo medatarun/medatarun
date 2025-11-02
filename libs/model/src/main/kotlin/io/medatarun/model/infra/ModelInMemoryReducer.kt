@@ -1,35 +1,59 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.AttributeDefUpdateCmd
-import io.medatarun.model.model.ModelCmd
-import io.medatarun.model.model.RelationshipDefUpdateCmd
+import io.medatarun.model.model.*
+import io.medatarun.model.ports.ModelRepositoryCmd
 
 class ModelInMemoryReducer() {
-    fun dispatch(model: ModelInMemory, cmd: ModelCmd): ModelInMemory {
+    fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmd): ModelInMemory {
         return when (cmd) {
 
-            is ModelCmd.CreateRelationshipDef -> model.copy(
+            is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityDefId) {
+                it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))
+            }
+
+            is ModelRepositoryCmd.UpdateEntityDefAttributeDef -> modifyingEntityDefAttributeDef(
+                model,
+                cmd.entityDefId,
+                cmd.attributeDefId
+            ) { a ->
+                val target = cmd.cmd
+                when (target) {
+                    is AttributeDefUpdateCmd.Id -> a.copy(id = target.value)
+                    is AttributeDefUpdateCmd.Name -> a.copy(name = target.value)
+                    is AttributeDefUpdateCmd.Description -> a.copy(description = target.value)
+                    is AttributeDefUpdateCmd.Type -> a.copy(type = target.value)
+                    is AttributeDefUpdateCmd.Optional -> a.copy(optional = target.value)
+                }
+            }
+
+            is ModelRepositoryCmd.DeleteEntityDefAttributeDef -> modifyingEntityDefAttributeDef(
+                model,
+                cmd.entityDefId,
+                cmd.attributeDefId
+            ) { null }
+
+            is ModelRepositoryCmd.CreateRelationshipDef -> model.copy(
                 relationshipDefs = model.relationshipDefs + RelationshipDefInMemory.of(cmd.initializer)
             )
 
-            is ModelCmd.UpdateRelationshipDef -> model.copy(
+            is ModelRepositoryCmd.UpdateRelationshipDef -> model.copy(
                 relationshipDefs = model.relationshipDefs.map { rel ->
                     if (rel.id != cmd.relationshipDefId) rel else updateRelationship(rel, cmd)
                 }
             )
 
-            is ModelCmd.DeleteRelationshipDef -> model.copy(
+            is ModelRepositoryCmd.DeleteRelationshipDef -> model.copy(
                 relationshipDefs = model.relationshipDefs.filter { it.id != cmd.relationshipDefId }
             )
 
-            is ModelCmd.DeleteRelationshipAttributeDef -> model.copy(
+            is ModelRepositoryCmd.DeleteRelationshipAttributeDef -> model.copy(
                 relationshipDefs = model.relationshipDefs.map { rel ->
                     if (rel.id != cmd.relationshipDefId) rel else rel.copy(
                         attributes = rel.attributes.filter { attr -> attr.id != cmd.attributeDefId })
                 }
             )
 
-            is ModelCmd.UpdateRelationshipAttributeDef -> model.copy(
+            is ModelRepositoryCmd.UpdateRelationshipAttributeDef -> model.copy(
                 relationshipDefs = model.relationshipDefs.map { rel ->
                     if (rel.id != cmd.relationshipDefId) rel else rel.copy(
                         attributes = rel.attributes.map { attr ->
@@ -38,7 +62,7 @@ class ModelInMemoryReducer() {
                 }
             )
 
-            is ModelCmd.CreateRelationshipAttributeDef -> model.copy(
+            is ModelRepositoryCmd.CreateRelationshipAttributeDef -> model.copy(
                 relationshipDefs = model.relationshipDefs.map { rel ->
                     if (rel.id != cmd.relationshipDefId) rel else rel.copy(
                         attributes = rel.attributes + AttributeDefInMemory.of(cmd.attr)
@@ -53,7 +77,7 @@ class ModelInMemoryReducer() {
 
 private fun updateAttribute(
     attr: AttributeDefInMemory,
-    cmd: ModelCmd.UpdateRelationshipAttributeDef,
+    cmd: ModelRepositoryCmd.UpdateRelationshipAttributeDef,
 ): AttributeDefInMemory = when (cmd.cmd) {
     is AttributeDefUpdateCmd.Id -> attr.copy(id = attr.id)
     is AttributeDefUpdateCmd.Name -> attr.copy(name = attr.name)
@@ -64,7 +88,7 @@ private fun updateAttribute(
 
 private fun updateRelationship(
     attr: RelationshipDefInMemory,
-    cmd: ModelCmd.UpdateRelationshipDef,
+    cmd: ModelRepositoryCmd.UpdateRelationshipDef,
 ): RelationshipDefInMemory = when (cmd.cmd) {
     is RelationshipDefUpdateCmd.Name -> attr.copy(name = attr.name)
     is RelationshipDefUpdateCmd.Description -> attr.copy(description = attr.name)
@@ -79,4 +103,33 @@ private fun updateRelationship(
             cardinality = cmd.cmd.value
         )
     })
+}
+
+
+private fun modifyingEntityDefAttributeDef(
+    model: ModelInMemory,
+    e: EntityDefId,
+    attributeDefId: AttributeDefId,
+    block: (AttributeDefInMemory) -> AttributeDefInMemory?
+): ModelInMemory {
+    return model.copy(
+        entityDefs = model.entityDefs.map { entityDef ->
+            if (entityDef.id != e) entityDef else entityDef.copy(
+                attributes = entityDef.attributes.mapNotNull { attr ->
+                    if (attr.id != attributeDefId) attr else block(attr)
+                }
+            )
+        })
+}
+
+
+private fun modifyingEntityDef(
+    model: ModelInMemory,
+    e: EntityDefId,
+    block: (EntityDefInMemory) -> EntityDefInMemory?
+): ModelInMemory {
+    return model.copy(
+        entityDefs = model.entityDefs.mapNotNull { entityDef ->
+            if (entityDef.id != e) entityDef else block(entityDef)
+        })
 }

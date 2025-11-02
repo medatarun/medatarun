@@ -2,6 +2,7 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
+import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId
 
 /**
@@ -142,44 +143,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         modifyingEntityDef(modelId, entityDefId) { null }
     }
 
-    override fun createEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attr: AttributeDef
-    ) {
-        modifyingEntityDef(modelId, entityDefId) {
-            it.copy(attributes = it.attributes + AttributeDefInMemory.of(attr))
-        }
-    }
-
-    override fun updateEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        target: AttributeDefUpdateCmd
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { a ->
-            when (target) {
-                is AttributeDefUpdateCmd.Id -> a.copy(id = target.value)
-                is AttributeDefUpdateCmd.Name -> a.copy(name = target.value)
-                is AttributeDefUpdateCmd.Description -> a.copy(description = target.value)
-                is AttributeDefUpdateCmd.Type -> a.copy(type = target.value)
-                is AttributeDefUpdateCmd.Optional -> a.copy(optional = target.value)
-            }
-        }
-    }
-
-
-    override fun deleteEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId
-    ) {
-        modifyingEntityDefAttributeDef(modelId, entityDefId, attributeDefId) { null }
-    }
-
-
-    override fun dispatch(cmd: ModelCmd) {
+    override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
     }
 

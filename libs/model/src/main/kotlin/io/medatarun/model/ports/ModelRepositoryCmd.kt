@@ -1,6 +1,16 @@
-package io.medatarun.model.model
+package io.medatarun.model.ports
 
-sealed interface ModelCmd {
+import io.medatarun.model.model.AttributeDef
+import io.medatarun.model.model.AttributeDefId
+import io.medatarun.model.model.AttributeDefInitializer
+import io.medatarun.model.model.AttributeDefUpdateCmd
+import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.RelationshipDef
+import io.medatarun.model.model.RelationshipDefId
+import io.medatarun.model.model.RelationshipDefUpdateCmd
+
+sealed interface ModelRepositoryCmd {
     val modelId: ModelId
 
     // ------------------------------------------------------------------------
@@ -10,21 +20,21 @@ sealed interface ModelCmd {
     class CreateEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
-        val attributeDefInitializer: AttributeDefInitializer
-    ): ModelCmd
+        val attributeDef: AttributeDef
+    ): ModelRepositoryCmd
 
     class DeleteEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId
-    ): ModelCmd
+    ): ModelRepositoryCmd
 
     class UpdateEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ): ModelCmd
+    ): ModelRepositoryCmd
 
     // ------------------------------------------------------------------------
     // Relationships
@@ -33,38 +43,38 @@ sealed interface ModelCmd {
     class CreateRelationshipDef(
         override val modelId: ModelId,
         val initializer: RelationshipDef
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
     class UpdateRelationshipDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val cmd: RelationshipDefUpdateCmd
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
     class DeleteRelationshipDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
 
     class CreateRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attr: AttributeDef
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
     class UpdateRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
     class DeleteRelationshipAttributeDef(
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId
-    ) : ModelCmd
+    ) : ModelRepositoryCmd
 
 
 }

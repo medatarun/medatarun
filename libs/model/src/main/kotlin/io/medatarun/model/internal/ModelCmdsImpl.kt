@@ -4,6 +4,7 @@ import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
+import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
 
@@ -127,73 +128,77 @@ class ModelCmdsImpl(
         storage.deleteEntityDef(modelId, entityDefId)
     }
 
-    override fun createEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefInitializer: AttributeDefInitializer,
-    ) {
-        val e = findModelById(modelId).findEntityDef(entityDefId)
-        if (e.hasAttributeDef(attributeDefInitializer.attributeDefId)) throw CreateAttributeDefDuplicateIdException(
-            entityDefId,
-            attributeDefInitializer.attributeDefId
+    private fun createEntityDefAttributeDef(c: ModelCmd.CreateEntityDefAttributeDef) {
+        val e = findModelById(c.modelId).findEntityDef(c.entityDefId)
+        if (e.hasAttributeDef(c.attributeDefInitializer.attributeDefId)) throw CreateAttributeDefDuplicateIdException(
+            c.entityDefId,
+            c.attributeDefInitializer.attributeDefId
         )
-        findModelById(modelId).ensureTypeExists(attributeDefInitializer.type)
-        storage.createEntityDefAttributeDef(
-            modelId, entityDefId, AttributeDefInMemory(
-                id = attributeDefInitializer.attributeDefId,
-                name = attributeDefInitializer.name,
-                description = attributeDefInitializer.description,
-                type = attributeDefInitializer.type,
-                optional = attributeDefInitializer.optional
+        findModelById(c.modelId).ensureTypeExists(c.attributeDefInitializer.type)
+        storage.dispatch(
+            ModelRepositoryCmd.CreateEntityDefAttributeDef(
+                modelId = c.modelId,
+                entityDefId = c.entityDefId,
+                attributeDef = AttributeDefInMemory(
+                    id = c.attributeDefInitializer.attributeDefId,
+                    name = c.attributeDefInitializer.name,
+                    description = c.attributeDefInitializer.description,
+                    type = c.attributeDefInitializer.type,
+                    optional = c.attributeDefInitializer.optional
+                )
             )
         )
     }
 
-    override fun deleteEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId
-    ) {
-        val entity = findModelById(modelId).findEntityDef(entityDefId)
-        if (entity.identifierAttributeDefId == attributeDefId)
-            throw DeleteAttributeIdentifierException(modelId, entityDefId, attributeDefId)
-        storage.deleteEntityDefAttributeDef(modelId, entityDefId, attributeDefId)
+    private fun deleteEntityDefAttributeDef(c: ModelCmd.DeleteEntityDefAttributeDef) {
+        val entity = findModelById(c.modelId).findEntityDef(c.entityDefId)
+        if (entity.identifierAttributeDefId == c.attributeDefId)
+            throw DeleteAttributeIdentifierException(c.modelId, c.entityDefId, c.attributeDefId)
+        storage.dispatch(
+            ModelRepositoryCmd.DeleteEntityDefAttributeDef(
+                modelId = c.modelId,
+                entityDefId = c.entityDefId,
+                attributeDefId = c.attributeDefId
+            )
+        )
     }
 
-    override fun updateEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        cmd: AttributeDefUpdateCmd
-    ) {
-        val model = findModelById(modelId)
-        val entity = model.findEntityDef(entityDefId)
-        entity.ensureAttributeDefExists(attributeDefId)
+    private fun updateEntityDefAttributeDef(c: ModelCmd.UpdateEntityDefAttributeDef) {
+        val model = findModelById(c.modelId)
+        val entity = model.findEntityDef(c.entityDefId)
+        entity.ensureAttributeDefExists(c.attributeDefId)
 
         // TODO how do we ensure transactions here ?
 
 
-        if (cmd is AttributeDefUpdateCmd.Id) {
+        if (c.cmd is AttributeDefUpdateCmd.Id) {
             // We can not have two attributes with the same id
-            if (entity.attributes.any { it.id == cmd.value && it.id != attributeDefId }) {
-                throw UpdateAttributeDefDuplicateIdException(entityDefId, attributeDefId)
+            if (entity.attributes.any { it.id == c.cmd.value && it.id != c.attributeDefId }) {
+                throw UpdateAttributeDefDuplicateIdException(c.entityDefId, c.attributeDefId)
             }
             // If user wants to rename the Entity's identity attribute, we must rename in entity
             // as well as the attribute's id, then apply changes on entity
-            if (entity.identifierAttributeDefId == attributeDefId) {
+            if (entity.identifierAttributeDefId == c.attributeDefId) {
                 storage.updateEntityDef(
-                    modelId,
-                    entityDefId,
-                    EntityDefUpdateCmd.IdentifierAttribute(cmd.value)
+                    c.modelId,
+                    c.entityDefId,
+                    EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
                 )
             }
-        } else if (cmd is AttributeDefUpdateCmd.Type) {
+        } else if (c.cmd is AttributeDefUpdateCmd.Type) {
             // Attribute type shall exist when updating types
-            findModelById(modelId).ensureTypeExists(cmd.value)
+            findModelById(c.modelId).ensureTypeExists(c.cmd.value)
         }
 
         // Apply changes on attribute
-        storage.updateEntityDefAttributeDef(modelId, entityDefId, attributeDefId, cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateEntityDefAttributeDef(
+                modelId = c.modelId,
+                entityDefId = c.entityDefId,
+                attributeDefId = c.attributeDefId,
+                cmd = c.cmd
+            )
+        )
     }
 
     // ------------------------------------------------------------------------
@@ -203,13 +208,15 @@ class ModelCmdsImpl(
     override fun dispatch(cmd: ModelCmd) {
         ensureModelExists(cmd.modelId)
         when (cmd) {
+            is ModelCmd.CreateEntityDefAttributeDef -> createEntityDefAttributeDef(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
+            is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)
             is ModelCmd.CreateRelationshipDef -> createRelationshipDef(cmd)
             is ModelCmd.CreateRelationshipAttributeDef -> createRelatinoshipAttributeDef(cmd)
             is ModelCmd.UpdateRelationshipDef -> updateRelationshipDef(cmd)
             is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
             is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
             is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
-
         }
         return auditor.onCmdProcessed(cmd)
     }
@@ -217,23 +224,47 @@ class ModelCmdsImpl(
     private fun deleteRelationshipAttributeDef(cmd: ModelCmd.DeleteRelationshipAttributeDef) {
         findModelById(cmd.modelId).findRelationshipDef(cmd.relationshipDefId)
             .ensureAttributeDefExists(cmd.attributeDefId)
-        storage.dispatch(cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.DeleteRelationshipAttributeDef(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                attributeDefId = cmd.attributeDefId
+            )
+        )
     }
 
     private fun updateRelationshipAttributeDef(cmd: ModelCmd.UpdateRelationshipAttributeDef) {
         findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId)
             .ensureAttributeDefExists(cmd.attributeDefId)
-        storage.dispatch(cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipAttributeDef(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                attributeDefId = cmd.attributeDefId,
+                cmd = cmd.cmd
+            )
+        )
     }
 
     private fun deleteRelationshipDef(cmd: ModelCmd.DeleteRelationshipDef) {
         findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId)
-        storage.dispatch(cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.DeleteRelationshipDef(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId
+            )
+        )
     }
 
     private fun updateRelationshipDef(cmd: ModelCmd.UpdateRelationshipDef) {
         findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId);
-        storage.dispatch(cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipDef(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                cmd = cmd.cmd
+            )
+        )
     }
 
     private fun createRelatinoshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
@@ -243,7 +274,13 @@ class ModelCmdsImpl(
             throw RelationshipDuplicateAttributeException(cmd.modelId, cmd.relationshipDefId, cmd.attr.id)
         }
         findModelById(cmd.modelId).ensureTypeExists(cmd.attr.type)
-        storage.dispatch(cmd)
+        storage.dispatch(
+            ModelRepositoryCmd.CreateRelationshipAttributeDef(
+                modelId = cmd.modelId,
+                attr = cmd.attr,
+                relationshipDefId = cmd.relationshipDefId
+            )
+        )
     }
 
     private fun createRelationshipDef(cmd: ModelCmd.CreateRelationshipDef) {
@@ -254,7 +291,7 @@ class ModelCmdsImpl(
         if (duplicateRoleIds.isNotEmpty()) {
             throw RelationshipDuplicateRoleIdException(duplicateRoleIds.keys)
         }
-        storage.dispatch(cmd)
+        storage.dispatch(ModelRepositoryCmd.CreateRelationshipDef(modelId = cmd.modelId, initializer = cmd.initializer))
     }
 
     fun ensureModelExists(modelId: ModelId) {

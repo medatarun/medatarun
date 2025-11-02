@@ -7,6 +7,7 @@ import io.medatarun.model.infra.ModelInMemoryReducer
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
+import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId
 import java.nio.file.Path
 import kotlin.collections.plus
@@ -138,90 +139,8 @@ class ModelJsonRepository(
         }
     }
 
-    override fun createEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attr: AttributeDef
-    ) {
-        updateModel(modelId) { model ->
-            model.copy(
-                entityDefs = model.entityDefs.map { e ->
-                    if (e.id == entityDefId) e.copy(
-                        attributes = e.attributes + AttributeDefInMemory.of(
-                            attr
-                        )
-                    ) else e
-                }
-            )
-        }
-    }
 
-    override fun updateEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId,
-        target: AttributeDefUpdateCmd
-    ) {
-        updateModel(modelId) { model ->
-            var entityFound = false
-            var attributeUpdated = false
-            val nextEntities = model.entityDefs.map { entity ->
-                if (entity.id != entityDefId) return@map entity
-                entityFound = true
-                val nextAttributes = entity.attributes.map { attribute ->
-                    if (attribute.id != attributeDefId) return@map attribute
-                    attributeUpdated = true
-                    when (target) {
-                        is AttributeDefUpdateCmd.Id -> attribute.copy(id = target.value)
-                        is AttributeDefUpdateCmd.Name -> attribute.copy(name = target.value)
-                        is AttributeDefUpdateCmd.Description -> attribute.copy(description = target.value)
-                        is AttributeDefUpdateCmd.Type -> attribute.copy(type = target.value)
-                        is AttributeDefUpdateCmd.Optional -> attribute.copy(optional = target.value)
-                    }
-                }
-                entity.copy(attributes = nextAttributes)
-            }
-            if (!entityFound) {
-                throw EntityDefNotFoundException(modelId, entityDefId)
-            }
-            if (!attributeUpdated) {
-                throw EntityAttributeDefNotFoundException(entityDefId, attributeDefId)
-            }
-            model.copy(entityDefs = nextEntities)
-        }
-    }
-
-
-
-    override fun deleteEntityDefAttributeDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        attributeDefId: AttributeDefId
-    ) {
-        updateModel(modelId) { model ->
-            var entityFound = false
-            var attributeRemoved = false
-            val nextEntities = model.entityDefs.map { entity ->
-                if (entity.id != entityDefId) return@map entity
-                entityFound = true
-                val nextAttributes = entity.attributes.filterNot { attribute ->
-                    if (attribute.id == attributeDefId) {
-                        attributeRemoved = true
-                        true
-                    } else {
-                        false
-                    }
-                }
-                entity.copy(attributes = nextAttributes)
-            }
-            if (!entityFound || !attributeRemoved) {
-                throw EntityAttributeDefNotFoundException(entityDefId, attributeDefId)
-            }
-            model.copy(entityDefs = nextEntities)
-        }
-    }
-
-    override fun dispatch(cmd: ModelCmd) {
+    override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model ->
             ModelInMemoryReducer().dispatch(model, cmd)
         }

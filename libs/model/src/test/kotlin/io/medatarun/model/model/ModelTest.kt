@@ -453,13 +453,15 @@ class ModelTest {
                 )
             )
         )
-        env.cmd.createEntityDefAttributeDef(
-            env.modelId,
-            EntityDefId("contact"),
-            AttributeDefInitializer(
-                attributeDefId = AttributeDefId("infos"),
-                type = ModelTypeId("Markdown"),
-                optional = false, name = null, description = null
+        env.cmd.dispatch(
+            ModelCmd.CreateEntityDefAttributeDef(
+                modelId = env.modelId,
+                entityDefId = EntityDefId("contact"),
+                attributeDefInitializer = AttributeDefInitializer(
+                    attributeDefId = AttributeDefId("infos"),
+                    type = ModelTypeId("Markdown"),
+                    optional = false, name = null, description = null
+                )
             )
         )
         assertThrows<ModelTypeDeleteUsedException> {
@@ -884,7 +886,7 @@ class ModelTest {
             description: LocalizedMarkdown? = null
         ): AttributeDef {
 
-            cmd.createEntityDefAttributeDef(
+            cmd.dispatch(ModelCmd.CreateEntityDefAttributeDef(
                 modelId = sampleModelId,
                 entityDefId = sampleEntityDefId,
                 attributeDefInitializer = AttributeDefInitializer(
@@ -894,7 +896,7 @@ class ModelTest {
                     name = name,
                     description = description,
                 )
-            )
+            ))
             val reloaded =
                 query.findModelById(sampleModelId).findEntityDef(sampleEntityDefId).getAttributeDef(attributeDefId)
             return reloaded
@@ -905,7 +907,7 @@ class ModelTest {
             command: AttributeDefUpdateCmd,
             reloadId: AttributeDefId? = null
         ): AttributeDef {
-            cmd.updateEntityDefAttributeDef(sampleModelId, sampleEntityDefId, attributeDefId, command)
+            cmd.dispatch(ModelCmd.UpdateEntityDefAttributeDef(sampleModelId, sampleEntityDefId, attributeDefId, command))
             val reloaded = query.findModelById(sampleModelId).findEntityDef(sampleEntityDefId)
                 .getAttributeDef(reloadId ?: attributeDefId)
             return reloaded
@@ -991,12 +993,12 @@ class ModelTest {
         env.addSampleEntityDef()
         env.createAttributeDef()
         assertFailsWith<ModelNotFoundException> {
-            env.cmd.updateEntityDefAttributeDef(
+            env.cmd.dispatch(ModelCmd.UpdateEntityDefAttributeDef(
                 modelId = ModelId("unknown"),
                 entityDefId = EntityDefId("unknownEntity"),
                 attributeDefId = AttributeDefId("unknownAttribute"),
                 cmd = AttributeDefUpdateCmd.Name(null)
-            )
+            ))
         }
 
     }
@@ -1007,12 +1009,12 @@ class ModelTest {
         env.addSampleEntityDef()
         env.createAttributeDef()
         assertFailsWith<EntityDefNotFoundException> {
-            env.cmd.updateEntityDefAttributeDef(
+            env.cmd.dispatch(ModelCmd.UpdateEntityDefAttributeDef(
                 modelId = env.sampleModelId,
                 entityDefId = EntityDefId("unknownEntity"),
                 attributeDefId = AttributeDefId("unknownAttribute"),
                 cmd = AttributeDefUpdateCmd.Name(null)
-            )
+            ))
         }
     }
 
@@ -1023,12 +1025,12 @@ class ModelTest {
         env.addSampleEntityDef()
         env.createAttributeDef()
         assertFailsWith<EntityAttributeDefNotFoundException> {
-            env.cmd.updateEntityDefAttributeDef(
+            env.cmd.dispatch(ModelCmd.UpdateEntityDefAttributeDef(
                 modelId = env.sampleModelId,
                 entityDefId = env.sampleEntityDefId,
                 attributeDefId = AttributeDefId("unknownAttribute"),
                 cmd = AttributeDefUpdateCmd.Name(null)
-            )
+            ))
         }
     }
 
@@ -1138,12 +1140,12 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(type = ModelTypeId("String"))
         assertThrows<TypeNotFoundException> {
-            env.cmd.updateEntityDefAttributeDef(
+            env.cmd.dispatch(ModelCmd.UpdateEntityDefAttributeDef(
                 env.sampleModelId,
                 env.sampleEntityDefId,
                 attr.id,
                 AttributeDefUpdateCmd.Type(ModelTypeId("String2"))
-            )
+            ))
         }
     }
 
@@ -1174,7 +1176,7 @@ class ModelTest {
         env.createAttributeDef(attributeDefId = AttributeDefId("bk"))
         env.createAttributeDef(attributeDefId = AttributeDefId("firstname"))
         env.createAttributeDef(attributeDefId = AttributeDefId("lastname"))
-        env.cmd.deleteEntityDefAttributeDef(env.sampleModelId, env.sampleEntityDefId, AttributeDefId("firstname"))
+        env.cmd.dispatch(ModelCmd.DeleteEntityDefAttributeDef(env.sampleModelId, env.sampleEntityDefId, AttributeDefId("firstname")))
         val reloaded = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
 
         assertTrue(reloaded.hasAttributeDef(AttributeDefId("bk")))
@@ -1193,11 +1195,11 @@ class ModelTest {
 
         val reloaded = env.query.findModelById(env.sampleModelId).findEntityDef(env.sampleEntityDefId)
         assertThrows<DeleteAttributeIdentifierException> {
-            env.cmd.deleteEntityDefAttributeDef(
+            env.cmd.dispatch(ModelCmd.DeleteEntityDefAttributeDef(
                 env.sampleModelId,
                 env.sampleEntityDefId,
                 reloaded.entityIdAttributeDefId()
-            )
+            ))
         }
     }
 
