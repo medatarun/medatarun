@@ -43,28 +43,28 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
             }
 
             is ModelResourceCmd.UpdateModelName -> {
-                runtime.modelCmds.updateModelName(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateModelName(
                     modelId = ModelId(rc.id),
                     name = LocalizedTextNotLocalized(rc.name),
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateModelDescription -> {
-                runtime.modelCmds.updateModelDescription(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateModelDescription(
                     modelId = ModelId(rc.id),
                     description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateModelVersion -> {
-                runtime.modelCmds.updateModelVersion(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateModelVersion(
                     modelId = ModelId(rc.id),
                     version = ModelVersion(rc.version),
-                )
+                ))
             }
 
             is ModelResourceCmd.DeleteModel -> {
-                runtime.modelCmds.deleteModel(ModelId(rc.id))
+                runtime.modelCmds.dispatch(ModelCmd.DeleteModel(ModelId(rc.id)))
             }
 
             // ------------------------------------------------------------------------

@@ -7,6 +7,12 @@ class ModelInMemoryReducer() {
     fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmd): ModelInMemory {
         return when (cmd) {
 
+
+            is ModelRepositoryCmd.UpdateModelDescription -> model.copy(description = cmd.description)
+            is ModelRepositoryCmd.UpdateModelName -> model.copy(name = cmd.name)
+            is ModelRepositoryCmd.UpdateModelVersion -> model.copy(version = cmd.version)
+            is ModelRepositoryCmd.DeleteModel -> throw ModelInMemoryReducerCommandNotSupportedException(cmd)
+
             is ModelRepositoryCmd.CreateType -> model.copy(
                 types = model.types + ModelTypeInMemory(
                     id = cmd.initializer.id,
@@ -161,3 +167,5 @@ private fun modifyingEntityDef(
             if (entityDef.id != e) entityDef else block(entityDef)
         })
 }
+
+class ModelInMemoryReducerCommandNotSupportedException(cmd: ModelRepositoryCmd) : MedatarunException("Command not supported in Memory reducer : $cmd")

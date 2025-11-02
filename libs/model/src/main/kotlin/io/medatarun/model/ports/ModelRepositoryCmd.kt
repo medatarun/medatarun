@@ -1,32 +1,53 @@
 package io.medatarun.model.ports
 
 import io.medatarun.model.infra.EntityDefInMemory
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.AttributeDefInitializer
-import io.medatarun.model.model.AttributeDefUpdateCmd
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityDefInitializer
-import io.medatarun.model.model.EntityDefUpdateCmd
-import io.medatarun.model.model.ModelCmd
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelTypeId
-import io.medatarun.model.model.ModelTypeInitializer
-import io.medatarun.model.model.ModelTypeUpdateCmd
-import io.medatarun.model.model.RelationshipDef
-import io.medatarun.model.model.RelationshipDefId
-import io.medatarun.model.model.RelationshipDefUpdateCmd
+import io.medatarun.model.model.*
 
 sealed interface ModelRepositoryCmd {
     val modelId: ModelId
 
     // ------------------------------------------------------------------------
+    // Models
+    // ------------------------------------------------------------------------
+
+    data class UpdateModelName(
+        override val modelId: ModelId,
+        val name: LocalizedTextNotLocalized
+    ) : ModelRepositoryCmd
+
+    data class UpdateModelDescription(
+        override val modelId: ModelId,
+        val description: LocalizedTextNotLocalized?
+    ) : ModelRepositoryCmd
+
+    data class UpdateModelVersion(
+        override val modelId: ModelId,
+        val version: ModelVersion
+    ) : ModelRepositoryCmd
+
+    data class DeleteModel(
+        override val modelId: ModelId
+    ) : ModelRepositoryCmd
+
+    // ------------------------------------------------------------------------
     // Types
     // ------------------------------------------------------------------------
 
-    data class CreateType(override val modelId: ModelId, val initializer: ModelTypeInitializer): ModelRepositoryCmd
-    data class UpdateType(override val modelId: ModelId, val typeId: ModelTypeId, val cmd: ModelTypeUpdateCmd): ModelRepositoryCmd
-    data class DeleteType(override val modelId: ModelId, val typeId: ModelTypeId): ModelRepositoryCmd
+    data class CreateType(
+        override val modelId: ModelId,
+        val initializer: ModelTypeInitializer
+    ) : ModelRepositoryCmd
+
+    data class UpdateType(
+        override val modelId: ModelId,
+        val typeId: ModelTypeId,
+        val cmd: ModelTypeUpdateCmd
+    ) : ModelRepositoryCmd
+
+    data class DeleteType(
+        override val modelId: ModelId,
+        val typeId: ModelTypeId
+    ) : ModelRepositoryCmd
 
     // ------------------------------------------------------------------------
     // Entity
@@ -56,20 +77,20 @@ sealed interface ModelRepositoryCmd {
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDef: AttributeDef
-    ): ModelRepositoryCmd
+    ) : ModelRepositoryCmd
 
     class DeleteEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId
-    ): ModelRepositoryCmd
+    ) : ModelRepositoryCmd
 
     class UpdateEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ): ModelRepositoryCmd
+    ) : ModelRepositoryCmd
 
     // ------------------------------------------------------------------------
     // Relationships

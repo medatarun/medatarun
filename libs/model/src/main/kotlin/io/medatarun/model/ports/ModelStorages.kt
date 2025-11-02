@@ -23,10 +23,6 @@ interface ModelStorages {
     fun findModelByIdOptional(modelId: ModelId): Model?
     fun existsModelById(modelId: ModelId): Boolean
     fun createModel(model: Model, repositoryRef: RepositoryRef)
-    fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized)
-    fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?)
-    fun updateModelVersion(modelId: ModelId, version: ModelVersion)
-    fun deleteModel(modelId: ModelId)
 
     // Models -> Type
 

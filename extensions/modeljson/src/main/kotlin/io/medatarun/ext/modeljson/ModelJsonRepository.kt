@@ -60,19 +60,7 @@ class ModelJsonRepository(
         persistModel(next)
     }
 
-    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
-        updateModel(modelId) { it.copy(name = name) }
-    }
-
-    override fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?) {
-        updateModel(modelId) { it.copy(description = description) }
-    }
-
-    override fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
-        updateModel(modelId) { it.copy(version = version) }
-    }
-
-    override fun deleteModel(modelId: ModelId) {
+    private fun deleteModel(modelId: ModelId) {
         val path = discoveredModels.remove(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         if (!path.deleteIfExists()) {
             throw ModelJsonRepositoryException("Failed to delete model file for ${modelId.value} at $path")
@@ -81,8 +69,9 @@ class ModelJsonRepository(
 
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
-        updateModel(cmd.modelId) { model ->
-            ModelInMemoryReducer().dispatch(model, cmd)
+        when (cmd) {
+            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
+            else -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
     }
 

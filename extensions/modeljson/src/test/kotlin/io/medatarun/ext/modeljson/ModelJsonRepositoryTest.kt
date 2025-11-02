@@ -1,6 +1,8 @@
 package io.medatarun.ext.modeljson
 
+import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelId
+import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse
 import kotlin.io.path.exists
@@ -124,12 +126,12 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.repo.createModel(env.sampleModel)
         env.repo.createModel(env.sampleModel2)
-        env.repo.deleteModel(env.sampleModel.id)
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
         assertFalse(path1.exists())
         assertTrue(path2.exists())
-        env.repo.deleteModel(env.sampleModel2.id)
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.id))
         assertFalse(path2.exists())
 
 

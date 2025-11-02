@@ -54,26 +54,6 @@ class ModelStoragesComposite(
         selectRepository(repositoryRef).createModel(model)
     }
 
-    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
-        val repo = findRepoWithModel(modelId)
-        repo.updateModelName(modelId, name)
-    }
-
-    override fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?) {
-        val repo = findRepoWithModel(modelId)
-        repo.updateModelDescription(modelId, description)
-    }
-
-    override fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
-        val repo = findRepoWithModel(modelId)
-        repo.updateModelVersion(modelId, version)
-    }
-
-    override fun deleteModel(modelId: ModelId) {
-        val repo = findRepoWithModel(modelId)
-        repo.deleteModel(modelId)
-    }
-
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         val repo = findRepoWithModel(cmd.modelId)

@@ -4,12 +4,47 @@ sealed interface ModelCmd {
     val modelId: ModelId
 
     // ------------------------------------------------------------------------
+    // Models
+    // ------------------------------------------------------------------------
+
+    data class UpdateModelName(
+        override val modelId: ModelId,
+        val name: LocalizedTextNotLocalized
+    ) : ModelCmd
+
+    data class UpdateModelDescription(
+        override val modelId: ModelId,
+        val description: LocalizedTextNotLocalized?
+    ) : ModelCmd
+
+    data class UpdateModelVersion(
+        override val modelId: ModelId,
+        val version: ModelVersion
+    ) : ModelCmd
+
+    data class DeleteModel(
+        override val modelId: ModelId
+    ) : ModelCmd
+
+    // ------------------------------------------------------------------------
     // Types
     // ------------------------------------------------------------------------
 
-    data class CreateType(override val modelId: ModelId, val initializer: ModelTypeInitializer): ModelCmd
-    data class UpdateType(override val modelId: ModelId, val typeId: ModelTypeId, val cmd: ModelTypeUpdateCmd): ModelCmd
-    data class DeleteType(override val modelId: ModelId, val typeId: ModelTypeId): ModelCmd
+    data class CreateType(
+        override val modelId: ModelId,
+        val initializer: ModelTypeInitializer
+    ) : ModelCmd
+
+    data class UpdateType(
+        override val modelId: ModelId,
+        val typeId: ModelTypeId,
+        val cmd: ModelTypeUpdateCmd
+    ) : ModelCmd
+
+    data class DeleteType(
+        override val modelId: ModelId,
+        val typeId: ModelTypeId
+    ) : ModelCmd
 
     // ------------------------------------------------------------------------
     // Entity

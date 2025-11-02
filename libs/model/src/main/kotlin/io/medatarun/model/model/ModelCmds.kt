@@ -11,10 +11,6 @@ interface ModelCmds {
 
     fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef = RepositoryRef.Auto)
     fun importModel(model: Model, repositoryRef: RepositoryRef = RepositoryRef.Auto)
-    fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized)
-    fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?)
-    fun updateModelVersion(modelId: ModelId, version: ModelVersion)
-    fun deleteModel(modelId: ModelId)
 
     fun dispatch(cmd: ModelCmd)
 

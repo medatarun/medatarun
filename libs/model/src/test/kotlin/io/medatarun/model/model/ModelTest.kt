@@ -129,19 +129,19 @@ class ModelTest {
         cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
         val modelIdWrong = ModelId("m2")
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.updateModelName(
+            cmd.dispatch(ModelCmd.UpdateModelName(
                 modelIdWrong,
                 LocalizedTextNotLocalized("other")
-            )
+            ))
         }
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.updateModelDescription(
+            cmd.dispatch(ModelCmd.UpdateModelDescription(
                 modelIdWrong,
                 LocalizedTextNotLocalized("other description")
-            )
+            ))
         }
-        assertFailsWith(ModelNotFoundException::class) { cmd.updateModelVersion(modelIdWrong, ModelVersion("3.0.0")) }
-        cmd.updateModelName(modelId, LocalizedTextNotLocalized("Model name 2"))
+        assertFailsWith(ModelNotFoundException::class) { cmd.dispatch(ModelCmd.UpdateModelVersion(modelIdWrong, ModelVersion("3.0.0"))) }
+        cmd.dispatch(ModelCmd.UpdateModelName(modelId, LocalizedTextNotLocalized("Model name 2")))
         assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelById(modelId).name)
     }
 
@@ -166,29 +166,29 @@ class ModelTest {
     @Test
     fun `updates on model name persists the name`() {
         val env = TestEnvOneModel()
-        env.cmd.updateModelName(env.modelId, LocalizedTextNotLocalized("Model name 2"))
+        env.cmd.dispatch(ModelCmd.UpdateModelName(env.modelId, LocalizedTextNotLocalized("Model name 2")))
         assertEquals(LocalizedTextNotLocalized("Model name 2"), env.query.findModelById(env.modelId).name)
     }
 
     @Test
     fun `updates on model description persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.updateModelDescription(env.modelId, LocalizedTextNotLocalized("Model description 2"))
+        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelId, LocalizedTextNotLocalized("Model description 2")))
         assertEquals(LocalizedTextNotLocalized("Model description 2"), env.query.findModelById(env.modelId).description)
     }
 
     @Test
     fun `updates on model description to null persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.updateModelDescription(env.modelId, LocalizedTextNotLocalized("Model description 2"))
-        env.cmd.updateModelDescription(env.modelId, null)
+        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelId, LocalizedTextNotLocalized("Model description 2")))
+        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelId, null))
         assertNull(env.query.findModelById(env.modelId).description)
     }
 
     @Test
     fun `updates on model version persists the version`() {
         val env = TestEnvOneModel()
-        env.cmd.updateModelVersion(env.modelId, ModelVersion("4.5.6"))
+        env.cmd.dispatch(ModelCmd.UpdateModelVersion(env.modelId, ModelVersion("4.5.6")))
         assertEquals(ModelVersion("4.5.6"), env.query.findModelById(env.modelId).version)
     }
 
@@ -217,7 +217,7 @@ class ModelTest {
             repositoryRef = repo2.repositoryId.ref()
         )
         assertThrows<ModelNotFoundException> {
-            cmd.deleteModel(ModelId("m-to-delete-repo-3"))
+            cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-delete-repo-3")))
         }
     }
 
@@ -258,7 +258,7 @@ class ModelTest {
             repositoryRef = repo2.repositoryId.ref()
         )
 
-        cmd.deleteModel(ModelId("m-to-delete-repo-1"))
+        cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-delete-repo-1")))
         assertNull(repo1.findModelByIdOptional(ModelId("m-to-delete-repo-1")))
         assertFailsWith<ModelNotFoundException> {
             query.findModelById(ModelId("m-to-delete-repo-1"))
@@ -267,16 +267,16 @@ class ModelTest {
         assertNotNull(query.findModelById(ModelId("m-to-delete-repo-2")))
         assertNotNull(query.findModelById(ModelId("m-to-preserve-repo-2")))
 
-        cmd.deleteModel(ModelId("m-to-delete-repo-2"))
+        cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-delete-repo-2")))
         assertNull(repo1.findModelByIdOptional(ModelId("m-to-delete-repo-2")))
         assertNotNull(query.findModelById(ModelId("m-to-preserve-repo-1")))
         assertNotNull(query.findModelById(ModelId("m-to-preserve-repo-2")))
 
-        cmd.deleteModel(ModelId("m-to-preserve-repo-1"))
+        cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-preserve-repo-1")))
         assertNull(repo2.findModelByIdOptional(ModelId("m-to-delete-repo-2")))
         assertNotNull(query.findModelById(ModelId("m-to-preserve-repo-2")))
 
-        cmd.deleteModel(ModelId("m-to-preserve-repo-2"))
+        cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-preserve-repo-2")))
         assertNull(repo2.findModelByIdOptional(ModelId("m-to-delete-repo-2")))
 
     }

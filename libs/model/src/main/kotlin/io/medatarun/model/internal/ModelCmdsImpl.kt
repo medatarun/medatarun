@@ -36,24 +36,24 @@ class ModelCmdsImpl(
         storage.createModel(model, repositoryRef)
     }
 
-    override fun deleteModel(modelId: ModelId) {
-        ensureModelExists(modelId)
-        storage.deleteModel(modelId)
+    private  fun deleteModel(cmd: ModelCmd.DeleteModel) {
+        ensureModelExists(cmd.modelId)
+        storage.dispatch(ModelRepositoryCmd.DeleteModel(cmd.modelId))
     }
 
-    override fun updateModelName(modelId: ModelId, name: LocalizedTextNotLocalized) {
-        ensureModelExists(modelId)
-        storage.updateModelName(modelId, name)
+    private fun updateModelName(cmd: ModelCmd.UpdateModelName) {
+        ensureModelExists(cmd.modelId)
+        storage.dispatch(ModelRepositoryCmd.UpdateModelName(cmd.modelId, cmd.name))
     }
 
-    override fun updateModelDescription(modelId: ModelId, description: LocalizedTextNotLocalized?) {
-        ensureModelExists(modelId)
-        storage.updateModelDescription(modelId, description)
+    private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
+        ensureModelExists(cmd.modelId)
+        storage.dispatch(ModelRepositoryCmd.UpdateModelDescription(cmd.modelId, cmd.description))
     }
 
-    override fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
-        ensureModelExists(modelId)
-        storage.updateModelVersion(modelId, version)
+    private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
+        ensureModelExists(cmd.modelId)
+        storage.dispatch(ModelRepositoryCmd.UpdateModelVersion(cmd.modelId, cmd.version))
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -205,6 +205,10 @@ class ModelCmdsImpl(
     override fun dispatch(cmd: ModelCmd) {
         ensureModelExists(cmd.modelId)
         when (cmd) {
+            is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
+            is ModelCmd.UpdateModelName -> updateModelName(cmd)
+            is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
+            is ModelCmd.DeleteModel -> deleteModel(cmd)
             is ModelCmd.CreateType -> createType(cmd)
             is ModelCmd.UpdateType -> updateType(cmd)
             is ModelCmd.DeleteType -> deleteType(cmd)
