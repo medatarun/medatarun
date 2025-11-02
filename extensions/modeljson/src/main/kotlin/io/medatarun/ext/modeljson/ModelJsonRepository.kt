@@ -1,17 +1,13 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
-import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdWithId
+import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.ModelRepositoryId
 import java.nio.file.Path
-import kotlin.collections.plus
 import kotlin.io.path.*
 
 
@@ -51,7 +47,7 @@ class ModelJsonRepository(
         return discoveredModels.keys.toList()
     }
 
-    override fun createModel(model: Model) {
+    private fun createModel(model: Model) {
         persistModel(model)
     }
 
@@ -71,8 +67,9 @@ class ModelJsonRepository(
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when (cmd) {
+            is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
             is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdWithId -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
     }
 

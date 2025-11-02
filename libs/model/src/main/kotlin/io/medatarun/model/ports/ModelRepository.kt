@@ -30,7 +30,7 @@ interface ModelRepository {
 
     fun findAllModelIds(): List<ModelId>
     fun findModelByIdOptional(id: ModelId): Model?
-    fun createModel(model: Model)
+
     fun dispatch(cmd: ModelRepositoryCmd)
 
 }

@@ -2,9 +2,10 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepositoryCmd
+import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 
 class ModelInMemoryReducer() {
-    fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmd): ModelInMemory {
+    fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmdOnModel): ModelInMemory {
         return when (cmd) {
 
 

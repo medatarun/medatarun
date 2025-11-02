@@ -69,8 +69,8 @@ class ModelJsonRepositoryTest {
     @Test
     fun `create then path is correct`() {
         val env = TestEnv()
-        env.repo.createModel(env.sampleModel)
-        env.repo.createModel(env.sampleModel2)
+        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
         assertTrue(path1.exists())
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
@@ -124,8 +124,8 @@ class ModelJsonRepositoryTest {
     @Test
     fun `delete then no file left`() {
         val env = TestEnv()
-        env.repo.createModel(env.sampleModel)
-        env.repo.createModel(env.sampleModel2)
+        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
         env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")

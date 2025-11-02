@@ -13,27 +13,21 @@ class ModelCmdsImpl(
     val auditor: ModelAuditor
 ) : ModelCmds {
 
-    override fun createModel(
-        id: ModelId,
-        name: LocalizedText,
-        description: LocalizedMarkdown?,
-        version: ModelVersion,
-        repositoryRef: RepositoryRef
-    ) {
+    private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
-            id = id,
-            name = name,
-            description = description,
-            version = version,
+            id = cmd.id,
+            name = cmd.name,
+            description = cmd.description,
+            version = cmd.version,
             types = emptyList(),
             entityDefs = emptyList(),
             relationshipDefs = emptyList(),
         )
-        storage.createModel(model, repositoryRef)
+        storage.dispatch(ModelRepositoryCmd.CreateModel(model), cmd.repositoryRef)
     }
 
     override fun importModel(model: Model, repositoryRef: RepositoryRef) {
-        storage.createModel(model, repositoryRef)
+        storage.dispatch(ModelRepositoryCmd.CreateModel(model), repositoryRef)
     }
 
     private  fun deleteModel(cmd: ModelCmd.DeleteModel) {
@@ -201,6 +195,7 @@ class ModelCmdsImpl(
     override fun dispatch(cmd: ModelCmd) {
         if (cmd is ModelCmdWithModelId) ensureModelExists(cmd.modelId)
         when (cmd) {
+            is ModelCmd.CreateModel -> createModel(cmd)
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
             is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)

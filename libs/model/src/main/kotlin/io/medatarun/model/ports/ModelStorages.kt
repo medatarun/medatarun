@@ -22,7 +22,7 @@ interface ModelStorages {
     fun findModelById(id: ModelId): Model
     fun findModelByIdOptional(modelId: ModelId): Model?
     fun existsModelById(modelId: ModelId): Boolean
-    fun createModel(model: Model, repositoryRef: RepositoryRef)
+
 
     // Models -> Type
 

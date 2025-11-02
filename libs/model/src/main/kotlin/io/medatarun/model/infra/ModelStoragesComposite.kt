@@ -3,7 +3,7 @@ package io.medatarun.model.infra
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdWithId
+import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.ModelRepositoryId
 import io.medatarun.model.ports.ModelStorages
 import io.medatarun.model.ports.RepositoryRef
@@ -51,13 +51,9 @@ class ModelStoragesComposite(
         return repositories.map { it.findAllModelIds() }.flatten()
     }
 
-    override fun createModel(model: Model, repositoryRef: RepositoryRef) {
-        selectRepository(repositoryRef).createModel(model)
-    }
-
 
     override fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef) {
-        if (cmd is ModelRepositoryCmdWithId) {
+        if (cmd is ModelRepositoryCmdOnModel) {
             val repo = findRepoWithModel(cmd.modelId)
             repo.dispatch(cmd)
         } else {

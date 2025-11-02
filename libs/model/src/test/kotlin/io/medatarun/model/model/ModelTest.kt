@@ -29,11 +29,13 @@ class ModelTest {
         val repo2 = ModelRepositoryInMemory("repo2")
         val cmd = createRuntime(repositories = listOf(repo1, repo2)).cmd
         assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
-            cmd.createModel(
-                ModelId("m1"),
-                LocalizedTextNotLocalized("M1"),
-                null,
-                ModelVersion("1.0.0")
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    ModelId("m1"),
+                    LocalizedTextNotLocalized("M1"),
+                    null,
+                    ModelVersion("1.0.0")
+                )
             )
         }
     }
@@ -44,11 +46,13 @@ class ModelTest {
         val cmd = createRuntime(repositories = listOf(repo1)).cmd
         val modelId = ModelId("m1")
         assertDoesNotThrow {
-            cmd.createModel(
-                modelId,
-                LocalizedTextNotLocalized("M1"),
-                null,
-                ModelVersion("1.0.0")
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    modelId,
+                    LocalizedTextNotLocalized("M1"),
+                    null,
+                    ModelVersion("1.0.0")
+                )
             )
         }
         assertNotNull(repo1.findModelByIdOptional(modelId))
@@ -63,12 +67,14 @@ class ModelTest {
         val query = runtime.queries
 
         val modelId = ModelId("m1")
-        cmd.createModel(
-            modelId,
-            LocalizedTextNotLocalized("M1"),
-            null,
-            ModelVersion("1.0.0"),
-            RepositoryRef.Id(repo2.repositoryId)
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                modelId,
+                LocalizedTextNotLocalized("M1"),
+                null,
+                ModelVersion("1.0.0"),
+                RepositoryRef.Id(repo2.repositoryId)
+            )
         )
         assertDoesNotThrow { query.findModelById(modelId) }
 
@@ -88,7 +94,7 @@ class ModelTest {
         val description = LocalizedMarkdownNotLocalized("Model description")
         val version = ModelVersion("2.0.0")
 
-        cmd.createModel(modelId, name, description, version)
+        cmd.dispatch(ModelCmd.CreateModel(modelId, name, description, version))
 
         val reloaded = query.findModelById(modelId)
         assertEquals(name, reloaded.name)
@@ -107,7 +113,7 @@ class ModelTest {
         val name = LocalizedTextNotLocalized("Model without description")
         val version = ModelVersion("3.0.0")
 
-        cmd.createModel(modelId, name, null, version)
+        cmd.dispatch(ModelCmd.CreateModel(modelId, name, null, version))
 
         val reloaded = query.findModelById(modelId)
         assertEquals(name, reloaded.name)
@@ -126,21 +132,39 @@ class ModelTest {
         val query: ModelQueries = runtime.queries
 
         val modelId = ModelId("m1")
-        cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                modelId,
+                LocalizedTextNotLocalized("Model name"),
+                null,
+                ModelVersion("2.0.0")
+            )
+        )
         val modelIdWrong = ModelId("m2")
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.dispatch(ModelCmd.UpdateModelName(
-                modelIdWrong,
-                LocalizedTextNotLocalized("other")
-            ))
+            cmd.dispatch(
+                ModelCmd.UpdateModelName(
+                    modelIdWrong,
+                    LocalizedTextNotLocalized("other")
+                )
+            )
         }
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.dispatch(ModelCmd.UpdateModelDescription(
-                modelIdWrong,
-                LocalizedTextNotLocalized("other description")
-            ))
+            cmd.dispatch(
+                ModelCmd.UpdateModelDescription(
+                    modelIdWrong,
+                    LocalizedTextNotLocalized("other description")
+                )
+            )
         }
-        assertFailsWith(ModelNotFoundException::class) { cmd.dispatch(ModelCmd.UpdateModelVersion(modelIdWrong, ModelVersion("3.0.0"))) }
+        assertFailsWith(ModelNotFoundException::class) {
+            cmd.dispatch(
+                ModelCmd.UpdateModelVersion(
+                    modelIdWrong,
+                    ModelVersion("3.0.0")
+                )
+            )
+        }
         cmd.dispatch(ModelCmd.UpdateModelName(modelId, LocalizedTextNotLocalized("Model name 2")))
         assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelById(modelId).name)
     }
@@ -152,7 +176,14 @@ class ModelTest {
         val modelId = ModelId("m1")
 
         init {
-            cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    modelId,
+                    LocalizedTextNotLocalized("Model name"),
+                    null,
+                    ModelVersion("2.0.0")
+                )
+            )
             cmd.dispatch(
                 ModelCmd.CreateType(
                     modelId = modelId,
@@ -202,19 +233,23 @@ class ModelTest {
         val repo2 = ModelRepositoryInMemory("repo2")
         val runtime = createRuntime(listOf(repo1, repo2))
         val cmd: ModelCmds = runtime.cmd
-        cmd.createModel(
-            id = ModelId("m-to-delete-repo-1"),
-            name = LocalizedTextNotLocalized("Model to delete"),
-            description = null,
-            version = ModelVersion("0.0.1"),
-            repositoryRef = repo2.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-delete-repo-1"),
+                name = LocalizedTextNotLocalized("Model to delete"),
+                description = null,
+                version = ModelVersion("0.0.1"),
+                repositoryRef = repo2.repositoryId.ref()
+            )
         )
-        cmd.createModel(
-            id = ModelId("m-to-delete-repo-2"),
-            name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
-            description = null,
-            version = ModelVersion("0.0.1"),
-            repositoryRef = repo2.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-delete-repo-2"),
+                name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
+                description = null,
+                version = ModelVersion("0.0.1"),
+                repositoryRef = repo2.repositoryId.ref()
+            )
         )
         assertThrows<ModelNotFoundException> {
             cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-delete-repo-3")))
@@ -229,33 +264,41 @@ class ModelTest {
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
-        cmd.createModel(
-            id = ModelId("m-to-delete-repo-1"),
-            name = LocalizedTextNotLocalized("Model to delete"),
-            description = null,
-            version = ModelVersion("0.0.1"),
-            repositoryRef = repo1.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-delete-repo-1"),
+                name = LocalizedTextNotLocalized("Model to delete"),
+                description = null,
+                version = ModelVersion("0.0.1"),
+                repositoryRef = repo1.repositoryId.ref()
+            )
         )
-        cmd.createModel(
-            id = ModelId("m-to-preserve-repo-1"),
-            name = LocalizedTextNotLocalized("Model to preserve"),
-            description = null,
-            version = ModelVersion("0.1.0"),
-            repositoryRef = repo1.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-preserve-repo-1"),
+                name = LocalizedTextNotLocalized("Model to preserve"),
+                description = null,
+                version = ModelVersion("0.1.0"),
+                repositoryRef = repo1.repositoryId.ref()
+            )
         )
-        cmd.createModel(
-            id = ModelId("m-to-delete-repo-2"),
-            name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
-            description = null,
-            version = ModelVersion("0.0.1"),
-            repositoryRef = repo2.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-delete-repo-2"),
+                name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
+                description = null,
+                version = ModelVersion("0.0.1"),
+                repositoryRef = repo2.repositoryId.ref()
+            )
         )
-        cmd.createModel(
-            id = ModelId("m-to-preserve-repo-2"),
-            name = LocalizedTextNotLocalized("Model to preserve on repo 2"),
-            description = null,
-            version = ModelVersion("0.1.0"),
-            repositoryRef = repo2.repositoryId.ref()
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                id = ModelId("m-to-preserve-repo-2"),
+                name = LocalizedTextNotLocalized("Model to preserve on repo 2"),
+                description = null,
+                version = ModelVersion("0.1.0"),
+                repositoryRef = repo2.repositoryId.ref()
+            )
         )
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelId("m-to-delete-repo-1")))
@@ -292,7 +335,14 @@ class ModelTest {
         val modelId = ModelId("m1")
 
         init {
-            cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    modelId,
+                    LocalizedTextNotLocalized("Model name"),
+                    null,
+                    ModelVersion("2.0.0")
+                )
+            )
         }
 
         val model: Model
@@ -640,11 +690,13 @@ class ModelTest {
         val secondaryEntityId = EntityDefId("entity-secondary")
 
         init {
-            cmd.createModel(
-                modelId,
-                LocalizedTextNotLocalized("Model entity update"),
-                null,
-                ModelVersion("1.0.0")
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    modelId,
+                    LocalizedTextNotLocalized("Model entity update"),
+                    null,
+                    ModelVersion("1.0.0")
+                )
             )
             cmd.dispatch(ModelCmd.CreateType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
             cmd.dispatch(
@@ -851,18 +903,22 @@ class ModelTest {
         val modelId2 = ModelId("model-2")
         val entityId = EntityDefId("shared-entity")
 
-        cmd.createModel(
-            modelId1,
-            LocalizedTextNotLocalized("Model 1"),
-            null,
-            ModelVersion("1.0.0")
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                modelId1,
+                LocalizedTextNotLocalized("Model 1"),
+                null,
+                ModelVersion("1.0.0")
+            )
         )
         cmd.dispatch(ModelCmd.CreateType(modelId1, ModelTypeInitializer(ModelTypeId("String"), null, null)))
-        cmd.createModel(
-            modelId2,
-            LocalizedTextNotLocalized("Model 2"),
-            null,
-            ModelVersion("1.0.0")
+        cmd.dispatch(
+            ModelCmd.CreateModel(
+                modelId2,
+                LocalizedTextNotLocalized("Model 2"),
+                null,
+                ModelVersion("1.0.0")
+            )
         )
         cmd.dispatch(ModelCmd.CreateType(modelId2, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         cmd.dispatch(
@@ -913,12 +969,12 @@ class ModelTest {
         val sampleEntityDefId = EntityDefId("Entity1")
 
         init {
-            cmd.createModel(
+            cmd.dispatch(ModelCmd.CreateModel(
                 sampleModelId,
                 LocalizedTextNotLocalized("Model 1"),
                 null,
                 ModelVersion("1.0.0"),
-            )
+            ))
             cmd.dispatch(ModelCmd.CreateType(sampleModelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         }
 

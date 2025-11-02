@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import io.medatarun.model.ports.RepositoryRef
+
 sealed interface ModelCmdWithModelId: ModelCmd {
     val modelId: ModelId
 }
@@ -9,6 +11,14 @@ sealed interface ModelCmd {
     // ------------------------------------------------------------------------
     // Models
     // ------------------------------------------------------------------------
+
+    data class CreateModel(
+        val id: ModelId,
+        val name: LocalizedText,
+        val description: LocalizedMarkdown?,
+        val version: ModelVersion,
+        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+    ): ModelCmd
 
     data class UpdateModelName(
         override val modelId: ModelId,

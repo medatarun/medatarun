@@ -34,12 +34,12 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
             is ModelResourceCmd.Inspect -> ModelInspectAction(runtime).process()
             is ModelResourceCmd.InspectJson -> ModelInspectJsonAction(runtime).process()
             is ModelResourceCmd.CreateModel -> {
-                runtime.modelCmds.createModel(
+                runtime.modelCmds.dispatch(ModelCmd.CreateModel(
                     id = ModelId(rc.id),
                     name = LocalizedTextNotLocalized(rc.name),
                     description = rc.description?.let { LocalizedTextNotLocalized(it) },
                     version = rc.version ?: ModelVersion("1.0.0")
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateModelName -> {

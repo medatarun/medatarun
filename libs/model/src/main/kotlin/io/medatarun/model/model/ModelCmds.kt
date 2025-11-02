@@ -9,11 +9,9 @@ interface ModelCmds {
 
     // Model
 
-    fun createModel(id: ModelId, name: LocalizedText, description: LocalizedMarkdown?, version: ModelVersion, repositoryRef: RepositoryRef = RepositoryRef.Auto)
     fun importModel(model: Model, repositoryRef: RepositoryRef = RepositoryRef.Auto)
 
     fun dispatch(cmd: ModelCmd)
-
 
 
 }

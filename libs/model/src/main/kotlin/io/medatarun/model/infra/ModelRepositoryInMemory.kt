@@ -3,7 +3,7 @@ package io.medatarun.model.infra
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdWithId
+import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.ModelRepositoryId
 
 /**
@@ -26,7 +26,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return models[id]
     }
 
-    override fun createModel(model: Model) {
+    private fun createModel(model: Model) {
         models[model.id] = ModelInMemory.of(model)
     }
 
@@ -42,8 +42,9 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when(cmd) {
+            is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
             is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdWithId -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
 
     }
