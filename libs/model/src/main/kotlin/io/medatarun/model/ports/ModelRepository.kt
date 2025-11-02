@@ -14,6 +14,8 @@ import io.medatarun.model.model.*
  */
 interface ModelRepository {
 
+    // Queries
+
     /**
      * Returns true if the repository matches this id.
      *
@@ -25,12 +27,15 @@ interface ModelRepository {
      * we get a clear answer if we should go with it or not (when creating models for example).
      */
     fun matchesId(id: ModelRepositoryId): Boolean
-
-    // Manage models -> entity def
-
     fun findAllModelIds(): List<ModelId>
     fun findModelByIdOptional(id: ModelId): Model?
 
+    // Commands
+
+    /**
+     * Process this command. See [ModelRepositoryCmd] to have the list of all available commands to implement
+     * to have a compatible repository.
+     */
     fun dispatch(cmd: ModelRepositoryCmd)
 
 }

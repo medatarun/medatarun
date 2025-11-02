@@ -1,6 +1,8 @@
 package io.medatarun.model.ports
 
-import io.medatarun.model.model.*
+import io.medatarun.model.model.Model
+import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.ModelInvalidException
 
 /**
  * Represents an aggregation of multiple repositories for models.
@@ -16,7 +18,7 @@ import io.medatarun.model.model.*
  */
 interface ModelStorages {
 
-    // Models
+    // Queries
 
     fun findAllModelIds(): List<ModelId>
     fun findModelById(id: ModelId): Model
@@ -24,7 +26,7 @@ interface ModelStorages {
     fun existsModelById(modelId: ModelId): Boolean
 
 
-    // Models -> Type
+    // Commands
 
     fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef = RepositoryRef.Auto)
 
