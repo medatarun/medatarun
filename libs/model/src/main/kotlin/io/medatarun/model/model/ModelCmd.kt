@@ -4,6 +4,26 @@ sealed interface ModelCmd {
     val modelId: ModelId
 
     // ------------------------------------------------------------------------
+    // Entity
+    // ------------------------------------------------------------------------
+
+    data class CreateEntityDef(
+        override val modelId: ModelId,
+        val entityDefInitializer: EntityDefInitializer
+    ) : ModelCmd
+
+    data class UpdateEntityDef(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId,
+        val cmd: EntityDefUpdateCmd
+    ) : ModelCmd
+
+    data class DeleteEntityDef(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId
+    ) : ModelCmd
+
+    // ------------------------------------------------------------------------
     // Entity attributes
     // ------------------------------------------------------------------------
 
@@ -11,20 +31,20 @@ sealed interface ModelCmd {
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefInitializer: AttributeDefInitializer
-    ): ModelCmd
+    ) : ModelCmd
 
     class DeleteEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId
-    ): ModelCmd
+    ) : ModelCmd
 
     class UpdateEntityDefAttributeDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
-    ): ModelCmd
+    ) : ModelCmd
 
     // ------------------------------------------------------------------------
     // Relationships

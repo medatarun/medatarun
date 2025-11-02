@@ -87,61 +87,6 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         }
     }
 
-    override fun createEntityDef(modelId: ModelId, e: EntityDef) {
-        updateModel(modelId) {
-            it.copy(entityDefs = it.entityDefs + EntityDefInMemory.of(e))
-        }
-    }
-
-    fun modifyingEntityDef(modelId: ModelId, e: EntityDefId, block: (EntityDefInMemory) -> EntityDefInMemory?) {
-        updateModel(modelId) {
-            it.copy(
-                entityDefs = it.entityDefs.mapNotNull { entityDef ->
-                    if (entityDef.id != e) entityDef else block(entityDef)
-                })
-        }
-    }
-
-    fun modifyingEntityDefAttributeDef(
-        modelId: ModelId,
-        e: EntityDefId,
-        attributeDefId: AttributeDefId,
-        block: (AttributeDefInMemory) -> AttributeDefInMemory?
-    ) {
-        updateModel(modelId) {
-            it.copy(
-                entityDefs = it.entityDefs.map { entityDef ->
-                    if (entityDef.id != e) entityDef else entityDef.copy(
-                        attributes = entityDef.attributes.mapNotNull { attr ->
-                            if (attr.id != attributeDefId) attr else block(attr)
-                        }
-                    )
-                })
-        }
-    }
-
-
-    override fun updateEntityDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId,
-        cmd: EntityDefUpdateCmd
-    ) {
-        modifyingEntityDef(modelId, entityDefId) { previous ->
-            when (cmd) {
-                is EntityDefUpdateCmd.Id -> previous.copy(id = cmd.value)
-                is EntityDefUpdateCmd.Name -> previous.copy(name = cmd.value)
-                is EntityDefUpdateCmd.Description -> previous.copy(description = cmd.value)
-                is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeDefId = cmd.value)
-            }
-        }
-    }
-
-    override fun deleteEntityDef(
-        modelId: ModelId,
-        entityDefId: EntityDefId
-    ) {
-        modifyingEntityDef(modelId, entityDefId) { null }
-    }
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }

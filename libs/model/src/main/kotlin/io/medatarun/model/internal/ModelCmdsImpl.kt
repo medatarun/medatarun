@@ -86,46 +86,43 @@ class ModelCmdsImpl(
     // Entities
     // -----------------------------------------------------------------------------------------------------------------
 
-    override fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd) {
-        ensureModelExists(modelId)
-        val model = storage.findModelById(modelId)
-        model.findEntityDef(entityDefId)
-        if (cmd is EntityDefUpdateCmd.Id) {
-            if (model.entityDefs.any { it.id == cmd.value && it.id != entityDefId }) {
-                throw UpdateEntityDefIdDuplicateIdException(entityDefId)
+    private fun updateEntityDef(c: ModelCmd.UpdateEntityDef) {
+        ensureModelExists(c.modelId)
+        val model = storage.findModelById(c.modelId)
+        model.findEntityDef(c.entityDefId)
+        if (c.cmd is EntityDefUpdateCmd.Id) {
+            if (model.entityDefs.any { it.id == c.cmd.value && it.id != c.entityDefId }) {
+                throw UpdateEntityDefIdDuplicateIdException(c.entityDefId)
             }
         }
-        storage.updateEntityDef(modelId, entityDefId, cmd)
+        storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(c.modelId, c.entityDefId, c.cmd))
     }
 
 
-    override fun createEntityDef(
-        modelId: ModelId,
-        entityDefInitializer: EntityDefInitializer
-    ) {
+    private fun createEntityDef(c: ModelCmd.CreateEntityDef) {
 
-        findModelById(modelId).ensureTypeExists(entityDefInitializer.identityAttribute.type)
-        storage.createEntityDef(
-            modelId, EntityDefInMemory(
-                id = entityDefInitializer.entityDefId,
-                name = entityDefInitializer.name,
-                description = entityDefInitializer.description,
-                identifierAttributeDefId = entityDefInitializer.identityAttribute.attributeDefId,
+        findModelById(c.modelId).ensureTypeExists(c.entityDefInitializer.identityAttribute.type)
+        storage.dispatch(ModelRepositoryCmd.CreateEntityDef(
+            c.modelId, EntityDefInMemory(
+                id = c.entityDefInitializer.entityDefId,
+                name = c.entityDefInitializer.name,
+                description = c.entityDefInitializer.description,
+                identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
                 attributes = listOf(
                     AttributeDefInMemory(
-                        id = entityDefInitializer.identityAttribute.attributeDefId,
-                        name = entityDefInitializer.identityAttribute.name,
-                        description = entityDefInitializer.identityAttribute.description,
-                        type = entityDefInitializer.identityAttribute.type,
+                        id = c.entityDefInitializer.identityAttribute.attributeDefId,
+                        name = c.entityDefInitializer.identityAttribute.name,
+                        description = c.entityDefInitializer.identityAttribute.description,
+                        type = c.entityDefInitializer.identityAttribute.type,
                         optional = false // because it's identity, can never be optional
                     )
                 )
             )
-        )
+        ))
     }
 
-    override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
-        storage.deleteEntityDef(modelId, entityDefId)
+    private fun deleteEntityDef(c: ModelCmd.DeleteEntityDef) {
+        storage.dispatch(ModelRepositoryCmd.DeleteEntityDef(modelId= c.modelId, entityDefId=c.entityDefId))
     }
 
     private fun createEntityDefAttributeDef(c: ModelCmd.CreateEntityDefAttributeDef) {
@@ -179,11 +176,11 @@ class ModelCmdsImpl(
             // If user wants to rename the Entity's identity attribute, we must rename in entity
             // as well as the attribute's id, then apply changes on entity
             if (entity.identifierAttributeDefId == c.attributeDefId) {
-                storage.updateEntityDef(
-                    c.modelId,
-                    c.entityDefId,
-                    EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
-                )
+                storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(
+                    modelId = c.modelId,
+                    entityDefId = c.entityDefId,
+                    cmd = EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
+                ))
             }
         } else if (c.cmd is AttributeDefUpdateCmd.Type) {
             // Attribute type shall exist when updating types
@@ -208,6 +205,9 @@ class ModelCmdsImpl(
     override fun dispatch(cmd: ModelCmd) {
         ensureModelExists(cmd.modelId)
         when (cmd) {
+            is ModelCmd.CreateEntityDef -> createEntityDef(cmd)
+            is ModelCmd.UpdateEntityDef -> updateEntityDef(cmd)
+            is ModelCmd.DeleteEntityDef -> deleteEntityDef(cmd)
             is ModelCmd.CreateEntityDefAttributeDef -> createEntityDefAttributeDef(cmd)
             is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
             is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)

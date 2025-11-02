@@ -23,14 +23,6 @@ interface ModelCmds {
     fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd)
     fun deleteType(modelId: ModelId, typeId: ModelTypeId)
 
-    // Model -> EntityDef
-
-    fun createEntityDef(modelId: ModelId, entityDefInitializer: EntityDefInitializer)
-    fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd)
-    fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
-
-    // Model -> Relationship
-
     fun dispatch(cmd: ModelCmd)
 
 

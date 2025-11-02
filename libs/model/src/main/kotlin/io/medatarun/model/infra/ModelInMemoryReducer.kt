@@ -2,10 +2,22 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepositoryCmd
+import kotlin.collections.plus
 
 class ModelInMemoryReducer() {
     fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmd): ModelInMemory {
         return when (cmd) {
+
+            is ModelRepositoryCmd.CreateEntityDef -> model.copy(entityDefs = model.entityDefs + EntityDefInMemory.of(cmd.entityDef))
+            is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityDefId) { previous ->
+                when (val c = cmd.cmd) {
+                    is EntityDefUpdateCmd.Id -> previous.copy(id = c.value)
+                    is EntityDefUpdateCmd.Name -> previous.copy(name = c.value)
+                    is EntityDefUpdateCmd.Description -> previous.copy(description = c.value)
+                    is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeDefId = c.value)
+                }
+            }
+            is ModelRepositoryCmd.DeleteEntityDef ->  modifyingEntityDef(model, cmd.entityDefId) { null }
 
             is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityDefId) {
                 it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))
@@ -16,8 +28,7 @@ class ModelInMemoryReducer() {
                 cmd.entityDefId,
                 cmd.attributeDefId
             ) { a ->
-                val target = cmd.cmd
-                when (target) {
+                when (val target = cmd.cmd) {
                     is AttributeDefUpdateCmd.Id -> a.copy(id = target.value)
                     is AttributeDefUpdateCmd.Name -> a.copy(name = target.value)
                     is AttributeDefUpdateCmd.Description -> a.copy(description = target.value)

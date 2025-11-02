@@ -33,14 +33,6 @@ interface ModelStorages {
     fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd)
     fun deleteType(modelId: ModelId, typeId: ModelTypeId)
 
-    // Models -> EntityDef
-
-    //@formatter:off
-    fun createEntityDef(modelId: ModelId, e: EntityDef)
-    fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd)
-    fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId)
-    //@formatter:on
-
     fun dispatch(cmd: ModelRepositoryCmd)
 
 }

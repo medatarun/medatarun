@@ -100,45 +100,6 @@ class ModelJsonRepository(
         }
     }
 
-    override fun createEntityDef(modelId: ModelId, e: EntityDef) {
-        updateModel(modelId) {
-            it.copy(entityDefs = it.entityDefs + EntityDefInMemory.of(e))
-        }
-    }
-
-    override fun updateEntityDef(modelId: ModelId, entityDefId: EntityDefId, cmd: EntityDefUpdateCmd) {
-        updateModel(modelId) { model ->
-            val nextEntities = model.entityDefs.map { entity ->
-                if (entity.id != entityDefId) entity
-                else when (cmd) {
-                    is EntityDefUpdateCmd.Id -> entity.copy(id = cmd.value)
-                    is EntityDefUpdateCmd.Name -> entity.copy(name = cmd.value)
-                    is EntityDefUpdateCmd.Description -> entity.copy(description = cmd.value)
-                    is EntityDefUpdateCmd.IdentifierAttribute -> entity.copy(identifierAttributeDefId = cmd.value)
-                }
-            }
-            model.copy(entityDefs = nextEntities)
-        }
-    }
-
-    override fun deleteEntityDef(modelId: ModelId, entityDefId: EntityDefId) {
-        updateModel(modelId) { model ->
-            var removed = false
-            val nextEntities = model.entityDefs.filterNot { entity ->
-                if (entity.id == entityDefId) {
-                    removed = true
-                    true
-                } else {
-                    false
-                }
-            }
-            if (!removed) {
-                throw EntityDefNotFoundException(modelId, entityDefId)
-            }
-            model.copy(entityDefs = nextEntities)
-        }
-    }
-
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model ->

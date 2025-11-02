@@ -110,7 +110,7 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
             // ------------------------------------------------------------------------
 
             is ModelResourceCmd.CreateEntity -> {
-                runtime.modelCmds.createEntityDef(
+                runtime.modelCmds.dispatch(ModelCmd.CreateEntityDef(
                     modelId = ModelId(rc.modelId),
                     entityDefInitializer = EntityDefInitializer(
                         entityDefId = EntityDefId(rc.entityId),
@@ -123,38 +123,38 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
                             description = rc.description?.let { LocalizedTextNotLocalized(it) },
                         )
                     ),
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateEntityId -> {
-                runtime.modelCmds.updateEntityDef(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateEntityDef(
                     modelId = ModelId(rc.modelId),
                     entityDefId = EntityDefId(rc.entityId),
                     cmd = EntityDefUpdateCmd.Id(EntityDefId(rc.value))
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateEntityName -> {
-                runtime.modelCmds.updateEntityDef(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateEntityDef(
                     modelId = ModelId(rc.modelId),
                     entityDefId = EntityDefId(rc.entityId),
                     cmd = EntityDefUpdateCmd.Name(rc.value?.let { LocalizedTextNotLocalized(it) })
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateEntityDescription -> {
-                runtime.modelCmds.updateEntityDef(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateEntityDef(
                     modelId = ModelId(rc.modelId),
                     entityDefId = EntityDefId(rc.entityId),
                     cmd = EntityDefUpdateCmd.Description(rc.value?.let { LocalizedTextNotLocalized(it) })
-                )
+                ))
             }
 
             is ModelResourceCmd.DeleteEntity -> {
-                runtime.modelCmds.deleteEntityDef(
+                runtime.modelCmds.dispatch(ModelCmd.DeleteEntityDef(
                     modelId = ModelId(rc.modelId),
                     entityDefId = EntityDefId(rc.entityId)
-                )
+                ))
             }
 
             // ------------------------------------------------------------------------
