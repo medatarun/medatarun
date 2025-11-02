@@ -203,7 +203,7 @@ class ModelCmdsImpl(
     // ------------------------------------------------------------------------
 
     override fun dispatch(cmd: ModelCmd) {
-        ensureModelExists(cmd.modelId)
+        if (cmd is ModelCmdWithModelId) ensureModelExists(cmd.modelId)
         when (cmd) {
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
