@@ -153,7 +153,12 @@ class ModelTest {
 
         init {
             cmd.createModel(modelId, LocalizedTextNotLocalized("Model name"), null, ModelVersion("2.0.0"))
-            cmd.createType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+            cmd.dispatch(
+                ModelCmd.CreateType(
+                    modelId = modelId,
+                    initializer = ModelTypeInitializer(ModelTypeId("String"), null, null)
+                )
+            )
         }
     }
 
@@ -299,12 +304,14 @@ class ModelTest {
     @Test
     fun `create type`() {
         val env = TestEnvTypes()
-        env.cmd.createType(
-            env.modelId,
-            ModelTypeInitializer(
-                ModelTypeId("String"),
-                LocalizedTextNotLocalized("Simple string"),
-                LocalizedTextNotLocalized("Simple string description")
+        env.cmd.dispatch(
+            ModelCmd.CreateType(
+                env.modelId,
+                ModelTypeInitializer(
+                    ModelTypeId("String"),
+                    LocalizedTextNotLocalized("Simple string"),
+                    LocalizedTextNotLocalized("Simple string description")
+                )
             )
         )
         assertEquals(1, env.model.types.size)
@@ -317,7 +324,7 @@ class ModelTest {
     @Test
     fun `create type without name and description`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertEquals(1, env.model.types.size)
         val type = env.model.findTypeOptional(ModelTypeId("String"))
         assertNotNull(type)
@@ -329,9 +336,11 @@ class ModelTest {
     fun `create type on unknown model throw ModelNotFoundException`() {
         val env = TestEnvTypes()
         assertThrows<ModelNotFoundException> {
-            env.cmd.createType(
-                ModelId("unknown"),
-                ModelTypeInitializer(ModelTypeId("String"), null, null)
+            env.cmd.dispatch(
+                ModelCmd.CreateType(
+                    ModelId("unknown"),
+                    ModelTypeInitializer(ModelTypeId("String"), null, null)
+                )
             )
         }
     }
@@ -339,11 +348,13 @@ class ModelTest {
     @Test
     fun `create type with duplicate name throws DuplicateTypeException`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertThrows<TypeCreateDuplicateException> {
-            env.cmd.createType(
-                env.modelId,
-                ModelTypeInitializer(ModelTypeId("String"), null, null)
+            env.cmd.dispatch(
+                ModelCmd.CreateType(
+                    env.modelId,
+                    ModelTypeInitializer(ModelTypeId("String"), null, null)
+                )
             )
         }
     }
@@ -351,11 +362,13 @@ class ModelTest {
     @Test
     fun `update type name `() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.updateType(
-            env.modelId,
-            ModelTypeId("String"),
-            ModelTypeUpdateCmd.Name(LocalizedTextNotLocalized("This is a string"))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(
+            ModelCmd.UpdateType(
+                env.modelId,
+                ModelTypeId("String"),
+                ModelTypeUpdateCmd.Name(LocalizedTextNotLocalized("This is a string"))
+            )
         )
         val t = env.model.findTypeOptional(ModelTypeId("String"))
         assertNotNull(t)
@@ -365,8 +378,8 @@ class ModelTest {
     @Test
     fun `update type name with null`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.updateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Name(null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(ModelCmd.UpdateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Name(null)))
         val t = env.model.findTypeOptional(ModelTypeId("String"))
         assertNotNull(t)
         assertNull(t.name)
@@ -375,11 +388,13 @@ class ModelTest {
     @Test
     fun `update type description`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.updateType(
-            env.modelId,
-            ModelTypeId("String"),
-            ModelTypeUpdateCmd.Description(LocalizedTextNotLocalized("This is a string"))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(
+            ModelCmd.UpdateType(
+                env.modelId,
+                ModelTypeId("String"),
+                ModelTypeUpdateCmd.Description(LocalizedTextNotLocalized("This is a string"))
+            )
         )
         val t = env.model.findTypeOptional(ModelTypeId("String"))
         assertNotNull(t)
@@ -389,8 +404,8 @@ class ModelTest {
     @Test
     fun `update type description with null`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.updateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Description(null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(ModelCmd.UpdateType(env.modelId, ModelTypeId("String"), ModelTypeUpdateCmd.Description(null)))
         val t = env.model.findTypeOptional(ModelTypeId("String"))
         assertNotNull(t)
         assertNull(t.description)
@@ -399,45 +414,57 @@ class ModelTest {
     @Test
     fun `update type with model not found`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertThrows<ModelNotFoundException> {
-            env.cmd.updateType(ModelId("unknown"), ModelTypeId("String"), ModelTypeUpdateCmd.Description(null))
+            env.cmd.dispatch(
+                ModelCmd.UpdateType(
+                    ModelId("unknown"),
+                    ModelTypeId("String"),
+                    ModelTypeUpdateCmd.Description(null)
+                )
+            )
         }
     }
 
     @Test
     fun `update type with type not found`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertThrows<TypeNotFoundException> {
-            env.cmd.updateType(env.modelId, ModelTypeId("String2"), ModelTypeUpdateCmd.Description(null))
+            env.cmd.dispatch(
+                ModelCmd.UpdateType(
+                    env.modelId,
+                    ModelTypeId("String2"),
+                    ModelTypeUpdateCmd.Description(null)
+                )
+            )
         }
     }
 
     @Test
     fun `delete type model not found`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertThrows<ModelNotFoundException> {
-            env.cmd.deleteType(ModelId("unknown"), ModelTypeId("String"))
+            env.cmd.dispatch(ModelCmd.DeleteType(ModelId("unknown"), ModelTypeId("String")))
         }
     }
 
     @Test
     fun `delete type type not found`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         assertThrows<TypeNotFoundException> {
-            env.cmd.deleteType(env.modelId, ModelTypeId("String2"))
+            env.cmd.dispatch(ModelCmd.DeleteType(env.modelId, ModelTypeId("String2")))
         }
     }
 
     @Test
     fun `delete type used in attributes then error`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null)))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null)))
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
                 env.modelId, EntityDefInitializer(
@@ -463,22 +490,22 @@ class ModelTest {
             )
         )
         assertThrows<ModelTypeDeleteUsedException> {
-            env.cmd.deleteType(env.modelId, ModelTypeId("String"))
+            env.cmd.dispatch(ModelCmd.DeleteType(env.modelId, ModelTypeId("String")))
         }
         assertThrows<ModelTypeDeleteUsedException> {
-            env.cmd.deleteType(env.modelId, ModelTypeId("Markdown"))
+            env.cmd.dispatch(ModelCmd.DeleteType(env.modelId, ModelTypeId("Markdown")))
         }
-        env.cmd.deleteType(env.modelId, ModelTypeId("Int"))
+        env.cmd.dispatch(ModelCmd.DeleteType(env.modelId, ModelTypeId("Int")))
 
     }
 
     @Test
     fun `delete type success`() {
         val env = TestEnvTypes()
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
-        env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null))
-        env.cmd.deleteType(env.modelId, ModelTypeId("Int"))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null)))
+        env.cmd.dispatch(ModelCmd.CreateType(env.modelId, ModelTypeInitializer(ModelTypeId("Int"), null, null)))
+        env.cmd.dispatch(ModelCmd.DeleteType(env.modelId, ModelTypeId("Int")))
         assertNull(env.model.findTypeOptional(ModelTypeId("Int")))
         assertNotNull(env.model.findTypeOptional(ModelTypeId("String")))
         assertNotNull(env.model.findTypeOptional(ModelTypeId("Markdown")))
@@ -619,7 +646,7 @@ class ModelTest {
                 null,
                 ModelVersion("1.0.0")
             )
-            cmd.createType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+            cmd.dispatch(ModelCmd.CreateType(modelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
             cmd.dispatch(
                 ModelCmd.CreateEntityDef(
                     modelId,
@@ -830,14 +857,14 @@ class ModelTest {
             null,
             ModelVersion("1.0.0")
         )
-        cmd.createType(modelId1, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        cmd.dispatch(ModelCmd.CreateType(modelId1, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         cmd.createModel(
             modelId2,
             LocalizedTextNotLocalized("Model 2"),
             null,
             ModelVersion("1.0.0")
         )
-        cmd.createType(modelId2, ModelTypeInitializer(ModelTypeId("String"), null, null))
+        cmd.dispatch(ModelCmd.CreateType(modelId2, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         cmd.dispatch(
             ModelCmd.CreateEntityDef(
                 modelId1, EntityDefInitializer(
@@ -892,7 +919,7 @@ class ModelTest {
                 null,
                 ModelVersion("1.0.0"),
             )
-            cmd.createType(sampleModelId, ModelTypeInitializer(ModelTypeId("String"), null, null))
+            cmd.dispatch(ModelCmd.CreateType(sampleModelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         }
 
         fun addSampleEntityDef() {
@@ -1004,7 +1031,12 @@ class ModelTest {
     fun `create attribute with type boolean then type found`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
-        env.cmd.createType(env.sampleModelId, ModelTypeInitializer(ModelTypeId("Boolean"), null, null))
+        env.cmd.dispatch(
+            ModelCmd.CreateType(
+                env.sampleModelId,
+                ModelTypeInitializer(ModelTypeId("Boolean"), null, null)
+            )
+        )
 
         val reloaded = env.createAttributeDef(type = ModelTypeId("Boolean"))
         assertEquals(ModelTypeId("Boolean"), reloaded.type)
@@ -1172,9 +1204,11 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val typeMarkdownId = ModelTypeId("Markdown")
-        env.cmd.createType(
-            env.sampleModelId,
-            ModelTypeInitializer(id = typeMarkdownId, name = null, description = null)
+        env.cmd.dispatch(
+            ModelCmd.CreateType(
+                env.sampleModelId,
+                ModelTypeInitializer(id = typeMarkdownId, name = null, description = null)
+            )
         )
 
         val attr = env.createAttributeDef(type = ModelTypeId("String"))
@@ -1322,7 +1356,12 @@ class ModelTest {
 
         // Creating or trying to modify something in invalid model shall throw error
         assertThrows<ModelInvalidException> {
-            env.cmd.createType(env.modelId, ModelTypeInitializer(ModelTypeId("Markdown"), null, null))
+            env.cmd.dispatch(
+                ModelCmd.CreateType(
+                    env.modelId,
+                    ModelTypeInitializer(ModelTypeId("Markdown"), null, null)
+                )
+            )
         }
 
 

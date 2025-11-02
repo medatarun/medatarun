@@ -74,20 +74,6 @@ class ModelStoragesComposite(
         repo.deleteModel(modelId)
     }
 
-    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
-        val repo = findRepoWithModel(modelId)
-        repo.createType(modelId, initializer)
-    }
-
-    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
-        val repo = findRepoWithModel(modelId)
-        repo.updateType(modelId, typeId, cmd)
-    }
-
-    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
-        val repo = findRepoWithModel(modelId)
-        repo.deleteType(modelId, typeId)
-    }
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         val repo = findRepoWithModel(cmd.modelId)

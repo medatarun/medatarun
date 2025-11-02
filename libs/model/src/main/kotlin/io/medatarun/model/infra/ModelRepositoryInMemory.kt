@@ -56,37 +56,6 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         models.remove(modelId)
     }
 
-    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
-        updateModel(modelId) {
-            it.copy(
-                types = it.types + ModelTypeInMemory(
-                    id = initializer.id,
-                    name = initializer.name,
-                    description = initializer.description
-                )
-            )
-        }
-    }
-
-    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
-        updateModel(modelId) { m ->
-            m.copy(types = m.types.map { type ->
-                if (type.id != typeId) type else when (cmd) {
-                    is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.value)
-                    is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.value)
-                }
-            })
-        }
-    }
-
-    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
-        updateModel(modelId) { m ->
-            m.copy(types = m.types.mapNotNull { type ->
-                if (type.id != typeId) type else null
-            })
-        }
-    }
-
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }

@@ -79,27 +79,6 @@ class ModelJsonRepository(
         }
     }
 
-    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
-        updateModel(modelId) { model ->
-            model.copy(types = model.types + ModelTypeInMemory(id = initializer.id, name = initializer.name, description = initializer.description))
-        }
-    }
-
-    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
-        updateModel(modelId) { model ->
-            model.copy(types = model.types.map { type -> if (type.id != typeId) type else when(cmd) {
-                is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.value )
-                is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.value )
-            } })
-        }
-    }
-
-    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
-        updateModel(modelId) { model ->
-            model.copy(types = model.types.mapNotNull { type -> if (type.id != typeId) type else null })
-        }
-    }
-
 
     override fun dispatch(cmd: ModelRepositoryCmd) {
         updateModel(cmd.modelId) { model ->

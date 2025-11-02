@@ -2,11 +2,27 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepositoryCmd
-import kotlin.collections.plus
 
 class ModelInMemoryReducer() {
     fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmd): ModelInMemory {
         return when (cmd) {
+
+            is ModelRepositoryCmd.CreateType -> model.copy(
+                types = model.types + ModelTypeInMemory(
+                    id = cmd.initializer.id,
+                    name = cmd.initializer.name,
+                    description = cmd.initializer.description
+                )
+            )
+
+            is ModelRepositoryCmd.UpdateType -> model.copy(types = model.types.map { type ->
+                if (type.id != cmd.typeId) type else when (cmd.cmd) {
+                    is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.cmd.value)
+                    is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.cmd.value)
+                }
+            })
+
+            is ModelRepositoryCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.id != cmd.typeId) type else null })
 
             is ModelRepositoryCmd.CreateEntityDef -> model.copy(entityDefs = model.entityDefs + EntityDefInMemory.of(cmd.entityDef))
             is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityDefId) { previous ->
@@ -17,7 +33,8 @@ class ModelInMemoryReducer() {
                     is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeDefId = c.value)
                 }
             }
-            is ModelRepositoryCmd.DeleteEntityDef ->  modifyingEntityDef(model, cmd.entityDefId) { null }
+
+            is ModelRepositoryCmd.DeleteEntityDef -> modifyingEntityDef(model, cmd.entityDefId) { null }
 
             is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityDefId) {
                 it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))

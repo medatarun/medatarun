@@ -16,13 +16,6 @@ interface ModelCmds {
     fun updateModelVersion(modelId: ModelId, version: ModelVersion)
     fun deleteModel(modelId: ModelId)
 
-
-    // Model -> Type
-
-    fun createType(modelId: ModelId, initializer: ModelTypeInitializer)
-    fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd)
-    fun deleteType(modelId: ModelId, typeId: ModelTypeId)
-
     fun dispatch(cmd: ModelCmd)
 
 

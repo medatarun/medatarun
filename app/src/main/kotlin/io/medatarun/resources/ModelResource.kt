@@ -72,37 +72,37 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
             // ------------------------------------------------------------------------
 
             is ModelResourceCmd.CreateType -> {
-                runtime.modelCmds.createType(
+                runtime.modelCmds.dispatch(ModelCmd.CreateType(
                     modelId = ModelId(rc.modelId),
                     initializer = ModelTypeInitializer(
                         id = ModelTypeId(rc.typeId),
                         name = rc.name?.let { LocalizedTextNotLocalized(it) },
                         description = rc.description?.let { LocalizedTextNotLocalized(it) },
                     )
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateTypeName -> {
-                runtime.modelCmds.updateType(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateType(
                     modelId = ModelId(rc.modelId),
                     typeId = ModelTypeId(rc.typeId),
                     cmd = ModelTypeUpdateCmd.Name(rc.name?.let { LocalizedTextNotLocalized(it) })
-                )
+                ))
             }
 
             is ModelResourceCmd.UpdateTypeDescription -> {
-                runtime.modelCmds.updateType(
+                runtime.modelCmds.dispatch(ModelCmd.UpdateType(
                     modelId = ModelId(rc.modelId),
                     typeId = ModelTypeId(rc.typeId),
                     cmd = ModelTypeUpdateCmd.Description(rc.description?.let { LocalizedTextNotLocalized(it) })
-                )
+                ))
             }
 
             is ModelResourceCmd.DeleteType -> {
-                runtime.modelCmds.deleteType(
+                runtime.modelCmds.dispatch(ModelCmd.DeleteType(
                     modelId = ModelId(rc.modelId),
                     typeId = ModelTypeId(rc.typeId),
-                )
+                ))
             }
 
             // ------------------------------------------------------------------------

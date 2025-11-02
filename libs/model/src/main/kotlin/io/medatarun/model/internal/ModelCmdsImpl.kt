@@ -60,27 +60,27 @@ class ModelCmdsImpl(
     // Types
     // -----------------------------------------------------------------------------------------------------------------
 
-    override fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+    private fun createType(c: ModelCmd.CreateType) {
         // Can not create a type if another has the same type
-        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
-        val existing = model.findTypeOptional(initializer.id)
-        if (existing != null) throw TypeCreateDuplicateException(modelId, initializer.id)
-        storage.createType(modelId, initializer)
+        val model = storage.findModelByIdOptional(c.modelId) ?: throw ModelNotFoundException(c.modelId)
+        val existing = model.findTypeOptional(c.initializer.id)
+        if (existing != null) throw TypeCreateDuplicateException(c.modelId, c.initializer.id)
+        storage.dispatch(ModelRepositoryCmd.CreateType(c.modelId, c.initializer))
     }
 
-    override fun updateType(modelId: ModelId, typeId: ModelTypeId, cmd: ModelTypeUpdateCmd) {
-        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
-        model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
-        storage.updateType(modelId, typeId, cmd)
+    private fun updateType(c: ModelCmd.UpdateType) {
+        val model = storage.findModelByIdOptional(c.modelId) ?: throw ModelNotFoundException(c.modelId)
+        model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelId, c.typeId)
+        storage.dispatch(ModelRepositoryCmd.UpdateType(c.modelId, c.typeId, c.cmd))
     }
 
-    override fun deleteType(modelId: ModelId, typeId: ModelTypeId) {
+    private fun deleteType(c: ModelCmd.DeleteType) {
         // Can not delete type used in any entity
-        val model = storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
-        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == typeId } }
-        if (used) throw ModelTypeDeleteUsedException(typeId)
-        model.findTypeOptional(typeId) ?: throw TypeNotFoundException(modelId, typeId)
-        storage.deleteType(modelId, typeId)
+        val model = storage.findModelByIdOptional(c.modelId) ?: throw ModelNotFoundException(c.modelId)
+        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == c.typeId } }
+        if (used) throw ModelTypeDeleteUsedException(c.typeId)
+        model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelId, c.typeId)
+        storage.dispatch(ModelRepositoryCmd.DeleteType(c.modelId, c.typeId))
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Entities
@@ -205,6 +205,9 @@ class ModelCmdsImpl(
     override fun dispatch(cmd: ModelCmd) {
         ensureModelExists(cmd.modelId)
         when (cmd) {
+            is ModelCmd.CreateType -> createType(cmd)
+            is ModelCmd.UpdateType -> updateType(cmd)
+            is ModelCmd.DeleteType -> deleteType(cmd)
             is ModelCmd.CreateEntityDef -> createEntityDef(cmd)
             is ModelCmd.UpdateEntityDef -> updateEntityDef(cmd)
             is ModelCmd.DeleteEntityDef -> deleteEntityDef(cmd)
@@ -217,6 +220,7 @@ class ModelCmdsImpl(
             is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
             is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
             is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
+
         }
         return auditor.onCmdProcessed(cmd)
     }

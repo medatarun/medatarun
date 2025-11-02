@@ -4,6 +4,14 @@ sealed interface ModelCmd {
     val modelId: ModelId
 
     // ------------------------------------------------------------------------
+    // Types
+    // ------------------------------------------------------------------------
+
+    data class CreateType(override val modelId: ModelId, val initializer: ModelTypeInitializer): ModelCmd
+    data class UpdateType(override val modelId: ModelId, val typeId: ModelTypeId, val cmd: ModelTypeUpdateCmd): ModelCmd
+    data class DeleteType(override val modelId: ModelId, val typeId: ModelTypeId): ModelCmd
+
+    // ------------------------------------------------------------------------
     // Entity
     // ------------------------------------------------------------------------
 

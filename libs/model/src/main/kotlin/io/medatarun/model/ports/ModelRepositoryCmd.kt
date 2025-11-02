@@ -10,12 +10,23 @@ import io.medatarun.model.model.EntityDefInitializer
 import io.medatarun.model.model.EntityDefUpdateCmd
 import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.ModelTypeId
+import io.medatarun.model.model.ModelTypeInitializer
+import io.medatarun.model.model.ModelTypeUpdateCmd
 import io.medatarun.model.model.RelationshipDef
 import io.medatarun.model.model.RelationshipDefId
 import io.medatarun.model.model.RelationshipDefUpdateCmd
 
 sealed interface ModelRepositoryCmd {
     val modelId: ModelId
+
+    // ------------------------------------------------------------------------
+    // Types
+    // ------------------------------------------------------------------------
+
+    data class CreateType(override val modelId: ModelId, val initializer: ModelTypeInitializer): ModelRepositoryCmd
+    data class UpdateType(override val modelId: ModelId, val typeId: ModelTypeId, val cmd: ModelTypeUpdateCmd): ModelRepositoryCmd
+    data class DeleteType(override val modelId: ModelId, val typeId: ModelTypeId): ModelRepositoryCmd
 
     // ------------------------------------------------------------------------
     // Entity
