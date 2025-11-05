@@ -1,10 +1,15 @@
 package io.medatarun.httpserver
 
+import io.ktor.http.ContentType
+import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
@@ -12,9 +17,13 @@ import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
+import io.medatarun.httpserver.ui.Links
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.httpserver.ui.UI
+import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.model.ModelId
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
 
@@ -91,6 +100,33 @@ class RestApi(
                 mcp {
                     return@mcp mcpServerBuilder.buildMcpServer()
                 }
+            }
+
+            get("/ui") {
+                headers { put { "Content-Type" to "text/html" } }
+                call.respondText(UI(runtime).renderModelList(), ContentType.Text.Html)
+            }
+            get(Links.toModel(null)) {
+                val id = call.pathParameters["id"] ?: throw NotFoundException("")
+                call.respondText(UI(runtime).renderModel(ModelId(id)), ContentType.Text.Html)
+            }
+            get(Links.toEntityDef(null, null)) {
+                val modelId = call.pathParameters["modelId"] ?: throw NotFoundException("")
+                val entityDefId = call.pathParameters["entityDefId"] ?: throw NotFoundException("")
+                call.respondText(UI(runtime).renderEntityDef(ModelId(modelId), EntityDefId(entityDefId)), ContentType.Text.Html)
+            }
+            get(Links.toCommands()) {
+                call.respondText(UI(runtime).commands(null, null), ContentType.Text.Html)
+            }
+            post(Links.toCommands()) {
+                try {
+                    val params =
+                        call.receiveParameters()["action"] ?: throw BadRequestException("No action form parameter found")
+                    call.respondText(UI(runtime).commands(params, null), ContentType.Text.Html)
+                } catch (err: Throwable) {
+                    call.respondText(UI(runtime).commands(null, err.message), ContentType.Text.Html)
+                }
+
             }
 
             route("/mcp") {

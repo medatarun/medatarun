@@ -3,8 +3,6 @@ package io.medatarun.ext.frictionlessdata
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.ports.ResourceLocator
 import org.junit.jupiter.api.Test
-import org.slf4j.ILoggerFactory
-import org.slf4j.LoggerFactory
 import java.net.URI
 
 class TableSchemaTest {
@@ -27,6 +25,9 @@ class TableSchemaTest {
             return TestResourceLocator(path)
         }
 
+        override fun resolveUri(path: String): URI {
+            TODO("Not yet implemented")
+        }
     }
 
     /**
@@ -45,16 +46,20 @@ class TableSchemaTest {
             "https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/schema/classe-limitedecoupagepaysager/schema.json" to "/datapackage-paysage-classe-limitedecoupagepaysager.json",
             "https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/schema/classe-sousunitepaysagere/schema.json" to "/datapackage-paysage-classe-sousunitepaysagere.json",
             "https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/schema/classe-unitepaysagere/schema.json" to "/datapackage-paysage-classe-unitepaysagere.json",
+            "https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/datapackage.json" to "/datapackage-transition-ecologique.json",
+            "https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/projets-territoire/schema.json" to "/datapackage-transition-ecologique-projets-territoir.json",
+            "https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/collectivites/schema.json" to "/datapackage-transition-ecologique-collectivites.json",
         )
 
 
         override fun getRootContent(): String {
-            return this::class.java.getResource(map[baseURI.toString()]).readText()
+            val name = map[baseURI.toString()]
+                ?: throw IllegalArgumentException(baseURI.toString() + " is not in the map")
+            return this::class.java.getResource(name).readText()
         }
 
         override fun getContent(path: String): String {
-            val candidate = URI(path)
-            val url = if (candidate.isAbsolute) candidate else baseURI.resolve(candidate)
+            val url = resolveUri(path)
             val resource = map[url.toString()].toString()
             return this::class.java.getResource(resource).readText()
         }
@@ -65,6 +70,11 @@ class TableSchemaTest {
             return TestResourceLocatorURL(url)
         }
 
+        override fun resolveUri(path: String): URI {
+            val candidate = URI(path)
+            val url = if (candidate.isAbsolute) candidate else baseURI.resolve(candidate)
+            return url
+        }
     }
 
     @Test
@@ -79,6 +89,16 @@ class TableSchemaTest {
     @Test
     fun testDataPackage() {
         val resource = URI("https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/datapackage.json")
+        val locator = TestResourceLocatorURL(resource)
+        val model = conv.readString(resource.toString(), locator)
+        println(ModelHumanPrinterEmoji().print(model))
+        TODO("Complete tests on DataPackage")
+    }
+
+    @Test
+    fun testDataPackage2() {
+        val resource =
+            URI("https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
         val model = conv.readString(resource.toString(), locator)
         println(ModelHumanPrinterEmoji().print(model))

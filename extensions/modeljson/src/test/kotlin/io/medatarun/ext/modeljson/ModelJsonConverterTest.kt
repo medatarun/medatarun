@@ -2,6 +2,7 @@ package io.medatarun.ext.modeljson
 
 import io.medatarun.model.model.*
 import kotlinx.serialization.json.*
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -128,9 +129,14 @@ internal class ModelJsonConverterTest {
 
     @Test
     fun `entity origin uri then uri`() {
-        val json = createForOriginTest(JsonPrimitive("https://www.example.local/schema.json"))
+        val url = "https://www.example.local/schema.json"
+        val json = createForOriginTest(JsonPrimitive(url))
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
+        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDef(EntityDefId("contact")).origin)
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten.toString())
+        val originRead = modelRead.findEntityDef(EntityDefId("contact")).origin
+        assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
     }
 
     fun normalizeJson(str: String): String {

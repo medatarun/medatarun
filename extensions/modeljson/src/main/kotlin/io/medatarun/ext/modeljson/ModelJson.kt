@@ -94,16 +94,18 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                 )
             },
             entities = model.entityDefs.map { entity ->
+                val origin = entity.origin
+                val originStr = when(origin) {
+                    null -> null
+                    is EntityOrigin.Manual -> null
+                    is EntityOrigin.Uri -> origin.uri.toString()
+                }
                 ModelEntityJson(
                     id = entity.id.value,
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeDefId.value,
-                    origin = when(entity.origin) {
-                        null -> null
-                        is EntityOrigin.Manual -> null
-                        is EntityOrigin.Uri -> entity.origin.toString()
-                    },
+                    origin = originStr,
                     attributes = toAttributeJsonList(entity.attributes)
                 )
             }

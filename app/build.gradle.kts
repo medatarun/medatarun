@@ -26,6 +26,8 @@ dependencies {
     implementation(libs.ktorServerSse)
     implementation(libs.mcpKotlinServer)
     implementation(libs.bundles.slf4jImpl)
+    implementation(libs.kotlinxHtml)
+    implementation(libs.bundles.commonmark)
 }
 
 application {

@@ -15,10 +15,11 @@ class FrictionlessConverter() {
         val types = FrictionlessTypes().all
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
+        val uri = resourceLocator.resolveUri(path)
         if (something.schema != null && something.datapackage != null) {
-            return readAsMixedTableSchema(path, types, something.datapackage, something.schema)
+            return readAsMixedTableSchema(uri, types, something.datapackage, something.schema)
         } else if (something.datapackage != null) {
-            return readAsDataPackage(path, types, something.datapackage, resourceLocator)
+            return readAsDataPackage(uri, types, something.datapackage, resourceLocator)
         }
 
         throw FrictionlessConverterUnsupportedFileFormatException(path)
@@ -31,7 +32,7 @@ class FrictionlessConverter() {
             .getOrNull()
 
         val datapackage = runCatching { ser.readDataPackage(content) }
-            .onFailure { result -> logger.error(result.message) }
+            .onFailure { result -> logger.error(result.message, result) }
             .getOrNull()
 
         return ReadResult(datapackage, schema)
@@ -41,7 +42,7 @@ class FrictionlessConverter() {
 
 
     private fun readAsDataPackage(
-        uri :String,
+        uri : URI,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
@@ -56,7 +57,7 @@ class FrictionlessConverter() {
                 val schemaOrString = resource.schema
                 val subresource = getSchemaFromResource(schemaOrString, resourceLocator)
                 if (subresource.schema == null) null else toEntity(
-                    uri = if (schemaOrString is StringOrTableSchema.Str) schemaOrString.value else uri,
+                    uri = if (schemaOrString is StringOrTableSchema.Str) resourceLocator.resolveUri(schemaOrString.value) else uri,
                     entityId = subresource.datapackage?.name ?: resource.name ?: "unknown",
                     entityName = subresource.datapackage?.title?: resource.title,
                     entityDescription = subresource.datapackage?.description ?: resource.description,
@@ -70,7 +71,7 @@ class FrictionlessConverter() {
 
 
     private fun readAsMixedTableSchema(
-        uri: String,
+        uri: URI,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         schema: TableSchema,
@@ -99,7 +100,7 @@ class FrictionlessConverter() {
 
 
     private fun toEntity(
-        uri: String,
+        uri: URI,
         entityId: String,
         entityName: String?,
         entityDescription: String?,
@@ -118,7 +119,7 @@ class FrictionlessConverter() {
                     optional = field.isOptional(),
                 )
             },
-            origin = EntityOrigin.Uri(URI(uri)),
+            origin = EntityOrigin.Uri(uri),
             identifierAttributeDefId = AttributeDefId(
                 schema.primaryKey?.values?.joinToString(";")
                     ?: schema.fields.firstOrNull()?.name

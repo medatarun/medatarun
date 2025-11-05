@@ -36,7 +36,7 @@ class ResourceLocatorImpl(
         return ResourceLocatorImpl(targetUri.toString(), fileSystem)
     }
 
-    private fun resolveUri(path: String): URI {
+    override fun resolveUri(path: String): URI {
         val candidate = URI(path)
         return if (candidate.isAbsolute) candidate else baseUri.resolve(candidate)
     }

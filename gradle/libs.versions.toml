@@ -7,6 +7,7 @@ commonmark = "0.27.0"
 jimfs = "1.3.1"
 kotlin = "2.2.20"
 kotlinxDatetime = "0.6.2"
+kotlinxHtml = "0.11.0"
 kotlinxSerializationJSON = "1.8.1"
 kotlinxCoroutines = "1.10.2"
 ktor = "3.3.1"
@@ -24,6 +25,7 @@ kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = 
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinxHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinxHtml"}
 ktorServerCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktorServerNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
