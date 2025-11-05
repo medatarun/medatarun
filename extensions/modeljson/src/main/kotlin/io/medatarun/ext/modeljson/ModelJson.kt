@@ -12,6 +12,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.SerializersModule
+import org.intellij.lang.annotations.Language
+import java.net.URI
 
 
 inline fun <reified T> valueClassSerializer(
@@ -97,6 +99,11 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeDefId.value,
+                    origin = when(entity.origin) {
+                        null -> null
+                        is EntityOrigin.Manual -> null
+                        is EntityOrigin.Uri -> entity.origin.toString()
+                    },
                     attributes = toAttributeJsonList(entity.attributes)
                 )
             }
@@ -106,7 +113,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
 
 
 
-    fun fromJson(jsonString: String): ModelInMemory {
+    fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
             id = ModelId(modelJson.id),
@@ -126,6 +133,10 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = entityJson.name,
                     description = entityJson.description,
                     identifierAttributeDefId = AttributeDefId(entityJson.identifierAttribute),
+                    origin = when(entityJson.origin) {
+                        null -> EntityOrigin.Manual
+                        else -> EntityOrigin.Uri(URI(entityJson.origin))
+                    },
                     attributes = toAttributeList(entityJson.attributes)
                 )
             },
@@ -189,6 +200,7 @@ class ModelEntityJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val identifierAttribute: @Contextual String,
+    val origin: String? = null,
     val attributes: List<ModelAttributeJson>
 )
 

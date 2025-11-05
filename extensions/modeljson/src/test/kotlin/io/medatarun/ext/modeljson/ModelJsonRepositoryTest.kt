@@ -1,6 +1,5 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.model.ModelCmd
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId

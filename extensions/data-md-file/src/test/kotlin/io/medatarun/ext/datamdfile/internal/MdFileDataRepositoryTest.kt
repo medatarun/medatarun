@@ -11,6 +11,7 @@ import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.LocalizedTextNotLocalized
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.model.EntityOrigin
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelVersion
 import java.nio.file.Files
@@ -183,13 +184,14 @@ internal class MdFileDataRepositoryTest {
             name = LocalizedTextNotLocalized("Person"),
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
+            origin = EntityOrigin.Manual,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("firstName"),
@@ -227,6 +229,7 @@ internal class MdFileDataRepositoryTest {
             name = LocalizedTextNotLocalized("Company"),
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
+            origin = EntityOrigin.Manual,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),

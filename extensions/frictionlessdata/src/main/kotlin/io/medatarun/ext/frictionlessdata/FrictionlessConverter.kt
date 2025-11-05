@@ -6,6 +6,8 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ResourceLocator
+import org.slf4j.LoggerFactory
+import java.net.URI
 
 class FrictionlessConverter() {
     val ser = DataPackageSerializer()
@@ -14,9 +16,9 @@ class FrictionlessConverter() {
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
         if (something.schema != null && something.datapackage != null) {
-            return readAsMixedTableSchema(types, something.datapackage, something.schema)
+            return readAsMixedTableSchema(path, types, something.datapackage, something.schema)
         } else if (something.datapackage != null) {
-            return readAsDataPackage(types, something.datapackage, resourceLocator)
+            return readAsDataPackage(path, types, something.datapackage, resourceLocator)
         }
 
         throw FrictionlessConverterUnsupportedFileFormatException(path)
@@ -25,23 +27,21 @@ class FrictionlessConverter() {
     private fun readSomething(location: ResourceLocator): ReadResult {
         val content = location.getRootContent()
         val schema = runCatching { ser.readTableSchema(content) }
-            .also { result -> println(result.exceptionOrNull()) }
+            .onFailure { result -> logger.error(result.message) }
             .getOrNull()
 
         val datapackage = runCatching { ser.readDataPackage(content) }
-            .also { result -> println(result.exceptionOrNull()) }
+            .onFailure { result -> logger.error(result.message) }
             .getOrNull()
 
         return ReadResult(datapackage, schema)
 
     }
 
-    class ReadResult(
-        val datapackage: DataPackage?,
-        val schema: TableSchema?,
-    )
+
 
     private fun readAsDataPackage(
+        uri :String,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
@@ -56,6 +56,7 @@ class FrictionlessConverter() {
                 val schemaOrString = resource.schema
                 val subresource = getSchemaFromResource(schemaOrString, resourceLocator)
                 if (subresource.schema == null) null else toEntity(
+                    uri = if (schemaOrString is StringOrTableSchema.Str) schemaOrString.value else uri,
                     entityId = subresource.datapackage?.name ?: resource.name ?: "unknown",
                     entityName = subresource.datapackage?.title?: resource.title,
                     entityDescription = subresource.datapackage?.description ?: resource.description,
@@ -69,6 +70,7 @@ class FrictionlessConverter() {
 
 
     private fun readAsMixedTableSchema(
+        uri: String,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         schema: TableSchema,
@@ -83,6 +85,7 @@ class FrictionlessConverter() {
             types = types,
             entityDefs = listOf(
                 toEntity(
+                    uri = uri,
                     entityId = datapackage.name ?: "unknown",
                     entityName = datapackage.title,
                     entityDescription = datapackage.description,
@@ -96,6 +99,7 @@ class FrictionlessConverter() {
 
 
     private fun toEntity(
+        uri: String,
         entityId: String,
         entityName: String?,
         entityDescription: String?,
@@ -114,7 +118,7 @@ class FrictionlessConverter() {
                     optional = field.isOptional(),
                 )
             },
-
+            origin = EntityOrigin.Uri(URI(uri)),
             identifierAttributeDefId = AttributeDefId(
                 schema.primaryKey?.values?.joinToString(";")
                     ?: schema.fields.firstOrNull()?.name
@@ -142,6 +146,13 @@ class FrictionlessConverter() {
             }
         }
     }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(FrictionlessConverter::class.java)
+    }
 }
 
-
+private class ReadResult(
+    val datapackage: DataPackage?,
+    val schema: TableSchema?,
+)

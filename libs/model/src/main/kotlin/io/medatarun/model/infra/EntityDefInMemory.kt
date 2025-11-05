@@ -4,6 +4,7 @@ import io.medatarun.model.model.AttributeDef
 import io.medatarun.model.model.AttributeDefId
 import io.medatarun.model.model.EntityDef
 import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.model.EntityOrigin
 import io.medatarun.model.model.LocalizedMarkdown
 import io.medatarun.model.model.LocalizedText
 
@@ -15,7 +16,8 @@ data class EntityDefInMemory(
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
     override val description: LocalizedMarkdown?,
-    override val identifierAttributeDefId: AttributeDefId
+    override val identifierAttributeDefId: AttributeDefId,
+    override val origin: EntityOrigin,
 ) : EntityDef {
 
     private val map = attributes.associateBy { it.id }
@@ -39,7 +41,8 @@ data class EntityDefInMemory(
                 name = other.name,
                 description = other.description,
                 attributes = other.attributes.map(AttributeDefInMemory::of),
-                identifierAttributeDefId = other.identifierAttributeDefId
+                identifierAttributeDefId = other.identifierAttributeDefId,
+                origin = other.origin,
             )
         }
     }

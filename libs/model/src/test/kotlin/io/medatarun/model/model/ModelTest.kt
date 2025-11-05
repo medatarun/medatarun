@@ -1374,6 +1374,7 @@ class ModelTest {
                     description = null,
                     // Error is here
                     identifierAttributeDefId = AttributeDefId("unknown"),
+                    origin = EntityOrigin.Manual,
                     attributes = listOf(
                         AttributeDefInMemory(
                             id = AttributeDefId("id"),

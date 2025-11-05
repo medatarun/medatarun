@@ -33,6 +33,11 @@ interface EntityDef {
     val identifierAttributeDefId: AttributeDefId
 
     /**
+     * Tells where the definition comes from
+     */
+    val origin: EntityOrigin
+
+    /**
      * Count attributes
      */
     fun countAttributeDefs(): Int

@@ -98,6 +98,7 @@ class ModelCmdsImpl(
                 name = c.entityDefInitializer.name,
                 description = c.entityDefInitializer.description,
                 identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
+                origin = EntityOrigin.Manual,
                 attributes = listOf(
                     AttributeDefInMemory(
                         id = c.entityDefInitializer.identityAttribute.attributeDefId,

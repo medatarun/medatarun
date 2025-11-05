@@ -3,6 +3,8 @@ package io.medatarun.ext.frictionlessdata
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.ports.ResourceLocator
 import org.junit.jupiter.api.Test
+import org.slf4j.ILoggerFactory
+import org.slf4j.LoggerFactory
 import java.net.URI
 
 class TableSchemaTest {

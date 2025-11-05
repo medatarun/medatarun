@@ -26,6 +26,7 @@ class ModelValidationTest {
                     name = null,
                     description = null,
                     identifierAttributeDefId = AttributeDefId("unknown"),
+                    origin = EntityOrigin.Manual,
                     attributes = listOf(
                         AttributeDefInMemory(
                             id = AttributeDefId("id"),
@@ -60,6 +61,7 @@ class ModelValidationTest {
                     name = null,
                     description = null,
                     identifierAttributeDefId = AttributeDefId("id"),
+                    origin = EntityOrigin.Manual,
                     attributes = listOf(
                         AttributeDefInMemory(
                             id = AttributeDefId("id"),

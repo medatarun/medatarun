@@ -37,6 +37,7 @@ class ModelInMemoryTest {
             name = LocalizedTextNotLocalized("Person"),
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
+            origin = EntityOrigin.Manual,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
@@ -81,6 +82,7 @@ class ModelInMemoryTest {
             name = LocalizedTextNotLocalized("Company"),
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
+            origin = EntityOrigin.Manual,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),

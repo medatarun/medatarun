@@ -25,7 +25,7 @@ dependencies {
     implementation(libs.ktorSerializationKotlinxJson)
     implementation(libs.ktorServerSse)
     implementation(libs.mcpKotlinServer)
-    implementation(libs.bundles.slf4j)
+    implementation(libs.bundles.slf4jImpl)
 }
 
 application {

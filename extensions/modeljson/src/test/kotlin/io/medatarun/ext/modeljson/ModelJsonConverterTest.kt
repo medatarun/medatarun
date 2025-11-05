@@ -1,12 +1,7 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelTypeId
-import io.medatarun.model.model.ModelVersion
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
+import io.medatarun.model.model.*
+import kotlinx.serialization.json.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -60,7 +55,10 @@ internal class ModelJsonConverterTest {
         val companyInfos = companyEntity.getAttributeDef(AttributeDefId("informations"))
         assertEquals(companyInfos.id, AttributeDefId("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
-        assertEquals(companyInfos.description?.name, "La description est au format Markdown et doit provenir de leur site internet !")
+        assertEquals(
+            companyInfos.description?.name,
+            "La description est au format Markdown et doit provenir de leur site internet !"
+        )
         assertEquals(companyInfos.optional, true)
         assertEquals(companyInfos.type, ModelTypeId("Markdown"))
     }
@@ -85,7 +83,54 @@ internal class ModelJsonConverterTest {
         val src = normalizeJson(sampleModelJson)
         val dest = normalizeJson(modelWrite)
         assertEquals(src, dest)
+    }
 
+    fun createForOriginTest(origin: JsonElement? = null): JsonObject {
+        return buildJsonObject {
+            put("id", "exemple")
+            put("version", "1.0.0")
+            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            putJsonArray("entities") {
+                addJsonObject {
+                    put("id", "contact")
+                    put("name", "Contact")
+                    put("identifierAttribute", "id")
+                    when(origin) {
+                        null -> { }
+                        is JsonNull -> put("origin", null)
+                        else -> put("origin", origin)
+                    }
+                    putJsonArray("attributes") {
+                        addJsonObject {
+                            put("id", "id")
+                            put("name", "Identifier")
+                            put("type", "String")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `entity origin undefined then manual`() {
+        val json = createForOriginTest(null)
+        val model = instance.fromJson(json.toString())
+        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
+    }
+
+    @Test
+    fun `entity origin null then manual`() {
+        val json = createForOriginTest(JsonNull)
+        val model = instance.fromJson(json.toString())
+        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
+    }
+
+    @Test
+    fun `entity origin uri then uri`() {
+        val json = createForOriginTest(JsonPrimitive("https://www.example.local/schema.json"))
+        val model = instance.fromJson(json.toString())
+        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
     }
 
     fun normalizeJson(str: String): String {
