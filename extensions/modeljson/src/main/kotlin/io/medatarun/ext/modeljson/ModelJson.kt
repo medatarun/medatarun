@@ -95,7 +95,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             entities = model.entityDefs.map { entity ->
                 val origin = entity.origin
-                val originStr = when(origin) {
+                val originStr = when (origin) {
                     null -> null
                     is EntityOrigin.Manual -> null
                     is EntityOrigin.Uri -> origin.uri.toString()
@@ -106,13 +106,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeDefId.value,
                     origin = originStr,
-                    attributes = toAttributeJsonList(entity.attributes)
+                    attributes = toAttributeJsonList(entity.attributes),
+                    documentationHome = entity.documentationHome?.toExternalForm()
                 )
-            }
+            },
+            documentationHome = model.documentationHome?.toExternalForm()
         )
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
-
 
 
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
@@ -135,11 +136,12 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = entityJson.name,
                     description = entityJson.description,
                     identifierAttributeDefId = AttributeDefId(entityJson.identifierAttribute),
-                    origin = when(entityJson.origin) {
+                    origin = when (entityJson.origin) {
                         null -> EntityOrigin.Manual
                         else -> EntityOrigin.Uri(URI(entityJson.origin))
                     },
-                    attributes = toAttributeList(entityJson.attributes)
+                    attributes = toAttributeList(entityJson.attributes),
+                    documentationHome = entityJson.documentationHome?.let { URI(it).toURL() }
                 )
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
@@ -157,7 +159,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     },
                     attributes = toAttributeList(relationJson.attributes)
                 )
-            }
+            },
+            documentationHome = modelJson.documentationHome?.let { URI(it).toURL() }
         )
         return model
     }
@@ -203,7 +206,8 @@ class ModelEntityJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val identifierAttribute: @Contextual String,
     val origin: String? = null,
-    val attributes: List<ModelAttributeJson>
+    val attributes: List<ModelAttributeJson>,
+    val documentationHome: String? = null
 )
 
 @Serializable
@@ -240,6 +244,7 @@ class ModelJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
-    val relationships: List<RelationshipJson> = emptyList()
+    val relationships: List<RelationshipJson> = emptyList(),
+    val documentationHome: String? = null
 )
 

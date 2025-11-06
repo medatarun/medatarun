@@ -11,7 +11,6 @@ import kotlin.test.assertTrue
 class ModelInMemoryTest {
 
 
-
     @Test
     fun `model contains person and company entities`() {
         val model = createModel()
@@ -32,13 +31,12 @@ class ModelInMemoryTest {
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
 
-        val personEntity = EntityDefInMemory(
+        val personEntity = EntityDefInMemory.builder(
             id = EntityDefId("person"),
-            name = LocalizedTextNotLocalized("Person"),
-            description = null,
             identifierAttributeDefId = AttributeDefId("id"),
-            origin = EntityOrigin.Manual,
-            attributes = listOf(
+        ) {
+            name = LocalizedTextNotLocalized("Person")
+            addAttribute(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -75,15 +73,14 @@ class ModelInMemoryTest {
                     optional = false
                 )
             )
-        )
+        }
 
-        val companyEntity = EntityDefInMemory(
+        val companyEntity = EntityDefInMemory.builder(
             id = EntityDefId("company"),
-            name = LocalizedTextNotLocalized("Company"),
-            description = null,
             identifierAttributeDefId = AttributeDefId("id"),
-            origin = EntityOrigin.Manual,
-            attributes = listOf(
+        ) {
+            name = LocalizedTextNotLocalized("Company")
+            addAttribute(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -113,7 +110,8 @@ class ModelInMemoryTest {
                     optional = true
                 )
             )
-        )
+
+        }
 
         return ModelInMemory(
             id = ModelId("test-model"),
@@ -122,7 +120,8 @@ class ModelInMemoryTest {
             version = ModelVersion("1.0.0"),
             types = listOf(typeString, typeMarkdown),
             entityDefs = listOf(personEntity, companyEntity),
-            relationshipDefs = emptyList() // TODO tests on model in memory relationships
+            relationshipDefs = emptyList(), // TODO tests on model in memory relationships
+            documentationHome = null,
         )
     }
 }

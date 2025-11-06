@@ -15,6 +15,8 @@ import kotlinx.serialization.json.*
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.intellij.lang.annotations.Language
+import java.net.URI
+import java.net.URL
 
 object Links {
     fun toHome() = "/ui"
@@ -50,7 +52,20 @@ class UI(private val runtime: AppRuntime) {
                                 }
                             }
                             td {
-                                div { code { +m.id.value } }
+                                div {
+                                    style = "display:flex; justify-content:space-between;"
+                                    div {
+                                        code { +m.id.value }
+                                    }
+                                    div {
+                                        +" "
+                                        +("${m.countEntities}×E")
+                                        +" "
+                                        +("${m.countRelationships}×R")
+                                        +" "
+                                        +("${m.countTypes}×T")
+                                    }
+                                }
                                 if (description != null) div { +description }
                                 if (error != null) {
                                     div { style = "color:red"; +error }
@@ -72,15 +87,24 @@ class UI(private val runtime: AppRuntime) {
         val version = model.version.value
         val name = model.name?.name
         val description = model.description?.name
+        val documentationHome = model.documentationHome
         return Layout {
             h1 {
                 +"Model "
                 +(name ?: id)
             }
             div {
-                code { +id }
-                +" "
-                code { +version }
+                style = "display:grid; grid-template-columns: min-content auto; column-gap: 1em;"
+                div { +"Identifier " }
+                div { code { +id } }
+                div { +"Version" }
+                div { code { +version } }
+                if (documentationHome != null) {
+                    div { +"Documentation" }
+                    div {
+                        externalUrl(documentationHome)
+                    }
+                }
             }
             if (description != null) markdown(description)
 
@@ -124,6 +148,7 @@ class UI(private val runtime: AppRuntime) {
         val name = e.name?.name
         val description = e.description?.name
         val origin = e.origin
+        val documentationHome = e.documentationHome
         return Layout {
             h1 {
                 +"Entity "
@@ -136,13 +161,18 @@ class UI(private val runtime: AppRuntime) {
                 div { code { +id } }
                 div { +"Model" }
                 div { a(href = Links.toModel(model.id)) { +(model.name?.name ?: model.id.value) } }
+                if (documentationHome!=null) {
+                    div { +"Documentation" }
+                    div { externalUrl(documentationHome) }
+                }
                 div { +"Origin" }
                 div {
                     when (origin) {
                         EntityOrigin.Manual -> +"Medatarun (manual)"
-                        is EntityOrigin.Uri -> a(href = origin.uri.toString()) { +origin.uri.toString() }
+                        is EntityOrigin.Uri -> externalUrl(origin.uri)
                     }
                 }
+
             }
 
 
@@ -296,6 +326,25 @@ fun HtmlBlockTag.tag(str: String) {
         style =
             "font-size: 0.8em; background-color: rgba(255, 255, 255, .5); color: black; padding-left:0.5em; padding-right: 0.5em; border-radius: 0.2em;"
         +str
+    }
+}
+
+@HtmlTagMarker
+fun HtmlBlockTag.externalUrl(url : URL?) {
+    if (url == null) return
+    a {
+        href = url.toExternalForm()
+        target="_blank"
+        +url.toExternalForm()
+    }
+}
+@HtmlTagMarker
+fun HtmlBlockTag.externalUrl(uri : URI?) {
+    if (uri == null) return
+    a {
+        href = uri.normalize().toURL().toExternalForm()
+        target="_blank"
+        +uri.normalize().toURL().toExternalForm()
     }
 }
 

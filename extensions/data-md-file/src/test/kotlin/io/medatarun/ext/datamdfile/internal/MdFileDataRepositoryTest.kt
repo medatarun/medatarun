@@ -185,6 +185,7 @@ internal class MdFileDataRepositoryTest {
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
             origin = EntityOrigin.Manual,
+            documentationHome = null,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
@@ -230,6 +231,7 @@ internal class MdFileDataRepositoryTest {
             description = null,
             identifierAttributeDefId = AttributeDefId("id"),
             origin = EntityOrigin.Manual,
+            documentationHome = null,
             attributes = listOf(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
@@ -269,7 +271,8 @@ internal class MdFileDataRepositoryTest {
             version = ModelVersion("1.0.0"),
             types = listOf(typeString, typeMarkdown),
             entityDefs = listOf(personEntity, companyEntity),
-            relationshipDefs = emptyList()
+            relationshipDefs = emptyList(),
+            documentationHome = null
         )
     }
 

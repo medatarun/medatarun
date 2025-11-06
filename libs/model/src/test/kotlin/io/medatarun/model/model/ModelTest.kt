@@ -223,6 +223,11 @@ class ModelTest {
         assertEquals(ModelVersion("4.5.6"), env.query.findModelById(env.modelId).version)
     }
 
+    @Test
+    fun `update documentation home`() {
+        TODO("Not implemented")
+    }
+
     // ------------------------------------------------------------------------
     // Delete models
     // ------------------------------------------------------------------------
@@ -519,6 +524,7 @@ class ModelTest {
             ModelCmd.CreateEntityDef(
                 env.modelId, EntityDefInitializer(
                     entityDefId = EntityDefId("contact"), name = null, description = null,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("name"),
                         type = ModelTypeId("String"),
@@ -579,6 +585,7 @@ class ModelTest {
                     entityDefId = entityId,
                     name = name,
                     description = description,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
@@ -609,13 +616,17 @@ class ModelTest {
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
                 env.modelId, EntityDefInitializer(
-                    entityId, null, description,
-                    AttributeDefIdentityInitializer(
+                    entityDefId = entityId,
+                    name = null,
+                    description = description,
+                    identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
                         name = null,
-                        description = null
-                    )
+                        description = null,
+
+                        ),
+                    documentationHome = null
                 )
             )
         )
@@ -640,6 +651,7 @@ class ModelTest {
                     entityDefId = entityId,
                     name = name,
                     description = null,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("String"),
                         type = ModelTypeId("String"),
@@ -665,13 +677,16 @@ class ModelTest {
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
                 env.modelId, EntityDefInitializer(
-                    entityId, null, description,
-                    AttributeDefIdentityInitializer(
+                    entityDefId = entityId,
+                    name = null,
+                    description = description,
+                    identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
                         name = null,
                         description = null
-                    )
+                    ),
+                    documentationHome = null
                 )
             )
         )
@@ -679,6 +694,11 @@ class ModelTest {
         val reloaded = env.query.findModelById(env.modelId).findEntityDef(entityId)
         assertNull(reloaded.attributes[0].name)
         assertNull(reloaded.attributes[0].description)
+    }
+
+    @Test
+    fun `create entity with documentation home`() {
+        TODO("Not yet implemented")
     }
 
     class TestEnvEntityUpdate {
@@ -706,6 +726,7 @@ class ModelTest {
                         entityDefId = primaryEntityId,
                         name = LocalizedTextNotLocalized("Entity primary"),
                         description = LocalizedMarkdownNotLocalized("Entity primary description"),
+                        documentationHome = null,
                         identityAttribute = AttributeDefIdentityInitializer(
                             attributeDefId = AttributeDefId("id"),
                             type = ModelTypeId("String"),
@@ -722,6 +743,7 @@ class ModelTest {
                         secondaryEntityId,
                         LocalizedTextNotLocalized("Entity secondary"),
                         LocalizedMarkdownNotLocalized("Entity secondary description"),
+                        documentationHome = null,
                         identityAttribute = AttributeDefIdentityInitializer(
                             attributeDefId = AttributeDefId("id"),
                             type = ModelTypeId("String"),
@@ -878,6 +900,7 @@ class ModelTest {
                     entityDefId = entityId,
                     name = LocalizedTextNotLocalized("To delete"),
                     description = null,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
@@ -925,6 +948,7 @@ class ModelTest {
             ModelCmd.CreateEntityDef(
                 modelId1, EntityDefInitializer(
                     entityDefId = entityId, name = LocalizedTextNotLocalized("Entity"), description = null,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
@@ -938,6 +962,7 @@ class ModelTest {
             ModelCmd.CreateEntityDef(
                 modelId2, EntityDefInitializer(
                     entityDefId = entityId, name = LocalizedTextNotLocalized("Entity"), description = null,
+                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
@@ -969,12 +994,14 @@ class ModelTest {
         val sampleEntityDefId = EntityDefId("Entity1")
 
         init {
-            cmd.dispatch(ModelCmd.CreateModel(
-                sampleModelId,
-                LocalizedTextNotLocalized("Model 1"),
-                null,
-                ModelVersion("1.0.0"),
-            ))
+            cmd.dispatch(
+                ModelCmd.CreateModel(
+                    sampleModelId,
+                    LocalizedTextNotLocalized("Model 1"),
+                    null,
+                    ModelVersion("1.0.0"),
+                )
+            )
             cmd.dispatch(ModelCmd.CreateType(sampleModelId, ModelTypeInitializer(ModelTypeId("String"), null, null)))
         }
 
@@ -984,6 +1011,7 @@ class ModelTest {
                     sampleModelId,
                     EntityDefInitializer(
                         entityDefId = sampleEntityDefId, name = null, description = null,
+                        documentationHome = null,
                         identityAttribute = AttributeDefIdentityInitializer(
                             attributeDefId = AttributeDefId("id"),
                             type = ModelTypeId("String"),
@@ -1368,14 +1396,13 @@ class ModelTest {
             version = ModelVersion("0.0.1"),
             types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
             entityDefs = listOf(
-                EntityDefInMemory(
+                EntityDefInMemory.builder(
                     id = EntityDefId("Contact"),
-                    name = null,
-                    description = null,
                     // Error is here
                     identifierAttributeDefId = AttributeDefId("unknown"),
-                    origin = EntityOrigin.Manual,
-                    attributes = listOf(
+
+                ) {
+                    addAttribute(
                         AttributeDefInMemory(
                             id = AttributeDefId("id"),
                             type = ModelTypeId("String"),
@@ -1384,9 +1411,10 @@ class ModelTest {
                             optional = false
                         )
                     )
-                )
+                }
             ),
-            relationshipDefs = emptyList()
+            relationshipDefs = emptyList(),
+            documentationHome = null
         )
 
         init {

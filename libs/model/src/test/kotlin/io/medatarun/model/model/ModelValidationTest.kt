@@ -21,24 +21,24 @@ class ModelValidationTest {
             version = ModelVersion("0.0.1"),
             types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
             entityDefs = listOf(
-                EntityDefInMemory(
+                EntityDefInMemory.builder(
                     id = EntityDefId("Contact"),
-                    name = null,
-                    description = null,
                     identifierAttributeDefId = AttributeDefId("unknown"),
-                    origin = EntityOrigin.Manual,
-                    attributes = listOf(
-                        AttributeDefInMemory(
-                            id = AttributeDefId("id"),
-                            type = ModelTypeId("String"),
-                            name = null,
-                            description = null,
-                            optional = false
+                    {
+                        addAttribute(
+                            AttributeDefInMemory(
+                                id = AttributeDefId("id"),
+                                type = ModelTypeId("String"),
+                                name = null,
+                                description = null,
+                                optional = false
+                            )
                         )
-                    )
+                    }
                 )
             ),
-            relationshipDefs = emptyList()
+            relationshipDefs = emptyList(),
+            documentationHome = null,
         )
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)
@@ -56,13 +56,11 @@ class ModelValidationTest {
             version = ModelVersion("0.0.1"),
             types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
             entityDefs = listOf(
-                EntityDefInMemory(
+                EntityDefInMemory.builder(
                     id = EntityDefId("Contact"),
-                    name = null,
-                    description = null,
                     identifierAttributeDefId = AttributeDefId("id"),
-                    origin = EntityOrigin.Manual,
-                    attributes = listOf(
+                ) {
+                    addAttribute(
                         AttributeDefInMemory(
                             id = AttributeDefId("id"),
                             type = ModelTypeId("Int"),
@@ -71,9 +69,10 @@ class ModelValidationTest {
                             optional = false
                         )
                     )
-                )
+                }
             ),
-            relationshipDefs = emptyList()
+            relationshipDefs = emptyList(),
+            documentationHome = null,
         )
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)

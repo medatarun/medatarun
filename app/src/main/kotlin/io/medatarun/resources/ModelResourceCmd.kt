@@ -110,6 +110,7 @@ sealed interface ModelResourceCmd {
         val identityAttributeId: String,
         val identityAttributeType: ModelTypeId,
         val identityAttributeName: String? = null,
+        val documentationHome: String? = null
     ) : ModelResourceCmd
 
     @ResourceCommandDoc(
@@ -173,7 +174,6 @@ sealed interface ModelResourceCmd {
     ) : ModelResourceCmd
 
 
-
     @ResourceCommandDoc(
         title = "Update entity attribute id",
         description = "Changes identifier of an entity attribute."
@@ -183,7 +183,7 @@ sealed interface ModelResourceCmd {
         val entityId: String,
         val attributeId: String,
         val value: String
-    ): ModelResourceCmd
+    ) : ModelResourceCmd
 
     @ResourceCommandDoc(
         title = "Update entity attribute name",
@@ -194,7 +194,7 @@ sealed interface ModelResourceCmd {
         val entityId: String,
         val attributeId: String,
         val value: String?
-    ): ModelResourceCmd
+    ) : ModelResourceCmd
 
 
     @ResourceCommandDoc(
@@ -206,7 +206,7 @@ sealed interface ModelResourceCmd {
         val entityId: String,
         val attributeId: String,
         val value: String?
-    ): ModelResourceCmd
+    ) : ModelResourceCmd
 
 
     @ResourceCommandDoc(
@@ -218,7 +218,7 @@ sealed interface ModelResourceCmd {
         val entityId: String,
         val attributeId: String,
         val value: String
-    ): ModelResourceCmd
+    ) : ModelResourceCmd
 
 
     @ResourceCommandDoc(
@@ -230,7 +230,7 @@ sealed interface ModelResourceCmd {
         val entityId: String,
         val attributeId: String,
         val value: Boolean
-    ): ModelResourceCmd
+    ) : ModelResourceCmd
 
     @ResourceCommandDoc(
         title = "Delete entity attribute",
@@ -240,8 +240,7 @@ sealed interface ModelResourceCmd {
         val modelId: String,
         val entityId: String,
         val attributeId: String
-    ): ModelResourceCmd
-
+    ) : ModelResourceCmd
 
 
     // ------------------------------------------------------------------------

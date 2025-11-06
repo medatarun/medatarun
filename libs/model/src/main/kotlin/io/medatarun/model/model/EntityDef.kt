@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import java.net.URL
+
 @JvmInline
 value class EntityDefId(val value: String)
 
@@ -36,6 +38,11 @@ interface EntityDef {
      * Tells where the definition comes from
      */
     val origin: EntityOrigin
+
+    /**
+     * Documentation home
+     */
+    val documentationHome: URL?
 
     /**
      * Count attributes

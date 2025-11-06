@@ -22,14 +22,18 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val locale: L
                     id = id,
                     name = model.name?.get(locale.language),
                     description = model.description?.get(locale.language),
-                    error = null
+                    error = null,
+                    countTypes = model.types.size,
+                    countEntities = model.entityDefs.size,
+                    countRelationships = model.relationshipDefs.size
                 )
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
                     name = null,
                     description = null,
-                    error = e.message
+                    error = e.message,
+                    countTypes = 0, countEntities = 0, countRelationships = 0
                 )
             }
         }.sortedWith(

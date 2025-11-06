@@ -86,7 +86,7 @@ internal class ModelJsonConverterTest {
         assertEquals(src, dest)
     }
 
-    fun createForOriginTest(origin: JsonElement? = null): JsonObject {
+    fun createJsonForOriginTest(origin: JsonElement? = null): JsonObject {
         return buildJsonObject {
             put("id", "exemple")
             put("version", "1.0.0")
@@ -96,8 +96,8 @@ internal class ModelJsonConverterTest {
                     put("id", "contact")
                     put("name", "Contact")
                     put("identifierAttribute", "id")
-                    when(origin) {
-                        null -> { }
+                    when (origin) {
+                        null -> {}
                         is JsonNull -> put("origin", null)
                         else -> put("origin", origin)
                     }
@@ -115,14 +115,14 @@ internal class ModelJsonConverterTest {
 
     @Test
     fun `entity origin undefined then manual`() {
-        val json = createForOriginTest(null)
+        val json = createJsonForOriginTest(null)
         val model = instance.fromJson(json.toString())
         assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
     }
 
     @Test
     fun `entity origin null then manual`() {
-        val json = createForOriginTest(JsonNull)
+        val json = createJsonForOriginTest(JsonNull)
         val model = instance.fromJson(json.toString())
         assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
     }
@@ -130,13 +130,75 @@ internal class ModelJsonConverterTest {
     @Test
     fun `entity origin uri then uri`() {
         val url = "https://www.example.local/schema.json"
-        val json = createForOriginTest(JsonPrimitive(url))
+        val json = createJsonForOriginTest(JsonPrimitive(url))
         val model = instance.fromJson(json.toString())
         assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDef(EntityDefId("contact")).origin)
         val jsonWritten = instance.toJson(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
         val originRead = modelRead.findEntityDef(EntityDefId("contact")).origin
         assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
+    }
+
+    fun createJsonForDocumentationHomeTest(modelDocHome: JsonElement?, entityDocHome: JsonElement?): JsonObject {
+        return buildJsonObject {
+            put("id", "exemple")
+            put("version", "1.0.0")
+            if (modelDocHome != null) put("documentationHome", modelDocHome)
+            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            putJsonArray("entities") {
+                addJsonObject {
+                    put("id", "contact")
+                    put("name", "Contact")
+                    put("identifierAttribute", "id")
+                    if (entityDocHome != null) put("documentationHome", entityDocHome)
+                    putJsonArray("attributes") {
+                        addJsonObject {
+                            put("id", "id")
+                            put("name", "Identifier")
+                            put("type", "String")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `model documentation home undefined`() {
+        val json = createJsonForDocumentationHomeTest(null, null)
+        val model = instance.fromJson(json.toString())
+        assertEquals(null, model.documentationHome)
+        assertEquals(null, model.entityDefs.first().documentationHome)
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten.toString())
+        assertEquals(null, modelRead.documentationHome)
+        assertEquals(null, modelRead.entityDefs.first().documentationHome)
+    }
+
+    @Test
+    fun `model documentation home null`() {
+        val json = createJsonForDocumentationHomeTest(JsonNull, JsonNull)
+        val model = instance.fromJson(json.toString())
+        assertEquals(null, model.documentationHome)
+        assertEquals(null, model.entityDefs.first().documentationHome)
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten.toString())
+        assertEquals(null, modelRead.documentationHome)
+        assertEquals(null, modelRead.entityDefs.first().documentationHome)
+    }
+
+    @Test
+    fun `model documentation home defined`() {
+        val modelDocHome = "https://localhost/model"
+        val entityDocHome = "https://localhost/entity"
+        val json = createJsonForDocumentationHomeTest(JsonPrimitive(modelDocHome), JsonPrimitive(entityDocHome))
+        val model = instance.fromJson(json.toString())
+        assertEquals(URI(modelDocHome).toURL(), model.documentationHome)
+        assertEquals(URI(entityDocHome).toURL(), model.entityDefs.first().documentationHome)
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten.toString())
+        assertEquals(URI(modelDocHome).toURL(), modelRead.documentationHome)
+        assertEquals(URI(entityDocHome).toURL(), modelRead.entityDefs.first().documentationHome)
     }
 
     fun normalizeJson(str: String): String {

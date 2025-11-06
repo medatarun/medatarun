@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import java.net.URL
+
 @JvmInline value class ModelId(val value: String)
 @JvmInline value class ModelLocation(val value: String)
 @JvmInline value class ModelVersion(val value: String)
@@ -41,6 +43,11 @@ interface Model {
      * Relationship definitions in this model
      */
     val relationshipDefs: List<RelationshipDef>
+
+    /**
+     * Documentation home
+     */
+    val documentationHome: URL?
 
     fun findTypeOptional(typeId: ModelTypeId): ModelType? = types.firstOrNull { it.id == typeId }
     fun findType(typeId: ModelTypeId): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)

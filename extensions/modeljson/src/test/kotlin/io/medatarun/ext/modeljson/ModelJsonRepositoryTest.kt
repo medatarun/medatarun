@@ -119,6 +119,15 @@ class ModelJsonRepositoryTest {
     fun `update version`() {
         TODO("Not yet implemented")
     }
+    @Test
+    fun `update model documentation home`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
+    fun `update model origin`() {
+        TODO("Not yet implemented")
+    }
 
     @Test
     fun `delete then no file left`() {
@@ -181,6 +190,14 @@ class ModelJsonRepositoryTest {
 
     @Test
     fun `update entity def identifier attribute`() {
+        TODO("Not yet implemented")
+    }
+    @Test
+    fun `update entity def documentation home attribute`() {
+        TODO("Not yet implemented")
+    }
+    @Test
+    fun `update entity origin`() {
         TODO("Not yet implemented")
     }
 

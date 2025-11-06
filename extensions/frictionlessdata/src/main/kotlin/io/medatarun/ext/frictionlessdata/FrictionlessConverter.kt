@@ -40,9 +40,8 @@ class FrictionlessConverter() {
     }
 
 
-
     private fun readAsDataPackage(
-        uri : URI,
+        uri: URI,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
@@ -59,12 +58,14 @@ class FrictionlessConverter() {
                 if (subresource.schema == null) null else toEntity(
                     uri = if (schemaOrString is StringOrTableSchema.Str) resourceLocator.resolveUri(schemaOrString.value) else uri,
                     entityId = subresource.datapackage?.name ?: resource.name ?: "unknown",
-                    entityName = subresource.datapackage?.title?: resource.title,
+                    entityName = subresource.datapackage?.title ?: resource.title,
                     entityDescription = subresource.datapackage?.description ?: resource.description,
+                    documentationHome = subresource.datapackage?.homepage ?: resource.homepage,
                     schema = subresource.schema
                 )
             },
-            relationshipDefs = emptyList()
+            relationshipDefs = emptyList(),
+            documentationHome = toURLSafe(datapackage.homepage)
         )
         return model
     }
@@ -78,6 +79,7 @@ class FrictionlessConverter() {
 
         ): ModelInMemory {
 
+
         val model = ModelInMemory(
             id = ModelId(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
@@ -90,21 +92,25 @@ class FrictionlessConverter() {
                     entityId = datapackage.name ?: "unknown",
                     entityName = datapackage.title,
                     entityDescription = datapackage.description,
+                    documentationHome = datapackage.homepage,
                     schema = schema
                 )
             ),
             relationshipDefs = emptyList(),
+            documentationHome = toURLSafe(datapackage.homepage),
         )
         return model
     }
 
+    fun toURLSafe(str: String?) = runCatching { str?.let { URI(it).normalize().toURL() } }.getOrNull()
 
     private fun toEntity(
         uri: URI,
         entityId: String,
         entityName: String?,
         entityDescription: String?,
-        schema: TableSchema
+        documentationHome: String?,
+        schema: TableSchema,
     ): EntityDefInMemory {
         val entity = EntityDefInMemory(
             id = EntityDefId(entityId),
@@ -120,6 +126,7 @@ class FrictionlessConverter() {
                 )
             },
             origin = EntityOrigin.Uri(uri),
+            documentationHome = toURLSafe(documentationHome),
             identifierAttributeDefId = AttributeDefId(
                 schema.primaryKey?.values?.joinToString(";")
                     ?: schema.fields.firstOrNull()?.name

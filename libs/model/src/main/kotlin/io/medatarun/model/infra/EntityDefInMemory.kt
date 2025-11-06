@@ -1,12 +1,7 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDef
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityOrigin
-import io.medatarun.model.model.LocalizedMarkdown
-import io.medatarun.model.model.LocalizedText
+import io.medatarun.model.model.*
+import java.net.URL
 
 /**
  * Default implementation of EntityDef
@@ -18,6 +13,7 @@ data class EntityDefInMemory(
     override val description: LocalizedMarkdown?,
     override val identifierAttributeDefId: AttributeDefId,
     override val origin: EntityOrigin,
+    override val documentationHome: URL?,
 ) : EntityDef {
 
     private val map = attributes.associateBy { it.id }
@@ -43,7 +39,44 @@ data class EntityDefInMemory(
                 attributes = other.attributes.map(AttributeDefInMemory::of),
                 identifierAttributeDefId = other.identifierAttributeDefId,
                 origin = other.origin,
+                documentationHome = other.documentationHome
             )
+        }
+
+        class Builder(
+            val id: EntityDefId,
+            var name: LocalizedText? = null,
+            var attributes: MutableList<AttributeDefInMemory> = mutableListOf(),
+            var description: LocalizedMarkdown? = null,
+            var identifierAttributeDefId: AttributeDefId,
+            var origin: EntityOrigin = EntityOrigin.Manual,
+            var documentationHome: URL? = null,
+
+            ) {
+
+            fun addAttribute(vararg attributes: AttributeDefInMemory) {
+                this.attributes.addAll(attributes)
+            }
+
+            fun build(): EntityDefInMemory {
+                return EntityDefInMemory(
+                    id = id,
+                    name = name,
+                    attributes = attributes,
+                    description = description,
+                    identifierAttributeDefId = identifierAttributeDefId,
+                    origin = origin,
+                    documentationHome = documentationHome
+                )
+            }
+        }
+
+        fun builder(
+            id: EntityDefId,
+            identifierAttributeDefId: AttributeDefId,
+            block: Builder.() -> Unit = {}
+        ): EntityDefInMemory {
+            return Builder(id = id, identifierAttributeDefId = identifierAttributeDefId).also(block).build()
         }
     }
 }

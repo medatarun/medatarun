@@ -22,6 +22,7 @@ class ModelCmdsImpl(
             types = emptyList(),
             entityDefs = emptyList(),
             relationshipDefs = emptyList(),
+            documentationHome = null
         )
         storage.dispatch(ModelRepositoryCmd.CreateModel(model), cmd.repositoryRef)
     }
@@ -99,6 +100,7 @@ class ModelCmdsImpl(
                 description = c.entityDefInitializer.description,
                 identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
                 origin = EntityOrigin.Manual,
+                documentationHome = c.entityDefInitializer.documentationHome,
                 attributes = listOf(
                     AttributeDefInMemory(
                         id = c.entityDefInitializer.identityAttribute.attributeDefId,

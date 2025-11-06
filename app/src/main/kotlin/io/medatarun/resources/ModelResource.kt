@@ -6,6 +6,7 @@ import io.medatarun.resources.actions.ModelInspectAction
 import io.medatarun.resources.actions.ModelInspectJsonAction
 import io.medatarun.runtime.AppRuntime
 import org.slf4j.LoggerFactory
+import java.net.URI
 import java.nio.file.FileSystems
 
 class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelResourceCmd> {
@@ -116,6 +117,7 @@ class ModelResource(private val runtime: AppRuntime) : ResourceContainer<ModelRe
                         entityDefId = EntityDefId(rc.entityId),
                         name = rc.name?.let { LocalizedTextNotLocalized(it) },
                         description = rc.description?.let { LocalizedTextNotLocalized(it) },
+                        documentationHome = rc.documentationHome?.let { URI(it).toURL()},
                         identityAttribute = AttributeDefIdentityInitializer(
                             attributeDefId = AttributeDefId(rc.identityAttributeId),
                             type = rc.identityAttributeType,

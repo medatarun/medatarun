@@ -6,6 +6,7 @@ import io.medatarun.model.model.Model
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelType
 import io.medatarun.model.model.ModelVersion
+import java.net.URL
 import javax.print.attribute.standard.MediaSize
 
 /**
@@ -18,7 +19,8 @@ data class ModelInMemory(
     override val version: ModelVersion,
     override val types: List<ModelTypeInMemory>,
     override val entityDefs: List<EntityDefInMemory>,
-    override val relationshipDefs: List<RelationshipDefInMemory>
+    override val relationshipDefs: List<RelationshipDefInMemory>,
+    override val documentationHome: URL?
 ) : Model {
 
     companion object {
@@ -30,8 +32,10 @@ data class ModelInMemory(
                 version = other.version,
                 types = other.types.map(ModelTypeInMemory::of),
                 entityDefs = other.entityDefs.map(EntityDefInMemory::of),
-                relationshipDefs = other.relationshipDefs.map(RelationshipDefInMemory::of)
+                relationshipDefs = other.relationshipDefs.map(RelationshipDefInMemory::of),
+                documentationHome = other.documentationHome,
             )
         }
+
     }
 }
