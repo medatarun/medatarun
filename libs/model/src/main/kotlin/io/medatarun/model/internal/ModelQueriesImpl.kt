@@ -27,7 +27,7 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val locale: L
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
-                    name = id.value,
+                    name = null,
                     description = null,
                     error = e.message
                 )

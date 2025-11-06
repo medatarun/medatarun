@@ -35,12 +35,28 @@ class UI(private val runtime: AppRuntime) {
         val data = runtime.modelQueries.findAllModelSummaries()
         return Layout {
             h1 { +"Models" }
-            ul {
-                for (m in data) {
-                    li {
-                        a {
-                            href = Links.toModel(m.id)
-                            +(m.name ?: m.id.value)
+            table(classes = "datatable") {
+                tbody {
+                    for (m in data) {
+                        val error = m.error
+                        val nameOrId = m.name ?: m.id.value
+                        val description = m.description
+                        tr {
+                            td {
+                                a {
+                                    href = Links.toModel(m.id)
+                                    +nameOrId
+
+                                }
+                            }
+                            td {
+                                div { code { +m.id.value } }
+                                if (description != null) div { +description }
+                                if (error != null) {
+                                    div { style = "color:red"; +error }
+                                }
+                            }
+
                         }
                     }
                 }
@@ -182,12 +198,13 @@ class UI(private val runtime: AppRuntime) {
                     e.message ?: "Unknown error"
                 }
             }
+
             else -> ""
         }
 
         return Layout {
             h1 { +"Commands" }
-            form (method = FormMethod.post) {
+            form(method = FormMethod.post) {
                 input(type = InputType.text, name = "action") {
                     value = body ?: buildJsonObject {
                         put("action", "resource/command")
@@ -284,6 +301,6 @@ fun HtmlBlockTag.tag(str: String) {
 
 @Language("css")
 val css = """
-table { border-collapse: collapse; } 
-th, td { border: 1px solid black; }
+ 
+table.datatable td, table.datatable th { vertical-align: top; }
 """
