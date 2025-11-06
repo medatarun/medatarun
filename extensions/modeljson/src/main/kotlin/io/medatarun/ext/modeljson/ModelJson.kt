@@ -107,10 +107,12 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     identifierAttribute = entity.identifierAttributeDefId.value,
                     origin = originStr,
                     attributes = toAttributeJsonList(entity.attributes),
-                    documentationHome = entity.documentationHome?.toExternalForm()
+                    documentationHome = entity.documentationHome?.toExternalForm(),
+                    hashtags = entity.hashtags.map { it.value }
                 )
             },
-            documentationHome = model.documentationHome?.toExternalForm()
+            documentationHome = model.documentationHome?.toExternalForm(),
+            hashtags = model.hashtags.map { it.value }
         )
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
@@ -141,7 +143,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                         else -> EntityOrigin.Uri(URI(entityJson.origin))
                     },
                     attributes = toAttributeList(entityJson.attributes),
-                    documentationHome = entityJson.documentationHome?.let { URI(it).toURL() }
+                    documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
+                    hashtags = entityJson.hashtags.map { Hashtag(it) }
                 )
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
@@ -160,7 +163,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     attributes = toAttributeList(relationJson.attributes)
                 )
             },
-            documentationHome = modelJson.documentationHome?.let { URI(it).toURL() }
+            documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
+            hashtags = modelJson.hashtags.map { Hashtag(it) }
         )
         return model
     }
@@ -207,7 +211,8 @@ class ModelEntityJson(
     val identifierAttribute: @Contextual String,
     val origin: String? = null,
     val attributes: List<ModelAttributeJson>,
-    val documentationHome: String? = null
+    val documentationHome: String? = null,
+    val hashtags: List<String> = emptyList(),
 )
 
 @Serializable
@@ -245,6 +250,7 @@ class ModelJson(
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
     val relationships: List<RelationshipJson> = emptyList(),
-    val documentationHome: String? = null
+    val documentationHome: String? = null,
+    val hashtags: List<String> = emptyList(),
 )
 

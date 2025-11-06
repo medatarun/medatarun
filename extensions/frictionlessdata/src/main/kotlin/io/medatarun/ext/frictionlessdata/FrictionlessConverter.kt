@@ -61,10 +61,12 @@ class FrictionlessConverter() {
                     entityName = subresource.datapackage?.title ?: resource.title,
                     entityDescription = subresource.datapackage?.description ?: resource.description,
                     documentationHome = subresource.datapackage?.homepage ?: resource.homepage,
-                    schema = subresource.schema
+                    schema = subresource.schema,
+                    hashtags = (subresource.datapackage?.keywords ?: datapackage.keywords).map { Hashtag(it) },
                 )
             },
             relationshipDefs = emptyList(),
+            hashtags = datapackage.keywords.map { Hashtag(it) },
             documentationHome = toURLSafe(datapackage.homepage)
         )
         return model
@@ -93,11 +95,13 @@ class FrictionlessConverter() {
                     entityName = datapackage.title,
                     entityDescription = datapackage.description,
                     documentationHome = datapackage.homepage,
-                    schema = schema
+                    schema = schema,
+                    hashtags = datapackage.keywords.map { Hashtag(it) }
                 )
             ),
             relationshipDefs = emptyList(),
             documentationHome = toURLSafe(datapackage.homepage),
+            hashtags = datapackage.keywords.map { Hashtag(it) },
         )
         return model
     }
@@ -111,6 +115,7 @@ class FrictionlessConverter() {
         entityDescription: String?,
         documentationHome: String?,
         schema: TableSchema,
+        hashtags: List<Hashtag>
     ): EntityDefInMemory {
         val entity = EntityDefInMemory(
             id = EntityDefId(entityId),
@@ -127,6 +132,7 @@ class FrictionlessConverter() {
             },
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
+            hashtags = hashtags,
             identifierAttributeDefId = AttributeDefId(
                 schema.primaryKey?.values?.joinToString(";")
                     ?: schema.fields.firstOrNull()?.name

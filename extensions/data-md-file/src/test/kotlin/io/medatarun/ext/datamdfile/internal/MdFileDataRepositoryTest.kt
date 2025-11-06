@@ -179,14 +179,15 @@ internal class MdFileDataRepositoryTest {
     private fun createModel(): ModelInMemory {
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
-        val personEntity = EntityDefInMemory(
+        val personEntity = EntityDefInMemory.builder(
             id = EntityDefId("person"),
-            name = LocalizedTextNotLocalized("Person"),
-            description = null,
             identifierAttributeDefId = AttributeDefId("id"),
-            origin = EntityOrigin.Manual,
-            documentationHome = null,
-            attributes = listOf(
+        ) {
+            name = LocalizedTextNotLocalized("Person")
+            description = null
+            origin = EntityOrigin.Manual
+            documentationHome = null
+            addAttribute(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -223,16 +224,17 @@ internal class MdFileDataRepositoryTest {
                     optional = false
                 )
             )
-        )
+        }
 
-        val companyEntity = EntityDefInMemory(
+        val companyEntity = EntityDefInMemory.builder(
             id = EntityDefId("company"),
-            name = LocalizedTextNotLocalized("Company"),
-            description = null,
             identifierAttributeDefId = AttributeDefId("id"),
-            origin = EntityOrigin.Manual,
-            documentationHome = null,
-            attributes = listOf(
+        ) {
+            name = LocalizedTextNotLocalized("Company")
+            description = null
+            origin = EntityOrigin.Manual
+            documentationHome = null
+            addAttribute(
                 AttributeDefInMemory(
                     id = AttributeDefId("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -262,18 +264,16 @@ internal class MdFileDataRepositoryTest {
                     optional = true
                 )
             )
-        )
+        }
 
-        return ModelInMemory(
+        return ModelInMemory.builder(
             id = ModelId("test-model"),
-            name = LocalizedTextNotLocalized("Test Model"),
-            description = null,
             version = ModelVersion("1.0.0"),
-            types = listOf(typeString, typeMarkdown),
-            entityDefs = listOf(personEntity, companyEntity),
-            relationshipDefs = emptyList(),
-            documentationHome = null
-        )
+        ) {
+            name = LocalizedTextNotLocalized("Test Model")
+            types = mutableListOf(typeString, typeMarkdown)
+            entityDefs = mutableListOf(personEntity, companyEntity)
+        }
     }
 
     private class MapEntityInitializer(

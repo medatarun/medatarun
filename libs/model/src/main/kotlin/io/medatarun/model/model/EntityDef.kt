@@ -43,6 +43,10 @@ interface EntityDef {
      * Documentation home
      */
     val documentationHome: URL?
+    /**
+     * Hashtags used for classification
+     */
+    val hashtags: List<Hashtag>
 
     /**
      * Count attributes

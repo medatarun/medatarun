@@ -1,7 +1,6 @@
 package io.medatarun.model.model
 
 import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.internal.ModelValidationImpl
@@ -14,32 +13,27 @@ class ModelValidationTest {
 
     @Test
     fun `model with bad entity identifier`() {
-        val model = ModelInMemory(
+        val model = ModelInMemory.builder(
             id = ModelId("test"),
-            name = null,
-            description = null,
             version = ModelVersion("0.0.1"),
-            types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
-            entityDefs = listOf(
-                EntityDefInMemory.builder(
-                    id = EntityDefId("Contact"),
-                    identifierAttributeDefId = AttributeDefId("unknown"),
-                    {
-                        addAttribute(
-                            AttributeDefInMemory(
-                                id = AttributeDefId("id"),
-                                type = ModelTypeId("String"),
-                                name = null,
-                                description = null,
-                                optional = false
-                            )
+        ) {
+            types = mutableListOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null))
+            addEntityDef(
+                id = EntityDefId("Contact"),
+                identifierAttributeDefId = AttributeDefId("unknown"),
+                {
+                    addAttribute(
+                        AttributeDefInMemory(
+                            id = AttributeDefId("id"),
+                            type = ModelTypeId("String"),
+                            name = null,
+                            description = null,
+                            optional = false
                         )
-                    }
-                )
-            ),
-            relationshipDefs = emptyList(),
-            documentationHome = null,
-        )
+                    )
+                }
+            )
+        }
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)
         assertEquals(1, result.errors.size)
@@ -49,31 +43,29 @@ class ModelValidationTest {
 
     @Test
     fun `model with bad attribute type`() {
-        val model = ModelInMemory(
+        val model = ModelInMemory.builder(
             id = ModelId("test"),
-            name = null,
-            description = null,
             version = ModelVersion("0.0.1"),
-            types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
-            entityDefs = listOf(
-                EntityDefInMemory.builder(
-                    id = EntityDefId("Contact"),
-                    identifierAttributeDefId = AttributeDefId("id"),
-                ) {
-                    addAttribute(
-                        AttributeDefInMemory(
-                            id = AttributeDefId("id"),
-                            type = ModelTypeId("Int"),
-                            name = null,
-                            description = null,
-                            optional = false
-                        )
+        ) {
+            name = null
+            description = null
+            types = mutableListOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null))
+            addEntityDef(
+                id = EntityDefId("Contact"),
+                identifierAttributeDefId = AttributeDefId("id"),
+            ) {
+                addAttribute(
+                    AttributeDefInMemory(
+                        id = AttributeDefId("id"),
+                        type = ModelTypeId("Int"),
+                        name = null,
+                        description = null,
+                        optional = false
                     )
-                }
-            ),
-            relationshipDefs = emptyList(),
-            documentationHome = null,
-        )
+                )
+            }
+        }
+
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)
         assertEquals(1, result.errors.size)

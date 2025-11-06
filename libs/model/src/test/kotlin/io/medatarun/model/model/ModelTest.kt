@@ -1389,33 +1389,30 @@ class ModelTest {
         val cmd = runtime.cmd
         val query = runtime.queries
         val modelId = ModelId("test")
-        val invalidModel = ModelInMemory(
+        val invalidModel = ModelInMemory.builder(
             id = modelId,
-            name = null,
-            description = null,
             version = ModelVersion("0.0.1"),
-            types = listOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null)),
-            entityDefs = listOf(
-                EntityDefInMemory.builder(
-                    id = EntityDefId("Contact"),
-                    // Error is here
-                    identifierAttributeDefId = AttributeDefId("unknown"),
-
+        ) {
+            name = null
+            description = null
+            types = mutableListOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null))
+            addEntityDef(
+                id = EntityDefId("Contact"),
+                // Error is here
+                identifierAttributeDefId = AttributeDefId("unknown"),
                 ) {
-                    addAttribute(
-                        AttributeDefInMemory(
-                            id = AttributeDefId("id"),
-                            type = ModelTypeId("String"),
-                            name = null,
-                            description = null,
-                            optional = false
-                        )
+                addAttribute(
+                    AttributeDefInMemory(
+                        id = AttributeDefId("id"),
+                        type = ModelTypeId("String"),
+                        name = null,
+                        description = null,
+                        optional = false
                     )
-                }
-            ),
-            relationshipDefs = emptyList(),
-            documentationHome = null
-        )
+                )
+            }
+
+        }
 
         init {
             runtime.repositories.first().push(invalidModel)

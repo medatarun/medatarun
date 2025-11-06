@@ -1,13 +1,7 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.LocalizedMarkdown
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelType
-import io.medatarun.model.model.ModelVersion
+import io.medatarun.model.model.*
 import java.net.URL
-import javax.print.attribute.standard.MediaSize
 
 /**
  * Default implementation of Model
@@ -20,7 +14,8 @@ data class ModelInMemory(
     override val types: List<ModelTypeInMemory>,
     override val entityDefs: List<EntityDefInMemory>,
     override val relationshipDefs: List<RelationshipDefInMemory>,
-    override val documentationHome: URL?
+    override val documentationHome: URL?,
+    override val hashtags: List<Hashtag>,
 ) : Model {
 
     companion object {
@@ -34,7 +29,48 @@ data class ModelInMemory(
                 entityDefs = other.entityDefs.map(EntityDefInMemory::of),
                 relationshipDefs = other.relationshipDefs.map(RelationshipDefInMemory::of),
                 documentationHome = other.documentationHome,
+                hashtags = other.hashtags
             )
+        }
+
+        class Builder(
+            val id: ModelId,
+            var name: LocalizedText? = null,
+            var description: LocalizedMarkdown? = null,
+            val version: ModelVersion,
+            var types: MutableList<ModelTypeInMemory> = mutableListOf(),
+            var entityDefs: MutableList<EntityDefInMemory> = mutableListOf(),
+            var relationshipDefs: MutableList<RelationshipDefInMemory> = mutableListOf(),
+            var documentationHome: URL? = null,
+            var hashtags: MutableList<Hashtag> = mutableListOf(),
+        ) {
+            fun build(): ModelInMemory {
+                return ModelInMemory(
+                    id = id,
+                    name = name,
+                    description = description,
+                    version = version,
+                    types = types,
+                    entityDefs = entityDefs,
+                    relationshipDefs = relationshipDefs,
+                    documentationHome = documentationHome,
+                    hashtags = hashtags,
+                )
+            }
+
+            fun addEntityDef(
+                id: EntityDefId,
+                identifierAttributeDefId: AttributeDefId,
+                block: EntityDefInMemory.Companion.Builder.() -> Unit = {}
+            ): EntityDefInMemory {
+                val e = EntityDefInMemory.builder(id, identifierAttributeDefId, block)
+                entityDefs.add(e)
+                return e
+            }
+        }
+
+        fun builder(id: ModelId, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
+            return Builder(id = id, version = version).apply(block).build()
         }
 
     }

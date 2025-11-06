@@ -6,7 +6,6 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelStorages
-import io.medatarun.model.ports.RepositoryRef
 
 class ModelCmdsImpl(
     val storage: ModelStorages,
@@ -22,7 +21,8 @@ class ModelCmdsImpl(
             types = emptyList(),
             entityDefs = emptyList(),
             relationshipDefs = emptyList(),
-            documentationHome = null
+            documentationHome = null,
+            hashtags = emptyList(),
         )
         storage.dispatch(ModelRepositoryCmd.CreateModel(model), cmd.repositoryRef)
     }
@@ -101,6 +101,7 @@ class ModelCmdsImpl(
                 identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
                 origin = EntityOrigin.Manual,
                 documentationHome = c.entityDefInitializer.documentationHome,
+                hashtags = emptyList(),
                 attributes = listOf(
                     AttributeDefInMemory(
                         id = c.entityDefInitializer.identityAttribute.attributeDefId,

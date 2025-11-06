@@ -14,6 +14,7 @@ data class EntityDefInMemory(
     override val identifierAttributeDefId: AttributeDefId,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
+    override val hashtags: List<Hashtag>,
 ) : EntityDef {
 
     private val map = attributes.associateBy { it.id }
@@ -39,7 +40,8 @@ data class EntityDefInMemory(
                 attributes = other.attributes.map(AttributeDefInMemory::of),
                 identifierAttributeDefId = other.identifierAttributeDefId,
                 origin = other.origin,
-                documentationHome = other.documentationHome
+                documentationHome = other.documentationHome,
+                hashtags = other.hashtags
             )
         }
 
@@ -51,8 +53,8 @@ data class EntityDefInMemory(
             var identifierAttributeDefId: AttributeDefId,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
-
-            ) {
+            var hashtags: MutableList<Hashtag> = mutableListOf(),
+        ) {
 
             fun addAttribute(vararg attributes: AttributeDefInMemory) {
                 this.attributes.addAll(attributes)
@@ -66,7 +68,8 @@ data class EntityDefInMemory(
                     description = description,
                     identifierAttributeDefId = identifierAttributeDefId,
                     origin = origin,
-                    documentationHome = documentationHome
+                    documentationHome = documentationHome,
+                    hashtags = hashtags
                 )
             }
         }

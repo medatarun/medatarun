@@ -12,6 +12,8 @@ import java.net.URL
  * Think of it as a Domain Model in DDD in a bounded context
  */
 interface Model {
+
+
     /**
      * Unique identifier of the model accros all models managed by the current application instance
      */
@@ -48,6 +50,11 @@ interface Model {
      * Documentation home
      */
     val documentationHome: URL?
+
+    /**
+     * Hashtags used as classifiers for the model
+     */
+    val hashtags: List<Hashtag>
 
     fun findTypeOptional(typeId: ModelTypeId): ModelType? = types.firstOrNull { it.id == typeId }
     fun findType(typeId: ModelTypeId): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)

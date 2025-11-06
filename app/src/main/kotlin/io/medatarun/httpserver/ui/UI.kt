@@ -3,6 +3,7 @@ package io.medatarun.httpserver.ui
 import io.ktor.server.plugins.*
 import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.EntityOrigin
+import io.medatarun.model.model.Hashtag
 import io.medatarun.model.model.ModelId
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceInvocationRequest
@@ -105,6 +106,10 @@ class UI(private val runtime: AppRuntime) {
                         externalUrl(documentationHome)
                     }
                 }
+                if (model.hashtags.isNotEmpty()) {
+                    div { +"Hashtags" }
+                    div { hashtags(model.hashtags) }
+                }
             }
             if (description != null) markdown(description)
 
@@ -161,9 +166,13 @@ class UI(private val runtime: AppRuntime) {
                 div { code { +id } }
                 div { +"Model" }
                 div { a(href = Links.toModel(model.id)) { +(model.name?.name ?: model.id.value) } }
-                if (documentationHome!=null) {
+                if (documentationHome != null) {
                     div { +"Documentation" }
                     div { externalUrl(documentationHome) }
+                }
+                if (e.hashtags.isNotEmpty()) {
+                    div { +"Hashtags" }
+                    div { hashtags(e.hashtags) }
                 }
                 div { +"Origin" }
                 div {
@@ -322,29 +331,37 @@ fun HtmlBlockTag.markdown(markdownText: String) {
 
 @HtmlTagMarker
 fun HtmlBlockTag.tag(str: String) {
-    span {
-        style =
-            "font-size: 0.8em; background-color: rgba(255, 255, 255, .5); color: black; padding-left:0.5em; padding-right: 0.5em; border-radius: 0.2em;"
-        +str
+    span(classes = "tag") { +str }
+}
+
+@HtmlTagMarker
+fun HtmlBlockTag.externalUrl(url: URL?) {
+    if (url == null) return
+    a {
+        href = url.toExternalForm()
+        target = "_blank"
+        +url.toExternalForm()
     }
 }
 
 @HtmlTagMarker
-fun HtmlBlockTag.externalUrl(url : URL?) {
-    if (url == null) return
-    a {
-        href = url.toExternalForm()
-        target="_blank"
-        +url.toExternalForm()
-    }
-}
-@HtmlTagMarker
-fun HtmlBlockTag.externalUrl(uri : URI?) {
+fun HtmlBlockTag.externalUrl(uri: URI?) {
     if (uri == null) return
     a {
         href = uri.normalize().toURL().toExternalForm()
-        target="_blank"
+        target = "_blank"
         +uri.normalize().toURL().toExternalForm()
+    }
+}
+
+@HtmlTagMarker
+fun HtmlBlockTag.hashtags(hashtags: List<Hashtag>) {
+    if (hashtags.isEmpty()) return
+    hashtags.forEach { hashtag ->
+        span(classes = "tag") {
+            style="margin-right:1em;"
+            + hashtag.value
+        }
     }
 }
 
@@ -352,4 +369,13 @@ fun HtmlBlockTag.externalUrl(uri : URI?) {
 val css = """
  
 table.datatable td, table.datatable th { vertical-align: top; }
+.tag {
+    font-size: 0.8em; 
+    background-color: rgba(255, 255, 255, .5); 
+    color: black; 
+    padding-left:0.5em;
+    padding-right: 0.5em;
+    border-radius: 0.2em;
+}
 """
+
