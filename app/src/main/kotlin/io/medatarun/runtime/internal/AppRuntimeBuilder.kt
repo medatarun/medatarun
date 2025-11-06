@@ -19,28 +19,33 @@ import io.medatarun.model.model.ModelQueries
 import io.medatarun.model.ports.ModelRepository
 import io.medatarun.runtime.AppRuntime
 import org.slf4j.LoggerFactory
+import java.util.Locale
 
 class AppRuntimeBuilder {
-    fun build(): AppRuntime {
-        val scanner = AppRuntimeScanner()
-        val config = scanner.scan()
-        val extensions = listOf(
-            ModelExtension(),
-            ModelJsonExtension(),
-            DataExtension(),
-            DataMdFileExtension(),
-            FrictionlessdataExtension()
-        )
-        val platform = ExtensionPlaformImpl(extensions, config)
-        val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
-        val validation = ModelValidationImpl()
-        val storage = ModelStoragesComposite(repositories, validation)
-        val queries = ModelQueriesImpl(storage)
-        val auditor: ModelAuditor = object : ModelAuditor {
-            override fun onCmdProcessed(cmd: ModelCmd) {
-                logger.info("onCmdProcessed: $cmd")
-            }
+
+    // Things that are compile-build builds
+
+    val scanner = AppRuntimeScanner()
+    val config = scanner.scan()
+    val extensions = listOf(
+        ModelExtension(),
+        ModelJsonExtension(),
+        DataExtension(),
+        DataMdFileExtension(),
+        FrictionlessdataExtension()
+    )
+    val platform = ExtensionPlaformImpl(extensions, config)
+    val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
+    val validation = ModelValidationImpl()
+    val storage = ModelStoragesComposite(repositories, validation)
+    val auditor: ModelAuditor = object : ModelAuditor {
+        override fun onCmdProcessed(cmd: ModelCmd) {
+            logger.info("onCmdProcessed: $cmd")
         }
+    }
+
+    fun build(locale: Locale): AppRuntime {
+        val queries = ModelQueriesImpl(storage, locale)
         val cmd = ModelCmdsImpl(storage, auditor)
         return object : AppRuntime {
             override val modelCmds: ModelCmds = cmd

@@ -11,4 +11,5 @@ interface ModelQueries {
      * Returns complete list of all known model ids in this application instance
      */
     fun findAllModelIds(): List<ModelId>
+    fun findAllModelSummaries(): List<ModelSummary>
 }

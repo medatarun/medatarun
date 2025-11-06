@@ -7,9 +7,11 @@ import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
 import org.junit.platform.commons.logging.LoggerFactory
+import java.util.Locale
 
 class ModelTestRuntime private constructor (
-    val repositories: List<ModelRepositoryInMemory>
+    val repositories: List<ModelRepositoryInMemory>,
+    val locale: Locale = Locale.ROOT,
 ) {
     val storages = ModelStoragesComposite(repositories, ModelValidationImpl())
     val cmd: ModelCmds = ModelCmdsImpl(storages, object : ModelAuditor {
@@ -17,7 +19,7 @@ class ModelTestRuntime private constructor (
             logger.info { "onCmdProcessed: $cmd" }
         }
     })
-    val queries: ModelQueries = ModelQueriesImpl(storages)
+    val queries: ModelQueries = ModelQueriesImpl(storages, locale)
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModelTestRuntime::class.java)

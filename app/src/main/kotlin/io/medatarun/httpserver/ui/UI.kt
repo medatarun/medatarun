@@ -32,15 +32,15 @@ class UI(private val runtime: AppRuntime) {
     private val resources = AppResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
     fun renderModelList(): String {
-        val data = runtime.modelQueries.findAllModelIds()
+        val data = runtime.modelQueries.findAllModelSummaries()
         return Layout {
             h1 { +"Models" }
             ul {
-                for (id in data) {
+                for (m in data) {
                     li {
                         a {
-                            href = Links.toModel(id)
-                            +id.value
+                            href = Links.toModel(m.id)
+                            +(m.name ?: m.id.value)
                         }
                     }
                 }
