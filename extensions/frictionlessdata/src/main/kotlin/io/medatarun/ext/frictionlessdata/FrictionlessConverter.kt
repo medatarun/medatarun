@@ -51,6 +51,7 @@ class FrictionlessConverter() {
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
+            origin = ModelOrigin.Uri(uri),
             types = types,
             entityDefs = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
@@ -88,6 +89,7 @@ class FrictionlessConverter() {
             description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
             types = types,
+            origin = ModelOrigin.Uri(uri),
             entityDefs = listOf(
                 toEntity(
                     uri = uri,

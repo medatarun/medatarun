@@ -122,6 +122,7 @@ class ModelInMemoryTest {
             entityDefs = listOf(personEntity, companyEntity),
             relationshipDefs = emptyList(), // TODO tests on model in memory relationships
             documentationHome = null,
+            origin = ModelOrigin.Manual,
             hashtags = emptyList()
         )
     }

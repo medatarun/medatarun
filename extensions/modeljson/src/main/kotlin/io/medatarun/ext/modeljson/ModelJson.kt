@@ -69,6 +69,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             version = model.version.value,
             name = model.name,
             description = model.description,
+            origin = toModelOriginStr(model.origin),
             types = model.types.map { type ->
                 ModelTypeJson(
                     id = type.id.value,
@@ -94,18 +95,12 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                 )
             },
             entities = model.entityDefs.map { entity ->
-                val origin = entity.origin
-                val originStr = when (origin) {
-                    null -> null
-                    is EntityOrigin.Manual -> null
-                    is EntityOrigin.Uri -> origin.uri.toString()
-                }
                 ModelEntityJson(
                     id = entity.id.value,
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeDefId.value,
-                    origin = originStr,
+                    origin = toEntityOriginStr(entity.origin),
                     attributes = toAttributeJsonList(entity.attributes),
                     documentationHome = entity.documentationHome?.toExternalForm(),
                     hashtags = entity.hashtags.map { it.value }
@@ -117,12 +112,33 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
 
+    fun toEntityOriginStr(origin: EntityOrigin): String? {
+        val originStr = when (origin) {
+            null -> null
+            is EntityOrigin.Manual -> null
+            is EntityOrigin.Uri -> origin.uri.toString()
+        }
+        return originStr
+    }
+    fun toModelOriginStr(origin: ModelOrigin): String? {
+        val originStr = when (origin) {
+            null -> null
+            is ModelOrigin.Manual -> null
+            is ModelOrigin.Uri -> origin.uri.toString()
+        }
+        return originStr
+    }
+
 
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
             id = ModelId(modelJson.id),
             version = ModelVersion(modelJson.version),
+            origin = when(modelJson.origin) {
+                null -> ModelOrigin.Manual
+                    else -> ModelOrigin.Uri(URI(modelJson.origin))
+            },
             name = modelJson.name,
             description = modelJson.description,
             types = modelJson.types.map { typeJson ->
@@ -247,6 +263,7 @@ class ModelJson(
     val version: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
+    val origin: String? = null,
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
     val relationships: List<RelationshipJson> = emptyList(),

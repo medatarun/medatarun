@@ -14,6 +14,8 @@ import java.net.URL
 interface Model {
 
 
+
+
     /**
      * Unique identifier of the model accros all models managed by the current application instance
      */
@@ -30,6 +32,11 @@ interface Model {
      * Version of the model
      */
     val version: ModelVersion
+
+    /**
+     * Origin of the model, either created by the application or imported from another source
+     */
+    val origin: ModelOrigin
 
     /**
      * Lists types known by the model

@@ -10,27 +10,6 @@ class TableSchemaTest {
     val conv = FrictionlessConverter()
 
     /**
-     * Resource locator for tests that map file paths to test resources.
-     */
-    class TestResourceLocator(val path: String) : ResourceLocator {
-        override fun getRootContent(): String {
-            return this::class.java.getResource(path).readText()
-        }
-
-        override fun getContent(path: String): String {
-            TODO("Not yet implemented")
-        }
-
-        override fun withPath(path: String): ResourceLocator {
-            return TestResourceLocator(path)
-        }
-
-        override fun resolveUri(path: String): URI {
-            TODO("Not yet implemented")
-        }
-    }
-
-    /**
      * Fake resource locator to map URLs to files in test resources to avoid getting files on internet during tests.
      * This allows tests on datapackage to simulate content fetching on a limited set on URLs
      */
@@ -52,21 +31,27 @@ class TableSchemaTest {
         )
 
 
+        private fun getURIContent(uri: URI): String {
+            if (uri.scheme == "classpath") {
+                val absoluteUri = resolveUri(uri)
+                return this::class.java.getResource(absoluteUri.path).readText()
+            } else {
+                val name = map[baseURI.toString()]
+                    ?: throw IllegalArgumentException(baseURI.toString() + " is not in the map")
+                return this::class.java.getResource(name).readText()
+            }
+        }
+
         override fun getRootContent(): String {
-            val name = map[baseURI.toString()]
-                ?: throw IllegalArgumentException(baseURI.toString() + " is not in the map")
-            return this::class.java.getResource(name).readText()
+            return getURIContent(baseURI)
         }
 
         override fun getContent(path: String): String {
-            val url = resolveUri(path)
-            val resource = map[url.toString()].toString()
-            return this::class.java.getResource(resource).readText()
+            return getURIContent(resolveUri(path))
         }
 
         override fun withPath(path: String): ResourceLocator {
-            val candidate = URI(path)
-            val url = if (candidate.isAbsolute) candidate else baseURI.resolve(candidate)
+            val url = resolveUri(path)
             return TestResourceLocatorURL(url)
         }
 
@@ -75,12 +60,17 @@ class TableSchemaTest {
             val url = if (candidate.isAbsolute) candidate else baseURI.resolve(candidate)
             return url
         }
+
+        override fun resolveUri(path: URI): URI {
+            val url = if (path.isAbsolute) path else baseURI.resolve(path)
+            return url
+        }
     }
 
     @Test
     fun test() {
         val resource = "/budget.json"
-        val rl = TestResourceLocator(resource)
+        val rl = TestResourceLocatorURL(URI("classpath:$resource"))
         val model = conv.readString(resource, rl)
         println(ModelHumanPrinterEmoji().print(model))
         TODO("Complete tests on tableSchema")

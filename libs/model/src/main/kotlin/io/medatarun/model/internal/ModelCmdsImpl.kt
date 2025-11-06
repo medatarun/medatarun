@@ -18,6 +18,7 @@ class ModelCmdsImpl(
             name = cmd.name,
             description = cmd.description,
             version = cmd.version,
+            origin = ModelOrigin.Manual,
             types = emptyList(),
             entityDefs = emptyList(),
             relationshipDefs = emptyList(),
