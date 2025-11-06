@@ -4,7 +4,9 @@ import io.medatarun.model.model.*
 import kotlinx.serialization.json.*
 import java.net.URI
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class ModelJsonConverterTest {
 
@@ -164,7 +166,7 @@ internal class ModelJsonConverterTest {
     }
 
     @Test
-    fun `model documentation home undefined`() {
+    fun `model and entity documentation home undefined`() {
         val json = createJsonForDocumentationHomeTest(null, null)
         val model = instance.fromJson(json.toString())
         assertEquals(null, model.documentationHome)
@@ -176,7 +178,7 @@ internal class ModelJsonConverterTest {
     }
 
     @Test
-    fun `model documentation home null`() {
+    fun `model and entity documentation home null`() {
         val json = createJsonForDocumentationHomeTest(JsonNull, JsonNull)
         val model = instance.fromJson(json.toString())
         assertEquals(null, model.documentationHome)
@@ -188,7 +190,7 @@ internal class ModelJsonConverterTest {
     }
 
     @Test
-    fun `model documentation home defined`() {
+    fun `model and entity documentation home defined`() {
         val modelDocHome = "https://localhost/model"
         val entityDocHome = "https://localhost/entity"
         val json = createJsonForDocumentationHomeTest(JsonPrimitive(modelDocHome), JsonPrimitive(entityDocHome))
@@ -199,6 +201,92 @@ internal class ModelJsonConverterTest {
         val modelRead = instance.fromJson(jsonWritten.toString())
         assertEquals(URI(modelDocHome).toURL(), modelRead.documentationHome)
         assertEquals(URI(entityDocHome).toURL(), modelRead.entityDefs.first().documentationHome)
+    }
+
+    fun createJsonForHashtagsTest(modelHashtags: JsonElement?, entityHashtags: JsonElement?): JsonObject {
+        return buildJsonObject {
+            put("id", "exemple")
+            put("version", "1.0.0")
+            if (modelHashtags != null) put("hashtags", modelHashtags)
+            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            putJsonArray("entities") {
+                addJsonObject {
+                    put("id", "contact")
+                    put("name", "Contact")
+                    put("identifierAttribute", "id")
+                    if (entityHashtags != null) put("hashtags", entityHashtags)
+                    putJsonArray("attributes") {
+                        addJsonObject {
+                            put("id", "id")
+                            put("name", "Identifier")
+                            put("type", "String")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    fun `model and entity hashtags undefined`() {
+        val json = createJsonForHashtagsTest(null, null)
+        val model = instance.fromJson(json.toString())
+        assertTrue(model.hashtags.isEmpty())
+        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten)
+        assertTrue(modelRead.hashtags.isEmpty())
+        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+    }
+
+    @Test
+    fun `model and entity hashtags null`() {
+        val json = createJsonForHashtagsTest(JsonNull, JsonNull)
+        val model = instance.fromJson(json.toString())
+        assertTrue(model.hashtags.isEmpty())
+        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten)
+        assertTrue(modelRead.hashtags.isEmpty())
+        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+    }
+
+    @Test
+    fun `model and entity hashtags empty list`() {
+        val json = createJsonForHashtagsTest(buildJsonArray {}, buildJsonArray { })
+        val model = instance.fromJson(json.toString())
+        assertTrue(model.hashtags.isEmpty())
+        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten)
+        assertTrue(modelRead.hashtags.isEmpty())
+        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+    }
+
+    @Test
+    fun `model and entity hashtags home defined`() {
+        val modelDocHome = listOf("tag1", "tag2")
+        val entityDocHome = listOf("tag3", "tag4")
+        val json = createJsonForHashtagsTest(
+            JsonArray(modelDocHome.map { JsonPrimitive(it) }),
+            JsonArray(entityDocHome.map { JsonPrimitive(it) })
+        )
+        val model = instance.fromJson(json.toString())
+
+
+        assertContains(model.hashtags, Hashtag("tag1"))
+        assertContains(model.hashtags, Hashtag("tag2"))
+        assertContains(model.entityDefs.first().hashtags, Hashtag("tag3"))
+        assertContains(model.entityDefs.first().hashtags, Hashtag("tag4"))
+
+        val jsonWritten = instance.toJson(model)
+        val modelRead = instance.fromJson(jsonWritten)
+
+        assertContains(modelRead.hashtags, Hashtag("tag1"))
+        assertContains(modelRead.hashtags, Hashtag("tag2"))
+        assertContains(modelRead.entityDefs.first().hashtags, Hashtag("tag3"))
+        assertContains(modelRead.entityDefs.first().hashtags, Hashtag("tag4"))
     }
 
     fun normalizeJson(str: String): String {

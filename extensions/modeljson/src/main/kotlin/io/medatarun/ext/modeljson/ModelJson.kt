@@ -144,7 +144,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     },
                     attributes = toAttributeList(entityJson.attributes),
                     documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
-                    hashtags = entityJson.hashtags.map { Hashtag(it) }
+                    hashtags = entityJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
@@ -164,7 +164,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                 )
             },
             documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
-            hashtags = modelJson.hashtags.map { Hashtag(it) }
+            hashtags = modelJson.hashtags?.map { Hashtag(it) } ?: emptyList()
         )
         return model
     }
@@ -212,7 +212,7 @@ class ModelEntityJson(
     val origin: String? = null,
     val attributes: List<ModelAttributeJson>,
     val documentationHome: String? = null,
-    val hashtags: List<String> = emptyList(),
+    val hashtags: List<String>? = emptyList(),
 )
 
 @Serializable
@@ -251,6 +251,6 @@ class ModelJson(
     val entities: List<ModelEntityJson>,
     val relationships: List<RelationshipJson> = emptyList(),
     val documentationHome: String? = null,
-    val hashtags: List<String> = emptyList(),
+    val hashtags: List<String>? = emptyList(),
 )
 
