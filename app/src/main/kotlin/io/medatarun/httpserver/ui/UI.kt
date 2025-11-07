@@ -1,10 +1,7 @@
 package io.medatarun.httpserver.ui
 
 import io.ktor.server.plugins.*
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityOrigin
-import io.medatarun.model.model.Hashtag
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.*
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
@@ -89,6 +86,7 @@ class UI(private val runtime: AppRuntime) {
         val name = model.name?.name
         val description = model.description?.name
         val documentationHome = model.documentationHome
+        val origin = model.origin
         return Layout {
             h1 {
                 +"Model "
@@ -109,6 +107,13 @@ class UI(private val runtime: AppRuntime) {
                 if (model.hashtags.isNotEmpty()) {
                     div { +"Hashtags" }
                     div { hashtags(model.hashtags) }
+                }
+                div { +"Origin" }
+                div {
+                    when (origin) {
+                        is ModelOrigin.Manual -> +"Medatarun (manual)"
+                        is ModelOrigin.Uri -> externalUrl(origin.uri)
+                    }
                 }
             }
             if (description != null) markdown(description)
@@ -359,8 +364,8 @@ fun HtmlBlockTag.hashtags(hashtags: List<Hashtag>) {
     if (hashtags.isEmpty()) return
     hashtags.forEach { hashtag ->
         span(classes = "tag") {
-            style="margin-right:1em;"
-            + hashtag.value
+            style = "margin-right:1em;"
+            +hashtag.value
         }
     }
 }
