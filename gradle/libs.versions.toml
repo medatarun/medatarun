@@ -12,9 +12,10 @@ kotlinxSerializationJSON = "1.8.1"
 kotlinxCoroutines = "1.10.2"
 ktor = "3.3.1"
 logback = "1.5.20"
-mcpKotlin = "0.7.3"
+mcpKotlin = "0.7.4"
 slf4j = "2.0.1"
 gradleVersionsPlugin = "0.53.0"
+gradleNodePluginVersion = "7.0.2"
 
 [libraries]
 commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
@@ -47,3 +48,4 @@ slf4jTests = ["slf4j", "slf4j-simple"]
 [plugins]
 kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 gradleVersionsPlugin = { id = "com.github.ben-manes.versions", version.ref = "gradleVersionsPlugin" }
+gradleNodePlugin = { id = "com.github.node-gradle.node", version.ref = "gradleNodePluginVersion"}

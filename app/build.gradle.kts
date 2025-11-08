@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.project
+
 plugins {
     // Apply the shared build logic from a convention plugin.
     // The shared code is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
@@ -28,10 +30,24 @@ dependencies {
     implementation(libs.bundles.slf4jImpl)
     implementation(libs.kotlinxHtml)
     implementation(libs.bundles.commonmark)
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-host-common:3.3.1")
+    implementation("io.ktor:ktor-server-status-pages:3.3.1")
+    implementation("io.ktor:ktor-server-core:3.3.1")
 }
 
 application {
     // Define the Fully Qualified Name for the application main class
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
     mainClass = "io.medatarun.AppKt"
+}
+
+val copyWebBuild by tasks.registering(Copy::class) {
+    dependsOn(":ui:viteBuild")
+    from(project(":ui").layout.projectDirectory.dir("dist"))
+    into(layout.buildDirectory.dir("resources/main/static"))
+}
+
+tasks.named("processResources") {
+    dependsOn(copyWebBuild)
 }
