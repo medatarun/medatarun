@@ -6,6 +6,8 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
@@ -17,6 +19,7 @@ import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
+import io.medatarun.model.model.ModelId
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
@@ -135,8 +138,11 @@ class RestApi(
             }
 
             get("/ui/api/models") {
-                logger.info("→ Handler /ui/api/models atteint")
                 call.respondText(UI(runtime).renderModelListJson(), ContentType.Application.Json)
+            }
+            get("/ui/api/models/{modelId}") {
+                val modelId = call.parameters["modelId"] ?: throw NotFoundException()
+                call.respondText(UI(runtime).renderModelJson(ModelId(modelId)), ContentType.Application.Json)
             }
 
             if (enableMcp) {

@@ -1,35 +1,87 @@
-import {type PropsWithChildren} from 'react'
 import './App.css'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Link,
+  Outlet,
+  RouterProvider,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
 import {CommandsPage} from "./components/CommandsPage.tsx";
 import {ModelsPage} from "./components/ModelsPage.tsx";
 import {ModelPage} from "./components/ModelPage.tsx";
 
-function Layout({children}: PropsWithChildren) {
+function Layout() {
   return <div>
     <nav className="menubar">
       <div>Medatarun</div>
-      <div><a href="/">Home</a></div>
-      <div><a href="/">Models</a></div>
-      <div><a href="/commands">Commands</a></div>
+      <div><Link to="/">Home</Link></div>
+      <div><Link to="/">Models</Link></div>
+      <div><Link to="/commands">Commands</Link></div>
     </nav>
-    <main className="container">{children}</main>
+    <main className="container"><Outlet/></main>
   </div>
 }
 
-function App() {
-  const path = window.location.pathname
-  let content = <div>Not found</div>
-  if (path == "/commands") {
-    content = <CommandsPage/>
-  } else if (path == "/") {
-    content = <ModelsPage onClickModel={() => {
-  }}/>
-  } else if (path.startsWith("/model")) {
-    const modelId = path.split("/")[1]
-    content = <ModelPage modelId={modelId} />
+function ModelsRouteComponent() {
+  const navigate = useNavigate();
+  const handleClickModel = (modelId: string) => {
+    navigate({to: '/model/$modelId', params: {modelId}});
+  };
+  return <ModelsPage onClickModel={handleClickModel}/>
+}
+
+function CommandsRouteComponent() {
+  return <CommandsPage/>
+}
+
+function ModelRouteComponent() {
+  const {modelId} = useParams({from: '/model/$modelId'});
+  return <ModelPage modelId={modelId}/>
+}
+
+// Route tree keeps the shared layout and individual pages wired to TanStack Router.
+const rootRoute = createRootRoute({
+  component: Layout,
+});
+
+const modelsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: ModelsRouteComponent,
+});
+
+const commandsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/commands',
+  component: CommandsRouteComponent,
+});
+
+const modelRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/model/$modelId',
+  component: ModelRouteComponent,
+});
+
+const routeTree = rootRoute.addChildren([modelsRoute, commandsRoute, modelRoute]);
+
+const router = createRouter({
+  routeTree,
+});
+
+// Register the router instance for type safety
+// Do not suppress
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
   }
+}
+
+function App() {
   return (
-    <Layout>{content}</Layout>
+    <RouterProvider router={router}/>
   )
 }
 

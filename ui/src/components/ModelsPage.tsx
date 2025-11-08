@@ -22,7 +22,10 @@ export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => 
     <table>
       <tbody>
       {data.map((model: ModelSummaryDto) => <tr key={model.id}>
-        <td><a href="#" onClick={() => onClickModel(model.id)}>{model.name ?? model.id}</a></td>
+        <td><a href="#" onClick={(event) => {
+          event.preventDefault()
+          onClickModel(model.id)
+        }}>{model.name ?? model.id}</a></td>
         <td>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <div><code>{model.id}</code></div>
@@ -36,4 +39,3 @@ export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => 
     </table>
   </div>
 }
-

@@ -7,9 +7,7 @@ import io.medatarun.runtime.AppRuntime
 import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.dom.serialize
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.*
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.intellij.lang.annotations.Language
@@ -48,6 +46,27 @@ class UI(private val runtime: AppRuntime) {
         }.toString()
     }
 
+    fun renderModelJson(modelId: ModelId): String {
+        val model = runtime.modelQueries.findModelById(modelId)
+        return buildJsonObject {
+            put("id", model.id.value)
+            put("version", model.version.value)
+            put("documentationHome", model.documentationHome?.toExternalForm())
+            put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
+            val origin = model.origin
+            put(
+                "origin", when {
+                    origin is ModelOrigin.Uri -> buildJsonObject {
+                        put("type", "uri")
+                        put("uri", origin.uri.toString())
+                    }
+                    else -> buildJsonObject {
+                        put("type", "manual")
+                    }
+                }
+            )
+        }.toString()
+    }
 
     fun renderModel(modelId: ModelId): String {
         val model = runtime.modelQueries.findModelById(modelId)
