@@ -95,34 +95,36 @@ export function CommandsPage() {
   const handleClear = () => {
     setOutput({})
   }
-  const handleRunTemplate = (resource: string, action: ActionDescriptorDto) => {
-    applySelection(resource, action.name)
-  }
+
   return <div>
     <h1>Commands</h1>
     <div>
       <div>
-        <div>
-          <label>Resource&nbsp;
-            <select value={selectedResource} onChange={(e) => applySelection(e.target.value)}>
-              {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
-            </select>
-          </label>
-        </div>
-        <div>
-          <label>Action&nbsp;
-            <select
-              value={selectedAction}
-              onChange={(e) => applySelection(selectedResource, e.target.value)}
-              disabled={!selectedResource || actionsForSelectedResource.length === 0}>
-              {actionsForSelectedResource.map(action => <option key={action.name}
-                                                                value={action.name}>{action.name}</option>)}
-            </select>
-          </label>
-        </div>
+      <div >
+      </div>
         <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
-          <div style={{border: "1px solid #ddd", padding: "1em"}}>
-            <h3>Documentation</h3>
+          <div>
+            <div style={{display: "grid", gridTemplateColumns:"1fr 1fr", columnGap: "1em"}}>
+              <div>
+              <label>
+                <select value={selectedResource} onChange={(e) => applySelection(e.target.value)}>
+                  {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
+                </select>
+              </label>
+              </div>
+              <div>
+                <label>
+                  <select
+                    value={selectedAction}
+                    onChange={(e) => applySelection(selectedResource, e.target.value)}
+                    disabled={!selectedResource || actionsForSelectedResource.length === 0}>
+                    {actionsForSelectedResource.map(action => <option key={action.name}
+                                                                      value={action.name}>{action.name}</option>)}
+                  </select>
+                </label>
+              </div>
+
+            </div>
             {selectedActionDescriptor ?
               <>
                 <div style={{marginBottom: "0.5em"}}>{selectedActionDescriptor.description}</div>
@@ -148,63 +150,12 @@ export function CommandsPage() {
       <div>
         {Object.getOwnPropertyNames(output).length === 0 ? "" :
           <pre style={{border: "1px solid green", padding: "1em"}}>{JSON.stringify(output, null, 2)}</pre>}
-        {commandRegistryDto ? <CommandRegistryView
-            registry={commandRegistryDto}
-            onSelectTemplate={handleRunTemplate}/> :
-          <span>Loading...</span>}
       </div>
     </div>
   </div>
 }
 
-function CommandRegistryView({registry, onSelectTemplate}: {
-  registry: CommandRegistryDto,
-  onSelectTemplate: (resource: string, action: ActionDescriptorDto) => void
-}) {
-  return <div>
-    {Object.entries(registry).map(e => {
-      const [resource, actions] = e;
-      return <div>
-        <h2>{resource}</h2>
-        <div style={{display: "grid", gridTemplateColumns: "auto auto", columnGap: "1em"}}>
-          {actions.map(action =>
-            <ActionDescriptionView key={action.name} resource={resource} action={action} onRun={onSelectTemplate}/>
-          )}
-        </div>
-      </div>;
-    })}
-  </div>
-}
 
-function ActionDescriptionView({resource, action, onRun}: {
-  resource: string,
-  action: ActionDescriptorDto,
-  onRun: (resource: string, action: ActionDescriptorDto) => void
-}) {
-  const handleClick = () => {
-    onRun(resource, action);
-  }
-  return <>
-    <div onClick={handleClick}><a href="#">▶️{action.name}</a></div>
-    <div style={{
-      marginBottom: "1em",
-      gridTemplateColumns: "auto auto",
-      columnGap: "1em",
-      rowGap: "1em"
-    }}>
-      <div>{action.description}</div>
-      <div style={{
-        marginLeft: "2em",
-        display: "grid",
-        gridTemplateColumns: "auto auto",
-        columnGap: "1em"
-      }}>{action.parameters.map(p => <>
-        <div>{p.name}</div>
-        <div>{p.type} {p.optional ? "?" : ""}</div>
-      </>)}</div>
-    </div>
-  </>
-}
 
 function buildPayloadTemplate(action: ActionDescriptorDto): string {
   const payload: Record<string, string> = {}
