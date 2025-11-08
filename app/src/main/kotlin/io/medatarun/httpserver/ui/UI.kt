@@ -1,15 +1,15 @@
 package io.medatarun.httpserver.ui
 
-import io.ktor.server.plugins.*
 import io.medatarun.model.model.*
 import io.medatarun.resources.AppResources
-import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
 import kotlinx.html.*
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.dom.serialize
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.put
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.intellij.lang.annotations.Language
@@ -31,53 +31,23 @@ object Links {
 class UI(private val runtime: AppRuntime) {
     private val resources = AppResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
-    fun renderModelList(): String {
+    fun renderModelListJson(): String {
         val data = runtime.modelQueries.findAllModelSummaries()
-        return Layout {
-            h1 { +"Models" }
-            table(classes = "datatable") {
-                tbody {
-                    for (m in data) {
-                        val error = m.error
-                        val nameOrId = m.name ?: m.id.value
-                        val description = m.description
-                        tr {
-                            td {
-                                a {
-                                    href = Links.toModel(m.id)
-                                    +nameOrId
-
-                                }
-                            }
-                            td {
-                                div {
-                                    style = "display:flex; justify-content:space-between;"
-                                    div {
-                                        code { +m.id.value }
-                                    }
-                                    div {
-                                        +" "
-                                        +("${m.countEntities}×E")
-                                        +" "
-                                        +("${m.countRelationships}×R")
-                                        +" "
-                                        +("${m.countTypes}×T")
-                                    }
-                                }
-                                if (description != null) div { +description }
-                                if (error != null) {
-                                    div { style = "color:red"; +error }
-                                }
-                            }
-
-                        }
-                    }
+        return buildJsonArray {
+            data.forEach { m ->
+                addJsonObject {
+                    put("id", m.id.value)
+                    put("name", m.name)
+                    put("description", m.description)
+                    put("error", m.error)
+                    put("countTypes", m.countTypes)
+                    put("countEntities", m.countEntities)
+                    put("countRelationships", m.countRelationships)
                 }
             }
-
-
-        }.build()
+        }.toString()
     }
+
 
     fun renderModel(modelId: ModelId): String {
         val model = runtime.modelQueries.findModelById(modelId)
@@ -211,84 +181,6 @@ class UI(private val runtime: AppRuntime) {
                         }
                         br
                         markdown(attr.description?.name ?: "")
-                    }
-                }
-            }
-        }.build()
-    }
-
-    fun commands(body: String?, initialError: String?): String {
-        val result: String = when {
-            initialError != null -> initialError
-            body != null && body.isNotEmpty() -> {
-                try {
-                    val json = Json.parseToJsonElement(body).jsonObject
-                    val action = json["action"]?.jsonPrimitive?.content
-                        ?: throw BadRequestException("No action field found")
-                    val actionSplit = action.split("/")
-                    val resource = actionSplit.getOrNull(0)
-                        ?: throw BadRequestException("No resource found in action. Respect the action pattern resource/command")
-                    val command = actionSplit.getOrNull(1)
-                        ?: throw BadRequestException("No command found in action. Respect the action pattern resource/command")
-                    val payload = json["payload"]?.jsonObject ?: buildJsonObject { }
-                    resourceRepository.handleInvocation(
-                        ResourceInvocationRequest(
-                            resource,
-                            command,
-                            payload
-                        )
-                    )?.toString() ?: "Success"
-                } catch (e: Exception) {
-                    e.message ?: "Unknown error"
-                }
-            }
-
-            else -> ""
-        }
-
-        return Layout {
-            h1 { +"Commands" }
-            form(method = FormMethod.post) {
-                input(type = InputType.text, name = "action") {
-                    value = body ?: buildJsonObject {
-                        put("action", "resource/command")
-                        putJsonObject("payload") { }
-                    }.toString()
-                }
-                button {
-                    +"Submit"
-                }
-            }
-
-            if (result.isNotEmpty()) {
-                div {
-                    style = "border: 1px solid green; padding: 1em;"
-                    markdown(result)
-                }
-            }
-
-            resourceRepository.findAllDescriptors().forEach { resource ->
-                h2 { +resource.name }
-                div {
-                    style =
-                        "display: grid; margin-bottom: 1em; grid-template-columns: min-content auto; column-gap: 1em; row-gap:1em;"
-                    resource.commands.forEach { command ->
-                        div { +command.name }
-                        div {
-                            div { +(command.description ?: "") }
-                            div {
-                                style =
-                                    "margin-left:2em;display:grid; grid-template-columns: min-content auto; column-gap:1em;"
-                                command.parameters.forEach { parameter ->
-                                    div {
-                                        +parameter.name
-                                    }
-                                    div {
-                                        +parameter.type.toString()
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
