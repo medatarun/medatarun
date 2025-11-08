@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import java.util.Locale
+
 const val DEFAULT_LANG_KEY = "default"
 const val DEFAULT_LANG_FALLBACK = "en"
 
@@ -27,6 +29,10 @@ sealed interface LocalizedText {
      * Returns a map with all translations
      */
     fun all(): Map<String, String>
+
+    fun get(locale: Locale): String {
+        return get(locale.language)
+    }
 
 }
 

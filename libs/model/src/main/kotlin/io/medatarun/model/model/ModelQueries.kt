@@ -1,5 +1,7 @@
 package io.medatarun.model.model
 
+import java.util.Locale
+
 interface ModelQueries {
 
     /**
@@ -11,5 +13,5 @@ interface ModelQueries {
      * Returns complete list of all known model ids in this application instance
      */
     fun findAllModelIds(): List<ModelId>
-    fun findAllModelSummaries(): List<ModelSummary>
+    fun findAllModelSummaries(locale: Locale): List<ModelSummary>
 }

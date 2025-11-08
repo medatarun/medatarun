@@ -6,22 +6,23 @@ import java.text.Collator
 import java.text.Normalizer
 import java.util.*
 
-class ModelQueriesImpl(private val storage: ModelStorages, private val locale: Locale) : ModelQueries {
+class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
-    private val textComparator = TextComparator(locale)
+
 
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
     }
 
-    override fun findAllModelSummaries(): List<ModelSummary> {
+    override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
+        val textComparator = TextComparator(locale)
         return storage.findAllModelIds().map { id ->
             try {
                 val model = storage.findModelById(id)
                 ModelSummary(
                     id = id,
-                    name = model.name?.get(locale.language),
-                    description = model.description?.get(locale.language),
+                    name = model.name?.get(locale),
+                    description = model.description?.get(locale),
                     error = null,
                     countTypes = model.types.size,
                     countEntities = model.entityDefs.size,

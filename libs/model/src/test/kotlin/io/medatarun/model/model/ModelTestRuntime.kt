@@ -10,8 +10,7 @@ import org.junit.platform.commons.logging.LoggerFactory
 import java.util.Locale
 
 class ModelTestRuntime private constructor (
-    val repositories: List<ModelRepositoryInMemory>,
-    val locale: Locale = Locale.ROOT,
+    val repositories: List<ModelRepositoryInMemory>
 ) {
     val storages = ModelStoragesComposite(repositories, ModelValidationImpl())
     val cmd: ModelCmds = ModelCmdsImpl(storages, object : ModelAuditor {
@@ -19,7 +18,7 @@ class ModelTestRuntime private constructor (
             logger.info { "onCmdProcessed: $cmd" }
         }
     })
-    val queries: ModelQueries = ModelQueriesImpl(storages, locale)
+    val queries: ModelQueries = ModelQueriesImpl(storages)
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModelTestRuntime::class.java)

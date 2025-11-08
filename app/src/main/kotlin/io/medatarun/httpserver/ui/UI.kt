@@ -4,16 +4,14 @@ import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.EntityOrigin
 import io.medatarun.model.model.ModelId
 import io.medatarun.model.model.ModelOrigin
-import io.medatarun.resources.AppResources
-import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.json.*
+import java.util.Locale
 
 class UI(private val runtime: AppRuntime) {
-    private val resources = AppResources(runtime)
-    private val resourceRepository = ResourceRepository(resources)
-    fun renderModelListJson(): String {
-        val data = runtime.modelQueries.findAllModelSummaries()
+
+    fun modelListJson(locale: Locale): String {
+        val data = runtime.modelQueries.findAllModelSummaries(locale)
         return buildJsonArray {
             data.forEach { m ->
                 addJsonObject {
@@ -29,7 +27,7 @@ class UI(private val runtime: AppRuntime) {
         }.toString()
     }
 
-    fun renderModelJson(modelId: ModelId): String {
+    fun modelJson(modelId: ModelId, locale: Locale): String {
         val model = runtime.modelQueries.findModelById(modelId)
 
         return buildJsonObject {
@@ -50,14 +48,14 @@ class UI(private val runtime: AppRuntime) {
                     }
                 }
             )
-            put("name", model.name?.name) // TODO localize
-            put("description", model.description?.name) // TODO localize
+            put("name", model.name?.get(locale))
+            put("description", model.description?.get(locale))
             putJsonArray("entityDefs") {
                 model.entityDefs.forEach { e ->
                     addJsonObject {
                         put("id", e.id.value)
-                        put("name", e.name?.name) // TODO localize
-                        put("description", e.description?.name) // TODO localize
+                        put("name", e.name?.get(locale))
+                        put("description", e.description?.get(locale))
                     }
                 }
             }
@@ -65,20 +63,20 @@ class UI(private val runtime: AppRuntime) {
                 model.types.forEach { t ->
                     addJsonObject {
                         put("id", t.id.value)
-                        put("name", t.name?.name)
-                        put("description", t.description?.name)
+                        put("name", t.name?.get(locale))
+                        put("description", t.description?.get(locale))
                     }
                 }
             }
         }.toString()
     }
 
-    fun renderEntityDefJson(modelId: ModelId, entityDefId: EntityDefId): String {
+    fun entityDefJson(modelId: ModelId, entityDefId: EntityDefId, locale: Locale): String {
         val model = runtime.modelQueries.findModelById(modelId)
         val e = model.findEntityDef(entityDefId)
         val id = e.id.value
-        val name = e.name?.name
-        val description = e.description?.name
+        val name = e.name?.get(locale)
+        val description = e.description?.get(locale)
         val origin = e.origin
         val documentationHome = e.documentationHome
         return buildJsonObject {
@@ -89,7 +87,7 @@ class UI(private val runtime: AppRuntime) {
             put("hashtags", JsonArray(e.hashtags.map { JsonPrimitive(it.value) }))
             putJsonObject("model") {
                 put("id", model.id.value)
-                put("name", model.name?.name)
+                put("name", model.name?.get(locale))
             }
             put(
                 "origin", when {
@@ -107,8 +105,8 @@ class UI(private val runtime: AppRuntime) {
                 e.attributes.forEach { attr ->
                     addJsonObject {
                         put("id", attr.id.value)
-                        put("name", attr.name?.name)
-                        put("description", attr.description?.name)
+                        put("name", attr.name?.get(locale))
+                        put("description", attr.description?.get(locale))
                         put("type", attr.type.value)
                         put("optional", attr.optional)
                         put("identifierAttribute", e.identifierAttributeDefId == attr.id)

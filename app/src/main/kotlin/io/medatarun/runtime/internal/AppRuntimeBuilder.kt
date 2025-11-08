@@ -44,8 +44,8 @@ class AppRuntimeBuilder {
         }
     }
 
-    fun build(locale: Locale): AppRuntime {
-        val queries = ModelQueriesImpl(storage, locale)
+    fun build(): AppRuntime {
+        val queries = ModelQueriesImpl(storage)
         val cmd = ModelCmdsImpl(storage, auditor)
         return object : AppRuntime {
             override val modelCmds: ModelCmds = cmd

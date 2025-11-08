@@ -10,7 +10,7 @@ import java.util.Locale
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main(args: Array<String>) {
 
-    val runtime = AppRuntimeBuilder().build(Locale.getDefault())
+    val runtime = AppRuntimeBuilder().build()
     val cliResources = AppResources(runtime)
 
     if (args.isNotEmpty() && args[0] == "serve") {

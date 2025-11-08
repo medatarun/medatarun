@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
@@ -26,6 +25,7 @@ import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
+import java.util.Locale
 
 /**
  * REST API server that mirrors the CLI reflection behaviour on top of Ktor.
@@ -139,16 +139,16 @@ class RestApi(
             }
 
             get("/ui/api/models") {
-                call.respondText(UI(runtime).renderModelListJson(), ContentType.Application.Json)
+                call.respondText(UI(runtime).modelListJson(call.detectLocale()), ContentType.Application.Json)
             }
             get("/ui/api/models/{modelId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).renderModelJson(ModelId(modelId)), ContentType.Application.Json)
+                call.respondText(UI(runtime).modelJson(ModelId(modelId), call.detectLocale()), ContentType.Application.Json)
             }
             get("/ui/api/models/{modelId}/entitydefs/{entityDefId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
                 val entityDefId = call.parameters["entityDefId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).renderEntityDefJson(ModelId(modelId), EntityDefId(entityDefId)), ContentType.Application.Json)
+                call.respondText(UI(runtime).entityDefJson(ModelId(modelId), EntityDefId(entityDefId), call.detectLocale()), ContentType.Application.Json)
             }
 
             if (enableMcp) {
@@ -172,4 +172,14 @@ class RestApi(
     }
 
 
+}
+
+fun ApplicationCall.detectLocale(): Locale {
+    val header = request.headers["Accept-Language"]
+    val firstTag = header
+        ?.split(",")
+        ?.map { it.substringBefore(";").trim() }
+        ?.firstOrNull { it.isNotEmpty() }
+
+    return firstTag?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
 }
