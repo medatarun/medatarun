@@ -91,7 +91,7 @@ sealed interface ModelResourceCmd {
         title = "Delete type",
         description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes."
     )
-    data class DeleteType(val modelId: String, val typeId: String, val name: String?, val description: String?) :
+    data class DeleteType(val modelId: String, val typeId: String) :
         ModelResourceCmd
 
     // ------------------------------------------------------------------------
