@@ -1,30 +1,13 @@
 package io.medatarun.httpserver.ui
 
-import io.medatarun.model.model.*
+import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.model.EntityOrigin
+import io.medatarun.model.model.ModelId
+import io.medatarun.model.model.ModelOrigin
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.AppRuntime
-import kotlinx.html.*
-import kotlinx.html.dom.createHTMLDocument
-import kotlinx.html.dom.serialize
 import kotlinx.serialization.json.*
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
-import org.intellij.lang.annotations.Language
-import java.net.URI
-import java.net.URL
-
-object Links {
-    fun toHome() = "/ui"
-    fun toModel(id: ModelId?) = (id?.value ?: "{id}").let { "/ui/model/$it" }
-    fun toEntityDef(modelId: ModelId?, entityDefId: EntityDefId?): String {
-        val modelIdStr = (modelId?.value ?: "{modelId}")
-        val entityDefIdStr = (entityDefId?.value ?: "{entityDefId}")
-        return "/ui/model/$modelIdStr/entitydef/$entityDefIdStr"
-    }
-
-    fun toCommands() = "/ui/cmd"
-}
 
 class UI(private val runtime: AppRuntime) {
     private val resources = AppResources(runtime)
@@ -48,6 +31,7 @@ class UI(private val runtime: AppRuntime) {
 
     fun renderModelJson(modelId: ModelId): String {
         val model = runtime.modelQueries.findModelById(modelId)
+
         return buildJsonObject {
             put("id", model.id.value)
             put("version", model.version.value)
@@ -60,87 +44,36 @@ class UI(private val runtime: AppRuntime) {
                         put("type", "uri")
                         put("uri", origin.uri.toString())
                     }
+
                     else -> buildJsonObject {
                         put("type", "manual")
                     }
                 }
             )
+            put("name", model.name?.name) // TODO localize
+            put("description", model.description?.name) // TODO localize
+            putJsonArray("entityDefs") {
+                model.entityDefs.forEach { e ->
+                    addJsonObject {
+                        put("id", e.id.value)
+                        put("name", e.name?.name) // TODO localize
+                        put("description", e.description?.name) // TODO localize
+                    }
+                }
+            }
+            putJsonArray("types") {
+                model.types.forEach { t ->
+                    addJsonObject {
+                        put("id", t.id.value)
+                        put("name", t.name?.name)
+                        put("description", t.description?.name)
+                    }
+                }
+            }
         }.toString()
     }
 
-    fun renderModel(modelId: ModelId): String {
-        val model = runtime.modelQueries.findModelById(modelId)
-        val id = model.id.value
-        val version = model.version.value
-        val name = model.name?.name
-        val description = model.description?.name
-        val documentationHome = model.documentationHome
-        val origin = model.origin
-        return Layout {
-            h1 {
-                +"Model "
-                +(name ?: id)
-            }
-            div {
-                style = "display:grid; grid-template-columns: min-content auto; column-gap: 1em;"
-                div { +"Identifier " }
-                div { code { +id } }
-                div { +"Version" }
-                div { code { +version } }
-                if (documentationHome != null) {
-                    div { +"Documentation" }
-                    div {
-                        externalUrl(documentationHome)
-                    }
-                }
-                if (model.hashtags.isNotEmpty()) {
-                    div { +"Hashtags" }
-                    div { hashtags(model.hashtags) }
-                }
-                div { +"Origin" }
-                div {
-                    when (origin) {
-                        is ModelOrigin.Manual -> +"Medatarun (manual)"
-                        is ModelOrigin.Uri -> externalUrl(origin.uri)
-                    }
-                }
-            }
-            if (description != null) markdown(description)
-
-
-            h2 { +"Entities" }
-
-            ul {
-                model.entityDefs.forEach { e ->
-                    li {
-                        a(href = Links.toEntityDef(model.id, e.id)) {
-                            b { +e.id.value }
-                        }
-                        +" "
-                        +(e.name?.name ?: "")
-                        +" "
-                        markdown(e.description?.name ?: "")
-                    }
-                }
-            }
-            h2 { +"Types" }
-            ul {
-                model.types.forEach { type ->
-                    li {
-                        b { +type.id.value }
-                        +" "
-                        +(type.name?.name ?: "")
-                        +" "
-                        +(type.description?.name ?: "")
-                    }
-                }
-
-            }
-
-        }.build()
-    }
-
-    fun renderEntityDef(modelId: ModelId, entityDefId: EntityDefId): String {
+    fun renderEntityDefJson(modelId: ModelId, entityDefId: EntityDefId): String {
         val model = runtime.modelQueries.findModelById(modelId)
         val e = model.findEntityDef(entityDefId)
         val id = e.id.value
@@ -148,150 +81,43 @@ class UI(private val runtime: AppRuntime) {
         val description = e.description?.name
         val origin = e.origin
         val documentationHome = e.documentationHome
-        return Layout {
-            h1 {
-                +"Entity "
-                +(name ?: id)
+        return buildJsonObject {
+            put("id", id)
+            put("name", name)
+            put("description", description)
+            put("documentationHome", documentationHome?.toExternalForm())
+            put("hashtags", JsonArray(e.hashtags.map { JsonPrimitive(it.value) }))
+            putJsonObject("model") {
+                put("id", model.id.value)
+                put("name", model.name?.name)
             }
-            div {
-                style =
-                    "display: grid; grid-template-columns: auto auto; justify-content: start; column-gap: 1em; margin-bottom: 1em;"
-                div { +"Identifier" }
-                div { code { +id } }
-                div { +"Model" }
-                div { a(href = Links.toModel(model.id)) { +(model.name?.name ?: model.id.value) } }
-                if (documentationHome != null) {
-                    div { +"Documentation" }
-                    div { externalUrl(documentationHome) }
-                }
-                if (e.hashtags.isNotEmpty()) {
-                    div { +"Hashtags" }
-                    div { hashtags(e.hashtags) }
-                }
-                div { +"Origin" }
-                div {
-                    when (origin) {
-                        EntityOrigin.Manual -> +"Medatarun (manual)"
-                        is EntityOrigin.Uri -> externalUrl(origin.uri)
+            put(
+                "origin", when {
+                    origin is EntityOrigin.Uri -> buildJsonObject {
+                        put("type", "uri")
+                        put("uri", origin.uri.toString())
+                    }
+
+                    else -> buildJsonObject {
+                        put("type", "manual")
                     }
                 }
-
-            }
-
-
-            if (description != null) div { +description }
-            h2 { +"Attributes" }
-            ul {
+            )
+            putJsonArray("attributes") {
                 e.attributes.forEach { attr ->
-                    li {
-                        +(attr.name?.name ?: "")
-                        +" "
-                        code {
-                            +attr.id.value
-                            +":"
-                            +attr.type.value
-                        }
-                        +" "
-                        if (attr.optional) {
-                            tag("optional")
-                        }
-                        if (attr.id == e.identifierAttributeDefId) {
-                            +" 🔑"
-                        }
-                        br
-                        markdown(attr.description?.name ?: "")
+                    addJsonObject {
+                        put("id", attr.id.value)
+                        put("name", attr.name?.name)
+                        put("description", attr.description?.name)
+                        put("type", attr.type.value)
+                        put("optional", attr.optional)
+                        put("identifierAttribute", e.identifierAttributeDefId == attr.id)
                     }
                 }
             }
-        }.build()
+        }.toString()
     }
+
+
 }
-
-class Layout(val builder: HtmlBlockTag.() -> Unit) {
-    fun build(): String {
-        return createHTMLDocument().html {
-            head {
-                title { +"Medatarun" }
-                styleLink(url = "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css")
-                style { unsafe { +css } }
-            }
-            body {
-                nav {
-                    style = "display: flex; gap: 1em; justify-content: center;"
-                    div { +"Medatarun" }
-                    div { a(Links.toHome()) { +"🏠" } }
-                    div { a(Links.toHome()) { +"Models" } }
-                    div { a(Links.toCommands()) { +"Commands" } }
-
-                }
-                main(classes = "container") {
-                    builder()
-                }
-
-            }
-        }.serialize()
-    }
-}
-
-private val parser = Parser.builder().build()
-
-@HtmlTagMarker
-fun HtmlBlockTag.markdown(markdownText: String) {
-    val document = parser.parse(markdownText)
-    val renderer = HtmlRenderer.builder().build()
-    val html = renderer.render(document)
-    div {
-        unsafe { +html }
-    }
-}
-
-@HtmlTagMarker
-fun HtmlBlockTag.tag(str: String) {
-    span(classes = "tag") { +str }
-}
-
-@HtmlTagMarker
-fun HtmlBlockTag.externalUrl(url: URL?) {
-    if (url == null) return
-    a {
-        href = url.toExternalForm()
-        target = "_blank"
-        +url.toExternalForm()
-    }
-}
-
-@HtmlTagMarker
-fun HtmlBlockTag.externalUrl(uri: URI?) {
-    if (uri == null) return
-    a {
-        href = uri.normalize().toURL().toExternalForm()
-        target = "_blank"
-        +uri.normalize().toURL().toExternalForm()
-    }
-}
-
-@HtmlTagMarker
-fun HtmlBlockTag.hashtags(hashtags: List<Hashtag>) {
-    if (hashtags.isEmpty()) return
-    hashtags.forEach { hashtag ->
-        span(classes = "tag") {
-            style = "margin-right:1em;"
-            +hashtag.value
-        }
-    }
-}
-
-@Language("css")
-val css = """
- 
-table.datatable td, table.datatable th { vertical-align: top; }
-.tag {
-    font-size: 0.8em; 
-    background-color: rgba(255, 255, 255, .5); 
-    color: black; 
-    padding-left:0.5em;
-    padding-right: 0.5em;
-    border-radius: 0.2em;
-}
-"""
 

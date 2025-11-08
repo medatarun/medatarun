@@ -1,4 +1,6 @@
 import {useEffect, useState} from "react";
+import ReactMarkdown from "react-markdown";
+import {Link} from "@tanstack/react-router";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -20,6 +22,20 @@ interface ModelDto {
   hashtags: string[]
   description: string | null
   origin: ElementOrigin
+  entityDefs: EntityDefSummaryDto[]
+  types: TypeDto[]
+}
+
+interface EntityDefSummaryDto {
+  id: string
+  name: string | null
+  description: string | null
+}
+
+interface TypeDto {
+  id: string
+  name: string | null
+  description: string | null
 }
 
 interface ElementOrigin {
@@ -43,6 +59,29 @@ export function ModelView({model}: { model: ModelDto }) {
       <div><Origin value={model.origin}/></div>
     </div>
     {model.description && <div><Markdown value={model.description}/></div>}
+    <h2>Entities</h2>
+    <table>
+      <tbody>
+      {
+        model.entityDefs.map(entityDef => <tr key={entityDef.id}>
+          <td><Link to="/model/$modelId/entityDef/$entityDefId"
+                    params={{modelId: model.id, entityDefId: entityDef.id}}>{entityDef.name ?? entityDef.id}</Link></td>
+          <td>{entityDef.description}</td>
+        </tr>)
+      }
+      </tbody>
+    </table>
+    <h2>Types</h2>
+    <table>
+      <tbody>
+      {
+        model.types.map(t => <tr key={t.id}>
+          <td>{t.name ?? t.id}</td>
+          <td>{t.description}</td>
+        </tr>)
+      }
+      </tbody>
+    </table>
   </div>
 }
 
@@ -60,6 +99,7 @@ export function Hashtags({hashtags}: { hashtags: string[] }) {
   return <div>{hashtags.map((v, i) => <span className="tag" key={i}>{v}</span>)}</div>
 }
 
-export function Markdown({value}: { value: string }) {
-  return <div>{value}</div>
+export function Markdown({value}: { value: string | null }) {
+  if (value == null) return null
+  return <ReactMarkdown>{value}</ReactMarkdown>
 }

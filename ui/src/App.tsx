@@ -12,6 +12,7 @@ import {
 import {CommandsPage} from "./components/CommandsPage.tsx";
 import {ModelsPage} from "./components/ModelsPage.tsx";
 import {ModelPage} from "./components/ModelPage.tsx";
+import {EntityPage} from "./components/EntityPage.tsx";
 
 function Layout() {
   return <div>
@@ -42,6 +43,11 @@ function ModelRouteComponent() {
   return <ModelPage modelId={modelId}/>
 }
 
+function EntityDefRouteComponent() {
+  const {modelId, entityDefId} = useParams({from: '/model/$modelId/entityDef/$entityDefId'});
+  return <EntityPage modelId={modelId} entityDefId={entityDefId} />
+}
+
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
   component: Layout,
@@ -64,8 +70,14 @@ const modelRoute = createRoute({
   path: '/model/$modelId',
   component: ModelRouteComponent,
 });
-
-const routeTree = rootRoute.addChildren([modelsRoute, commandsRoute, modelRoute]);
+const entityRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/model/$modelId/entityDef/$entityDefId',
+  component: EntityDefRouteComponent
+})
+const routeTree = rootRoute.addChildren([
+  modelsRoute, commandsRoute, modelRoute, entityRoute
+]);
 
 const router = createRouter({
   routeTree,
