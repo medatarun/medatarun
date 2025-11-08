@@ -8,9 +8,10 @@ import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.jsonObject
 import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(private val resourceRepository: ResourceRepository) {
@@ -30,15 +31,13 @@ class RestCommandInvocation(private val resourceRepository: ResourceRepository) 
 
                 )
 
-            val rawParameters = LinkedHashMap<String, String>()
-            rawParameters.putAll(toSingleValueMap(call.request.queryParameters))
-            rawParameters.putAll(readBodyParameters(call))
-
+            val body = call.receiveText()
+            val json = if (body.isNullOrBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
 
             val request = ResourceInvocationRequest(
                 resourceName = resourceName,
                 functionName = functionName,
-                rawParameters = buildJsonObject {  rawParameters.forEach { put(it.key, it.value) } }
+                rawParameters = json
             )
 
             val result = resourceRepository.handleInvocation(request)
