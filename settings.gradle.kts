@@ -22,6 +22,7 @@ plugins {
 include(":app")
 include(":utils")
 include(":ui")
+include(":libs:lang")
 include(":libs:model")
 include(":extensions:modeljson")
 include(":extensions:data-md-file")
