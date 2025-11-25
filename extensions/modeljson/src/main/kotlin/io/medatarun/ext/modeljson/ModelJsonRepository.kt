@@ -1,5 +1,6 @@
 package io.medatarun.ext.modeljson
 
+
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
 import io.medatarun.model.model.*
@@ -7,6 +8,9 @@ import io.medatarun.model.ports.ModelRepository
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.ModelRepositoryId
+import kotlinx.serialization.SerializationException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -29,8 +33,13 @@ class ModelJsonRepository(
 
         val paths = repositoryPath.listDirectoryEntries("*.json").filter { it.isRegularFile() }
         paths.forEach { path ->
-            val model = modelJsonConverter.fromJson(path.readText())
-            discoveredModels[model.id] = path.toAbsolutePath()
+            try {
+                val model = modelJsonConverter.fromJson(path.readText())
+                discoveredModels[model.id] = path.toAbsolutePath()
+            } catch (e: SerializationException) {
+                logger.error("File ${path.toAbsolutePath()} is not a valid Medatarun model, skipped. Cause: {}", e.message)
+            }
+
         }
     }
 
@@ -51,7 +60,7 @@ class ModelJsonRepository(
         persistModel(model)
     }
 
-    private fun updateModel(modelId: ModelId, block:(model: ModelInMemory) -> ModelInMemory) {
+    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
         val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         val next = block(model)
         persistModel(next)
@@ -69,7 +78,9 @@ class ModelJsonRepository(
         when (cmd) {
             is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
             is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model ->
+                ModelInMemoryReducer().dispatch(model, cmd)
+            }
         }
     }
 
@@ -82,6 +93,7 @@ class ModelJsonRepository(
 
     companion object {
         val REPOSITORY_ID = ModelRepositoryId("json")
+        val logger: Logger = LoggerFactory.getLogger(ModelJsonRepository::class.java)
     }
 
 }

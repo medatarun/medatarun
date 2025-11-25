@@ -19,6 +19,7 @@ export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => 
   },[])
   return <div>
     <h1>Models</h1>
+    { data.length == 0 ? "No models found" : null}
     <table>
       <tbody>
       {data.map((model: ModelSummaryDto) => <tr key={model.id}>

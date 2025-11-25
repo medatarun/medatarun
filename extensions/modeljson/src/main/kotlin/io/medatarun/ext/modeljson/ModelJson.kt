@@ -4,6 +4,7 @@ import io.medatarun.model.infra.*
 import io.medatarun.model.model.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -66,6 +67,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
     fun toJson(model: Model): String {
         val modelJson = ModelJson(
             id = model.id.value,
+            schema = ModelJsonSchemas.current(),
             version = model.version.value,
             name = model.name,
             description = model.description,
@@ -260,6 +262,8 @@ class RelationshipJson(
 @Serializable
 class ModelJson(
     val id: String,
+    @SerialName($$"$schema")
+    val schema: String,
     val version: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
