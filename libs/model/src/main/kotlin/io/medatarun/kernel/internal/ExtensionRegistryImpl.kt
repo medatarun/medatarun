@@ -1,7 +1,6 @@
 package io.medatarun.kernel.internal
 
 import io.medatarun.kernel.*
-import java.nio.file.Path
 import kotlin.reflect.KClass
 
 class ExtensionRegistryImpl(
@@ -11,7 +10,6 @@ class ExtensionRegistryImpl(
 
     private val contributionPoints: MutableMap<ExtensionId, ContributionPoint<*>> = mutableMapOf()
     private val contributionPointsByClass: MutableMap<KClass<*>, ContributionPoint<*>> = mutableMapOf()
-
     private val contributions: MutableMap<ContributionPointId, List<ContributionImpl<*>>> = mutableMapOf()
 
 
@@ -22,57 +20,40 @@ class ExtensionRegistryImpl(
         }
 
         extensions.forEach { extension ->
-            extension.init(object : MedatarunExtensionCtx {
-                override fun getConfigProperty(key: String): String? {
-                    return config.getProperty(key)
-                }
-
-                override fun getConfigProperty(key: String, defaultValue: String): String {
-                    return config.getProperty(key, defaultValue)
-                }
-
-                override fun resolveProjectPath(relativePath: String): Path {
-                    return config.projectDir.resolve(relativePath).toAbsolutePath()
-                }
-
-                override fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>) {
-                    internalRegisterContributionPoint(extension, ContributionPoint(id, api, extension.id))
-                }
-
-                override fun <INTERFACE : Any, IMPL : INTERFACE> register(api: KClass<INTERFACE>, instance: IMPL) {
-                    internalRegisterContribution(extension.id, api, instance)
-                }
-
-            })
+            extension.init(MedatarunExtensionCtxImpl(extension, config, ExtensionRegistrar()))
         }
     }
 
-    private fun internalRegisterContributionPoint(e: MedatarunExtension, c: ContributionPoint<*>) {
-        if (!c.id.startsWith(e.id + ".")) throw ContributionPointIdMismatch(e.id, c.id)
-        if (contributionPoints.containsKey(e.id)) throw ContributionPointDuplicateId(e.id, c.id)
-        if (contributionPointsByClass.containsKey(c.api)) {
-            val other = contributionPointsByClass[c.api]?.id ?: "unknown"
-            throw ContributionPointDuplicateInterface(e.id, c.id, c.api, other)
-        }
-        contributionPoints[c.id] = c
-        contributionPointsByClass[c.api] = c
-    }
+    inner class ExtensionRegistrar {
 
-    private fun <INTERFACE : Any, IMPL : INTERFACE> internalRegisterContribution(
-        fromExtensionId: ExtensionId,
-        api: KClass<INTERFACE>,
-        instance: IMPL
-    ) {
-        val contributionPoint = contributionPointsByClass[api]
-            ?: throw ContributionRegistrationContributionPointNotFoundException(fromExtensionId, api)
-        val c = ContributionImpl(
-            fromExtensionId = fromExtensionId,
-            toExtensionId = contributionPoint.extensionId,
-            toContributinoPointId = contributionPoint.id,
-            instance = instance
-        )
-        // Add to map considering the key may have no value yet (append or create + append)
-        contributions.compute(c.toContributinoPointId) { _, v -> (v ?: emptyList()) + c }
+        fun internalRegisterContributionPoint(e: MedatarunExtension, c: ContributionPoint<*>) {
+            if (!c.id.startsWith(e.id + ".")) throw ContributionPointIdMismatch(e.id, c.id)
+            if (contributionPoints.containsKey(e.id)) throw ContributionPointDuplicateId(e.id, c.id)
+            if (contributionPointsByClass.containsKey(c.api)) {
+                val other = contributionPointsByClass[c.api]?.id ?: "unknown"
+                throw ContributionPointDuplicateInterface(e.id, c.id, c.api, other)
+            }
+            contributionPoints[c.id] = c
+            contributionPointsByClass[c.api] = c
+        }
+
+        fun <INTERFACE : Any, IMPL : INTERFACE> internalRegisterContribution(
+            fromExtensionId: ExtensionId,
+            api: KClass<INTERFACE>,
+            instance: IMPL
+        ) {
+            val contributionPoint = contributionPointsByClass[api]
+                ?: throw ContributionRegistrationContributionPointNotFoundException(fromExtensionId, api)
+            val c = ContributionImpl(
+                fromExtensionId = fromExtensionId,
+                toExtensionId = contributionPoint.extensionId,
+                toContributinoPointId = contributionPoint.id,
+                instance = instance
+            )
+            // Add to map considering the key may have no value yet (append or create + append)
+            contributions.compute(c.toContributinoPointId) { _, v -> (v ?: emptyList()) + c }
+        }
+
     }
 
     override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {

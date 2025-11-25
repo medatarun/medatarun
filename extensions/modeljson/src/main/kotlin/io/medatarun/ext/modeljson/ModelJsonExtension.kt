@@ -2,6 +2,7 @@ package io.medatarun.ext.modeljson
 
 import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_DEFAULT
 import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_KEY
+import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_REPOSITORY_PATH_DEFAULT
 import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_REPOSITORY_PATH_KEY
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
@@ -12,11 +13,8 @@ class ModelJsonExtension : MedatarunExtension {
     override val id: String = "modeljson"
     override fun init(ctx: MedatarunExtensionCtx) {
 
-        val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
-        val configRepo = ctx.getConfigProperty(CONFIG_REPOSITORY_PATH_KEY)
-        if (configRepo == null || configRepo.isBlank()) {
-            throw ModelJsonRepositoryNotFoundException(CONFIG_REPOSITORY_PATH_KEY, "")
-        }
+        val configPrettyPrint = ctx.config.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
+        val configRepo = ctx.config.getConfigProperty(CONFIG_REPOSITORY_PATH_KEY, CONFIG_REPOSITORY_PATH_DEFAULT)
         val configRepoPath = ctx.resolveProjectPath(configRepo)
         if (!configRepoPath.isDirectory()) {
             throw ModelJsonRepositoryNotFoundException(CONFIG_REPOSITORY_PATH_KEY, configRepoPath.toString())
