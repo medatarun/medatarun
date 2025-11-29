@@ -30,10 +30,7 @@ dependencies {
     implementation(libs.bundles.slf4jImpl)
     implementation(libs.kotlinxHtml)
     implementation(libs.bundles.commonmark)
-    implementation("io.ktor:ktor-server-core:3.3.1")
-    implementation("io.ktor:ktor-server-host-common:3.3.1")
-    implementation("io.ktor:ktor-server-status-pages:3.3.1")
-    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation(libs.ktorServerStatusPages)
 }
 
 application {
