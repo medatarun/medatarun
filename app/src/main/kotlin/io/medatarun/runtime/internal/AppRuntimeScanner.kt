@@ -54,7 +54,7 @@ class AppRuntimeScanner {
     }
 
     companion object {
-        private val envMEDATARUN_APPLICATION_DATA = "MEDATARUN_APPLICATION_DATA"
+        public val envMEDATARUN_APPLICATION_DATA = "MEDATARUN_APPLICATION_DATA"
         private val logger = getLogger(AppRuntimeScanner::class)
     }
 }

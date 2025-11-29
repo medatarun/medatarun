@@ -5,6 +5,7 @@ import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
+import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.envMEDATARUN_APPLICATION_DATA
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -114,7 +115,8 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
 
 
         logger.cli("")
-        logger.cli("  $resourceId $commandId ")
+        logger.cli("Resource: $resourceId")
+        logger.cli("Command: $commandId")
         logger.cli("")
         command.title?.let { logger.cli("  " + it) }
         logger.cli("")
@@ -146,6 +148,15 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
     }
 
     private fun printHelpRoot() {
+        logger.cli("Usages:")
+        logger.cli("  medatarun serve")
+        logger.cli("    Launches a medatarun server you can interact with using UI, MCP or API")
+        logger.cli("  medatarun <resource> <command> [...parameters]")
+        logger.cli("    CLI version of medatarun. Just executes a resource's command (and stops).")
+        logger.cli("    See below for available resources and their commands.")
+        logger.cli("")
+        logger.cli("Unless environment variable $envMEDATARUN_APPLICATION_DATA points to a directory, the current directory is considered to be the projet root.")
+        logger.cli("")
         logger.cli("Get help on available resources:")
         val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
