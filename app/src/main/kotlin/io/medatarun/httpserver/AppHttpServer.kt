@@ -28,11 +28,21 @@ import org.slf4j.LoggerFactory
 import java.util.Locale
 
 /**
- * REST API server that mirrors the CLI reflection behaviour on top of Ktor.
+ * Main application Http server built with Ktor that serves:
+ *
+ * - an MCP server with SSE (disabled by default, because of bugs in kotlin's official MCP SDK namely https://github.com/modelcontextprotocol/kotlin-sdk/issues/237)
+ * - an MCP server with Streamable Http transport (built on top of the MCP SDK) as
+ *   expected by modern AI agents (Codex, Claude Code, etc.). This had been built for this project as the official
+ *   SDK can not provide it yet.
+ * - a User Interface: accessible at http(s)://<host> or http(s)://<host>/ui
+ * - a Rest API: accessible to http(s)://<host>/api
+ * - a health endpoint:  https://<host>/health
  */
 class AppHttpServer(
     private val runtime: AppRuntime,
-    private val enableMcp: Boolean = true,
+
+    private val enableMcpSse: Boolean = false,
+    private val enableMcpStreamingHttp: Boolean = true,
     private val enableHealth: Boolean = true,
     private val enableApi: Boolean = true
 ) {
@@ -141,20 +151,32 @@ class AppHttpServer(
             }
             get("/ui/api/models/{modelId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).modelJson(ModelId(modelId), detectLocale(call)), ContentType.Application.Json)
+                call.respondText(
+                    UI(runtime).modelJson(ModelId(modelId), detectLocale(call)),
+                    ContentType.Application.Json
+                )
             }
             get("/ui/api/models/{modelId}/entitydefs/{entityDefId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
                 val entityDefId = call.parameters["entityDefId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).entityDefJson(ModelId(modelId), EntityDefId(entityDefId), detectLocale(call)), ContentType.Application.Json)
+                call.respondText(
+                    UI(runtime).entityDefJson(
+                        ModelId(modelId),
+                        EntityDefId(entityDefId),
+                        detectLocale(call)
+                    ), ContentType.Application.Json
+                )
             }
 
-            if (enableMcp) {
+            if (enableMcpSse) {
                 route("/sse") {
                     mcp {
                         return@mcp mcpServerBuilder.buildMcpServer()
                     }
                 }
+            }
+
+            if (enableMcpStreamingHttp) {
                 route("/mcp") {
                     post { mcpStreamableHttpBridge.handleStreamablePost(call) }
                     delete { mcpStreamableHttpBridge.handleStreamableDelete(call) }
