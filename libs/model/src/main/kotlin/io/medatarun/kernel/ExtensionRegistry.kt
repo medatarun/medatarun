@@ -2,6 +2,7 @@ package io.medatarun.kernel
 
 import io.medatarun.kernel.internal.ContributionImpl
 import io.medatarun.kernel.internal.ContributionPoint
+import kotlinx.serialization.json.JsonObject
 import kotlin.reflect.KClass
 
 /**
@@ -29,4 +30,9 @@ interface ExtensionRegistry {
      * Returns a human readable report for inspection
      */
     fun inspectHumanReadable(): String
+
+    /**
+     * Returns configuration
+     */
+    fun inspectJson(): JsonObject
 }

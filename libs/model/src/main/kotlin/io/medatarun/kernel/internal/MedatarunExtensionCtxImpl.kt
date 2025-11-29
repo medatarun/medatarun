@@ -17,7 +17,7 @@ class MedatarunExtensionCtxImpl(
     override val config = MedatarunExtensionCtxConfigImpl(_config)
 
     override fun resolveProjectPath(relativePath: String?): Path {
-        val trimmed = relativePath?.trimToNull()
+        val trimmed = relativePath?.trimToNull() ?: return _config.projectDir
         return _config.projectDir.resolve(trimmed).toAbsolutePath()
     }
 

@@ -1,6 +1,13 @@
 package io.medatarun.kernel.internal
 
 import io.medatarun.kernel.*
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
+import kotlin.io.path.absolute
 import kotlin.reflect.KClass
 
 class ExtensionRegistryImpl(
@@ -83,5 +90,37 @@ class ExtensionRegistryImpl(
             }
         }
         return report.toString()
+    }
+
+    override fun inspectJson(): JsonObject {
+        return buildJsonObject {
+            put("projectdir", config.projectDir.absolute().toString())
+            putJsonArray("extensions") {
+                extensions.forEach { ext ->
+                    addJsonObject {
+                        put("id", ext.id)
+                        putJsonArray("contributionPoints") {
+                            for (contributionPoint in contributionPoints.filter { it.value.extensionId == ext.id }.values) {
+                                addJsonObject {
+                                    put("id", contributionPoint.id)
+                                    put("interface", contributionPoint.api.simpleName)
+                                }
+                            }
+                        }
+                        putJsonArray("contributions") {
+                            contributions.values.forEach { contributionList ->
+                                for (contrib in contributionList.filter { it.fromExtensionId == ext.id }) {
+                                    addJsonObject {
+                                        put("toExtension", contrib.toExtensionId)
+                                        put("toContributionPoint", contrib.toContributinoPointId)
+                                        put("implementation", contrib.instance::class.simpleName)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

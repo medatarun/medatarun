@@ -9,6 +9,7 @@ import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -89,6 +90,8 @@ class RestCommandInvocation(private val resourceRepository: ResourceRepository) 
     private fun buildResponsePayload(result: Any?): Any = when (result) {
         null, Unit -> mapOf("status" to "ok")
         is String -> result
+        is JsonObject -> result.toString()
+        is JsonArray -> result.toString()
         else -> mapOf("status" to "ok", "result" to result.toString())
     }
 

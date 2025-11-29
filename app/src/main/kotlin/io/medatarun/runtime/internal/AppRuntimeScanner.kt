@@ -3,9 +3,11 @@ package io.medatarun.runtime.internal
 import io.medatarun.model.model.MedatarunException
 import io.medatarun.runtime.getLogger
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import java.nio.file.Path
-import kotlin.io.path.isRegularFile
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 class AppRuntimeScanner {
@@ -18,21 +20,37 @@ class AppRuntimeScanner {
         }
 
         val projectDir = Path.of(projectDirStr).toAbsolutePath()
-        val packageFile = projectDir.resolve("package.json")
-        logger.info("Scanning app runtime config in $packageFile")
 
-        if (!packageFile.isRegularFile()) {
-            throw NotMedataProjectException()
+        val config = findConfigInPackageJson(projectDir) ?: buildJsonObject {}
+
+        return AppRuntimeConfig(projectDir, config)
+
+    }
+
+    private fun findConfigInPackageJson(projectDir: Path): JsonObject? {
+        logger.debug("Trying to find configuration in package.json")
+        val packageFile = projectDir.resolve("package.json")
+        if (!packageFile.exists()) {
+            logger.debug("No package.json file found")
+            return null
         }
+
+        logger.debug("Found package.json in $packageFile, reading")
 
         val jsonContent = packageFile.readText()
         val jsonElement = Json.parseToJsonElement(jsonContent)
         val jsonObject = jsonElement.jsonObject
 
-        val medatarunConfig = jsonObject["medatarun"]?.jsonObject ?: throw NotMedataProjectException()
+        logger.debug("Found package.json in $packageFile, reading")
 
-        return AppRuntimeConfig(projectDir, medatarunConfig)
+        val config = jsonObject["medatarun"]?.jsonObject
+        if (config == null) {
+            logger.debug("Medatarun configuration key [medatarun] not found. No configuration loaded.")
+        } else {
+            logger.debug("Medatarun configuration key [medatarun] found. Using this configuration.")
+        }
 
+        return config
     }
 
     companion object {
@@ -44,8 +62,8 @@ class AppRuntimeScanner {
 class RootDirNotFoundException() :
     MedatarunException("Could not guess the current user directory. Configure MEDATARUN_APPLICATION_DATA if needed.")
 
-class NotMedataProjectException() :
-    MedatarunException("This project is not a Medatarun project. You must have a package.json file (the same as NodeJS projects) add a 'medatarun' key in your package.json")
+
+
 
 
 

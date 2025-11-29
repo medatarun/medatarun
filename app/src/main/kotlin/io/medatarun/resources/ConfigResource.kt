@@ -2,6 +2,7 @@ package io.medatarun.resources
 
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
+import kotlinx.serialization.json.JsonObject
 import kotlin.reflect.KClass
 
 class ConfigResource(private val runtime: AppRuntime): ResourceContainer<Unit>{
@@ -12,6 +13,14 @@ class ConfigResource(private val runtime: AppRuntime): ResourceContainer<Unit>{
     )
     fun inspect(): String {
         return runtime.extensionRegistry.inspectHumanReadable()
+    }
+    @Suppress("unused")
+    @ResourceCommandDoc(
+        title = "Inspect config Json",
+        description = "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom."
+    )
+    fun inspectJson(): JsonObject {
+        return runtime.extensionRegistry.inspectJson()
     }
 
     override fun findCommandClass() = null
