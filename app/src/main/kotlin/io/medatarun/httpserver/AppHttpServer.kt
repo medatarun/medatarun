@@ -30,15 +30,13 @@ import java.util.Locale
 /**
  * REST API server that mirrors the CLI reflection behaviour on top of Ktor.
  */
-class RestApi(
+class AppHttpServer(
     private val runtime: AppRuntime,
-    private val enableMcp: Boolean = false,
-    private val enableUIOld: Boolean = true,
-    private val enableUINew: Boolean = true,
+    private val enableMcp: Boolean = true,
     private val enableHealth: Boolean = true,
     private val enableApi: Boolean = true
 ) {
-    private val logger = LoggerFactory.getLogger(RestApi::class.java)
+    private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val resources = AppResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
     private val mcpServerBuilder = McpServerBuilder(resourceRepository)
@@ -90,7 +88,7 @@ class RestApi(
             status(HttpStatusCode.NotFound) { call, status ->
                 val path = call.request.path()
 
-                // Ne pas remplacer le 404 des API, MCP, SSE ou fichiers
+                // Be careful to not replace 404 coming from API, MCP, SSE or files
                 if (
                     path.startsWith("/api") ||
                     path.startsWith("/mcp") ||
@@ -139,16 +137,16 @@ class RestApi(
             }
 
             get("/ui/api/models") {
-                call.respondText(UI(runtime).modelListJson(call.detectLocale()), ContentType.Application.Json)
+                call.respondText(UI(runtime).modelListJson(detectLocale(call)), ContentType.Application.Json)
             }
             get("/ui/api/models/{modelId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).modelJson(ModelId(modelId), call.detectLocale()), ContentType.Application.Json)
+                call.respondText(UI(runtime).modelJson(ModelId(modelId), detectLocale(call)), ContentType.Application.Json)
             }
             get("/ui/api/models/{modelId}/entitydefs/{entityDefId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
                 val entityDefId = call.parameters["entityDefId"] ?: throw NotFoundException()
-                call.respondText(UI(runtime).entityDefJson(ModelId(modelId), EntityDefId(entityDefId), call.detectLocale()), ContentType.Application.Json)
+                call.respondText(UI(runtime).entityDefJson(ModelId(modelId), EntityDefId(entityDefId), detectLocale(call)), ContentType.Application.Json)
             }
 
             if (enableMcp) {
@@ -174,8 +172,8 @@ class RestApi(
 
 }
 
-fun ApplicationCall.detectLocale(): Locale {
-    val header = request.headers["Accept-Language"]
+private fun detectLocale(call: ApplicationCall): Locale {
+    val header = call.request.headers["Accept-Language"]
     val firstTag = header
         ?.split(",")
         ?.map { it.substringBefore(";").trim() }
