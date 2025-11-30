@@ -2,13 +2,13 @@
 
 There is no installer yet. You will be running with the source code directly.
 
-Requirements: 
+## Requirements 
 
 - Git
 - Java 21+: many ways to do that, one simple way is to install https://sdkman.io/ then, `sdk install java 21-tem`
 - Bash or Zsh shell installed: already installed on Mac/Linux. On Windows you can use WSDL2
 
-Process:
+## Process
 
 - Clone this repository
 - Create an alias `medatarun` in your `~/.bash_aliases` (bash on Linux or Windows with bash installed) 
@@ -24,6 +24,8 @@ alias medatarun='f() {
     fi
 }; f'
 ```
+
+## AI Agents
 
 Add to your Codex / ChatGPT / Claude configuration :
 
