@@ -19,6 +19,16 @@ Open http://localhost:8080 to view and manage your models.
 
 The command palette lets you run resource commands and provide parameters when needed.
 
+For example, we can create a model by importing an existing schema. Open the Commands palette, 
+choose model > import and in the "from" field add [this URL](https://raw.githubusercontent.com/etalab/schema-irve/master/datapackage.json).
+This is a TableSchema-style model definition (in French, everything in French and complicated). 
+
+On the Models page, you'll see a new available model, clic and browse entities, types and documentation.
+This will help you explain the data in [this CSV file](https://raw.githubusercontent.com/etalab/schema-irve/v2.3.0/statique/exemple-valide-statique.csv).
+
+Everything is French and you don't understand anything? See below.
+
+
 ## ⭐ Use with your AI agent: the fun and productive way 
 
 ### Optional: update your AI AGENTS.md
@@ -69,6 +79,14 @@ Enrich company description. Explain that we need information of main activities 
 ```
 
 Remember you can view and browse everything using user interface.
+
+Also, you remember the French data example? what if you just ask:
+
+```prompt
+Translate model "datapackage-irve", entities and attribute name and descriptions (do not change ids)?
+```
+
+As everything is version controlled, if AI goes crazy, you can always rollback and track changes on GIT.
 
 ## 🌐 Use with RestAPI
 
