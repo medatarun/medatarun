@@ -22,6 +22,7 @@ import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
+import io.medatarun.resources.actions.ConfigAgentInstructions
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
@@ -49,7 +50,7 @@ class AppHttpServer(
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val resources = AppResources(runtime)
     private val resourceRepository = ResourceRepository(resources)
-    private val mcpServerBuilder = McpServerBuilder(resourceRepository)
+    private val mcpServerBuilder = McpServerBuilder(resourceRepository, configAgentInstructions = ConfigAgentInstructions())
     private val restApiDoc = RestApiDoc(resourceRepository)
     private val restCommandInvocation = RestCommandInvocation(resourceRepository)
 

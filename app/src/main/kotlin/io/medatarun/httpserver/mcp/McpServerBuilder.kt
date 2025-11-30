@@ -1,10 +1,10 @@
 package io.medatarun.httpserver.mcp
 
 
-import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
+import io.medatarun.resources.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.*
 import io.modelcontextprotocol.kotlin.sdk.server.RegisteredTool
 import io.modelcontextprotocol.kotlin.sdk.server.Server
@@ -15,24 +15,30 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class McpServerBuilder(private val resourceRepository: ResourceRepository) {
+class McpServerBuilder(
+    private val resourceRepository: ResourceRepository,
+    private val configAgentInstructions: ConfigAgentInstructions
+) {
 
     private val serverInfo = Implementation(
-        name = "medatarun-mcp",
-        version = "1.0.0"
+        name = "medatarun",
+        version = "1.0.0",
     )
 
     private val serverOptions = ServerOptions(
         capabilities = ServerCapabilities(
-            tools = ServerCapabilities.Tools(listChanged = false)
+            tools = ServerCapabilities.Tools(listChanged = false),
         )
     )
 
     fun buildMcpServer(): Server {
         val server = Server(
             serverInfo = serverInfo,
-            options = serverOptions
-        )
+            options = serverOptions,
+
+            ) {
+            configAgentInstructions.process()
+        }
 
         server.addTools(buildRegisteredTools())
         return server
