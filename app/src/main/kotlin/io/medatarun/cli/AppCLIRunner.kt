@@ -152,7 +152,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
         logger.cli("  medatarun serve")
         logger.cli("    Launches a medatarun server you can interact with using UI, MCP or API")
         logger.cli("  medatarun <resource> <command> [...parameters]")
-        logger.cli("    CLI version of medatarun. Just executes a resource's command (and stops).")
+        logger.cli("    CLI version of medatarun. Executes specified resource's command.")
         logger.cli("    See below for available resources and their commands.")
         logger.cli("  medatarun help")
         logger.cli("    Display this help")
