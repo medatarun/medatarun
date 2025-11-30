@@ -1,6 +1,7 @@
 package io.medatarun.kernel
 
 import io.medatarun.model.model.MedatarunException
+import java.nio.file.Path
 import kotlin.reflect.KClass
 
 class ExtensionRegistryDuplicateIdException(keys: Set<String>): MedatarunException("Multiple extensions with the same ID has been registered: ${keys.joinToString(" ")}")
@@ -9,3 +10,4 @@ class ContributionPointDuplicateId(e: ExtensionId, c: ContributionPointId): Meda
 class ContributionPointDuplicateInterface(e: ExtensionId, c: ContributionPointId, api: KClass<*>, other: ContributionPointId): MedatarunException("Contribution point id [$c] declared by extension [$e] uses [$api] with is already the interface for contribution point $other. Two contribution points can not share the same interface.")
 class ContributionRegistrationContributionPointNotFoundException(e: ExtensionId, api: KClass<*>): MedatarunException("Error during registrations of extension $e, no contribution point matches this interface: [$api].")
 class ContributionPointNotFoundByApiException(api: KClass<*>): MedatarunException("No contribution point matches this interface: [$api].")
+class ExtensionStoragePathNotDirectoryException(path: Path): MedatarunException("Extension storage path [$path] is not a directory.")

@@ -5,5 +5,6 @@ Universal executable model engine: define, run, and evolve living domain models 
 
 - [Installation](./docs/install.md)
 - [Quickstart](./docs/quickstart.md)
+- [Your project directory and data](./docs/project_data.md)
 - [Build and run project from source](./docs/build_run.md) (for developers)
 

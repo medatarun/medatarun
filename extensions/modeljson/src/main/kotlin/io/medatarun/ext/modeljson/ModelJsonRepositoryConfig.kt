@@ -6,7 +6,5 @@ data class ModelJsonRepositoryConfig(
     companion object {
         const val CONFIG_PRETTY_PRINT_KEY = "modeljson.prettyprint"
         const val CONFIG_PRETTY_PRINT_DEFAULT = "true"
-        const val CONFIG_REPOSITORY_PATH_KEY = "modeljson.repository.path"
-        const val CONFIG_REPOSITORY_PATH_DEFAULT = ""
     }
 }

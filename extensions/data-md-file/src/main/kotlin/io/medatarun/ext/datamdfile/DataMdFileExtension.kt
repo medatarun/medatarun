@@ -8,7 +8,7 @@ import io.medatarun.kernel.MedatarunExtensionCtx
 class DataMdFileExtension: MedatarunExtension {
     override val id = "data-md-file"
     override fun init(ctx: MedatarunExtensionCtx) {
-        ctx.register(DataRepository::class, MdFileDataRepository(ctx.resolveMedatarunPath("data")))
+        ctx.register(DataRepository::class, MdFileDataRepository(ctx.resolveExtensionStoragePath()))
     }
 
 }

@@ -1,12 +1,11 @@
 package io.medatarun.kernel.internal
 
-import io.medatarun.kernel.ContributionPointId
-import io.medatarun.kernel.MedatarunConfig
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.kernel.*
 import io.medatarun.lang.trimToNull
 import java.nio.file.Path
-import javax.management.relation.RelationException
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 import kotlin.reflect.KClass
 
 class MedatarunExtensionCtxImpl(
@@ -23,6 +22,13 @@ class MedatarunExtensionCtxImpl(
 
     override fun resolveMedatarunPath(relativePath: String?): Path {
         return resolvePath(_config.medatarunDir, relativePath)
+    }
+
+    override fun resolveExtensionStoragePath(init: Boolean): Path {
+        val path = resolvePath(_config.medatarunDir, extension.id)
+        if (!path.exists()) path.createDirectories()
+        if (!path.isDirectory()) throw ExtensionStoragePathNotDirectoryException(path)
+        return path
     }
 
     private fun resolvePath(basePath: Path, relativePath: String?): Path {
