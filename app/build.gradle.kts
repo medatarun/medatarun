@@ -16,6 +16,7 @@ dependencies {
     // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
     implementation(project(":utils"))
     implementation(project(":libs:model"))
+    implementation(project(":libs:lang"))
     implementation(project(":extensions:modeljson"))
     implementation(project(":extensions:data-md-file"))
     implementation(project(":extensions:frictionlessdata"))

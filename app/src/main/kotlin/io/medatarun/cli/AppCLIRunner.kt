@@ -5,7 +5,7 @@ import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.runtime.getLogger
-import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.envMEDATARUN_APPLICATION_DATA
+import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -154,8 +154,14 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
         logger.cli("  medatarun <resource> <command> [...parameters]")
         logger.cli("    CLI version of medatarun. Just executes a resource's command (and stops).")
         logger.cli("    See below for available resources and their commands.")
+        logger.cli("  medatarun help")
+        logger.cli("    Display this help")
+        logger.cli("  medatarun help <resource>")
+        logger.cli("    Display available commands for this resource")
+        logger.cli("  medatarun help <resource> <command>")
+        logger.cli("    Display command description and parameters for this resource")
         logger.cli("")
-        logger.cli("Unless environment variable $envMEDATARUN_APPLICATION_DATA points to a directory, the current directory is considered to be the projet root.")
+        logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
         logger.cli("")
         logger.cli("Get help on available resources:")
         val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name.lowercase() }
@@ -164,14 +170,4 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
         }
     }
 
-    private fun buildCommandSignature(resourceName: String, command: ResourceRepository.ResourceCommand): String {
-        if (command.parameters.isEmpty()) {
-            return "$resourceName ${command.name}"
-        }
-        val renderedParameters = command.parameters.joinToString(" ") { param ->
-            val rendered = "--${param.name}=<${param.type}>"
-            if (param.optional) "[${rendered}]" else rendered
-        }
-        return "$resourceName ${command.name} $renderedParameters"
-    }
 }

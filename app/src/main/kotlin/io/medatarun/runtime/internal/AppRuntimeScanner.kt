@@ -1,30 +1,39 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.model.model.MedatarunException
-import io.medatarun.runtime.getLogger
+import io.medatarun.lang.trimToNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 import kotlin.io.path.readText
 
 class AppRuntimeScanner {
 
 
     fun scan(): AppRuntimeConfig {
-        val projectDirStr = System.getenv(envMEDATARUN_APPLICATION_DATA) ?: System.getProperty("user.dir")
-        if (projectDirStr == null) {
-            throw RootDirNotFoundException()
-        }
 
-        val projectDir = Path.of(projectDirStr).toAbsolutePath()
+        val projectDir = findProjectDir()
+        val medatarunDir = findMedatarunDir(projectDir)
 
         val config = findConfigInPackageJson(projectDir) ?: buildJsonObject {}
 
-        return AppRuntimeConfig(projectDir, config)
+        return AppRuntimeConfig(projectDir, medatarunDir, config)
 
+    }
+
+    private fun findMedatarunDir(projectDir: Path): Path {
+        val medatarunDir = projectDir.resolve(MEDATARUN_DEFAULT_SUBDIR)
+        if (!medatarunDir.exists()) {
+            medatarunDir.createDirectories()
+        } else if (!medatarunDir.isDirectory()) {
+            throw MedatarunDirAlreadyExistsAsRegularFileException(medatarunDir.toString())
+        }
+        return medatarunDir
     }
 
     private fun findConfigInPackageJson(projectDir: Path): JsonObject? {
@@ -53,18 +62,42 @@ class AppRuntimeScanner {
         return config
     }
 
+    private fun findProjectDir(): Path {
+        val projectDir = findProjectDirApplicationData() ?: findProjectDirUserDir()
+        return projectDir
+    }
+
+    fun findProjectDirApplicationData(): Path? {
+        val projectDirStr = System.getenv(MEDATARUN_APPLICATION_DATA_ENV)
+        val projectDirStrSafe = projectDirStr?.trimToNull() ?: return null
+        val projectDir = Path.of(projectDirStrSafe).toAbsolutePath()
+        if (!projectDir.exists()) {
+            throw ProjectDirApplicationDataDoesNotExistException(projectDir.toString(), MEDATARUN_APPLICATION_DATA_ENV)
+        }
+        if (!projectDir.isDirectory()) {
+            throw ProjectDirNotAdirectoryException(projectDir.toString())
+        }
+        logger.debug("Found project directory in $projectDir via $MEDATARUN_APPLICATION_DATA_ENV")
+        return projectDir
+    }
+
+    fun findProjectDirUserDir(): Path {
+        val userDirStr = System.getProperty("user.dir")
+        val userDir = Path.of(userDirStr).toAbsolutePath()
+        if (!userDir.exists()) {
+            throw RootDirNotFoundException()
+        }
+
+        if (!userDir.isDirectory()) {
+            throw ProjectDirNotAdirectoryException(userDirStr.toString())
+        }
+        return userDir
+
+    }
+
     companion object {
-        public val envMEDATARUN_APPLICATION_DATA = "MEDATARUN_APPLICATION_DATA"
-        private val logger = getLogger(AppRuntimeScanner::class)
+        const val MEDATARUN_APPLICATION_DATA_ENV = "MEDATARUN_APPLICATION_DATA"
+        private const val MEDATARUN_DEFAULT_SUBDIR = ".medatarun"
+        private val logger = LoggerFactory.getLogger(AppRuntimeScanner::class.java)
     }
 }
-
-class RootDirNotFoundException() :
-    MedatarunException("Could not guess the current user directory. Configure MEDATARUN_APPLICATION_DATA if needed.")
-
-
-
-
-
-
-

@@ -15,7 +15,7 @@ class ModelJsonExtension : MedatarunExtension {
 
         val configPrettyPrint = ctx.config.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
         val configRepo = ctx.config.getConfigProperty(CONFIG_REPOSITORY_PATH_KEY, CONFIG_REPOSITORY_PATH_DEFAULT)
-        val configRepoPath = ctx.resolveProjectPath(configRepo)
+        val configRepoPath = ctx.resolveMedatarunPath(configRepo)
         if (!configRepoPath.isDirectory()) {
             throw ModelJsonRepositoryNotFoundException(CONFIG_REPOSITORY_PATH_KEY, configRepoPath.toString())
         }

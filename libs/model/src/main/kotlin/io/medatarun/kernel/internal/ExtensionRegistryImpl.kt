@@ -94,7 +94,8 @@ class ExtensionRegistryImpl(
 
     override fun inspectJson(): JsonObject {
         return buildJsonObject {
-            put("projectdir", config.projectDir.absolute().toString())
+            put("projectDirectory", config.projectDir.absolute().toString())
+            put("medatarunDirectory", config.medatarunDir.absolute().toString())
             putJsonArray("extensions") {
                 extensions.forEach { ext ->
                     addJsonObject {

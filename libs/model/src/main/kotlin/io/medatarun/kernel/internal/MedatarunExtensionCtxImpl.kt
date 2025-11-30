@@ -6,6 +6,7 @@ import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.lang.trimToNull
 import java.nio.file.Path
+import javax.management.relation.RelationException
 import kotlin.reflect.KClass
 
 class MedatarunExtensionCtxImpl(
@@ -17,8 +18,16 @@ class MedatarunExtensionCtxImpl(
     override val config = MedatarunExtensionCtxConfigImpl(_config)
 
     override fun resolveProjectPath(relativePath: String?): Path {
-        val trimmed = relativePath?.trimToNull() ?: return _config.projectDir
-        return _config.projectDir.resolve(trimmed).toAbsolutePath()
+        return resolvePath(_config.projectDir, relativePath)
+    }
+
+    override fun resolveMedatarunPath(relativePath: String?): Path {
+        return resolvePath(_config.medatarunDir, relativePath)
+    }
+
+    private fun resolvePath(basePath: Path, relativePath: String?): Path {
+        val trimmed = relativePath?.trimToNull() ?: return basePath
+        return basePath.resolve(trimmed).toAbsolutePath()
     }
 
     override fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>) {

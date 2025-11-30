@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 
 interface MedatarunExtensionCtx {
     fun resolveProjectPath(relativePath: String?): Path
+    fun resolveMedatarunPath(relativePath: String?): Path
     val config: MedatarunExtensionCtxConfig
 
     fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>)

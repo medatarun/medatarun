@@ -7,6 +7,7 @@ import java.nio.file.Path
 
 class AppRuntimeConfig(
     override val projectDir: Path,
+    override val medatarunDir: Path,
     val config: JsonObject
 ) : MedatarunConfig {
     override fun getProperty(key: String): String? {
