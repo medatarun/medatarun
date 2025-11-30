@@ -68,7 +68,7 @@ And then
 Enrich company description. Explain that we need information of main activities and how the company relates to us (customer/partner/vendor/prospect/competitor).
 ```
 
-Remember you view everything using AI.
+Remember you can view and browse everything using user interface.
 
 ## 🌐 Use with RestAPI
 
