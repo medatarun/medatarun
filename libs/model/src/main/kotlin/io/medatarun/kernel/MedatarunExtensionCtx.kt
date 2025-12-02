@@ -4,7 +4,18 @@ import java.nio.file.Path
 import kotlin.reflect.KClass
 
 interface MedatarunExtensionCtx {
+    /**
+     * Resolves a path relative to application home directory (where medatarun binary is located)
+     */
+    fun resolveApplicationHomePath(relativePath: String): Path
+    /**
+     * Resolves a path relative to the user project
+     */
     fun resolveProjectPath(relativePath: String?): Path
+    /**
+     * Resolves a path relative to Medatarun data directory inside the project path.
+     * Usually <projectPath>/.medatarun/<relativePath>
+     */
     fun resolveMedatarunPath(relativePath: String?): Path
 
     /**
@@ -15,5 +26,6 @@ interface MedatarunExtensionCtx {
 
     fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>)
     fun <INTERFACE : Any, IMPL : INTERFACE> register(kClass: KClass<INTERFACE>, instance: IMPL)
+
 
 }

@@ -4,6 +4,7 @@ import io.medatarun.model.model.Model
 import io.medatarun.model.ports.ResourceLocator
 
 interface ModelImporter {
+    fun accept(path: String, resourceLocator: ResourceLocator): Boolean
     fun toModel(path: String, resourceLocator: ResourceLocator): Model
 
 }

@@ -15,8 +15,11 @@ class ModelImportAction(
         val contribs = runtime.extensionRegistry.findContributionsFlat(ModelImporter::class)
         val resourceLocator = ResourceLocatorImpl(cmd.from, fileSystem)
         contribs.forEach { contrib ->
-            val model = contrib.toModel(cmd.from, resourceLocator)
-            runtime.modelCmds.dispatch(ModelCmd.ImportModel(model))
+            val accept = contrib.accept(cmd.from, resourceLocator)
+            if (accept) {
+                val model = contrib.toModel(cmd.from, resourceLocator)
+                runtime.modelCmds.dispatch(ModelCmd.ImportModel(model))
+            }
         }
 
     }

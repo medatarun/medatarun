@@ -2,6 +2,7 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.data.DataExtension
 import io.medatarun.ext.datamdfile.DataMdFileExtension
+import io.medatarun.ext.db.DbExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
@@ -32,6 +33,7 @@ class AppRuntimeBuilder {
         ModelJsonExtension(),
         DataExtension(),
         DataMdFileExtension(),
+        DbExtension(),
         FrictionlessdataExtension()
     )
     val platform = ExtensionPlaformImpl(extensions, config)

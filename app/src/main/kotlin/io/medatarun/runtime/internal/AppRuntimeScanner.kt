@@ -17,13 +17,18 @@ class AppRuntimeScanner {
 
     fun scan(): AppRuntimeConfig {
 
+        val applicationHomeDir = findApplicationHomeDir()
         val projectDir = findProjectDir()
         val medatarunDir = findMedatarunDir(projectDir)
 
         val config = findConfigInPackageJson(projectDir) ?: buildJsonObject {}
 
-        return AppRuntimeConfig(projectDir, medatarunDir, config)
+        return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config)
 
+    }
+
+    private fun findApplicationHomeDir(): Path {
+        return findProjectDirUserDir()
     }
 
     private fun findMedatarunDir(projectDir: Path): Path {
@@ -91,6 +96,7 @@ class AppRuntimeScanner {
         if (!userDir.isDirectory()) {
             throw ProjectDirNotAdirectoryException(userDirStr.toString())
         }
+        logger.debug("Found user directory $userDir via System.property")
         return userDir
 
     }

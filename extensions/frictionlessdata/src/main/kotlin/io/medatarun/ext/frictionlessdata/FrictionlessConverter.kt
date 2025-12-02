@@ -11,6 +11,16 @@ import java.net.URI
 
 class FrictionlessConverter() {
     val ser = DataPackageSerializer()
+
+    fun isCompatible(path: String, resourceLocator: ResourceLocator): Boolean {
+        try {
+            readString(path, resourceLocator)
+            return true
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
     fun readString(path: String, resourceLocator: ResourceLocator): Model {
         val types = FrictionlessTypes().all
         val location: ResourceLocator = resourceLocator.withPath(path)

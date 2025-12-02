@@ -6,10 +6,14 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.nio.file.Path
 
 class AppRuntimeConfig(
+    override val applicationHomeDir: Path,
     override val projectDir: Path,
     override val medatarunDir: Path,
     val config: JsonObject
 ) : MedatarunConfig {
+
+
+
     override fun getProperty(key: String): String? {
         return config[key]?.jsonPrimitive?.content
     }
