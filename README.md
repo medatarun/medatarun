@@ -46,7 +46,7 @@ Universal executable model engine: define, run, and evolve living domain models 
   - relationships (cardinalities, tags, attributes). 
   - attributes (for entities and relationships, with tags, rich types and descriptions)
   
-  Built-in plugins allow model raw imports so you can get a quick start on your assets: Frictionless TableSchema or Data Packages today, Croissant in development, JDBC support in development.
+  Built-in plugins allow model raw imports so you can get a quick start on your assets: [Frictionless TableSchema or Data Packages](./extensions/frictionlessdata/README.md) today, Croissant in development, [JDBC support](./extensions/db/README.md) in development.
   After import, you obtain the structure that the importer could infer from the source. Medatarun operations let you refine it: adjust types and relationships, add tags and descriptions, and reshape entities or attributes when the import didn’t capture enough information. 
 
   
@@ -87,7 +87,7 @@ Not built-in per-se but as a consequence of how Medatarun is build
 
 - **Model import and reconstruction from existing assets**
 
-  Agents or extensions can ingest SQL schemas, JSON structures, CSV samples or documentation and rebuild a coherent domain model through generic primitives. This removes the need for dedicated import features and makes the tool usable even when no clean model exists yet.
+  Agents or extensions can ingest [SQL schemas](./extensions/db/README.md), JSON structures, CSV samples or documentation and rebuild a coherent domain model through generic primitives. This removes the need for dedicated import features and makes the tool usable even when no clean model exists yet.
 
 ## What you can do with it
 
