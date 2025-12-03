@@ -2,7 +2,8 @@ import {useEffect, useState} from "react";
 import {Link} from "@tanstack/react-router";
 import {ExternalUrl, Hashtags, Markdown, Origin} from "./ModelPage.tsx";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import type {EntityDto, ModelDto} from "../business/model.tsx";
+import {type EntityDto, Model, type ModelDto} from "../business/model.tsx";
+import {ModelContext, useModelContext} from "./ModelContext.tsx";
 
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
@@ -15,11 +16,12 @@ export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefI
   }, [modelId, entityDefId])
   const entity = model?.entityDefs?.find(it => it.id === entityDefId)
   return <div>
-    {model && entity && <EntityView entity={entity} model={model}/>}
+    {model && entity && <ModelContext value={new Model(model)}><EntityView entity={entity}/></ModelContext>}
   </div>
 }
 
-export function EntityView({entity, model}: { entity: EntityDto, model: ModelDto }) {
+export function EntityView({entity}: { entity: EntityDto }) {
+  const model = useModelContext().dto
   return <div>
     <h1>Entity {entity.name ?? entity.id}</h1>
     <div style={{display: "grid", gridTemplateColumns: "auto auto", columnGap: "1em", marginBottom: "1em"}}>

@@ -53,3 +53,17 @@ interface EntityDefOriginDto {
   type: "manual" | "uri",
   uri: string | null
 }
+
+
+export class Model {
+  public dto: ModelDto;
+  constructor(dto: ModelDto) {
+    this.dto = dto
+  }
+
+  findEntityName(id: string): string | null {
+    const e = this.dto.entityDefs.find(it => it.id === id)
+    return e?.name ?? null
+
+  }
+}

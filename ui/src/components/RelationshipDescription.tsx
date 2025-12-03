@@ -1,6 +1,9 @@
 import type {RelationshipDefSummaryDto, RelationshipRoleDefDto} from "../business/relationships.tsx";
+import {useModelContext} from "./ModelContext.tsx";
+import {Link} from "@tanstack/react-router";
 
-export function RelationshipDescription(props:{rel: RelationshipDefSummaryDto}) {
+export function RelationshipDescription(props: { rel: RelationshipDefSummaryDto }) {
+
   const {rel} = props
   if (rel.roles.length !== 2) {
     return <div>{rel.roles.length}-ary relationship.</div>
@@ -11,15 +14,19 @@ export function RelationshipDescription(props:{rel: RelationshipDefSummaryDto}) 
   const render = (role: RelationshipRoleDefDto, other: RelationshipRoleDefDto) => {
     switch (role.cardinality) {
       case "one":
-        return <div><EntityLink id={role.entityId} /> can be associated with exactly one <EntityLink id={other.entityId} />.</div>
+        return <div><EntityLink id={role.entityId}/> can be associated with exactly one <EntityLink
+          id={other.entityId}/>.</div>
       case "zeroOrOne":
-        return <div><EntityLink id={role.entityId} /> can be associated with at most one <EntityLink id={other.entityId} />.</div>
+        return <div><EntityLink id={role.entityId}/> can be associated with at most one <EntityLink
+          id={other.entityId}/>.</div>
       case "many":
-        return <div><EntityLink id={role.entityId} /> can be associated with one or more <EntityLink id={other.entityId} />.</div>
+        return <div><EntityLink id={role.entityId}/> can be associated with one or more <EntityLink
+          id={other.entityId}/>.</div>
       case "unknown":
-        return <div><EntityLink id={role.entityId} /> can be associated with <EntityLink id={other.entityId} />, with no defined maximum.</div>
+        return <div><EntityLink id={role.entityId}/> can be associated with <EntityLink id={other.entityId}/>, with no
+          defined maximum.</div>
       default:
-        return <div><EntityLink id={role.entityId} /> can be associated with <EntityLink id={other.entityId} />.</div>
+        return <div><EntityLink id={role.entityId}/> can be associated with <EntityLink id={other.entityId}/>.</div>
     }
   }
 
@@ -29,6 +36,17 @@ export function RelationshipDescription(props:{rel: RelationshipDefSummaryDto}) 
   </div>
 }
 
-function EntityLink(props:{id: string}) {
-  return <code>{props.id}</code>
+function EntityLink(props: { id: string }) {
+  const model = useModelContext()
+  const name = model.findEntityName(props.id)
+  if (name !== null) {
+    return <Link to="/model/$modelId/entityDef/$entityDefId" params={{modelId: model.dto.id, entityDefId: props.id}}>
+      {name}
+    </Link>
+  } else {
+    return <code><Link to="/model/$modelId/entityDef/$entityDefId" params={{modelId: model.dto.id, entityDefId: props.id}}>
+      {props.id}
+    </Link></code>
+  }
+
 }

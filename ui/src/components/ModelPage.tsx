@@ -2,7 +2,8 @@ import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {Link} from "@tanstack/react-router";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import type {ElementOrigin, ModelDto} from "../business/model.tsx";
+import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
+import {ModelContext, useModelContext} from "./ModelContext.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -12,12 +13,13 @@ export function ModelPage({modelId}: { modelId: string }) {
       .then(json => setModel(json));
   }, [modelId])
   return <div>
-    {model && <ModelView model={model}/>}
+    {model && <ModelContext value={new Model(model)}><ModelView /></ModelContext>}
   </div>
 }
 
 
-export function ModelView({model}: { model: ModelDto }) {
+export function ModelView() {
+  const model = useModelContext().dto
   return <div>
     <h1>Model {model.name ?? model.id}</h1>
     <div style={{display: "grid", gridTemplateColumns: "min-content auto", columnGap: "1em"}}>
