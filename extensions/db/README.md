@@ -139,7 +139,7 @@ Just to avoid misunderstandings, the expected directory and file organization is
 Run the Import command from the UI, API or CLI, and provide the name of the connection in this format:
 `datasource:<connection_name>`. Using the previous example, you should import `datasource:mydatabase`.
 
-## Limitations
+## Behaviour and limitations
 
 A database schema is a physical structure, while Medatarun works with conceptual models. Databases store only what is
 needed to run queries, and many modelling details do not appear in the schema. Because of this, some information
@@ -153,15 +153,31 @@ database may define a composite primary key or none at all.
 
 To ensure that the import always produces a usable starting point, we apply a set of rules:
 
+Principles 
+
 - each database table becomes an entity, and each column becomes an attribute
 - each database column type (including differences in size or precision) becomes a separate model type
 - nullable database columns are imported as optional attributes
 - database tables with no columns are ignored
-- if no primary key exists on a database table, the first column becomes the entity’s identifier
-- if a composite primary key exists in the database table, only its first column becomes the entity's identifier
+- foreign keys are imported as relationships as best-effort
+
+Naming and origin
+
 - because we cannot guess the model name to import, all models created from import will be named
   `<connection_name> (import <date>)` with an id of `<connection_name>-<uuid>` to distinguish multiple imports.
 - When a model is created, its origin will be `datasource:<connection name>` so you can track back where the model
   comes from, even after you renamed it.
+
+Primary keys
+
+- if no primary key exists on a database table, the first column becomes the entity’s identifier
+- if a composite primary key exists in the database table, only its first column becomes the entity's identifier
+
+Foreign keys
+
+- When foreign keys are imported, only one side of the relationship can be inferred. A foreign key tells us whether 
+  the referencing column must contain a value, but it does not specify how many rows in the referenced table may 
+  point to the same value. Database schemas do not store this information. 
+  Because of this, the import sets the cardinality on the referencing side to 0 or 1 and marks the opposite side cardinality as undefined.
 
 These rules provide a consistent starting point. You can then adjust the resulting model as needed inside Medatarun.
