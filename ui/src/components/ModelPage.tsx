@@ -23,6 +23,7 @@ interface ModelDto {
   description: string | null
   origin: ElementOrigin
   entityDefs: EntityDefSummaryDto[]
+  relationshipDefs: RelationshipDefDto[]
   types: TypeDto[]
 }
 
@@ -36,6 +37,20 @@ interface TypeDto {
   id: string
   name: string | null
   description: string | null
+}
+
+interface RelationshipDefDto {
+  id: string
+  name: string | null
+  description: string | null
+  roles: RelationshipRoleDefDto[]
+}
+
+interface RelationshipRoleDefDto {
+  id: string
+  name: string | null
+  entityId: string
+  cardinality: string
 }
 
 interface ElementOrigin {
@@ -71,6 +86,15 @@ export function ModelView({model}: { model: ModelDto }) {
       }
       </tbody>
     </table>
+    <h2>Relationships</h2>
+    <table>
+      <tbody>
+      {model.relationshipDefs.map(r => <tr key={r.id}>
+        <td>{r.name ?? r.id}</td>
+        <td>{describeRelationship(r)}</td>
+      </tr>)}
+      </tbody>
+    </table>
     <h2>Types</h2>
     <table>
       <tbody>
@@ -102,4 +126,29 @@ export function Hashtags({hashtags}: { hashtags: string[] }) {
 export function Markdown({value}: { value: string | null }) {
   if (value == null) return null
   return <ReactMarkdown>{value}</ReactMarkdown>
+}
+
+function describeRelationship(rel: RelationshipDefDto): string {
+  if (rel.roles.length !== 2) {
+    return `${rel.roles.length}-ary relationship.`
+  }
+
+  const [r1, r2] = rel.roles
+
+  const render = (role: RelationshipRoleDefDto, other: RelationshipRoleDefDto) => {
+    switch (role.cardinality) {
+      case "one":
+        return `${role.entityId} can be associated with exactly one ${other.entityId}.`
+      case "zeroOrOne":
+        return `${role.entityId} can be associated with at most one ${other.entityId}.`
+      case "many":
+        return `${role.entityId} can be associated with one or more ${other.entityId}.`
+      case "unknown":
+        return `${role.entityId} can be associated with ${other.entityId}, with no defined maximum.`
+      default:
+        return `${role.entityId} can be associated with ${other.entityId}.`
+    }
+  }
+
+  return `${render(r1, r2)} ${render(r2, r1)}`
 }

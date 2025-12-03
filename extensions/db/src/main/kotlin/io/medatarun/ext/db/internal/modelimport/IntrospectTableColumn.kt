@@ -1,4 +1,4 @@
-package io.medatarun.ext.db
+package io.medatarun.ext.db.internal.modelimport
 
 data class IntrospectTableColumn(
     val columnName: String,

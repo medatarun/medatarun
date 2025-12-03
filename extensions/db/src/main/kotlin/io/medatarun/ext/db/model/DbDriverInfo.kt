@@ -1,4 +1,4 @@
-package io.medatarun.ext.db
+package io.medatarun.ext.db.model
 
 import java.nio.file.Path
 

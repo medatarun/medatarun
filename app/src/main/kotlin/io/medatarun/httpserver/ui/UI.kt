@@ -59,6 +59,26 @@ class UI(private val runtime: AppRuntime) {
                     }
                 }
             }
+            putJsonArray("relationshipDefs", {
+                model.relationshipDefs.forEach { relationship ->
+                    addJsonObject {
+                        put("id", relationship.id.value)
+                        put("name", relationship.name?.get(locale))
+                        put("description", relationship.description?.get(locale))
+                        putJsonArray("roles") {
+                            relationship.roles.forEach { role ->
+                                addJsonObject {
+                                    put("id", role.id.value)
+                                    put("name", role.name?.get(locale))
+                                    put("entityId", role.entityId.value)
+                                    put("cardinality", role.cardinality.code)
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+
             putJsonArray("types") {
                 model.types.forEach { t ->
                     addJsonObject {

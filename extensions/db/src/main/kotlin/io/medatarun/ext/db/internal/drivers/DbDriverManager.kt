@@ -1,6 +1,7 @@
-package io.medatarun.ext.db
+package io.medatarun.ext.db.internal.drivers
 
-import io.medatarun.model.model.MedatarunException
+import io.medatarun.ext.db.internal.drivers.DbDriverRegistry
+import io.medatarun.ext.db.model.DbConnection
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.net.URLClassLoader
@@ -8,6 +9,7 @@ import java.nio.file.Path
 import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverManager
+import java.util.Properties
 
 class DbDriverLoader(val registry: DbDriverRegistry) {
     private val loadedDrivers = mutableSetOf<String>()
@@ -26,7 +28,7 @@ class DbDriverLoader(val registry: DbDriverRegistry) {
                 Thread.currentThread().getContextClassLoader()
             )
             val driverClass = Class.forName(driverClassName, true, loader);
-            val driverInstance = driverClass.getDeclaredConstructor().newInstance() as java.sql.Driver
+            val driverInstance = driverClass.getDeclaredConstructor().newInstance() as Driver
             logger.debug("Registering driver instance for [$database]")
             DriverManager.registerDriver(
                 DriverRattachedToCurrentClassloaded(driverInstance)
@@ -43,15 +45,18 @@ class DbDriverLoader(val registry: DbDriverRegistry) {
 
 class DriverRattachedToCurrentClassloaded(val driver: Driver) : Driver by driver
 
-class DbDriverManager(jdbcDriversPath: Path) {
+class DbDriverManager(driversJsonPath: Path, jdbcDriversPath: Path) {
 
-    val driverRegistry: DbDriverRegistry = DbDriverRegistry(jdbcDriversPath)
+    val driverRegistry: DbDriverRegistry = DbDriverRegistry(driversJsonPath, jdbcDriversPath)
     val driverLoader: DbDriverLoader = DbDriverLoader(driverRegistry)
 
-    fun getConnection(jdbcUrl: String): Connection {
-        val database = jdbcUrl.split(":")[1]
-        driverLoader.loadDriverIfNeeded(database)
-        return DriverManager.getConnection(jdbcUrl)
+    fun getConnection(connection: DbConnection): Connection {
+        driverLoader.loadDriverIfNeeded(connection.driver)
+        val info = Properties()
+        info["user"] = connection.username
+        info["password"] = connection.secret.value
+        info.putAll(connection.properties)
+        return DriverManager.getConnection(connection.url, info)
     }
 
     companion object {

@@ -1,83 +1,28 @@
-package io.medatarun.ext.db
+package io.medatarun.ext.db.internal.modelimport
 
-import io.medatarun.model.ModelImporter
-import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
-import io.medatarun.model.infra.ModelInMemory
-import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.model.*
-import io.medatarun.model.ports.ResourceLocator
+import io.medatarun.ext.db.internal.drivers.DbDriverManager
+import io.medatarun.ext.db.model.DbConnection
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URI
 import java.sql.DatabaseMetaData
 import java.sql.ResultSet
 
+class DbIntrospect(val dbDriverManager: DbDriverManager) {
 
-class DbModelImporter(val dbDriverManager: DbDriverManager) : ModelImporter {
-    override fun accept(
-        path: String,
-        resourceLocator: ResourceLocator
-    ): Boolean {
-        return path.startsWith("jdbc:")
-    }
-
-
-    override fun toModel(
-        path: String,
-        resourceLocator: ResourceLocator
-    ): Model {
-        val tables: List<IntrospectTable> = introspect(path)
-        val model = ModelInMemory(
-            id = ModelId("imported-database"),
-            name = LocalizedTextNotLocalized("Imported Database"),
-            version = ModelVersion("0.0.0"),
-            description = null,
-            origin = ModelOrigin.Uri(URI(path)),
-            types = tables.map { t -> t.columns.map { c -> c.typeName } }
-                .flatten()
-                .toSet()
-                .map { ModelTypeInMemory(ModelTypeId(it), null, null) },
-            entityDefs = tables.map { table ->
-                EntityDefInMemory(
-                    id = EntityDefId(table.tableName),
-                    name = null,
-                    attributes = table.columns.map {
-                        AttributeDefInMemory(
-                            id = AttributeDefId(it.columnName),
-                            name = null,
-                            description = it.remarks?.let(::LocalizedTextNotLocalized),
-                            type = ModelTypeId(it.typeName),
-                            optional = it.isNullable != false,
-                        )
-                    },
-                    description = table.remarks?.let(::LocalizedTextNotLocalized),
-                    identifierAttributeDefId = table.pkNameOrFirstColumn(),
-                    origin = EntityOrigin.Uri(URI(path)),
-                    documentationHome = null,
-                    hashtags = emptyList()
-
-                )
-            },
-            relationshipDefs = emptyList(), // TODO
-            documentationHome = null,
-            hashtags = emptyList(),
-        )
-        return model
-    }
-
-    private fun introspect(path: String): MutableList<IntrospectTable> {
+    fun introspect(connection: DbConnection): IntrospectResult {
         val extractedTables = mutableListOf<IntrospectTable>()
-        dbDriverManager.getConnection(path).use { conn ->
+        dbDriverManager.getConnection(connection).use { conn ->
             val meta: DatabaseMetaData = conn.metaData
-            meta.getTables(null, null, "%", arrayOf("TABLE")).use { tables ->
+
+            meta.getTables(conn.catalog, conn.schema, "%", arrayOf("TABLE")).use { tables ->
                 while (tables.next()) {
-                    val dbTable = introspectTable(tables, meta)
+                    val dbTable = introspectTable(conn.catalog, conn.schema, tables, meta)
                     logger.debug("IntrospectTable: {}", dbTable)
                     extractedTables.add(dbTable)
                 }
             }
         }
-        return extractedTables
+        return IntrospectResult(extractedTables)
     }
 
     /**
@@ -86,6 +31,8 @@ class DbModelImporter(val dbDriverManager: DbDriverManager) : ModelImporter {
      * See [DatabaseMetaData.getTables] documentation for available resultset columns
      */
     private fun introspectTable(
+        catalog: String?,
+        schema: String?,
         rs: ResultSet,
         meta: DatabaseMetaData
     ): IntrospectTable {
@@ -101,20 +48,28 @@ class DbModelImporter(val dbDriverManager: DbDriverManager) : ModelImporter {
         val refGeneration: String? = rs.getString("REF_GENERATION")
 
         val primaryKeySet = mutableListOf<IntrospectPk>()
-        meta.getPrimaryKeys(null, null, tableName).use { rs ->
+        meta.getPrimaryKeys(catalog, schema, tableName).use { rs ->
             while (rs.next()) {
                 primaryKeySet.add(introspectPrimaryKey(rs))
             }
         }
 
         val extractedColumns = mutableListOf<IntrospectTableColumn>()
-
-        meta.getColumns(null, null, tableName, "%").use { cols ->
+        meta.getColumns(catalog, schema, tableName, "%").use { cols ->
             while (cols.next()) {
                 val dbTableColumn = introspectTableColumn(cols)
                 extractedColumns.add(dbTableColumn)
             }
         }
+
+        val extractedImportedKeys = mutableListOf<IntrospectImportedKey>()
+        meta.getImportedKeys(catalog, schema, tableName).use { keys ->
+            while (keys.next()) {
+                val k = introspectFK(keys)
+                extractedImportedKeys.add(k)
+            }
+        }
+
         return IntrospectTable(
             tableCat = tableCat,
             tableSchem = tableSchem,
@@ -127,8 +82,49 @@ class DbModelImporter(val dbDriverManager: DbDriverManager) : ModelImporter {
             selfReferencingColName = selfReferencingColName,
             refGeneration = refGeneration,
             columns = extractedColumns,
-            primaryKey = primaryKeySet
+            primaryKey = primaryKeySet,
+            foreignKeys = extractedImportedKeys
         )
+    }
+
+    private fun introspectFK(key: ResultSet): IntrospectImportedKey {
+        val k = IntrospectImportedKey(
+            pkTableCat = key.getString("PKTABLE_CAT"),
+            pkTableSchem = key.getString("PKTABLE_SCHEM"),
+            pkTableName = key.getString("PKTABLE_NAME"),
+            pkColumnName = key.getString("PKCOLUMN_NAME"),
+            fkTableCat = key.getString("FKTABLE_CAT"),
+            fkTableSchem = key.getString("FKTABLE_SCHEM"),
+            fkTableName = key.getString("FKTABLE_NAME"),
+            fkColumnName = key.getString("FKCOLUMN_NAME"),
+            keySeq = key.getShort("KEY_SEQ"),
+            updateRule = when (key.getInt("UPDATE_RULE")) {
+                DatabaseMetaData.importedKeyNoAction -> IntrospectImportedKeyUpdateRule.importedKeyNoAction
+                DatabaseMetaData.importedKeyCascade -> IntrospectImportedKeyUpdateRule.importedKeyCascade
+                DatabaseMetaData.importedKeySetNull -> IntrospectImportedKeyUpdateRule.importedKeySetNull
+                DatabaseMetaData.importedKeySetDefault -> IntrospectImportedKeyUpdateRule.importedKeySetDefault
+                DatabaseMetaData.importedKeyRestrict -> IntrospectImportedKeyUpdateRule.importedKeyNoAction
+                else -> IntrospectImportedKeyUpdateRule.importedKeyNoAction
+            },
+            deleteRule = when (key.getInt("DELETE_RULE")) {
+                DatabaseMetaData.importedKeyNoAction -> IntrospectImportedKeyDeleteRule.importedKeyNoAction
+                DatabaseMetaData.importedKeyCascade -> IntrospectImportedKeyDeleteRule.importedKeyCascade
+                DatabaseMetaData.importedKeySetNull -> IntrospectImportedKeyDeleteRule.importedKeySetNull
+                DatabaseMetaData.importedKeyRestrict -> IntrospectImportedKeyDeleteRule.importedKeyNoAction
+                DatabaseMetaData.importedKeySetDefault -> IntrospectImportedKeyDeleteRule.importedKeySetDefault
+                else -> IntrospectImportedKeyDeleteRule.importedKeyNoAction
+            },
+            fkName = key.getString("FK_NAME"),
+            pkName = key.getString("PK_NAME"),
+            deferrability = when (key.getInt("DEFERRABILITY")) {
+                DatabaseMetaData.importedKeyInitiallyDeferred -> IntrospectImportedKeyDeferrability.importedKeyInitiallyDeferred
+                DatabaseMetaData.importedKeyInitiallyImmediate -> IntrospectImportedKeyDeferrability.importedKeyInitiallyImmediate
+                DatabaseMetaData.importedKeyNotDeferrable -> IntrospectImportedKeyDeferrability.importedKeyNotDeferrable
+                else -> IntrospectImportedKeyDeferrability.importedKeyInitiallyDeferred
+
+            }
+        )
+        return k
     }
 
     /**
@@ -206,8 +202,7 @@ class DbModelImporter(val dbDriverManager: DbDriverManager) : ModelImporter {
 
         return introspectTableColumn
     }
-
     companion object {
-        private val logger = LoggerFactory.getLogger(DbModelImporter::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(DbIntrospect::class.java)
     }
 }

@@ -1,5 +1,6 @@
-package io.medatarun.ext.db
+package io.medatarun.ext.db.internal.modelimport
 
+import io.medatarun.ext.db.model.DbTableWithoutColumnsException
 import io.medatarun.model.model.AttributeDefId
 
 data class IntrospectTable(
@@ -14,7 +15,8 @@ data class IntrospectTable(
     val selfReferencingColName: String?,
     val refGeneration: String?,
     val columns: List<IntrospectTableColumn>,
-    val primaryKey: List<IntrospectPk>
+    val primaryKey: List<IntrospectPk>,
+    val foreignKeys: List<IntrospectImportedKey>
 ) {
     fun pkNameOrFirstColumn(): AttributeDefId {
         val id = primaryKey.firstOrNull()?.let { pkPart ->
