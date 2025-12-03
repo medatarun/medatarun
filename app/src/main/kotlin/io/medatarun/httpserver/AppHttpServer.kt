@@ -157,17 +157,7 @@ class AppHttpServer(
                     ContentType.Application.Json
                 )
             }
-            get("/ui/api/models/{modelId}/entitydefs/{entityDefId}") {
-                val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                val entityDefId = call.parameters["entityDefId"] ?: throw NotFoundException()
-                call.respondText(
-                    UI(runtime).entityDefJson(
-                        ModelId(modelId),
-                        EntityDefId(entityDefId),
-                        detectLocale(call)
-                    ), ContentType.Application.Json
-                )
-            }
+
 
             if (enableMcpSse) {
                 route("/sse") {

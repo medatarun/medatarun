@@ -1,49 +1,25 @@
 import {useEffect, useState} from "react";
 import {Link} from "@tanstack/react-router";
 import {ExternalUrl, Hashtags, Markdown, Origin} from "./ModelPage.tsx";
+import {RelationshipDescription} from "./RelationshipDescription.tsx";
+import type {EntityDto, ModelDto} from "../business/model.tsx";
 
-export interface EntityDto {
-  id: string
-  name: string | null
-  description: string | null
-  origin: EntityDefOriginDto
-  documentationHome: string | null
-  hashtags: string[]
-  attributes: EntityAttributeDto[]
-  model: {
-    id: string
-    name: string | null
-  }
-}
-
-interface EntityAttributeDto {
-  id: string
-  type: string
-  optional: boolean
-  identifierAttribute: boolean
-  name: string | null
-  description: string | null
-}
-
-interface EntityDefOriginDto {
-  type: "manual" | "uri",
-  uri: string | null
-
-}
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
-  const [entity, setEntity] = useState<EntityDto | undefined>(undefined)
+
+  const [model, setModel] = useState<ModelDto | undefined>(undefined);
   useEffect(() => {
-    fetch("/ui/api/models/" + modelId + "/entitydefs/" + entityDefId)
-      .then((res) => res.json())
-      .then(data => setEntity(data))
+    fetch("/ui/api/models/" + modelId, {headers: {"Accept": "application/json", "Content-Type": "application/json"}})
+      .then(res => res.json())
+      .then(json => setModel(json));
   }, [modelId, entityDefId])
+  const entity = model?.entityDefs?.find(it => it.id === entityDefId)
   return <div>
-    {entity && <EntityView entity={entity}/>}
+    {model && entity && <EntityView entity={entity} model={model}/>}
   </div>
 }
 
-export function EntityView({entity}: { entity: EntityDto }) {
+export function EntityView({entity, model}: { entity: EntityDto, model: ModelDto }) {
   return <div>
     <h1>Entity {entity.name ?? entity.id}</h1>
     <div style={{display: "grid", gridTemplateColumns: "auto auto", columnGap: "1em", marginBottom: "1em"}}>
@@ -64,19 +40,31 @@ export function EntityView({entity}: { entity: EntityDto }) {
       <Markdown value={entity.description}/>
     </div>
     <h2>Attributes</h2>
-    <table><tbody>{entity.attributes.map(a => <tr key={a.id}>
-      <td style={{verticalAlign: "top"}}>{a.name ?? a.id}</td>
-      <td>
-        <div>
-          <Markdown value={a.description}/>
-        </div>
-        <div>
-          <code>{a.id}</code>
-          { " " }
-          <code>{a.type} {a.optional ? "?" : ""}</code>
-          {a.identifierAttribute ? "🔑" : ""}
-        </div>
-      </td>
-    </tr>)}</tbody></table>
+    <table>
+      <tbody>{entity.attributes.map(a => <tr key={a.id}>
+        <td style={{verticalAlign: "top"}}>{a.name ?? a.id}</td>
+        <td>
+          <div>
+            <Markdown value={a.description}/>
+          </div>
+          <div>
+            <code>{a.id}</code>
+            {" "}
+            <code>{a.type} {a.optional ? "?" : ""}</code>
+            {a.identifierAttribute ? "🔑" : ""}
+          </div>
+        </td>
+      </tr>)}</tbody>
+    </table>
+    <h2>Relationships involved</h2>
+    <table>
+      <tbody>{model.relationshipDefs
+        .filter(it => it.roles.some(r => r.entityId === entity.id))
+        .map(r => <tr key={r.id}>
+          <td>{r.name ?? r.id}</td>
+          <td><RelationshipDescription rel={r}/></td>
+        </tr>)}</tbody>
+    </table>
+
   </div>
 }

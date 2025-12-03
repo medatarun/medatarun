@@ -1,6 +1,8 @@
 import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {Link} from "@tanstack/react-router";
+import {RelationshipDescription} from "./RelationshipDescription.tsx";
+import type {ElementOrigin, ModelDto} from "../business/model.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -14,49 +16,6 @@ export function ModelPage({modelId}: { modelId: string }) {
   </div>
 }
 
-interface ModelDto {
-  id: string
-  name: string | null
-  version: string
-  documentationHome: string | null
-  hashtags: string[]
-  description: string | null
-  origin: ElementOrigin
-  entityDefs: EntityDefSummaryDto[]
-  relationshipDefs: RelationshipDefDto[]
-  types: TypeDto[]
-}
-
-interface EntityDefSummaryDto {
-  id: string
-  name: string | null
-  description: string | null
-}
-
-interface TypeDto {
-  id: string
-  name: string | null
-  description: string | null
-}
-
-interface RelationshipDefDto {
-  id: string
-  name: string | null
-  description: string | null
-  roles: RelationshipRoleDefDto[]
-}
-
-interface RelationshipRoleDefDto {
-  id: string
-  name: string | null
-  entityId: string
-  cardinality: string
-}
-
-interface ElementOrigin {
-  type: "manual" | "uri",
-  uri: string | null
-}
 
 export function ModelView({model}: { model: ModelDto }) {
   return <div>
@@ -91,7 +50,7 @@ export function ModelView({model}: { model: ModelDto }) {
       <tbody>
       {model.relationshipDefs.map(r => <tr key={r.id}>
         <td>{r.name ?? r.id}</td>
-        <td>{describeRelationship(r)}</td>
+        <td><RelationshipDescription rel={r} /></td>
       </tr>)}
       </tbody>
     </table>
@@ -126,29 +85,4 @@ export function Hashtags({hashtags}: { hashtags: string[] }) {
 export function Markdown({value}: { value: string | null }) {
   if (value == null) return null
   return <ReactMarkdown>{value}</ReactMarkdown>
-}
-
-function describeRelationship(rel: RelationshipDefDto): string {
-  if (rel.roles.length !== 2) {
-    return `${rel.roles.length}-ary relationship.`
-  }
-
-  const [r1, r2] = rel.roles
-
-  const render = (role: RelationshipRoleDefDto, other: RelationshipRoleDefDto) => {
-    switch (role.cardinality) {
-      case "one":
-        return `${role.entityId} can be associated with exactly one ${other.entityId}.`
-      case "zeroOrOne":
-        return `${role.entityId} can be associated with at most one ${other.entityId}.`
-      case "many":
-        return `${role.entityId} can be associated with one or more ${other.entityId}.`
-      case "unknown":
-        return `${role.entityId} can be associated with ${other.entityId}, with no defined maximum.`
-      default:
-        return `${role.entityId} can be associated with ${other.entityId}.`
-    }
-  }
-
-  return `${render(r1, r2)} ${render(r2, r1)}`
 }
