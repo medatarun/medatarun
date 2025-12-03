@@ -1,12 +1,9 @@
 package io.medatarun.httpserver.ui
 
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityOrigin
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelOrigin
+import io.medatarun.model.model.*
 import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.json.*
-import java.util.Locale
+import java.util.*
 
 class UI(private val runtime: AppRuntime) {
 
@@ -52,13 +49,16 @@ class UI(private val runtime: AppRuntime) {
             put("description", model.description?.get(locale))
             putJsonArray("entityDefs") {
                 model.entityDefs.forEach { e ->
-                    addJsonObject {
-                        put("id", e.id.value)
-                        put("name", e.name?.get(locale))
-                        put("description", e.description?.get(locale))
-                    }
+                    add(entityDefJson(e, locale, model))
                 }
             }
+            putJsonArray("relationshipDefs", {
+                model.relationshipDefs.forEach { relationship ->
+                    val relationshipJson = toRelationshipJson(relationship, locale)
+                    add(relationshipJson)
+                }
+            })
+
             putJsonArray("types") {
                 model.types.forEach { t ->
                     addJsonObject {
@@ -71,9 +71,33 @@ class UI(private val runtime: AppRuntime) {
         }.toString()
     }
 
-    fun entityDefJson(modelId: ModelId, entityDefId: EntityDefId, locale: Locale): String {
-        val model = runtime.modelQueries.findModelById(modelId)
-        val e = model.findEntityDef(entityDefId)
+    private fun toRelationshipJson(
+        relationship: RelationshipDef,
+        locale: Locale
+    ): JsonObject {
+        val relationshipJson = buildJsonObject {
+            put("id", relationship.id.value)
+            put("name", relationship.name?.get(locale))
+            put("description", relationship.description?.get(locale))
+            putJsonArray("roles") {
+                relationship.roles.forEach { role ->
+                    addJsonObject {
+                        put("id", role.id.value)
+                        put("name", role.name?.get(locale))
+                        put("entityId", role.entityId.value)
+                        put("cardinality", role.cardinality.code)
+                    }
+                }
+            }
+        }
+        return relationshipJson
+    }
+
+    private fun entityDefJson(
+        e: EntityDef,
+        locale: Locale,
+        model: Model
+    ): JsonObject {
         val id = e.id.value
         val name = e.name?.get(locale)
         val description = e.description?.get(locale)
@@ -113,7 +137,7 @@ class UI(private val runtime: AppRuntime) {
                     }
                 }
             }
-        }.toString()
+        }
     }
 
 

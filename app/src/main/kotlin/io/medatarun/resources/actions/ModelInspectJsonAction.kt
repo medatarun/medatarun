@@ -1,15 +1,9 @@
 package io.medatarun.resources.actions
 
+import io.medatarun.model.model.AttributeDef
 import io.medatarun.model.model.LocalizedText
 import io.medatarun.runtime.AppRuntime
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlin.collections.component1
-import kotlin.collections.component2
+import kotlinx.serialization.json.*
 
 class ModelInspectJsonAction(private val runtime: AppRuntime) {
     private val jsonPretty = Json { prettyPrint = true }
@@ -39,18 +33,28 @@ class ModelInspectJsonAction(private val runtime: AppRuntime) {
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
                                     put("identifierAttribute", entity.identifierAttributeDefId.value)
-                                    put("attributes", buildJsonArray {
-                                        entity.attributes.forEach { attribute ->
-                                            add(buildJsonObject {
-                                                put("id", attribute.id.value)
-                                                put("name", localizedTextToJson(attribute.name))
-                                                put("description", localizedTextToJson(attribute.description))
-                                                put("type", attribute.type.value)
-                                                put("optional", attribute.optional)
-                                            })
-                                        }
-                                    })
+                                    put("attributes", toAttributesJson(entity.attributes))
                                 })
+                            }
+                        })
+                        put("relationships", buildJsonArray {
+                            model.relationshipDefs.forEach { relationship ->
+                                addJsonObject {
+                                    put("id", relationship.id.value)
+                                    put("name", localizedTextToJson(relationship.name))
+                                    put("description", localizedTextToJson(relationship.description))
+                                    put("attributes", toAttributesJson(relationship.attributes))
+                                    putJsonArray("roles") {
+                                        relationship.roles.forEach { role ->
+                                            addJsonObject {
+                                                put("id", role.id.value)
+                                                put("name", localizedTextToJson(role.name))
+                                                put("entityId", role.entityId.value)
+                                                put("cardinality", role.cardinality.code)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         })
                     })
@@ -59,6 +63,21 @@ class ModelInspectJsonAction(private val runtime: AppRuntime) {
         }
         return jsonPretty.encodeToString(root)
     }
+
+    private fun toAttributesJson(attributes: List<AttributeDef>): JsonArray = buildJsonArray {
+
+        attributes.forEach { attribute ->
+            add(buildJsonObject {
+                put("id", attribute.id.value)
+                put("name", localizedTextToJson(attribute.name))
+                put("description", localizedTextToJson(attribute.description))
+                put("type", attribute.type.value)
+                put("optional", attribute.optional)
+            })
+        }
+
+    }
+
     private fun localizedTextToJson(value: LocalizedText?): JsonElement {
         return value?.let { text ->
             buildJsonObject {

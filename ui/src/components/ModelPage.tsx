@@ -1,6 +1,9 @@
 import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {Link} from "@tanstack/react-router";
+import {RelationshipDescription} from "./RelationshipDescription.tsx";
+import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
+import {ModelContext, useModelContext} from "./ModelContext.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -10,40 +13,13 @@ export function ModelPage({modelId}: { modelId: string }) {
       .then(json => setModel(json));
   }, [modelId])
   return <div>
-    {model && <ModelView model={model}/>}
+    {model && <ModelContext value={new Model(model)}><ModelView /></ModelContext>}
   </div>
 }
 
-interface ModelDto {
-  id: string
-  name: string | null
-  version: string
-  documentationHome: string | null
-  hashtags: string[]
-  description: string | null
-  origin: ElementOrigin
-  entityDefs: EntityDefSummaryDto[]
-  types: TypeDto[]
-}
 
-interface EntityDefSummaryDto {
-  id: string
-  name: string | null
-  description: string | null
-}
-
-interface TypeDto {
-  id: string
-  name: string | null
-  description: string | null
-}
-
-interface ElementOrigin {
-  type: "manual" | "uri",
-  uri: string | null
-}
-
-export function ModelView({model}: { model: ModelDto }) {
+export function ModelView() {
+  const model = useModelContext().dto
   return <div>
     <h1>Model {model.name ?? model.id}</h1>
     <div style={{display: "grid", gridTemplateColumns: "min-content auto", columnGap: "1em"}}>
@@ -69,6 +45,15 @@ export function ModelView({model}: { model: ModelDto }) {
           <td>{entityDef.description}</td>
         </tr>)
       }
+      </tbody>
+    </table>
+    <h2>Relationships</h2>
+    <table>
+      <tbody>
+      {model.relationshipDefs.map(r => <tr key={r.id}>
+        <td>{r.name ?? r.id}</td>
+        <td><RelationshipDescription rel={r} /></td>
+      </tr>)}
       </tbody>
     </table>
     <h2>Types</h2>

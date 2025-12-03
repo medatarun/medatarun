@@ -26,6 +26,7 @@ include(":libs:lang")
 include(":libs:model")
 include(":extensions:modeljson")
 include(":extensions:data-md-file")
+include(":extensions:db")
 include(":extensions:frictionlessdata")
 
 rootProject.name = "medatarun-core"

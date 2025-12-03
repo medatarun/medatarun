@@ -6,6 +6,13 @@ import io.medatarun.model.ports.ResourceLocator
 
 class FrictionlessdataModelImporter: ModelImporter {
     val converter = FrictionlessConverter()
+    override fun accept(
+        path: String,
+        resourceLocator: ResourceLocator
+    ): Boolean {
+        return converter.isCompatible(path, resourceLocator)
+    }
+
     override fun toModel(path: String, resourceLocator: ResourceLocator): Model {
         return converter.readString(path, resourceLocator)
     }
