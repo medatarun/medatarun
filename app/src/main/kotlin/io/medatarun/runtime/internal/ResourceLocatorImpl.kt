@@ -1,4 +1,4 @@
-package io.medatarun.resources.actions
+package io.medatarun.runtime.internal
 
 import io.medatarun.model.ports.ResourceLocator
 import org.slf4j.LoggerFactory

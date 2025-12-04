@@ -1,4 +1,4 @@
-package io.medatarun.resources
+package io.medatarun.actions.runtime
 
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.model.model.ModelCmds
@@ -10,5 +10,5 @@ interface ActionCtx {
     val modelCmds: ModelCmds
     val modelQueries: ModelQueries
     val modelHumanPrinter: ModelHumanPrinter
-    fun dispatchAction(req: ResourceInvocationRequest):Any?
+    fun dispatchAction(req: ActionRequest):Any?
 }

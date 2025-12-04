@@ -1,24 +1,23 @@
-package io.medatarun.resources
+package io.medatarun.actions.providers.model
 
+import io.medatarun.actions.runtime.ActionCtx
+import io.medatarun.actions.runtime.ActionProvider
 import io.medatarun.model.model.*
-import io.medatarun.resources.actions.ModelImportAction
-import io.medatarun.resources.actions.ModelInspectAction
-import io.medatarun.resources.actions.ModelInspectJsonAction
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.file.FileSystems
 
-class ModelResource() : ResourceContainer<ModelResourceCmd> {
+class ModelActionProvider() : ActionProvider<ModelAction> {
 
     /**
      * Returns the list of supported commands. Note that we NEVER return the business model's commands
      * but something mode user-facing so that the model can evolve with preserving maximum compatibility
      * with user facing actions.
      */
-    override fun findCommandClass() = ModelResourceCmd::class
+    override fun findCommandClass() = ModelAction::class
 
-    override fun dispatch(cmd: ModelResourceCmd, actionCtx: ActionCtx): Any? {
-        val rc = cmd as ModelResourceCmd
+    override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any? {
+        val rc = cmd as ModelAction
 
         fun dispatch(businessCmd: ModelCmd) = actionCtx.modelCmds.dispatch(businessCmd)
 
@@ -30,10 +29,10 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelResourceCmd.Import -> ModelImportAction(actionCtx, FileSystems.getDefault()).process(rc)
-            is ModelResourceCmd.Inspect -> ModelInspectAction(actionCtx).process()
-            is ModelResourceCmd.InspectJson -> ModelInspectJsonAction(actionCtx).process()
-            is ModelResourceCmd.CreateModel -> {
+            is ModelAction.Import -> ModelImportAction(actionCtx, FileSystems.getDefault()).process(rc)
+            is ModelAction.Inspect -> ModelInspectAction(actionCtx).process()
+            is ModelAction.InspectJson -> ModelInspectJsonAction(actionCtx).process()
+            is ModelAction.CreateModel -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.CreateModel(
                         id = ModelId(rc.id),
@@ -44,7 +43,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateModelName -> {
+            is ModelAction.UpdateModelName -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateModelName(
                         modelId = ModelId(rc.id),
@@ -53,7 +52,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateModelDescription -> {
+            is ModelAction.UpdateModelDescription -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateModelDescription(
                         modelId = ModelId(rc.id),
@@ -62,7 +61,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateModelVersion -> {
+            is ModelAction.UpdateModelVersion -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateModelVersion(
                         modelId = ModelId(rc.id),
@@ -71,7 +70,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.DeleteModel -> {
+            is ModelAction.DeleteModel -> {
                 actionCtx.modelCmds.dispatch(ModelCmd.DeleteModel(ModelId(rc.id)))
             }
 
@@ -79,7 +78,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
             // Types
             // ------------------------------------------------------------------------
 
-            is ModelResourceCmd.CreateType -> {
+            is ModelAction.CreateType -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.CreateType(
                         modelId = ModelId(rc.modelId),
@@ -92,7 +91,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateTypeName -> {
+            is ModelAction.UpdateTypeName -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateType(
                         modelId = ModelId(rc.modelId),
@@ -102,7 +101,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateTypeDescription -> {
+            is ModelAction.UpdateTypeDescription -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateType(
                         modelId = ModelId(rc.modelId),
@@ -112,7 +111,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.DeleteType -> {
+            is ModelAction.DeleteType -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.DeleteType(
                         modelId = ModelId(rc.modelId),
@@ -125,7 +124,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
             // Entities
             // ------------------------------------------------------------------------
 
-            is ModelResourceCmd.CreateEntity -> {
+            is ModelAction.CreateEntity -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.CreateEntityDef(
                         modelId = ModelId(rc.modelId),
@@ -145,7 +144,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityId -> {
+            is ModelAction.UpdateEntityId -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelId = ModelId(rc.modelId),
@@ -155,7 +154,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityName -> {
+            is ModelAction.UpdateEntityName -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelId = ModelId(rc.modelId),
@@ -165,7 +164,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityDescription -> {
+            is ModelAction.UpdateEntityDescription -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelId = ModelId(rc.modelId),
@@ -175,7 +174,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.DeleteEntity -> {
+            is ModelAction.DeleteEntity -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.DeleteEntityDef(
                         modelId = ModelId(rc.modelId),
@@ -188,7 +187,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
             // Entity attributes
             // ------------------------------------------------------------------------
 
-            is ModelResourceCmd.CreateEntityAttribute -> {
+            is ModelAction.CreateEntityAttribute -> {
                 dispatch(
                     ModelCmd.CreateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -204,7 +203,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityAttributeId -> {
+            is ModelAction.UpdateEntityAttributeId -> {
                 dispatch(
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -215,7 +214,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityAttributeName -> {
+            is ModelAction.UpdateEntityAttributeName -> {
                 dispatch(
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -226,7 +225,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityAttributeDescription -> {
+            is ModelAction.UpdateEntityAttributeDescription -> {
                 dispatch(
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -237,7 +236,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityAttributeType -> {
+            is ModelAction.UpdateEntityAttributeType -> {
                 dispatch(
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -248,7 +247,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.UpdateEntityAttributeOptional -> {
+            is ModelAction.UpdateEntityAttributeOptional -> {
                 dispatch(
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -259,7 +258,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             }
 
-            is ModelResourceCmd.DeleteEntityAttribute -> {
+            is ModelAction.DeleteEntityAttribute -> {
                 dispatch(
                     ModelCmd.DeleteEntityDefAttributeDef(
                         modelId = ModelId(rc.modelId),
@@ -274,14 +273,14 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
             // Relationships
             // ------------------------------------------------------------------------
 
-            is ModelResourceCmd.CreateRelationshipDef -> dispatch(
+            is ModelAction.CreateRelationshipDef -> dispatch(
                 ModelCmd.CreateRelationshipDef(
                     modelId = rc.modelId,
                     initializer = rc.initializer
                 )
             )
 
-            is ModelResourceCmd.UpdateRelationshipDef -> dispatch(
+            is ModelAction.UpdateRelationshipDef -> dispatch(
                 ModelCmd.UpdateRelationshipDef(
                     modelId = rc.modelId,
                     relationshipDefId = rc.relationshipDefId,
@@ -289,14 +288,14 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             )
 
-            is ModelResourceCmd.DeleteRelationshipDef -> dispatch(
+            is ModelAction.DeleteRelationshipDef -> dispatch(
                 ModelCmd.DeleteRelationshipDef(
                     modelId = rc.modelId,
                     relationshipDefId = rc.relationshipDefId
                 )
             )
 
-            is ModelResourceCmd.CreateRelationshipAttributeDef -> dispatch(
+            is ModelAction.CreateRelationshipAttributeDef -> dispatch(
                 ModelCmd.CreateRelationshipAttributeDef(
                     modelId = rc.modelId,
                     relationshipDefId = rc.relationshipDefId,
@@ -304,7 +303,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             )
 
-            is ModelResourceCmd.UpdateRelationshipAttributeDef -> dispatch(
+            is ModelAction.UpdateRelationshipAttributeDef -> dispatch(
                 ModelCmd.UpdateRelationshipAttributeDef(
                     modelId = rc.modelId,
                     relationshipDefId = rc.relationshipDefId,
@@ -313,7 +312,7 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
                 )
             )
 
-            is ModelResourceCmd.DeleteRelationshipAttributeDef -> dispatch(
+            is ModelAction.DeleteRelationshipAttributeDef -> dispatch(
                 ModelCmd.DeleteRelationshipAttributeDef(
                     modelId = rc.modelId,
                     relationshipDefId = rc.relationshipDefId,
@@ -325,6 +324,6 @@ class ModelResource() : ResourceContainer<ModelResourceCmd> {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ModelResource::class.java)
+        private val logger = LoggerFactory.getLogger(ModelActionProvider::class.java)
     }
 }

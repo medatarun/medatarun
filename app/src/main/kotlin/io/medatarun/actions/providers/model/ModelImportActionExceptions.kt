@@ -1,4 +1,4 @@
-package io.medatarun.resources.actions
+package io.medatarun.actions.providers.model
 
 import io.medatarun.model.model.MedatarunException
 

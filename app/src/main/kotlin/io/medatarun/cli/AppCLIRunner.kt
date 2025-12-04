@@ -1,6 +1,10 @@
 package io.medatarun.cli
 
-import io.medatarun.resources.*
+import io.medatarun.actions.providers.ActionProviders
+import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionInvocationException
+import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.runtime.ActionRequest
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
@@ -15,9 +19,9 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         private val HELP_FLAGS = setOf("help", "--help", "-h")
     }
 
-    private val resources = AppResources()
-    private val resourceRepository = ResourceRepository(resources)
-    private val actionCtxFactory = ActionCtxFactory(runtime, resourceRepository)
+    private val resources = ActionProviders()
+    private val actionRegistry = ActionRegistry(resources)
+    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -39,15 +43,15 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         val functionName = args[1]
         val rawParameters = parseParameters(args)
 
-        val request = ResourceInvocationRequest(
-            resourceName = resourceName,
-            functionName = functionName,
-            rawParameters = rawParameters
+        val request = ActionRequest(
+            group = resourceName,
+            command = functionName,
+            payload = rawParameters
         )
 
         val result = try {
-            resourceRepository.handleInvocation(request, actionCtxFactory.create())
-        } catch (exception: ResourceInvocationException) {
+            actionRegistry.handleInvocation(request, actionCtxFactory.create())
+        } catch (exception: ActionInvocationException) {
             logger.error("Invocation error: ${exception.message}")
             logPayload(exception.payload)
             return
@@ -101,7 +105,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
     }
 
     private fun printHelpCommand(resourceId: String, commandId: String) {
-        val resource = resourceRepository.findDescriptorByIdOptional(resourceId)
+        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
         if (resource == null) {
             logger.error("Resource not found: $resourceId")
             return printHelpRoot()
@@ -133,7 +137,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
 
     private fun printHelpResource(resourceId: String) {
 
-        val resource = resourceRepository.findDescriptorByIdOptional(resourceId)
+        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
         if (resource == null) {
             logger.error("Resource not found: $resourceId")
             printHelpRoot()
@@ -164,7 +168,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
         logger.cli("")
         logger.cli("Get help on available resources:")
-        val descriptors = resourceRepository.findAllDescriptors().sortedBy { it.name.lowercase() }
+        val descriptors = actionRegistry.findAllGroupDescriptors().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
             logger.cli("  help ${descriptor.name}")
         }

@@ -1,4 +1,4 @@
-package io.medatarun.resources.actions
+package io.medatarun.actions.providers.config
 
 class ConfigAgentInstructions {
     fun process(): String {

@@ -4,16 +4,16 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionInvocationException
+import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.runtime.ActionRequest
 import io.medatarun.httpserver.commons.HttpAdapters
-import io.medatarun.resources.ActionCtxFactory
-import io.medatarun.resources.ResourceInvocationException
-import io.medatarun.resources.ResourceInvocationRequest
-import io.medatarun.resources.ResourceRepository
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(
-    private val resourceRepository: ResourceRepository,
+    private val actionRegistry: ActionRegistry,
     private val actionCtxFactory: ActionCtxFactory
 ) {
 
@@ -21,12 +21,12 @@ class RestCommandInvocation(
         val resourcePathValue = call.parameters["resource"]
         val functionPathValue = call.parameters["function"]
         try {
-            val resourceName = resourcePathValue ?: throw ResourceInvocationException(
+            val resourceName = resourcePathValue ?: throw ActionInvocationException(
                 HttpStatusCode.BadRequest,
                 message = "Missing resource name",
 
                 )
-            val functionName = functionPathValue ?: throw ResourceInvocationException(
+            val functionName = functionPathValue ?: throw ActionInvocationException(
                 HttpStatusCode.BadRequest,
                 "Missing function name",
 
@@ -35,13 +35,13 @@ class RestCommandInvocation(
             val body = call.receiveText()
             val json = if (body.isNullOrBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
 
-            val request = ResourceInvocationRequest(
-                resourceName = resourceName,
-                functionName = functionName,
-                rawParameters = json
+            val request = ActionRequest(
+                group = resourceName,
+                command = functionName,
+                payload = json
             )
 
-            val result = resourceRepository.handleInvocation(request, actionCtxFactory.create())
+            val result = actionRegistry.handleInvocation(request, actionCtxFactory.create())
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)
@@ -49,7 +49,7 @@ class RestCommandInvocation(
                 else -> call.respond(responsePayload)
             }
             call.respond(HttpStatusCode.OK, responsePayload)
-        } catch (exception: ResourceInvocationException) {
+        } catch (exception: ActionInvocationException) {
             val resourceForLog = resourcePathValue ?: "unknown"
             val functionForLog = functionPathValue ?: "unknown"
             if (exception.status.value >= 500) {

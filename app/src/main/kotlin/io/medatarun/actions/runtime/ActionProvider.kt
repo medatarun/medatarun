@@ -1,8 +1,8 @@
-package io.medatarun.resources
+package io.medatarun.actions.runtime
 
 import kotlin.reflect.KClass
 
-interface ResourceContainer<C: Any> {
+interface ActionProvider<C: Any> {
     fun findCommandClass(): KClass<C>?
     fun dispatch(cmd: C, actionCtx: ActionCtx): Any?
 }

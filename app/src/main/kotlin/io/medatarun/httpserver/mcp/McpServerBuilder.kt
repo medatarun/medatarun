@@ -1,11 +1,8 @@
 package io.medatarun.httpserver.mcp
 
 
-import io.medatarun.resources.ActionCtxFactory
-import io.medatarun.resources.ResourceInvocationException
-import io.medatarun.resources.ResourceInvocationRequest
-import io.medatarun.resources.ResourceRepository
-import io.medatarun.resources.actions.ConfigAgentInstructions
+import io.medatarun.actions.providers.config.ConfigAgentInstructions
+import io.medatarun.actions.runtime.*
 import io.modelcontextprotocol.kotlin.sdk.*
 import io.modelcontextprotocol.kotlin.sdk.server.RegisteredTool
 import io.modelcontextprotocol.kotlin.sdk.server.Server
@@ -17,7 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 class McpServerBuilder(
-    private val resourceRepository: ResourceRepository,
+    private val actionRegistry: ActionRegistry,
     private val configAgentInstructions: ConfigAgentInstructions,
     private val actionCtxFactory: ActionCtxFactory,
 ) {
@@ -48,7 +45,7 @@ class McpServerBuilder(
 
 
     private fun buildRegisteredTools(): List<RegisteredTool> {
-        return resourceRepository.findAllDescriptors().flatMap { descriptor ->
+        return actionRegistry.findAllGroupDescriptors().flatMap { descriptor ->
             descriptor.commands.map { command ->
                 val toolName = buildToolName(descriptor.name, command.name)
                 val toolTitle = command.title ?: command.name
@@ -75,19 +72,19 @@ class McpServerBuilder(
         request: CallToolRequest
     ): CallToolResult {
 
-        val invocationRequest = ResourceInvocationRequest(
-            resourceName = resourceName,
-            functionName = functionName,
-            rawParameters = request.arguments
+        val invocationRequest = ActionRequest(
+            group = resourceName,
+            command = functionName,
+            payload = request.arguments
         )
 
         return try {
             val result =
-                resourceRepository.handleInvocation(invocationRequest, actionCtxFactory.create())
+                actionRegistry.handleInvocation(invocationRequest, actionCtxFactory.create())
             CallToolResult(
                 content = listOf(TextContent(formatInvocationResult(result)))
             )
-        } catch (exception: ResourceInvocationException) {
+        } catch (exception: ActionInvocationException) {
             CallToolResult(
                 content = listOf(TextContent(buildMcpErrorMessage(exception))),
                 isError = true
@@ -124,7 +121,7 @@ class McpServerBuilder(
         else -> result.toString()
     }
 
-    private fun buildMcpErrorMessage(exception: ResourceInvocationException): String {
+    private fun buildMcpErrorMessage(exception: ActionInvocationException): String {
         val parts = mutableListOf(exception.message ?: "Invocation error")
         exception.payload.forEach { (key, value) ->
             parts += "$key: $value"
@@ -136,7 +133,7 @@ class McpServerBuilder(
      * Builds the description of the tool as the MCPInspector see it or the MCP client
      * will handle it.
      */
-    private fun buildToolInput(command: ResourceRepository.ResourceCommand): Tool.Input {
+    private fun buildToolInput(command: ActionCmdDescriptor): Tool.Input {
         val properties = buildJsonObject {
             command.parameters.forEach { param ->
                 put(param.name, buildJsonObject {

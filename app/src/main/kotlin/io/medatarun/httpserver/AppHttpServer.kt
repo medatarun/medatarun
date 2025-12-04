@@ -13,16 +13,16 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.actions.providers.ActionProviders
+import io.medatarun.actions.providers.config.ConfigAgentInstructions
+import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
 import io.medatarun.model.model.ModelId
-import io.medatarun.resources.ActionCtxFactory
-import io.medatarun.resources.AppResources
-import io.medatarun.resources.ResourceRepository
-import io.medatarun.resources.actions.ConfigAgentInstructions
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
@@ -48,12 +48,12 @@ class AppHttpServer(
     private val enableApi: Boolean = true
 ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
-    private val resources = AppResources()
-    private val resourceRepository = ResourceRepository(resources)
-    private val actionCtxFactory = ActionCtxFactory(runtime, resourceRepository)
-    private val mcpServerBuilder = McpServerBuilder(resourceRepository, configAgentInstructions = ConfigAgentInstructions(), actionCtxFactory=actionCtxFactory)
-    private val restApiDoc = RestApiDoc(resourceRepository)
-    private val restCommandInvocation = RestCommandInvocation(resourceRepository, actionCtxFactory)
+    private val resources = ActionProviders()
+    private val actionRegistry = ActionRegistry(resources)
+    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
+    private val mcpServerBuilder = McpServerBuilder(actionRegistry, configAgentInstructions = ConfigAgentInstructions(), actionCtxFactory=actionCtxFactory)
+    private val restApiDoc = RestApiDoc(actionRegistry)
+    private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
 
 
     @Volatile

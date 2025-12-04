@@ -1,9 +1,9 @@
-package io.medatarun.resources.actions
+package io.medatarun.actions.providers.model
 
+import io.medatarun.actions.runtime.ActionCtx
 import io.medatarun.model.ModelImporter
 import io.medatarun.model.model.ModelCmd
-import io.medatarun.resources.ActionCtx
-import io.medatarun.resources.ModelResourceCmd
+import io.medatarun.runtime.internal.ResourceLocatorImpl
 import java.nio.file.FileSystem
 
 class ModelImportAction(
@@ -11,7 +11,7 @@ class ModelImportAction(
     private val fileSystem: FileSystem
 ) {
 
-    fun process(cmd: ModelResourceCmd.Import) {
+    fun process(cmd: ModelAction.Import) {
         val contribs = actionCtx.extensionRegistry.findContributionsFlat(ModelImporter::class)
         val resourceLocator = ResourceLocatorImpl(cmd.from, fileSystem)
         val contrib = contribs.firstOrNull { contrib ->

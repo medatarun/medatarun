@@ -1,14 +1,14 @@
 package io.medatarun.httpserver.rest
 
-import io.medatarun.resources.ResourceRepository
+import io.medatarun.actions.runtime.ActionRegistry
 import kotlinx.serialization.Serializable
 
-class RestApiDoc(private val resourceRepository: ResourceRepository) {
+class RestApiDoc(private val actionRegistry: ActionRegistry) {
 
 
     fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
-        return resourceRepository
-            .findAllDescriptors().associate { res ->
+        return actionRegistry
+            .findAllGroupDescriptors().associate { res ->
                 res.name to res.commands.map { cmd ->
                     ApiDescriptionFunction(
                         name = cmd.name,
