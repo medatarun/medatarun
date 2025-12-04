@@ -1,15 +1,14 @@
 package io.medatarun.resources
 
-import io.medatarun.runtime.AppRuntime
 
-
-class AppResources(private val runtime: AppRuntime) {
+class AppResources() {
     @Suppress("unused")
-    val model = ModelResource(runtime)
+    val model = ModelResource()
 
     @Suppress("unused")
-    val config = ConfigResource(runtime)
+    val config = ConfigResource()
+
 
     @Suppress("unused")
-    val data = DataResource(runtime)
+    val batch = BatchResource()
 }

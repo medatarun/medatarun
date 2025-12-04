@@ -1,8 +1,8 @@
 package io.medatarun.resources.actions
 
-import io.medatarun.runtime.AppRuntime
+import io.medatarun.resources.ActionCtx
 
-class ModelInspectAction(val runtime: AppRuntime) {
+class ModelInspectAction(val runtime: ActionCtx) {
     fun process(): String {
 
         val buf = StringBuilder()

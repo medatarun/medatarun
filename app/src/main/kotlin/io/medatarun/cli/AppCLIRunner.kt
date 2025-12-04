@@ -1,23 +1,23 @@
 package io.medatarun.cli
 
-import io.medatarun.resources.AppResources
-import io.medatarun.resources.ResourceInvocationException
-import io.medatarun.resources.ResourceInvocationRequest
-import io.medatarun.resources.ResourceRepository
+import io.medatarun.resources.*
+import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class AppCLIRunner(private val args: Array<String>, private val resources: AppResources) {
+class AppCLIRunner(private val args: Array<String>, private val runtime: AppRuntime) {
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)
         private val HELP_FLAGS = setOf("help", "--help", "-h")
     }
 
+    private val resources = AppResources()
     private val resourceRepository = ResourceRepository(resources)
+    private val actionCtxFactory = ActionCtxFactory(runtime, resourceRepository)
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -46,7 +46,7 @@ class AppCLIRunner(private val args: Array<String>, private val resources: AppRe
         )
 
         val result = try {
-            resourceRepository.handleInvocation(request)
+            resourceRepository.handleInvocation(request, actionCtxFactory.create())
         } catch (exception: ResourceInvocationException) {
             logger.error("Invocation error: ${exception.message}")
             logPayload(exception.payload)

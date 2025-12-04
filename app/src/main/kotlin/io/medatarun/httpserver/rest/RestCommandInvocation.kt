@@ -5,17 +5,17 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.medatarun.httpserver.commons.HttpAdapters
+import io.medatarun.resources.ActionCtxFactory
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
-class RestCommandInvocation(private val resourceRepository: ResourceRepository) {
+class RestCommandInvocation(
+    private val resourceRepository: ResourceRepository,
+    private val actionCtxFactory: ActionCtxFactory
+) {
 
     suspend fun processInvocation(call: ApplicationCall) {
         val resourcePathValue = call.parameters["resource"]
@@ -41,8 +41,14 @@ class RestCommandInvocation(private val resourceRepository: ResourceRepository) 
                 rawParameters = json
             )
 
-            val result = resourceRepository.handleInvocation(request)
-            call.respond(HttpStatusCode.OK, buildResponsePayload(result))
+            val result = resourceRepository.handleInvocation(request, actionCtxFactory.create())
+            val responsePayload = buildResponsePayload(result)
+            when (responsePayload) {
+                is String -> call.respondText(responsePayload, ContentType.Text.Plain)
+                is JsonObject, is JsonArray -> call.respondText(responsePayload.toString(), ContentType.Application.Json)
+                else -> call.respond(responsePayload)
+            }
+            call.respond(HttpStatusCode.OK, responsePayload)
         } catch (exception: ResourceInvocationException) {
             val resourceForLog = resourcePathValue ?: "unknown"
             val functionForLog = functionPathValue ?: "unknown"
@@ -90,8 +96,8 @@ class RestCommandInvocation(private val resourceRepository: ResourceRepository) 
     private fun buildResponsePayload(result: Any?): Any = when (result) {
         null, Unit -> mapOf("status" to "ok")
         is String -> result
-        is JsonObject -> result.toString()
-        is JsonArray -> result.toString()
+        is JsonObject -> result
+        is JsonArray -> result
         else -> mapOf("status" to "ok", "result" to result.toString())
     }
 

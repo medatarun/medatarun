@@ -1,17 +1,14 @@
-package io.medatarun.runtime
+package io.medatarun.resources
 
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.model.model.ModelCmds
 import io.medatarun.model.model.ModelHumanPrinter
 import io.medatarun.model.model.ModelQueries
 
-interface AppRuntime {
-
-
+interface ActionCtx {
     val extensionRegistry: ExtensionRegistry
     val modelCmds: ModelCmds
     val modelQueries: ModelQueries
     val modelHumanPrinter: ModelHumanPrinter
-
-
+    fun dispatchAction(req: ResourceInvocationRequest):Any?
 }

@@ -1,6 +1,7 @@
 package io.medatarun.httpserver.mcp
 
 
+import io.medatarun.resources.ActionCtxFactory
 import io.medatarun.resources.ResourceInvocationException
 import io.medatarun.resources.ResourceInvocationRequest
 import io.medatarun.resources.ResourceRepository
@@ -17,7 +18,8 @@ import kotlin.reflect.KType
 
 class McpServerBuilder(
     private val resourceRepository: ResourceRepository,
-    private val configAgentInstructions: ConfigAgentInstructions
+    private val configAgentInstructions: ConfigAgentInstructions,
+    private val actionCtxFactory: ActionCtxFactory,
 ) {
 
     private val serverInfo = Implementation(
@@ -80,7 +82,8 @@ class McpServerBuilder(
         )
 
         return try {
-            val result = resourceRepository.handleInvocation(invocationRequest)
+            val result =
+                resourceRepository.handleInvocation(invocationRequest, actionCtxFactory.create())
             CallToolResult(
                 content = listOf(TextContent(formatInvocationResult(result)))
             )

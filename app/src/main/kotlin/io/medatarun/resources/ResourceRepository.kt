@@ -89,7 +89,7 @@ class ResourceRepository(private val resources: AppResources) {
     }
 
 
-    fun handleInvocation(invocation: ResourceInvocationRequest): Any? {
+    fun handleInvocation(invocation: ResourceInvocationRequest, actionCtx: ActionCtx): Any? {
         val resourceName = invocation.resourceName
         val functionName = invocation.functionName
         val rawParams = invocation.rawParameters
@@ -123,7 +123,7 @@ class ResourceRepository(private val resources: AppResources) {
             )
 
             ResourceAccessType.DISPATCH -> createInvokerDispatch(
-                resourceName, resourceInstance, functionName, rawParams
+                resourceName, resourceInstance, functionName, rawParams, actionCtx
             )
         }
 
@@ -170,7 +170,8 @@ class ResourceRepository(private val resources: AppResources) {
         resourceName: String,
         resourceInstance: ResourceContainer<Any>,
         functionName: String,
-        rawParams: JsonObject
+        rawParams: JsonObject,
+        actionCtx: ActionCtx
     ): Invoker {
 
         val cls = resourceInstance.findCommandClass()?.sealedSubclasses?.firstOrNull { it.simpleName == functionName }
@@ -187,10 +188,12 @@ class ResourceRepository(private val resources: AppResources) {
         val callArgs = createCallArgs(resourceName, resourceInstance, function, rawParams)
         logger.debug("call args: {}", callArgs)
 
+
+
         return object : Invoker {
             override fun invoke(): Any? {
                 val cmd = function.callBy(callArgs)
-                return resourceInstance.dispatch(cmd)
+                return resourceInstance.dispatch(cmd, actionCtx)
             }
         }
     }

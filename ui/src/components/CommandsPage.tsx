@@ -16,6 +16,22 @@ interface ActionParamDescriptorDto {
   optional: boolean
 }
 
+function OutputDisplay({output}: { output: unknown }) {
+  if (output === null || output === undefined) {
+    return String(output);
+  }
+
+  if (typeof output === "string") {
+    return output;
+  }
+
+  try {
+    return JSON.stringify(output, null, 2);
+  } catch {
+    return String(output);
+  }
+}
+
 export function CommandsPage() {
   const [commandRegistryDto, setCommandRegistryDto] = useState<CommandRegistryDto | undefined>(undefined)
   const [selectedResource, setSelectedResource] = useState<string>("")
@@ -89,8 +105,16 @@ export function CommandsPage() {
       selectedActionDescriptor.name :
       selectedResource + "/" + selectedActionDescriptor.name
     fetch("/api/" + actionPath, {method: "POST", body: JSON.stringify(parsedPayload)})
-      .then(res => res.json())
+      .then(async res => {
+        const type = res.headers.get("content-type") || "";
+        if (type.includes("application/json")) {
+          return res.json();
+        }
+        const t = await res.text();
+        return t;
+      })
       .then(data => setOutput(data))
+      .catch(err => setOutput({error: err.toString()}));
   }
   const handleClear = () => {
     setOutput({})
@@ -100,17 +124,17 @@ export function CommandsPage() {
     <h1>Commands</h1>
     <div>
       <div>
-      <div >
-      </div>
+        <div>
+        </div>
         <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
           <div>
-            <div style={{display: "grid", gridTemplateColumns:"1fr 1fr", columnGap: "1em"}}>
+            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
               <div>
-              <label>
-                <select value={selectedResource} onChange={(e) => applySelection(e.target.value)}>
-                  {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
-                </select>
-              </label>
+                <label>
+                  <select value={selectedResource} onChange={(e) => applySelection(e.target.value)}>
+                    {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
+                  </select>
+                </label>
               </div>
               <div>
                 <label>
@@ -148,13 +172,14 @@ export function CommandsPage() {
         </div>
       </div>
       <div>
-        {Object.getOwnPropertyNames(output).length === 0 ? "" :
-          <pre style={{border: "1px solid green", padding: "1em"}}>{JSON.stringify(output, null, 2)}</pre>}
+        <pre style={{border: "1px solid green", padding: "1em"}}>
+          <OutputDisplay output={output}/>
+
+      </pre>
       </div>
     </div>
   </div>
 }
-
 
 
 function buildPayloadTemplate(action: ActionDescriptorDto): string {

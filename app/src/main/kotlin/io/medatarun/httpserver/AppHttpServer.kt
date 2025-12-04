@@ -6,7 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
@@ -18,15 +18,15 @@ import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
-import io.medatarun.model.model.EntityDefId
 import io.medatarun.model.model.ModelId
+import io.medatarun.resources.ActionCtxFactory
 import io.medatarun.resources.AppResources
 import io.medatarun.resources.ResourceRepository
 import io.medatarun.resources.actions.ConfigAgentInstructions
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
-import java.util.Locale
+import java.util.*
 
 /**
  * Main application Http server built with Ktor that serves:
@@ -48,11 +48,12 @@ class AppHttpServer(
     private val enableApi: Boolean = true
 ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
-    private val resources = AppResources(runtime)
+    private val resources = AppResources()
     private val resourceRepository = ResourceRepository(resources)
-    private val mcpServerBuilder = McpServerBuilder(resourceRepository, configAgentInstructions = ConfigAgentInstructions())
+    private val actionCtxFactory = ActionCtxFactory(runtime, resourceRepository)
+    private val mcpServerBuilder = McpServerBuilder(resourceRepository, configAgentInstructions = ConfigAgentInstructions(), actionCtxFactory=actionCtxFactory)
     private val restApiDoc = RestApiDoc(resourceRepository)
-    private val restCommandInvocation = RestCommandInvocation(resourceRepository)
+    private val restCommandInvocation = RestCommandInvocation(resourceRepository, actionCtxFactory)
 
 
     @Volatile

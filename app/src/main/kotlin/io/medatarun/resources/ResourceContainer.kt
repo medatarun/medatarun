@@ -4,5 +4,5 @@ import kotlin.reflect.KClass
 
 interface ResourceContainer<C: Any> {
     fun findCommandClass(): KClass<C>?
-    fun dispatch(cmd: C): Any?
+    fun dispatch(cmd: C, actionCtx: ActionCtx): Any?
 }
