@@ -6,31 +6,30 @@ import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.*
-import kotlin.reflect.full.*
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 class ResourceRepository(private val resources: AppResources) {
 
     private val resourceDescriptors = AppResources::class.memberProperties
         .filter { it.visibility == KVisibility.PUBLIC }
-        .map { ResourceDescriptor(it.name, it, toCommands(it)) }
+        .map { ResourceDescriptor(it.name, it, toCommands(it, it.name)) }
         .associateBy { it.name }
 
 
-    private fun toCommands(property: KProperty1<AppResources, *>): List<ResourceCommand> {
+    private fun toCommands(property: KProperty1<AppResources, *>, resourceId: String): List<ResourceCommand> {
 
-        val resourceInstance: ResourceContainer<*> = (property.get(resources) ?: return emptyList()) as ResourceContainer<*>
-
-        val functions = resourceInstance::class.functions
-            .filter { it.name !in EXCLUDED_FUNCTIONS }
-            .filter { it.hasAnnotation<ResourceCommandDoc>() }
-            .map { function -> buildApiFunctionDescription(function) }
+        val resourceInstance: ResourceContainer<*> =
+            (property.get(resources) ?: return emptyList()) as ResourceContainer<*>
 
         val cmds = resourceInstance.findCommandClass()
             ?.sealedSubclasses
-            ?.map { sealed -> buildApiCommandDescription(sealed) }
+            ?.map { sealed -> buildApiCommandDescription(sealed, resourceId) }
             ?: emptyList()
 
-        return functions + cmds
+        return cmds
 
     }
 
@@ -39,11 +38,12 @@ class ResourceRepository(private val resources: AppResources) {
      *
      * At invocation time, commands are launched via the dispatch() method
      */
-    private fun buildApiCommandDescription(sealed: KClass<out Any>): ResourceCommand {
+    private fun buildApiCommandDescription(sealed: KClass<out Any>, resourceId: String): ResourceCommand {
         val doc = sealed.findAnnotation<ResourceCommandDoc>()
         return ResourceCommand(
             accessType = ResourceAccessType.DISPATCH,
             name = sealed.simpleName ?: "",
+            resource = resourceId,
             title = doc?.title,
             description = doc?.description,
             resultType = typeOf<Unit>(),
@@ -58,27 +58,6 @@ class ResourceRepository(private val resources: AppResources) {
         )
     }
 
-    private fun buildApiFunctionDescription(function: KFunction<*>): ResourceCommand {
-        val metadata = function.findAnnotation<ResourceCommandDoc>()
-        val parameters = function.parameters
-            .filter { it.kind == KParameter.Kind.VALUE }
-            .map { param ->
-                ResourceCommandParam(
-                    name = param.name ?: "unknown",
-                    type = param.type,
-                    optional = (param.isOptional || param.type.isMarkedNullable),
-                )
-            }
-        val resultType = function.returnType
-        return ResourceCommand(
-            accessType = ResourceAccessType.FUNCTION,
-            name = function.name,
-            title = metadata?.title?.takeIf { it.isNotBlank() },
-            description = metadata?.description?.takeIf { it.isNotBlank() },
-            resultType = resultType,
-            parameters = parameters
-        )
-    }
 
     fun findAllDescriptors(): Collection<ResourceDescriptor> {
         return resourceDescriptors.values
@@ -356,6 +335,7 @@ class ResourceRepository(private val resources: AppResources) {
 
     data class ResourceCommand(
         val name: String,
+        val resource: String,
         val title: String?,
         val description: String?,
         val resultType: KType,
@@ -379,7 +359,7 @@ class ResourceRepository(private val resources: AppResources) {
     )
 
     companion object {
-        private val EXCLUDED_FUNCTIONS = setOf("equals", "hashCode", "toString")
+
         private val logger = LoggerFactory.getLogger(ResourceRepository::class.java)
     }
 }
