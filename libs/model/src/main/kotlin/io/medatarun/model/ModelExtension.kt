@@ -2,6 +2,7 @@ package io.medatarun.model
 
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
 
 /**

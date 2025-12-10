@@ -1,7 +1,6 @@
-package io.medatarun.model
+package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
-import io.medatarun.model.ports.needs.ResourceLocator
 
 interface ModelImporter {
     fun accept(path: String, resourceLocator: ResourceLocator): Boolean

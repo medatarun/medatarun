@@ -5,7 +5,7 @@ import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.internal.modelimport.DbModelImporter
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
-import io.medatarun.model.ModelImporter
+import io.medatarun.model.ports.needs.ModelImporter
 import org.slf4j.LoggerFactory
 
 class DbExtension : MedatarunExtension {
