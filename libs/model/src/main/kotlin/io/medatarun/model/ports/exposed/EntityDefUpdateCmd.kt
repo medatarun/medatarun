@@ -1,4 +1,9 @@
-package io.medatarun.model.domain
+package io.medatarun.model.ports.exposed
+
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 
 sealed class EntityDefUpdateCmd {
     data class Id(val value: EntityDefId) : EntityDefUpdateCmd()

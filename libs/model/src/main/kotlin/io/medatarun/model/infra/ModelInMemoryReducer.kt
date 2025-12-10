@@ -1,8 +1,14 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.domain.*
-import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdOnModel
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.MedatarunException
+import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
+import io.medatarun.model.ports.exposed.EntityDefUpdateCmd
+import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
+import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
+import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
 
 class ModelInMemoryReducer() {
     fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmdOnModel): ModelInMemory {

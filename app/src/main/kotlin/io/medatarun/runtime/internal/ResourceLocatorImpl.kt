@@ -1,6 +1,6 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.model.ports.ResourceLocator
+import io.medatarun.model.ports.needs.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient

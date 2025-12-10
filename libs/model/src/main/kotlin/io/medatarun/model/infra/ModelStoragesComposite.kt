@@ -1,11 +1,11 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.ports.*
+import io.medatarun.model.ports.needs.*
 
 /**
- * Default implementation of [ModelStorages] that acts by using all
- * available [ModelRepository] declared in the contribution point.
+ * Default implementation of [io.medatarun.model.ports.needs.ModelStorages] that acts by using all
+ * available [io.medatarun.model.ports.needs.ModelRepository] declared in the contribution point.
  */
 class ModelStoragesComposite(
     val repositories: List<ModelRepository>,

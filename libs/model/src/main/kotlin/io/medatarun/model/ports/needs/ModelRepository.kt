@@ -1,4 +1,4 @@
-package io.medatarun.model.ports
+package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
@@ -34,7 +34,7 @@ interface ModelRepository {
     // Commands
 
     /**
-     * Process this command. See [ModelRepositoryCmd] to have the list of all available commands to implement
+     * Process this command. See [io.medatarun.model.ports. in.ModelRepositoryCmd] to have the list of all available commands to implement
      * to have a compatible repository.
      */
     fun dispatch(cmd: ModelRepositoryCmd)

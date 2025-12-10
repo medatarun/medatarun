@@ -2,7 +2,7 @@ package io.medatarun.model
 
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
-import io.medatarun.model.ports.ModelRepository
+import io.medatarun.model.ports.needs.ModelRepository
 
 /**
  * Extension to register the "model" base plugin to the kernel.

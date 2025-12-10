@@ -1,4 +1,4 @@
-package io.medatarun.model.domain
+package io.medatarun.model.ports.exposed
 
 /**
  * Commands to create, delete and changes modes, entity definitions, entity definition's attributes definitions

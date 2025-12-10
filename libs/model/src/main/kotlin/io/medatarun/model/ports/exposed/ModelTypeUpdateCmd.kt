@@ -1,4 +1,6 @@
-package io.medatarun.model.domain
+package io.medatarun.model.ports.exposed
+
+import io.medatarun.model.domain.LocalizedText
 
 sealed interface ModelTypeUpdateCmd {
     class Name(val value: LocalizedText?): ModelTypeUpdateCmd

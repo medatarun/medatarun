@@ -1,8 +1,7 @@
-package io.medatarun.model.ports
+package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelInvalidException
 
 /**
  * Represents an aggregation of multiple repositories for models.
@@ -14,7 +13,7 @@ import io.medatarun.model.domain.ModelInvalidException
  * [ModelStorages] contains multiple [ModelRepository]
  *
  * [ModelStorages] role is also to be sure that no corrupted data shall enter the main business area.
- * Invalid [Model] shall not be loaded by any means, and throw [ModelInvalidException]
+ * Invalid [io.medatarun.model.domain.Model] shall not be loaded by any means, and throw [io.medatarun.model.domain.ModelInvalidException]
  */
 interface ModelStorages {
 

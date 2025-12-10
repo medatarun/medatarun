@@ -1,11 +1,14 @@
-package io.medatarun.model.domain
+package io.medatarun.model.ports.exposed
 
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelSummary
 import java.util.*
 
 interface ModelQueries {
 
     /**
-     * Find a model by its id or throw [ModelNotFoundException]
+     * Find a model by its id or throw [io.medatarun.model.domain.ModelNotFoundException]
      */
     fun findModelById(modelId: ModelId): Model
 

@@ -6,6 +6,9 @@ import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
+import io.medatarun.model.ports.exposed.ModelCmd
+import io.medatarun.model.ports.exposed.ModelCmds
+import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.platform.commons.logging.LoggerFactory
 
 class ModelTestRuntime private constructor (

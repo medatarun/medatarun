@@ -1,4 +1,8 @@
-package io.medatarun.model.domain
+package io.medatarun.model.ports.exposed
+
+import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.RelationshipCardinality
+import io.medatarun.model.domain.RelationshipRoleId
 
 sealed interface RelationshipDefUpdateCmd {
     class Name(val value: LocalizedText?) : RelationshipDefUpdateCmd

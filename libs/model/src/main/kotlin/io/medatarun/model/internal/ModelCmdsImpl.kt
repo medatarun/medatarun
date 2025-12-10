@@ -4,8 +4,9 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
-import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelStorages
+import io.medatarun.model.ports.exposed.*
+import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelStorages
 
 class ModelCmdsImpl(
     val storage: ModelStorages,
@@ -216,7 +217,7 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
             is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)
             is ModelCmd.CreateRelationshipDef -> createRelationshipDef(cmd)
-            is ModelCmd.CreateRelationshipAttributeDef -> createRelatinoshipAttributeDef(cmd)
+            is ModelCmd.CreateRelationshipAttributeDef -> createRelationshipAttributeDef(cmd)
             is ModelCmd.UpdateRelationshipDef -> updateRelationshipDef(cmd)
             is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
             is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
@@ -272,7 +273,7 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun createRelatinoshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
+    private fun createRelationshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
         val exists = findModelById(cmd.modelId).findRelationshipDef(cmd.relationshipDefId)
             .findAttributeDefOptional(cmd.attr.id)
         if (exists != null) {

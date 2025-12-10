@@ -3,8 +3,9 @@ package io.medatarun.model.domain
 import io.medatarun.model.domain.ModelTestRuntime.Companion.createRuntime
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelValidationImpl
-import io.medatarun.model.ports.RepositoryRef
-import io.medatarun.model.ports.RepositoryRef.Companion.ref
+import io.medatarun.model.ports.exposed.*
+import io.medatarun.model.ports.needs.RepositoryRef
+import io.medatarun.model.ports.needs.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows

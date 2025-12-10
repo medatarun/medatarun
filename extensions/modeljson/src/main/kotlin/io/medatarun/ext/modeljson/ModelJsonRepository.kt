@@ -6,10 +6,10 @@ import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
-import io.medatarun.model.ports.ModelRepository
-import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdOnModel
-import io.medatarun.model.ports.ModelRepositoryId
+import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
+import io.medatarun.model.ports.needs.ModelRepositoryId
 import kotlinx.serialization.SerializationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

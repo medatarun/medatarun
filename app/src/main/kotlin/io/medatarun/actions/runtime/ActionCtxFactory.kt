@@ -1,9 +1,9 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.domain.ModelCmds
-import io.medatarun.model.domain.ModelHumanPrinter
-import io.medatarun.model.domain.ModelQueries
+import io.medatarun.model.ports.exposed.ModelCmds
+import io.medatarun.model.ports.exposed.ModelHumanPrinter
+import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.runtime.AppRuntime
 
 class ActionCtxFactory(val runtime: AppRuntime, val actionRegistry: ActionRegistry) {

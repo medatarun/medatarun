@@ -6,7 +6,7 @@ import io.medatarun.ext.db.model.DbConnectionNotFoundException
 import io.medatarun.model.ModelImporter
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
-import io.medatarun.model.ports.ResourceLocator
+import io.medatarun.model.ports.needs.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Instant

@@ -2,6 +2,8 @@ package io.medatarun.actions.providers.model
 
 import io.medatarun.actions.runtime.ActionDoc
 import io.medatarun.model.domain.*
+import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
+import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 
 sealed interface ModelAction {
 

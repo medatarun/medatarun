@@ -1,8 +1,8 @@
 package io.medatarun.ext.modeljson
 
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryId
+import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse
 import kotlin.io.path.exists
 import kotlin.test.*

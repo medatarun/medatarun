@@ -1,7 +1,11 @@
 package io.medatarun.model.internal
 
-import io.medatarun.model.domain.*
-import io.medatarun.model.ports.ModelStorages
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.ModelSummary
+import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*

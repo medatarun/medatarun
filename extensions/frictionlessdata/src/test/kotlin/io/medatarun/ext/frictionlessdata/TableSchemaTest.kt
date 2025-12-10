@@ -1,7 +1,7 @@
 package io.medatarun.ext.frictionlessdata
 
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
-import io.medatarun.model.ports.ResourceLocator
+import io.medatarun.model.ports.needs.ResourceLocator
 import org.junit.jupiter.api.Test
 import java.net.URI
 

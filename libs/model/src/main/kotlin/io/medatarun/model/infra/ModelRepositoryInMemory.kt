@@ -3,10 +3,10 @@ package io.medatarun.model.infra
 import io.medatarun.model.domain.MedatarunException
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.ports.ModelRepository
-import io.medatarun.model.ports.ModelRepositoryCmd
-import io.medatarun.model.ports.ModelRepositoryCmdOnModel
-import io.medatarun.model.ports.ModelRepositoryId
+import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
+import io.medatarun.model.ports.needs.ModelRepositoryId
 
 /**
  * A model repository suitable in memory, mostly used in tests

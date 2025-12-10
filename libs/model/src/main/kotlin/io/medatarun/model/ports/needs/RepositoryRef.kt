@@ -1,4 +1,4 @@
-package io.medatarun.model.ports
+package io.medatarun.model.ports.needs
 
 /**
  * Strategy to choose a repository when operations need to perform
