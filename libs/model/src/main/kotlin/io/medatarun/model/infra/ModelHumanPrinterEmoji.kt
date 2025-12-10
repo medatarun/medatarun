@@ -1,7 +1,7 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.ModelHumanPrinter
-import io.medatarun.model.model.Model
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelHumanPrinter
 
 class ModelHumanPrinterEmoji: ModelHumanPrinter {
 

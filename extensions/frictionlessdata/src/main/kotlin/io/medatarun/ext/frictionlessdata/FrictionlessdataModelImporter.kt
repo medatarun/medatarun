@@ -1,7 +1,7 @@
 package io.medatarun.ext.frictionlessdata
 
 import io.medatarun.model.ModelImporter
-import io.medatarun.model.model.Model
+import io.medatarun.model.domain.Model
 import io.medatarun.model.ports.ResourceLocator
 
 class FrictionlessdataModelImporter: ModelImporter {

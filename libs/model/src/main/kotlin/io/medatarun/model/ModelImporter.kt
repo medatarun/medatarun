@@ -1,6 +1,6 @@
 package io.medatarun.model
 
-import io.medatarun.model.model.Model
+import io.medatarun.model.domain.Model
 import io.medatarun.model.ports.ResourceLocator
 
 interface ModelImporter {

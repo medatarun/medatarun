@@ -1,6 +1,6 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.domain.EntityDefId
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption

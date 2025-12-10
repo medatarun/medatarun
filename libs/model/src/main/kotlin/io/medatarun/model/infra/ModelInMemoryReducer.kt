@@ -1,6 +1,6 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryCmdOnModel
 

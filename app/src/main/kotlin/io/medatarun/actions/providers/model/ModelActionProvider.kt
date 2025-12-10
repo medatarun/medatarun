@@ -2,7 +2,7 @@ package io.medatarun.actions.providers.model
 
 import io.medatarun.actions.runtime.ActionCtx
 import io.medatarun.actions.runtime.ActionProvider
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.file.FileSystems

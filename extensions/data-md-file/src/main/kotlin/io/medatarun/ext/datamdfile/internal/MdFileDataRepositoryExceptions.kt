@@ -1,9 +1,9 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.model.model.MedatarunException
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.MedatarunException
+import io.medatarun.model.domain.ModelId
 
 class MdFileEntityDefinitionNotManagedException(
     modelId: ModelId,

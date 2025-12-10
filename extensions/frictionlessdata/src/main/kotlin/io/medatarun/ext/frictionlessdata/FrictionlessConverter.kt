@@ -1,10 +1,10 @@
 package io.medatarun.ext.frictionlessdata
 
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.model.*
 import io.medatarun.model.ports.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI

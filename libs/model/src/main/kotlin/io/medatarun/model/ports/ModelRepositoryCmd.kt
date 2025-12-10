@@ -1,7 +1,7 @@
 package io.medatarun.model.ports
 
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.EntityDefInMemory
-import io.medatarun.model.model.*
 
 sealed interface ModelRepositoryCmdOnModel: ModelRepositoryCmd {
     val modelId: ModelId

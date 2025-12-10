@@ -1,6 +1,6 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.model.model.MedatarunException
+import io.medatarun.model.domain.MedatarunException
 import kotlinx.serialization.json.JsonElement
 
 class TableSchemaFieldTypeUnknown(e: JsonElement): MedatarunException("Unknown field type: $e")

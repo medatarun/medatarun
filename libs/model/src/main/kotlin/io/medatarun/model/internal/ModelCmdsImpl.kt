@@ -1,9 +1,9 @@
 package io.medatarun.model.internal
 
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
-import io.medatarun.model.model.*
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelStorages
 

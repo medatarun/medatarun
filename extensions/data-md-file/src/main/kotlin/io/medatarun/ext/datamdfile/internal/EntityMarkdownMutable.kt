@@ -2,8 +2,8 @@ package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.data.model.Entity
 import io.medatarun.data.model.EntityId
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDefId
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDefId
 
 data class EntityMarkdownMutable(
     override val id: EntityId,

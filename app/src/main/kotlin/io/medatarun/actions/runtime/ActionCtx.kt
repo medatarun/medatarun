@@ -1,9 +1,9 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.model.ModelCmds
-import io.medatarun.model.model.ModelHumanPrinter
-import io.medatarun.model.model.ModelQueries
+import io.medatarun.model.domain.ModelCmds
+import io.medatarun.model.domain.ModelHumanPrinter
+import io.medatarun.model.domain.ModelQueries
 
 interface ActionCtx {
     val extensionRegistry: ExtensionRegistry

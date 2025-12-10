@@ -6,7 +6,10 @@ import io.medatarun.data.model.EntityId
 import io.medatarun.data.model.EntityInitializer
 import io.medatarun.data.model.EntityUpdater
 import io.medatarun.data.ports.DataRepository
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import java.nio.file.Path
 
 /**

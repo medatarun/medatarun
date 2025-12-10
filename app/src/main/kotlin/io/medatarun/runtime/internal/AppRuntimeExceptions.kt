@@ -1,6 +1,6 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.model.model.MedatarunException
+import io.medatarun.model.domain.MedatarunException
 
 
 class RootDirNotFoundException() :

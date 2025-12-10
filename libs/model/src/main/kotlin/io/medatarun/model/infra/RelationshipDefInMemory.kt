@@ -1,10 +1,8 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.RelationshipDef
-import io.medatarun.model.model.RelationshipDefId
-import io.medatarun.model.model.RelationshipRole
+import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.RelationshipDef
+import io.medatarun.model.domain.RelationshipDefId
 
 data class RelationshipDefInMemory(
     override val id: RelationshipDefId,

@@ -1,8 +1,8 @@
 package io.medatarun.model.ports
 
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelInvalidException
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelInvalidException
 
 /**
  * Represents an aggregation of multiple repositories for models.

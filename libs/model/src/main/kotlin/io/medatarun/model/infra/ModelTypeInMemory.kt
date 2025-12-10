@@ -1,9 +1,9 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.LocalizedMarkdown
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.ModelType
-import io.medatarun.model.model.ModelTypeId
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.ModelType
+import io.medatarun.model.domain.ModelTypeId
 
 /**
  * Default implementation of ModelType

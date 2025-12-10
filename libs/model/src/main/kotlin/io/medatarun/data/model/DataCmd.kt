@@ -1,7 +1,7 @@
 package io.medatarun.data.model
 
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.ModelId
 
 interface DataCmd {
     fun createEntity(modelId: ModelId, entityDefId: EntityDefId, entityInitializer: EntityInitializer)

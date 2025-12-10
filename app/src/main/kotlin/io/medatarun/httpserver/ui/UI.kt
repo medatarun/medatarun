@@ -1,6 +1,6 @@
 package io.medatarun.httpserver.ui
 
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.json.*
 import java.util.*

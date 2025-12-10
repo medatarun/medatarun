@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.modelimport
 
 import io.medatarun.ext.db.model.DbTableWithoutColumnsException
-import io.medatarun.model.model.AttributeDefId
+import io.medatarun.model.domain.AttributeDefId
 
 data class IntrospectTable(
     val tableCat: String?,

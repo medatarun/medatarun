@@ -1,15 +1,11 @@
 package io.medatarun.data.adapters
 
-import io.medatarun.data.model.Entity
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityUpdater
-import io.medatarun.data.model.DataStorageNotFoundException
+import io.medatarun.data.model.*
 import io.medatarun.data.ports.DataRepository
 import io.medatarun.data.ports.DataStorages
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 
 class DataStoragesComposite(val repositories: List<DataRepository>): DataStorages {
 

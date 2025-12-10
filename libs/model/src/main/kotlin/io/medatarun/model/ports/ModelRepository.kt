@@ -1,6 +1,7 @@
 package io.medatarun.model.ports
 
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 
 /**
  * Model repository allow accessing and modifying stored models.

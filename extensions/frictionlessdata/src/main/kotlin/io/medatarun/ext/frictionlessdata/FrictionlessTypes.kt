@@ -1,7 +1,7 @@
 package io.medatarun.ext.frictionlessdata
 
+import io.medatarun.model.domain.ModelTypeId
 import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.model.ModelTypeId
 
 @Suppress("PropertyName")
 class FrictionlessTypes {

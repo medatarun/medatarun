@@ -1,6 +1,6 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 import java.net.URI
 import kotlin.test.Test

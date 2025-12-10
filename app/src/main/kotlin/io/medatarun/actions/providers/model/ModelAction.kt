@@ -1,7 +1,7 @@
 package io.medatarun.actions.providers.model
 
 import io.medatarun.actions.runtime.ActionDoc
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 
 sealed interface ModelAction {
 

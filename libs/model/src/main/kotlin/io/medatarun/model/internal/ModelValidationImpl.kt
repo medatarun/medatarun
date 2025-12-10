@@ -1,6 +1,6 @@
 package io.medatarun.model.internal
 
-import io.medatarun.model.model.*
+import io.medatarun.model.domain.*
 
 class ModelValidationImpl : ModelValidation {
 

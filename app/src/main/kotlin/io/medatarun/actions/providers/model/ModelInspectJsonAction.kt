@@ -1,8 +1,8 @@
 package io.medatarun.actions.providers.model
 
 import io.medatarun.actions.runtime.ActionCtx
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.LocalizedText
+import io.medatarun.model.domain.AttributeDef
+import io.medatarun.model.domain.LocalizedText
 import kotlinx.serialization.json.*
 
 class ModelInspectJsonAction(private val actionCtx: ActionCtx) {

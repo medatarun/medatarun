@@ -1,7 +1,7 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
-import io.medatarun.model.model.MedatarunException
+import io.medatarun.model.domain.MedatarunException
 
 
 class ActionInvocationException(

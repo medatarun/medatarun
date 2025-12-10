@@ -5,9 +5,9 @@ import io.medatarun.data.model.EntityId
 import io.medatarun.data.model.EntityInitializer
 import io.medatarun.data.model.EntityUpdater
 import io.medatarun.data.ports.DataStorages
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelQueries
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelQueries
 
 class DataCmdImpl(val storages: DataStorages, val models: ModelQueries) : DataCmd {
     override fun createEntity(modelId: ModelId, entityDefId: EntityDefId, entityInitializer: EntityInitializer) {

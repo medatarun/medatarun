@@ -1,6 +1,5 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.model.model.ModelType
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*

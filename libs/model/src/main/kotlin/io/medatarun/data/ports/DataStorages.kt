@@ -4,8 +4,8 @@ import io.medatarun.data.model.Entity
 import io.medatarun.data.model.EntityId
 import io.medatarun.data.model.EntityInitializer
 import io.medatarun.data.model.EntityUpdater
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.Model
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.Model
 
 interface DataStorages {
     fun findAllEntities(model: Model, entityDefId: EntityDefId): List<Entity>

@@ -1,6 +1,6 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.ModelRepositoryCmd
 import io.medatarun.model.ports.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse

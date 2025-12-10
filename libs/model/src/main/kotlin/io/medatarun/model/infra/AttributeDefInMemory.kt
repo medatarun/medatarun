@@ -1,10 +1,6 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.model.AttributeDef
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.LocalizedMarkdown
-import io.medatarun.model.model.LocalizedText
-import io.medatarun.model.model.ModelTypeId
+import io.medatarun.model.domain.*
 
 /**
  * Default implementation of AttributeDef

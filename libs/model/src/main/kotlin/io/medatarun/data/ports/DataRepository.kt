@@ -4,16 +4,16 @@ import io.medatarun.data.model.Entity
 import io.medatarun.data.model.EntityId
 import io.medatarun.data.model.EntityInitializer
 import io.medatarun.data.model.EntityUpdater
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.Model
-import io.medatarun.model.model.ModelId
+import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 
 interface DataRepository {
 
     fun matches(modelId: ModelId, entityDefId: EntityDefId): Boolean
 
     /**
-     * Lists all [io.medatarun.model.model.EntityDefId] managed by this repository for specified [modelId]
+     * Lists all [io.medatarun.model.domain.EntityDefId] managed by this repository for specified [modelId]
      */
     fun managedEntityDefs(modelId: ModelId): Set<EntityDefId>
     /**

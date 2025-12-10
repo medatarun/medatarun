@@ -1,25 +1,19 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityUpdater
 import io.medatarun.data.adapters.EntityIdString
+import io.medatarun.data.model.EntityId
+import io.medatarun.data.model.EntityInitializer
+import io.medatarun.data.model.EntityUpdater
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.model.LocalizedTextNotLocalized
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDefId
-import io.medatarun.model.model.EntityOrigin
-import io.medatarun.model.model.ModelId
-import io.medatarun.model.model.ModelVersion
 import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.text.RegexOption
 
 private val FRONTMATTER_REGEX = Regex(
     pattern = "^---\\s*\\n(.*?)\\n---\\s*\\n(.*)$",

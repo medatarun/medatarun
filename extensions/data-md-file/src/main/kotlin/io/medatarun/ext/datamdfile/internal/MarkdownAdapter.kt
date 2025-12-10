@@ -1,8 +1,8 @@
 package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.data.adapters.EntityIdString
-import io.medatarun.model.model.AttributeDefId
-import io.medatarun.model.model.EntityDef
+import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.EntityDef
 import org.commonmark.Extension
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
 import org.commonmark.ext.front.matter.YamlFrontMatterVisitor
