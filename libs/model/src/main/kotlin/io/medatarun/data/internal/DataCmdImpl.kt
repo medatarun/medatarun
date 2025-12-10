@@ -1,10 +1,10 @@
 package io.medatarun.data.internal
 
-import io.medatarun.data.model.DataCmd
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityUpdater
-import io.medatarun.data.ports.DataStorages
+import io.medatarun.data.domain.EntityId
+import io.medatarun.data.ports.exposed.DataCmd
+import io.medatarun.data.ports.exposed.EntityInitializer
+import io.medatarun.data.ports.exposed.EntityUpdater
+import io.medatarun.data.ports.needs.DataStorages
 import io.medatarun.model.domain.EntityDefId
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.exposed.ModelQueries

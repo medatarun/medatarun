@@ -1,8 +1,12 @@
 package io.medatarun.data.adapters
 
-import io.medatarun.data.model.*
-import io.medatarun.data.ports.DataRepository
-import io.medatarun.data.ports.DataStorages
+import io.medatarun.data.domain.DataStorageNotFoundException
+import io.medatarun.data.domain.Entity
+import io.medatarun.data.domain.EntityId
+import io.medatarun.data.ports.exposed.EntityInitializer
+import io.medatarun.data.ports.exposed.EntityUpdater
+import io.medatarun.data.ports.needs.DataRepository
+import io.medatarun.data.ports.needs.DataStorages
 import io.medatarun.model.domain.EntityDefId
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId

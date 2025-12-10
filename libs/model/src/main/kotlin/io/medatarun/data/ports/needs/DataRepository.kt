@@ -1,9 +1,9 @@
-package io.medatarun.data.ports
+package io.medatarun.data.ports.needs
 
-import io.medatarun.data.model.Entity
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityUpdater
+import io.medatarun.data.domain.Entity
+import io.medatarun.data.domain.EntityId
+import io.medatarun.data.ports.exposed.EntityInitializer
+import io.medatarun.data.ports.exposed.EntityUpdater
 import io.medatarun.model.domain.EntityDefId
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
@@ -13,7 +13,7 @@ interface DataRepository {
     fun matches(modelId: ModelId, entityDefId: EntityDefId): Boolean
 
     /**
-     * Lists all [io.medatarun.model.domain.EntityDefId] managed by this repository for specified [modelId]
+     * Lists all [EntityDefId] managed by this repository for specified [modelId]
      */
     fun managedEntityDefs(modelId: ModelId): Set<EntityDefId>
     /**

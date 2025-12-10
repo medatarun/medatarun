@@ -1,9 +1,9 @@
 package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.data.adapters.EntityIdString
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityUpdater
+import io.medatarun.data.domain.EntityId
+import io.medatarun.data.ports.exposed.EntityInitializer
+import io.medatarun.data.ports.exposed.EntityUpdater
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory

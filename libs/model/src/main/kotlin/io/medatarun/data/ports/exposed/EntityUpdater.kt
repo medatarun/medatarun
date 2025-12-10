@@ -1,5 +1,6 @@
-package io.medatarun.data.model
+package io.medatarun.data.ports.exposed
 
+import io.medatarun.data.domain.EntityId
 import io.medatarun.model.domain.AttributeDefId
 
 interface EntityUpdater {

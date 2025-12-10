@@ -1,11 +1,11 @@
 package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.data.adapters.EntityIdString
-import io.medatarun.data.model.Entity
-import io.medatarun.data.model.EntityId
-import io.medatarun.data.model.EntityInitializer
-import io.medatarun.data.model.EntityUpdater
-import io.medatarun.data.ports.DataRepository
+import io.medatarun.data.domain.Entity
+import io.medatarun.data.domain.EntityId
+import io.medatarun.data.ports.exposed.EntityInitializer
+import io.medatarun.data.ports.exposed.EntityUpdater
+import io.medatarun.data.ports.needs.DataRepository
 import io.medatarun.model.domain.AttributeDefId
 import io.medatarun.model.domain.EntityDefId
 import io.medatarun.model.domain.Model

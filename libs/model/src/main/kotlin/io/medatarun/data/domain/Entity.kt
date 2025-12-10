@@ -1,4 +1,4 @@
-package io.medatarun.data.model
+package io.medatarun.data.domain
 
 import io.medatarun.model.domain.AttributeDefId
 import io.medatarun.model.domain.EntityDefId

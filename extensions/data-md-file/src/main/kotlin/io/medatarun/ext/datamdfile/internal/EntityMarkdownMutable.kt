@@ -1,7 +1,7 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.data.model.Entity
-import io.medatarun.data.model.EntityId
+import io.medatarun.data.domain.Entity
+import io.medatarun.data.domain.EntityId
 import io.medatarun.model.domain.AttributeDefId
 import io.medatarun.model.domain.EntityDefId
 

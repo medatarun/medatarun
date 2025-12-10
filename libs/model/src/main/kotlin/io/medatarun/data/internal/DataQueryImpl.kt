@@ -1,8 +1,8 @@
 package io.medatarun.data.internal
 
-import io.medatarun.data.model.DataQuery
-import io.medatarun.data.model.Entity
-import io.medatarun.data.ports.DataStorages
+import io.medatarun.data.domain.Entity
+import io.medatarun.data.ports.exposed.DataQuery
+import io.medatarun.data.ports.needs.DataStorages
 import io.medatarun.model.domain.EntityDefId
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.exposed.ModelQueries
