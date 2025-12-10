@@ -11,4 +11,24 @@ data class EntityDefInitializer(
     val description: LocalizedMarkdown?,
     val identityAttribute: AttributeDefIdentityInitializer,
     val documentationHome: URL?
-)
+) {
+    companion object {
+        fun build(entityDefId: EntityDefId, identityAttribute: AttributeDefIdentityInitializer, block: Builder.() -> Unit = {}): EntityDefInitializer {
+            return Builder(entityDefId, identityAttribute).apply(block).build()
+        }
+        class Builder(var entityDefId: EntityDefId, var identityAttribute: AttributeDefIdentityInitializer) {
+            var name: LocalizedText? = null
+            var description: LocalizedMarkdown? = null
+            var documentationHome: URL? = null
+            fun build(): EntityDefInitializer {
+                return EntityDefInitializer(
+                    entityDefId = entityDefId,
+                    identityAttribute = identityAttribute,
+                    name = name,
+                    description = description,
+                    documentationHome = documentationHome
+                )
+            }
+        }
+    }
+}

@@ -2,6 +2,7 @@ package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.needs.RepositoryRef
+import java.net.URL
 
 /**
  * All possible commands that can be used to manage models, entity definitions, attributes,
@@ -40,6 +41,8 @@ sealed interface ModelCmd {
         override val modelId: ModelId,
         val version: ModelVersion
     ) : ModelCmdOnModel
+
+    data class UpdateDocumentationHome(override val modelId: ModelId, val url: URL?) : ModelCmdOnModel
 
     data class DeleteModel(
         override val modelId: ModelId

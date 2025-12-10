@@ -9,6 +9,7 @@ import io.medatarun.model.ports.needs.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.net.URI
 import kotlin.test.*
 
 class ModelTest {
@@ -225,8 +226,20 @@ class ModelTest {
     }
 
     @Test
-    fun `update documentation home`() {
-        TODO("Not implemented")
+    fun `update documentation home with value then updated`() {
+        val env = TestEnvOneModel()
+        val url = URI("https://some.url/index.html").toURL()
+        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, url))
+        assertEquals(url, env.query.findModelById(env.modelId).documentationHome)
+    }
+
+    @Test
+    fun `update documentation home with null then updated to null`() {
+        val env = TestEnvOneModel()
+        val url = URI("https://some.url/index.html").toURL()
+        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, url))
+        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, null))
+        assertNull(env.query.findModelById(env.modelId).documentationHome)
     }
 
     // ------------------------------------------------------------------------
@@ -582,18 +595,19 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
-                env.modelId, EntityDefInitializer(
+                env.modelId, EntityDefInitializer.build(
                     entityDefId = entityId,
-                    name = name,
-                    description = description,
-                    documentationHome = null,
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
                         name = LocalizedTextNotLocalized("Identifier"),
                         description = LocalizedTextNotLocalized("Identifier description")
                     )
-                )
+                ) {
+                    this.name = name
+                    this.description = description
+
+                }
             )
         )
 
@@ -616,19 +630,15 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
-                env.modelId, EntityDefInitializer(
+                env.modelId, EntityDefInitializer.build(
                     entityDefId = entityId,
-                    name = null,
-                    description = description,
-                    identityAttribute = AttributeDefIdentityInitializer(
+                    identityAttribute = AttributeDefIdentityInitializer.build(
                         attributeDefId = AttributeDefId("id"),
-                        type = ModelTypeId("String"),
-                        name = null,
-                        description = null,
-
-                        ),
-                    documentationHome = null
-                )
+                        type = ModelTypeId("String")
+                    )
+                ) {
+                    this.description = description
+                }
             )
         )
 
@@ -647,19 +657,15 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
-                env.modelId,
-                EntityDefInitializer(
+                env.modelId, EntityDefInitializer.build(
                     entityDefId = entityId,
-                    name = name,
-                    description = null,
-                    documentationHome = null,
-                    identityAttribute = AttributeDefIdentityInitializer(
+                    identityAttribute = AttributeDefIdentityInitializer.build(
                         attributeDefId = AttributeDefId("String"),
-                        type = ModelTypeId("String"),
-                        name = null,
-                        description = null
+                        type = ModelTypeId("String")
                     )
-                )
+                ) {
+                    this.name = name
+                }
             )
         )
 
@@ -677,18 +683,15 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntityDef(
-                env.modelId, EntityDefInitializer(
+                env.modelId, EntityDefInitializer.build(
                     entityDefId = entityId,
-                    name = null,
-                    description = description,
-                    identityAttribute = AttributeDefIdentityInitializer(
+                    identityAttribute = AttributeDefIdentityInitializer.build(
                         attributeDefId = AttributeDefId("id"),
                         type = ModelTypeId("String"),
-                        name = null,
-                        description = null
                     ),
-                    documentationHome = null
-                )
+                ) {
+                    this.description = description
+                }
             )
         )
 
@@ -698,8 +701,40 @@ class ModelTest {
     }
 
     @Test
-    fun `create entity with documentation home`() {
-        TODO("Not yet implemented")
+    fun `create entity with documentation home null`() {
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-null-attr-name")
+        env.cmd.dispatch(
+            ModelCmd.CreateEntityDef(
+                env.modelId, EntityDefInitializer.build(
+                    entityId, AttributeDefIdentityInitializer.build(
+                        AttributeDefId("id"),
+                        ModelTypeId("String")
+                    )
+                )
+            )
+        )
+        assertNull(env.query.findModelById(env.modelId).findEntityDef(entityId).documentationHome)
+    }
+
+    @Test
+    fun `create entity with documentation home not null`() {
+        val env = TestEnvOneModel()
+        val entityId = EntityDefId("entity-null-attr-name")
+        val url = URI("http://localhost:8080").toURL()
+        env.cmd.dispatch(
+            ModelCmd.CreateEntityDef(
+                env.modelId, EntityDefInitializer.build(
+                    entityId, AttributeDefIdentityInitializer.build(
+                        AttributeDefId("id"),
+                        ModelTypeId("String")
+                    )
+                ){
+                    documentationHome = url
+                }
+            )
+        )
+        assertEquals(url, env.query.findModelById(env.modelId).findEntityDef(entityId).documentationHome)
     }
 
     class TestEnvEntityUpdate {
@@ -887,6 +922,31 @@ class ModelTest {
 
         val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
         assertNull(reloaded.description)
+    }
+
+    @Test
+    fun `update entity documentation home not null`() {
+        val env = TestEnvEntityUpdate()
+        val url = URI("http://localhost").toURL()
+        env.cmd.dispatch(
+            ModelCmd.UpdateEntityDef(env.modelId, env.primaryEntityId, EntityDefUpdateCmd.DocumentationHome(url))
+        )
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertEquals(url, reloaded.documentationHome)
+    }
+
+    @Test
+    fun `update entity documentation home to null`() {
+        val env = TestEnvEntityUpdate()
+        val url = URI("http://localhost").toURL()
+        env.cmd.dispatch(
+            ModelCmd.UpdateEntityDef(env.modelId, env.primaryEntityId, EntityDefUpdateCmd.DocumentationHome(url))
+        )
+        env.cmd.dispatch(
+            ModelCmd.UpdateEntityDef(env.modelId, env.primaryEntityId, EntityDefUpdateCmd.DocumentationHome(null))
+        )
+        val reloaded = env.query.findModelById(env.modelId).findEntityDef(env.primaryEntityId)
+        assertNull(reloaded.documentationHome)
     }
 
 
@@ -1401,7 +1461,7 @@ class ModelTest {
                 id = EntityDefId("Contact"),
                 // Error is here
                 identifierAttributeDefId = AttributeDefId("unknown"),
-                ) {
+            ) {
                 addAttribute(
                     AttributeDefInMemory(
                         id = AttributeDefId("id"),

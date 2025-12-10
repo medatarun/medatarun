@@ -19,6 +19,7 @@ class ModelInMemoryReducer() {
             is ModelRepositoryCmd.UpdateModelName -> model.copy(name = cmd.name)
             is ModelRepositoryCmd.UpdateModelVersion -> model.copy(version = cmd.version)
             is ModelRepositoryCmd.DeleteModel -> throw ModelInMemoryReducerCommandNotSupportedException(cmd)
+            is ModelRepositoryCmd.UpdateDocumentationHome -> model.copy(documentationHome = cmd.url)
 
             is ModelRepositoryCmd.CreateType -> model.copy(
                 types = model.types + ModelTypeInMemory(
@@ -44,6 +45,7 @@ class ModelInMemoryReducer() {
                     is EntityDefUpdateCmd.Name -> previous.copy(name = c.value)
                     is EntityDefUpdateCmd.Description -> previous.copy(description = c.value)
                     is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeDefId = c.value)
+                    is EntityDefUpdateCmd.DocumentationHome -> previous.copy(documentationHome = c.value)
                 }
             }
 

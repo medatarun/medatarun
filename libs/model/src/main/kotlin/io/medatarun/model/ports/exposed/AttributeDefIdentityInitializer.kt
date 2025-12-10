@@ -10,4 +10,17 @@ data class AttributeDefIdentityInitializer(
     val type: ModelTypeId,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?
-)
+) {
+    companion object {
+        fun build(attributeDefId: AttributeDefId, type: ModelTypeId, block: Builder.() -> Unit = {}):AttributeDefIdentityInitializer {
+            return Builder(attributeDefId, type).apply(block).build()
+        }
+        class Builder(var  attributeDefId: AttributeDefId, var type: ModelTypeId) {
+            var name: LocalizedText? = null
+            var description: LocalizedMarkdown? = null
+            fun build(): AttributeDefIdentityInitializer {
+                return AttributeDefIdentityInitializer(attributeDefId, type, name, description)
+            }
+        }
+    }
+}

@@ -13,9 +13,6 @@ import java.net.URL
  */
 interface Model {
 
-
-
-
     /**
      * Unique identifier of the model accros all models managed by the current application instance
      */

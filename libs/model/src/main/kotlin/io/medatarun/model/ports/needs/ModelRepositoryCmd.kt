@@ -3,6 +3,7 @@ package io.medatarun.model.ports.needs
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.ports.exposed.*
+import java.net.URL
 
 sealed interface ModelRepositoryCmdOnModel: ModelRepositoryCmd {
     val modelId: ModelId
@@ -31,6 +32,11 @@ sealed interface ModelRepositoryCmd {
     data class UpdateModelVersion(
         override val modelId: ModelId,
         val version: ModelVersion
+    ) : ModelRepositoryCmdOnModel
+
+    data class UpdateDocumentationHome(
+        override val modelId: ModelId,
+        val url: URL?
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteModel(

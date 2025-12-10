@@ -48,6 +48,9 @@ class ModelCmdsImpl(
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
         storage.dispatch(ModelRepositoryCmd.UpdateModelVersion(cmd.modelId, cmd.version))
     }
+    private fun updateDocumentationHome(cmd: ModelCmd.UpdateDocumentationHome) {
+        storage.dispatch(ModelRepositoryCmd.UpdateDocumentationHome(cmd.modelId, cmd.url))
+    }
 
     // -----------------------------------------------------------------------------------------------------------------
     // Types
@@ -206,6 +209,7 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
             is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
+            is ModelCmd.UpdateDocumentationHome -> updateDocumentationHome(cmd)
             is ModelCmd.DeleteModel -> deleteModel(cmd)
             is ModelCmd.CreateType -> createType(cmd)
             is ModelCmd.UpdateType -> updateType(cmd)
