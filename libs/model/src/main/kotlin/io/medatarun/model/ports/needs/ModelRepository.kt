@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 
 /**
  * Model repository allow accessing and modifying stored models.
@@ -28,8 +28,8 @@ interface ModelRepository {
      * we get a clear answer if we should go with it or not (when creating models for example).
      */
     fun matchesId(id: ModelRepositoryId): Boolean
-    fun findAllModelIds(): List<ModelId>
-    fun findModelByIdOptional(id: ModelId): Model?
+    fun findAllModelIds(): List<ModelKey>
+    fun findModelByIdOptional(id: ModelKey): Model?
 
     // Commands
 

@@ -32,7 +32,7 @@ class ModelInspectJsonAction(private val actionCtx: ActionCtx) {
                                     put("id", entity.id.value)
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
-                                    put("identifierAttribute", entity.identifierAttributeDefId.value)
+                                    put("identifierAttribute", entity.identifierAttributeKey.value)
                                     put("attributes", toAttributesJson(entity.attributes))
                                 })
                             }

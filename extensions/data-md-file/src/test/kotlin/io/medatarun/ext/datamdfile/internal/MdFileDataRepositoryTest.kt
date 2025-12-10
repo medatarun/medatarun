@@ -54,7 +54,7 @@ internal class MdFileDataRepositoryTest {
         val filesystemFixture = FilesystemFixture()
         val repository = MdFileDataRepository(filesystemFixture.storageDirectory())
         val entityId = "john-doe"
-        val personEntityId = EntityDefId("person")
+        val personEntityId = EntityKey("person")
 
         repository.createEntity(
             model,
@@ -98,7 +98,7 @@ internal class MdFileDataRepositoryTest {
         val filesystemFixture = FilesystemFixture()
         val repository = MdFileDataRepository(filesystemFixture.storageDirectory())
         val entityId = "jane-doe"
-        val personEntityId = EntityDefId("person")
+        val personEntityId = EntityKey("person")
 
         repository.createEntity(
             model,
@@ -143,7 +143,7 @@ internal class MdFileDataRepositoryTest {
         val filesystemFixture = FilesystemFixture()
         val repository = MdFileDataRepository(filesystemFixture.storageDirectory())
         val entityId = "acme-1"
-        val companyEntityId = EntityDefId("company")
+        val companyEntityId = EntityKey("company")
 
         repository.createEntity(
             model,
@@ -174,8 +174,8 @@ internal class MdFileDataRepositoryTest {
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
         val personEntity = EntityDefInMemory.builder(
-            id = EntityDefId("person"),
-            identifierAttributeDefId = AttributeDefId("id"),
+            id = EntityKey("person"),
+            identifierAttributeKey = AttributeKey("id"),
         ) {
             name = LocalizedTextNotLocalized("Person")
             description = null
@@ -183,7 +183,7 @@ internal class MdFileDataRepositoryTest {
             documentationHome = null
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeDefId("id"),
+                    id = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = typeString.id,
@@ -191,7 +191,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("firstName"),
+                    id = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
                     type = typeString.id,
@@ -199,7 +199,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("lastName"),
+                    id = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
                     type = typeString.id,
@@ -207,7 +207,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("phoneNumber"),
+                    id = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
                     type = typeString.id,
@@ -215,7 +215,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("infos"),
+                    id = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
                     type = typeMarkdown.id,
@@ -226,8 +226,8 @@ internal class MdFileDataRepositoryTest {
         }
 
         val companyEntity = EntityDefInMemory.builder(
-            id = EntityDefId("company"),
-            identifierAttributeDefId = AttributeDefId("id"),
+            id = EntityKey("company"),
+            identifierAttributeKey = AttributeKey("id"),
         ) {
             name = LocalizedTextNotLocalized("Company")
             description = null
@@ -235,7 +235,7 @@ internal class MdFileDataRepositoryTest {
             documentationHome = null
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeDefId("id"),
+                    id = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = typeString.id,
@@ -243,7 +243,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("name"),
+                    id = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
                     type = typeString.id,
@@ -251,7 +251,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("location"),
+                    id = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
                     type = typeString.id,
@@ -259,7 +259,7 @@ internal class MdFileDataRepositoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeDefId("website"),
+                    id = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
                     type = typeString.id,
@@ -270,7 +270,7 @@ internal class MdFileDataRepositoryTest {
         }
 
         return ModelInMemory.builder(
-            id = ModelId("test-model"),
+            id = ModelKey("test-model"),
             version = ModelVersion("1.0.0"),
         ) {
             name = LocalizedTextNotLocalized("Test Model")
@@ -282,14 +282,14 @@ internal class MdFileDataRepositoryTest {
     private class MapEntityInitializer(
         build: Builder.() -> Unit
     ) : EntityInitializer {
-        private val values: Map<AttributeDefId, Any?>
+        private val values: Map<AttributeKey, Any?>
 
         init {
             val builder = Builder().apply(build)
             values = builder.toModelMap()
         }
 
-        override fun <T> get(attributeId: AttributeDefId): T {
+        override fun <T> get(attributeId: AttributeKey): T {
             if (!values.containsKey(attributeId)) {
                 error("No data provided for attribute ${attributeId.value}")
             }
@@ -300,8 +300,8 @@ internal class MdFileDataRepositoryTest {
         class Builder {
             val attr: MutableMap<String, Any?> = linkedMapOf()
 
-            fun toModelMap(): Map<AttributeDefId, Any?> =
-                attr.mapKeys { (key, _) -> AttributeDefId(key) }
+            fun toModelMap(): Map<AttributeKey, Any?> =
+                attr.mapKeys { (key, _) -> AttributeKey(key) }
         }
     }
 
@@ -309,7 +309,7 @@ internal class MdFileDataRepositoryTest {
         override val id: EntityId,
         build: Builder.() -> Unit
     ) : EntityUpdater {
-        private val instructionsByAttribute: Map<AttributeDefId, EntityUpdater.Instruction>
+        private val instructionsByAttribute: Map<AttributeKey, EntityUpdater.Instruction>
         private val orderedInstructions: List<EntityUpdater.Instruction>
 
         init {
@@ -318,7 +318,7 @@ internal class MdFileDataRepositoryTest {
             instructionsByAttribute = orderedInstructions.associateBy { it.attributeId }
         }
 
-        override fun get(attributeId: AttributeDefId): EntityUpdater.Instruction =
+        override fun get(attributeId: AttributeKey): EntityUpdater.Instruction =
             instructionsByAttribute[attributeId] ?: EntityUpdater.Instruction.InstructionNone(attributeId)
 
         override fun list(): List<EntityUpdater.Instruction> = orderedInstructions
@@ -327,11 +327,11 @@ internal class MdFileDataRepositoryTest {
             val instructions: MutableList<EntityUpdater.Instruction> = mutableListOf()
 
             fun update(attribute: String, value: Any) {
-                instructions += EntityUpdater.Instruction.InstructionUpdate(AttributeDefId(attribute), value)
+                instructions += EntityUpdater.Instruction.InstructionUpdate(AttributeKey(attribute), value)
             }
 
             fun none(attribute: String) {
-                instructions += EntityUpdater.Instruction.InstructionNone(AttributeDefId(attribute))
+                instructions += EntityUpdater.Instruction.InstructionNone(AttributeKey(attribute))
             }
         }
     }

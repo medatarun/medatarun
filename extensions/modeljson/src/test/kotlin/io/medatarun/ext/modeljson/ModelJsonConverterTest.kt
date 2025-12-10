@@ -22,48 +22,48 @@ internal class ModelJsonConverterTest {
     @Test
     fun surface_test() {
         val modelRead = instance.fromJson(sampleModelJson)
-        assertEquals(modelRead.id, ModelId("example"))
+        assertEquals(modelRead.id, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entityDefs.size, 2)
 
 
         val contactEntity = modelRead.entityDefs[0]
-        assertEquals(contactEntity.id, EntityDefId("contact"))
+        assertEquals(contactEntity.id, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
-        assertEquals(AttributeDefId("name"), contactEntity.identifierAttributeDefId)
+        assertEquals(AttributeKey("name"), contactEntity.identifierAttributeKey)
 
         val companyEntity = modelRead.entityDefs[1]
-        assertEquals(companyEntity.id, EntityDefId("company"))
-        assertEquals(AttributeDefId("name"), companyEntity.identifierAttributeDefId)
+        assertEquals(companyEntity.id, EntityKey("company"))
+        assertEquals(AttributeKey("name"), companyEntity.identifierAttributeKey)
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
 
         assertEquals(companyEntity.countAttributeDefs(), 3)
 
-        val companyName = companyEntity.getAttributeDef(AttributeDefId("name"))
-        assertEquals(companyName.id, AttributeDefId("name"))
+        val companyName = companyEntity.getAttributeDef(AttributeKey("name"))
+        assertEquals(companyName.id, AttributeKey("name"))
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
-        assertEquals(companyName.type, ModelTypeId("String"))
+        assertEquals(companyName.type, TypeKey("String"))
 
-        val companyProfileUrl = companyEntity.getAttributeDef(AttributeDefId("profile_url"))
-        assertEquals(companyProfileUrl.id, AttributeDefId("profile_url"))
+        val companyProfileUrl = companyEntity.getAttributeDef(AttributeKey("profile_url"))
+        assertEquals(companyProfileUrl.id, AttributeKey("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
-        assertEquals(companyProfileUrl.type, ModelTypeId("String"))
+        assertEquals(companyProfileUrl.type, TypeKey("String"))
 
-        val companyInfos = companyEntity.getAttributeDef(AttributeDefId("informations"))
-        assertEquals(companyInfos.id, AttributeDefId("informations"))
+        val companyInfos = companyEntity.getAttributeDef(AttributeKey("informations"))
+        assertEquals(companyInfos.id, AttributeKey("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
         assertEquals(
             companyInfos.description?.name,
             "La description est au format Markdown et doit provenir de leur site internet !"
         )
         assertEquals(companyInfos.optional, true)
-        assertEquals(companyInfos.type, ModelTypeId("Markdown"))
+        assertEquals(companyInfos.type, TypeKey("Markdown"))
     }
 
     /**
@@ -101,7 +101,7 @@ internal class ModelJsonConverterTest {
                     put("identifierAttribute", "id")
                     when (origin) {
                         null -> {}
-                        is JsonNull -> put("origin", null)
+                        is JsonNull -> put("origin", JsonNull)
                         else -> put("origin", origin)
                     }
                     putJsonArray("attributes") {
@@ -120,14 +120,14 @@ internal class ModelJsonConverterTest {
     fun `entity origin undefined then manual`() {
         val json = createJsonForOriginTest(null)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityKey("contact")).origin)
     }
 
     @Test
     fun `entity origin null then manual`() {
         val json = createJsonForOriginTest(JsonNull)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityDefId("contact")).origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityKey("contact")).origin)
     }
 
     @Test
@@ -135,10 +135,10 @@ internal class ModelJsonConverterTest {
         val url = "https://www.example.local/schema.json"
         val json = createJsonForOriginTest(JsonPrimitive(url))
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDef(EntityDefId("contact")).origin)
+        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDef(EntityKey("contact")).origin)
         val jsonWritten = instance.toJson(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
-        val originRead = modelRead.findEntityDef(EntityDefId("contact")).origin
+        val originRead = modelRead.findEntityDef(EntityKey("contact")).origin
         assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
     }
 

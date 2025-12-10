@@ -22,7 +22,7 @@ import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
@@ -147,14 +147,16 @@ class AppHttpServer(
                     post { restCommandInvocation.processInvocation(call) }
                 }
             }
-
+            get("/ui/api/actions") {
+                call.respondText(UI(runtime, actionRegistry).generateTypescriptActions(), ContentType.Text.JavaScript)
+            }
             get("/ui/api/models") {
-                call.respondText(UI(runtime).modelListJson(detectLocale(call)), ContentType.Application.Json)
+                call.respondText(UI(runtime, actionRegistry).modelListJson(detectLocale(call)), ContentType.Application.Json)
             }
             get("/ui/api/models/{modelId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
                 call.respondText(
-                    UI(runtime).modelJson(ModelId(modelId), detectLocale(call)),
+                    UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
                     ContentType.Application.Json
                 )
             }

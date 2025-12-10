@@ -1,11 +1,13 @@
 package io.medatarun.httpserver.ui
 
+import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.model.domain.*
 import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.json.*
 import java.util.*
+import kotlin.reflect.typeOf
 
-class UI(private val runtime: AppRuntime) {
+class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
     fun modelListJson(locale: Locale): String {
         val data = runtime.modelQueries.findAllModelSummaries(locale)
@@ -24,8 +26,8 @@ class UI(private val runtime: AppRuntime) {
         }.toString()
     }
 
-    fun modelJson(modelId: ModelId, locale: Locale): String {
-        val model = runtime.modelQueries.findModelById(modelId)
+    fun modelJson(modelKey: ModelKey, locale: Locale): String {
+        val model = runtime.modelQueries.findModelById(modelKey)
 
         return buildJsonObject {
             put("id", model.id.value)
@@ -133,11 +135,42 @@ class UI(private val runtime: AppRuntime) {
                         put("description", attr.description?.get(locale))
                         put("type", attr.type.value)
                         put("optional", attr.optional)
-                        put("identifierAttribute", e.identifierAttributeDefId == attr.id)
+                        put("identifierAttribute", e.identifierAttributeKey == attr.id)
                     }
                 }
             }
         }
+    }
+
+    fun generateTypescriptActions(): String {
+        val str = StringBuilder()
+        str.appendLine("type ModelKey = string")
+        str.appendLine("type EntityKey = string")
+        str.appendLine("type AttributeKey = string")
+        actionRegistry.findAllGroupDescriptors().forEach { group ->
+
+            group.commands.forEach { command ->
+                val inlineProps = if (command.parameters.isEmpty()) "Record<string, never>" else "{" + command.parameters
+                    .map { it.name to when(it.type) {
+                        typeOf<ModelKey>() -> "ModelKey"
+                        typeOf<EntityKey>() -> "EntityKey"
+                        typeOf<AttributeKey>() -> "AttributeKey"
+                        typeOf<String>() -> "string"
+                        else -> "string"
+                    } }
+                    .map { (name, type) -> "$name:$type" }
+                    .joinToString(separator = ", ")+ "}"
+                str.appendLine("export function ${group.name}_${command.name}(props:$inlineProps) { ")
+                str.appendLine("  return { ")
+                str.appendLine(    "\"action\": \"${group.name}/${command.name}\",")
+                str.appendLine(    "\"payload\": props")
+                str.appendLine("  } ")
+                str.appendLine("} ")
+            }
+
+
+        }
+        return str.toString()
     }
 
 

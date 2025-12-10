@@ -1,20 +1,6 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
+import type {ActionDescriptorDto, CommandRegistryDto} from "../business/command.tsx";
 
-interface CommandRegistryDto extends Record<string, ActionDescriptorDto[]> {
-}
-
-interface ActionDescriptorDto {
-  name: string,
-  title: string | null,
-  description: string | null,
-  parameters: ActionParamDescriptorDto[]
-}
-
-interface ActionParamDescriptorDto {
-  name: string
-  type: string
-  optional: boolean
-}
 
 function OutputDisplay({output}: { output: unknown }) {
   if (output === null || output === undefined) {

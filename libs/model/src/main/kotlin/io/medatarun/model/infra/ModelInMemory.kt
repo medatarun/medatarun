@@ -7,7 +7,7 @@ import java.net.URL
  * Default implementation of Model
  */
 data class ModelInMemory(
-    override val id: ModelId,
+    override val id: ModelKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
@@ -36,7 +36,7 @@ data class ModelInMemory(
         }
 
         class Builder(
-            val id: ModelId,
+            val id: ModelKey,
             var name: LocalizedText? = null,
             var description: LocalizedMarkdown? = null,
             val version: ModelVersion,
@@ -63,17 +63,17 @@ data class ModelInMemory(
             }
 
             fun addEntityDef(
-                id: EntityDefId,
-                identifierAttributeDefId: AttributeDefId,
+                id: EntityKey,
+                identifierAttributeKey: AttributeKey,
                 block: EntityDefInMemory.Companion.Builder.() -> Unit = {}
             ): EntityDefInMemory {
-                val e = EntityDefInMemory.builder(id, identifierAttributeDefId, block)
+                val e = EntityDefInMemory.builder(id, identifierAttributeKey, block)
                 entityDefs.add(e)
                 return e
             }
         }
 
-        fun builder(id: ModelId, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
+        fun builder(id: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
             return Builder(id = id, version = version).apply(block).build()
         }
 

@@ -6,7 +6,7 @@ import io.medatarun.model.ports.exposed.*
 import java.net.URL
 
 sealed interface ModelRepositoryCmdOnModel : ModelRepositoryCmd {
-    val modelId: ModelId
+    val modelKey: ModelKey
 }
 
 sealed interface ModelRepositoryCmd {
@@ -21,37 +21,37 @@ sealed interface ModelRepositoryCmd {
     ) : ModelRepositoryCmd
 
     data class UpdateModelName(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val name: LocalizedTextNotLocalized
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelDescription(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val description: LocalizedTextNotLocalized?
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelVersion(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val version: ModelVersion
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelDocumentationHome(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val url: URL?
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelHashtagAdd(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelHashtagDelete(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteModel(
-        override val modelId: ModelId
+        override val modelKey: ModelKey
     ) : ModelRepositoryCmdOnModel
 
     // ------------------------------------------------------------------------
@@ -59,19 +59,19 @@ sealed interface ModelRepositoryCmd {
     // ------------------------------------------------------------------------
 
     data class CreateType(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val initializer: ModelTypeInitializer
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateType(
-        override val modelId: ModelId,
-        val typeId: ModelTypeId,
+        override val modelKey: ModelKey,
+        val typeId: TypeKey,
         val cmd: ModelTypeUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteType(
-        override val modelId: ModelId,
-        val typeId: ModelTypeId
+        override val modelKey: ModelKey,
+        val typeId: TypeKey
     ) : ModelRepositoryCmdOnModel
 
     // ------------------------------------------------------------------------
@@ -79,31 +79,31 @@ sealed interface ModelRepositoryCmd {
     // ------------------------------------------------------------------------
 
     data class CreateEntityDef(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val entityDef: EntityDefInMemory
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDef(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
         val cmd: EntityDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefHashtagAdd(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefHashtagDelete(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteEntityDef(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey
     ) : ModelRepositoryCmdOnModel
 
     // ------------------------------------------------------------------------
@@ -111,35 +111,35 @@ sealed interface ModelRepositoryCmd {
     // ------------------------------------------------------------------------
 
     class CreateEntityDefAttributeDef(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
         val attributeDef: AttributeDef
     ) : ModelRepositoryCmdOnModel
 
     class DeleteEntityDefAttributeDef(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
-        val attributeDefId: AttributeDefId
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
+        val attributeKey: AttributeKey
     ) : ModelRepositoryCmdOnModel
 
     class UpdateEntityDefAttributeDef(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
+        val attributeKey: AttributeKey,
         val cmd: AttributeDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefAttributeDefHashtagAdd(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
+        val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefAttributeDefHashtagDelete(
-        override val modelId: ModelId,
-        val entityDefId: EntityDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val entityKey: EntityKey,
+        val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
@@ -149,64 +149,64 @@ sealed interface ModelRepositoryCmd {
     // ------------------------------------------------------------------------
 
     class CreateRelationshipDef(
-        override val modelId: ModelId,
+        override val modelKey: ModelKey,
         val initializer: RelationshipDef
     ) : ModelRepositoryCmdOnModel
 
     class UpdateRelationshipDef(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
         val cmd: RelationshipDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateRelationshipDefHashtagAdd(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateRelationshipDefHashtagDelete(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     class DeleteRelationshipDef(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey
     ) : ModelRepositoryCmdOnModel
 
     class CreateRelationshipAttributeDef(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
         val attr: AttributeDef
     ) : ModelRepositoryCmdOnModel
 
     class UpdateRelationshipAttributeDef(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
         val cmd: AttributeDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateRelationshipAttributeDefHashtagAdd(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateRelationshipAttributeDefHashtagDelete(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
-        val attributeDefId: AttributeDefId,
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     class DeleteRelationshipAttributeDef(
-        override val modelId: ModelId,
-        val relationshipDefId: RelationshipDefId,
-        val attributeDefId: AttributeDefId
+        override val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey
     ) : ModelRepositoryCmdOnModel
 
 

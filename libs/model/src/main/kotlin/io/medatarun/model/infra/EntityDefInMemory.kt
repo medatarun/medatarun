@@ -7,11 +7,11 @@ import java.net.URL
  * Default implementation of EntityDef
  */
 data class EntityDefInMemory(
-    override val id: EntityDefId,
+    override val id: EntityKey,
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
     override val description: LocalizedMarkdown?,
-    override val identifierAttributeDefId: AttributeDefId,
+    override val identifierAttributeKey: AttributeKey,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
@@ -23,12 +23,12 @@ data class EntityDefInMemory(
         return attributes.size
     }
 
-    override fun getAttributeDefOptional(id: AttributeDefId): AttributeDef? {
+    override fun getAttributeDefOptional(id: AttributeKey): AttributeDef? {
         return map[id]
     }
 
 
-    override fun hasAttributeDef(id: AttributeDefId): Boolean = map.containsKey(id)
+    override fun hasAttributeDef(id: AttributeKey): Boolean = map.containsKey(id)
 
 
     companion object {
@@ -38,7 +38,7 @@ data class EntityDefInMemory(
                 name = other.name,
                 description = other.description,
                 attributes = other.attributes.map(AttributeDefInMemory::of),
-                identifierAttributeDefId = other.identifierAttributeDefId,
+                identifierAttributeKey = other.identifierAttributeKey,
                 origin = other.origin,
                 documentationHome = other.documentationHome,
                 hashtags = other.hashtags
@@ -46,11 +46,11 @@ data class EntityDefInMemory(
         }
 
         class Builder(
-            val id: EntityDefId,
+            val id: EntityKey,
             var name: LocalizedText? = null,
             var attributes: MutableList<AttributeDefInMemory> = mutableListOf(),
             var description: LocalizedMarkdown? = null,
-            var identifierAttributeDefId: AttributeDefId,
+            var identifierAttributeKey: AttributeKey,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
             var hashtags: MutableList<Hashtag> = mutableListOf(),
@@ -66,7 +66,7 @@ data class EntityDefInMemory(
                     name = name,
                     attributes = attributes,
                     description = description,
-                    identifierAttributeDefId = identifierAttributeDefId,
+                    identifierAttributeKey = identifierAttributeKey,
                     origin = origin,
                     documentationHome = documentationHome,
                     hashtags = hashtags
@@ -75,11 +75,11 @@ data class EntityDefInMemory(
         }
 
         fun builder(
-            id: EntityDefId,
-            identifierAttributeDefId: AttributeDefId,
+            id: EntityKey,
+            identifierAttributeKey: AttributeKey,
             block: Builder.() -> Unit = {}
         ): EntityDefInMemory {
-            return Builder(id = id, identifierAttributeDefId = identifierAttributeDefId).also(block).build()
+            return Builder(id = id, identifierAttributeKey = identifierAttributeKey).also(block).build()
         }
     }
 }

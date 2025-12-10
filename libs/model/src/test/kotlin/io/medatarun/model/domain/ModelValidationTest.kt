@@ -14,18 +14,18 @@ class ModelValidationTest {
     @Test
     fun `model with bad entity identifier`() {
         val model = ModelInMemory.builder(
-            id = ModelId("test"),
+            id = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
-            types = mutableListOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(id = TypeKey("String"), name = null, description = null))
             addEntityDef(
-                id = EntityDefId("Contact"),
-                identifierAttributeDefId = AttributeDefId("unknown"),
+                id = EntityKey("Contact"),
+                identifierAttributeKey = AttributeKey("unknown"),
                 {
                     addAttribute(
                         AttributeDefInMemory(
-                            id = AttributeDefId("id"),
-                            type = ModelTypeId("String"),
+                            id = AttributeKey("id"),
+                            type = TypeKey("String"),
                             name = null,
                             description = null,
                             optional = false,
@@ -45,20 +45,20 @@ class ModelValidationTest {
     @Test
     fun `model with bad attribute type`() {
         val model = ModelInMemory.builder(
-            id = ModelId("test"),
+            id = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
             name = null
             description = null
-            types = mutableListOf(ModelTypeInMemory(id = ModelTypeId("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(id = TypeKey("String"), name = null, description = null))
             addEntityDef(
-                id = EntityDefId("Contact"),
-                identifierAttributeDefId = AttributeDefId("id"),
+                id = EntityKey("Contact"),
+                identifierAttributeKey = AttributeKey("id"),
             ) {
                 addAttribute(
                     AttributeDefInMemory(
-                        id = AttributeDefId("id"),
-                        type = ModelTypeId("Int"),
+                        id = AttributeKey("id"),
+                        type = TypeKey("Int"),
                         name = null,
                         description = null,
                         optional = false,

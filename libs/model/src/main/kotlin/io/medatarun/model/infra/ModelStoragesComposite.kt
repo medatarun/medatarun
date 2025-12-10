@@ -16,21 +16,21 @@ class ModelStoragesComposite(
         if (repositories.isEmpty()) throw ModelStoragesCompositeNoRepositoryException()
     }
 
-    override fun existsModelById(modelId: ModelId): Boolean {
+    override fun existsModelById(modelKey: ModelKey): Boolean {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(modelId)
+            val found = repository.findModelByIdOptional(modelKey)
             if (found != null) return true
         }
         return false
     }
 
-    override fun findModelByIdOptional(modelId: ModelId): Model? {
+    override fun findModelByIdOptional(modelKey: ModelKey): Model? {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(modelId)
+            val found = repository.findModelByIdOptional(modelKey)
             if (found != null) {
                 when (val validation = modelValidation.validate(found)) {
                     is ModelValidationState.Ok -> return found
-                    is ModelValidationState.Error -> throw ModelInvalidException(modelId, validation.errors)
+                    is ModelValidationState.Error -> throw ModelInvalidException(modelKey, validation.errors)
                 }
 
             }
@@ -38,25 +38,25 @@ class ModelStoragesComposite(
         return null
     }
 
-    override fun findModelById(id: ModelId): Model {
+    override fun findModelById(id: ModelKey): Model {
         return findModelByIdOptional(id) ?: throw ModelStoragesCompositeRepositoryNotFoundInModelException(id)
     }
 
-    override fun findAllModelIds(): List<ModelId> {
+    override fun findAllModelIds(): List<ModelKey> {
         return repositories.map { it.findAllModelIds() }.flatten()
     }
 
 
     override fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef) {
         if (cmd is ModelRepositoryCmdOnModel) {
-            val repo = findRepoWithModel(cmd.modelId)
+            val repo = findRepoWithModel(cmd.modelKey)
             repo.dispatch(cmd)
         } else {
             selectRepository(repositoryRef).dispatch(cmd)
         }
     }
 
-    private fun findRepoWithModel(id: ModelId): ModelRepository {
+    private fun findRepoWithModel(id: ModelKey): ModelRepository {
         for (repository in repositories) {
             val found = repository.findModelByIdOptional(id)
             if (found != null) return repository
@@ -81,7 +81,7 @@ class ModelStoragesComposite(
 
 }
 
-class ModelStoragesCompositeRepositoryNotFoundInModelException(id: ModelId) :
+class ModelStoragesCompositeRepositoryNotFoundInModelException(id: ModelKey) :
     MedatarunException("No repository currently has model ${id.value}")
 
 class ModelStoragesCompositeNoRepositoryException :

@@ -3,7 +3,11 @@ package io.medatarun.model.domain
 import java.net.URL
 
 @JvmInline
-value class EntityDefId(val value: String)
+value class EntityKey(val value: String) {
+    fun validated(): EntityKey {
+        return this
+    }
+}
 
 /**
  * Definition of an Entity.
@@ -12,7 +16,7 @@ interface EntityDef {
     /**
      * Unique identifier of this EntityDef in the [Model]
      */
-    val id: EntityDefId
+    val id: EntityKey
 
     /**
      * Display name
@@ -32,7 +36,7 @@ interface EntityDef {
     /**
      * Tells which attribute acts as entities' identifier
      */
-    val identifierAttributeDefId: AttributeDefId
+    val identifierAttributeKey: AttributeKey
 
     /**
      * Tells where the definition comes from
@@ -56,23 +60,23 @@ interface EntityDef {
     /**
      * Get attribute by its id if found
      */
-    fun getAttributeDefOptional(id: AttributeDefId): AttributeDef?
+    fun getAttributeDefOptional(id: AttributeKey): AttributeDef?
 
     /**
      * Get attribute by its id. Throws [EntityAttributeDefNotFoundException] otherwise.
      */
-    fun getAttributeDef(id: AttributeDefId): AttributeDef = getAttributeDefOptional(id) ?: throw EntityAttributeDefNotFoundException(entityId = this.id , id)
+    fun getAttributeDef(id: AttributeKey): AttributeDef = getAttributeDefOptional(id) ?: throw EntityAttributeDefNotFoundException(entityId = this.id , id)
 
     /**
      * @return true if this entity contains this attribute
      */
-    fun hasAttributeDef(id: AttributeDefId): Boolean
+    fun hasAttributeDef(id: AttributeKey): Boolean
 
     /**
      * Ensures that an attribute exists or throws [EntityAttributeDefNotFoundException] otherwise.
      * This is syntax sugar around [getAttributeDef]
      */
-    fun ensureAttributeDefExists(id: AttributeDefId) {
+    fun ensureAttributeDefExists(id: AttributeKey) {
         // Ensures attribute definition exist, syntax sugar
         getAttributeDef(id)
     }
@@ -81,7 +85,7 @@ interface EntityDef {
      * Returns the attribute name that serves as entity unique identifier
      * amongst other entities in the same [EntityDef].
      */
-    fun entityIdAttributeDefId() = AttributeDefId("id")
+    fun entityIdAttributeDefId() = AttributeKey("id")
 
 
 

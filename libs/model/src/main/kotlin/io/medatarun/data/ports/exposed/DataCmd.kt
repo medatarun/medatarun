@@ -1,11 +1,11 @@
 package io.medatarun.data.ports.exposed
 
 import io.medatarun.data.domain.EntityId
-import io.medatarun.model.domain.EntityDefId
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.ModelKey
 
 interface DataCmd {
-    fun createEntity(modelId: ModelId, entityDefId: EntityDefId, entityInitializer: EntityInitializer)
-    fun updateEntity(modelId: ModelId, entityDefId: EntityDefId, values: EntityUpdater)
-    fun deleteEntity(modelId: ModelId, entityDefId: EntityDefId, entityId: EntityId)
+    fun createEntity(modelKey: ModelKey, entityKey: EntityKey, entityInitializer: EntityInitializer)
+    fun updateEntity(modelKey: ModelKey, entityKey: EntityKey, values: EntityUpdater)
+    fun deleteEntity(modelKey: ModelKey, entityKey: EntityKey, entityId: EntityId)
 }

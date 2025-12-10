@@ -32,7 +32,7 @@ class ModelValidationImpl : ModelValidation {
         val errors = mutableListOf<ModelValidationError>()
 
         model.entityDefs.forEach { e ->
-            if (e.getAttributeDefOptional(e.identifierAttributeDefId) == null) {
+            if (e.getAttributeDefOptional(e.identifierAttributeKey) == null) {
                 errors.add(ModelValidationErrorInvalidIdentityAttribute(model.id, e.id, e.entityIdAttributeDefId()))
             }
         }

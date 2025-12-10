@@ -1,7 +1,11 @@
 package io.medatarun.model.domain
 
 @JvmInline
-value class AttributeDefId(val value: String)
+value class AttributeKey(val value: String) {
+    fun validated(): AttributeKey {
+        return this
+    }
+}
 
 /**
  * Attribute definition for an [EntityDef]
@@ -10,7 +14,7 @@ interface AttributeDef {
     /**
      * Unique identifier of the attribute in its [EntityDef]
      */
-    val id: AttributeDefId
+    val id: AttributeKey
 
     /**
      * Display name of the attribute
@@ -25,7 +29,7 @@ interface AttributeDef {
     /**
      * Type of attribute, must be one of the types registered in the model
      */
-    val type: ModelTypeId
+    val type: TypeKey
 
     /**
      * Indicates that this attribute is optional in Entities (default is that attributes are required).

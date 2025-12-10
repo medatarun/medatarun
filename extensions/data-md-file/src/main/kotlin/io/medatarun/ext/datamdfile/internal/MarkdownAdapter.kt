@@ -1,7 +1,7 @@
 package io.medatarun.ext.datamdfile.internal
 
 import io.medatarun.data.adapters.EntityIdString
-import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityDef
 import org.commonmark.Extension
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension
@@ -60,7 +60,7 @@ internal class MarkdownAdapter {
 
         val bodyValues = parseBodySections(document)
 
-        val values = mutableMapOf<AttributeDefId, Any?>()
+        val values = mutableMapOf<AttributeKey, Any?>()
         entityDef.attributes.forEach { attribute ->
             val attributeId = attribute.id
             val value = if (attribute.type.value == MARKDOWN_TYPE) {
@@ -76,18 +76,18 @@ internal class MarkdownAdapter {
 
         return EntityMarkdownMutable(
             id = EntityIdString(entityIdValue),
-            entityDefId = entityDef.id,
+            entityKey = entityDef.id,
             attributes = values
                 .filterValues { it != null }
                 .mapValues { it.value as Any }
-                .mapKeys { AttributeDefId(it.key.value) }
+                .mapKeys { AttributeKey(it.key.value) }
                 .toMutableMap()
         )
     }
 
     private fun buildFrontmatterLines(
         entityDef: EntityDef,
-        values: Map<AttributeDefId, Any?>
+        values: Map<AttributeKey, Any?>
     ): List<String> {
         return entityDef.attributes
             .filter { it.type.value != MARKDOWN_TYPE }
@@ -99,7 +99,7 @@ internal class MarkdownAdapter {
 
     private fun buildBodyContent(
         entityDef: EntityDef,
-        values: Map<AttributeDefId, Any?>
+        values: Map<AttributeKey, Any?>
     ): String {
         val sections = entityDef.attributes
             .filter { it.type.value == MARKDOWN_TYPE }
@@ -193,6 +193,6 @@ internal class MarkdownAdapter {
 
     data class ParsedValues(
         val entityId: String,
-        val values: MutableMap<AttributeDefId, Any?>
+        val values: MutableMap<AttributeKey, Any?>
     )
 }

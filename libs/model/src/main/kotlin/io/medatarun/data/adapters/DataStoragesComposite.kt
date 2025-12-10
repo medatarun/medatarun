@@ -7,50 +7,50 @@ import io.medatarun.data.ports.exposed.EntityInitializer
 import io.medatarun.data.ports.exposed.EntityUpdater
 import io.medatarun.data.ports.needs.DataRepository
 import io.medatarun.data.ports.needs.DataStorages
-import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 
 class DataStoragesComposite(val repositories: List<DataRepository>): DataStorages {
 
     override fun findAllEntities(
         model: Model,
-        entityDefId: EntityDefId
+        entityKey: EntityKey
     ): List<Entity> {
-        val repo = findRepo(model.id, entityDefId)
-        return repo.findAllEntities(model, entityDefId)
+        val repo = findRepo(model.id, entityKey)
+        return repo.findAllEntities(model, entityKey)
     }
 
     override fun createEntity(
         model: Model,
-        entityDefId: EntityDefId,
+        entityKey: EntityKey,
         entityInitializer: EntityInitializer
     ) {
-        val repo = findRepo(model.id, entityDefId)
-        return repo.createEntity(model, entityDefId, entityInitializer)
+        val repo = findRepo(model.id, entityKey)
+        return repo.createEntity(model, entityKey, entityInitializer)
     }
 
     override fun updateEntity(
         model: Model,
-        entityDefId: EntityDefId,
+        entityKey: EntityKey,
         entityUpdater: EntityUpdater
     ) {
-        val repo = findRepo(model.id, entityDefId)
-        return repo.updateEntity(model, entityDefId, entityUpdater)
+        val repo = findRepo(model.id, entityKey)
+        return repo.updateEntity(model, entityKey, entityUpdater)
     }
 
     override fun deleteEntity(
         model: Model,
-        entityDefId: EntityDefId,
+        entityKey: EntityKey,
         entityId: EntityId
     ) {
-        val repo = findRepo(model.id, entityDefId)
-        return repo.deleteEntity(model, entityDefId, entityId)
+        val repo = findRepo(model.id, entityKey)
+        return repo.deleteEntity(model, entityKey, entityId)
     }
 
-    fun findRepo(modelId: ModelId, entityDefId: EntityDefId): DataRepository {
+    fun findRepo(modelKey: ModelKey, entityKey: EntityKey): DataRepository {
         return repositories.firstOrNull {
-            it.matches(modelId, entityDefId)
-        } ?: throw DataStorageNotFoundException(modelId, entityDefId)
+            it.matches(modelKey, entityKey)
+        } ?: throw DataStorageNotFoundException(modelKey, entityKey)
     }
 }

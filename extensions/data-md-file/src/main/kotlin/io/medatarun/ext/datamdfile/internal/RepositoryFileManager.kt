@@ -1,6 +1,6 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.EntityKey
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -15,19 +15,19 @@ internal class RepositoryFileManager(private val repositoryRoot: Path) {
         Files.createDirectories(repositoryRoot)
     }
 
-    fun listEntityDefinitionIds(): Set<EntityDefId> {
+    fun listEntityDefinitionIds(): Set<EntityKey> {
         if (!Files.exists(repositoryRoot)) return emptySet()
 
         return Files.list(repositoryRoot).use { stream ->
             stream
                 .filter { Files.isDirectory(it) }
-                .map { EntityDefId(it.fileName.toString()) }
+                .map { EntityKey(it.fileName.toString()) }
                 .collect(Collectors.toSet())
         }
     }
 
-    fun listEntityFiles(entityDefId: EntityDefId): List<EntityFile> {
-        val entityDir = repositoryRoot.resolve(entityDefId.value)
+    fun listEntityFiles(entityKey: EntityKey): List<EntityFile> {
+        val entityDir = repositoryRoot.resolve(entityKey.value)
         if (!Files.exists(entityDir)) return emptyList()
 
         val files = mutableListOf<EntityFile>()
@@ -42,16 +42,16 @@ internal class RepositoryFileManager(private val repositoryRoot: Path) {
         return files.sortedBy { it.entityId }
     }
 
-    fun exists(entityDefId: EntityDefId, entityId: String): Boolean =
-        Files.exists(entityFilePath(entityDefId, entityId))
+    fun exists(entityKey: EntityKey, entityId: String): Boolean =
+        Files.exists(entityFilePath(entityKey, entityId))
 
-    fun read(entityDefId: EntityDefId, entityId: String): MarkdownString =
-        MarkdownString(Files.readString(entityFilePath(entityDefId, entityId)))
+    fun read(entityKey: EntityKey, entityId: String): MarkdownString =
+        MarkdownString(Files.readString(entityFilePath(entityKey, entityId)))
 
     fun read(entityFile: EntityFile): MarkdownString = MarkdownString(Files.readString(entityFile.path))
 
-    fun write(entityDefId: EntityDefId, entityId: String, content: MarkdownString): Path {
-        val entityDir = ensureEntityDirectory(entityDefId)
+    fun write(entityKey: EntityKey, entityId: String, content: MarkdownString): Path {
+        val entityDir = ensureEntityDirectory(entityKey)
         val filePath = entityDir.resolve("$entityId$MARKDOWN_EXTENSION")
         Files.writeString(
             filePath,
@@ -63,18 +63,18 @@ internal class RepositoryFileManager(private val repositoryRoot: Path) {
         return filePath
     }
 
-    fun delete(entityDefId: EntityDefId, entityId: String) {
-        Files.deleteIfExists(entityFilePath(entityDefId, entityId))
+    fun delete(entityKey: EntityKey, entityId: String) {
+        Files.deleteIfExists(entityFilePath(entityKey, entityId))
     }
 
-    private fun ensureEntityDirectory(entityDefId: EntityDefId): Path {
-        val entityDir = repositoryRoot.resolve(entityDefId.value)
+    private fun ensureEntityDirectory(entityKey: EntityKey): Path {
+        val entityDir = repositoryRoot.resolve(entityKey.value)
         Files.createDirectories(entityDir)
         return entityDir
     }
 
-    private fun entityFilePath(entityDefId: EntityDefId, entityId: String): Path =
-        repositoryRoot.resolve(entityDefId.value).resolve("$entityId$MARKDOWN_EXTENSION")
+    private fun entityFilePath(entityKey: EntityKey, entityId: String): Path =
+        repositoryRoot.resolve(entityKey.value).resolve("$entityId$MARKDOWN_EXTENSION")
 
     data class EntityFile(val entityId: String, val path: Path)
 

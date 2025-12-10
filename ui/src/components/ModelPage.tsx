@@ -62,6 +62,7 @@ export function ModelView() {
       {
         model.types.map(t => <tr key={t.id}>
           <td>{t.name ?? t.id}</td>
+          <td><code>{t.id}</code></td>
           <td>{t.description}</td>
         </tr>)
       }

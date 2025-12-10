@@ -53,9 +53,9 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
     val json = Json {
         prettyPrint = this@ModelJsonConverter.prettyPrint
         serializersModule = SerializersModule {
-            contextual(ModelId::class, valueClassSerializer(::ModelId) { it.value })
-            contextual(EntityDefId::class, valueClassSerializer(::EntityDefId) { it.value })
-            contextual(AttributeDefId::class, valueClassSerializer(::AttributeDefId) { it.value })
+            contextual(ModelKey::class, valueClassSerializer(::ModelKey) { it.value })
+            contextual(EntityKey::class, valueClassSerializer(::EntityKey) { it.value })
+            contextual(AttributeKey::class, valueClassSerializer(::AttributeKey) { it.value })
             contextual(LocalizedText::class, LocalizedTextSerializer())
         }
     }
@@ -98,7 +98,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     id = entity.id.value,
                     name = entity.name,
                     description = entity.description,
-                    identifierAttribute = entity.identifierAttributeDefId.value,
+                    identifierAttribute = entity.identifierAttributeKey.value,
                     origin = toEntityOriginStr(entity.origin),
                     attributes = toAttributeJsonList(entity.attributes),
                     documentationHome = entity.documentationHome?.toExternalForm(),
@@ -132,7 +132,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
-            id = ModelId(modelJson.id),
+            id = ModelKey(modelJson.id),
             version = ModelVersion(modelJson.version),
             origin = when(modelJson.origin) {
                 null -> ModelOrigin.Manual
@@ -142,17 +142,17 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             description = modelJson.description,
             types = modelJson.types.map { typeJson ->
                 ModelTypeInMemory(
-                    id = ModelTypeId(typeJson.id),
+                    id = TypeKey(typeJson.id),
                     name = typeJson.name,
                     description = typeJson.description
                 )
             },
             entityDefs = modelJson.entities.map { entityJson ->
                 EntityDefInMemory(
-                    id = EntityDefId(entityJson.id),
+                    id = EntityKey(entityJson.id),
                     name = entityJson.name,
                     description = entityJson.description,
-                    identifierAttributeDefId = AttributeDefId(entityJson.identifierAttribute),
+                    identifierAttributeKey = AttributeKey(entityJson.identifierAttribute),
                     origin = when (entityJson.origin) {
                         null -> EntityOrigin.Manual
                         else -> EntityOrigin.Uri(URI(entityJson.origin))
@@ -164,14 +164,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
-                    id = RelationshipDefId(relationJson.id),
+                    id = RelationshipKey(relationJson.id),
                     name = relationJson.name,
                     description = relationJson.description,
                     roles = relationJson.roles.map { roleJson ->
                         RelationshipRoleInMemory(
                             id = RelationshipRoleId(roleJson.id),
                             name = roleJson.name,
-                            entityId = EntityDefId(roleJson.entityId),
+                            entityId = EntityKey(roleJson.entityId),
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
                     },
@@ -202,11 +202,11 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         private fun toAttributeList(attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
             return attrs.map { attributeJson ->
                 AttributeDefInMemory(
-                    id = AttributeDefId(attributeJson.id),
+                    id = AttributeKey(attributeJson.id),
                     name = attributeJson.name,
                     description = attributeJson.description,
                     optional = attributeJson.optional,
-                    type = ModelTypeId(attributeJson.type),
+                    type = TypeKey(attributeJson.type),
                     hashtags = attributeJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             }

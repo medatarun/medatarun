@@ -6,10 +6,10 @@ import io.medatarun.model.domain.*
  * Default implementation of AttributeDef
  */
 data class AttributeDefInMemory(
-    override val id: AttributeDefId,
+    override val id: AttributeKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
-    override val type: ModelTypeId,
+    override val type: TypeKey,
     override val optional: Boolean,
     override val hashtags: List<Hashtag>
 ) : AttributeDef {

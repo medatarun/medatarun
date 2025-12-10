@@ -57,7 +57,7 @@ class FrictionlessConverter() {
         resourceLocator: ResourceLocator
     ): Model {
         val model = ModelInMemory(
-            id = ModelId(datapackage.name ?: "unknown"),
+            id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
@@ -94,7 +94,7 @@ class FrictionlessConverter() {
 
 
         val model = ModelInMemory(
-            id = ModelId(datapackage.name ?: "unknown"),
+            id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
@@ -130,15 +130,15 @@ class FrictionlessConverter() {
         hashtags: List<Hashtag>
     ): EntityDefInMemory {
         val entity = EntityDefInMemory(
-            id = EntityDefId(entityId),
+            id = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
             description = entityDescription?.let(::LocalizedTextNotLocalized),
             attributes = schema.fields.map { field ->
                 AttributeDefInMemory(
-                    id = AttributeDefId(field.name),
+                    id = AttributeKey(field.name),
                     name = field.title?.let(::LocalizedTextNotLocalized),
                     description = field.description?.let(::LocalizedTextNotLocalized),
-                    type = ModelTypeId(field.type),
+                    type = TypeKey(field.type),
                     optional = field.isOptional(),
                     hashtags = emptyList()
                 )
@@ -146,7 +146,7 @@ class FrictionlessConverter() {
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
             hashtags = hashtags,
-            identifierAttributeDefId = AttributeDefId(
+            identifierAttributeKey = AttributeKey(
                 schema.primaryKey?.values?.joinToString(";")
                     ?: schema.fields.firstOrNull()?.name
                     ?: "unknown"

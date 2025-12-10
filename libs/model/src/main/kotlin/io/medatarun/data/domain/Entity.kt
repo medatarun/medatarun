@@ -1,10 +1,10 @@
 package io.medatarun.data.domain
 
-import io.medatarun.model.domain.AttributeDefId
-import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityKey
 
 interface Entity {
     val id: EntityId
-    val entityDefId: EntityDefId
-    val attributes: Map<AttributeDefId, Any?>
+    val entityKey: EntityKey
+    val attributes: Map<AttributeKey, Any?>
 }

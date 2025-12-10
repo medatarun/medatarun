@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.modelimport
 
 import io.medatarun.ext.db.model.DbTableWithoutColumnsException
-import io.medatarun.model.domain.AttributeDefId
+import io.medatarun.model.domain.AttributeKey
 
 data class IntrospectTable(
     val tableCat: String?,
@@ -18,12 +18,12 @@ data class IntrospectTable(
     val primaryKey: List<IntrospectPk>,
     val foreignKeys: List<IntrospectImportedKey>
 ) {
-    fun pkNameOrFirstColumn(): AttributeDefId {
+    fun pkNameOrFirstColumn(): AttributeKey {
         val id = primaryKey.firstOrNull()?.let { pkPart ->
             columns.firstOrNull { column -> column.columnName == pkPart.columnName }?.columnName
         } ?: columns.firstOrNull()?.columnName
         ?: throw DbTableWithoutColumnsException(tableName)
 
-        return AttributeDefId(id)
+        return AttributeKey(id)
     }
 }

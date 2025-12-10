@@ -1,7 +1,7 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelSummary
 import io.medatarun.model.ports.exposed.ModelQueries
@@ -14,7 +14,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
 
 
-    override fun findAllModelIds(): List<ModelId> {
+    override fun findAllModelIds(): List<ModelKey> {
         return storage.findAllModelIds()
     }
 
@@ -49,8 +49,8 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         )
     }
 
-    override fun findModelById(modelId: ModelId): Model {
-        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundException(modelId)
+    override fun findModelById(modelKey: ModelKey): Model {
+        return storage.findModelByIdOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
     }
 
     private class TextComparator(val locale: Locale) : Comparator<String> {

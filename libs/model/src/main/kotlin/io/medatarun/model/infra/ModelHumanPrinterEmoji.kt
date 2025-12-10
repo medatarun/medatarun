@@ -38,7 +38,7 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
                 val id = attribute.id.value
                 val type = attribute.type.value
                 val optional = if (attribute.optional) "?" else ""
-                val pk = if (entity.identifierAttributeDefId == attribute.id) "🔑" else ""
+                val pk = if (entity.identifierAttributeKey == attribute.id) "🔑" else ""
                 buf.appendLine(tabs(2) + "-  $id: $type$optional $pk")
                 val name = attribute.name
                 if (name != null) {

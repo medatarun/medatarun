@@ -1,6 +1,6 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepositoryCmd
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -15,7 +15,7 @@ class ModelJsonRepositoryTest {
         val repositoryPath = fs.modelsDirectory()
         val repo: ModelJsonRepository = ModelJsonRepository(repositoryPath, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
-        val sampleModel2 = sampleModel.copy(id = ModelId(sampleModel.id.value + "-2"))
+        val sampleModel2 = sampleModel.copy(id = ModelKey(sampleModel.id.value + "-2"))
         fun importSample() {
             repo.persistModel(sampleModel)
         }
@@ -43,9 +43,9 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findModelById not found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(ModelId("unknwon")))
+        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
         env.importSample()
-        assertNull(env.repo.findModelByIdOptional(ModelId("unknwon")))
+        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
         env.importSample()
     }
 

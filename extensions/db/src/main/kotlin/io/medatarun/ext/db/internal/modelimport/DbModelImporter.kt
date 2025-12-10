@@ -38,28 +38,28 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
         val modelId = connection.name + "-" + UUID.randomUUID().toString()
         val modelName = "${connection.name} (import $date)"
         val model = ModelInMemory(
-            id = ModelId(modelId),
+            id = ModelKey(modelId),
             name = LocalizedTextNotLocalized(modelName),
             version = ModelVersion("0.0.0"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
-            types = result.types().map { ModelTypeInMemory(ModelTypeId(it), null, null) },
+            types = result.types().map { ModelTypeInMemory(TypeKey(it), null, null) },
             entityDefs = result.tables.map { table ->
                 EntityDefInMemory(
-                    id = EntityDefId(table.tableName),
+                    id = EntityKey(table.tableName),
                     name = null,
                     attributes = table.columns.map {
                         AttributeDefInMemory(
-                            id = AttributeDefId(it.columnName),
+                            id = AttributeKey(it.columnName),
                             name = null,
                             description = it.remarks?.let(::LocalizedTextNotLocalized),
-                            type = ModelTypeId(it.typeName),
+                            type = TypeKey(it.typeName),
                             optional = it.isNullable != false,
                             hashtags = emptyList(),
                         )
                     },
                     description = table.remarks?.let(::LocalizedTextNotLocalized),
-                    identifierAttributeDefId = table.pkNameOrFirstColumn(),
+                    identifierAttributeKey = table.pkNameOrFirstColumn(),
                     origin = EntityOrigin.Uri(URI(path)),
                     documentationHome = null,
                     hashtags = emptyList()
@@ -73,7 +73,7 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
                     val roles = listOf(
                         RelationshipRoleInMemory(
                             id = RelationshipRoleId("${fk.fkTableName}.${fk.fkColumnName}"),
-                            entityId = EntityDefId(fk.fkTableName),
+                            entityId = EntityKey(fk.fkTableName),
                             name = null,
                             cardinality = if (result.isNullableOrUndefined(
                                     fk.fkTableName,
@@ -84,12 +84,12 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
                         RelationshipRoleInMemory(
                             id = RelationshipRoleId("${fk.pkTableName}.${fk.pkColumnName}"),
                             cardinality = RelationshipCardinality.Unknown,
-                            entityId = EntityDefId(fk.pkTableName),
+                            entityId = EntityKey(fk.pkTableName),
                             name = null
                         ),
                     )
                     RelationshipDefInMemory(
-                        id = RelationshipDefId(idStr),
+                        id = RelationshipKey(idStr),
                         name = null,
                         description = null,
                         attributes = emptyList(),

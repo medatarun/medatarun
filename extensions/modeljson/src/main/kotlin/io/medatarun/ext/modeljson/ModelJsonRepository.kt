@@ -3,7 +3,7 @@ package io.medatarun.ext.modeljson
 
 import io.medatarun.model.domain.MedatarunException
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
 import io.medatarun.model.ports.needs.ModelRepository
@@ -27,7 +27,7 @@ class ModelJsonRepository(
      */
     private val repositoryId = REPOSITORY_ID
 
-    private val discoveredModels = mutableMapOf<ModelId, Path>()
+    private val discoveredModels = mutableMapOf<ModelKey, Path>()
 
     init {
         if (!repositoryPath.isDirectory())
@@ -49,12 +49,12 @@ class ModelJsonRepository(
         return id == repositoryId
     }
 
-    override fun findModelByIdOptional(id: ModelId): ModelInMemory? {
+    override fun findModelByIdOptional(id: ModelKey): ModelInMemory? {
         val modelPath = discoveredModels[id] ?: return null
         return modelJsonConverter.fromJson(modelPath.readText())
     }
 
-    override fun findAllModelIds(): List<ModelId> {
+    override fun findAllModelIds(): List<ModelKey> {
         return discoveredModels.keys.toList()
     }
 
@@ -62,16 +62,16 @@ class ModelJsonRepository(
         persistModel(model)
     }
 
-    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+    private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
+        val model = findModelByIdOptional(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
         val next = block(model)
         persistModel(next)
     }
 
-    private fun deleteModel(modelId: ModelId) {
-        val path = discoveredModels.remove(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+    private fun deleteModel(modelKey: ModelKey) {
+        val path = discoveredModels.remove(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
         if (!path.deleteIfExists()) {
-            throw ModelJsonRepositoryException("Failed to delete model file for ${modelId.value} at $path")
+            throw ModelJsonRepositoryException("Failed to delete model file for ${modelKey.value} at $path")
         }
     }
 
@@ -79,8 +79,8 @@ class ModelJsonRepository(
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when (cmd) {
             is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model ->
+            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelKey)
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelKey) { model ->
                 ModelInMemoryReducer().dispatch(model, cmd)
             }
         }
@@ -101,5 +101,5 @@ class ModelJsonRepository(
 }
 
 class ModelJsonRepositoryException(message: String) : MedatarunException(message)
-class ModelJsonRepositoryModelNotFoundException(modelId: ModelId) :
-    MedatarunException("Model with id ${modelId.value} not found in Json repository")
+class ModelJsonRepositoryModelNotFoundException(modelKey: ModelKey) :
+    MedatarunException("Model with id ${modelKey.value} not found in Json repository")

@@ -2,7 +2,12 @@ package io.medatarun.model.domain
 
 import java.net.URL
 
-@JvmInline value class ModelId(val value: String)
+@JvmInline value class ModelKey(val value: String) {
+    fun validated(): ModelKey {
+        return this
+    }
+}
+
 @JvmInline value class ModelLocation(val value: String)
 @JvmInline value class ModelVersion(val value: String)
 
@@ -16,7 +21,7 @@ interface Model {
     /**
      * Unique identifier of the model accros all models managed by the current application instance
      */
-    val id: ModelId
+    val id: ModelKey
     /**
      * Display name of the model
      */
@@ -60,33 +65,33 @@ interface Model {
      */
     val hashtags: List<Hashtag>
 
-    fun findTypeOptional(typeId: ModelTypeId): ModelType? = types.firstOrNull { it.id == typeId }
-    fun findType(typeId: ModelTypeId): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)
-    fun ensureTypeExists(typeId: ModelTypeId): ModelType = findType(typeId)
+    fun findTypeOptional(typeId: TypeKey): ModelType? = types.firstOrNull { it.id == typeId }
+    fun findType(typeId: TypeKey): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)
+    fun ensureTypeExists(typeId: TypeKey): ModelType = findType(typeId)
 
     /**
      * Returns entity definition by its id or null
      */
-    fun findEntityDefOptional(id: EntityDefId): EntityDef? = entityDefs.firstOrNull { it.id == id }
+    fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.id == id }
     /**
      * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
-    fun findEntityDef(id: EntityDefId): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.id, id)
+    fun findEntityDef(id: EntityKey): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.id, id)
 
     /**
      * Returns relationship definition by its id
      */
-    fun findRelationshipDefOptional(id: RelationshipDefId): RelationshipDef? = relationshipDefs.firstOrNull { it.id == id }
+    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? = relationshipDefs.firstOrNull { it.id == id }
 
     /**
      * Returns relationship definition by its id or throw [RelationshipDefNotFoundException]
      */
-    fun findRelationshipDef(id: RelationshipDefId): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.id, id)
+    fun findRelationshipDef(id: RelationshipKey): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.id, id)
 
     /**
      * Syntax sugar to check if a relationship exists
      */
-    fun ensureRelationshipExists(relationshipDefId: RelationshipDefId) = findRelationshipDef(relationshipDefId)
+    fun ensureRelationshipExists(relationshipKey: RelationshipKey) = findRelationshipDef(relationshipKey)
 
 }
 

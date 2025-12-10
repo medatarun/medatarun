@@ -12,7 +12,7 @@ interface RelationshipDef {
      * Unique identifier of the relationship within the model.
      * Used for referencing from other definitions or instances.
      */
-    val id: RelationshipDefId
+    val id: RelationshipKey
 
     /**
      * Human-readable name, optionally localized.
@@ -64,16 +64,16 @@ interface RelationshipDef {
     val hashtags: List<Hashtag>
 
 
-    fun findAttributeDefOptional(attributeDefId: AttributeDefId): AttributeDef? =
-        attributes.firstOrNull { it.id == attributeDefId }
+    fun findAttributeDefOptional(attributeKey: AttributeKey): AttributeDef? =
+        attributes.firstOrNull { it.id == attributeKey }
 
-    fun findAttributeDef(attributeDefId: AttributeDefId): AttributeDef =
-        findAttributeDefOptional(attributeDefId) ?: throw RelationshipAttributeDefNotFoundException(
+    fun findAttributeDef(attributeKey: AttributeKey): AttributeDef =
+        findAttributeDefOptional(attributeKey) ?: throw RelationshipAttributeDefNotFoundException(
             this.id,
-            attributeDefId
+            attributeKey
         )
 
-    fun ensureAttributeDefExists(attributeDefId: AttributeDefId): AttributeDef = findAttributeDef(attributeDefId)
+    fun ensureAttributeDefExists(attributeKey: AttributeKey): AttributeDef = findAttributeDef(attributeKey)
 
 }
 
@@ -99,7 +99,7 @@ interface RelationshipRole {
      * Note that you can use the same entityId in multiple roles of the same
      * relationship to create self-references.
      */
-    val entityId: EntityDefId
+    val entityId: EntityKey
 
     /**
      * Name of the role: expresses the function of the entity within the relationship

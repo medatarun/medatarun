@@ -1,33 +1,33 @@
 package io.medatarun.ext.datamdfile.internal
 
-import io.medatarun.model.domain.AttributeDefId
-import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.MedatarunException
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 
 class MdFileEntityDefinitionNotManagedException(
-    modelId: ModelId,
-    entityDefId: EntityDefId
+    modelKey: ModelKey,
+    entityKey: EntityKey
 ) : MedatarunException(
-    "MdFileDataRepository does not manage entity definition '${entityDefId.value}' for model '${modelId.value}'"
+    "MdFileDataRepository does not manage entity definition '${entityKey.value}' for model '${modelKey.value}'"
 )
 
 class MdFileEntityIdMissingException(
-    entityDefId: EntityDefId
+    entityKey: EntityKey
 ) : MedatarunException(
-    "Markdown entity for definition '${entityDefId.value}' must define attribute 'id'"
+    "Markdown entity for definition '${entityKey.value}' must define attribute 'id'"
 )
 
 class MdFileEntityNotFoundException(
-    entityDefId: EntityDefId,
+    entityKey: EntityKey,
     instanceId: String
 ) : MedatarunException(
-    "Markdown entity '${instanceId}' not found for definition '${entityDefId.value}'"
+    "Markdown entity '${instanceId}' not found for definition '${entityKey.value}'"
 )
 
 class MdFileEntityAttributeUnknownException(
-    entityDefId: EntityDefId,
-    attributeId: AttributeDefId
+    entityKey: EntityKey,
+    attributeId: AttributeKey
 ) : MedatarunException(
-    "Attribute '${attributeId.value}' is not declared for entity definition '${entityDefId.value}'"
+    "Attribute '${attributeId.value}' is not declared for entity definition '${entityKey.value}'"
 )

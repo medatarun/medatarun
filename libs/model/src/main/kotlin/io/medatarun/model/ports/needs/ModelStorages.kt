@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 
 /**
  * Represents an aggregation of multiple repositories for models.
@@ -19,10 +19,10 @@ interface ModelStorages {
 
     // Queries
 
-    fun findAllModelIds(): List<ModelId>
-    fun findModelById(id: ModelId): Model
-    fun findModelByIdOptional(modelId: ModelId): Model?
-    fun existsModelById(modelId: ModelId): Boolean
+    fun findAllModelIds(): List<ModelKey>
+    fun findModelById(id: ModelKey): Model
+    fun findModelByIdOptional(modelKey: ModelKey): Model?
+    fun existsModelById(modelKey: ModelKey): Boolean
 
 
     // Commands

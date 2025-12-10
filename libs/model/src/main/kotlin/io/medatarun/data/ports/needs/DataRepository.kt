@@ -4,23 +4,23 @@ import io.medatarun.data.domain.Entity
 import io.medatarun.data.domain.EntityId
 import io.medatarun.data.ports.exposed.EntityInitializer
 import io.medatarun.data.ports.exposed.EntityUpdater
-import io.medatarun.model.domain.EntityDefId
+import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 
 interface DataRepository {
 
-    fun matches(modelId: ModelId, entityDefId: EntityDefId): Boolean
+    fun matches(modelKey: ModelKey, entityKey: EntityKey): Boolean
 
     /**
-     * Lists all [EntityDefId] managed by this repository for specified [modelId]
+     * Lists all [EntityKey] managed by this repository for specified [modelKey]
      */
-    fun managedEntityDefs(modelId: ModelId): Set<EntityDefId>
+    fun managedEntityDefs(modelKey: ModelKey): Set<EntityKey>
     /**
      * Lists all EntityInstance managed by this
      */
-    fun findAllEntities(model: Model, entityDefId: EntityDefId): List<Entity>
-    fun createEntity(model: Model, entityDefId: EntityDefId, entityInitializer: EntityInitializer)
-    fun updateEntity(model: Model, entityDefId: EntityDefId, entityUpdater: EntityUpdater)
-    fun deleteEntity(model: Model, entityDefId: EntityDefId, entityId: EntityId)
+    fun findAllEntities(model: Model, entityKey: EntityKey): List<Entity>
+    fun createEntity(model: Model, entityKey: EntityKey, entityInitializer: EntityInitializer)
+    fun updateEntity(model: Model, entityKey: EntityKey, entityUpdater: EntityUpdater)
+    fun deleteEntity(model: Model, entityKey: EntityKey, entityId: EntityId)
 }
