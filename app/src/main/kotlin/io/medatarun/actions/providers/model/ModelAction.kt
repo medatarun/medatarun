@@ -60,6 +60,18 @@ sealed interface ModelAction {
     data class UpdateModelVersion(val id: String, val version: String) : ModelAction
 
     @ActionDoc(
+        title = "Add tag to model",
+        description = "Adds a tag to a model"
+    )
+    data class UpdateModelTagAdd(val id: String, val tag: String) : ModelAction
+
+    @ActionDoc(
+        title = "Delete tag from model",
+        description = "Deletes a tag from a model."
+    )
+    data class UpdateModelTagDelete(val id: String, val tag: String) : ModelAction
+
+    @ActionDoc(
         title = "Delete model definition",
         description = "Removes a model and all of its entities from the runtime."
     )
@@ -146,6 +158,28 @@ sealed interface ModelAction {
         val entityId: String,
         val value: String?
     ) : ModelAction
+
+    @ActionDoc(
+        title = "Add entity tag",
+        description = "Add a tag to an entity."
+    )
+    data class UpdateEntityTagAdd(
+        val modelId: String,
+        val entityId: String,
+        val tag: String
+    ) : ModelAction
+
+
+    @ActionDoc(
+        title = "Delete entity tag",
+        description = "Changes the description of an entity."
+    )
+    data class UpdateEntityTagDelete(
+        val modelId: String,
+        val entityId: String,
+        val tag: String
+    ) : ModelAction
+
 
 
     @ActionDoc(
@@ -236,6 +270,28 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
+        title = "Add tag to entity attribute",
+        description = "Add tag to entity attribute"
+    )
+    data class UpdateEntityAttributeTagAdd(
+        val modelId: String,
+        val entityId: String,
+        val attributeId: String,
+        val tag: String
+    ) : ModelAction
+
+    @ActionDoc(
+        title = "Delete tag from entity attribute",
+        description = "Delete tag from entity attribute"
+    )
+    data class UpdateEntityAttributeTagDelete(
+        val modelId: String,
+        val entityId: String,
+        val attributeId: String,
+        val tag: String
+    ) : ModelAction
+
+    @ActionDoc(
         title = "Delete entity attribute",
         description = "Removes an attribute from an entity within a model."
     )
@@ -261,6 +317,18 @@ sealed interface ModelAction {
         val cmd: RelationshipDefUpdateCmd
     ) : ModelAction
 
+    data class UpdateRelationshipTagAdd(
+        val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val tag: Hashtag
+    ) : ModelAction
+
+    data class UpdateRelationshipTagDelete(
+        val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val tag: Hashtag
+    ) : ModelAction
+
     data class DeleteRelationshipDef(
         val modelId: ModelId,
         val relationshipDefId: RelationshipDefId
@@ -278,6 +346,20 @@ sealed interface ModelAction {
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
+    ) : ModelAction
+
+    data class UpdateRelationshipAttributeTagAdd(
+        val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId,
+        val hashTag: Hashtag
+    ) : ModelAction
+
+    data class UpdateRelationshipAttributeTagDelete(
+        val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId,
+        val hashTag: Hashtag
     ) : ModelAction
 
     data class DeleteRelationshipAttributeDef(

@@ -88,7 +88,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                             cardinality = role.cardinality.code
                         )
                     },
-                    attributes = toAttributeJsonList(rel.attributes)
+                    attributes = toAttributeJsonList(rel.attributes),
+                    hashtags = rel.hashtags.map { it.value }
 
                 )
             },
@@ -193,6 +194,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = it.description,
                     type = it.type.value,
                     optional = it.optional,
+                    hashtags = it.hashtags.map { it.value }
                 )
             }
         }
@@ -226,9 +228,10 @@ class ModelEntityJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val identifierAttribute: @Contextual String,
     val origin: String? = null,
+    val hashtags: List<String>? = emptyList(),
     val attributes: List<ModelAttributeJson>,
     val documentationHome: String? = null,
-    val hashtags: List<String>? = emptyList(),
+
 )
 
 @Serializable
@@ -268,10 +271,11 @@ class ModelJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val origin: String? = null,
+    val hashtags: List<String>? = emptyList(),
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
     val relationships: List<RelationshipJson> = emptyList(),
     val documentationHome: String? = null,
-    val hashtags: List<String>? = emptyList(),
+
 )
 

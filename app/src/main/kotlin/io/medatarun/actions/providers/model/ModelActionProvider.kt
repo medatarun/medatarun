@@ -71,6 +71,9 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
                 )
             }
 
+            is ModelAction.UpdateModelTagAdd -> actionCtx.modelCmds.dispatch(ModelCmd.UpdateModelHashtagAdd(modelId = ModelId(rc.id), hashtag = Hashtag(rc.tag)))
+            is ModelAction.UpdateModelTagDelete -> actionCtx.modelCmds.dispatch(ModelCmd.UpdateModelHashtagDelete(modelId = ModelId(rc.id), hashtag = Hashtag(rc.tag)))
+
             is ModelAction.DeleteModel -> {
                 actionCtx.modelCmds.dispatch(ModelCmd.DeleteModel(ModelId(rc.id)))
             }
@@ -175,6 +178,22 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
                 )
             }
 
+            is ModelAction.UpdateEntityTagAdd -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateEntityDefHashtagAdd(
+                    modelId = ModelId(rc.modelId),
+                    entityDefId = EntityDefId(rc.entityId),
+                    hashtag = Hashtag(rc.tag)
+                )
+            )
+
+            is ModelAction.UpdateEntityTagDelete -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateEntityDefHashtagDelete(
+                    modelId = ModelId(rc.modelId),
+                    entityDefId = EntityDefId(rc.entityId),
+                    hashtag = Hashtag(rc.tag)
+                )
+            )
+
             is ModelAction.DeleteEntity -> {
                 actionCtx.modelCmds.dispatch(
                     ModelCmd.DeleteEntityDef(
@@ -259,6 +278,24 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
                 )
             }
 
+            is ModelAction.UpdateEntityAttributeTagAdd -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
+                    modelId = ModelId(rc.modelId),
+                    entityDefId = EntityDefId(rc.entityId),
+                    attributeDefId = AttributeDefId(rc.attributeId),
+                    hashtag = Hashtag(rc.tag)
+                )
+            )
+
+            is ModelAction.UpdateEntityAttributeTagDelete -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
+                    modelId = ModelId(rc.modelId),
+                    entityDefId = EntityDefId(rc.entityId),
+                    attributeDefId = AttributeDefId(rc.attributeId),
+                    hashtag = Hashtag(rc.tag)
+                )
+            )
+
             is ModelAction.DeleteEntityAttribute -> {
                 dispatch(
                     ModelCmd.DeleteEntityDefAttributeDef(
@@ -289,6 +326,21 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
                 )
             )
 
+            is ModelAction.UpdateRelationshipTagAdd -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateRelationshipDefHashtagAdd(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    hashtag = rc.tag
+                )
+            )
+            is ModelAction.UpdateRelationshipTagDelete -> actionCtx.modelCmds.dispatch(
+                ModelCmd.UpdateRelationshipDefHashtagDelete(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    hashtag = rc.tag
+                )
+            )
+
             is ModelAction.DeleteRelationshipDef -> dispatch(
                 ModelCmd.DeleteRelationshipDef(
                     modelId = rc.modelId,
@@ -310,6 +362,24 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
                     relationshipDefId = rc.relationshipDefId,
                     attributeDefId = rc.attributeDefId,
                     cmd = rc.cmd
+                )
+            )
+
+            is ModelAction.UpdateRelationshipAttributeTagAdd -> dispatch(
+                ModelCmd.UpdateRelationshipAttributeDefHashtagAdd(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    attributeDefId = rc.attributeDefId,
+                    hashtag = rc.hashTag
+                )
+            )
+
+            is ModelAction.UpdateRelationshipAttributeTagDelete -> dispatch(
+                ModelCmd.UpdateRelationshipAttributeDefHashtagDelete(
+                    modelId = rc.modelId,
+                    relationshipDefId = rc.relationshipDefId,
+                    attributeDefId = rc.attributeDefId,
+                    hashtag = rc.hashTag
                 )
             )
 

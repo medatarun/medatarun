@@ -7,6 +7,7 @@ internal val sampleModelJson = $$"""{
   "id": "example",
   "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.0.json",
   "version": "1.0.0",
+  "hashtags": ["a", "b", "c", "d"],
   "types": [
     { "id":  "String", "name": "Simple text", "description": "Simple text max 255 chars" },
     { "id":  "Markdown" }
@@ -16,16 +17,19 @@ internal val sampleModelJson = $$"""{
       "id": "contact",
       "name": "Contact",
       "identifierAttribute": "name",
+      "hashtags": ["e1", "e2"],
       "attributes": [
         {
           "id": "name",
           "name": "Name",
-          "type": "String"
+          "type": "String",
+          "hashtags": ["private"]
         },
         {
           "id": "role",
           "name": "Role",
-          "type": "String"
+          "type": "String",
+          "hashtags": ["private", "rgpd"]
         },
         {
           "id": "location",
@@ -58,6 +62,7 @@ internal val sampleModelJson = $$"""{
         "en": "Company"
       },
       "identifierAttribute": "name",
+      "hashtags": ["e3", "e4"],
       "attributes": [
         {
           "id": "name",
