@@ -130,6 +130,15 @@ class ModelJsonRepositoryTest {
     }
 
     @Test
+    fun `update model hashtag add`() {
+        TODO("Not yet implemented")
+    }
+    @Test
+    fun `update model hashtag delete`() {
+        TODO("Not yet implemented")
+    }
+
+    @Test
     fun `delete then no file left`() {
         val env = TestEnv()
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
@@ -206,6 +215,14 @@ class ModelJsonRepositoryTest {
         TODO("Not yet implemented")
     }
 
+    @Test
+    fun `update entity hashtag add`() {
+        TODO("Not yet implemented")
+    }
+    @Test
+    fun `update entity hashtag delete`() {
+        TODO("Not yet implemented")
+    }
     // ------------------------------------------------------------------------
     // Attributes
     // ------------------------------------------------------------------------
@@ -245,5 +262,13 @@ class ModelJsonRepositoryTest {
         TODO("Not yet implemented")
     }
 
+    @Test
+    fun `update attribute hashtag add`() {
+        TODO("Not yet implemented")
+    }
+    @Test
+    fun `update attribute hashtag delete`() {
+        TODO("Not yet implemented")
+    }
 }
 

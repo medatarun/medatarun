@@ -188,34 +188,39 @@ internal class MdFileDataRepositoryTest {
                     description = null,
                     type = typeString.id,
                     optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
                     type = typeMarkdown.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 )
             )
         }
@@ -234,28 +239,32 @@ internal class MdFileDataRepositoryTest {
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
                     type = typeString.id,
-                    optional = false
+                    optional = false,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
                     type = typeString.id,
-                    optional = true
+                    optional = true,
+                    hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
                     id = AttributeDefId("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
                     type = typeString.id,
-                    optional = true
+                    optional = true,
+                    hashtags = emptyList()
                 )
             )
         }

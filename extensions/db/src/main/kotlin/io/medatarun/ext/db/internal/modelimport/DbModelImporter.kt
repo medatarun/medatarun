@@ -55,6 +55,7 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
                             description = it.remarks?.let(::LocalizedTextNotLocalized),
                             type = ModelTypeId(it.typeName),
                             optional = it.isNullable != false,
+                            hashtags = emptyList(),
                         )
                     },
                     description = table.remarks?.let(::LocalizedTextNotLocalized),
@@ -93,6 +94,7 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
                         description = null,
                         attributes = emptyList(),
                         roles = roles,
+                        hashtags = emptyList(),
                     )
                 }
             }.flatten(),

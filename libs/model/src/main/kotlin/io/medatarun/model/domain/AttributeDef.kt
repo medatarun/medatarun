@@ -31,4 +31,9 @@ interface AttributeDef {
      * Indicates that this attribute is optional in Entities (default is that attributes are required).
      */
     val optional: Boolean
+
+    /**
+     * Tags added to this attribute for categorization
+     */
+    val hashtags: List<Hashtag>
 }

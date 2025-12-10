@@ -33,7 +33,7 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
 
-    private  fun deleteModel(cmd: ModelCmd.DeleteModel) {
+    private fun deleteModel(cmd: ModelCmd.DeleteModel) {
         storage.dispatch(ModelRepositoryCmd.DeleteModel(cmd.modelId))
     }
 
@@ -48,8 +48,17 @@ class ModelCmdsImpl(
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
         storage.dispatch(ModelRepositoryCmd.UpdateModelVersion(cmd.modelId, cmd.version))
     }
-    private fun updateDocumentationHome(cmd: ModelCmd.UpdateDocumentationHome) {
-        storage.dispatch(ModelRepositoryCmd.UpdateDocumentationHome(cmd.modelId, cmd.url))
+
+    private fun updateDocumentationHome(cmd: ModelCmd.UpdateModelDocumentationHome) {
+        storage.dispatch(ModelRepositoryCmd.UpdateModelDocumentationHome(cmd.modelId, cmd.url))
+    }
+
+    private fun updateModelHashtagAdd(cmd: ModelCmd.UpdateModelHashtagAdd) {
+        storage.dispatch(ModelRepositoryCmd.UpdateModelHashtagAdd(cmd.modelId, cmd.hashtag))
+    }
+
+    private fun updateModelHashtagDelete(cmd: ModelCmd.UpdateModelHashtagDelete) {
+        storage.dispatch(ModelRepositoryCmd.UpdateModelHashtagDelete(cmd.modelId, cmd.hashtag))
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -94,34 +103,51 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(c.modelId, c.entityDefId, c.cmd))
     }
 
+    private fun updateEntityDefHashtagAdd(cmd: ModelCmd.UpdateEntityDefHashtagAdd) {
+        ensureModelExists(cmd.modelId)
+        val model = storage.findModelById(cmd.modelId)
+        model.findEntityDef(cmd.entityDefId)
+        storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagAdd(cmd.modelId, cmd.entityDefId, cmd.hashtag))
+    }
+
+    private fun updateEntityDefHashtagDelete(cmd: ModelCmd.UpdateEntityDefHashtagDelete) {
+        ensureModelExists(cmd.modelId)
+        val model = storage.findModelById(cmd.modelId)
+        model.findEntityDef(cmd.entityDefId)
+        storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagDelete(cmd.modelId, cmd.entityDefId, cmd.hashtag))
+    }
+
 
     private fun createEntityDef(c: ModelCmd.CreateEntityDef) {
 
         findModelById(c.modelId).ensureTypeExists(c.entityDefInitializer.identityAttribute.type)
-        storage.dispatch(ModelRepositoryCmd.CreateEntityDef(
-            c.modelId, EntityDefInMemory(
-                id = c.entityDefInitializer.entityDefId,
-                name = c.entityDefInitializer.name,
-                description = c.entityDefInitializer.description,
-                identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
-                origin = EntityOrigin.Manual,
-                documentationHome = c.entityDefInitializer.documentationHome,
-                hashtags = emptyList(),
-                attributes = listOf(
-                    AttributeDefInMemory(
-                        id = c.entityDefInitializer.identityAttribute.attributeDefId,
-                        name = c.entityDefInitializer.identityAttribute.name,
-                        description = c.entityDefInitializer.identityAttribute.description,
-                        type = c.entityDefInitializer.identityAttribute.type,
-                        optional = false // because it's identity, can never be optional
+        storage.dispatch(
+            ModelRepositoryCmd.CreateEntityDef(
+                c.modelId, EntityDefInMemory(
+                    id = c.entityDefInitializer.entityDefId,
+                    name = c.entityDefInitializer.name,
+                    description = c.entityDefInitializer.description,
+                    identifierAttributeDefId = c.entityDefInitializer.identityAttribute.attributeDefId,
+                    origin = EntityOrigin.Manual,
+                    documentationHome = c.entityDefInitializer.documentationHome,
+                    hashtags = emptyList(),
+                    attributes = listOf(
+                        AttributeDefInMemory(
+                            id = c.entityDefInitializer.identityAttribute.attributeDefId,
+                            name = c.entityDefInitializer.identityAttribute.name,
+                            description = c.entityDefInitializer.identityAttribute.description,
+                            type = c.entityDefInitializer.identityAttribute.type,
+                            optional = false, // because it's identity, can never be optional
+                            hashtags = emptyList()
+                        )
                     )
                 )
             )
-        ))
+        )
     }
 
     private fun deleteEntityDef(c: ModelCmd.DeleteEntityDef) {
-        storage.dispatch(ModelRepositoryCmd.DeleteEntityDef(modelId= c.modelId, entityDefId=c.entityDefId))
+        storage.dispatch(ModelRepositoryCmd.DeleteEntityDef(modelId = c.modelId, entityDefId = c.entityDefId))
     }
 
     private fun createEntityDefAttributeDef(c: ModelCmd.CreateEntityDefAttributeDef) {
@@ -140,7 +166,8 @@ class ModelCmdsImpl(
                     name = c.attributeDefInitializer.name,
                     description = c.attributeDefInitializer.description,
                     type = c.attributeDefInitializer.type,
-                    optional = c.attributeDefInitializer.optional
+                    optional = c.attributeDefInitializer.optional,
+                    hashtags = emptyList()
                 )
             )
         )
@@ -175,11 +202,13 @@ class ModelCmdsImpl(
             // If user wants to rename the Entity's identity attribute, we must rename in entity
             // as well as the attribute's id, then apply changes on entity
             if (entity.identifierAttributeDefId == c.attributeDefId) {
-                storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(
-                    modelId = c.modelId,
-                    entityDefId = c.entityDefId,
-                    cmd = EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
-                ))
+                storage.dispatch(
+                    ModelRepositoryCmd.UpdateEntityDef(
+                        modelId = c.modelId,
+                        entityDefId = c.entityDefId,
+                        cmd = EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
+                    )
+                )
             }
         } else if (c.cmd is AttributeDefUpdateCmd.Type) {
             // Attribute type shall exist when updating types
@@ -197,6 +226,34 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateEntityDefAttributeDefHashtagAdd(c: ModelCmd.UpdateEntityDefAttributeDefHashtagAdd) {
+        val model = findModelById(c.modelId)
+        val entity = model.findEntityDef(c.entityDefId)
+        entity.ensureAttributeDefExists(c.attributeDefId)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagAdd(
+                modelId = c.modelId,
+                entityDefId = c.entityDefId,
+                attributeDefId = c.attributeDefId,
+                hashtag = c.hashtag
+            )
+        )
+    }
+
+    private fun updateEntityDefAttributeDefHashtagDelete(c: ModelCmd.UpdateEntityDefAttributeDefHashtagDelete) {
+        val model = findModelById(c.modelId)
+        val entity = model.findEntityDef(c.entityDefId)
+        entity.ensureAttributeDefExists(c.attributeDefId)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagDelete(
+                modelId = c.modelId,
+                entityDefId = c.entityDefId,
+                attributeDefId = c.attributeDefId,
+                hashtag = c.hashtag
+            )
+        )
+    }
+
     // ------------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------------
@@ -209,22 +266,32 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
             is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
-            is ModelCmd.UpdateDocumentationHome -> updateDocumentationHome(cmd)
+            is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
+            is ModelCmd.UpdateModelHashtagAdd -> updateModelHashtagAdd(cmd)
+            is ModelCmd.UpdateModelHashtagDelete -> updateModelHashtagDelete(cmd)
             is ModelCmd.DeleteModel -> deleteModel(cmd)
             is ModelCmd.CreateType -> createType(cmd)
             is ModelCmd.UpdateType -> updateType(cmd)
             is ModelCmd.DeleteType -> deleteType(cmd)
             is ModelCmd.CreateEntityDef -> createEntityDef(cmd)
             is ModelCmd.UpdateEntityDef -> updateEntityDef(cmd)
+            is ModelCmd.UpdateEntityDefHashtagAdd -> updateEntityDefHashtagAdd(cmd)
+            is ModelCmd.UpdateEntityDefHashtagDelete -> updateEntityDefHashtagDelete(cmd)
             is ModelCmd.DeleteEntityDef -> deleteEntityDef(cmd)
             is ModelCmd.CreateEntityDefAttributeDef -> createEntityDefAttributeDef(cmd)
             is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDefHashtagAdd -> updateEntityDefAttributeDefHashtagAdd(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDefHashtagDelete -> updateEntityDefAttributeDefHashtagDelete(cmd)
             is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)
             is ModelCmd.CreateRelationshipDef -> createRelationshipDef(cmd)
             is ModelCmd.CreateRelationshipAttributeDef -> createRelationshipAttributeDef(cmd)
             is ModelCmd.UpdateRelationshipDef -> updateRelationshipDef(cmd)
+            is ModelCmd.UpdateRelationshipDefHashtagAdd -> updateRelationshipDefHashtagAdd(cmd)
+            is ModelCmd.UpdateRelationshipDefHashtagDelete -> updateRelationshipDefHashtagDelete(cmd)
             is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
             is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
+            is ModelCmd.UpdateRelationshipAttributeDefHashtagAdd -> updateRelationshipAttributeDefHashtagAdd(cmd)
+            is ModelCmd.UpdateRelationshipAttributeDefHashtagDelete -> updateRelationshipAttributeDefHashtagDelete(cmd)
             is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
 
         }
@@ -256,6 +323,32 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateRelationshipAttributeDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipAttributeDefHashtagAdd) {
+        findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId)
+            .ensureAttributeDefExists(cmd.attributeDefId)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipAttributeDefHashtagAdd(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                attributeDefId = cmd.attributeDefId,
+                hashtag = cmd.hashtag
+            )
+        )
+    }
+
+    private fun updateRelationshipAttributeDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipAttributeDefHashtagDelete) {
+        findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId)
+            .ensureAttributeDefExists(cmd.attributeDefId)
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipAttributeDefHashtagDelete(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                attributeDefId = cmd.attributeDefId,
+                hashtag = cmd.hashtag
+            )
+        )
+    }
+
     private fun deleteRelationshipDef(cmd: ModelCmd.DeleteRelationshipDef) {
         findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId)
         storage.dispatch(
@@ -277,6 +370,28 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateRelationshipDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipDefHashtagAdd) {
+        findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId);
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipDefHashtagAdd(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                hashtag = cmd.hashtag
+            )
+        )
+    }
+
+    private fun updateRelationshipDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipDefHashtagDelete) {
+        findModelById(cmd.modelId).ensureRelationshipExists(cmd.relationshipDefId);
+        storage.dispatch(
+            ModelRepositoryCmd.UpdateRelationshipDefHashtagDelete(
+                modelId = cmd.modelId,
+                relationshipDefId = cmd.relationshipDefId,
+                hashtag = cmd.hashtag
+            )
+        )
+    }
+
     private fun createRelationshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
         val exists = findModelById(cmd.modelId).findRelationshipDef(cmd.relationshipDefId)
             .findAttributeDefOptional(cmd.attr.id)
@@ -292,6 +407,7 @@ class ModelCmdsImpl(
             )
         )
     }
+
 
     private fun createRelationshipDef(cmd: ModelCmd.CreateRelationshipDef) {
         if (findModelById(cmd.modelId).findRelationshipDefOptional(cmd.initializer.id) != null)

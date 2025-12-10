@@ -3,8 +3,9 @@ package io.medatarun.ext.modeljson
 import org.intellij.lang.annotations.Language
 
 @Language("json")
-internal val sampleModelJson = """{
+internal val sampleModelJson = $$"""{
   "id": "example",
+  "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.0.json",
   "version": "1.0.0",
   "types": [
     { "id":  "String", "name": "Simple text", "description": "Simple text max 255 chars" },

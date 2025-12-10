@@ -229,7 +229,7 @@ class ModelTest {
     fun `update documentation home with value then updated`() {
         val env = TestEnvOneModel()
         val url = URI("https://some.url/index.html").toURL()
-        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, url))
+        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelId, url))
         assertEquals(url, env.query.findModelById(env.modelId).documentationHome)
     }
 
@@ -237,8 +237,8 @@ class ModelTest {
     fun `update documentation home with null then updated to null`() {
         val env = TestEnvOneModel()
         val url = URI("https://some.url/index.html").toURL()
-        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, url))
-        env.cmd.dispatch(ModelCmd.UpdateDocumentationHome(env.modelId, null))
+        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelId, url))
+        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelId, null))
         assertNull(env.query.findModelById(env.modelId).documentationHome)
     }
 
@@ -1468,7 +1468,8 @@ class ModelTest {
                         type = ModelTypeId("String"),
                         name = null,
                         description = null,
-                        optional = false
+                        optional = false,
+                        hashtags = emptyList()
                     )
                 )
             }

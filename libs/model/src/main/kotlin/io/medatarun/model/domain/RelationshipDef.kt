@@ -58,6 +58,11 @@ interface RelationshipDef {
      */
     val attributes: List<AttributeDef>
 
+    /**
+     * Tags added to relationship for classification
+     */
+    val hashtags: List<Hashtag>
+
 
     fun findAttributeDefOptional(attributeDefId: AttributeDefId): AttributeDef? =
         attributes.firstOrNull { it.id == attributeDefId }

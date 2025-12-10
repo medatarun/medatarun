@@ -28,7 +28,8 @@ class ModelValidationTest {
                             type = ModelTypeId("String"),
                             name = null,
                             description = null,
-                            optional = false
+                            optional = false,
+                            hashtags = emptyList()
                         )
                     )
                 }
@@ -60,7 +61,8 @@ class ModelValidationTest {
                         type = ModelTypeId("Int"),
                         name = null,
                         description = null,
-                        optional = false
+                        optional = false,
+                        hashtags = emptyList()
                     )
                 )
             }

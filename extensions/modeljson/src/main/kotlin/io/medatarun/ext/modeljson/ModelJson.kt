@@ -162,7 +162,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                 )
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
-                RelationshipDefInMemory(
+                return@map RelationshipDefInMemory(
                     id = RelationshipDefId(relationJson.id),
                     name = relationJson.name,
                     description = relationJson.description,
@@ -174,7 +174,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
                     },
-                    attributes = toAttributeList(relationJson.attributes)
+                    attributes = toAttributeList(relationJson.attributes),
+                    hashtags = relationJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             },
             documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
@@ -203,7 +204,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     name = attributeJson.name,
                     description = attributeJson.description,
                     optional = attributeJson.optional,
-                    type = ModelTypeId(attributeJson.type)
+                    type = ModelTypeId(attributeJson.type),
+                    hashtags = attributeJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             }
         }
@@ -236,6 +238,7 @@ class ModelAttributeJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val type: String,
     val optional: Boolean = false,
+    val hashtags: List<String>? = emptyList()
 )
 
 @Serializable
@@ -252,7 +255,8 @@ class RelationshipJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val roles: List<RelationshipRoleJson>,
-    val attributes: List<ModelAttributeJson>
+    val attributes: List<ModelAttributeJson>,
+    val hashtags: List<String>? = emptyList()
 )
 
 @Serializable

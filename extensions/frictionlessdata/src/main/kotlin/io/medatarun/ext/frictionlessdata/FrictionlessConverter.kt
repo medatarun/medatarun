@@ -140,6 +140,7 @@ class FrictionlessConverter() {
                     description = field.description?.let(::LocalizedTextNotLocalized),
                     type = ModelTypeId(field.type),
                     optional = field.isOptional(),
+                    hashtags = emptyList()
                 )
             },
             origin = EntityOrigin.Uri(uri),

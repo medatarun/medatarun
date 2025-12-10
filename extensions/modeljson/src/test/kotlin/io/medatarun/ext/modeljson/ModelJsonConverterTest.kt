@@ -92,6 +92,7 @@ internal class ModelJsonConverterTest {
         return buildJsonObject {
             put("id", "exemple")
             put("version", "1.0.0")
+            put($$"$schema", ModelJsonSchemas.initial)
             putJsonArray("types") { addJsonObject { put("id", "string") } }
             putJsonArray("entities") {
                 addJsonObject {
@@ -145,6 +146,7 @@ internal class ModelJsonConverterTest {
         return buildJsonObject {
             put("id", "exemple")
             put("version", "1.0.0")
+            put($$"$schema", ModelJsonSchemas.initial)
             if (modelDocHome != null) put("documentationHome", modelDocHome)
             putJsonArray("types") { addJsonObject { put("id", "string") } }
             putJsonArray("entities") {
@@ -207,6 +209,7 @@ internal class ModelJsonConverterTest {
         return buildJsonObject {
             put("id", "exemple")
             put("version", "1.0.0")
+            put($$"$schema", ModelJsonSchemas.initial)
             if (modelHashtags != null) put("hashtags", modelHashtags)
             putJsonArray("types") { addJsonObject { put("id", "string") } }
             putJsonArray("entities") {

@@ -42,7 +42,10 @@ sealed interface ModelCmd {
         val version: ModelVersion
     ) : ModelCmdOnModel
 
-    data class UpdateDocumentationHome(override val modelId: ModelId, val url: URL?) : ModelCmdOnModel
+    data class UpdateModelDocumentationHome(override val modelId: ModelId, val url: URL?) : ModelCmdOnModel
+
+    data class UpdateModelHashtagAdd(override val modelId: ModelId, val hashtag: Hashtag) : ModelCmdOnModel
+    data class UpdateModelHashtagDelete(override val modelId: ModelId, val hashtag: Hashtag) : ModelCmdOnModel
 
     data class DeleteModel(
         override val modelId: ModelId
@@ -83,6 +86,18 @@ sealed interface ModelCmd {
         val cmd: EntityDefUpdateCmd
     ) : ModelCmdOnModel
 
+    data class UpdateEntityDefHashtagAdd(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityDefHashtagDelete(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
     data class DeleteEntityDef(
         override val modelId: ModelId,
         val entityDefId: EntityDefId
@@ -111,6 +126,20 @@ sealed interface ModelCmd {
         val cmd: AttributeDefUpdateCmd
     ) : ModelCmdOnModel
 
+    data class UpdateEntityDefAttributeDefHashtagAdd(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId,
+        val attributeDefId: AttributeDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityDefAttributeDefHashtagDelete(
+        override val modelId: ModelId,
+        val entityDefId: EntityDefId,
+        val attributeDefId: AttributeDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
     // ------------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------------
@@ -124,6 +153,18 @@ sealed interface ModelCmd {
         override val modelId: ModelId,
         val relationshipDefId: RelationshipDefId,
         val cmd: RelationshipDefUpdateCmd
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipDefHashtagAdd(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipDefHashtagDelete(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val hashtag: Hashtag
     ) : ModelCmdOnModel
 
     class DeleteRelationshipDef(
@@ -143,6 +184,20 @@ sealed interface ModelCmd {
         val relationshipDefId: RelationshipDefId,
         val attributeDefId: AttributeDefId,
         val cmd: AttributeDefUpdateCmd
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeDefHashtagAdd(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId,
+        val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeDefHashtagDelete(
+        override val modelId: ModelId,
+        val relationshipDefId: RelationshipDefId,
+        val attributeDefId: AttributeDefId,
+        val hashtag: Hashtag
     ) : ModelCmdOnModel
 
     class DeleteRelationshipAttributeDef(
