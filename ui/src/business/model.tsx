@@ -1,5 +1,16 @@
 import type {RelationshipDefSummaryDto} from "./relationships.tsx";
 
+
+export interface ModelSummaryDto {
+  id: string,
+  name: string | null,
+  description: string | null,
+  error: string | null,
+  countTypes: number,
+  countEntities: number,
+  countRelationships: number
+}
+
 export interface ModelDto {
   id: string
   name: string | null

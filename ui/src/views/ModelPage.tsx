@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
-import {Link} from "@tanstack/react-router";
+import {useNavigate} from "@tanstack/react-router";
 import {RelationshipDescription} from "../components/business/RelationshipDescription.tsx";
 import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
@@ -9,6 +9,7 @@ import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import type {TabValue} from "@fluentui/react-components";
 import {Divider, Tab, Table, TableBody, TableCell, TableRow, TabList} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
+import {EntityCard} from "../components/business/EntityCard.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -26,6 +27,7 @@ export function ModelPage({modelId}: { modelId: string }) {
 export function ModelView() {
   const model = useModelContext().dto
   const [selectedTab, setSelectedTab] = useState<TabValue>("entities")
+  const navigate = useNavigate()
   return <div>
     <ViewTitle>Model {model.name ?? model.id}</ViewTitle>
     <div style={{display: "grid", gridTemplateColumns: "min-content auto", columnGap: "1em"}}>
@@ -42,28 +44,30 @@ export function ModelView() {
     </div>
     {model.description && <div><Markdown value={model.description}/></div>}
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
-      <Tab icon={<EntityIcon />} value="entities">Entities</Tab>
-      <Tab icon={<RelationshipIcon />} value="relationships">Relationships</Tab>
+      <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
+      <Tab icon={<RelationshipIcon/>} value="relationships">Relationships</Tab>
       <Tab icon={<TypeIcon/>} value="types">Types</Tab>
     </TabList>
     <Divider/>
     {selectedTab === "entities" && (
-      <div style={{paddingTop:"1em"}}>
-        <Table size="small" style={{marginBottom: "1em"}}>
-          <TableBody>
-            {
-              model.entityDefs.map(entityDef => <TableRow key={entityDef.id}>
-                <TableCell style={{width: "20em", wordBreak: "break-all"}}><Link
-                  to="/model/$modelId/entityDef/$entityDefId"
-                  params={{
-                    modelId: model.id,
-                    entityDefId: entityDef.id
-                  }}>{entityDef.name ?? entityDef.id}</Link></TableCell>
-                <TableCell>{entityDef.description}</TableCell>
-              </TableRow>)
-            }
-          </TableBody>
-        </Table>
+      <div style={{paddingTop: "1em"}}>
+        <div style={{display:"flex", columnGap:"1em", rowGap: "1em", flexWrap: "wrap"}}>
+        {
+          model.entityDefs.map(entityDef => <EntityCard
+            key={entityDef.id}
+            entity={entityDef}
+            onClick={() => navigate({
+                to: "/model/$modelId/entityDef/$entityDefId",
+                params: {
+                  modelId: model.id,
+                  entityDefId: entityDef.id
+                }
+              }
+            )}/>
+          )
+        }
+        </div>
+
       </div>
     )}
     {selectedTab === "relationships" && (
