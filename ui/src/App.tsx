@@ -9,10 +9,12 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import {CommandsPage} from "./components/CommandsPage.tsx";
-import {ModelsPage} from "./components/ModelsPage.tsx";
-import {ModelPage} from "./components/ModelPage.tsx";
-import {EntityPage} from "./components/EntityPage.tsx";
+import {CommandsPage} from "./views/CommandsPage.tsx";
+import {ModelsPage} from "./views/ModelsPage.tsx";
+import {ModelPage} from "./views/ModelPage.tsx";
+import {EntityPage} from "./views/EntityPage.tsx";
+import {FluentProvider, webLightTheme} from '@fluentui/react-components';
+
 
 function Layout() {
   return <div>
@@ -22,7 +24,7 @@ function Layout() {
       <div><Link to="/">Models</Link></div>
       <div><Link to="/commands">Commands</Link></div>
     </nav>
-    <main className="container"><Outlet/></main>
+    <main style={{width: "60em", margin:"auto"}}><Outlet/></main>
   </div>
 }
 
@@ -45,7 +47,7 @@ function ModelRouteComponent() {
 
 function EntityDefRouteComponent() {
   const {modelId, entityDefId} = useParams({from: '/model/$modelId/entityDef/$entityDefId'});
-  return <EntityPage modelId={modelId} entityDefId={entityDefId} />
+  return <EntityPage modelId={modelId} entityDefId={entityDefId}/>
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
@@ -93,7 +95,9 @@ declare module '@tanstack/react-router' {
 
 function App() {
   return (
-    <RouterProvider router={router}/>
+    <FluentProvider theme={webLightTheme}>
+      <RouterProvider router={router}/>
+    </FluentProvider>
   )
 }
 
