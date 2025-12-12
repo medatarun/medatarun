@@ -1,5 +1,5 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
-import {ActionRegistry, executeAction, fetchActionDescriptors} from "../business/command.tsx";
+import {ActionRegistry, executeAction, fetchActionDescriptors} from "../business/actionDescriptor.tsx";
 
 
 function OutputDisplay({output}: { output: unknown }) {
@@ -48,7 +48,7 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
   }, [selectedGroupKey, actionRegistry])
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findActionDto(selectedGroupKey, selectedActionKey)
+    return actionRegistry.findAction(selectedGroupKey, selectedActionKey)
   }, [selectedActionKey, selectedGroupKey, actionRegistry])
 
   const handleSubmit = () => {
@@ -116,8 +116,8 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
                     value={selectedActionKey}
                     onChange={(e) => handleChangeAction(e.target.value)}
                     disabled={!selectedGroupKey || actionsInGroup.length === 0}>
-                    {actionsInGroup.map(action => <option key={action.name}
-                                                          value={action.name}>{action.name}</option>)}
+                    {actionsInGroup.map(action =>
+                      <option key={action.key} value={action.key}>{action.key}</option>)}
                   </select>
                 </label>
               </div>

@@ -1,13 +1,13 @@
 export type ActionRegistryDto = Record<string, ActionDescriptorDto[]>
 
-export interface ActionDescriptorDto {
+interface ActionDescriptorDto {
   name: string,
   title: string | null,
   description: string | null,
   parameters: ActionParamDescriptorDto[]
 }
 
-export interface ActionParamDescriptorDto {
+interface ActionParamDescriptorDto {
   name: string
   type: string
   optional: boolean
@@ -15,21 +15,30 @@ export interface ActionParamDescriptorDto {
 
 type CommandTargetType = "model" | "entity" | "entityAttribute" | "relationship" | "relationshipAttribute" | "none"
 
-export class Command {
-  private dto: ActionDescriptorDto;
+export class ActionDescriptor {
+  public actionGroupKey: string
   public isModelKey: boolean;
   public isEntityKey: boolean;
   public isAttributeKey: boolean;
   public isRelationshipKey: boolean;
   public targetType: CommandTargetType
+  public key: string;
+  public description: string | null
+  public parameters: ActionDescriptorParam[];
 
-  constructor(dto: ActionDescriptorDto) {
+  private dto: ActionDescriptorDto;
+
+  constructor(actionGroupKey: string, dto: ActionDescriptorDto) {
     this.dto = dto
+    this.actionGroupKey = actionGroupKey
     this.isModelKey = this.dto.parameters.some(it => it.name === "modelKey")
     this.isEntityKey = this.dto.parameters.some(it => it.name === "entityKey")
     this.isAttributeKey = this.dto.parameters.some(it => it.name === "attributeKey")
     this.isRelationshipKey = this.dto.parameters.some(it => it.name === "relationshipKey")
     this.targetType = this.findTargetType()
+    this.key = dto.name
+    this.description = dto.description
+    this.parameters = dto.parameters.map(it => new ActionDescriptorParam(it))
   }
 
   private findTargetType(): CommandTargetType {
@@ -43,24 +52,49 @@ export class Command {
 
 }
 
+export class ActionDescriptorParam {
+  public name: string;
+  public type: string;
+  public optional: boolean;
+
+  constructor(dto: ActionParamDescriptorDto) {
+    this.name = dto.name
+    this.type = dto.type
+    this.optional = dto.optional
+  }
+}
+
 export class ActionRegistry {
-  public readonly dto: ActionRegistryDto;
   public readonly actionGroupKeys: string[]
+
+  private readonly dto: ActionRegistryDto;
+  private readonly actionDescriptors: ActionDescriptor[]
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
     this.actionGroupKeys = Object.keys(this.dto)
+    const desc: ActionDescriptor[] = []
+    for (const actionGroupKey of Object.keys(this.dto)) {
+      const actionGroup = this.dto[actionGroupKey]
+      if (actionGroup) {
+        for (const actionDescriptorDto of actionGroup) {
+          const a = new ActionDescriptor(actionGroupKey, actionDescriptorDto)
+          desc.push(a)
+        }
+      }
+    }
+    this.actionDescriptors = desc
   }
 
-  public findActionDtoListByResource(resource: string | undefined | null): ActionDescriptorDto[] {
-    if (!resource) return []
-    return this.dto[resource] ?? []
+  public findActionDtoListByResource(groupKey: string | undefined | null): ActionDescriptor[] {
+    if (!groupKey) return []
+    return this.actionDescriptors.filter(it => it.actionGroupKey === groupKey)
   }
 
-  public findActionDto(resource: string | undefined | null, actionName: string | undefined | null): ActionDescriptorDto | undefined {
-    if (!resource) return undefined
-    if (!actionName) return undefined
-    return this.dto[resource]?.find(it => actionName == it.name)
+  public findAction(actionGroupKey: string | undefined | null, actionKey: string | undefined | null): ActionDescriptor | undefined {
+    if (!actionGroupKey) return undefined
+    if (!actionKey) return undefined
+    return this.actionDescriptors.find(it => actionGroupKey === it.actionGroupKey && actionKey == it.key)
   }
 
   public findFirstActionKey(resource: string) {
@@ -78,18 +112,18 @@ export class ActionRegistry {
   }
 
   public existsAction(resource: string, action: string) {
-    return this.findActionDto(resource, action) !== undefined
+    return this.findAction(resource, action) !== undefined
   }
 
   public createPayloadTemplate(resource: string | undefined | null, actionName: string | undefined | null): string {
-    const action = this.findActionDto(resource, actionName)
+    const action = this.findAction(resource, actionName)
     if (!action) return "{}"
     return buildPayloadTemplate(action)
   }
 }
 
 
-function buildPayloadTemplate(action: ActionDescriptorDto): string {
+function buildPayloadTemplate(action: ActionDescriptor): string {
   const payload: Record<string, string> = {}
   action.parameters.forEach(param => {
     payload[param.name] = ""
