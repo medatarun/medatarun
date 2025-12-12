@@ -44,20 +44,21 @@ export interface EntityDto {
   origin: EntityDefOriginDto
   documentationHome: string | null
   hashtags: string[]
-  attributes: EntityAttributeDto[]
+  attributes: AttributeDto[]
   model: {
     id: string
     name: string | null
   }
 }
 
-interface EntityAttributeDto {
+export interface AttributeDto {
   id: string
   type: string
   optional: boolean
   identifierAttribute: boolean
   name: string | null
   description: string | null
+  hashtags: string[]
 }
 
 interface EntityDefOriginDto {

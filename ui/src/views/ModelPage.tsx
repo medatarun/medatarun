@@ -1,15 +1,16 @@
 import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {useNavigate} from "@tanstack/react-router";
-import {RelationshipDescription} from "../components/business/RelationshipDescription.tsx";
 import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import type {TabValue} from "@fluentui/react-components";
-import {Divider, Tab, Table, TableBody, TableCell, TableRow, TabList} from "@fluentui/react-components";
+import {Divider, Tab, TabList} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
+import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
+import {TypesTable} from "../components/business/TypesTable.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -72,28 +73,11 @@ export function ModelView() {
     )}
     {selectedTab === "relationships" && (
       <div>
-        <Table size="small" style={{marginBottom: "1em"}}>
-          <TableBody>
-            {model.relationshipDefs.map(r => <TableRow key={r.id}>
-              <TableCell style={{width: "20em", wordBreak: "break-all"}}>{r.name ?? r.id}</TableCell>
-              <TableCell><RelationshipDescription rel={r}/></TableCell>
-            </TableRow>)}
-          </TableBody>
-        </Table>
+        <RelationshipsTable relationships={model.relationshipDefs} />
       </div>
     )}
     {selectedTab === "types" && (<div>
-      <Table size="small" style={{marginBottom: "1em"}}>
-        <TableBody>
-          {
-            model.types.map(t => <TableRow key={t.id}>
-              <TableCell style={{width: "20em"}}>{t.name ?? t.id}</TableCell>
-              <TableCell><code>{t.id}</code></TableCell>
-              <TableCell>{t.description}</TableCell>
-            </TableRow>)
-          }
-        </TableBody>
-      </Table>
+      <TypesTable types={model.types} />
     </div>)}
 
   </div>
