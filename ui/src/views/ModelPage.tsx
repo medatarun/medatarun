@@ -11,6 +11,8 @@ import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Ico
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
 import {TypesTable} from "../components/business/TypesTable.tsx";
+import {TabPanel} from "../components/core/TabPanel.tsx";
+import {InfoRegular} from "@fluentui/react-icons";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -27,10 +29,38 @@ export function ModelPage({modelId}: { modelId: string }) {
 
 export function ModelView() {
   const model = useModelContext().dto
-  const [selectedTab, setSelectedTab] = useState<TabValue>("entities")
-  const navigate = useNavigate()
+  const [selectedTab, setSelectedTab] = useState<TabValue>("info")
+
   return <div>
-    <ViewTitle>Model {model.name ?? model.id}</ViewTitle>
+    <ViewTitle><div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow:"ellipsis"}}>Model {model.name ?? model.id}</div></ViewTitle>
+    <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
+      <Tab icon={<InfoRegular/>} value="info">Overview</Tab>
+      <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
+      <Tab icon={<RelationshipIcon/>} value="relationships">Relationships</Tab>
+      <Tab icon={<TypeIcon/>} value="types">Types</Tab>
+    </TabList>
+    <Divider/>
+    {selectedTab === "info" && (<TabPanel><ModelOverview/></TabPanel>)}
+    {selectedTab === "entities" && (
+      <TabPanel>
+        <EntitiesCardList/>
+      </TabPanel>
+    )}
+    {selectedTab === "relationships" && (
+      <div>
+        <RelationshipsTable relationships={model.relationshipDefs}/>
+      </div>
+    )}
+    {selectedTab === "types" && (<div>
+      <TypesTable types={model.types}/>
+    </div>)}
+
+  </div>
+}
+
+export function ModelOverview() {
+  const model = useModelContext().dto
+  return <div>
     <div style={{display: "grid", gridTemplateColumns: "min-content auto", columnGap: "1em"}}>
       <div>Identifier</div>
       <div><code>{model.id}</code></div>
@@ -44,42 +74,29 @@ export function ModelView() {
       <div><Origin value={model.origin}/></div>
     </div>
     {model.description && <div><Markdown value={model.description}/></div>}
-    <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
-      <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
-      <Tab icon={<RelationshipIcon/>} value="relationships">Relationships</Tab>
-      <Tab icon={<TypeIcon/>} value="types">Types</Tab>
-    </TabList>
-    <Divider/>
-    {selectedTab === "entities" && (
-      <div style={{paddingTop: "1em"}}>
-        <div style={{display:"flex", columnGap:"1em", rowGap: "1em", flexWrap: "wrap"}}>
-        {
-          model.entityDefs.map(entityDef => <EntityCard
-            key={entityDef.id}
-            entity={entityDef}
-            onClick={() => navigate({
-                to: "/model/$modelId/entityDef/$entityDefId",
-                params: {
-                  modelId: model.id,
-                  entityDefId: entityDef.id
-                }
-              }
-            )}/>
-          )
-        }
-        </div>
+  </div>
+}
 
-      </div>
-    )}
-    {selectedTab === "relationships" && (
-      <div>
-        <RelationshipsTable relationships={model.relationshipDefs} />
-      </div>
-    )}
-    {selectedTab === "types" && (<div>
-      <TypesTable types={model.types} />
-    </div>)}
-
+export function EntitiesCardList() {
+  const navigate = useNavigate()
+  const model = useModelContext()
+  const modelKey = model.dto.id
+  const entities = model.dto.entityDefs
+  return <div style={{display: "flex", columnGap: "1em", rowGap: "1em", flexWrap: "wrap"}}>
+    {
+      entities.map(entityDef => <EntityCard
+        key={entityDef.id}
+        entity={entityDef}
+        onClick={() => navigate({
+            to: "/model/$modelId/entityDef/$entityDefId",
+            params: {
+              modelId: modelKey,
+              entityDefId: entityDef.id
+            }
+          }
+        )}/>
+      )
+    }
   </div>
 }
 

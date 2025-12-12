@@ -3,8 +3,6 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  Link,
-  Outlet,
   RouterProvider,
   useNavigate,
   useParams,
@@ -14,19 +12,8 @@ import {ModelsPage} from "./views/ModelsPage.tsx";
 import {ModelPage} from "./views/ModelPage.tsx";
 import {EntityPage} from "./views/EntityPage.tsx";
 import {FluentProvider, webLightTheme} from '@fluentui/react-components';
+import {Layout} from "./components/layout/layout.tsx";
 
-
-function Layout() {
-  return <div>
-    <nav className="menubar">
-      <div>Medatarun</div>
-      <div><Link to="/">Home</Link></div>
-      <div><Link to="/">Models</Link></div>
-      <div><Link to="/commands">Commands</Link></div>
-    </nav>
-    <main style={{width: "60em", margin:"auto"}}><Outlet/></main>
-  </div>
-}
 
 function ModelsRouteComponent() {
   const navigate = useNavigate();
