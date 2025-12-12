@@ -1,5 +1,4 @@
-export interface CommandRegistryDto extends Record<string, ActionDescriptorDto[]> {
-}
+export type ActionRegistryDto = Record<string, ActionDescriptorDto[]>
 
 export interface ActionDescriptorDto {
   name: string,
@@ -42,4 +41,80 @@ export class Command {
     return "none"
   }
 
+}
+
+export class ActionRegistry {
+  public readonly dto: ActionRegistryDto;
+  public readonly resourceNames: string[]
+
+  public constructor(dto: ActionRegistryDto) {
+    this.dto = dto;
+    this.resourceNames = Object.keys(this.dto)
+  }
+
+  public findActionDtoListByResource(resource: string | undefined | null): ActionDescriptorDto[] {
+    if (!resource) return []
+    return this.dto[resource] ?? []
+  }
+
+  public findActionDto(resource: string | undefined | null, actionName: string | undefined | null): ActionDescriptorDto | undefined {
+    if (!resource) return undefined
+    if (!actionName) return undefined
+    return this.dto[resource]?.find(it => actionName == it.name)
+  }
+
+  public findFirstActionName(resource: string) {
+    const r = this.dto[resource]
+    if (!r) return undefined
+    return r.length == 0 ? undefined : r[0].name
+  }
+
+  public findFirstResourceName() {
+    return this.resourceNames.length == 0 ? undefined : this.resourceNames[0]
+  }
+
+  public existsResource(resource: string) {
+    return this.dto[resource] !== undefined
+  }
+
+  public existsAction(resource: string, action: string) {
+    return this.findActionDto(resource, action) !== undefined
+  }
+
+  public createPayloadTemplate(resource: string | undefined | null, actionName: string | undefined | null): string {
+    const action = this.findActionDto(resource, actionName)
+    if (!action) return "{}"
+    return buildPayloadTemplate(action)
+  }
+}
+
+
+function buildPayloadTemplate(action: ActionDescriptorDto): string {
+  const payload: Record<string, string> = {}
+  action.parameters.forEach(param => {
+    payload[param.name] = ""
+  })
+  return JSON.stringify(payload, null, 2)
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Backend communications
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function fetchActionDescriptors(): Promise<ActionRegistryDto> {
+  return fetch("/api")
+    .then(res => res.json())
+}
+
+export async function executeAction(resource: string, action: string, payload: unknown): Promise<unknown> {
+  return fetch("/api/" + resource + "/" + action, {method: "POST", body: JSON.stringify(payload)})
+    .then(async res => {
+      const type = res.headers.get("content-type") || "";
+      if (type.includes("application/json")) {
+        return res.json();
+      }
+      const t = await res.text();
+      return t;
+    })
 }

@@ -1,5 +1,5 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
-import type {ActionDescriptorDto, CommandRegistryDto} from "../business/command.tsx";
+import {ActionRegistry, executeAction, fetchActionDescriptors} from "../business/command.tsx";
 
 
 function OutputDisplay({output}: { output: unknown }) {
@@ -19,63 +19,40 @@ function OutputDisplay({output}: { output: unknown }) {
 }
 
 export function CommandsPage() {
-  const [commandRegistryDto, setCommandRegistryDto] = useState<CommandRegistryDto | undefined>(undefined)
-  const [selectedResource, setSelectedResource] = useState<string>("")
-  const [selectedAction, setSelectedAction] = useState<string>("")
-  const [payload, setPayload] = useState<string>("{}")
-  const [output, setOutput] = useState<unknown>({})
-  const [errorMessage, setErrorMessage] = useState<string>("")
+  const [commandRegistryDto, setCommandRegistryDto] = useState<ActionRegistry | undefined>(undefined)
   useEffect(() => {
-    fetch("/api")
-      .then(res => res.json())
-      .then(data => setCommandRegistryDto(data))
+    fetchActionDescriptors()
+      .then(data => setCommandRegistryDto(new ActionRegistry(data)))
       .catch(err => console.log(err))
   }, [])
-  const resourceNames = useMemo(() => commandRegistryDto ? Object.keys(commandRegistryDto) : [], [commandRegistryDto])
+  if (!commandRegistryDto) return null
+  return <CommandsPageLoaded actionRegistry={commandRegistryDto}/>
+}
+
+export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionRegistry }) {
+  const defaultResource = actionRegistry.findFirstResourceName()
+  const defaultAction = defaultResource ? actionRegistry.findFirstActionName(defaultResource) : undefined
+  const defaultPayload = actionRegistry.createPayloadTemplate(defaultResource, defaultAction)
+
+  const [selectedResource, setSelectedResource] = useState<string | undefined>(defaultResource)
+  const [selectedAction, setSelectedAction] = useState<string | undefined>(defaultAction)
+  const [payload, setPayload] = useState<string>(defaultPayload)
+  const [output, setOutput] = useState<unknown>({})
+  const [errorMessage, setErrorMessage] = useState<string>("")
+
+
+  const resourceNames = actionRegistry.resourceNames
+
   const actionsForSelectedResource = useMemo(() => {
-    if (!selectedResource || !commandRegistryDto) {
-      return []
-    }
-    return commandRegistryDto[selectedResource] ?? []
-  }, [selectedResource, commandRegistryDto])
+    return actionRegistry.findActionDtoListByResource(selectedResource)
+  }, [selectedResource, actionRegistry])
+
   const selectedActionDescriptor = useMemo(() => {
-    return actionsForSelectedResource.find(action => action.name === selectedAction)
-  }, [actionsForSelectedResource, selectedAction])
-
-  const applySelection = (resource: string, actionName?: string) => {
-    if (!commandRegistryDto) {
-      setSelectedResource(resource)
-      setSelectedAction(actionName ?? "")
-      setPayload("{}")
-      return
-    }
-    const availableActions = commandRegistryDto[resource] ?? []
-    const resolvedAction = actionName && availableActions.find(a => a.name === actionName) ? actionName :
-      (availableActions[0]?.name ?? "")
-    const descriptor = availableActions.find(a => a.name === resolvedAction)
-    setSelectedResource(resource)
-    setSelectedAction(resolvedAction)
-    setPayload(descriptor ? buildPayloadTemplate(descriptor) : "{}")
-  }
-
-  useEffect(() => {
-    if (!commandRegistryDto || resourceNames.length === 0) {
-      return
-    }
-    if (selectedResource) {
-      const actions = commandRegistryDto[selectedResource] ?? []
-      if (actions.length > 0 && !selectedAction) {
-        applySelection(selectedResource, actions[0].name)
-      }
-      return
-    }
-    const defaultResource = resourceNames[0]
-    const defaultAction = commandRegistryDto[defaultResource]?.[0]?.name
-    applySelection(defaultResource, defaultAction)
-  }, [commandRegistryDto, resourceNames, selectedResource, selectedAction])
+    return actionRegistry.findActionDto(selectedResource, selectedAction)
+  }, [selectedAction, selectedResource, actionRegistry])
 
   const handleSubmit = () => {
-    if (!selectedResource || !selectedActionDescriptor) {
+    if (!selectedResource || !selectedAction) {
       setErrorMessage("Sélect a resource and an action.")
       return
     }
@@ -87,23 +64,34 @@ export function CommandsPage() {
       return
     }
     setErrorMessage("")
-    const actionPath = selectedActionDescriptor.name.includes("/") ?
-      selectedActionDescriptor.name :
-      selectedResource + "/" + selectedActionDescriptor.name
-    fetch("/api/" + actionPath, {method: "POST", body: JSON.stringify(parsedPayload)})
-      .then(async res => {
-        const type = res.headers.get("content-type") || "";
-        if (type.includes("application/json")) {
-          return res.json();
-        }
-        const t = await res.text();
-        return t;
-      })
+
+
+    executeAction(selectedResource, selectedAction, parsedPayload)
       .then(data => setOutput(data))
       .catch(err => setOutput({error: err.toString()}));
   }
   const handleClear = () => {
     setOutput({})
+  }
+
+  const handleChangeResource = (resource: string) => {
+    const nextResource = actionRegistry.existsResource(resource) ? resource : undefined
+    const nextAction = nextResource ? actionRegistry.findFirstActionName(nextResource) : undefined
+    setSelectedResource(nextResource)
+    setSelectedAction(nextAction)
+    setPayload(actionRegistry.createPayloadTemplate(nextResource, nextAction))
+  }
+
+  const handleChangeAction = (action: string) => {
+    if (!selectedResource) {
+      setSelectedAction(undefined)
+      setPayload("{}")
+    } else {
+      const nextAction = actionRegistry.existsAction(selectedResource, action) ? action : undefined
+      const nextPayload = actionRegistry.createPayloadTemplate(selectedResource, nextAction)
+      setSelectedAction(nextAction)
+      setPayload(nextPayload)
+    }
   }
 
   return <div>
@@ -117,7 +105,7 @@ export function CommandsPage() {
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
               <div>
                 <label>
-                  <select value={selectedResource} onChange={(e) => applySelection(e.target.value)}>
+                  <select value={selectedResource} onChange={(e) => handleChangeResource(e.target.value)}>
                     {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
                   </select>
                 </label>
@@ -126,7 +114,7 @@ export function CommandsPage() {
                 <label>
                   <select
                     value={selectedAction}
-                    onChange={(e) => applySelection(selectedResource, e.target.value)}
+                    onChange={(e) => handleChangeAction(e.target.value)}
                     disabled={!selectedResource || actionsForSelectedResource.length === 0}>
                     {actionsForSelectedResource.map(action => <option key={action.name}
                                                                       value={action.name}>{action.name}</option>)}
@@ -167,11 +155,3 @@ export function CommandsPage() {
   </div>
 }
 
-
-function buildPayloadTemplate(action: ActionDescriptorDto): string {
-  const payload: Record<string, string> = {}
-  action.parameters.forEach(param => {
-    payload[param.name] = ""
-  })
-  return JSON.stringify(payload, null, 2)
-}
