@@ -29,24 +29,18 @@ const MedatarunIcon = BoxMultipleArrowRight24Regular;
 
 export function Layout() {
   const styles = useStyles();
-
-
   const {location} = useRouterState()
-
-
   const selectedValue = (() => {
     if (location.pathname.startsWith("/commands")) return "commands"
     return "models"
   })();
-
-
 
   return <div className={styles.root}>
     <div className={styles.left}>
       <NavDrawerControlled selectedValue={selectedValue}/>
     </div>
     <main className={styles.right}>
-      <div style={{width: "60em", margin: "auto"}}><Outlet/></div>
+      <Outlet/>
     </main>
   </div>
 }

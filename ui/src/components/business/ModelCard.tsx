@@ -3,7 +3,7 @@ import {EntityIcon, RelationshipIcon, TypeIcon} from "../business/Icons.tsx";
 import type {ModelSummaryDto} from "../../business/model.tsx";
 
 export function ModelCard({model, onClick}: { model: ModelSummaryDto, onClick: (id: string) => void }) {
-  return <Card style={{width: "30%"}} key={model.id} onClick={() => onClick(model.id)}>
+  return <Card style={{maxWidth: "20em", width:"20em", minWidth:"20em"}} key={model.id} onClick={() => onClick(model.id)}>
     <CardHeader style={{height: "2em"}}
                 header={<Text weight="semibold">{model.name ?? model.id}</Text>}></CardHeader>
     <div style={{minHeight: "4em", maxHeight: "4em", overflow: "hidden"}}>
