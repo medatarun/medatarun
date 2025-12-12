@@ -30,29 +30,29 @@ export function CommandsPage() {
 }
 
 export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionRegistry }) {
-  const defaultResource = actionRegistry.findFirstResourceName()
-  const defaultAction = defaultResource ? actionRegistry.findFirstActionName(defaultResource) : undefined
-  const defaultPayload = actionRegistry.createPayloadTemplate(defaultResource, defaultAction)
+  const defaultGroupKey = actionRegistry.findFirstGroupKey()
+  const defaultActionKey = defaultGroupKey ? actionRegistry.findFirstActionKey(defaultGroupKey) : undefined
+  const defaultPayload = actionRegistry.createPayloadTemplate(defaultGroupKey, defaultActionKey)
 
-  const [selectedResource, setSelectedResource] = useState<string | undefined>(defaultResource)
-  const [selectedAction, setSelectedAction] = useState<string | undefined>(defaultAction)
+  const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(defaultGroupKey)
+  const [selectedActionKey, setSelectedActionKey] = useState<string | undefined>(defaultActionKey)
   const [payload, setPayload] = useState<string>(defaultPayload)
   const [output, setOutput] = useState<unknown>({})
   const [errorMessage, setErrorMessage] = useState<string>("")
 
 
-  const resourceNames = actionRegistry.resourceNames
+  const actionGroupKeys = actionRegistry.actionGroupKeys
 
-  const actionsForSelectedResource = useMemo(() => {
-    return actionRegistry.findActionDtoListByResource(selectedResource)
-  }, [selectedResource, actionRegistry])
+  const actionsInGroup = useMemo(() => {
+    return actionRegistry.findActionDtoListByResource(selectedGroupKey)
+  }, [selectedGroupKey, actionRegistry])
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findActionDto(selectedResource, selectedAction)
-  }, [selectedAction, selectedResource, actionRegistry])
+    return actionRegistry.findActionDto(selectedGroupKey, selectedActionKey)
+  }, [selectedActionKey, selectedGroupKey, actionRegistry])
 
   const handleSubmit = () => {
-    if (!selectedResource || !selectedAction) {
+    if (!selectedGroupKey || !selectedActionKey) {
       setErrorMessage("Sélect a resource and an action.")
       return
     }
@@ -66,7 +66,7 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
     setErrorMessage("")
 
 
-    executeAction(selectedResource, selectedAction, parsedPayload)
+    executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
       .then(data => setOutput(data))
       .catch(err => setOutput({error: err.toString()}));
   }
@@ -74,28 +74,28 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
     setOutput({})
   }
 
-  const handleChangeResource = (resource: string) => {
-    const nextResource = actionRegistry.existsResource(resource) ? resource : undefined
-    const nextAction = nextResource ? actionRegistry.findFirstActionName(nextResource) : undefined
-    setSelectedResource(nextResource)
-    setSelectedAction(nextAction)
-    setPayload(actionRegistry.createPayloadTemplate(nextResource, nextAction))
+  const handleChangeActionGroup = (groupKey: string) => {
+    const nextGroup = actionRegistry.existsGroup(groupKey) ? groupKey : undefined
+    const nextAction = nextGroup ? actionRegistry.findFirstActionKey(nextGroup) : undefined
+    setSelectedGroupKey(nextGroup)
+    setSelectedActionKey(nextAction)
+    setPayload(actionRegistry.createPayloadTemplate(nextGroup, nextAction))
   }
 
   const handleChangeAction = (action: string) => {
-    if (!selectedResource) {
-      setSelectedAction(undefined)
+    if (!selectedGroupKey) {
+      setSelectedActionKey(undefined)
       setPayload("{}")
     } else {
-      const nextAction = actionRegistry.existsAction(selectedResource, action) ? action : undefined
-      const nextPayload = actionRegistry.createPayloadTemplate(selectedResource, nextAction)
-      setSelectedAction(nextAction)
+      const nextAction = actionRegistry.existsAction(selectedGroupKey, action) ? action : undefined
+      const nextPayload = actionRegistry.createPayloadTemplate(selectedGroupKey, nextAction)
+      setSelectedActionKey(nextAction)
       setPayload(nextPayload)
     }
   }
 
   return <div>
-    <h1>Commands</h1>
+    <h1>Actions</h1>
     <div>
       <div>
         <div>
@@ -105,19 +105,19 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
               <div>
                 <label>
-                  <select value={selectedResource} onChange={(e) => handleChangeResource(e.target.value)}>
-                    {resourceNames.map(resource => <option key={resource} value={resource}>{resource}</option>)}
+                  <select value={selectedGroupKey} onChange={(e) => handleChangeActionGroup(e.target.value)}>
+                    {actionGroupKeys.map(resource => <option key={resource} value={resource}>{resource}</option>)}
                   </select>
                 </label>
               </div>
               <div>
                 <label>
                   <select
-                    value={selectedAction}
+                    value={selectedActionKey}
                     onChange={(e) => handleChangeAction(e.target.value)}
-                    disabled={!selectedResource || actionsForSelectedResource.length === 0}>
-                    {actionsForSelectedResource.map(action => <option key={action.name}
-                                                                      value={action.name}>{action.name}</option>)}
+                    disabled={!selectedGroupKey || actionsInGroup.length === 0}>
+                    {actionsInGroup.map(action => <option key={action.name}
+                                                          value={action.name}>{action.name}</option>)}
                   </select>
                 </label>
               </div>

@@ -45,11 +45,11 @@ export class Command {
 
 export class ActionRegistry {
   public readonly dto: ActionRegistryDto;
-  public readonly resourceNames: string[]
+  public readonly actionGroupKeys: string[]
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
-    this.resourceNames = Object.keys(this.dto)
+    this.actionGroupKeys = Object.keys(this.dto)
   }
 
   public findActionDtoListByResource(resource: string | undefined | null): ActionDescriptorDto[] {
@@ -63,17 +63,17 @@ export class ActionRegistry {
     return this.dto[resource]?.find(it => actionName == it.name)
   }
 
-  public findFirstActionName(resource: string) {
+  public findFirstActionKey(resource: string) {
     const r = this.dto[resource]
     if (!r) return undefined
     return r.length == 0 ? undefined : r[0].name
   }
 
-  public findFirstResourceName() {
-    return this.resourceNames.length == 0 ? undefined : this.resourceNames[0]
+  public findFirstGroupKey() {
+    return this.actionGroupKeys.length == 0 ? undefined : this.actionGroupKeys[0]
   }
 
-  public existsResource(resource: string) {
+  public existsGroup(resource: string) {
     return this.dto[resource] !== undefined
   }
 
@@ -107,8 +107,8 @@ export async function fetchActionDescriptors(): Promise<ActionRegistryDto> {
     .then(res => res.json())
 }
 
-export async function executeAction(resource: string, action: string, payload: unknown): Promise<unknown> {
-  return fetch("/api/" + resource + "/" + action, {method: "POST", body: JSON.stringify(payload)})
+export async function executeAction(actionGroup: string, actionName: string, payload: unknown): Promise<unknown> {
+  return fetch("/api/" + actionGroup + "/" + actionName, {method: "POST", body: JSON.stringify(payload)})
     .then(async res => {
       const type = res.headers.get("content-type") || "";
       if (type.includes("application/json")) {
