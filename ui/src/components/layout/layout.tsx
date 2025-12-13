@@ -2,6 +2,7 @@ import {Outlet, useNavigate, useRouterState} from "@tanstack/react-router";
 import {
   AppItem,
   makeStyles,
+  MessageBar,
   NavDrawer,
   NavDrawerBody,
   NavDrawerHeader,
@@ -10,6 +11,9 @@ import {
 } from "@fluentui/react-components";
 import {BoxMultipleArrowRight24Regular, CodeRegular} from "@fluentui/react-icons";
 import {ModelIcon} from "../business/Icons.tsx";
+import {ActionsContext} from "../business/ActionsContext.tsx";
+import {useEffect, useState} from "react";
+import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescriptor.tsx";
 
 const useStyles = makeStyles({
   root: {display: "grid", gridTemplateColumns: "261px auto", height: "100vh", maxHeight: "100vh", overflow: "hidden"},
@@ -30,17 +34,42 @@ const MedatarunIcon = BoxMultipleArrowRight24Regular;
 export function Layout() {
   const styles = useStyles();
   const {location} = useRouterState()
+  const [actions, setActions] = useState<ActionRegistry>()
+  const [error, setError] = useState<any | null>(null)
+  useEffect(() => {
+    fetchActionDescriptors()
+      .then(dto => {
+        const ar = new ActionRegistry(dto)
+        setActions(ar)
+      })
+      .catch(err => {
+        setError(err)
+        console.log(err)
+      })
+  }, [])
+
   const selectedValue = (() => {
     if (location.pathname.startsWith("/commands")) return "commands"
     return "models"
   })();
+
 
   return <div className={styles.root}>
     <div className={styles.left}>
       <NavDrawerControlled selectedValue={selectedValue}/>
     </div>
     <main className={styles.right}>
-      <Outlet/>
+      {actions &&
+        <ActionsContext value={actions}>
+          <Outlet/>
+        </ActionsContext>
+      }
+      {
+        error && <div>
+          <p>Sorry, we could not load this page.</p>
+          <MessageBar intent="error">{error.toString()}</MessageBar>
+        </div>
+      }
     </main>
   </div>
 }
@@ -67,7 +96,7 @@ const NavDrawerControlled = ({selectedValue}: {
     <NavDrawerHeader>
     </NavDrawerHeader>
     <NavDrawerBody>
-      <AppItem icon={<MedatarunIcon/>} onClick={()=>handleNavigate("models")}>Medatarun</AppItem>
+      <AppItem icon={<MedatarunIcon/>} onClick={() => handleNavigate("models")}>Medatarun</AppItem>
       <NavItem icon={<ModelIcon/>} value="models">Models</NavItem>
       <NavItem icon={<CodeRegular/>} value="commands">Commands</NavItem>
     </NavDrawerBody>

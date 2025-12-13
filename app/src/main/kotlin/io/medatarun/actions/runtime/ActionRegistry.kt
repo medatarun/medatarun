@@ -12,10 +12,22 @@ import kotlin.reflect.full.primaryConstructor
 
 class ActionRegistry(private val actionProviders: ActionProviders) {
 
-    private val actionGroupDescriptors = ActionProviders::class.memberProperties
-        .filter { it.visibility == KVisibility.PUBLIC }
-        .map { ActionGroupDescriptor(it.name, it, toCommands(it, it.name)) }
-        .associateBy { it.name }
+    private val actionGroupDescriptors: List<ActionGroupDescriptor> =
+        ActionProviders::class.memberProperties
+            .filter { it.visibility == KVisibility.PUBLIC }
+            .map {
+                ActionGroupDescriptor(
+                    name = it.name,
+                    property = it,
+                    commands = toCommands(it, it.name)
+                )
+            }
+
+    private val actionGroupDescriptorsMap: Map<String, ActionGroupDescriptor> =
+        actionGroupDescriptors.associateBy { it.name }
+
+    private val actionDescriptors: List<ActionCmdDescriptor> =
+        actionGroupDescriptors.flatMap { it.commands }
 
 
     private fun toCommands(property: KProperty1<ActionProviders, *>, actionGroup: String): List<ActionCmdDescriptor> {
@@ -52,18 +64,23 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
                     type = it.returnType,
                     optional = it.returnType.isMarkedNullable,
                 )
-            }
+            },
+            uiLocation = doc?.uiLocation ?: "",
 
         )
     }
 
 
     fun findAllGroupDescriptors(): Collection<ActionGroupDescriptor> {
-        return actionGroupDescriptors.values
+        return actionGroupDescriptorsMap.values
     }
 
     fun findGroupDescriptorByIdOptional(actionGroup: String): ActionGroupDescriptor? {
-        return actionGroupDescriptors[actionGroup]
+        return actionGroupDescriptorsMap[actionGroup]
+    }
+
+    fun findAllActions(): Collection<ActionCmdDescriptor> {
+        return actionDescriptors
     }
 
 
@@ -75,20 +92,20 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
 
         val descriptor = findGroupDescriptorByIdOptional(actionGroup)
             ?: throw ActionInvocationException(
-                HttpStatusCode.Companion.NotFound,
+                HttpStatusCode.NotFound,
                 "Unknown action group '$actionGroup'"
             )
 
         val actionProviderInstance = descriptor.property.get(actionProviders) as ActionProvider<Any>?
             ?: throw ActionInvocationException(
-                HttpStatusCode.Companion.InternalServerError,
+                HttpStatusCode.InternalServerError,
                 "Action group '$actionGroup' unavailable"
             )
 
 
         val commands = descriptor.commands.find { it.name == actionCmd }
             ?: throw ActionInvocationException(
-                HttpStatusCode.Companion.NotFound,
+                HttpStatusCode.NotFound,
                 "Unknown function '$actionCmd' on '$actionGroup'"
             )
 
@@ -105,7 +122,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
             if (cause != null) {
                 logger.error("Invocation failed", e)
                 throw ActionInvocationException(
-                    HttpStatusCode.Companion.InternalServerError,
+                    HttpStatusCode.InternalServerError,
                     cause::class.simpleName ?: "Invocation failed",
                     mapOf(
                         "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
@@ -114,7 +131,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
             } else {
                 logger.error("Invocation failed", e)
                 throw ActionInvocationException(
-                    HttpStatusCode.Companion.InternalServerError,
+                    HttpStatusCode.InternalServerError,
                     "Invocation failed",
                     mapOf(
                         "details" to (e.message ?: e::class.simpleName).toString()
@@ -124,7 +141,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
         } catch (throwable: Throwable) {
             logger.error("Invocation failed", throwable)
             throw ActionInvocationException(
-                HttpStatusCode.Companion.InternalServerError,
+                HttpStatusCode.InternalServerError,
                 "Invocation failed",
                 mapOf(
                     "details" to (throwable.message ?: throwable::class.simpleName).toString()
@@ -145,14 +162,15 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
         actionCtx: ActionCtx
     ): Invoker {
 
-        val cls = actionProviderInstance.findCommandClass()?.sealedSubclasses?.firstOrNull { it.simpleName == actionCmd }
-            ?: throw ActionInvocationException(
-                HttpStatusCode.Companion.NotFound,
-                "Command $actionCmd not found"
-            )
+        val cls =
+            actionProviderInstance.findCommandClass()?.sealedSubclasses?.firstOrNull { it.simpleName == actionCmd }
+                ?: throw ActionInvocationException(
+                    HttpStatusCode.NotFound,
+                    "Command $actionCmd not found"
+                )
 
         val function = cls.primaryConstructor ?: throw ActionInvocationException(
-            HttpStatusCode.Companion.InternalServerError,
+            HttpStatusCode.InternalServerError,
             "Command $actionCmd has no primary constructor"
         )
 
@@ -182,7 +200,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
 
         if (missing.isNotEmpty()) {
             throw ActionInvocationException(
-                HttpStatusCode.Companion.BadRequest,
+                HttpStatusCode.BadRequest,
                 "Missing parameter(s): ${missing.joinToString(", ")}",
                 mapOf(
                     "usage" to buildUsageHint(actionGroup, actionCommandFunction)
@@ -212,7 +230,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
 
         if (conversionErrors.isNotEmpty()) {
             throw ActionInvocationException(
-                HttpStatusCode.Companion.BadRequest,
+                HttpStatusCode.BadRequest,
                 "Invalid parameter values",
                 mapOf(
                     "details" to conversionErrors.joinToString(", ")
@@ -237,8 +255,7 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
                     ?: return ConversionResult.Error("No constructor for value class ${classifier.simpleName}")
 
                 val innerParam = ctor.parameters.single()
-                val inner = convert(raw, innerParam.type.classifier)
-                when (inner) {
+                when (val inner = convert(raw, innerParam.type.classifier)) {
                     is ConversionResult.Value ->
                         ConversionResult.Value(ctor.call(inner.value))
 

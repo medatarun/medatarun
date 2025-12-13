@@ -9,7 +9,8 @@ import kotlinx.serialization.json.buildJsonObject
 sealed interface BatchAction {
     @ActionDoc(
         title = "Batch commands",
-        description = "Process a list of commands all at once"
+        description = "Process a list of commands all at once",
+        uiLocation = "global"
     )
     class Run(
         val actions: List<ActionWithPayload>,

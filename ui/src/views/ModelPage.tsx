@@ -23,6 +23,7 @@ import {TypesTable} from "../components/business/TypesTable.tsx";
 import {TabPanel} from "../components/core/TabPanel.tsx";
 import {InfoRegular} from "@fluentui/react-icons";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
+import {ActionsBar} from "../components/business/ActionsBar.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -56,6 +57,7 @@ export function ModelView() {
       <div style={{textTransform: "uppercase"}}><Caption1><ModelIcon /> Model</Caption1></div>
       <div style={{fontWeight: tokens.fontWeightSemibold, fontSize: tokens.fontSizeBase500}}><div style={{overflow: "hidden", height:"2em", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{displayName}</div></div>
     </div>
+    <ActionsBar location="model" />
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab icon={<InfoRegular/>} value="info">Overview</Tab>
       <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>

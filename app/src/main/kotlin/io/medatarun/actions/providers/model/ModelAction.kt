@@ -14,25 +14,29 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Import model",
-        description = "Import a new model. The from attribute shall be an URL or a filesystem path. Detection is made based on the content of the file to detect original format. Supported formats depends on installed plugins."
+        description = "Import a new model. The from attribute shall be an URL or a filesystem path. Detection is made based on the content of the file to detect original format. Supported formats depends on installed plugins.",
+        uiLocation="models"
     )
     data class Import(val from: String) : ModelAction
 
     @ActionDoc(
         title = "Inspect models",
-        description = "Produces a tree view of registered models, entities, and attributes in the runtime."
+        description = "Produces a tree view of registered models, entities, and attributes in the runtime.",
+        uiLocation="general"
     )
     class Inspect_Human() : ModelAction
 
     @ActionDoc(
         title = "Inspect models (JSON)",
-        description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model."
+        description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
+        uiLocation="general"
     )
     class Inspect_Json() : ModelAction
 
     @ActionDoc(
         title = "Create model",
-        description = "Initializes a new model with the provided identifier, display name, optional description, and version."
+        description = "Initializes a new model with the provided identifier, display name, optional description, and version.",
+        uiLocation="models"
     )
     data class Model_Create(
         val modelKey: ModelKey,
@@ -43,38 +47,44 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update model name",
-        description = "Changes model name"
+        description = "Changes model name",
+        uiLocation="model.name"
     )
     data class Model_UpdateName(val modelKey: ModelKey, val name: String) : ModelAction
 
     @ActionDoc(
         title = "Update model description",
-        description = "Changes model description"
+        description = "Changes model description",
+        uiLocation="model.description"
     )
     data class Model_UpdateDescription(val modelKey: ModelKey, val description: String?) : ModelAction
 
 
     @ActionDoc(
         title = "Update model version",
-        description = "Changes model version"
+        description = "Changes model version",
+        uiLocation="model.version"
     )
     data class Model_UpdateVersion(val modelKey: ModelKey, val version: String) : ModelAction
 
     @ActionDoc(
         title = "Add tag to model",
-        description = "Adds a tag to a model"
+        description = "Adds a tag to a model",
+        uiLocation="model.tags"
     )
     data class Model_AddTag(val modelKey: ModelKey, val tag: Hashtag) : ModelAction
 
     @ActionDoc(
         title = "Delete tag from model",
-        description = "Deletes a tag from a model."
+        description = "Deletes a tag from a model.",
+        uiLocation="model.tags"
     )
     data class Model_DeleteTag(val modelKey: ModelKey, val tag: Hashtag) : ModelAction
 
     @ActionDoc(
         title = "Delete model definition",
-        description = "Removes a model and all of its entities from the runtime."
+        description = "Removes a model and all of its entities from the runtime.",
+        uiLocation="model"
     )
     data class Model_Delete(val modelKey: ModelKey) : ModelAction
 
@@ -84,28 +94,34 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Create type",
-        description = "Create type definition in an existing model, optionally supplying user-facing name and description."
+        description = "Create type definition in an existing model, optionally supplying user-facing name and description.",
+        uiLocation="model"
     )
     data class Type_Create(
-        val modelKey: ModelKey, val typeKey: TypeKey, val name: String?, val description: String?) :
+        val modelKey: ModelKey, val typeKey: TypeKey, val name: String?, val description: String?
+    ) :
         ModelAction
 
 
     @ActionDoc(
         title = "Update type name",
-        description = "Updates a type name"
+        description = "Updates a type name",
+        uiLocation="type.name"
     )
     data class Type_UpdateName(val modelKey: ModelKey, val typeKey: TypeKey, val name: String?) : ModelAction
 
     @ActionDoc(
         title = "Update type description",
-        description = "Updates a type description"
+        description = "Updates a type description",
+        uiLocation="type.description"
     )
-    data class Type_UpdateDescription(val modelKey: ModelKey, val typeKey: TypeKey, val description: String?) : ModelAction
+    data class Type_UpdateDescription(val modelKey: ModelKey, val typeKey: TypeKey, val description: String?) :
+        ModelAction
 
     @ActionDoc(
         title = "Delete type",
-        description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes."
+        description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes.",
+        uiLocation="type"
     )
     data class Type_Delete(val modelKey: ModelKey, val typeKey: TypeKey) : ModelAction
 
@@ -115,7 +131,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Create model entity",
-        description = "Adds an entity to an existing model, optionally supplying user-facing name and description."
+        description = "Adds an entity to an existing model, optionally supplying user-facing name and description.",
+        uiLocation = "model",
     )
     data class Entity_Create(
         val modelKey: ModelKey,
@@ -130,7 +147,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity id",
-        description = "Changes identifier of an entity."
+        description = "Changes identifier of an entity.",
+        uiLocation = "entity.id"
     )
     data class Entity_UpdateId(
         val modelKey: ModelKey,
@@ -141,7 +159,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity title",
-        description = "Changes the display title of an entity."
+        description = "Changes the display title of an entity.",
+        uiLocation = "entity.title"
     )
     data class Entity_UpdateName(
         val modelKey: ModelKey,
@@ -151,7 +170,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity description",
-        description = "Changes the description of an entity."
+        description = "Changes the description of an entity.",
+        uiLocation = "entity.description"
     )
     data class Entity_UpdateDescription(
         val modelKey: ModelKey,
@@ -161,7 +181,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Add entity tag",
-        description = "Add a tag to an entity."
+        description = "Add a tag to an entity.",
+        uiLocation = "entity.tags"
     )
     data class Entity_AddTag(
         val modelKey: ModelKey,
@@ -172,7 +193,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Delete entity tag",
-        description = "Changes the description of an entity."
+        description = "Changes the description of an entity.",
+        uiLocation = "entity.tags"
     )
     data class Entity_DeleteTag(
         val modelKey: ModelKey,
@@ -183,7 +205,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Delete model entity",
-        description = "Removes an entity and all its attributes from the given model."
+        description = "Removes an entity and all its attributes from the given model.",
+        uiLocation = "entity"
     )
     data class Entity_Delete(
         val modelKey: ModelKey,
@@ -197,7 +220,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Create entity attribute",
-        description = "Declares an attribute on an entity with its type, optional flag, and optional metadata."
+        description = "Declares an attribute on an entity with its type, optional flag, and optional metadata.",
+        uiLocation = "entity"
     )
     data class EntityAttribute_Create(
         val modelKey: ModelKey,
@@ -212,7 +236,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity attribute id",
-        description = "Changes identifier of an entity attribute."
+        description = "Changes identifier of an entity attribute.",
+        uiLocation = "entityAttribute.id"
     )
     data class EntityAttribute_UpdateId(
         val modelKey: ModelKey,
@@ -223,7 +248,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity attribute name",
-        description = "Changes the display title of an entity attribute."
+        description = "Changes the display title of an entity attribute.",
+        uiLocation = "entityAttribute.name"
     )
     data class EntityAttribute_UpdateName(
         val modelKey: ModelKey,
@@ -235,7 +261,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity attribute description",
-        description = "Changes the description of an entity attribute."
+        description = "Changes the description of an entity attribute.",
+        uiLocation = "entityAttribute.description"
     )
     data class EntityAttribute_UpdateDescription(
         val modelKey: ModelKey,
@@ -247,7 +274,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity attribute type",
-        description = "Changes the declared type of an entity attribute."
+        description = "Changes the declared type of an entity attribute.",
+        uiLocation="entityAttribute.type"
     )
     data class EntityAttribute_UpdateType(
         val modelKey: ModelKey,
@@ -259,7 +287,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Update entity attribute optionality",
-        description = "Changes whether an entity attribute is optional."
+        description = "Changes whether an entity attribute is optional.",
+        uiLocation="entityAttribute.optional"
     )
     data class EntityAttribute_UpdateOptional(
         val modelKey: ModelKey,
@@ -270,7 +299,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Add tag to entity attribute",
-        description = "Add tag to entity attribute"
+        description = "Add tag to entity attribute",
+        uiLocation = "entityAttribute.tags"
     )
     data class EntityAttribute_AddTag(
         val modelKey: ModelKey,
@@ -281,7 +311,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Delete tag from entity attribute",
-        description = "Delete tag from entity attribute"
+        description = "Delete tag from entity attribute",
+        uiLocation = "entityAttribute.tags"
     )
     data class EntityAttribute_DeleteTag(
         val modelKey: ModelKey,
@@ -292,7 +323,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Delete entity attribute",
-        description = "Removes an attribute from an entity within a model."
+        description = "Removes an attribute from an entity within a model.",
+        uiLocation = "entityAttribute"
     )
     data class EntityAttribute_Delete(
         val modelKey: ModelKey,

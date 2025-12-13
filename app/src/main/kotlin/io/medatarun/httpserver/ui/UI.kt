@@ -3,6 +3,7 @@ package io.medatarun.httpserver.ui
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.model.domain.*
 import io.medatarun.runtime.AppRuntime
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import java.util.*
 import kotlin.reflect.typeOf
@@ -150,20 +151,23 @@ class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegi
         actionRegistry.findAllGroupDescriptors().forEach { group ->
 
             group.commands.forEach { command ->
-                val inlineProps = if (command.parameters.isEmpty()) "Record<string, never>" else "{" + command.parameters
-                    .map { it.name to when(it.type) {
-                        typeOf<ModelKey>() -> "ModelKey"
-                        typeOf<EntityKey>() -> "EntityKey"
-                        typeOf<AttributeKey>() -> "AttributeKey"
-                        typeOf<String>() -> "string"
-                        else -> "string"
-                    } }
-                    .map { (name, type) -> "$name:$type" }
-                    .joinToString(separator = ", ")+ "}"
+                val inlineProps =
+                    if (command.parameters.isEmpty()) "Record<string, never>" else "{" + command.parameters
+                        .map {
+                            it.name to when (it.type) {
+                                typeOf<ModelKey>() -> "ModelKey"
+                                typeOf<EntityKey>() -> "EntityKey"
+                                typeOf<AttributeKey>() -> "AttributeKey"
+                                typeOf<String>() -> "string"
+                                else -> "string"
+                            }
+                        }
+                        .map { (name, type) -> "$name:$type" }
+                        .joinToString(separator = ", ") + "}"
                 str.appendLine("export function ${group.name}_${command.name}(props:$inlineProps) { ")
                 str.appendLine("  return { ")
-                str.appendLine(    "\"action\": \"${group.name}/${command.name}\",")
-                str.appendLine(    "\"payload\": props")
+                str.appendLine("\"action\": \"${group.name}/${command.name}\",")
+                str.appendLine("\"payload\": props")
                 str.appendLine("  } ")
                 str.appendLine("} ")
             }
@@ -173,6 +177,38 @@ class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegi
         return str.toString()
     }
 
-
+    fun actionRegistryDto(detectLocale: Locale): List<ActionDto> {
+        return actionRegistry.findAllActions().map { cmd ->
+            ActionDto(
+                actionKey = cmd.name,
+                groupKey = cmd.group,
+                title = cmd.title ?: cmd.name,
+                description = cmd.description,
+                uiLocation = cmd.uiLocation,
+                parameters = cmd.parameters.map { p ->
+                    ActionParamDto(
+                        name = p.name,
+                        type = p.type.toString(),
+                        optional = p.optional
+                    )
+                }
+            )
+        }
+    }
 }
+
+
+@Serializable
+data class ActionDto(
+    val groupKey: String,
+    val actionKey: String,
+    val title: String,
+    val description: String?,
+    val parameters: List<ActionParamDto>,
+    val uiLocation: String
+)
+
+@Serializable
+data class ActionParamDto(val name: String, val type: String, val optional: Boolean)
+
 

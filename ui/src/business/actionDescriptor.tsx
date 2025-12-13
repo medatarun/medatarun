@@ -1,10 +1,12 @@
-export type ActionRegistryDto = Record<string, ActionDescriptorDto[]>
+export type ActionRegistryDto = ActionDescriptorDto[]
 
 interface ActionDescriptorDto {
-  name: string,
+  actionKey: string,
+  groupKey: string,
   title: string | null,
   description: string | null,
-  parameters: ActionParamDescriptorDto[]
+  parameters: ActionParamDescriptorDto[],
+  uiLocation: string
 }
 
 interface ActionParamDescriptorDto {
@@ -13,41 +15,30 @@ interface ActionParamDescriptorDto {
   optional: boolean
 }
 
-type CommandTargetType = "model" | "entity" | "entityAttribute" | "relationship" | "relationshipAttribute" | "none"
 
 export class ActionDescriptor {
   public actionGroupKey: string
-  public isModelKey: boolean;
-  public isEntityKey: boolean;
-  public isAttributeKey: boolean;
-  public isRelationshipKey: boolean;
-  public targetType: CommandTargetType
   public key: string;
   public description: string | null
   public parameters: ActionDescriptorParam[];
+  public title: string;
+  public path: string
 
   private dto: ActionDescriptorDto;
 
-  constructor(actionGroupKey: string, dto: ActionDescriptorDto) {
+  constructor(dto: ActionDescriptorDto) {
     this.dto = dto
-    this.actionGroupKey = actionGroupKey
-    this.isModelKey = this.dto.parameters.some(it => it.name === "modelKey")
-    this.isEntityKey = this.dto.parameters.some(it => it.name === "entityKey")
-    this.isAttributeKey = this.dto.parameters.some(it => it.name === "attributeKey")
-    this.isRelationshipKey = this.dto.parameters.some(it => it.name === "relationshipKey")
-    this.targetType = this.findTargetType()
-    this.key = dto.name
+    this.actionGroupKey = dto.groupKey
+    this.key = dto.actionKey
     this.description = dto.description
     this.parameters = dto.parameters.map(it => new ActionDescriptorParam(it))
+    this.title = dto.title ?? dto.groupKey + "/" + dto.actionKey
+    this.path = dto.groupKey + "/" + dto.actionKey
   }
 
-  private findTargetType(): CommandTargetType {
-    if (this.isAttributeKey && this.isEntityKey && this.isModelKey) return "entityAttribute"
-    if (this.isAttributeKey && this.isRelationshipKey && this.isModelKey) return "relationshipAttribute"
-    if (this.isEntityKey && this.isModelKey) return "entity"
-    if (this.isRelationshipKey && this.isModelKey) return "relationship"
-    if (this.isModelKey) return "model"
-    return "none"
+
+  matchesLocation(location: string): boolean {
+    return this.dto.uiLocation === location
   }
 
 }
@@ -72,18 +63,8 @@ export class ActionRegistry {
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
-    this.actionGroupKeys = Object.keys(this.dto)
-    const desc: ActionDescriptor[] = []
-    for (const actionGroupKey of Object.keys(this.dto)) {
-      const actionGroup = this.dto[actionGroupKey]
-      if (actionGroup) {
-        for (const actionDescriptorDto of actionGroup) {
-          const a = new ActionDescriptor(actionGroupKey, actionDescriptorDto)
-          desc.push(a)
-        }
-      }
-    }
-    this.actionDescriptors = desc
+    this.actionGroupKeys = [...new Set(this.dto.map(it => it.groupKey))]
+    this.actionDescriptors = dto.map(it => new ActionDescriptor(it))
   }
 
   public findActionDtoListByResource(groupKey: string | undefined | null): ActionDescriptor[] {
@@ -97,10 +78,8 @@ export class ActionRegistry {
     return this.actionDescriptors.find(it => actionGroupKey === it.actionGroupKey && actionKey == it.key)
   }
 
-  public findFirstActionKey(resource: string) {
-    const r = this.dto[resource]
-    if (!r) return undefined
-    return r.length == 0 ? undefined : r[0].name
+  public findFirstActionKey(resource: string): string | undefined {
+    return this.actionDescriptors.find(it => it.actionGroupKey === resource)?.key
   }
 
   public findFirstGroupKey() {
@@ -108,7 +87,7 @@ export class ActionRegistry {
   }
 
   public existsGroup(resource: string) {
-    return this.dto[resource] !== undefined
+    return this.actionGroupKeys.some(it => it === resource)
   }
 
   public existsAction(resource: string, action: string) {
@@ -120,6 +99,11 @@ export class ActionRegistry {
     if (!action) return "{}"
     return buildPayloadTemplate(action)
   }
+
+  public findActions(location: string): ActionDescriptor[] {
+    return this.actionDescriptors.filter(it => it.matchesLocation(location))
+  }
+
 }
 
 
@@ -137,7 +121,7 @@ function buildPayloadTemplate(action: ActionDescriptor): string {
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function fetchActionDescriptors(): Promise<ActionRegistryDto> {
-  return fetch("/api")
+  return fetch("/ui/api/action-registry")
     .then(res => res.json())
 }
 

@@ -1,5 +1,6 @@
-import {Fragment, useEffect, useMemo, useState} from "react";
-import {ActionRegistry, executeAction, fetchActionDescriptors} from "../business/actionDescriptor.tsx";
+import {Fragment, useMemo, useState} from "react";
+import {ActionRegistry, executeAction} from "../business/actionDescriptor.tsx";
+import {useActionRegistry} from "../components/business/ActionsContext.tsx";
 
 
 function OutputDisplay({output}: { output: unknown }) {
@@ -19,13 +20,7 @@ function OutputDisplay({output}: { output: unknown }) {
 }
 
 export function CommandsPage() {
-  const [commandRegistryDto, setCommandRegistryDto] = useState<ActionRegistry | undefined>(undefined)
-  useEffect(() => {
-    fetchActionDescriptors()
-      .then(data => setCommandRegistryDto(new ActionRegistry(data)))
-      .catch(err => console.log(err))
-  }, [])
-  if (!commandRegistryDto) return null
+  const commandRegistryDto = useActionRegistry()
   return <CommandsPageLoaded actionRegistry={commandRegistryDto}/>
 }
 

@@ -30,5 +30,11 @@ data class ActionCmdDescriptor(
     /**
      * How to invoke the command (may be expanded in the future, had contained other values before, we keep it)
      */
-    val accessType: ActionCmdAccessType
+    val accessType: ActionCmdAccessType,
+    /**
+     * Hint for UI to know where to display the command
+     * Known values are "" (no location, hidden), "models" in the list of models, "entity" on an entity, etc.
+     * This is tight to the UI. To know possible values, you need to look at the UI pages' code
+     */
+    val uiLocation: String
 )

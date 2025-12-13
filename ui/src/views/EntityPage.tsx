@@ -24,6 +24,7 @@ import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx"
 import {InfoRegular} from "@fluentui/react-icons";
 import {TabPanel} from "../components/core/TabPanel.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
+import {ActionsBar} from "../components/business/ActionsBar.tsx";
 
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
@@ -62,7 +63,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
     </Breadcrumb>
   }>
     <ViewTitle>Entity {entity.name ?? entity.id}</ViewTitle>
-
+    <ActionsBar location="entity" />
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab value="info" icon={<InfoRegular/>}>Overview</Tab>
       <Tab value="attributes" icon={<AttributeIcon/>}>Attributes</Tab>

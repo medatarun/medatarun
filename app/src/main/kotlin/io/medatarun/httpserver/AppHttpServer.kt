@@ -51,7 +51,11 @@ class AppHttpServer(
     private val resources = ActionProviders()
     private val actionRegistry = ActionRegistry(resources)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
-    private val mcpServerBuilder = McpServerBuilder(actionRegistry, configAgentInstructions = ConfigAgentInstructions(), actionCtxFactory=actionCtxFactory)
+    private val mcpServerBuilder = McpServerBuilder(
+        actionRegistry,
+        configAgentInstructions = ConfigAgentInstructions(),
+        actionCtxFactory = actionCtxFactory
+    )
     private val restApiDoc = RestApiDoc(actionRegistry)
     private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
 
@@ -148,10 +152,22 @@ class AppHttpServer(
                 }
             }
             get("/ui/api/actions") {
-                call.respondText(UI(runtime, actionRegistry).generateTypescriptActions(), ContentType.Text.JavaScript)
+                call.respondText(
+                    UI(runtime, actionRegistry).generateTypescriptActions(),
+                    ContentType.Text.JavaScript
+                )
+            }
+            get("/ui/api/action-registry") {
+                call.respond(
+                    UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)),
+
+                )
             }
             get("/ui/api/models") {
-                call.respondText(UI(runtime, actionRegistry).modelListJson(detectLocale(call)), ContentType.Application.Json)
+                call.respondText(
+                    UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
+                    ContentType.Application.Json
+                )
             }
             get("/ui/api/models/{modelId}") {
                 val modelId = call.parameters["modelId"] ?: throw NotFoundException()
