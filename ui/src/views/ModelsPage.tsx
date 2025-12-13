@@ -17,7 +17,7 @@ export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => 
   return <ViewLayoutContained title={<Breadcrumb><BreadcrumbButton icon={<ModelIcon/>}> Models</BreadcrumbButton></Breadcrumb>}>
     <ActionsBar location="models" />
     {data.length == 0 ? "No models found" : null}
-    <div style={{display: "flex", columnGap: "1em", rowGap: "1em", flexWrap: "wrap", justifyContent: "space-around"}}>
+    <div style={{display: "flex", columnGap: "1em", rowGap: "1em", flexWrap: "wrap"}}>
       {data.map((model: ModelSummaryDto) => <ModelCard key={model.id} model={model} onClick={onClickModel}/>)}
     </div>
 

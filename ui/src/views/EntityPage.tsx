@@ -63,7 +63,10 @@ export function EntityView({entity}: { entity: EntityDto }) {
     </Breadcrumb>
   }>
     <ViewTitle>Entity {entity.name ?? entity.id}</ViewTitle>
-    <ActionsBar location="entity" />
+    <ActionsBar location="entity" params={{
+      modelKey: model.id,
+      entityKey: entity.id
+    }} />
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab value="info" icon={<InfoRegular/>}>Overview</Tab>
       <Tab value="attributes" icon={<AttributeIcon/>}>Attributes</Tab>

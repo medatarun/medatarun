@@ -14,6 +14,8 @@ import {ModelIcon} from "../business/Icons.tsx";
 import {ActionsContext} from "../business/ActionsContext.tsx";
 import {useEffect, useState} from "react";
 import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescriptor.tsx";
+import {ActionPerformerView} from "../business/ActionPerformerView.tsx";
+import {ActionProvider} from "../business/ActionPerformerProvider.tsx";
 
 const useStyles = makeStyles({
   root: {display: "grid", gridTemplateColumns: "261px auto", height: "100vh", maxHeight: "100vh", overflow: "hidden"},
@@ -36,6 +38,7 @@ export function Layout() {
   const {location} = useRouterState()
   const [actions, setActions] = useState<ActionRegistry>()
   const [error, setError] = useState<any | null>(null)
+
   useEffect(() => {
     fetchActionDescriptors()
       .then(dto => {
@@ -53,7 +56,6 @@ export function Layout() {
     return "models"
   })();
 
-
   return <div className={styles.root}>
     <div className={styles.left}>
       <NavDrawerControlled selectedValue={selectedValue}/>
@@ -61,7 +63,10 @@ export function Layout() {
     <main className={styles.right}>
       {actions &&
         <ActionsContext value={actions}>
-          <Outlet/>
+          <ActionProvider>
+            <Outlet/>
+            <ActionPerformerView/>
+          </ActionProvider>
         </ActionsContext>
       }
       {

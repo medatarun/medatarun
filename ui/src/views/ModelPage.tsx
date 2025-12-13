@@ -57,7 +57,9 @@ export function ModelView() {
       <div style={{textTransform: "uppercase"}}><Caption1><ModelIcon /> Model</Caption1></div>
       <div style={{fontWeight: tokens.fontWeightSemibold, fontSize: tokens.fontSizeBase500}}><div style={{overflow: "hidden", height:"2em", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{displayName}</div></div>
     </div>
-    <ActionsBar location="model" />
+    <ActionsBar location="model" params={{
+      modelKey: model.id,
+    }} />
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab icon={<InfoRegular/>} value="info">Overview</Tab>
       <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
