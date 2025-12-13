@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Link} from "@tanstack/react-router";
+import {Link, useNavigate} from "@tanstack/react-router";
 import {ExternalUrl, Markdown, Origin} from "./ModelPage.tsx";
 import {type EntityDto, Model, type ModelDto} from "../business/model.tsx";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
@@ -18,11 +18,12 @@ import {
   Text
 } from "@fluentui/react-components";
 import {ViewSubtitle} from "../components/core/ViewSubtitle.tsx";
-import {AttributeIcon, RelationshipIcon} from "../components/business/Icons.tsx";
+import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../components/business/Icons.tsx";
 import {AttributesTable} from "../components/business/AttributesTable.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
 import {InfoRegular} from "@fluentui/react-icons";
 import {TabPanel} from "../components/core/TabPanel.tsx";
+import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
@@ -40,20 +41,28 @@ export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefI
 }
 
 export function EntityView({entity}: { entity: EntityDto }) {
-  const model = useModelContext().dto
+  const model = useModelContext()
   const [selectedTab, setSelectedTab] = useState<TabValue>("info");
-
-  const relationshipsInvolved = model.relationshipDefs
+  const navigate = useNavigate()
+  const relationshipsInvolved = model.dto.relationshipDefs
     .filter(it => it.roles.some(r => r.entityId === entity.id));
 
-  return <div>
-    <ViewTitle>Entity {entity.name ?? entity.id}</ViewTitle>
+  const handleClickModel = () => { navigate({
+    to: "/model/$modelId",
+    params: {modelId: model.id}
+  }) };
+
+  return <ViewLayoutContained title={
     <Breadcrumb>
-      <BreadcrumbItem><BreadcrumbButton><Link to="/">Models</Link></BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>}><Link to="/">Models</Link></BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
-      <BreadcrumbItem><BreadcrumbButton><Link to="/model/$modelId"
-                                              params={{modelId: entity.model.id}}>{entity.model.name ?? entity.model.id}</Link></BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbDivider/>
+      <BreadcrumbItem><BreadcrumbButton icon={<EntityIcon/>} current>{entity.name ?? entity.id}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
+  }>
+    <ViewTitle>Entity {entity.name ?? entity.id}</ViewTitle>
+
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab value="info" icon={<InfoRegular/>}>Overview</Tab>
       <Tab value="attributes" icon={<AttributeIcon/>}>Attributes</Tab>
@@ -116,5 +125,5 @@ export function EntityView({entity}: { entity: EntityDto }) {
     )}
 
 
-  </div>
+  </ViewLayoutContained>
 }

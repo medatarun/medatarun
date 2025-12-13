@@ -4,15 +4,25 @@ import {useNavigate} from "@tanstack/react-router";
 import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
-import {ViewTitle} from "../components/core/ViewTitle.tsx";
-import type {TabValue} from "@fluentui/react-components";
-import {Divider, Tab, TabList} from "@fluentui/react-components";
-import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
+import {
+  Breadcrumb,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+  BreadcrumbItem,
+  Caption1,
+  Divider,
+  Tab,
+  TabList,
+  type TabValue,
+  tokens
+} from "@fluentui/react-components";
+import {EntityIcon, ModelIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
 import {TypesTable} from "../components/business/TypesTable.tsx";
 import {TabPanel} from "../components/core/TabPanel.tsx";
 import {InfoRegular} from "@fluentui/react-icons";
+import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -31,8 +41,21 @@ export function ModelView() {
   const model = useModelContext().dto
   const [selectedTab, setSelectedTab] = useState<TabValue>("info")
 
-  return <div>
-    <ViewTitle><div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow:"ellipsis"}}>Model {model.name ?? model.id}</div></ViewTitle>
+  const displayName = model.name ?? model.id
+  const navigate = useNavigate();
+  const handleClickModels = () => { navigate({to:"/"})}
+
+  return <ViewLayoutContained title={
+    <Breadcrumb>
+      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModels}>Models</BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbDivider/>
+      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
+    </Breadcrumb>
+  }>
+    <div>
+      <div style={{textTransform: "uppercase"}}><Caption1><ModelIcon /> Model</Caption1></div>
+      <div style={{fontWeight: tokens.fontWeightSemibold, fontSize: tokens.fontSizeBase500}}><div style={{overflow: "hidden", height:"2em", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{displayName}</div></div>
+    </div>
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab icon={<InfoRegular/>} value="info">Overview</Tab>
       <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
@@ -55,7 +78,7 @@ export function ModelView() {
       <TypesTable types={model.types}/>
     </div>)}
 
-  </div>
+  </ViewLayoutContained>
 }
 
 export function ModelOverview() {

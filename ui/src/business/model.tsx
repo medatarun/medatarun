@@ -76,6 +76,11 @@ export class Model {
   findEntityName(id: string): string | null {
     const e = this.dto.entityDefs.find(it => it.id === id)
     return e?.name ?? null
-
   }
+
+  get nameOrId (){
+    return this.dto.name ?? this.dto.id
+  }
+  get id() { return this.dto.id }
+
 }
