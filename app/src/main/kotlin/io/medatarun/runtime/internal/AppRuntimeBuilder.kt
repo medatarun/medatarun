@@ -1,5 +1,6 @@
 package io.medatarun.runtime.internal
 
+import io.medatarun.actions.ports.needs.ActionsExtension
 import io.medatarun.data.DataExtension
 import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.db.DbExtension
@@ -30,6 +31,7 @@ class AppRuntimeBuilder {
     val config = scanner.scan()
     val extensions = listOf(
         ModelExtension(),
+        ActionsExtension(),
         ModelJsonExtension(),
         DataExtension(),
         DataMdFileExtension(),

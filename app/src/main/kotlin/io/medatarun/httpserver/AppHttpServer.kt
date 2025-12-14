@@ -49,7 +49,7 @@ class AppHttpServer(
 ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val resources = ActionProviders()
-    private val actionRegistry = ActionRegistry(resources)
+    private val actionRegistry = ActionRegistry(resources, runtime.extensionRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry,

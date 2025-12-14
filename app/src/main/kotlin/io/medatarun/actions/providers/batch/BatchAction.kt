@@ -1,7 +1,7 @@
 package io.medatarun.actions.providers.batch
 
-import io.medatarun.actions.runtime.ActionDoc
-import io.medatarun.actions.runtime.ActionRequest
+import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionRequest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

@@ -1,7 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.actions.providers.ActionProviders
-import kotlin.reflect.KProperty1
+import io.medatarun.actions.ports.needs.ActionProvider
 
 data class ActionGroupDescriptor(
     /**
@@ -9,11 +8,11 @@ data class ActionGroupDescriptor(
      */
     val name: String,
     /**
-     * Property that gives access to this group in provider
-     */
-    val property: KProperty1<ActionProviders, *>,
-    /**
      * List of commands provided by this group
      */
     val commands: List<ActionCmdDescriptor>,
+    /**
+     * Provider that provides commands for this group
+     */
+    val providerInstance: ActionProvider<*>,
 )

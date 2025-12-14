@@ -1,6 +1,6 @@
 package io.medatarun.actions.providers.model
 
-import io.medatarun.actions.runtime.ActionCtx
+import io.medatarun.actions.ports.needs.ActionCtx
 
 class ModelInspectAction(val runtime: ActionCtx) {
     fun process(): String {

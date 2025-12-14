@@ -1,7 +1,7 @@
 package io.medatarun.actions.providers.model
 
-import io.medatarun.actions.runtime.ActionDoc
-import io.medatarun.actions.runtime.ActionParamDoc
+import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
@@ -15,14 +15,25 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Import model",
-        description = "Import a new model. The from attribute shall be an URL or a filesystem path. Detection is made based on the content of the file to detect original format. Supported formats depends on installed plugins.",
+        description = "Import a new model. Detection is made based on the content of the file to detect original format. See installed plugins for supported formats.",
         uiLocation = "models"
     )
-    data class Import(val from: String) : ModelAction
+    data class Import(
+        @ActionParamDoc("URL to import from",
+            """
+            Provide an URL `https://...` to import from a remote location. 
+            
+            Provide a filesystem path `/path/to/file` to import from a local file of your installation.
+            
+            Provide a `datasource:<datasource_name>` to import from a database. Available datasources are listed in configuration tools.     
+            """
+        )
+        val from: String
+    ) : ModelAction
 
     @ActionDoc(
         title = "Inspect models",
-        description = "Produces a tree view of registered models, entities, and attributes in the runtime.",
+        description = "Produces a tree view of registered models, entities, and attributes.",
         uiLocation = "general"
     )
     class Inspect_Human() : ModelAction

@@ -25,6 +25,10 @@ class DbConnectionRegistry(
         this.map = connectionsJson.associateBy { it.name }
     }
 
+    fun listConnections():List<DbConnection> {
+        return map.values.toList()
+    }
+
     fun readJson(): List<DbConnection> {
         if (!path.exists()) return emptyList()
         val connections = Json.decodeFromString<DbConnectionsJson>(path.readText())

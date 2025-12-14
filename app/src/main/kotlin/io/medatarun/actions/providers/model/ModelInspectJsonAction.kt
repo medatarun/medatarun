@@ -1,6 +1,6 @@
 package io.medatarun.actions.providers.model
 
-import io.medatarun.actions.runtime.ActionCtx
+import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.model.domain.AttributeDef
 import io.medatarun.model.domain.LocalizedText
 import kotlinx.serialization.json.*

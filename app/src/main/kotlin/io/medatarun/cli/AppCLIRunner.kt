@@ -1,10 +1,10 @@
 package io.medatarun.cli
 
+import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.providers.ActionProviders
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.actions.runtime.ActionRequest
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
@@ -20,7 +20,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
     }
 
     private val resources = ActionProviders()
-    private val actionRegistry = ActionRegistry(resources)
+    private val actionRegistry = ActionRegistry(resources, runtime.extensionRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
 
     init {

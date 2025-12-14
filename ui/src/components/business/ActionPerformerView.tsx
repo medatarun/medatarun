@@ -19,6 +19,7 @@ import {useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
 import {ActionDescriptor, type ActionResp} from "../../business/actionDescriptor.tsx";
 import type {ActionPerformerState} from "./ActionPerformer.tsx";
+import ReactMarkdown from "react-markdown";
 
 type FormDataType = Record<string, unknown>;
 type FormFieldType = {
@@ -95,6 +96,7 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
+            {action.description && <div>{action.description}</div>}
             {formFields.map(field => (
               <FormFieldInput field={field} value={formData[field.key]} onChange={handleChangeFormFieldInput}/>))}
             {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
@@ -134,7 +136,7 @@ function FormFieldInput({field, value, onChange}: {
     // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
     // The second param are the props for the slot, which need to be passed to the InfoLabel.
     children: (_: unknown, slotProps: LabelProps) => (
-      <InfoLabel {...slotProps} info={field.description ?? ""}>
+      <InfoLabel {...slotProps} info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
         {field.title}
       </InfoLabel>
     ),

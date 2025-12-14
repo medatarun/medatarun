@@ -1,5 +1,7 @@
 package io.medatarun.ext.db
 
+import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.ext.db.actions.DatabasesActionProvider
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.internal.modelimport.DbModelImporter
@@ -23,6 +25,7 @@ class DbExtension : MedatarunExtension {
         logger.debug("connexionsJsonPath: {}", connexionsJsonPath)
         val dbConnectionRegistry = DbConnectionRegistry(connexionsJsonPath)
         ctx.register(ModelImporter::class, DbModelImporter(dbDriverManager, dbConnectionRegistry))
+        ctx.register(ActionProvider::class, DatabasesActionProvider(dbDriverManager, dbConnectionRegistry))
     }
 
     companion object {

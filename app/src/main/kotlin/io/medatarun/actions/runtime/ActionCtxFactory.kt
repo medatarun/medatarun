@@ -1,5 +1,7 @@
 package io.medatarun.actions.runtime
 
+import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelHumanPrinter

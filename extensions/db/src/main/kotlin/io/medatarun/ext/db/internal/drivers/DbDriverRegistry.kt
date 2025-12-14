@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.drivers
 
-import io.medatarun.ext.db.model.DbDriverManagerUnknownDatabaseException
 import io.medatarun.ext.db.model.DbDriverInfo
+import io.medatarun.ext.db.model.DbDriverManagerUnknownDatabaseException
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -28,6 +28,10 @@ class DbDriverRegistry(val driversJsonPath: Path, val jdbcDriversPath: Path) {
         logger.debug("Declared JDBC drivers: {}", drivers.map { it.id })
         return drivers
 
+    }
+
+    fun listDrivers(): List<DbDriverInfo> {
+        return knownDrivers
     }
 
     fun isKnown(database: String): Boolean {

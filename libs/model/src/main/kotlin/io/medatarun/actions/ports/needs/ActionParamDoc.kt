@@ -1,4 +1,4 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.ports.needs
 
 @Target(AnnotationTarget.PROPERTY)
 annotation class ActionParamDoc(

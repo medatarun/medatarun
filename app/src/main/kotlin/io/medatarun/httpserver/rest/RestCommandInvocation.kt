@@ -4,10 +4,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.actions.runtime.ActionRequest
 import io.medatarun.httpserver.commons.HttpAdapters
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
@@ -98,7 +98,7 @@ class RestCommandInvocation(
         is String -> result
         is JsonObject -> result
         is JsonArray -> result
-        else -> mapOf("status" to "ok", "result" to result.toString())
+        else -> result
     }
 
     companion object {

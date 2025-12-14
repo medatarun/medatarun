@@ -1,6 +1,6 @@
 package io.medatarun.actions.providers.config
 
-import io.medatarun.actions.runtime.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDoc
 
 sealed interface ConfigAction {
     @ActionDoc(
@@ -23,4 +23,5 @@ sealed interface ConfigAction {
         uiLocation = "global",
     )
     class InspectJson() : ConfigAction
+
 }

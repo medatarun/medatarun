@@ -1,6 +1,6 @@
 package io.medatarun.actions.providers.model
 
-import io.medatarun.actions.runtime.ActionCtx
+import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.runtime.internal.ResourceLocatorImpl

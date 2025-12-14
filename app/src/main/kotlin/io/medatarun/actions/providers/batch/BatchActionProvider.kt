@@ -1,9 +1,11 @@
 package io.medatarun.actions.providers.batch
 
-import io.medatarun.actions.runtime.ActionCtx
-import io.medatarun.actions.runtime.ActionProvider
+import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionProvider
 
 class BatchActionProvider() : ActionProvider<BatchAction> {
+    override val actionGroupKey: String = "batch"
+
 
     /**
      * Returns the list of supported commands. Note that we NEVER return the business model's commands

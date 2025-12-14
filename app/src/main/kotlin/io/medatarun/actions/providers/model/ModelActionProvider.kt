@@ -1,7 +1,7 @@
 package io.medatarun.actions.providers.model
 
-import io.medatarun.actions.runtime.ActionCtx
-import io.medatarun.actions.runtime.ActionProvider
+import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.*
 import org.slf4j.LoggerFactory
@@ -9,6 +9,9 @@ import java.net.URI
 import java.nio.file.FileSystems
 
 class ModelActionProvider() : ActionProvider<ModelAction> {
+
+    override val actionGroupKey: String = "model"
+
 
     /**
      * Returns the list of supported commands. Note that we NEVER return the business model's commands
