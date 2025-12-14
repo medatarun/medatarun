@@ -14,19 +14,31 @@ export const ActionsBar = ({location, params = {}}: { location: string, params?:
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(location)
   const styles = useStyles()
-  return <div className={styles.root}>{actions.map(it => <ActionButton key={it.path} action={it}
-                                                                       params={params}/>)}</div>
+  return <div className={styles.root}>{actions.map(it => <ActionButton
+    key={it.path}
+    location={location}
+    action={it}
+    params={params}/>)}</div>
 }
 
-export const ActionButton = ({action, params}: { action: ActionDescriptor, params: Record<string, string> }) => {
+export const ActionButton = ({action, params, location}: {
+  location: string,
+  action: ActionDescriptor,
+  params: Record<string, string>
+}) => {
 
   const {performAction, state} = useActionPerformer();
   const disabled = state.kind !== 'idle';
 
   const handleClick = async () => {
     try {
-      await performAction(action.key, params)
-    } catch(e) {
+      await performAction({
+        actionKey: action.key,
+        actionGroupKey: action.actionGroupKey,
+        location: location,
+        params: params,
+      })
+    } catch (e) {
       // We don't manage errors here
       console.error("Error occurred and had not been property processed by action system", e)
     }

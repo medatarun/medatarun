@@ -10,24 +10,44 @@ import {
   DialogTrigger,
   MessageBar
 } from "@fluentui/react-components";
+import {useActionRegistry} from "./ActionsContext.tsx";
+import {useState} from "react";
+import {ActionOutputBox} from "./ActionOutput.tsx";
+import type {ActionResp} from "../../business/actionDescriptor.tsx";
+import type {ActionPerformerState} from "./ActionPerformer.tsx";
 
 export function ActionPerformerView() {
+  // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
+  const {state} = useActionPerformer();
+  if (state.kind === 'idle') return null;
+  return <ActionPerformerViewLoaded state={state} />
+}
 
-  const {state, confirmAction, cancelAction, finishAction} = useActionPerformer();
+export function ActionPerformerViewLoaded({state}:{state:ActionPerformerState}) {
+
+  const actionRegistry = useActionRegistry()
+  const { confirmAction, cancelAction, finishAction} = useActionPerformer();
+  const [actionOutput, setActionOutput] = useState<ActionResp|null>(null)
 
   if (state.kind === 'idle') return null;
 
-  const {request} = state; // request.location, request.params
 
+  const {request} = state; // request.location, request.params
+  const action = actionRegistry.findAction(request.actionGroupKey, request.actionKey)
+
+  if (!action) return null
 
   const displayExecute = state.kind == "pendingUser"
-  const displayCancel = state.kind == "pendingUser" || state.kind == "error" || state.kind == "running"
-  const displayFinish = state.kind == "done"
+  const displayCancel = state.kind == "pendingUser" || state.kind == "running"
+  const displayFinish = state.kind == "done" || state.kind == "error"
 
   const onValidate = async () => {
-    const formData = {foo: 'bar'}; // normalement issu de ton formulaire
-    await confirmAction(formData);
+    const formData = {...request.params}; // normalement issu de ton formulaire
+    const output  = await confirmAction(formData);
+    setActionOutput(output)
   };
+
+
 
   const onCancel = () => {
     cancelAction();
@@ -42,11 +62,12 @@ export function ActionPerformerView() {
     <Dialog open={true}>
       <DialogSurface>
         <DialogBody>
-          <DialogTitle>Action</DialogTitle>
+          <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
-            <div>Action demandée sur {request.location}</div>
+            <div>Location: {request.location} <code>{JSON.stringify(request.params)}</code></div>
             <MessageBar>{state.kind}</MessageBar>
-            <pre>{JSON.stringify(request.params)}</pre>
+            { state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null }
+            { actionOutput ? <ActionOutputBox resp={actionOutput} /> : null }
           </DialogContent>
         </DialogBody>
         <DialogActions>

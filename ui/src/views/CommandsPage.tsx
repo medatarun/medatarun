@@ -1,23 +1,8 @@
 import {Fragment, useMemo, useState} from "react";
-import {ActionRegistry, executeAction} from "../business/actionDescriptor.tsx";
+import {ActionRegistry, type ActionResp, executeAction} from "../business/actionDescriptor.tsx";
 import {useActionRegistry} from "../components/business/ActionsContext.tsx";
+import {ActionOutput} from "../components/business/ActionOutput.tsx";
 
-
-function OutputDisplay({output}: { output: unknown }) {
-  if (output === null || output === undefined) {
-    return String(output);
-  }
-
-  if (typeof output === "string") {
-    return output;
-  }
-
-  try {
-    return JSON.stringify(output, null, 2);
-  } catch {
-    return String(output);
-  }
-}
 
 export function CommandsPage() {
   const commandRegistryDto = useActionRegistry()
@@ -32,7 +17,7 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(defaultGroupKey)
   const [selectedActionKey, setSelectedActionKey] = useState<string | undefined>(defaultActionKey)
   const [payload, setPayload] = useState<string>(defaultPayload)
-  const [output, setOutput] = useState<unknown>({})
+  const [output, setOutput] = useState<ActionResp | null>(null)
   const [errorMessage, setErrorMessage] = useState<string>("")
 
 
@@ -63,10 +48,10 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
 
     executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
       .then(data => setOutput(data))
-      .catch(err => setOutput({error: err.toString()}));
+      .catch(err => setOutput({contentType: "json", json: {error: err.toString()}}));
   }
   const handleClear = () => {
-    setOutput({})
+    setOutput({contentType: "text", text: ""})
   }
 
   const handleChangeActionGroup = (groupKey: string) => {
@@ -141,10 +126,11 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
         </div>
       </div>
       <div>
-        <pre style={{border: "1px solid green", padding: "1em"}}>
-          <OutputDisplay output={output}/>
-
-      </pre>
+        {output &&
+          <pre style={{border: "1px solid green", padding: "1em"}}>
+          <ActionOutput resp={output}/>
+          </pre>
+        }
       </div>
     </div>
   </div>

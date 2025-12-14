@@ -10,7 +10,7 @@ import {
   tokens
 } from "@fluentui/react-components";
 import {BoxMultipleArrowRight24Regular, CodeRegular} from "@fluentui/react-icons";
-import {ModelIcon} from "../business/Icons.tsx";
+import {DashboardIcon, ModelIcon} from "../business/Icons.tsx";
 import {ActionsContext} from "../business/ActionsContext.tsx";
 import {useEffect, useState} from "react";
 import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescriptor.tsx";
@@ -52,8 +52,9 @@ export function Layout() {
   }, [])
 
   const selectedValue = (() => {
+    if (location.pathname.startsWith("/models")) return "models"
     if (location.pathname.startsWith("/commands")) return "commands"
-    return "models"
+    return "dashboard"
   })();
 
   return <div className={styles.root}>
@@ -81,13 +82,12 @@ export function Layout() {
 
 const NavDrawerControlled = ({selectedValue}: {
   selectedValue: string,
-
-
 }) => {
   const styles = useStyles();
   const navigate = useNavigate()
   const handleNavigate = (item: string) => {
-    if (item == "models") navigate({to: "/"})
+    if (item == "dashboard") navigate({to: "/"})
+    if (item == "models") navigate({to: "/models"})
     if (item == "commands") navigate({to: "/commands"})
   }
   return <NavDrawer
@@ -101,9 +101,10 @@ const NavDrawerControlled = ({selectedValue}: {
     <NavDrawerHeader>
     </NavDrawerHeader>
     <NavDrawerBody>
-      <AppItem icon={<MedatarunIcon/>} onClick={() => handleNavigate("models")}>Medatarun</AppItem>
-      <NavItem icon={<ModelIcon/>} value="models">Models</NavItem>
-      <NavItem icon={<CodeRegular/>} value="commands">Commands</NavItem>
+      <AppItem icon={<MedatarunIcon fontSize={tokens.fontSizeBase500}/>} onClick={() => handleNavigate("dashboard")}>Medatarun</AppItem>
+      <NavItem icon={<DashboardIcon fontSize={tokens.fontSizeBase500}/>} value="dashboard">Home</NavItem>
+      <NavItem icon={<ModelIcon fontSize={tokens.fontSizeBase500}/>} value="models">Models</NavItem>
+      <NavItem icon={<CodeRegular fontSize={tokens.fontSizeBase500}/>} value="commands">Commands</NavItem>
     </NavDrawerBody>
   </NavDrawer>
 }

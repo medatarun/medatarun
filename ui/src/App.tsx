@@ -13,8 +13,11 @@ import {ModelPage} from "./views/ModelPage.tsx";
 import {EntityPage} from "./views/EntityPage.tsx";
 import {FluentProvider, webLightTheme} from '@fluentui/react-components';
 import {Layout} from "./components/layout/layout.tsx";
+import {DashboardPage} from "./views/DashboardPage.tsx";
 
-
+function DashboardRouteComponent() {
+  return <DashboardPage />
+}
 function ModelsRouteComponent() {
   const navigate = useNavigate();
   const handleClickModel = (modelId: string) => {
@@ -42,9 +45,15 @@ const rootRoute = createRootRoute({
   component: Layout,
 });
 
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: DashboardRouteComponent,
+})
+
 const modelsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/',
+  path: '/models',
   component: ModelsRouteComponent,
 });
 
@@ -65,7 +74,7 @@ const entityRoute = createRoute({
   component: EntityDefRouteComponent
 })
 const routeTree = rootRoute.addChildren([
-  modelsRoute, commandsRoute, modelRoute, entityRoute
+  dashboardRoute, modelsRoute, commandsRoute, modelRoute, entityRoute
 ]);
 
 const router = createRouter({

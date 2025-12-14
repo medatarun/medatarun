@@ -1,10 +1,12 @@
 import {useEffect, useMemo, useState,} from 'react';
 import {ActionPerformer, type ActionPerformerState} from './ActionPerformer';
 import {ActionPerformerContext, type ActionPerformerContextValue} from "./ActionPerformerContext.tsx";
+import {useActionRegistry} from "./ActionsContext.tsx";
 
 
 export function ActionProvider({children}: { children: React.ReactNode }) {
-  const performer = useMemo(() => new ActionPerformer(), []);
+  const actionRegistry = useActionRegistry()
+  const performer = useMemo(() => new ActionPerformer(actionRegistry), [actionRegistry]);
   const [state, setState] = useState<ActionPerformerState>(performer.getState());
 
   useEffect(() => {
@@ -12,9 +14,9 @@ export function ActionProvider({children}: { children: React.ReactNode }) {
   }, [performer]);
 
   const value: ActionPerformerContextValue = {
-    state,
-    performAction: (location, params) =>
-      performer.performAction(location, params),
+    state:state,
+    performAction: (actionRequest) =>
+      performer.performAction(actionRequest),
     confirmAction: (formData) => performer.confirmAction(formData),
     cancelAction: (reason) => performer.cancelAction(reason),
     finishAction: () => performer.finishAction()
