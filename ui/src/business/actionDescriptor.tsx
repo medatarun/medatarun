@@ -13,6 +13,9 @@ interface ActionParamDescriptorDto {
   name: string
   type: string
   optional: boolean
+  title: string | null
+  description: string | null,
+  order: number
 }
 
 
@@ -47,11 +50,17 @@ export class ActionDescriptorParam {
   public name: string;
   public type: string;
   public optional: boolean;
+  public title: string|null;
+  public description: string|null;
+  public order: number;
 
   constructor(dto: ActionParamDescriptorDto) {
     this.name = dto.name
     this.type = dto.type
+    this.order = dto.order
     this.optional = dto.optional
+    this.title = dto.title
+    this.description = dto.description
   }
 }
 

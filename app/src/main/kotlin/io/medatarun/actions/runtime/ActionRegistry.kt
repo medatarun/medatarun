@@ -58,11 +58,15 @@ class ActionRegistry(private val actionProviders: ActionProviders) {
             title = doc?.title,
             description = doc?.description,
             resultType = typeOf<Unit>(),
-            parameters = sealed.memberProperties.map {
+            parameters = sealed.memberProperties.mapIndexed { index, property ->
+                val paramdoc = property.findAnnotation<ActionParamDoc>()
                 ActionCmdParamDescriptor(
-                    name = it.name,
-                    type = it.returnType,
-                    optional = it.returnType.isMarkedNullable,
+                    name = property.name,
+                    title = paramdoc?.name,
+                    description = paramdoc?.description,
+                    optional = property.returnType.isMarkedNullable,
+                    type = property.returnType,
+                    order = paramdoc?.order ?: index
                 )
             },
             uiLocation = doc?.uiLocation ?: "",

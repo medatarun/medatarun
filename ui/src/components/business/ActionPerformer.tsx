@@ -1,6 +1,6 @@
 import {ActionRegistry, type ActionResp, executeAction} from "../../business/actionDescriptor.tsx";
 
-export type ActionPerformerRequestParams = Record<string, string>;
+export type ActionPerformerRequestParams = Record<string, unknown>;
 export type ActionRequest = {
   actionGroupKey: string;
   actionKey: string
@@ -79,7 +79,7 @@ export class ActionPerformer {
     } finally {
       this.currentPromise = null;
     }
-    
+
   }
 
   cancelAction(reason?: unknown) {

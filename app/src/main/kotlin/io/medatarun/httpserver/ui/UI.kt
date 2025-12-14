@@ -189,7 +189,10 @@ class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegi
                     ActionParamDto(
                         name = p.name,
                         type = p.type.toString(),
-                        optional = p.optional
+                        optional = p.optional,
+                        title = p.title,
+                        description = p.description,
+                        order = p.order
                     )
                 }
             )
@@ -209,6 +212,13 @@ data class ActionDto(
 )
 
 @Serializable
-data class ActionParamDto(val name: String, val type: String, val optional: Boolean)
+data class ActionParamDto(
+    val name: String,
+    val type: String,
+    val optional: Boolean,
+    val title: String?,
+    val description: String?,
+    val order: Int
+)
 
 

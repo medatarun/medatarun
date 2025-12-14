@@ -8,46 +8,73 @@ import {
   DialogSurface,
   DialogTitle,
   DialogTrigger,
+  Field,
+  InfoLabel,
+  Input,
+  type LabelProps,
   MessageBar
 } from "@fluentui/react-components";
 import {useActionRegistry} from "./ActionsContext.tsx";
 import {useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
-import type {ActionResp} from "../../business/actionDescriptor.tsx";
+import {ActionDescriptor, type ActionResp} from "../../business/actionDescriptor.tsx";
 import type {ActionPerformerState} from "./ActionPerformer.tsx";
 
-export function ActionPerformerView() {
-  // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
-  const {state} = useActionPerformer();
-  if (state.kind === 'idle') return null;
-  return <ActionPerformerViewLoaded state={state} />
+type FormDataType = Record<string, unknown>;
+type FormFieldType = {
+  key: string
+  title: string
+  description: string | null
+  optional: boolean,
+  type: string
+  order: number
+  prefilled: boolean
 }
 
-export function ActionPerformerViewLoaded({state}:{state:ActionPerformerState}) {
 
+export function ActionPerformerView() {
+
+  // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
+  const {state} = useActionPerformer();
   const actionRegistry = useActionRegistry()
-  const { confirmAction, cancelAction, finishAction} = useActionPerformer();
-  const [actionOutput, setActionOutput] = useState<ActionResp|null>(null)
 
   if (state.kind === 'idle') return null;
-
 
   const {request} = state; // request.location, request.params
   const action = actionRegistry.findAction(request.actionGroupKey, request.actionKey)
-
   if (!action) return null
+
+  const defaultFormData: FormDataType = {
+    ...state.request.params
+  }
+  const formFields = createFormFields(action, state.request.params);
+
+
+  return <ActionPerformerViewLoaded state={state} action={action} defaultFormData={defaultFormData} formFields={formFields}/>
+}
+
+export function ActionPerformerViewLoaded({state, action, defaultFormData, formFields}: {
+  state: ActionPerformerState,
+  action: ActionDescriptor,
+  defaultFormData: FormDataType,
+  formFields: FormFieldType[]
+}) {
+
+
+  const {confirmAction, cancelAction, finishAction} = useActionPerformer();
+  const [actionResp, setActionResp] = useState<ActionResp | null>(null)
+  const [formData, setFormData] = useState<FormDataType>(defaultFormData)
+
 
   const displayExecute = state.kind == "pendingUser"
   const displayCancel = state.kind == "pendingUser" || state.kind == "running"
   const displayFinish = state.kind == "done" || state.kind == "error"
 
   const onValidate = async () => {
-    const formData = {...request.params}; // normalement issu de ton formulaire
-    const output  = await confirmAction(formData);
-    setActionOutput(output)
+    const formDataNormalized = {...formData}; // We should filter
+    const output = await confirmAction(formDataNormalized);
+    setActionResp(output)
   };
-
-
 
   const onCancel = () => {
     cancelAction();
@@ -57,6 +84,10 @@ export function ActionPerformerViewLoaded({state}:{state:ActionPerformerState}) 
     finishAction()
   }
 
+  const handleChangeFormFieldInput = (field:FormFieldType, value: unknown) => {
+    setFormData({...formData, [field.key]: value})
+  }
+
 
   return (
     <Dialog open={true}>
@@ -64,10 +95,10 @@ export function ActionPerformerViewLoaded({state}:{state:ActionPerformerState}) 
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
-            <div>Location: {request.location} <code>{JSON.stringify(request.params)}</code></div>
-            <MessageBar>{state.kind}</MessageBar>
-            { state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null }
-            { actionOutput ? <ActionOutputBox resp={actionOutput} /> : null }
+            {formFields.map(field => (
+              <FormFieldInput field={field} value={formData[field.key]} onChange={handleChangeFormFieldInput}/>))}
+            {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
+            {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
           </DialogContent>
         </DialogBody>
         <DialogActions>
@@ -90,4 +121,48 @@ export function ActionPerformerViewLoaded({state}:{state:ActionPerformerState}) 
     </Dialog>
   );
 
+}
+
+function FormFieldInput({field, value, onChange}: {
+  field: FormFieldType,
+  value: unknown,
+  onChange: (field: FormFieldType, value: unknown) => void
+}) {
+  const valueNormalized = (value === null || value === undefined) ? "" : "" + value
+  return <div><Field label={{
+    // Setting children to a render function allows you to replace the entire slot.
+    // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
+    // The second param are the props for the slot, which need to be passed to the InfoLabel.
+    children: (_: unknown, slotProps: LabelProps) => (
+      <InfoLabel {...slotProps} info={field.description ?? ""}>
+        {field.title}
+      </InfoLabel>
+    ),
+  }} validationState="none" validationMessage="" required={!field.optional} >
+    <Input disabled={field.prefilled} value={valueNormalized} onChange={(_, data) => {
+      onChange(field, data.value)
+    }}/>
+  </Field></div>
+}
+
+function createFormFields(action: ActionDescriptor, prefill: Record<string, unknown>) {
+  const formFields: FormFieldType[] = []
+  action.parameters.forEach(param => {
+    const prefilledValue = prefill[param.name]
+    const field: FormFieldType = {
+      key: param.name,
+      title: param.title ?? param.name,
+      description: param.description,
+      optional: param.optional,
+      type: param.type,
+      order: param.order,
+      prefilled: (prefilledValue !== null && prefilledValue !== undefined)
+    }
+    formFields.push(field)
+  })
+  return sortFields(formFields);
+}
+
+function sortFields(fields: FormFieldType[]): FormFieldType[] {
+   return [...fields].sort((a, b) => a.order - b.order)
 }
