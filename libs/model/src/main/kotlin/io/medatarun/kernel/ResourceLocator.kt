@@ -1,4 +1,4 @@
-package io.medatarun.model.ports.needs
+package io.medatarun.kernel
 
 import java.net.URI
 

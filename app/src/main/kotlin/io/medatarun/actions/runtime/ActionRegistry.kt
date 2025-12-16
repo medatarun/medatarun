@@ -2,37 +2,30 @@ package io.medatarun.actions.runtime
 
 import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
-import io.medatarun.actions.providers.ActionProviders
 import io.medatarun.kernel.ExtensionRegistry
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.typeOf
 
-class ActionRegistry(private val actionProviders: ActionProviders, private val extensionRegistry: ExtensionRegistry) {
+class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
-        ActionProviders::class.memberProperties
-            .filter { it.visibility == KVisibility.PUBLIC }
-            .map { toActionProviderInstance(it) }
-            .map {
-                ActionGroupDescriptor(
-                    name = it.actionGroupKey,
-                    providerInstance = it,
-                    commands = toCommands(it)
-                )
-            }.plus(
-                actionProviderContributions.map { ActionGroupDescriptor(
-                    name = it.actionGroupKey,
-                    providerInstance = it,
-                    commands = toCommands(it)
-                ) }
+        actionProviderContributions.map {
+            ActionGroupDescriptor(
+                name = it.actionGroupKey,
+                providerInstance = it,
+                commands = toCommands(it)
             )
+        }
 
     private val actionGroupDescriptorsMap: Map<String, ActionGroupDescriptor> =
         actionGroupDescriptors.associateBy { it.name }
@@ -41,11 +34,7 @@ class ActionRegistry(private val actionProviders: ActionProviders, private val e
         actionGroupDescriptors.flatMap { it.commands }
 
 
-    private fun toActionProviderInstance(property: KProperty1<ActionProviders, *>): ActionProvider<*> {
-        return property.get(actionProviders) as ActionProvider<*>
-    }
-
-    private fun toCommands(actionProviderInstance:ActionProvider<*>): List<ActionCmdDescriptor> {
+    private fun toCommands(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
 
         val cmds = actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
@@ -83,7 +72,7 @@ class ActionRegistry(private val actionProviders: ActionProviders, private val e
             },
             uiLocation = doc?.uiLocation ?: "",
 
-        )
+            )
     }
 
 

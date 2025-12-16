@@ -1,6 +1,6 @@
-package io.medatarun.runtime.internal
+package io.medatarun.kernel.internal
 
-import io.medatarun.model.ports.needs.ResourceLocator
+import io.medatarun.kernel.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
@@ -11,7 +11,7 @@ import java.nio.file.FileSystem
 import java.nio.file.Files
 import java.nio.file.Path
 
-class ResourceLocatorImpl(
+class ResourceLocatorDefault(
     private val rootPath: String,
     private val fileSystem: FileSystem
 ) : ResourceLocator {
@@ -33,7 +33,7 @@ class ResourceLocatorImpl(
 
     override fun withPath(path: String): ResourceLocator {
         val targetUri = resolveUri(path)
-        return ResourceLocatorImpl(targetUri.toString(), fileSystem)
+        return ResourceLocatorDefault(targetUri.toString(), fileSystem)
     }
 
     override fun resolveUri(path: String): URI {
@@ -65,6 +65,6 @@ class ResourceLocatorImpl(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ResourceLocatorImpl::class.java)
+        private val logger = LoggerFactory.getLogger(ResourceLocatorDefault::class.java)
     }
 }

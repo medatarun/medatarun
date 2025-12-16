@@ -27,5 +27,10 @@ interface MedatarunExtensionCtx {
     fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>)
     fun <INTERFACE : Any, IMPL : INTERFACE> register(kClass: KClass<INTERFACE>, instance: IMPL)
 
+    /**
+     * Creates a new resource locator to access files and URLs
+     */
+    fun createResourceLocator(): ResourceLocator
+
 
 }

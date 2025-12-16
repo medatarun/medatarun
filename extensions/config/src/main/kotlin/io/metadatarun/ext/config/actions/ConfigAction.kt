@@ -1,4 +1,4 @@
-package io.medatarun.actions.providers.config
+package io.metadatarun.ext.config.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
 

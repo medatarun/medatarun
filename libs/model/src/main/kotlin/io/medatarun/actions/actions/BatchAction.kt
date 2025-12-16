@@ -1,4 +1,4 @@
-package io.medatarun.actions.providers.batch
+package io.medatarun.actions.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionRequest

@@ -11,5 +11,8 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.slf4j)
     implementation(project(":libs:lang"))
+    implementation(project(":libs:model"))
     testImplementation(kotlin("test"))
+    testImplementation(libs.jimfs)
+
 }

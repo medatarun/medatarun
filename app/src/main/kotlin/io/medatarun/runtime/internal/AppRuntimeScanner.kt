@@ -1,11 +1,13 @@
 package io.medatarun.runtime.internal
 
+import io.medatarun.kernel.internal.ResourceLocatorDefault
 import io.medatarun.lang.trimToNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import org.slf4j.LoggerFactory
+import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -23,7 +25,9 @@ class AppRuntimeScanner {
 
         val config = findConfigInPackageJson(projectDir) ?: buildJsonObject {}
 
-        return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config)
+        return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config) {
+            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = FileSystems.getDefault())
+        }
 
     }
 

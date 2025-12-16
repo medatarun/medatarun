@@ -20,4 +20,9 @@ interface MedatarunConfig {
     val medatarunDir: Path
     fun getProperty(key: String): String?
     fun getProperty(key: String, defaultValue: String): String
+
+    /**
+     * Creates a new resource locator
+     */
+    fun createResourceLocator(): ResourceLocator
 }

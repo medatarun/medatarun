@@ -1,14 +1,14 @@
-package io.medatarun.actions.providers.model
+package io.medatarun.model.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.*
 import org.slf4j.LoggerFactory
 import java.net.URI
-import java.nio.file.FileSystems
 
-class ModelActionProvider() : ActionProvider<ModelAction> {
+class ModelActionProvider(private val resourceLocator: ResourceLocator) : ActionProvider<ModelAction> {
 
     override val actionGroupKey: String = "model"
 
@@ -33,7 +33,7 @@ class ModelActionProvider() : ActionProvider<ModelAction> {
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelAction.Import -> ModelImportAction(actionCtx, FileSystems.getDefault()).process(rc)
+            is ModelAction.Import -> ModelImportAction(actionCtx, resourceLocator).process(rc)
             is ModelAction.Inspect_Human -> ModelInspectAction(actionCtx).process()
             is ModelAction.Inspect_Json -> ModelInspectJsonAction(actionCtx).process()
             is ModelAction.Model_Create -> {

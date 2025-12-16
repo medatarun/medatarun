@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.project
-
 plugins {
     // Apply the shared build logic from a convention plugin.
     // The shared code is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
@@ -17,6 +15,7 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":libs:model"))
     implementation(project(":libs:lang"))
+    implementation(project(":extensions:config"))
     implementation(project(":extensions:modeljson"))
     implementation(project(":extensions:data-md-file"))
     implementation(project(":extensions:db"))

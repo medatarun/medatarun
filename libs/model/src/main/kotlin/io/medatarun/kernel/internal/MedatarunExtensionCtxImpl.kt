@@ -47,4 +47,8 @@ class MedatarunExtensionCtxImpl(
     override fun <INTERFACE : Any, IMPL : INTERFACE> register(api: KClass<INTERFACE>, instance: IMPL) {
         registrar.internalRegisterContribution(extension.id, api, instance)
     }
+
+    override fun createResourceLocator(): ResourceLocator {
+        return _config.createResourceLocator()
+    }
 }

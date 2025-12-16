@@ -1,4 +1,4 @@
-package io.medatarun.actions.providers.model
+package io.medatarun.model.actions
 
 import io.medatarun.model.domain.MedatarunException
 

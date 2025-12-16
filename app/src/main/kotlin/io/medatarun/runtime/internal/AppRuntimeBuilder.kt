@@ -1,6 +1,6 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.actions.ports.needs.ActionsExtension
+import io.medatarun.actions.ActionsExtension
 import io.medatarun.data.DataExtension
 import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.db.DbExtension
@@ -21,6 +21,7 @@ import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.runtime.AppRuntime
+import io.metadatarun.ext.config.ConfigExtension
 import org.slf4j.LoggerFactory
 
 class AppRuntimeBuilder {
@@ -30,8 +31,9 @@ class AppRuntimeBuilder {
     val scanner = AppRuntimeScanner()
     val config = scanner.scan()
     val extensions = listOf(
-        ModelExtension(),
         ActionsExtension(),
+        ModelExtension(),
+        ConfigExtension(),
         ModelJsonExtension(),
         DataExtension(),
         DataMdFileExtension(),

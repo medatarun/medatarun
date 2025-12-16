@@ -13,8 +13,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.providers.ActionProviders
-import io.medatarun.actions.providers.config.ConfigAgentInstructions
+
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
@@ -24,6 +23,7 @@ import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
+import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -48,8 +48,7 @@ class AppHttpServer(
     private val enableApi: Boolean = true
 ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
-    private val resources = ActionProviders()
-    private val actionRegistry = ActionRegistry(resources, runtime.extensionRegistry)
+    private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry,
@@ -161,7 +160,7 @@ class AppHttpServer(
                 call.respond(
                     UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)),
 
-                )
+                    )
             }
             get("/ui/api/models") {
                 call.respondText(
