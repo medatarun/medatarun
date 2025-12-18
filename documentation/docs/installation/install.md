@@ -1,3 +1,6 @@
+---
+sidebar_position: 1
+---
 # Install
 
 There is no installer yet. You will be running with the source code directly.

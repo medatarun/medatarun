@@ -139,8 +139,8 @@ Combining our built-in features and AI, here is a sample of use-cases:
 
 ## Installation and usage
 
-- [Installation](./docs/install.md)
-- [Quickstart](./docs/quickstart.md)
-- [Your project directory and data](./docs/project_data.md)
-- [Build and run project from source](./docs/build_run.md) (for developers)
+- [Installation](documentation/docs/installation/install.md)
+- [Quickstart](documentation/docs/quickstart.md)
+- [Your project directory and data](documentation/docs/installation/project_data.md)
+- [Build and run project from source](documentation/docs/installation/build_run.md) (for developers)
 
