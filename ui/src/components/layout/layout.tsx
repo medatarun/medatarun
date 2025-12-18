@@ -9,14 +9,14 @@ import {
   NavItem,
   tokens
 } from "@fluentui/react-components";
-import {BoxMultipleArrowRight24Regular, CodeRegular} from "@fluentui/react-icons";
+import {CodeRegular} from "@fluentui/react-icons";
 import {DashboardIcon, ModelIcon} from "../business/Icons.tsx";
 import {ActionsContext} from "../business/ActionsContext.tsx";
 import {useEffect, useState} from "react";
 import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescriptor.tsx";
 import {ActionPerformerView} from "../business/ActionPerformerView.tsx";
 import {ActionProvider} from "../business/ActionPerformerProvider.tsx";
-
+import logo from "../../../public/favicon/favicon.svg"
 const useStyles = makeStyles({
   root: {display: "grid", gridTemplateColumns: "261px auto", height: "100vh", maxHeight: "100vh", overflow: "hidden"},
   left: {
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     minWidth: "260px"
   }
 });
-const MedatarunIcon = BoxMultipleArrowRight24Regular;
+
 
 export function Layout() {
   const styles = useStyles();
@@ -101,7 +101,7 @@ const NavDrawerControlled = ({selectedValue}: {
     <NavDrawerHeader>
     </NavDrawerHeader>
     <NavDrawerBody>
-      <AppItem icon={<MedatarunIcon fontSize={tokens.fontSizeBase500}/>} onClick={() => handleNavigate("dashboard")}>Medatarun</AppItem>
+      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} style={{width: "2em", height:"2em"}} /> Medatarun</AppItem>
       <NavItem icon={<DashboardIcon fontSize={tokens.fontSizeBase500}/>} value="dashboard">Home</NavItem>
       <NavItem icon={<ModelIcon fontSize={tokens.fontSizeBase500}/>} value="models">Models</NavItem>
       <NavItem icon={<CodeRegular fontSize={tokens.fontSizeBase500}/>} value="commands">Commands</NavItem>
