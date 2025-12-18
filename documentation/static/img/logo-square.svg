@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 328 328"
+   role="img"
+   aria-label="Medatarun logo"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="logo-square.svg"
+   width="328"
+   height="328"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.4059058"
+     inkscape:cx="178.53259"
+     inkscape:cy="153.63761"
+     inkscape:window-width="1728"
+     inkscape:window-height="999"
+     inkscape:window-x="0"
+     inkscape:window-y="34"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <!-- Colors -->
+  <!-- Orange: #d25a2a | Dark: #3b3f46 | Background assumed white -->
+  <!-- Metrics -->
+  <!-- module = 56 | top = 60 | baseline = 340 -->
+  <!-- Left orange bar -->
+  <rect
+     x="0"
+     y="24"
+     width="56"
+     height="280"
+     fill="#d25a2a"
+     id="rect1" />
+  <!-- Full solid M (background structure) -->
+  <path
+     fill="#3b3f46"
+     d="m 72,24 h 56 l 72,140 72,-140 h 56 V 304 H 272 V 134 L 200,264 128,134 72.332781,134.03451 72,104 Z"
+     id="path1"
+     sodipodi:nodetypes="ccccccccccccc" />
+  <!-- Split bars MASKING the left stem of M -->
+  <!-- Visible split bars -->
+  <rect
+     x="72"
+     y="104"
+     width="56"
+     height="60"
+     fill="#3b3f46"
+     stroke-width="0"
+     stroke-opacity="1"
+     id="rect2"
+     style="stroke:none" />
+  <rect
+     x="72"
+     y="184"
+     width="56"
+     height="50"
+     fill="#3b3f46"
+     stroke-width="0"
+     stroke-opacity="1"
+     id="rect3" />
+  <rect
+     x="72"
+     y="254"
+     width="56"
+     height="50"
+     fill="#d25a2a"
+     stroke-width="0"
+     stroke-opacity="1"
+     id="rect4" />
+</svg>
