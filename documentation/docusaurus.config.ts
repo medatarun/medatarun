@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Medatarun',
-  tagline: 'Let business users, devs, AI and tools collaborate on your domain models.',
+  tagline: 'A canonical reference to explicitly describe an organization’s data models.\nShared by business users, IT, developers, tools, and AI agents.',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

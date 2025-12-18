@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="The Problem">
+    <rect width="640" height="360" fill="#ffffff"/>
+    <g fill="none" stroke="#d9dde3" stroke-width="10" stroke-linecap="round">
+        <path d="M120 110h120"/>
+        <path d="M96 170h170"/>
+        <path d="M140 240h90"/>
+        <path d="M420 120h130"/>
+        <path d="M380 185h190"/>
+        <path d="M450 245h110"/>
+    </g>
+
+    <!-- scattered tags -->
+    <g>
+        <rect x="78" y="78" width="84" height="36" rx="10" fill="#eef1f4"/>
+        <rect x="260" y="146" width="70" height="36" rx="10" fill="#eef1f4"/>
+        <rect x="492" y="210" width="90" height="36" rx="10" fill="#eef1f4"/>
+    </g>
+
+    <!-- question mark built with your stroke style -->
+    <path d="M320 70c44 0 78 26 78 62 0 34-22 48-48 60-16 8-22 14-22 30"
+          fill="none" stroke="#3b3f46" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="328" cy="264" r="10" fill="#3b3f46"/>
+
+    <!-- small orange accent (same as brand) -->
+    <rect x="300" y="292" width="40" height="14" rx="7" fill="#d25a2a"/>
+</svg>

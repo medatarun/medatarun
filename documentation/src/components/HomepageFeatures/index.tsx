@@ -11,33 +11,30 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'The Problem',
+    Svg: require('@site/static/img/problem.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Most organizations don’t have a clear, shared description of the data they actually manage.
+          Spread across Word and Wikis, inexistant or outdated, static documentation never works.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'What Medatarun provides',
+    Svg: require('@site/static/img/referenciel.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Medatarun is a centralized, living reference to describe, document, tag, and interact with conceptual data models.
+        For business users, IT, developers, tools, and AI agents.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'What it’s for',
+    Svg: require('@site/static/img/usage.svg').default,
     description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
+      <>Business and dev communication, IT governance, data architecture, tooling, and AI automation.</>
     ),
   },
 ];
@@ -45,9 +42,11 @@ const FeatureList: FeatureItem[] = [
 function Feature({title, Svg, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
+{/*
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <Svg className={styles.featureSvg} role="img"/>
       </div>
+*/}
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
