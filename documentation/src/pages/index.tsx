@@ -23,7 +23,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="docs/intro">
-            Install and Quickstart ▶️
+            Install and Quickstart
           </Link>
         </div>
       </div>
@@ -44,3 +44,4 @@ export default function Home(): ReactNode {
     </Layout>
   );
 }
+

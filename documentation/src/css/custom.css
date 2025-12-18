@@ -1,24 +1,38 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
-
-/* You can override the default Infima variables here. */
 :root {
-    --ifm-color-primary: #c84f23;
-    --ifm-color-primary-dark: #b3461f;
-    --ifm-color-primary-darker: #a7401d;
-    --ifm-color-primary-darkest: #8a3417;
-    --ifm-color-primary-light: #d96a3f;
-    --ifm-color-primary-lighter: #e07f5a;
-    --ifm-color-primary-lightest: #efab94;
-    --ifm-code-font-size: 95%;
+    /* Brand */
+    --ifm-color-primary: #d25a2a;
+    --ifm-color-primary-dark: #bc4f24;
+    --ifm-color-primary-darker: #b04821;
+    --ifm-color-primary-darkest: #913a1b;
+    --ifm-color-primary-light: #db6f45;
+    --ifm-color-primary-lighter: #e2845f;
+    --ifm-color-primary-lightest: #f0b19a;
+
+    /* Typography */
+    --ifm-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    --ifm-line-height-base: 1.55;
+
+    /* Layout */
+    --ifm-container-width: 1140px;
+    --ifm-spacing-horizontal: 1.5rem;
+
+    /* Surfaces */
+    --ifm-background-color: #ffffff;
+    --ifm-navbar-background-color: #ffffff;
+
+    /* Text */
+    --ifm-font-color-base: #111214;
+
+    /* Code highlight */
     --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.06);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* Dark */
 [data-theme='dark'] {
+    --ifm-background-color: #0f1012;
+    --ifm-navbar-background-color: #0f1012;
+    --ifm-font-color-base: rgba(255,255,255,0.92);
+
     --ifm-color-primary: #e28a64;
     --ifm-color-primary-dark: #d3754e;
     --ifm-color-primary-darker: #c86a45;
@@ -26,10 +40,130 @@
     --ifm-color-primary-light: #ec9c7c;
     --ifm-color-primary-lighter: #f2ae93;
     --ifm-color-primary-lightest: #f6cab9;
+
     --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.07);
+}
+
+/* Swiss: tighter rhythm + clearer hierarchy */
+h1, h2, h3 {
+    letter-spacing: -0.02em;
+}
+h1 { font-weight: 800; }
+h2 { font-weight: 750; }
+h3 { font-weight: 700; }
+
+.markdown p,
+.theme-doc-markdown p {
+    max-width: 72ch;
+}
+
+/* Navbar: quieter, more editorial */
+.navbar {
+    border-bottom: 1px solid rgba(0,0,0,0.12);
 }
 
 .navbar__logo {
     background-color: white;
-    border-radius: .2em;
+    border-radius: 0.2em;
+}
+
+[data-theme='dark'] .navbar {
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Hero: less “landing”, more “masthead” */
+.hero--primary,
+.heroBanner {
+    color: #fefefe;
+    padding: 2.25rem 0 1.75rem;
+    background:
+            radial-gradient(160% 100% at 20% -10%,
+            rgba(255, 205, 140, 0.32) 0%,
+            rgba(255, 180, 90, 0.18) 35%,
+            rgba(160, 80, 30, 0.28) 70%
+            ),
+            linear-gradient(180deg,
+            #e07042 0%,
+            #d25a2a 40%,
+            #c04b22 70%,
+            #a83f1c 100%
+            );
+    border-top: 1px solid rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.30);
+}
+[data-theme='dark'] .hero--primary,
+[data-theme='dark'] .heroBanner {
+    color: rgba(255,255,255,0.92);
+    border-top: 1px solid rgba(255,255,255,0.10);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+/* Buttons: flatter, typographic */
+.button {
+    border-radius: 10px;
+    font-weight: 650;
+    box-shadow: none;
+}
+.button--primary {
+    background: #111214;
+    border-color: #111214;
+    color: #fff;
+}
+.button--primary:hover {
+    background: #0b0c0d;
+    border-color: #0b0c0d;
+}
+[data-theme='dark'] .button--primary {
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(255,255,255,0.92);
+    color: #0f1012;
+}
+
+/* Section blocks: grid feel without heavy UI */
+.homeBlocks {
+    padding: 2rem 0 2.5rem;
+}
+.homeGrid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.25rem;
+}
+.homeCard {
+    grid-column: span 4;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 16px;
+    padding: 1.25rem 1.25rem 1.1rem;
+    background: #fff;
+}
+[data-theme='dark'] .homeCard {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.14);
+}
+.homeCard h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.05rem;
+}
+.homeCard p {
+    margin: 0;
+    color: rgba(17,18,20,0.82);
+}
+[data-theme='dark'] .homeCard p {
+    color: rgba(255,255,255,0.78);
+}
+
+/* Accent line (Swiss-ish) */
+.homeCard::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--ifm-color-primary);
+    margin-bottom: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 996px) {
+    .homeCard { grid-column: span 12; }
+    .hero--primary, .heroBanner { padding: 2rem 0 1.5rem; }
 }

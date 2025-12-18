@@ -5,7 +5,7 @@
 
 .heroBanner {
   padding: 4rem 0;
-  text-align: center;
+  text-align: left;
   position: relative;
   overflow: hidden;
 }
@@ -17,32 +17,8 @@
 }
 
 .buttons {
+    margin-top: 4rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-.heroBanner {
-    background:
-            radial-gradient(
-                    160% 100% at 20% -10%,
-                    rgba(255, 205, 140, 0.32) 0%,
-                    rgba(255, 180, 90, 0.18) 35%,
-                    rgba(160, 80, 30, 0.28) 70%
-            ),
-            linear-gradient(
-                    180deg,
-                    #e07042 0%,
-                    #d25a2a 40%,
-                    #c04b22 70%,
-                    #a83f1c 100%
-            );
-
-    border-bottom: 1px solid rgba(0,0,0,0.35);
-    border-top: 1px solid rgba(0,0,0,0.25);
-}
-
-
-[data-theme='dark'] .heroBanner h1,
-[data-theme='dark'] .heroBanner p {
-    color: rgba(255,255,255,0.9);
+  justify-content: start;
 }
