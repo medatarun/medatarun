@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Build and run
 
 This project uses [Gradle](https://gradle.org/).

@@ -1,0 +1,8 @@
+{
+  "label": "Other resources",
+  "position": 999,
+  "link": {
+    "type": "generated-index",
+    "description": "Other documentative resources."
+  }
+}

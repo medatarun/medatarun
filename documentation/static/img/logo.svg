@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" role="img" aria-label="Medatarun logo">
+    <!-- Colors -->
+    <!-- Orange: #d25a2a | Dark: #3b3f46 | Background assumed white -->
+
+    <!-- Metrics -->
+    <!-- module = 56 | top = 60 | baseline = 340 -->
+
+    <!-- Left orange bar -->
+    <rect x="80" y="60" width="56" height="280" fill="#d25a2a"/>
+
+    <!-- Full solid M (background structure) -->
+    <path fill="#3b3f46" d="
+    M 152 60
+    L 208 60
+    L 280 200
+    L 352 60
+    L 408 60
+    L 408 340
+    L 352 340
+    L 352 170
+    L 280 300
+    L 208 170
+    L 208 140
+    L 152 140
+    Z
+  "/>
+
+    <!-- Split bars MASKING the left stem of M -->
+    <!-- Visible split bars -->
+    <rect x="152" y="140" width="56" height="60" fill="#3b3f46" stroke-width="0" stroke-opacity="1"/>
+    <rect x="152" y="220" width="56" height="50" fill="#3b3f46" stroke-width="0" stroke-opacity="1"/>
+    <rect x="152" y="290" width="56" height="50" fill="#d25a2a" stroke-width="0" stroke-opacity="1"/>
+</svg>
