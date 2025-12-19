@@ -46,6 +46,14 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     )
                 )
             }
+            is ModelAction.Model_Copy -> {
+                actionCtx.modelCmds.dispatch(
+                    ModelCmd.CopyModel(
+                        modelKey = rc.modelKey.validated(),
+                        modelNewKey = rc.modelNewKey.validated()
+                    )
+                )
+            }
 
             is ModelAction.Model_UpdateName -> {
                 actionCtx.modelCmds.dispatch(

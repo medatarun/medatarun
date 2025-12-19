@@ -4,6 +4,8 @@ open class MedatarunException(message: String) : Exception(message)
 
 class ModelNotFoundException(id: ModelKey) :
     MedatarunException("Model with id [${id.value}] was not found")
+class ModelDuplicateIdException(id: ModelKey) :
+        MedatarunException("Model with id [${id.value}] already exists")
 
 class EntityDefNotFoundException(modelKey: ModelKey, entityId: EntityKey) :
     MedatarunException("Entity with id [${entityId.value}] not found in model [${modelKey.value}]")

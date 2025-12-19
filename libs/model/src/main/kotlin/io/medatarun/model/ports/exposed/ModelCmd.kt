@@ -47,6 +47,8 @@ sealed interface ModelCmd {
     data class UpdateModelHashtagAdd(override val modelKey: ModelKey, val hashtag: Hashtag) : ModelCmdOnModel
     data class UpdateModelHashtagDelete(override val modelKey: ModelKey, val hashtag: Hashtag) : ModelCmdOnModel
 
+    class CopyModel(override val modelKey: ModelKey, val modelNewKey: ModelKey, val repositoryRef: RepositoryRef = RepositoryRef.Auto) : ModelCmdOnModel
+
     data class DeleteModel(
         override val modelKey: ModelKey
     ) : ModelCmdOnModel
@@ -205,6 +207,8 @@ sealed interface ModelCmd {
         val relationshipKey: RelationshipKey,
         val attributeKey: AttributeKey
     ) : ModelCmdOnModel
+
+
 
 
 }

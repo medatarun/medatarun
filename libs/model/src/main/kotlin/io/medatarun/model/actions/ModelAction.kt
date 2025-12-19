@@ -77,6 +77,25 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
+        title = "Copy model",
+        description="Make a copy of a model, giving him a new name. The copied model lifecycle will be independant",
+        uiLocation = "model"
+    )
+    data class Model_Copy(
+        @ActionParamDoc(
+            name="Source model key",
+            description = "Key of the model to be copied",
+            order = 0
+        )
+        val modelKey: ModelKey,
+        @ActionParamDoc(
+            name="New model key",
+            description = "Key of the new model. Must be unique across all models.",
+            order = 0
+        )
+        val modelNewKey: ModelKey) : ModelAction
+
+    @ActionDoc(
         title = "Update model name",
         description = "Changes model name",
         uiLocation = "model.name"

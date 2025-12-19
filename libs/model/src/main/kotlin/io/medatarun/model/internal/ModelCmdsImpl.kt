@@ -29,6 +29,14 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepositoryCmd.CreateModel(model), cmd.repositoryRef)
     }
 
+    private fun copyModel(cmd: ModelCmd.CopyModel) {
+        val model = storage.findModelByIdOptional(cmd.modelKey) ?: throw ModelNotFoundException(cmd.modelKey)
+        val existing = storage.findModelByIdOptional(cmd.modelNewKey)
+        if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
+        val next = ModelInMemory.of(model).copy(id = cmd.modelNewKey)
+        storage.dispatch(ModelRepositoryCmd.CreateModel(next), cmd.repositoryRef)
+    }
+
     private fun importModel(cmd: ModelCmd.ImportModel) {
         storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
@@ -262,6 +270,7 @@ class ModelCmdsImpl(
         if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelKey)
         when (cmd) {
             is ModelCmd.CreateModel -> createModel(cmd)
+            is ModelCmd.CopyModel -> copyModel(cmd)
             is ModelCmd.ImportModel -> importModel(cmd)
             is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
             is ModelCmd.UpdateModelName -> updateModelName(cmd)
