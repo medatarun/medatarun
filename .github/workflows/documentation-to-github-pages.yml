@@ -3,7 +3,9 @@ name: Deploy Docusaurus with GitHub Pages
 on:
   push:
     branches: ["main"]
-    paths: ["documentation/**"]
+    paths:
+      - documentation/**
+      - .github/workflows/documentation-to-github-pages.yml
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
