@@ -9,12 +9,10 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
-  Caption1,
   Divider,
   Tab,
   TabList,
-  type TabValue,
-  tokens
+  type TabValue
 } from "@fluentui/react-components";
 import {EntityIcon, ModelIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
@@ -24,6 +22,7 @@ import {TabPanel} from "../components/core/TabPanel.tsx";
 import {InfoRegular} from "@fluentui/react-icons";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ActionsBar} from "../components/business/ActionsBar.tsx";
+import {ViewTitle} from "../components/core/ViewTitle.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
@@ -53,10 +52,7 @@ export function ModelView() {
       <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
-    <div>
-      <div style={{textTransform: "uppercase"}}><Caption1><ModelIcon /> Model</Caption1></div>
-      <div style={{fontWeight: tokens.fontWeightSemibold, fontSize: tokens.fontSizeBase500}}><div style={{overflow: "hidden", height:"2em", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{displayName}</div></div>
-    </div>
+    <ViewTitle eyebrow={<span><ModelIcon /> Model</span>}>{displayName}</ViewTitle>
     <ActionsBar location="model" params={{
       modelKey: model.id,
     }} />

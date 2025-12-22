@@ -53,6 +53,7 @@ export function Layout() {
 
   const selectedValue = (() => {
     if (location.pathname.startsWith("/models")) return "models"
+    if (location.pathname.startsWith("/model/")) return "models"
     if (location.pathname.startsWith("/commands")) return "commands"
     return "dashboard"
   })();
@@ -101,7 +102,7 @@ const NavDrawerControlled = ({selectedValue}: {
     <NavDrawerHeader>
     </NavDrawerHeader>
     <NavDrawerBody>
-      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} style={{width: "2em", height:"2em"}} /> Medatarun</AppItem>
+      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} alt="Medatarun logo" style={{width: "2em", height:"2em"}} /> Medatarun</AppItem>
       <NavItem icon={<DashboardIcon fontSize={tokens.fontSizeBase500}/>} value="dashboard">Home</NavItem>
       <NavItem icon={<ModelIcon fontSize={tokens.fontSizeBase500}/>} value="models">Models</NavItem>
       <NavItem icon={<CodeRegular fontSize={tokens.fontSizeBase500}/>} value="commands">Commands</NavItem>

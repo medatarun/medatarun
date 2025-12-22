@@ -2,6 +2,11 @@ import {Fragment, useMemo, useState} from "react";
 import {ActionRegistry, type ActionResp, executeAction} from "../business/actionDescriptor.tsx";
 import {useActionRegistry} from "../components/business/ActionsContext.tsx";
 import {ActionOutput} from "../components/business/ActionOutput.tsx";
+import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
+import {ViewTitle} from "../components/core/ViewTitle.tsx";
+import {Field, Textarea} from "@fluentui/react-components";
+import {InputCombobox} from "../components/form/InputCombobox.tsx";
+import {Button} from "../components/form/Button.tsx";
 
 
 export function CommandsPage() {
@@ -14,8 +19,12 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
   const defaultActionKey = defaultGroupKey ? actionRegistry.findFirstActionKey(defaultGroupKey) : undefined
   const defaultPayload = actionRegistry.createPayloadTemplate(defaultGroupKey, defaultActionKey)
 
+  const [selectedGroupSearch, setSelectedGroupSearch] = useState<string>(defaultGroupKey ?? "")
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(defaultGroupKey)
+
+  const [selectedActionSearch, setSelectedActionSearch] = useState<string>(defaultActionKey ?? "")
   const [selectedActionKey, setSelectedActionKey] = useState<string | undefined>(defaultActionKey)
+
   const [payload, setPayload] = useState<string>(defaultPayload)
   const [output, setOutput] = useState<ActionResp | null>(null)
   const [errorMessage, setErrorMessage] = useState<string>("")
@@ -54,11 +63,13 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
     setOutput({contentType: "text", text: ""})
   }
 
-  const handleChangeActionGroup = (groupKey: string) => {
-    const nextGroup = actionRegistry.existsGroup(groupKey) ? groupKey : undefined
+  const handleChangeActionGroup = (groupKey: string | undefined) => {
+    const nextGroup = groupKey == undefined ? undefined : actionRegistry.existsGroup(groupKey) ? groupKey : undefined
     const nextAction = nextGroup ? actionRegistry.findFirstActionKey(nextGroup) : undefined
     setSelectedGroupKey(nextGroup)
+    setSelectedGroupSearch(nextGroup ?? "")
     setSelectedActionKey(nextAction)
+    setSelectedActionSearch(nextAction ?? "")
     setPayload(actionRegistry.createPayloadTemplate(nextGroup, nextAction))
   }
 
@@ -70,12 +81,23 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
       const nextAction = actionRegistry.existsAction(selectedGroupKey, action) ? action : undefined
       const nextPayload = actionRegistry.createPayloadTemplate(selectedGroupKey, nextAction)
       setSelectedActionKey(nextAction)
+      setSelectedActionSearch(nextAction ?? "")
       setPayload(nextPayload)
     }
   }
 
-  return <div>
-    <h1>Actions</h1>
+  const actionGroupOptions = actionGroupKeys
+    .map(it => ({code: it, label: it}))
+    .sort((a, b) => a.label.localeCompare(b.label))
+
+  const actionOptions = useMemo(() => actionsInGroup
+      .map(it => ({code: it.key, label: it.key}))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+    [actionsInGroup])
+
+
+  return <ViewLayoutContained title={"Command panel"}>
+    <ViewTitle eyebrow="Command panel">Run commands</ViewTitle>
     <div>
       <div>
         <div>
@@ -83,28 +105,28 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
         <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
           <div>
             <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "1em"}}>
-              <div>
-                <label>
-                  <select value={selectedGroupKey} onChange={(e) => handleChangeActionGroup(e.target.value)}>
-                    {actionGroupKeys.map(resource => <option key={resource} value={resource}>{resource}</option>)}
-                  </select>
-                </label>
-              </div>
-              <div>
-                <label>
-                  <select
-                    value={selectedActionKey}
-                    onChange={(e) => handleChangeAction(e.target.value)}
-                    disabled={!selectedGroupKey || actionsInGroup.length === 0}>
-                    {actionsInGroup.map(action =>
-                      <option key={action.key} value={action.key}>{action.key}</option>)}
-                  </select>
-                </label>
-              </div>
-
+              <Field label="Group">
+                <InputCombobox
+                  placeholder="Select a action group"
+                  disabled={actionGroupKeys.length === 0}
+                  onValueChangeQuery={setSelectedGroupSearch}
+                  searchQuery={selectedGroupSearch}
+                  onValueChange={handleChangeActionGroup}
+                  options={actionGroupOptions}/>
+              </Field>
+              <Field label="Action">
+                <InputCombobox
+                  placeholder="Select an action"
+                  disabled={!selectedGroupKey || actionsInGroup.length === 0}
+                  onValueChangeQuery={setSelectedActionSearch}
+                  searchQuery={selectedActionSearch}
+                  onValueChange={handleChangeAction}
+                  options={actionOptions}
+                />
+              </Field>
             </div>
             {selectedActionDescriptor ?
-              <>
+                <div style={{padding: "1em"}}>
                 <div style={{marginBottom: "0.5em"}}>{selectedActionDescriptor.description}</div>
                 <div style={{display: "grid", gridTemplateColumns: "auto auto", columnGap: "1em", rowGap: "0.5em"}}>
                   {selectedActionDescriptor.parameters.map(parameter => <Fragment key={parameter.name}>
@@ -112,14 +134,19 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
                     <div>{parameter.type} {parameter.optional ? "?" : ""}</div>
                   </Fragment>)}
                 </div>
-              </> :
+                </div>
+              :
               <div>Aucune action sélectionnée</div>}
           </div>
           <div>
-            <textarea value={payload} onChange={(e) => setPayload(e.target.value)} rows={6}/>
+            <Field label="Payload">
+              <Textarea placeholder="Enter a payload" value={payload} onChange={(e) => setPayload(e.target.value)}
+                        rows={6}/>
+            </Field>
+
             <div>
-              <button type="button" onClick={handleSubmit}>Submit</button>
-              <a href="#" onClick={handleClear}>Clear</a>
+              <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+              <Button variant="secondary" onClick={handleClear}>Clear</Button>
             </div>
             {errorMessage ? <div style={{color: "red"}}>{errorMessage}</div> : ""}
           </div>
@@ -133,6 +160,6 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
         }
       </div>
     </div>
-  </div>
+  </ViewLayoutContained>
 }
 
