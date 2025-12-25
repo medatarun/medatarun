@@ -1,3 +1,5 @@
+import {toProblem} from "@seij/common-types";
+
 export type ActionRegistryDto = ActionDescriptorDto[]
 
 interface ActionDescriptorDto {
@@ -132,6 +134,9 @@ function buildPayloadTemplate(action: ActionDescriptor): string {
 export async function fetchActionDescriptors(): Promise<ActionRegistryDto> {
   return fetch("/ui/api/action-registry")
     .then(res => res.json())
+    .catch(err => {
+      throw toProblem(err)
+    })
 }
 
 
