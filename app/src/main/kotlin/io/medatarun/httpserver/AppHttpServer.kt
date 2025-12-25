@@ -150,12 +150,6 @@ class AppHttpServer(
                     post { restCommandInvocation.processInvocation(call) }
                 }
             }
-            get("/ui/api/actions") {
-                call.respondText(
-                    UI(runtime, actionRegistry).generateTypescriptActions(),
-                    ContentType.Text.JavaScript
-                )
-            }
             get("/ui/api/action-registry") {
                 call.respond(
                     UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)),

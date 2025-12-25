@@ -2,6 +2,7 @@ package io.medatarun.actions.runtime
 
 import io.ktor.http.*
 import io.medatarun.model.domain.MedatarunException
+import kotlin.reflect.KType
 
 
 class ActionInvocationException(
@@ -11,3 +12,6 @@ class ActionInvocationException(
 ) : MedatarunException(message)
 
 class ActionGroupNotFoundException(group: String) : MedatarunException("Unknown action group $group")
+class UndefinedMultiplatformTypeException(type: KType) : MedatarunException(
+    "Type $type has no multiplatform equivalent"
+)

@@ -14,6 +14,7 @@ import {EntityPage} from "./views/EntityPage.tsx";
 import {FluentProvider, webLightTheme} from '@fluentui/react-components';
 import {Layout} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
+import {defaultConnection} from "@seij/common-services";
 
 function DashboardRouteComponent() {
   return <DashboardPage />
@@ -88,6 +89,9 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+const services = defaultConnection
+console.log("Services", services)
 
 function App() {
   return (

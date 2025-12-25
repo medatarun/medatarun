@@ -17,7 +17,7 @@ class RestApiDoc(private val actionRegistry: ActionRegistry) {
                         parameters = cmd.parameters.map { p ->
                             ApiDescriptionParam(
                                 name = p.name,
-                                type = p.type.toString(),
+                                type = p.multiplatformType,
                                 optional = p.optional
                             )
                         }

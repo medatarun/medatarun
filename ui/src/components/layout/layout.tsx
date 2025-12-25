@@ -17,6 +17,8 @@ import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescr
 import {ActionPerformerView} from "../business/ActionPerformerView.tsx";
 import {ActionProvider} from "../business/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg"
+import {ErrorBoundary} from "./ErrorBoundary.tsx";
+
 const useStyles = makeStyles({
   root: {display: "grid", gridTemplateColumns: "261px auto", height: "100vh", maxHeight: "100vh", overflow: "hidden"},
   left: {
@@ -66,8 +68,10 @@ export function Layout() {
       {actions &&
         <ActionsContext value={actions}>
           <ActionProvider>
-            <Outlet/>
-            <ActionPerformerView/>
+            <ErrorBoundary>
+              <Outlet/>
+              <ActionPerformerView/>
+            </ErrorBoundary>
           </ActionProvider>
         </ActionsContext>
       }
@@ -102,7 +106,10 @@ const NavDrawerControlled = ({selectedValue}: {
     <NavDrawerHeader>
     </NavDrawerHeader>
     <NavDrawerBody>
-      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} alt="Medatarun logo" style={{width: "2em", height:"2em"}} /> Medatarun</AppItem>
+      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} alt="Medatarun logo" style={{
+        width: "2em",
+        height: "2em"
+      }}/> Medatarun</AppItem>
       <NavItem icon={<DashboardIcon fontSize={tokens.fontSizeBase500}/>} value="dashboard">Home</NavItem>
       <NavItem icon={<ModelIcon fontSize={tokens.fontSizeBase500}/>} value="models">Models</NavItem>
       <NavItem icon={<CodeRegular fontSize={tokens.fontSizeBase500}/>} value="commands">Commands</NavItem>

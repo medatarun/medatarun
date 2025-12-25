@@ -12,7 +12,9 @@
   "dependencies": {
     "@fluentui/react-components": "^9.72.9",
     "@fluentui/react-icons": "^2.0.316",
+    "@seij/common-services": "^0.1.0",
     "@seij/common-types": "^0.1.2",
+    "@seij/common-validation": "^0.1.0",
     "@tanstack/react-router": "^1.143.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
