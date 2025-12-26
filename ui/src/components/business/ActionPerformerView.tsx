@@ -1,6 +1,5 @@
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogBody,
@@ -21,6 +20,7 @@ import {ActionDescriptor, type ActionResp} from "../../business/actionDescriptor
 import type {ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, invalid, valid, type ValidationResult} from "@seij/common-validation";
+import {Button} from "@seij/common-ui";
 
 type FormDataType = Record<string, unknown>;
 type FormFieldType = {
@@ -51,9 +51,11 @@ export function ActionPerformerView() {
   }
   const formFields = createFormFields(action, state.request.params);
 
-
-  return <ActionPerformerViewLoaded state={state} action={action} defaultFormData={defaultFormData}
-                                    formFields={formFields}/>
+  return <ActionPerformerViewLoaded
+    state={state}
+    action={action}
+    defaultFormData={defaultFormData}
+    formFields={formFields}/>
 }
 
 export function ActionPerformerViewLoaded({state, action, defaultFormData, formFields}: {
@@ -112,16 +114,16 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
         </DialogBody>
         <DialogActions>
           {displayExecute &&
-            <Button type="button" appearance="primary" onClick={onValidate} disabled={!valid}>Execute</Button>
+            <Button variant="primary" onClick={onValidate} disabled={!valid}>Execute</Button>
           }
           {displayCancel &&
             <DialogTrigger disableButtonEnhancement>
-              <Button appearance="secondary" onClick={onCancel}>Cancel</Button>
+              <Button variant="secondary" onClick={onCancel}>Cancel</Button>
             </DialogTrigger>
           }
           {displayFinish &&
             <DialogTrigger disableButtonEnhancement>
-              <Button appearance="primary" onClick={onFinish}>Finish</Button>
+              <Button variant="primary" onClick={onFinish}>Finish</Button>
             </DialogTrigger>
           }
         </DialogActions>
@@ -159,9 +161,10 @@ function FormFieldInput({field, value, validationResult, onChange}: {
     validationState={validationState}
     validationMessage={validationResult?.error}
     required={!field.optional}>
-    <Input disabled={field.prefilled} value={valueNormalized} onChange={(_, data) => {
-      onChange(field, data.value)
-    }}/>
+    <Input
+      disabled={field.prefilled}
+      value={valueNormalized}
+      onChange={(_, data) => onChange(field, data.value)}/>
   </Field></div>
 }
 
@@ -243,6 +246,7 @@ function validateString(field: FormFieldType, formDatum: any) {
 function validateVersion(field: FormFieldType, formDatum: any) {
   return validateString(field, formDatum)
 }
+
 function validateHashtag(field: FormFieldType, formDatum: any) {
   return validateString(field, formDatum)
 }
