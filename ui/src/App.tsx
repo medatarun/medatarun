@@ -11,7 +11,7 @@ import {CommandsPage} from "./views/CommandsPage.tsx";
 import {ModelsPage} from "./views/ModelsPage.tsx";
 import {ModelPage} from "./views/ModelPage.tsx";
 import {EntityPage} from "./views/EntityPage.tsx";
-import {Layout} from "./components/layout/layout.tsx";
+import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
 import {defaultConnection} from "@seij/common-services";
 import {SeijUIProvider} from "@seij/common-ui";
@@ -41,9 +41,11 @@ function EntityDefRouteComponent() {
   return <EntityPage modelId={modelId} entityDefId={entityDefId}/>
 }
 
+
+
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
-  component: Layout,
+  component: Layout2,
 });
 
 const dashboardRoute = createRoute({
