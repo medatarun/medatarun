@@ -13,9 +13,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.httpserver.cli.CliActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
@@ -66,9 +66,9 @@ class AppHttpServer(
      * Starts the REST API server. Subsequent calls while the server is running throw an [IllegalStateException].
      */
     fun start(
-        host: String = "0.0.0.0",
-        port: Int = 8080,
-        wait: Boolean = false,
+        host: String,
+        port: Int,
+        wait: Boolean,
     ) {
         synchronized(this) {
             check(engine == null) { "RestApi server already running" }
@@ -149,6 +149,11 @@ class AppHttpServer(
                     get { restCommandInvocation.processInvocation(call) }
                     post { restCommandInvocation.processInvocation(call) }
                 }
+            }
+            get("/cli/api/action-registry") {
+                call.respond(
+                    CliActionRegistry(actionRegistry).actionRegistryDto()
+                )
             }
             get("/ui/api/action-registry") {
                 call.respond(

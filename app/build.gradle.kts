@@ -27,11 +27,16 @@ dependencies {
     implementation(libs.ktorServerContentNegotiation)
     implementation(libs.ktorSerializationKotlinxJson)
     implementation(libs.ktorServerSse)
+    implementation(libs.ktorClientCore)
+    implementation(libs.ktorClientCio)
+    implementation(libs.ktorClientContentNegotiation)
     implementation(libs.mcpKotlinServer)
     implementation(libs.bundles.slf4jImpl)
     implementation(libs.kotlinxHtml)
     implementation(libs.bundles.commonmark)
     implementation(libs.ktorServerStatusPages)
+    implementation(libs.microprofileConfigApi)
+    implementation(libs.smallryeConfig)
 }
 
 application {
@@ -39,6 +44,7 @@ application {
     // (Note that Kotlin compiles `App.kt` to a class with FQN `com.example.app.AppKt`.)
     mainClass = "io.medatarun.AppKt"
 }
+
 
 val copyWebBuild by tasks.registering(Copy::class) {
     dependsOn(":ui:viteBuild")

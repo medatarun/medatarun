@@ -19,12 +19,9 @@ There is no installer yet. You will be running with the source code directly.
 
 ```bash
 alias medatarun='f() { 
+    /path/to/medatarun/gradlew -p /path/to/medatarun :app:installDist
     export MEDATARUN_APPLICATION_DATA=$(pwd);
-    if [ $# -gt 0 ]; then
-        /path/to/medatarun/gradlew -p /path/to/medatarun run --args="$*";
-    else
-        /path/to/medatarun/gradlew -p /path/to/medatarun run;
-    fi
+    /path/to/medatarun/app/build/install/app/bin/medatarun "$@"
 }; f'
 ```
 

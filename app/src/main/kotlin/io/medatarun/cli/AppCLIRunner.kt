@@ -1,17 +1,27 @@
 package io.medatarun.cli
 
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
-import io.medatarun.actions.runtime.ActionInvocationException
-import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.runtime.AppRuntime
+import io.medatarun.httpserver.cli.CliActionGroupDto
 import io.medatarun.runtime.getLogger
-import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_APPLICATION_DATA_ENV
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class AppCLIRunner(private val args: Array<String>, private val runtime: AppRuntime) {
+class AppCLIRunner(
+    private val args: Array<String>,
+    private val defaultServerPort: Int,
+    private val defaultServerHost: String,
+) {
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)
@@ -19,8 +29,13 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
     }
 
 
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
+    private val httpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+        expectSuccess = false
+    }
+    private var actionRegistryCache: List<CliActionGroupDto>? = null
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -33,13 +48,25 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         }
 
         if (args.size < 2) {
-            logger.error("Usage: app <resource> <function> [--param valeur]")
+            logger.error("Usage: app <group> <command> [--param valeur]")
             printHelp()
             return
         }
 
         val resourceName = args[0]
         val functionName = args[1]
+        val resource = findResource(resourceName)
+        if (resource == null) {
+            logger.error("Group not found: $resourceName")
+            printHelpRoot()
+            return
+        }
+        val commandExists = resource.commands.any { it.name == functionName }
+        if (!commandExists) {
+            logger.error("Command not found: $resourceName $functionName")
+            printHelpResource(resourceName)
+            return
+        }
         val rawParameters = parseParameters(args)
 
         val request = ActionRequest(
@@ -48,17 +75,50 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
             payload = rawParameters
         )
 
-        val result = try {
-            actionRegistry.handleInvocation(request, actionCtxFactory.create())
-        } catch (exception: ActionInvocationException) {
-            logger.error("Invocation error: ${exception.message}")
-            logPayload(exception.payload)
-            return
+        val result = runBlocking {
+            invokeRemoteAction(request)
         }
 
-        if (result != null && result is String) {
+        if (result.isNotBlank()) {
             logger.cli(result)
         }
+    }
+
+    private suspend fun invokeRemoteAction(request: ActionRequest): String {
+        val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.group}/${request.command}"
+        val response = httpClient.post(url) {
+            contentType(ContentType.Application.Json)
+            setBody(request.payload)
+        }
+        val responseBody = response.bodyAsText()
+        if (!response.status.isSuccess()) {
+            throw RemoteActionInvocationException(
+                "Remote invocation failed with status ${response.status.value}: $responseBody"
+            )
+        }
+        return responseBody
+    }
+
+    private fun loadActionRegistry(): List<CliActionGroupDto> {
+        val cached = actionRegistryCache
+        if (cached != null) {
+            return cached
+        }
+        val registry = runBlocking { fetchActionRegistry() }
+        actionRegistryCache = registry
+        return registry
+    }
+
+    private suspend fun fetchActionRegistry(): List<CliActionGroupDto> {
+        val url = "http://${defaultServerHost}:${defaultServerPort}/cli/api/action-registry"
+        val response = httpClient.get(url)
+        if (!response.status.isSuccess()) {
+            val responseBody = response.bodyAsText()
+            throw RemoteActionRegistryException(
+                "Remote action registry fetch failed with status ${response.status.value}: $responseBody"
+            )
+        }
+        return response.body()
     }
 
     private fun parseParameters(args: Array<String>): JsonObject {
@@ -89,10 +149,6 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         }
     }
 
-    private fun logPayload(payload: Map<String, String>) {
-        logger.error("" + payload.toString())
-    }
-
     private fun printHelp(resource: String? = null, command: String? = null) {
         if (resource != null && command != null) {
             printHelpCommand(resource, command)
@@ -104,9 +160,9 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
     }
 
     private fun printHelpCommand(resourceId: String, commandId: String) {
-        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
+        val resource = findResource(resourceId)
         if (resource == null) {
-            logger.error("Resource not found: $resourceId")
+            logger.error("Group not found: $resourceId")
             return printHelpRoot()
         }
         val command = resource.commands.find { it.name == commandId }
@@ -118,7 +174,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
 
 
         logger.cli("")
-        logger.cli("Resource: $resourceId")
+        logger.cli("Group  : $resourceId")
         logger.cli("Command: $commandId")
         logger.cli("")
         command.title?.let { logger.cli("  " + it) }
@@ -136,9 +192,9 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
 
     private fun printHelpResource(resourceId: String) {
 
-        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
+        val resource = findResource(resourceId)
         if (resource == null) {
-            logger.error("Resource not found: $resourceId")
+            logger.error("Group not found: $resourceId")
             printHelpRoot()
         } else {
             logger.cli("Get help on available commands: help $resourceId <commandName>")
@@ -166,11 +222,16 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         logger.cli("")
         logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
         logger.cli("")
-        logger.cli("Get help on available resources:")
-        val descriptors = actionRegistry.findAllGroupDescriptors().sortedBy { it.name.lowercase() }
+        logger.cli("Get help on available groups:")
+        val descriptors = loadActionRegistry().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
             logger.cli("  help ${descriptor.name}")
         }
+    }
+
+    private fun findResource(resourceId: String): CliActionGroupDto? {
+        val descriptors = loadActionRegistry()
+        return descriptors.find { it.name == resourceId }
     }
 
 }

@@ -24,12 +24,10 @@ import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.ConfigExtension
 import org.slf4j.LoggerFactory
 
-class AppRuntimeBuilder {
+class AppRuntimeBuilder(config: AppRuntimeConfig) {
 
     // Things that are compile-build builds
 
-    val scanner = AppRuntimeScanner()
-    val config = scanner.scan()
     val extensions = listOf(
         ActionsExtension(),
         ModelExtension(),

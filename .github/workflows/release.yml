@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure tag is on main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "${GITHUB_REF_NAME}" origin/main
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Build distribution zip
+        run: ./gradlew :app:distZip
+
+      - name: Rename zip
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mv app/build/distributions/app.zip "medatarun-${VERSION}.zip"
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "${GITHUB_REF_NAME}" "medatarun-${VERSION}.zip" --title "v${VERSION}"

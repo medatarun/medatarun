@@ -3,18 +3,31 @@ package io.medatarun
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.httpserver.AppHttpServer
 import io.medatarun.runtime.internal.AppRuntimeBuilder
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory
+import org.slf4j.LoggerFactory
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main(args: Array<String>) {
 
-    val runtime = AppRuntimeBuilder().build()
+    val config = AppRuntimeConfigFactory().create()
+    val serverPort: Int = config.getProperty("medatarun.server.port", "8080").toInt()
+    val serverHost: String = config.getProperty("medatarun.server.host", "0.0.0.0")
+
 
 
     if (args.isNotEmpty() && args[0] == "serve") {
-        AppHttpServer(runtime).start(wait = true)
+        val runtime = AppRuntimeBuilder(config).build()
+        AppHttpServer(runtime).start(
+            host = serverHost,
+            port = serverPort,
+            wait = true
+        )
     } else {
-        val cliRunner = AppCLIRunner(args, runtime)
+        val logger = LoggerFactory.getLogger("MAIN")
+        logger.info("medatarun.server.port=${System.getProperty("medatarun.server.port")}")
+        logger.info("medatarun.server.host=${System.getProperty("medatarun.server.host")}")
+        val cliRunner = AppCLIRunner(args, defaultServerHost = serverHost, defaultServerPort = serverPort)
         cliRunner.handleCLI()
     }
 
