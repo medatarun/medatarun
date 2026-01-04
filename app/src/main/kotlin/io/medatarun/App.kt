@@ -3,19 +3,20 @@ package io.medatarun
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.httpserver.AppHttpServer
 import io.medatarun.runtime.internal.AppRuntimeBuilder
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main(args: Array<String>) {
 
+    val config = AppRuntimeConfigFactory().create()
+    val serverPort: Int = config.getProperty("server.port", "8080").toInt()
+    val serverHost: String = config.getProperty("server.host", "0.0.0.0")
 
 
-
-    val serverPort: Int = 8080
-    val serverHost: String = "0.0.0.0"
 
     if (args.isNotEmpty() && args[0] == "serve") {
-        val runtime = AppRuntimeBuilder().build()
+        val runtime = AppRuntimeBuilder(config).build()
         AppHttpServer(runtime).start(
             host = serverHost,
             port = serverPort,

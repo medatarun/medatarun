@@ -11,7 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.httpserver.cli.CliActionGroupDto
 import io.medatarun.runtime.getLogger
-import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -48,7 +48,7 @@ class AppCLIRunner(
         }
 
         if (args.size < 2) {
-            logger.error("Usage: app <resource> <function> [--param valeur]")
+            logger.error("Usage: app <group> <command> [--param valeur]")
             printHelp()
             return
         }
@@ -57,7 +57,7 @@ class AppCLIRunner(
         val functionName = args[1]
         val resource = findResource(resourceName)
         if (resource == null) {
-            logger.error("Resource not found: $resourceName")
+            logger.error("Group not found: $resourceName")
             printHelpRoot()
             return
         }
@@ -162,7 +162,7 @@ class AppCLIRunner(
     private fun printHelpCommand(resourceId: String, commandId: String) {
         val resource = findResource(resourceId)
         if (resource == null) {
-            logger.error("Resource not found: $resourceId")
+            logger.error("Group not found: $resourceId")
             return printHelpRoot()
         }
         val command = resource.commands.find { it.name == commandId }
@@ -174,7 +174,7 @@ class AppCLIRunner(
 
 
         logger.cli("")
-        logger.cli("Resource: $resourceId")
+        logger.cli("Group  : $resourceId")
         logger.cli("Command: $commandId")
         logger.cli("")
         command.title?.let { logger.cli("  " + it) }
@@ -194,7 +194,7 @@ class AppCLIRunner(
 
         val resource = findResource(resourceId)
         if (resource == null) {
-            logger.error("Resource not found: $resourceId")
+            logger.error("Group not found: $resourceId")
             printHelpRoot()
         } else {
             logger.cli("Get help on available commands: help $resourceId <commandName>")
@@ -222,7 +222,7 @@ class AppCLIRunner(
         logger.cli("")
         logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
         logger.cli("")
-        logger.cli("Get help on available resources:")
+        logger.cli("Get help on available groups:")
         val descriptors = loadActionRegistry().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
             logger.cli("  help ${descriptor.name}")

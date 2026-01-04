@@ -16,6 +16,8 @@ mcpKotlin = "0.7.4"
 slf4j = "2.0.17"
 gradleVersionsPlugin = "0.53.0"
 gradleNodePluginVersion = "7.0.2"
+microprofileConfig = "3.1"
+smallryeConfig = "3.15.0"
 
 [libraries]
 commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
@@ -40,6 +42,8 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback"}
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j"}
 mcpKotlinServer = { module = "io.modelcontextprotocol:kotlin-sdk-server", version.ref = "mcpKotlin" }
+microprofileConfigApi = { module = "org.eclipse.microprofile.config:microprofile-config-api", version.ref = "microprofileConfig" }
+smallryeConfig = { module = "io.smallrye.config:smallrye-config", version.ref = "smallryeConfig" }
 
 # Libraries can be bundled together for easier import
 [bundles]

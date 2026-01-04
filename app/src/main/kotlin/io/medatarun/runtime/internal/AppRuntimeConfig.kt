@@ -2,15 +2,14 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.kernel.MedatarunConfig
 import io.medatarun.kernel.ResourceLocator
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import org.eclipse.microprofile.config.Config
 import java.nio.file.Path
 
 class AppRuntimeConfig(
     override val applicationHomeDir: Path,
     override val projectDir: Path,
     override val medatarunDir: Path,
-    val config: JsonObject,
+    public val config: Config,
     val resourceLocatorFactory: () -> ResourceLocator,
 ) : MedatarunConfig {
 
@@ -19,10 +18,10 @@ class AppRuntimeConfig(
     }
 
     override fun getProperty(key: String): String? {
-        return config[key]?.jsonPrimitive?.content
+        return config.getOptionalValue(key, String::class.java).orElse(null)
     }
 
     override fun getProperty(key: String, defaultValue: String): String {
-        return getProperty(key) ?: defaultValue
+        return config.getOptionalValue(key, String::class.java).orElse(defaultValue)
     }
 }

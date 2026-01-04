@@ -35,6 +35,8 @@ dependencies {
     implementation(libs.kotlinxHtml)
     implementation(libs.bundles.commonmark)
     implementation(libs.ktorServerStatusPages)
+    implementation(libs.microprofileConfigApi)
+    implementation(libs.smallryeConfig)
 }
 
 application {
