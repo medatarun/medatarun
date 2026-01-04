@@ -1,32 +1,19 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
-
 import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.domain.AttributeDef
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.Hashtag
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipDef
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
-import kotlin.reflect.KType
+import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.typeOf
 
 class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
@@ -212,7 +199,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             "Command $actionCmd has no primary constructor"
         )
 
-        val callArgs = createCallArgs(actionGroup, actionProviderInstance, function, actionPayload)
+        val callArgs = createCallArgs(actionGroup, actionCmd, actionProviderInstance, function, actionPayload)
         logger.debug("call args: {}", callArgs)
 
 
@@ -228,6 +215,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     fun createCallArgs(
         actionGroup: String,
+        actionCmd: String,
         actionProviderInstance: ActionProvider<Any>,
         actionCommandFunction: KFunction<*>,
         actionPayload: JsonObject
@@ -241,7 +229,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 HttpStatusCode.BadRequest,
                 "Missing parameter(s): ${missing.joinToString(", ")}",
                 mapOf(
-                    "usage" to buildUsageHint(actionGroup, actionCommandFunction)
+                    "usage" to buildUsageHint(actionGroup, actionCmd, actionCommandFunction)
                 )
             )
         }
@@ -335,8 +323,8 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
         else -> ConversionResult.Value(raw)
     }
 
-    private fun buildUsageHint(actionGroup: String, function: KFunction<*>): String =
-        listOf(actionGroup, function.name).joinToString(separator = " ") + " " + function.parameters
+    private fun buildUsageHint(actionGroup: String, actionCmd: String, function: KFunction<*>): String =
+        listOf(actionGroup, actionCmd).joinToString(separator = " ") + " " + function.parameters
             .filter { it.kind == KParameter.Kind.VALUE }
             .joinToString(" ") { param -> "--${param.name}=<${param.type}>" }
 
