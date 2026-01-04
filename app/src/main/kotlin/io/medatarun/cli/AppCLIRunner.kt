@@ -11,7 +11,12 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class AppCLIRunner(private val args: Array<String>, private val runtime: AppRuntime) {
+class AppCLIRunner(
+    private val args: Array<String>,
+    private val runtime: AppRuntime,
+    private val defaultServerPort: Int,
+    private val defaultServerHost: String,
+) {
 
     companion object {
         val logger = getLogger(AppCLIRunner::class)

@@ -66,9 +66,9 @@ class AppHttpServer(
      * Starts the REST API server. Subsequent calls while the server is running throw an [IllegalStateException].
      */
     fun start(
-        host: String = "0.0.0.0",
-        port: Int = 8080,
-        wait: Boolean = false,
+        host: String,
+        port: Int,
+        wait: Boolean,
     ) {
         synchronized(this) {
             check(engine == null) { "RestApi server already running" }
