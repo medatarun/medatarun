@@ -7,7 +7,8 @@ import {
   DialogSurface,
   DialogTitle,
   DialogTrigger,
-  Field, type FieldProps,
+  Field,
+  type FieldProps,
   InfoLabel,
   Input,
   type LabelProps,
@@ -16,7 +17,7 @@ import {
 import {useActionRegistry} from "./ActionsContext.tsx";
 import {useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
-import {ActionDescriptor, type ActionResp} from "../../business/actionDescriptor.tsx";
+import {Action_registryBiz, type ActionResp} from "../../business";
 import type {ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, invalid, valid, type ValidationResult} from "@seij/common-validation";
@@ -60,7 +61,7 @@ export function ActionPerformerView() {
 
 export function ActionPerformerViewLoaded({state, action, defaultFormData, formFields}: {
   state: ActionPerformerState,
-  action: ActionDescriptor,
+  action: Action_registryBiz,
   defaultFormData: FormDataType,
   formFields: FormFieldType[]
 }) {
@@ -168,7 +169,7 @@ function FormFieldInput({field, value, validationResult, onChange}: {
   </Field></div>
 }
 
-function createFormFields(action: ActionDescriptor, prefill: Record<string, unknown>) {
+function createFormFields(action: Action_registryBiz, prefill: Record<string, unknown>) {
   const formFields: FormFieldType[] = []
   action.parameters.forEach(param => {
     const prefilledValue = prefill[param.name]

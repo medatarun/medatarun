@@ -1,6 +1,6 @@
 import {Table, TableBody, TableCell, TableRow, Text} from "@fluentui/react-components";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import type {RelationshipDefSummaryDto} from "../../business/relationships.tsx";
+import type {RelationshipDefSummaryDto} from "../../business";
 
 export function RelationshipsTable({relationships}:{relationships:RelationshipDefSummaryDto[]}) {
   return <div>

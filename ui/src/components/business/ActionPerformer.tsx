@@ -1,4 +1,4 @@
-import {ActionRegistry, type ActionResp, executeAction} from "../../business/actionDescriptor.tsx";
+import {ActionRegistry, type ActionResp, executeAction} from "../../business";
 
 export type ActionPerformerRequestParams = Record<string, unknown>;
 export type ActionRequest = {

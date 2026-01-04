@@ -1,5 +1,5 @@
 import {Card, CardHeader, Text} from "@fluentui/react-components";
-import type {EntityDto} from "../../business/model.tsx";
+import type {EntityDto} from "../../business";
 import {Tags} from "../core/Tag.tsx";
 
 export function EntityCard({entity, onClick}:{entity: EntityDto, onClick:(id: string) => void}) {

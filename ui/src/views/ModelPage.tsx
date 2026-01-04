@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {useNavigate} from "@tanstack/react-router";
-import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
+import {type ElementOrigin, Model, type ModelDto} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
 import {

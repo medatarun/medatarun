@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Link, useNavigate} from "@tanstack/react-router";
-import {type EntityDto, Model, type ModelDto} from "../business/model.tsx";
+import {type EntityDto, Model, type ModelDto} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {

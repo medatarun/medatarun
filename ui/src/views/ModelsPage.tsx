@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {ModelCard} from "../components/business/ModelCard.tsx";
-import type {ModelSummaryDto} from "../business/model.tsx";
+import type {ModelSummaryDto} from "../business";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ModelIcon} from "../components/business/Icons.tsx";
 import {Breadcrumb, BreadcrumbButton} from "@fluentui/react-components";

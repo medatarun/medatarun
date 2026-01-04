@@ -1,6 +1,6 @@
 import {createContext} from "react";
 import type {ActionPerformerRequestParams, ActionPerformerState, ActionRequest} from "./ActionPerformer.tsx";
-import type {ActionResp} from "../../business/actionDescriptor.tsx";
+import type {ActionResp} from "../../business";
 
 export interface ActionPerformerContextValue {
   state: ActionPerformerState;

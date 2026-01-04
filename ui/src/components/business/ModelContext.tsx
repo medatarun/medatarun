@@ -1,5 +1,5 @@
 import {createContext, useContext} from "react";
-import {Model} from "../../business/model.tsx";
+import {Model} from "../../business";
 
 export const ModelContext = createContext<Model | undefined>(undefined)
 

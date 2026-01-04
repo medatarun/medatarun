@@ -1,5 +1,5 @@
 import {useActionRegistry} from "./ActionsContext.tsx";
-import {ActionDescriptor} from "../../business/actionDescriptor.tsx";
+import {Action_registryBiz} from "../../business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";
@@ -22,7 +22,7 @@ export const ActionsBar = ({location, params = {}, variant}: ActionBarProps) => 
 
 export const ActionButton = ({action, params}: {
   location: string,
-  action: ActionDescriptor,
+  action: Action_registryBiz,
   params: Record<string, string>
 }) => {
 

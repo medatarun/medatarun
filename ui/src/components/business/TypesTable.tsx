@@ -1,4 +1,4 @@
-import type {TypeDto} from "../../business/model.tsx";
+import type {Action_registryBiz, TypeDto} from "../../business";
 import {
   Button,
   Menu,
@@ -18,7 +18,6 @@ import {useModelContext} from "./ModelContext.tsx";
 import {Icon} from "@seij/common-ui-icons";
 import {useActionRegistry} from "./ActionsContext.tsx";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
-import type {ActionDescriptor} from "../../business/actionDescriptor.tsx";
 
 
 export function TypesTable({types}: { types: TypeDto[] }) {
@@ -56,7 +55,7 @@ export function TypesTable({types}: { types: TypeDto[] }) {
 }
 
 export function ActionMenuButton({itemActions, actionParams}: {
-  itemActions: ActionDescriptor[],
+  itemActions: Action_registryBiz[],
   actionParams: Record<string, string>
 }) {
   const actionPerformer = useActionPerformer()

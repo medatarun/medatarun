@@ -1,4 +1,4 @@
-import type {ActionRegistry} from "../../business/actionDescriptor.tsx";
+import type {ActionRegistry} from "../../business";
 import {createContext, useContext} from "react";
 
 export const ActionsContext = createContext<ActionRegistry|undefined>(undefined);
