@@ -1,14 +1,28 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+
+import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.model.domain.AttributeDef
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.Hashtag
+import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.RelationshipDef
+import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
+import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
+import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -67,12 +81,36 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                     description = paramdoc?.description?.trimIndent(),
                     optional = property.returnType.isMarkedNullable,
                     type = property.returnType,
+                    multiplatformType = toMultiplatformType(property.returnType),
                     order = paramdoc?.order ?: index
                 )
             },
             uiLocation = doc?.uiLocation ?: "",
 
             )
+    }
+
+    fun toMultiplatformType(returnType: KType): String {
+        val typeAlias = when (returnType.classifier) {
+            String::class -> return "String"
+            Boolean::class -> return "Boolean"
+            List::class -> return "List<${toMultiplatformType(returnType.arguments[0].type!!)}>"
+            ActionWithPayload::class -> return "ActionWithPayload"
+            AttributeKey::class -> return "AttributeKey"
+            EntityKey::class -> return "EntityKey"
+            RelationshipKey::class -> return "RelationshipKey"
+            TypeKey::class -> return "TypeKey"
+            ModelKey::class -> return "ModelKey"
+            Hashtag::class -> return "Hashtag"
+            ModelVersion::class -> return "ModelVersion"
+            // TODO shall not be here ???
+            AttributeDef::class -> return "AttributeDef"
+            AttributeDefUpdateCmd::class -> return "AttributeDefUpdateCmd"
+            RelationshipDef::class -> return "RelationshipDef"
+            RelationshipDefUpdateCmd::class -> return "RelationshipDefUpdateCmd"
+            else -> throw UndefinedMultiplatformTypeException(returnType)
+        }
+        return typeAlias
     }
 
 

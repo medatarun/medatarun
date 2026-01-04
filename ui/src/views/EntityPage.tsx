@@ -1,6 +1,6 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {Link, useNavigate} from "@tanstack/react-router";
-import {type EntityDto, Model, type ModelDto} from "../business/model.tsx";
+import {type EntityDto, Model, useModel} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {
@@ -25,12 +25,8 @@ import {EntityOverview} from "../components/business/EntityOverview.tsx";
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
 
-  const [model, setModel] = useState<ModelDto | undefined>(undefined);
-  useEffect(() => {
-    fetch("/ui/api/models/" + modelId, {headers: {"Accept": "application/json", "Content-Type": "application/json"}})
-      .then(res => res.json())
-      .then(json => setModel(json));
-  }, [modelId, entityDefId])
+  const {data: model} = useModel(modelId)
+
   const entity = model?.entityDefs?.find(it => it.id === entityDefId)
   if (!model) return null
   if (!entity) return null
@@ -53,14 +49,15 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
   return <ViewLayoutContained title={
     <Breadcrumb>
-      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>}><Link
-        to="/">Models</Link></BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon/>}><Link to="/">Models</Link></BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
-      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>}
-                                        onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon/>}
+                          onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
-      <BreadcrumbItem><BreadcrumbButton icon={<EntityIcon/>}
-                                        current>{entity.name ?? entity.id}</BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<EntityIcon/>} current>{entity.name ?? entity.id}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
     <div style={{display: "flex", height: "100%", overflow: "hidden", flexDirection: "column"}}>

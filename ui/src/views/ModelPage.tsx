@@ -1,7 +1,7 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {useNavigate} from "@tanstack/react-router";
-import {type ElementOrigin, Model, type ModelDto} from "../business/model.tsx";
+import {type ElementOrigin, Model, useModel} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
 import {
@@ -25,12 +25,7 @@ import {ActionsBar} from "../components/business/ActionsBar.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
-  const [model, setModel] = useState<ModelDto | undefined>(undefined);
-  useEffect(() => {
-    fetch("/ui/api/models/" + modelId, {headers: {"Accept": "application/json", "Content-Type": "application/json"}})
-      .then(res => res.json())
-      .then(json => setModel(json));
-  }, [modelId])
+  const { data:model } = useModel(modelId);
   return <div>
     {model && <ModelContext value={new Model(model)}><ModelView/></ModelContext>}
   </div>

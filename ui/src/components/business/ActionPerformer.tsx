@@ -1,10 +1,10 @@
-import {ActionRegistry, type ActionResp, executeAction} from "../../business/actionDescriptor.tsx";
+import {ActionRegistry, type ActionResp, executeAction} from "../../business";
+import {queryClient} from "../../services/queryClient.ts";
 
 export type ActionPerformerRequestParams = Record<string, unknown>;
 export type ActionRequest = {
   actionGroupKey: string;
   actionKey: string
-  location: string;
   params: ActionPerformerRequestParams;
 };
 
@@ -104,6 +104,9 @@ export class ActionPerformer {
     if (!action) {
       throw new Error(`Unknown action ${request.actionGroupKey}/${request.actionKey}`);
     }
-    return await executeAction(request.actionGroupKey, request.actionKey, formData);
+
+    const resp = await executeAction(request.actionGroupKey, request.actionKey, formData);
+    await queryClient.invalidateQueries()
+    return resp
   }
 }

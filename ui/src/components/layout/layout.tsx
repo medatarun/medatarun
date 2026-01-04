@@ -1,43 +1,29 @@
-import {Outlet, useNavigate, useRouterState} from "@tanstack/react-router";
-import {
-  AppItem,
-  makeStyles,
-  MessageBar,
-  NavDrawer,
-  NavDrawerBody,
-  NavDrawerHeader,
-  NavItem,
-  tokens
-} from "@fluentui/react-components";
-import {CodeRegular} from "@fluentui/react-icons";
-import {DashboardIcon, ModelIcon} from "../business/Icons.tsx";
-import {ActionsContext} from "../business/ActionsContext.tsx";
+import {Outlet, useMatchRoute, useNavigate} from "@tanstack/react-router";
+import {MessageBar} from "@fluentui/react-components";
 import {useEffect, useState} from "react";
-import {ActionRegistry, fetchActionDescriptors} from "../../business/actionDescriptor.tsx";
+import {ActionRegistry, ActionsContext, fetchActionDescriptors} from "../../business";
 import {ActionPerformerView} from "../business/ActionPerformerView.tsx";
 import {ActionProvider} from "../business/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg"
-const useStyles = makeStyles({
-  root: {display: "grid", gridTemplateColumns: "261px auto", height: "100vh", maxHeight: "100vh", overflow: "hidden"},
-  left: {
-    color: tokens.colorNeutralForeground3,
-    backgroundColor: tokens.colorNeutralBackground3,
-    borderRight: `1px solid ${tokens.colorNeutralStroke3}`
-  },
-  right: {
-    overflowY: "auto",
-  },
-  nav: {
-    minWidth: "260px"
-  }
-});
+import {ErrorBoundary} from "./ErrorBoundary.tsx";
+import {ApplicationShell, Loader, type NavigationTreeItem, type UserStatus} from "@seij/common-ui";
 
 
-export function Layout() {
-  const styles = useStyles();
-  const {location} = useRouterState()
+export function Layout2() {
   const [actions, setActions] = useState<ActionRegistry>()
   const [error, setError] = useState<any | null>(null)
+  const navigate = useNavigate()
+  const userStatus: UserStatus = {
+    isAuthenticated: false,
+    isLoading: false,
+    errorMessage: null,
+    onClickSignIn: () => {
+    },
+    onClickSignOut: () => {
+    },
+    userName: null
+  }
+  const matchRoute = useMatchRoute()
 
   useEffect(() => {
     fetchActionDescriptors()
@@ -51,61 +37,72 @@ export function Layout() {
       })
   }, [])
 
-  const selectedValue = (() => {
-    if (location.pathname.startsWith("/models")) return "models"
-    if (location.pathname.startsWith("/model/")) return "models"
-    if (location.pathname.startsWith("/commands")) return "commands"
-    return "dashboard"
-  })();
-
-  return <div className={styles.root}>
-    <div className={styles.left}>
-      <NavDrawerControlled selectedValue={selectedValue}/>
-    </div>
-    <main className={styles.right}>
-      {actions &&
-        <ActionsContext value={actions}>
-          <ActionProvider>
-            <Outlet/>
-            <ActionPerformerView/>
-          </ActionProvider>
-        </ActionsContext>
-      }
-      {
-        error && <div>
-          <p>Sorry, we could not load this page.</p>
-          <MessageBar intent="error">{error.toString()}</MessageBar>
-        </div>
-      }
-    </main>
-  </div>
-}
-
-const NavDrawerControlled = ({selectedValue}: {
-  selectedValue: string,
-}) => {
-  const styles = useStyles();
-  const navigate = useNavigate()
-  const handleNavigate = (item: string) => {
-    if (item == "dashboard") navigate({to: "/"})
-    if (item == "models") navigate({to: "/models"})
-    if (item == "commands") navigate({to: "/commands"})
-  }
-  return <NavDrawer
-    selectedValue={selectedValue}
-    open={true}
-    density="medium"
-    type="inline"
-    className={styles.nav}
-    onNavItemSelect={(_, data) => handleNavigate(data.value)}
+  const matchPath = (path: string | undefined) => !!matchRoute({to: path, fuzzy: true})
+  const navigationItems: NavigationTreeItem[] = [
+    {
+      id: "home",
+      parentId: null,
+      type: "page",
+      path: "/",
+      label: "Home",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
+    },
+    {
+      id: "models",
+      parentId: null,
+      type: "page",
+      path: "/models",
+      label: "Models",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
+    },
+    {
+      id: "commands",
+      parentId: null,
+      type: "page",
+      path: "/commands",
+      label: "Commands",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
+    }
+  ]
+  return <ApplicationShell
+    applicationName={"Medatarun"}
+    applicationIcon={<img src={logo} alt="Medatarun logo" style={{
+      width: "2em",
+      height: "2em"
+    }}/>}
+    main={
+      <>
+        {actions &&
+          <ActionsContext value={actions}>
+            <ActionProvider>
+              <ErrorBoundary>
+                <Outlet/>
+                <ActionPerformerView/>
+              </ErrorBoundary>
+            </ActionProvider>
+          </ActionsContext>
+        }
+        {!actions && <Loader loading={true} /> }
+        {
+          error && <div>
+            <p>Sorry, we could not load this page.</p>
+            <MessageBar intent="error">{error.toString()}</MessageBar>
+          </div>
+        }
+      </>
+    }
+    navigate={path => navigate({to: path})}
+    onClickHome={() => navigate({to: "/"})}
+    userStatus={userStatus}
+    navigationItems={navigationItems}
+    matchPath={matchPath}
   >
-    <NavDrawerHeader>
-    </NavDrawerHeader>
-    <NavDrawerBody>
-      <AppItem onClick={() => handleNavigate("dashboard")}> <img src={logo} alt="Medatarun logo" style={{width: "2em", height:"2em"}} /> Medatarun</AppItem>
-      <NavItem icon={<DashboardIcon fontSize={tokens.fontSizeBase500}/>} value="dashboard">Home</NavItem>
-      <NavItem icon={<ModelIcon fontSize={tokens.fontSizeBase500}/>} value="models">Models</NavItem>
-      <NavItem icon={<CodeRegular fontSize={tokens.fontSizeBase500}/>} value="commands">Commands</NavItem>
-    </NavDrawerBody>
-  </NavDrawer>
+
+  </ApplicationShell>
 }

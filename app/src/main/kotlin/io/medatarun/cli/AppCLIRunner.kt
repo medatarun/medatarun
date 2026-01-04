@@ -126,7 +126,7 @@ class AppCLIRunner(private val args: Array<String>, private val runtime: AppRunt
         command.description?.let { logger.cli("  " + it) }
         logger.cli("")
         val renderedParameters = command.parameters.joinToString("\n") { param ->
-            "  --${param.name}=<${param.type}>"
+            "  --${param.name}=<${param.multiplatformType}>"
 
         }
         logger.cli(renderedParameters)

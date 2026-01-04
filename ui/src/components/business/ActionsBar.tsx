@@ -1,29 +1,27 @@
-import {useActionRegistry} from "./ActionsContext.tsx";
-import {Button, makeStyles, tokens} from "@fluentui/react-components";
-import {ActionDescriptor} from "../../business/actionDescriptor.tsx";
+import {Action_registryBiz, useActionRegistry} from "../../business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
+import {Button, ButtonBar} from "@seij/common-ui"
+import type {ComponentProps} from "react";
 
-const useStyles = makeStyles({
-  root: {
-    display: "flex",
-    columnGap: tokens.spacingHorizontalS,
-  }
-})
+type ActionBarProps = {
+  location: string,
+  params?: Record<string, string>,
+  variant?: ComponentProps<typeof ButtonBar>["variant"]
+}
 
-export const ActionsBar = ({location, params = {}}: { location: string, params?: Record<string, string> }) => {
+export const ActionsBar = ({location, params = {}, variant}: ActionBarProps) => {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(location)
-  const styles = useStyles()
-  return <div className={styles.root}>{actions.map(it => <ActionButton
+  return <ButtonBar variant={variant}>{actions.map(it => <ActionButton
     key={it.path}
     location={location}
     action={it}
-    params={params}/>)}</div>
+    params={params}/>)}</ButtonBar>
 }
 
-export const ActionButton = ({action, params, location}: {
+export const ActionButton = ({action, params}: {
   location: string,
-  action: ActionDescriptor,
+  action: Action_registryBiz,
   params: Record<string, string>
 }) => {
 
@@ -35,7 +33,6 @@ export const ActionButton = ({action, params, location}: {
       await performAction({
         actionKey: action.key,
         actionGroupKey: action.actionGroupKey,
-        location: location,
         params: params,
       })
     } catch (e) {
@@ -44,5 +41,5 @@ export const ActionButton = ({action, params, location}: {
     }
 
   }
-  return <Button appearance="secondary" disabled={disabled} onClick={handleClick}>{action.title}</Button>
+  return <Button variant="secondary" disabled={disabled} onClick={handleClick}>{action.title}</Button>
 }

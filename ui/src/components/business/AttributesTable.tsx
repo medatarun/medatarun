@@ -1,6 +1,6 @@
 import {Table, TableBody, TableCell, TableRow} from "@fluentui/react-components";
 import {Markdown} from "../../views/ModelPage.tsx";
-import type {AttributeDto} from "../../business/model.tsx";
+import type {AttributeDto} from "../../business";
 
 export function AttributesTable({attributes}: { attributes: AttributeDto[] }) {
   return <Table size="small">

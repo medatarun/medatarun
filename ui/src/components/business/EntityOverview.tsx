@@ -2,7 +2,7 @@ import {Caption1, Text} from "@fluentui/react-components";
 import {ExternalUrl, Markdown, Origin} from "../../views/ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
 import {Tags} from "../core/Tag.tsx";
-import type {EntityDto} from "../../business/model.tsx";
+import type {EntityDto} from "../../business";
 
 
 export function EntityOverview({entity}: { entity: EntityDto}) {

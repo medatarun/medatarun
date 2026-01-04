@@ -11,13 +11,18 @@ import {CommandsPage} from "./views/CommandsPage.tsx";
 import {ModelsPage} from "./views/ModelsPage.tsx";
 import {ModelPage} from "./views/ModelPage.tsx";
 import {EntityPage} from "./views/EntityPage.tsx";
-import {FluentProvider, webLightTheme} from '@fluentui/react-components';
-import {Layout} from "./components/layout/layout.tsx";
+import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
+import {defaultConnection} from "@seij/common-services";
+import {SeijUIProvider} from "@seij/common-ui";
+import {queryClient} from "./services/queryClient.ts";
+import {QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 
 function DashboardRouteComponent() {
-  return <DashboardPage />
+  return <DashboardPage/>
 }
+
 function ModelsRouteComponent() {
   const navigate = useNavigate();
   const handleClickModel = (modelId: string) => {
@@ -40,9 +45,10 @@ function EntityDefRouteComponent() {
   return <EntityPage modelId={modelId} entityDefId={entityDefId}/>
 }
 
+
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
-  component: Layout,
+  component: Layout2,
 });
 
 const dashboardRoute = createRoute({
@@ -89,11 +95,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const services = defaultConnection
+console.log("Services", services)
+
 function App() {
   return (
-    <FluentProvider theme={webLightTheme}>
-      <RouterProvider router={router}/>
-    </FluentProvider>
+    <SeijUIProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router}/>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </SeijUIProvider>
   )
 }
 
