@@ -1,12 +1,18 @@
 package io.medatarun.cli
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
-import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -25,7 +31,12 @@ class AppCLIRunner(
 
 
     private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
+    private val httpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+        expectSuccess = false
+    }
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -53,17 +64,28 @@ class AppCLIRunner(
             payload = rawParameters
         )
 
-        val result = try {
-            actionRegistry.handleInvocation(request, actionCtxFactory.create())
-        } catch (exception: ActionInvocationException) {
-            logger.error("Invocation error: ${exception.message}")
-            logPayload(exception.payload)
-            return
+        val result = runBlocking {
+            invokeRemoteAction(request)
         }
 
-        if (result != null && result is String) {
+        if (result.isNotBlank()) {
             logger.cli(result)
         }
+    }
+
+    private suspend fun invokeRemoteAction(request: ActionRequest): String {
+        val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.group}/${request.command}"
+        val response = httpClient.post(url) {
+            contentType(ContentType.Application.Json)
+            setBody(request.payload)
+        }
+        val responseBody = response.bodyAsText()
+        if (!response.status.isSuccess()) {
+            throw RemoteActionInvocationException(
+                "Remote invocation failed with status ${response.status.value}: $responseBody"
+            )
+        }
+        return responseBody
     }
 
     private fun parseParameters(args: Array<String>): JsonObject {
@@ -92,10 +114,6 @@ class AppCLIRunner(
                 put(entry.key, entry.value)
             }
         }
-    }
-
-    private fun logPayload(payload: Map<String, String>) {
-        logger.error("" + payload.toString())
     }
 
     private fun printHelp(resource: String? = null, command: String? = null) {
