@@ -2,19 +2,25 @@ import {useActionRegistry} from "./ActionsContext.tsx";
 import {ActionDescriptor} from "../../business/actionDescriptor.tsx";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
+import type {ComponentProps} from "react";
 
+type ActionBarProps = {
+  location: string,
+  params?: Record<string, string>,
+  variant?: ComponentProps<typeof ButtonBar>["variant"]
+}
 
-export const ActionsBar = ({location, params = {}}: { location: string, params?: Record<string, string> }) => {
+export const ActionsBar = ({location, params = {}, variant}: ActionBarProps) => {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(location)
-  return <ButtonBar>{actions.map(it => <ActionButton
+  return <ButtonBar variant={variant}>{actions.map(it => <ActionButton
     key={it.path}
     location={location}
     action={it}
     params={params}/>)}</ButtonBar>
 }
 
-export const ActionButton = ({action, params, location}: {
+export const ActionButton = ({action, params}: {
   location: string,
   action: ActionDescriptor,
   params: Record<string, string>
@@ -28,7 +34,6 @@ export const ActionButton = ({action, params, location}: {
       await performAction({
         actionKey: action.key,
         actionGroupKey: action.actionGroupKey,
-        location: location,
         params: params,
       })
     } catch (e) {

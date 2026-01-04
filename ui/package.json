@@ -14,7 +14,7 @@
     "@fluentui/react-icons": "^2.0.316",
     "@seij/common-services": "^0.1.1",
     "@seij/common-types": "^0.1.3",
-    "@seij/common-ui": "^0.1.8",
+    "@seij/common-ui": "^0.1.10",
     "@seij/common-ui-icons": "^0.1.2",
     "@seij/common-validation": "^0.1.1",
     "@tanstack/react-router": "^1.144.0",

@@ -21,8 +21,8 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       '@seij/common-ui':
-        specifier: ^0.1.8
-        version: 0.1.9(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(intl-messageformat@10.7.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)(typescript@5.9.3)
+        specifier: ^0.1.10
+        version: 0.1.10(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(intl-messageformat@10.7.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)(typescript@5.9.3)
       '@seij/common-ui-icons':
         specifier: ^0.1.2
         version: 0.1.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -988,8 +988,8 @@ packages:
       react: 19.2.3
       react-dom: 19.2.3
 
-  '@seij/common-ui@0.1.9':
-    resolution: {integrity: sha512-s6c8eka2RgYsURAJe0FOYzqzn5Adz/vwVneZUOU8jrMZ2a2Ng5RZhHYcqEj5g5XAEthfNmQNX50O4zI/MP+Chg==}
+  '@seij/common-ui@0.1.10':
+    resolution: {integrity: sha512-ardu9FRqSVj07fD4yzuChCLG+Z+MzQsttdQxD+N0UNT77nC5k9JomwNYsK+D0fM0HBgJQEzSbwi3/awilZE7Rw==}
     peerDependencies:
       react: 19.2.3
       react-dom: 19.2.3
@@ -3386,7 +3386,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@seij/common-ui@0.1.9(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(intl-messageformat@10.7.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)(typescript@5.9.3)':
+  '@seij/common-ui@0.1.10(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(intl-messageformat@10.7.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)(typescript@5.9.3)':
     dependencies:
       '@fluentui/react-components': 9.72.9(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)
       '@seij/common-types': 0.1.3

@@ -4,7 +4,6 @@ export type ActionPerformerRequestParams = Record<string, unknown>;
 export type ActionRequest = {
   actionGroupKey: string;
   actionKey: string
-  location: string;
   params: ActionPerformerRequestParams;
 };
 

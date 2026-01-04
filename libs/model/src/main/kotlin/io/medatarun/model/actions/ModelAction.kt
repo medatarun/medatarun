@@ -19,7 +19,8 @@ sealed interface ModelAction {
         uiLocation = "models"
     )
     data class Import(
-        @ActionParamDoc("URL to import from",
+        @ActionParamDoc(
+            "URL to import from",
             """
             Provide an URL `https://...` to import from a remote location. 
             
@@ -78,22 +79,23 @@ sealed interface ModelAction {
 
     @ActionDoc(
         title = "Copy model",
-        description="Make a copy of a model, giving him a new name. The copied model lifecycle will be independant",
+        description = "Make a copy of a model, giving him a new name. The copied model lifecycle will be independant",
         uiLocation = "model"
     )
     data class Model_Copy(
         @ActionParamDoc(
-            name="Source model key",
+            name = "Source model key",
             description = "Key of the model to be copied",
             order = 0
         )
         val modelKey: ModelKey,
         @ActionParamDoc(
-            name="New model key",
+            name = "New model key",
             description = "Key of the new model. Must be unique across all models.",
             order = 0
         )
-        val modelNewKey: ModelKey) : ModelAction
+        val modelNewKey: ModelKey
+    ) : ModelAction
 
     @ActionDoc(
         title = "Update model name",
@@ -145,10 +147,31 @@ sealed interface ModelAction {
     @ActionDoc(
         title = "Create type",
         description = "Create type definition in an existing model, optionally supplying user-facing name and description.",
-        uiLocation = "model"
+        uiLocation = "model.types"
     )
     data class Type_Create(
-        val modelKey: ModelKey, val typeKey: TypeKey, val name: String?, val description: String?
+        @ActionParamDoc(
+            name = "Model key",
+            description = "Key of the model to which the type will be added.",
+            order = 10
+        )
+        val modelKey: ModelKey,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Key of the type to be created. Must be unique in the model.",
+            order = 20)
+        val typeKey: TypeKey,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Display name of the type.",
+            order = 30)
+        val name: String?,
+        @ActionParamDoc(
+            "Description",
+            "Description of the type, when and what for it should be used. Express constraints and rules for this type.",
+            order = 50
+        )
+        val description: String?
     ) :
         ModelAction
 

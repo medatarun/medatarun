@@ -3,9 +3,6 @@ import {ActionsBar} from "../components/business/ActionsBar.tsx";
 
 export function DashboardPage() {
   return <ViewLayoutContained title="Dashboard">
-    <ActionsBar location="global" params={{
-
-
-    }} />
+    <ActionsBar location="global" />
   </ViewLayoutContained>
 }
