@@ -1,6 +1,5 @@
 import {Fragment, useMemo, useState} from "react";
-import {ActionRegistry, type ActionResp, executeAction} from "../business";
-import {useActionRegistry} from "../components/business/ActionsContext.tsx";
+import {ActionRegistry, type ActionResp, executeAction, useActionRegistry} from "../business";
 import {ActionOutput} from "../components/business/ActionOutput.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";

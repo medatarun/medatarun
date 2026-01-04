@@ -1,5 +1,4 @@
-import {useActionRegistry} from "./ActionsContext.tsx";
-import {Action_registryBiz} from "../../business";
+import {Action_registryBiz, useActionRegistry} from "../../business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";

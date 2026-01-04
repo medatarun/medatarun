@@ -1,4 +1,4 @@
-import type {Action_registryBiz, TypeDto} from "../../business";
+import {type Action_registryBiz, type TypeDto, useActionRegistry} from "../../business";
 import {
   Button,
   Menu,
@@ -16,7 +16,6 @@ import {ActionsBar} from "./ActionsBar.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 
 import {Icon} from "@seij/common-ui-icons";
-import {useActionRegistry} from "./ActionsContext.tsx";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 
 

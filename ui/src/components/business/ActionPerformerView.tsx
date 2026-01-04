@@ -14,10 +14,10 @@ import {
   type LabelProps,
   MessageBar
 } from "@fluentui/react-components";
-import {useActionRegistry} from "./ActionsContext.tsx";
+
 import {useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
-import {Action_registryBiz, type ActionResp} from "../../business";
+import {Action_registryBiz, type ActionResp, useActionRegistry} from "../../business";
 import type {ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, invalid, valid, type ValidationResult} from "@seij/common-validation";
@@ -195,7 +195,7 @@ function validate({formData, formFields}: {
   formData: FormDataType,
   formFields: FormFieldType[]
 }): Map<string, ValidationResult> {
-  let validationResults: Map<string, ValidationResult> = new Map();
+  const validationResults: Map<string, ValidationResult> = new Map();
   for (const formField of formFields) {
     let result = valid;
     if (formField.type === "String") result = validateString(formField, formData[formField.key])
