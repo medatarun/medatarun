@@ -40,4 +40,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          gh release create "${GITHUB_REF_NAME}" "medatarun-${VERSION}.zip" --title "v${VERSION}"
+          prerelease_flag=""
+          case "${VERSION}" in
+            *-alpha*|*-beta*|*-rc*) prerelease_flag="--prerelease" ;;
+          esac
+          gh release create "${GITHUB_REF_NAME}" "medatarun-${VERSION}.zip" --title "v${VERSION}" ${prerelease_flag}
