@@ -21,7 +21,7 @@ There is no installer yet. You will be running with the source code directly.
 alias medatarun='f() { 
     /path/to/medatarun/gradlew -p /path/to/medatarun :app:installDist
     export MEDATARUN_APPLICATION_DATA=$(pwd);
-    /path/to/medatarun/app/build/install/app/bin/app "$@"
+    /path/to/medatarun/app/build/install/app/bin/medatarun "$@"
 }; f'
 ```
 

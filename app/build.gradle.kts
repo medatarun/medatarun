@@ -45,6 +45,7 @@ application {
     mainClass = "io.medatarun.AppKt"
 }
 
+
 val copyWebBuild by tasks.registering(Copy::class) {
     dependsOn(":ui:viteBuild")
     from(project(":ui").layout.projectDirectory.dir("dist"))
