@@ -1,6 +1,7 @@
 package io.medatarun.cli
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -8,8 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.runtime.AppRuntime
+import io.medatarun.httpserver.cli.CliActionGroupDto
 import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeScanner.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.coroutines.runBlocking
@@ -19,7 +19,6 @@ import kotlinx.serialization.json.put
 
 class AppCLIRunner(
     private val args: Array<String>,
-    private val runtime: AppRuntime,
     private val defaultServerPort: Int,
     private val defaultServerHost: String,
 ) {
@@ -30,13 +29,13 @@ class AppCLIRunner(
     }
 
 
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
     private val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
         }
         expectSuccess = false
     }
+    private var actionRegistryCache: List<CliActionGroupDto>? = null
 
     init {
         logger.debug("Called with arguments: ${args.joinToString(" ")}")
@@ -56,6 +55,18 @@ class AppCLIRunner(
 
         val resourceName = args[0]
         val functionName = args[1]
+        val resource = findResource(resourceName)
+        if (resource == null) {
+            logger.error("Resource not found: $resourceName")
+            printHelpRoot()
+            return
+        }
+        val commandExists = resource.commands.any { it.name == functionName }
+        if (!commandExists) {
+            logger.error("Command not found: $resourceName $functionName")
+            printHelpResource(resourceName)
+            return
+        }
         val rawParameters = parseParameters(args)
 
         val request = ActionRequest(
@@ -86,6 +97,28 @@ class AppCLIRunner(
             )
         }
         return responseBody
+    }
+
+    private fun loadActionRegistry(): List<CliActionGroupDto> {
+        val cached = actionRegistryCache
+        if (cached != null) {
+            return cached
+        }
+        val registry = runBlocking { fetchActionRegistry() }
+        actionRegistryCache = registry
+        return registry
+    }
+
+    private suspend fun fetchActionRegistry(): List<CliActionGroupDto> {
+        val url = "http://${defaultServerHost}:${defaultServerPort}/cli/api/action-registry"
+        val response = httpClient.get(url)
+        if (!response.status.isSuccess()) {
+            val responseBody = response.bodyAsText()
+            throw RemoteActionRegistryException(
+                "Remote action registry fetch failed with status ${response.status.value}: $responseBody"
+            )
+        }
+        return response.body()
     }
 
     private fun parseParameters(args: Array<String>): JsonObject {
@@ -127,7 +160,7 @@ class AppCLIRunner(
     }
 
     private fun printHelpCommand(resourceId: String, commandId: String) {
-        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
+        val resource = findResource(resourceId)
         if (resource == null) {
             logger.error("Resource not found: $resourceId")
             return printHelpRoot()
@@ -159,7 +192,7 @@ class AppCLIRunner(
 
     private fun printHelpResource(resourceId: String) {
 
-        val resource = actionRegistry.findGroupDescriptorByIdOptional(resourceId)
+        val resource = findResource(resourceId)
         if (resource == null) {
             logger.error("Resource not found: $resourceId")
             printHelpRoot()
@@ -190,10 +223,15 @@ class AppCLIRunner(
         logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
         logger.cli("")
         logger.cli("Get help on available resources:")
-        val descriptors = actionRegistry.findAllGroupDescriptors().sortedBy { it.name.lowercase() }
+        val descriptors = loadActionRegistry().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
             logger.cli("  help ${descriptor.name}")
         }
+    }
+
+    private fun findResource(resourceId: String): CliActionGroupDto? {
+        val descriptors = loadActionRegistry()
+        return descriptors.find { it.name == resourceId }
     }
 
 }
