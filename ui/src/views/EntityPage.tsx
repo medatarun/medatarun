@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Link, useNavigate} from "@tanstack/react-router";
-import {type EntityDto, Model, type ModelDto} from "../business";
+import {type EntityDto, fetchModel, Model, type ModelDto} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {
@@ -27,9 +27,7 @@ export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefI
 
   const [model, setModel] = useState<ModelDto | undefined>(undefined);
   useEffect(() => {
-    fetch("/ui/api/models/" + modelId, {headers: {"Accept": "application/json", "Content-Type": "application/json"}})
-      .then(res => res.json())
-      .then(json => setModel(json));
+    fetchModel(modelId).then(json => setModel(json));
   }, [modelId, entityDefId])
   const entity = model?.entityDefs?.find(it => it.id === entityDefId)
   if (!model) return null
