@@ -45,6 +45,12 @@ application {
     mainClass = "io.medatarun.AppKt"
 }
 
+distributions {
+    main {
+        distributionBaseName = "medatarun"
+    }
+}
+
 
 val copyWebBuild by tasks.registering(Copy::class) {
     dependsOn(":ui:viteBuild")

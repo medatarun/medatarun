@@ -1,14 +1,15 @@
 ---
-sidebar_position: 1
+sidebar_position: 20
 ---
-# Install
 
-There is no installer yet. You will be running with the source code directly.
+# Install and run from sources
+
+You will be running with the source code directly. This is the option to use when you develop. 
 
 ## Requirements 
 
-- Git
-- Java 21+: many ways to do that, one simple way is to install https://sdkman.io/ then, `sdk install java 21-tem`
+- Git : `git clone git@github.com:medatarun/medatarun.git`
+- Java 21+ : [download Java here](https://adoptium.net/fr) or if you need to manage multiple versions of Java on your computer, use https://sdkman.io/ then, `sdk install java 21-tem`
 - Bash or Zsh shell installed: already installed on Mac/Linux. On Windows you can use WSDL2
 
 ## Process
@@ -21,7 +22,7 @@ There is no installer yet. You will be running with the source code directly.
 alias medatarun='f() { 
     /path/to/medatarun/gradlew -p /path/to/medatarun :app:installDist
     export MEDATARUN_APPLICATION_DATA=$(pwd);
-    /path/to/medatarun/app/build/install/app/bin/medatarun "$@"
+    /path/to/medatarun/app/build/install/medatarun/bin/medatarun "$@"
 }; f'
 ```
 

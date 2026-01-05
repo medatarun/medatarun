@@ -18,4 +18,5 @@ APP_OPTS="$APP_OPTS $jvm_opts"
 export APP_OPTS
 # shellcheck disable=SC2086
 # Use eval to preserve quoted app arguments when forwarding to the Gradle script.
-eval "exec \"$(dirname "$0")/app\" $app_args"
+export MEDATARUN_HOME=$(dirname "$0")
+eval "exec \"$MEDATARUN_HOME/bin/app\" $app_args"

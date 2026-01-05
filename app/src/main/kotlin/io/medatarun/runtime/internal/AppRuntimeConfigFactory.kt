@@ -5,6 +5,7 @@ import io.medatarun.lang.trimToNull
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -13,6 +14,7 @@ import kotlin.io.path.isDirectory
 
 class AppRuntimeConfigFactory {
 
+    private val fileSystem: FileSystem = FileSystems.getDefault()
     private val applicationHomeDir: Path = findApplicationHomeDir()
     private val config: Config = MicroProfileConfigLoader().load(applicationHomeDir)
 
@@ -20,12 +22,18 @@ class AppRuntimeConfigFactory {
         val projectDir = findProjectDir()
         val medatarunDir = findMedatarunDir(projectDir)
         return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config) {
-            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = FileSystems.getDefault())
+            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = fileSystem)
         }
     }
 
     private fun findApplicationHomeDir(): Path {
-        return findProjectDirUserDir()
+        val home = System.getenv(MEDATARUN_HOME_ENV)
+        val homeSafe = home.trimToNull()
+        if (homeSafe.isNullOrBlank()) return findProjectDirUserDir()
+        val homePath = fileSystem.getPath(homeSafe)
+        if (!homePath.exists()) {throw MedatarunHomeDoesNotExistException(homeSafe)}
+        if (!homePath.isDirectory()) {throw MedatarunHomeNotADirectoryException(homeSafe)}
+        return homePath
     }
 
     private fun findMedatarunDir(projectDir: Path): Path {
@@ -74,6 +82,7 @@ class AppRuntimeConfigFactory {
 
     companion object {
         const val MEDATARUN_APPLICATION_DATA_ENV = "MEDATARUN_APPLICATION_DATA"
+        const val MEDATARUN_HOME_ENV = "MEDATARUN_HOME"
         private const val MEDATARUN_DEFAULT_SUBDIR = ".medatarun"
         private val logger = LoggerFactory.getLogger(AppRuntimeConfigFactory::class.java)
     }
