@@ -1,8 +1,8 @@
 {
   "label": "Install and run",
-  "position": 2,
+  "position": 3,
   "link": {
     "type": "generated-index",
-    "description": "Install and run Medatarun."
+    "description": "Install and run Medatarun, connect your AI agents, use the CLI"
   }
 }

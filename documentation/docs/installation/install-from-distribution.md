@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# From distribution
+# Install from distribution
 
 Install and run from our .zip file 
 
