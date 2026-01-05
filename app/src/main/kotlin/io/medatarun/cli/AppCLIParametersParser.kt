@@ -61,6 +61,9 @@ class AppCLIParametersParser {
             ActionParamJsonType.NUMBER -> {
                 val value = rawValue.toDoubleOrNull()
                     ?: throw CliParameterNumberValueException(paramKey, rawValue)
+                if (!value.isFinite()) {
+                    throw CliParameterNumberValueException(paramKey, rawValue)
+                }
                 JsonPrimitive(value)
             }
             ActionParamJsonType.OBJECT -> {
