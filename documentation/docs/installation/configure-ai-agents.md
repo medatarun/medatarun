@@ -14,6 +14,7 @@ The thing to remember is that the URL your agent needs is `http://localhost:8080
 
 Note that we are only using the Streamable Http version.
 
+
 ## Example and test with ChatGPT's Codex
 
 In your `~/.codex/config.toml` add
@@ -74,4 +75,24 @@ What it’s used for
 - Transparency for stakeholders (citizens, auditors, regulators).
 - Analytics across suppliers, regions, and time (sourcing, nutrition, sustainability).
 
+```
+
+### Optional: update your AI AGENTS.md
+
+If your AI Agent doesn't support MCP Instructions ([see column Instructions on this table](https://modelcontextprotocol.io/clients))
+you'll need to create or add usage instructions in an `AGENTS.md` file, where you launch your Agent.
+Otherwise, your AI may act strange.
+
+```bash
+echo "# AGENTS.md" > AGENTS.md
+curl -s http://localhost:8080/api/config/AIAgentsInstructions >> AGENTS.md
+```
+
+Another way to do that is to copy/paste instructions in your agent software
+
+```bash
+curl http://localhost:8080/api/config/AIAgentsInstructions
+# or
+medatarun config AIAgentsInstructions
+# or use the button in UI to get the text
 ```

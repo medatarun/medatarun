@@ -19,12 +19,3 @@ Install and run from our .zip file
 - Unzip the file where you want, this is what we will call `MEDATARUN_HOME` directory.
 - Optional (for CLI users): add your `MEDATARUN_HOME` directory to your PATH
 
-## AI Agents
-
-Add to your Codex / ChatGPT / Claude configuration :
-
-```toml
-[mcp_servers.medatarun]
-url = "http://localhost:8080/mcp"
-```
-

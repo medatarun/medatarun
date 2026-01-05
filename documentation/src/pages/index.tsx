@@ -22,8 +22,13 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="docs/intro">
-            Install and Quickstart
+            to="docs/installation/install-from-distribution">
+            Install
+          </Link>
+          <Link
+            className="button button--secondary button--lg"
+            to="docs/quickstart">
+            Quickstart
           </Link>
         </div>
       </div>

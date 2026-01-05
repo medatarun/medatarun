@@ -15,8 +15,14 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/problem.svg').default,
     description: (
       <>
+        <p>
         Most organizations don’t have a clear, shared description of the data they actually manage.
           Spread across Word and Wikis, inexistant or outdated, static documentation never works.
+        </p>
+        <hr/>
+        <p>
+        Read more on our statement:<br /><a href="/docs/resources/problem_en">The Missing Operational Data Model</a>
+        </p>
       </>
     ),
   },

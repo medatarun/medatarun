@@ -44,15 +44,7 @@ Everything is French and you don't understand anything? See below.
 
 ## ⭐ Use with your AI agent 
 
-### Optional: update your AI AGENTS.md
-
-If your AI Agent doesn't support MCP Instructions ([see column Instructions on this table](https://modelcontextprotocol.io/clients))
-you'll need to create or add usage instructions in an `AGENTS.md` file. Otherwise, your AI may act strange.
-
-```
-echo "# AGENTS.md" > AGENTS.md
-curl -s http://localhost:8080/api/config/aiAgentsInstructions >> AGENTS.md
-```
+See [how to connect your AI Agent to Medatarun](installation/configure-ai-agents.md) if needed.
 
 ### Use with your agent
 
