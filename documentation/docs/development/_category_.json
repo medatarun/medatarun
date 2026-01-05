@@ -1,0 +1,8 @@
+{
+  "label": "Development tools",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Tools and resources for developers"
+  }
+}
