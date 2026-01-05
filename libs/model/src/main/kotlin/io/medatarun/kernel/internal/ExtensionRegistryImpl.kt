@@ -1,12 +1,7 @@
 package io.medatarun.kernel.internal
 
 import io.medatarun.kernel.*
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
+import kotlinx.serialization.json.*
 import kotlin.io.path.absolute
 import kotlin.reflect.KClass
 
@@ -94,8 +89,8 @@ class ExtensionRegistryImpl(
 
     override fun inspectJson(): JsonObject {
         return buildJsonObject {
-            put("projectDirectory", config.projectDir.absolute().toString())
-            put("medatarunDirectory", config.medatarunDir.absolute().toString())
+            put("homeDirectory", config.applicationHomeDir.absolute().toString())
+            put("applicationDataDirectory", config.projectDir.absolute().toString())
             putJsonArray("extensions") {
                 extensions.forEach { ext ->
                     addJsonObject {

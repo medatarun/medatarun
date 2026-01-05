@@ -30,7 +30,7 @@ alias medatarun='f() {
 Explained:
 
 - `MEDATARUN_HOME` is where application **runs** (where you store database drivers, manage your configurations, see your logs, etc.)
-- `MEDATARUN_APPLICATION_DATA` is where **your** data (or projects) lives. It is where appliaction **stores**.
+- `MEDATARUN_APPLICATION_DATA` is where **your** data (or projects) lives. It is where application **stores**.
 
 It can be the same directory or not. Your choice.
 

@@ -8,7 +8,6 @@ import java.nio.file.Path
 class AppRuntimeConfig(
     override val applicationHomeDir: Path,
     override val projectDir: Path,
-    override val medatarunDir: Path,
     public val config: Config,
     val resourceLocatorFactory: () -> ResourceLocator,
 ) : MedatarunConfig {
