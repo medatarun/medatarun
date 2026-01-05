@@ -3,7 +3,7 @@ sidebar_position: 3
 ---
 # Quickstart
 
-You’ll need the `medatarun` command installed. See the [installation guide](installation/install.md) for setup.
+You’ll need the `medatarun` command installed. See the [installation guide](installation/install-from-distribution.md) for setup.
 
 Create a directory that will hold your [project data](installation/project_data.md), then start the server ▶️ `medatarun serve`
 
