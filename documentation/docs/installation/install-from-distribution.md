@@ -15,7 +15,7 @@ Install and run from our .zip file
 
 ## Download
 
-- [Download Medatarun](https://github.com/medatarun/medatarun/releases/download/v0.0.1-alpha1/medatarun-0.0.1-alpha1.zip) or pick another release on [GitHub](https://github.com/medatarun/medatarun)
+- [Download Medatarun](https://github.com/medatarun/medatarun/releases/download/v0.0.1-alpha2/medatarun-0.0.1-alpha2.zip) or pick another release on [GitHub](https://github.com/medatarun/medatarun)
 - Unzip where you want.
 - Optional (for CLI users): add medatarun to your PATH
 

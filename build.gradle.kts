@@ -24,7 +24,7 @@ allprojects {
 }
 
 /**
- * Configure task "dependencyUpdates" to generate report in build/dependencyUpadtes/report.html
+ * Configure task "dependencyUpdates" to generate report in build/dependencyUpdates/report.html
  * and focus only on releases
  */
 tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
