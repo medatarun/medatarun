@@ -11,24 +11,25 @@ class CliActionRegistry(private val actionRegistry: ActionRegistry) {
         return groups.map { group ->
             CliActionGroupDto(
                 name = group.name,
-                commands = group.commands.map { command -> toCommandDto(command) }
+                actions = group.commands.map { command -> toCommandDto(command) }
             )
         }
     }
 
-    private fun toCommandDto(command: ActionCmdDescriptor): CliActionCommandDto {
+    private fun toCommandDto(command: ActionCmdDescriptor): CliActionDto {
         val params = command.parameters.map { param ->
             CliActionParamDto(
-                name = param.name,
+                key = param.name,
                 title = param.title,
                 description = param.description,
                 multiplatformType = param.multiplatformType,
+                jsonType = param.jsonType.code,
                 optional = param.optional,
                 order = param.order
             )
         }
-        return CliActionCommandDto(
-            name = command.name,
+        return CliActionDto(
+            key = command.name,
             title = command.title,
             description = command.description,
             parameters = params
@@ -39,12 +40,12 @@ class CliActionRegistry(private val actionRegistry: ActionRegistry) {
 @Serializable
 data class CliActionGroupDto(
     val name: String,
-    val commands: List<CliActionCommandDto>
+    val actions: List<CliActionDto>
 )
 
 @Serializable
-data class CliActionCommandDto(
-    val name: String,
+data class CliActionDto(
+    val key: String,
     val title: String?,
     val description: String?,
     val parameters: List<CliActionParamDto>
@@ -52,10 +53,11 @@ data class CliActionCommandDto(
 
 @Serializable
 data class CliActionParamDto(
-    val name: String,
+    val key: String,
     val title: String?,
     val description: String?,
     val multiplatformType: String,
+    val jsonType: String,
     val optional: Boolean,
     val order: Int
 )

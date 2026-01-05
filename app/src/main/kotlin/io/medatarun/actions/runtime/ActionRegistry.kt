@@ -69,12 +69,36 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                     optional = property.returnType.isMarkedNullable,
                     type = property.returnType,
                     multiplatformType = toMultiplatformType(property.returnType),
+                    jsonType = toJsonType(property.returnType),
                     order = paramdoc?.order ?: index
                 )
             },
             uiLocation = doc?.uiLocation ?: "",
 
             )
+    }
+
+    fun toJsonType(returnType: KType): ActionParamJsonType {
+        val typeAlias = when (returnType.classifier) {
+            String::class -> return ActionParamJsonType.STRING
+            Boolean::class -> return ActionParamJsonType.BOOLEAN
+            List::class -> return ActionParamJsonType.ARRAY
+            ActionWithPayload::class -> return ActionParamJsonType.OBJECT
+            AttributeKey::class -> return ActionParamJsonType.STRING
+            EntityKey::class -> return ActionParamJsonType.STRING
+            RelationshipKey::class -> return ActionParamJsonType.STRING
+            TypeKey::class -> return ActionParamJsonType.STRING
+            ModelKey::class -> return ActionParamJsonType.STRING
+            Hashtag::class -> return ActionParamJsonType.STRING
+            ModelVersion::class -> return ActionParamJsonType.STRING
+            // TODO shall not be here ???
+            AttributeDef::class -> return ActionParamJsonType.OBJECT
+            AttributeDefUpdateCmd::class -> return ActionParamJsonType.OBJECT
+            RelationshipDef::class -> return ActionParamJsonType.OBJECT
+            RelationshipDefUpdateCmd::class -> return ActionParamJsonType.OBJECT
+            else -> throw UndefinedMultiplatformTypeException(returnType)
+        }
+        return typeAlias
     }
 
     fun toMultiplatformType(returnType: KType): String {

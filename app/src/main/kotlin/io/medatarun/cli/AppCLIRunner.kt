@@ -12,9 +12,6 @@ import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.httpserver.cli.CliActionGroupDto
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -27,8 +24,9 @@ class AppCLIRunner(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(AppCLIRunner::class.java)
         private val HELP_FLAGS = setOf("help", "--help", "-h")
-
     }
+
+    val parser = AppCLIParametersParser()
 
 
     private val httpClient = HttpClient(CIO) {
@@ -55,25 +53,26 @@ class AppCLIRunner(
             return
         }
 
-        val resourceName = args[0]
-        val functionName = args[1]
-        val resource = findResource(resourceName)
-        if (resource == null) {
-            logger.error("Group not found: $resourceName")
+        val actionGroupKey = args[0]
+        val actionKey = args[1]
+        val actionGroup = findActionGroup(actionGroupKey)
+        if (actionGroup == null) {
+            logger.error("Action group not found: $actionGroupKey")
             printHelpRoot()
             return
         }
-        val commandExists = resource.commands.any { it.name == functionName }
+        val action = actionGroup.actions.firstOrNull{it.key == actionKey}
+        val commandExists = action!=null
         if (!commandExists) {
-            logger.error("Command not found: $resourceName $functionName")
-            printHelpResource(resourceName)
+            logger.error("Action not found: $actionGroupKey $actionKey")
+            printHelpResource(actionGroupKey)
             return
         }
-        val rawParameters = parseParameters(args)
+        val rawParameters = parser.parseParameters(args, action)
 
         val request = ActionRequest(
-            group = resourceName,
-            command = functionName,
+            group = actionGroupKey,
+            command = actionKey,
             payload = rawParameters
         )
 
@@ -123,33 +122,6 @@ class AppCLIRunner(
         return response.body()
     }
 
-    private fun parseParameters(args: Array<String>): JsonObject {
-        val parameters = LinkedHashMap<String, String>()
-        var index = 2
-        while (index < args.size) {
-            val argument = args[index]
-            if (argument.startsWith("--")) {
-                val split = argument.removePrefix("--").split("=", limit = 2)
-                val key = split[0]
-                val value = if (split.size == 2) {
-                    split[1]
-                } else {
-                    args.getOrNull(index + 1)?.takeIf { !it.startsWith("--") }
-                }
-
-                if (value != null) {
-                    parameters[key] = value
-                    if (split.size == 1) index++
-                }
-            }
-            index++
-        }
-        return buildJsonObject {
-            for (entry in parameters) {
-                put(entry.key, entry.value)
-            }
-        }
-    }
 
     private fun printHelp(resource: String? = null, command: String? = null) {
         if (resource != null && command != null) {
@@ -162,12 +134,12 @@ class AppCLIRunner(
     }
 
     private fun printHelpCommand(resourceId: String, commandId: String) {
-        val resource = findResource(resourceId)
+        val resource = findActionGroup(resourceId)
         if (resource == null) {
             logger.error("Group not found: $resourceId")
             return printHelpRoot()
         }
-        val command = resource.commands.find { it.name == commandId }
+        val command = resource.actions.find { it.key == commandId }
         if (command == null) {
             logger.error("Command not found: $resourceId $commandId")
             return printHelpResource(resourceId)
@@ -184,7 +156,7 @@ class AppCLIRunner(
         command.description?.let { logger.info("  " + it) }
         logger.info("")
         val renderedParameters = command.parameters.joinToString("\n") { param ->
-            "  --${param.name}=<${param.multiplatformType}>"
+            "  --${param.key}=<${param.multiplatformType}>"
 
         }
         logger.info(renderedParameters)
@@ -194,16 +166,16 @@ class AppCLIRunner(
 
     private fun printHelpResource(resourceId: String) {
 
-        val resource = findResource(resourceId)
+        val resource = findActionGroup(resourceId)
         if (resource == null) {
             logger.error("Group not found: $resourceId")
             printHelpRoot()
         } else {
             logger.info("Get help on available commands: help $resourceId <commandName>")
-            val allCommands = resource.commands.sortedBy { it.name.lowercase() }
-            val maxKeySize = allCommands.map { it.name }.maxByOrNull { it.length }?.length ?: 0
+            val allCommands = resource.actions.sortedBy { it.key.lowercase() }
+            val maxKeySize = allCommands.map { it.key }.maxByOrNull { it.length }?.length ?: 0
             allCommands.forEach { command ->
-                logger.info(command.name.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
+                logger.info(command.key.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
             }
         }
     }
@@ -231,7 +203,7 @@ class AppCLIRunner(
         }
     }
 
-    private fun findResource(resourceId: String): CliActionGroupDto? {
+    private fun findActionGroup(resourceId: String): CliActionGroupDto? {
         val descriptors = loadActionRegistry()
         return descriptors.find { it.name == resourceId }
     }

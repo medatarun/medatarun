@@ -7,6 +7,7 @@ data class ActionCmdParamDescriptor(
     val title: String?,
     val type: KType,
     val multiplatformType: String,
+    val jsonType: ActionParamJsonType,
     val optional: Boolean,
     val order: Int,
     val description: String?,
