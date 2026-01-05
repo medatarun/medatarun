@@ -15,3 +15,4 @@ class ActionGroupNotFoundException(group: String) : MedatarunException("Unknown 
 class UndefinedMultiplatformTypeException(type: KType) : MedatarunException(
     "Type $type has no multiplatform equivalent"
 )
+class ActionParamJsonTypeUnknownException(code: String) : MedatarunException("Unknown ActionParamJsonType [$code]")
