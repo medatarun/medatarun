@@ -21,6 +21,9 @@ class AppRuntimeConfigFactory {
     fun create(): AppRuntimeConfig {
         val projectDir = findProjectDir()
         val medatarunDir = findMedatarunDir(projectDir)
+        logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
+        logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
+        logger.info("MEDATARUN_APPLICATION_DATA's storage directory: $medatarunDir")
         return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config) {
             ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = fileSystem)
         }

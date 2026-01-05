@@ -14,8 +14,6 @@ fun main(args: Array<String>) {
     val serverPort: Int = config.getProperty("medatarun.server.port", "8080").toInt()
     val serverHost: String = config.getProperty("medatarun.server.host", "0.0.0.0")
 
-
-
     if (args.isNotEmpty() && args[0] == "serve") {
         val runtime = AppRuntimeBuilder(config).build()
         AppHttpServer(runtime).start(
@@ -25,8 +23,7 @@ fun main(args: Array<String>) {
         )
     } else {
         val logger = LoggerFactory.getLogger("MAIN")
-        logger.info("medatarun.server.port=${System.getProperty("medatarun.server.port")}")
-        logger.info("medatarun.server.host=${System.getProperty("medatarun.server.host")}")
+        logger.info("Connecting to $serverHost:$serverPort")
         val cliRunner = AppCLIRunner(args, defaultServerHost = serverHost, defaultServerPort = serverPort)
         cliRunner.handleCLI()
     }

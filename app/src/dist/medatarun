@@ -16,7 +16,21 @@ done
 
 APP_OPTS="$APP_OPTS $jvm_opts"
 export APP_OPTS
-# shellcheck disable=SC2086
+
+CURRENT_DIRECTORY=$(dirname "$0")
+
+# Define MEDATARUN_HOME to the current directory if it has not been defined before
+if [ -z "${MEDATARUN_HOME+x}" ]; then
+  MEDATARUN_HOME=$CURRENT_DIRECTORY
+fi
+export MEDATARUN_HOME
+
+# Define MEDATARUN_APPLICATION_DATA to data/ directory if it has not been defined before
+if [ -z "${MEDATARUN_APPLICATION_DATA+x}" ]; then
+  MEDATARUN_APPLICATION_DATA=$CURRENT_DIRECTORY/data;
+  mkdir -p MEDATARUN_APPLICATION_DATA
+fi
+export MEDATARUN_APPLICATION_DATA
+
 # Use eval to preserve quoted app arguments when forwarding to the Gradle script.
-export MEDATARUN_HOME=$(dirname "$0")
-eval "exec \"$MEDATARUN_HOME/bin/app\" $app_args"
+eval "exec \"$CURRENT_DIRECTORY/bin/app\" $app_args"

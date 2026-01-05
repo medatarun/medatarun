@@ -22,9 +22,17 @@ You will be running with the source code directly. This is the option to use whe
 alias medatarun='f() { 
     /path/to/medatarun/gradlew -p /path/to/medatarun :app:installDist
     export MEDATARUN_APPLICATION_DATA=$(pwd);
+    export MEDATARUN_HOME=$(pwd);
     /path/to/medatarun/app/build/install/medatarun/bin/medatarun "$@"
 }; f'
 ```
+
+Explained:
+
+- `MEDATARUN_HOME` is where application **runs** (where you store database drivers, manage your configurations, see your logs, etc.)
+- `MEDATARUN_APPLICATION_DATA` is where **your** data (or projects) lives. It is where appliaction **stores**.
+
+It can be the same directory or not. Your choice.
 
 ## AI Agents
 
