@@ -17,3 +17,6 @@ class ProjectDirNotAdirectoryException(path: String) :
         MedatarunException("Project directory found $path is not a directory.")
 class MedatarunDirAlreadyExistsAsRegularFileException(path: String) :
         MedatarunException("Directory storing Medatarun own data '$path' is not a directory but a regular file.")
+
+class MedatarunHomeDoesNotExistException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' does not exist.")
+class MedatarunHomeNotADirectoryException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' is not a directory.")

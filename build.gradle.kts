@@ -14,8 +14,17 @@ plugins {
     alias(libs.plugins.gradleVersionsPlugin)
 }
 
+val gradleVersionProp = providers.gradleProperty("version").orNull
+val tagVersion = providers.environmentVariable("GITHUB_REF_NAME").orNull?.removePrefix("v")
+val computedVersion = gradleVersionProp ?: tagVersion ?: "dev"
+
+allprojects {
+    // Ensure distribution archives include a meaningful version without requiring extra CI flags.
+    version = computedVersion
+}
+
 /**
- * Configure task "dependencyUpdates" to generate report in build/dependencyUpadtes/report.html
+ * Configure task "dependencyUpdates" to generate report in build/dependencyUpdates/report.html
  * and focus only on releases
  */
 tasks.named<DependencyUpdatesTask>("dependencyUpdates") {

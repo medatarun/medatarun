@@ -20,16 +20,12 @@ class MedatarunExtensionCtxImpl(
         return resolvePath(_config.projectDir, relativePath)
     }
 
-    override fun resolveMedatarunPath(relativePath: String?): Path {
-        return resolvePath(_config.medatarunDir, relativePath)
-    }
-
     override fun resolveApplicationHomePath(relativePath: String): Path {
         return resolvePath(_config.applicationHomeDir, relativePath)
     }
 
     override fun resolveExtensionStoragePath(init: Boolean): Path {
-        val path = resolvePath(_config.medatarunDir, extension.id)
+        val path = resolvePath(_config.projectDir, extension.id)
         if (!path.exists()) path.createDirectories()
         if (!path.isDirectory()) throw ExtensionStoragePathNotDirectoryException(path)
         return path

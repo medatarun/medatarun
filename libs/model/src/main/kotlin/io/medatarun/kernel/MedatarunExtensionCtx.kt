@@ -12,11 +12,6 @@ interface MedatarunExtensionCtx {
      * Resolves a path relative to the user project
      */
     fun resolveProjectPath(relativePath: String?): Path
-    /**
-     * Resolves a path relative to Medatarun data directory inside the project path.
-     * Usually <projectPath>/.medatarun/<relativePath>
-     */
-    fun resolveMedatarunPath(relativePath: String?): Path
 
     /**
      * Returns extension storage path and create. When [init] is true, the directory is created if it doesn't exist yet.

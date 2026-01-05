@@ -30,11 +30,6 @@ jobs:
       - name: Build distribution zip
         run: ./gradlew :app:distZip
 
-      - name: Rename zip
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          mv app/build/distributions/app.zip "medatarun-${VERSION}.zip"
-
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,4 +39,4 @@ jobs:
           case "${VERSION}" in
             *-alpha*|*-beta*|*-rc*) prerelease_flag="--prerelease" ;;
           esac
-          gh release create "${GITHUB_REF_NAME}" "medatarun-${VERSION}.zip" --title "v${VERSION}" ${prerelease_flag}
+          gh release create "${GITHUB_REF_NAME}" "app/build/distributions/medatarun-${VERSION}.zip" --title "v${VERSION}" ${prerelease_flag}

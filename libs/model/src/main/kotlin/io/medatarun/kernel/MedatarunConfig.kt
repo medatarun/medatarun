@@ -14,10 +14,6 @@ interface MedatarunConfig {
      */
     val projectDir: Path
 
-    /**
-     * Medatarun data directory, usually projectDir/.medatarun
-     */
-    val medatarunDir: Path
     fun getProperty(key: String): String?
     fun getProperty(key: String, defaultValue: String): String
 

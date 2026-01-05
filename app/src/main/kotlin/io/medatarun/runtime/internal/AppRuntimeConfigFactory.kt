@@ -5,38 +5,37 @@ import io.medatarun.lang.trimToNull
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 class AppRuntimeConfigFactory {
 
+    private val fileSystem: FileSystem = FileSystems.getDefault()
     private val applicationHomeDir: Path = findApplicationHomeDir()
     private val config: Config = MicroProfileConfigLoader().load(applicationHomeDir)
 
     fun create(): AppRuntimeConfig {
         val projectDir = findProjectDir()
-        val medatarunDir = findMedatarunDir(projectDir)
-        return AppRuntimeConfig(applicationHomeDir, projectDir, medatarunDir, config) {
-            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = FileSystems.getDefault())
+        logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
+        logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
+        return AppRuntimeConfig(applicationHomeDir, projectDir, config) {
+            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = fileSystem)
         }
     }
 
     private fun findApplicationHomeDir(): Path {
-        return findProjectDirUserDir()
+        val home = System.getenv(MEDATARUN_HOME_ENV)
+        val homeSafe = home.trimToNull()
+        if (homeSafe.isNullOrBlank()) return findProjectDirUserDir()
+        val homePath = fileSystem.getPath(homeSafe)
+        if (!homePath.exists()) {throw MedatarunHomeDoesNotExistException(homeSafe)}
+        if (!homePath.isDirectory()) {throw MedatarunHomeNotADirectoryException(homeSafe)}
+        return homePath
     }
 
-    private fun findMedatarunDir(projectDir: Path): Path {
-        val medatarunDir = projectDir.resolve(MEDATARUN_DEFAULT_SUBDIR)
-        if (!medatarunDir.exists()) {
-            medatarunDir.createDirectories()
-        } else if (!medatarunDir.isDirectory()) {
-            throw MedatarunDirAlreadyExistsAsRegularFileException(medatarunDir.toString())
-        }
-        return medatarunDir
-    }
 
     private fun findProjectDir(): Path {
         val projectDir = findProjectDirApplicationData() ?: findProjectDirUserDir()
@@ -74,7 +73,8 @@ class AppRuntimeConfigFactory {
 
     companion object {
         const val MEDATARUN_APPLICATION_DATA_ENV = "MEDATARUN_APPLICATION_DATA"
-        private const val MEDATARUN_DEFAULT_SUBDIR = ".medatarun"
+        const val MEDATARUN_HOME_ENV = "MEDATARUN_HOME"
+
         private val logger = LoggerFactory.getLogger(AppRuntimeConfigFactory::class.java)
     }
 }
