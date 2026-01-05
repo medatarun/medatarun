@@ -6,7 +6,6 @@ import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import java.util.*
-import kotlin.reflect.typeOf
 
 class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
@@ -148,9 +147,9 @@ class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegi
     fun actionRegistryDto(detectLocale: Locale): List<ActionDto> {
         return actionRegistry.findAllActions().map { cmd ->
             ActionDto(
-                actionKey = cmd.name,
+                actionKey = cmd.key,
                 groupKey = cmd.group,
-                title = cmd.title ?: cmd.name,
+                title = cmd.title ?: cmd.key,
                 description = cmd.description,
                 uiLocation = cmd.uiLocation,
                 parameters = cmd.parameters.map { p ->

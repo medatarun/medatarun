@@ -145,7 +145,7 @@ class AppHttpServer(
                     call.respond(restApiDoc.buildApiDescription())
                 }
 
-                route("/api/{resource}/{function}") {
+                route("/api/{actionGroupKey}/{actionKey}") {
                     get { restCommandInvocation.processInvocation(call) }
                     post { restCommandInvocation.processInvocation(call) }
                 }

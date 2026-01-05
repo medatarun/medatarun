@@ -11,6 +11,7 @@ class ActionInvocationException(
     val payload: Map<String, String> = emptyMap()
 ) : MedatarunException(message)
 
+class ActionDefinitionWithoutDocException(group:String, name: String): MedatarunException("All actions must have a documentation annotation")
 class ActionGroupNotFoundException(group: String) : MedatarunException("Unknown action group $group")
 class UndefinedMultiplatformTypeException(type: KType) : MedatarunException(
     "Type $type has no multiplatform equivalent"

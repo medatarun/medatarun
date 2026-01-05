@@ -217,7 +217,7 @@ function validate({formData, formFields}: {
 function validateKey(field: FormFieldType, formDatum: any) {
   const valid = validateString(field, formDatum)
   if (!valid.valid) return valid
-  if (formDatum.length > 20) return invalid("Too long")
+  if (formDatum.length > 255) return invalid("Too long")
   if (formDatum.length < 1) return invalid("Too short")
   return valid
 }

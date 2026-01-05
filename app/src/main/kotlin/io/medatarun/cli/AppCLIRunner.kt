@@ -75,8 +75,8 @@ class AppCLIRunner(
         val rawParameters = parser.parseParameters(parameterArgs, action)
 
         val request = ActionRequest(
-            group = actionGroupKey,
-            command = actionKey,
+            actionGroupKey = actionGroupKey,
+            actionKey = actionKey,
             payload = rawParameters
         )
 
@@ -90,7 +90,7 @@ class AppCLIRunner(
     }
 
     private suspend fun invokeRemoteAction(request: ActionRequest): String {
-        val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.group}/${request.command}"
+        val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {
             contentType(ContentType.Application.Json)
             setBody(request.payload)

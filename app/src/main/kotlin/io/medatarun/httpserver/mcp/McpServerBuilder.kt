@@ -49,36 +49,36 @@ class McpServerBuilder(
 
 
     private fun buildRegisteredTools(): List<RegisteredTool> {
-        return actionRegistry.findAllGroupDescriptors().flatMap { descriptor ->
-            descriptor.commands.map { command ->
-                val toolName = buildToolName(descriptor.name, command.name)
-                val toolTitle = command.title ?: command.name
-                val toolDescription = command.description ?: "Invoke ${descriptor.name}.${command.name}"
+        return actionRegistry.findAllGroupDescriptors().flatMap { group ->
+            group.actions.map { action ->
+                val toolName = buildToolName(group.key, action.key)
+                val toolTitle = action.title ?: action.key
+                val toolDescription = action.description ?: "Invoke ${group.key}.${action.key}"
                 val tool = Tool(
                     name = toolName,
                     title = toolTitle,
                     description = toolDescription,
-                    inputSchema = buildToolInput(command),
+                    inputSchema = buildToolInput(action),
                     outputSchema = null,
                     annotations = null
                 )
 
                 RegisteredTool(tool) { request ->
-                    handleToolInvocation(descriptor.name, command.name, request)
+                    handleToolInvocation(group.key, action.key, request)
                 }
             }
         }
     }
 
     private suspend fun handleToolInvocation(
-        resourceName: String,
-        functionName: String,
+        actionGroupKey: String,
+        actionKey: String,
         request: CallToolRequest
     ): CallToolResult {
 
         val invocationRequest = ActionRequest(
-            group = resourceName,
-            command = functionName,
+            actionGroupKey = actionGroupKey,
+            actionKey = actionKey,
             payload = request.arguments
         )
 
@@ -94,7 +94,7 @@ class McpServerBuilder(
                 isError = true
             )
         } catch (throwable: Throwable) {
-            logger.error("Unhandled error while invoking $resourceName.$functionName", throwable)
+            logger.error("Unhandled error while invoking $actionGroupKey.$actionKey", throwable)
             CallToolResult(
                 content = listOf(
                     TextContent("Invocation failed: ${throwable.message ?: throwable::class.simpleName}")
@@ -137,15 +137,15 @@ class McpServerBuilder(
      * Builds the description of the tool as the MCPInspector see it or the MCP client
      * will handle it.
      */
-    private fun buildToolInput(command: ActionCmdDescriptor): Tool.Input {
+    private fun buildToolInput(actionDescriptor: ActionCmdDescriptor): Tool.Input {
         val properties = buildJsonObject {
-            command.parameters.forEach { param ->
+            actionDescriptor.parameters.forEach { param ->
                 put(param.name, buildJsonObject {
                     put("type", mapParameterType(param.type))
                 })
             }
         }
-        val required = command.parameters
+        val required = actionDescriptor.parameters
             .filterNot { it.optional }
             .map { it.name }
 
