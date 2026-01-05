@@ -73,9 +73,12 @@ Goal: test that errors from CLI are in stderr and not stdio. That server logs ar
 in another terminal,
 
  ```bash
-medatarun config InspectJson2 
+medatarun config Inspect2 2>err.txt 1>ok.txt 
 ```
 
 Test:
 - that you see INFO logs in server console but not DEBUG logs
 - that command gives you an error in red in stderr
+- `cat err.txt` there should be an error
+- `cat ok.txt` there should be instructions
+
