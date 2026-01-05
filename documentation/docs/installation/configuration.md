@@ -39,3 +39,21 @@ Good to know, we use standard Java's Microprofile configuration with [Smallrye c
 If you experience any issue, please look at Smallrye documentation.
 
 :::
+
+## Logging configuration
+
+When running in server mode (`medatarun serve`) the default strategy is to log info, warnings and errors in the 
+standard console (stdio).
+
+When running in CLI mode (`medatarun command...`) strategy is to write warnings and errors on error console (stderr), 
+and infos in standard console (stdio).
+
+If this is ok for you, you can stop here. 
+
+This can be changed to suit your integration needs.
+
+Medatarun uses [SLF4J](https://www.slf4j.org/) and [LogBack](https://logback.qos.ch/) for logging.
+
+In your `MEDATRUN_HOME` (install directory), file `config/logback.xml` will be read for Logback configuration.
+
+Configuration file content is explained in [LogBack documentation here](https://logback.qos.ch/manual/index.html).
