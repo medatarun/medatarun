@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# Install from distribution
+# From distribution
 
 Install and run from our .zip file 
 
@@ -16,16 +16,8 @@ Install and run from our .zip file
 ## Download
 
 - [Download Medatarun](https://github.com/medatarun/medatarun/releases/download/v0.0.1-alpha2/medatarun-0.0.1-alpha2.zip) or pick another release on [GitHub](https://github.com/medatarun/medatarun)
-- Unzip where you want.
-- Optional (for CLI users): add medatarun to your PATH
-
-```bash
-alias medatarun='f() { 
-    /path/to/medatarun/gradlew -p /path/to/medatarun :app:installDist
-    export MEDATARUN_APPLICATION_DATA=$(pwd);
-    /path/to/medatarun/app/build/install/app/bin/medatarun "$@"
-}; f'
-```
+- Unzip the file where you want, this is what we will call `MEDATARUN_HOME` directory.
+- Optional (for CLI users): add your `MEDATARUN_HOME` directory to your PATH
 
 ## AI Agents
 

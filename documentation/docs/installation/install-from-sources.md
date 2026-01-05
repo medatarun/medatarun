@@ -2,7 +2,7 @@
 sidebar_position: 20
 ---
 
-# Install and run from sources
+# From source code
 
 You will be running with the source code directly. This is the option to use when you develop. 
 
