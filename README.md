@@ -8,8 +8,7 @@ belongs, add tags for governance and sensitivity, enrich types, and keep everyth
 
 Humans and agents use the same operations, so the model is not just documented — it’s operational.
 
-![GitHub Downloads (specific asset, latest release)](https://img.shields.io/github/downloads-pre/medatarun/medatarun/latest/medatarun-0.0.1-alpha2.zip?displayAssetName=true&sort=semver&style=plastic&label=Download&color=green)
-
+[📦 Download latest version](https://github.com/medatarun/medatarun/releases)
 
 **Why**
 
