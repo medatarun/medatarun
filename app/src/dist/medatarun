@@ -19,6 +19,13 @@ export APP_OPTS
 
 CURRENT_DIRECTORY=$(dirname "$0")
 
+# Use the packaged Logback config when running from the distribution.
+LOGBACK_CONFIG="$CURRENT_DIRECTORY/config/logback.xml"
+if [ -f "$LOGBACK_CONFIG" ]; then
+  APP_OPTS="$APP_OPTS -Dlogback.configurationFile=$LOGBACK_CONFIG"
+  export APP_OPTS
+fi
+
 # Define MEDATARUN_HOME to the current directory if it has not been defined before
 if [ -z "${MEDATARUN_HOME+x}" ]; then
   MEDATARUN_HOME=$CURRENT_DIRECTORY

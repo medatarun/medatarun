@@ -11,7 +11,7 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
-class AppRuntimeConfigFactory {
+class AppRuntimeConfigFactory (private val cli: Boolean){
 
     private val fileSystem: FileSystem = FileSystems.getDefault()
     private val applicationHomeDir: Path = findApplicationHomeDir()
@@ -19,8 +19,8 @@ class AppRuntimeConfigFactory {
 
     fun create(): AppRuntimeConfig {
         val projectDir = findProjectDir()
-        logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
-        logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
+        if (!cli) logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
+        if (!cli) logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
         return AppRuntimeConfig(applicationHomeDir, projectDir, config) {
             ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = fileSystem)
         }
@@ -52,7 +52,7 @@ class AppRuntimeConfigFactory {
         if (!projectDir.isDirectory()) {
             throw ProjectDirNotAdirectoryException(projectDir.toString())
         }
-        logger.debug("Found project directory in $projectDir via $MEDATARUN_APPLICATION_DATA_ENV")
+        if (!cli) logger.debug("Found project directory in $projectDir via $MEDATARUN_APPLICATION_DATA_ENV")
         return projectDir
     }
 
@@ -66,7 +66,7 @@ class AppRuntimeConfigFactory {
         if (!userDir.isDirectory()) {
             throw ProjectDirNotAdirectoryException(userDirStr.toString())
         }
-        logger.debug("Found user directory $userDir via System.property")
+        if (!cli) logger.debug("Found user directory $userDir via System.property")
         return userDir
 
     }

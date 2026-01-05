@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     val isServerMode = isServerMode(args)
 
     if (isServerMode) {
-        val c = createConfig()
+        val c = createConfig(cli = false)
         val runtime = AppRuntimeBuilder(c.config).build()
         AppHttpServer(runtime).start(
             host = c.serverHost,
@@ -24,15 +24,15 @@ fun main(args: Array<String>) {
         )
     } else {
         configureCliLogging()
-        val c = createConfig()
+        val c = createConfig(cli = true)
         val cliRunner = AppCLIRunner(args, defaultServerHost = c.serverHost, defaultServerPort = c.serverPort)
         cliRunner.handleCLI()
     }
 
 }
 
-fun createConfig(): BasicConfig {
-    val config = AppRuntimeConfigFactory().create()
+fun createConfig(cli: Boolean): BasicConfig {
+    val config = AppRuntimeConfigFactory(cli).create()
     val serverPort: Int = config.getProperty("medatarun.server.port", "8080").toInt()
     val serverHost: String = config.getProperty("medatarun.server.host", "0.0.0.0")
     return object : BasicConfig {

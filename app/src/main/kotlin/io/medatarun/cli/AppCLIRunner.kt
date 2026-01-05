@@ -10,12 +10,13 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.httpserver.cli.CliActionGroupDto
-import io.medatarun.runtime.getLogger
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class AppCLIRunner(
     private val args: Array<String>,
@@ -24,8 +25,9 @@ class AppCLIRunner(
 ) {
 
     companion object {
-        val logger = getLogger(AppCLIRunner::class)
+        private val logger: Logger = LoggerFactory.getLogger(AppCLIRunner::class.java)
         private val HELP_FLAGS = setOf("help", "--help", "-h")
+
     }
 
 
@@ -80,7 +82,7 @@ class AppCLIRunner(
         }
 
         if (result.isNotBlank()) {
-            logger.cli(result)
+            logger.info(result)
         }
     }
 
@@ -173,19 +175,19 @@ class AppCLIRunner(
 
 
 
-        logger.cli("")
-        logger.cli("Group  : $resourceId")
-        logger.cli("Command: $commandId")
-        logger.cli("")
-        command.title?.let { logger.cli("  " + it) }
-        logger.cli("")
-        command.description?.let { logger.cli("  " + it) }
-        logger.cli("")
+        logger.info("")
+        logger.info("Group  : $resourceId")
+        logger.info("Command: $commandId")
+        logger.info("")
+        command.title?.let { logger.info("  " + it) }
+        logger.info("")
+        command.description?.let { logger.info("  " + it) }
+        logger.info("")
         val renderedParameters = command.parameters.joinToString("\n") { param ->
             "  --${param.name}=<${param.multiplatformType}>"
 
         }
-        logger.cli(renderedParameters)
+        logger.info(renderedParameters)
 
 
     }
@@ -197,35 +199,35 @@ class AppCLIRunner(
             logger.error("Group not found: $resourceId")
             printHelpRoot()
         } else {
-            logger.cli("Get help on available commands: help $resourceId <commandName>")
+            logger.info("Get help on available commands: help $resourceId <commandName>")
             val allCommands = resource.commands.sortedBy { it.name.lowercase() }
             val maxKeySize = allCommands.map { it.name }.maxByOrNull { it.length }?.length ?: 0
             allCommands.forEach { command ->
-                logger.cli(command.name.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
+                logger.info(command.name.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
             }
         }
     }
 
     private fun printHelpRoot() {
-        logger.cli("Usages:")
-        logger.cli("  medatarun serve")
-        logger.cli("    Launches a medatarun server you can interact with using UI, MCP or API")
-        logger.cli("  medatarun <resource> <command> [...parameters]")
-        logger.cli("    CLI version of medatarun. Executes specified resource's command.")
-        logger.cli("    See below for available resources and their commands.")
-        logger.cli("  medatarun help")
-        logger.cli("    Display this help")
-        logger.cli("  medatarun help <resource>")
-        logger.cli("    Display available commands for this resource")
-        logger.cli("  medatarun help <resource> <command>")
-        logger.cli("    Display command description and parameters for this resource")
-        logger.cli("")
-        logger.cli("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
-        logger.cli("")
-        logger.cli("Get help on available groups:")
+        logger.info("Usages:")
+        logger.info("  medatarun serve")
+        logger.info("    Launches a medatarun server you can interact with using UI, MCP or API")
+        logger.info("  medatarun <resource> <command> [...parameters]")
+        logger.info("    CLI version of medatarun. Executes specified resource's command.")
+        logger.info("    See below for available resources and their commands.")
+        logger.info("  medatarun help")
+        logger.info("    Display this help")
+        logger.info("  medatarun help <resource>")
+        logger.info("    Display available commands for this resource")
+        logger.info("  medatarun help <resource> <command>")
+        logger.info("    Display command description and parameters for this resource")
+        logger.info("")
+        logger.info("Unless environment variable $MEDATARUN_APPLICATION_DATA_ENV points to a directory, the current directory is considered to be the projet root.")
+        logger.info("")
+        logger.info("Get help on available groups:")
         val descriptors = loadActionRegistry().sortedBy { it.name.lowercase() }
         descriptors.forEach { descriptor ->
-            logger.cli("  help ${descriptor.name}")
+            logger.info("  help ${descriptor.name}")
         }
     }
 
@@ -233,5 +235,6 @@ class AppCLIRunner(
         val descriptors = loadActionRegistry()
         return descriptors.find { it.name == resourceId }
     }
+
 
 }
