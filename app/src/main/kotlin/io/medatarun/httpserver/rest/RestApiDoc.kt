@@ -9,12 +9,12 @@ class RestApiDoc(private val actionRegistry: ActionRegistry) {
     fun buildApiDescription(): Map<String, List<ApiDescriptionFunction>> {
         return actionRegistry
             .findAllGroupDescriptors().associate { res ->
-                res.name to res.commands.map { cmd ->
+                res.key to res.actions.map { actionKey ->
                     ApiDescriptionFunction(
-                        name = cmd.name,
-                        title = cmd.title ?: cmd.name,
-                        description = cmd.description,
-                        parameters = cmd.parameters.map { p ->
+                        key = actionKey.key,
+                        title = actionKey.title ?: actionKey.key,
+                        description = actionKey.description,
+                        parameters = actionKey.parameters.map { p ->
                             ApiDescriptionParam(
                                 name = p.name,
                                 type = p.multiplatformType,
@@ -29,7 +29,7 @@ class RestApiDoc(private val actionRegistry: ActionRegistry) {
 
 @Serializable
 data class ApiDescriptionFunction(
-    val name: String,
+    val key: String,
     val title: String,
     val description: String?,
     val parameters: List<ApiDescriptionParam>

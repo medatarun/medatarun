@@ -10,8 +10,8 @@ class CliActionRegistry(private val actionRegistry: ActionRegistry) {
         val groups = actionRegistry.findAllGroupDescriptors()
         return groups.map { group ->
             CliActionGroupDto(
-                name = group.name,
-                actions = group.commands.map { command -> toCommandDto(command) }
+                name = group.key,
+                actions = group.actions.map { command -> toCommandDto(command) }
             )
         }
     }
@@ -30,7 +30,7 @@ class CliActionRegistry(private val actionRegistry: ActionRegistry) {
         }
         return CliActionDto(
             actionGroupKey = command.group,
-            actionKey = command.name,
+            actionKey = command.key,
             title = command.title,
             description = command.description,
 

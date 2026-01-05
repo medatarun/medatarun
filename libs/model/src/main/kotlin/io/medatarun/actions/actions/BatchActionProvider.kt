@@ -15,11 +15,11 @@ class BatchActionProvider() : ActionProvider<BatchAction> {
     override fun findCommandClass() = BatchAction::class
     override fun dispatch(cmd: BatchAction, actionCtx: ActionCtx): Any? {
         return when (cmd) {
-            is BatchAction.Run -> runActions(cmd, actionCtx)
+            is BatchAction.BatchRun -> runActions(cmd, actionCtx)
         }
     }
 
-    private fun runActions(cmd: BatchAction.Run, actionCtx: ActionCtx) {
+    private fun runActions(cmd: BatchAction.BatchRun, actionCtx: ActionCtx) {
         cmd.actions.forEach { actionSerialized ->
             actionCtx.dispatchAction(actionSerialized.toResourceInvocationRequest())
         }

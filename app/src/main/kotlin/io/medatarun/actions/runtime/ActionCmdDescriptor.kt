@@ -4,9 +4,13 @@ import kotlin.reflect.KType
 
 data class ActionCmdDescriptor(
     /**
+     * Serializable unique name of the action in its group
+     */
+    val key: String,
+    /**
      * Name of the command
      */
-    val name: String,
+    val actionClassName: String,
     /**
      * Name (identifier) of the group that provides the command
      */

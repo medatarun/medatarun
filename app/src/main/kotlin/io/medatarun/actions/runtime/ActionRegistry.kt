@@ -22,24 +22,24 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
         actionProviderContributions.map {
             ActionGroupDescriptor(
-                name = it.actionGroupKey,
+                key = it.actionGroupKey,
                 providerInstance = it,
-                commands = toCommands(it)
+                actions = toActions(it)
             )
         }
 
     private val actionGroupDescriptorsMap: Map<String, ActionGroupDescriptor> =
-        actionGroupDescriptors.associateBy { it.name }
+        actionGroupDescriptors.associateBy { it.key }
 
     private val actionDescriptors: List<ActionCmdDescriptor> =
-        actionGroupDescriptors.flatMap { it.commands }
+        actionGroupDescriptors.flatMap { it.actions }
 
 
-    private fun toCommands(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
+    private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
 
         val cmds = actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
-            ?.map { sealed -> buildApiCommandDescription(sealed, actionProviderInstance.actionGroupKey) }
+            ?.map { sealed -> buildActionsDescriptions(sealed, actionProviderInstance.actionGroupKey) }
             ?: emptyList()
 
         return cmds
@@ -51,14 +51,19 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
      *
      * At invocation time, commands are launched via the dispatch() method
      */
-    private fun buildApiCommandDescription(sealed: KClass<out Any>, actionGroup: String): ActionCmdDescriptor {
-        val doc = sealed.findAnnotation<ActionDoc>()
+    private fun buildActionsDescriptions(sealed: KClass<out Any>, actionGroup: String): ActionCmdDescriptor {
+        val doc = sealed.findAnnotation<ActionDoc>() ?: throw ActionDefinitionWithoutDocException(
+            actionGroup,
+            sealed.simpleName ?: "unknown"
+        )
+
         return ActionCmdDescriptor(
             accessType = ActionCmdAccessType.DISPATCH,
-            name = sealed.simpleName ?: "",
+            key = doc.key,
+            actionClassName = sealed.simpleName ?: "",
             group = actionGroup,
-            title = doc?.title,
-            description = doc?.description,
+            title = doc.title,
+            description = doc.description,
             resultType = typeOf<Unit>(),
             parameters = sealed.memberProperties.mapIndexed { index, property ->
                 val paramdoc = property.findAnnotation<ActionParamDoc>()
@@ -73,7 +78,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                     order = paramdoc?.order ?: index
                 )
             },
-            uiLocation = doc?.uiLocation ?: "",
+            uiLocation = doc.uiLocation ?: "",
 
             )
     }
@@ -139,28 +144,31 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
 
     fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
-        val actionGroup = invocation.group
-        val actionCmd = invocation.command
+        val actionKey = invocation.actionKey
+        val actionGroupKey = invocation.actionGroupKey
         val actionPayload = invocation.payload
 
 
-        val descriptor = findGroupDescriptorByIdOptional(actionGroup)
+        val descriptor = findGroupDescriptorByIdOptional(actionGroupKey)
             ?: throw ActionInvocationException(
                 HttpStatusCode.NotFound,
-                "Unknown action group '$actionGroup'"
+                "Unknown action group '$actionGroupKey'"
             )
 
         val actionProviderInstance: ActionProvider<Any> = descriptor.providerInstance as ActionProvider<Any>
 
-        val commands = descriptor.commands.find { it.name == actionCmd }
+        val actionDescriptor = descriptor.actions.find { it.key == actionKey }
             ?: throw ActionInvocationException(
                 HttpStatusCode.NotFound,
-                "Unknown function '$actionCmd' on '$actionGroup'"
+                "Unknown action '$actionGroupKey/$actionKey'"
             )
 
-        val invoker: Invoker = when (commands.accessType) {
+        val invoker: Invoker = when (actionDescriptor.accessType) {
             ActionCmdAccessType.DISPATCH -> createInvokerDispatch(
-                actionGroup, actionProviderInstance, actionCmd, actionPayload, actionCtx
+                actionDescriptor = actionDescriptor,
+                actionProviderInstance = actionProviderInstance,
+                actionPayload = actionPayload,
+                actionCtx = actionCtx
             )
         }
 
@@ -204,26 +212,30 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
     }
 
     private fun createInvokerDispatch(
-        actionGroup: String,
+        actionDescriptor: ActionCmdDescriptor,
+
         actionProviderInstance: ActionProvider<Any>,
-        actionCmd: String,
+
         actionPayload: JsonObject,
         actionCtx: ActionCtx
     ): Invoker {
-
+        val actionGroupKey = actionDescriptor.group
+        val actionKey = actionDescriptor.key
         val cls =
-            actionProviderInstance.findCommandClass()?.sealedSubclasses?.firstOrNull { it.simpleName == actionCmd }
+            actionProviderInstance.findCommandClass()
+                ?.sealedSubclasses
+                ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
                 ?: throw ActionInvocationException(
                     HttpStatusCode.NotFound,
-                    "Command $actionCmd not found"
+                    "Action $actionGroupKey/$actionKey not found"
                 )
 
         val function = cls.primaryConstructor ?: throw ActionInvocationException(
             HttpStatusCode.InternalServerError,
-            "Command $actionCmd has no primary constructor"
+            "Action $actionGroupKey/$actionKey has no primary constructor"
         )
 
-        val callArgs = createCallArgs(actionGroup, actionCmd, actionProviderInstance, function, actionPayload)
+        val callArgs = createCallArgs(actionGroupKey, actionKey, actionProviderInstance, function, actionPayload)
         logger.debug("call args: {}", callArgs)
 
 

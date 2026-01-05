@@ -6,11 +6,11 @@ data class ActionGroupDescriptor(
     /**
      * Group identifier (the name of the property on the providers class)
      */
-    val name: String,
+    val key: String,
     /**
      * List of commands provided by this group
      */
-    val commands: List<ActionCmdDescriptor>,
+    val actions: List<ActionCmdDescriptor>,
     /**
      * Provider that provides commands for this group
      */

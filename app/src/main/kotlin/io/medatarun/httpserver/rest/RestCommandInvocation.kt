@@ -18,15 +18,15 @@ class RestCommandInvocation(
 ) {
 
     suspend fun processInvocation(call: ApplicationCall) {
-        val resourcePathValue = call.parameters["resource"]
-        val functionPathValue = call.parameters["function"]
+        val actionGroupKeyPathValue = call.parameters["actionGroupKey"]
+        val actionKeyPathValue = call.parameters["actionKey"]
         try {
-            val resourceName = resourcePathValue ?: throw ActionInvocationException(
+            val actionGroupKey = actionGroupKeyPathValue ?: throw ActionInvocationException(
                 HttpStatusCode.BadRequest,
                 message = "Missing resource name",
 
                 )
-            val functionName = functionPathValue ?: throw ActionInvocationException(
+            val actionKey = actionKeyPathValue ?: throw ActionInvocationException(
                 HttpStatusCode.BadRequest,
                 "Missing function name",
 
@@ -36,8 +36,8 @@ class RestCommandInvocation(
             val json = if (body.isNullOrBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
 
             val request = ActionRequest(
-                group = resourceName,
-                command = functionName,
+                actionGroupKey = actionGroupKey,
+                actionKey = actionKey,
                 payload = json
             )
 
@@ -50,8 +50,8 @@ class RestCommandInvocation(
             }
             call.respond(HttpStatusCode.OK, responsePayload)
         } catch (exception: ActionInvocationException) {
-            val resourceForLog = resourcePathValue ?: "unknown"
-            val functionForLog = functionPathValue ?: "unknown"
+            val resourceForLog = actionGroupKeyPathValue ?: "unknown"
+            val functionForLog = actionKeyPathValue ?: "unknown"
             if (exception.status.value >= 500) {
                 logger.error(
                     "Invocation failed for $resourceForLog.$functionForLog",
@@ -59,7 +59,7 @@ class RestCommandInvocation(
                 )
             } else {
                 logger.warn(
-                    "Invocation error for $resourceForLog.$functionForLog: ${exception.message}"
+                    "Invocation error for $resourceForLog/$functionForLog: ${exception.message}"
                 )
             }
             call.respond(exception.status, exception.payload)
