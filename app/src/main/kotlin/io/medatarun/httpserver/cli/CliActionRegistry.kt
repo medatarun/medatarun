@@ -29,9 +29,11 @@ class CliActionRegistry(private val actionRegistry: ActionRegistry) {
             )
         }
         return CliActionDto(
-            key = command.name,
+            actionGroupKey = command.group,
+            actionKey = command.name,
             title = command.title,
             description = command.description,
+
             parameters = params
         )
     }
@@ -45,7 +47,8 @@ data class CliActionGroupDto(
 
 @Serializable
 data class CliActionDto(
-    val key: String,
+    val actionGroupKey: String,
+    val actionKey: String,
     val title: String?,
     val description: String?,
     val parameters: List<CliActionParamDto>

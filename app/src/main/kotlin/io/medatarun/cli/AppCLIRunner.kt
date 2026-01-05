@@ -61,14 +61,16 @@ class AppCLIRunner(
             printHelpRoot()
             return
         }
-        val action = actionGroup.actions.firstOrNull{it.key == actionKey}
+        val action = actionGroup.actions.firstOrNull{it.actionKey == actionKey}
         val commandExists = action!=null
         if (!commandExists) {
             logger.error("Action not found: $actionGroupKey $actionKey")
             printHelpResource(actionGroupKey)
             return
         }
-        val rawParameters = parser.parseParameters(args, action)
+        // Parser expects only parameter flags because group/command are handled here.
+        val parameterArgs = args.copyOfRange(2, args.size)
+        val rawParameters = parser.parseParameters(parameterArgs, action)
 
         val request = ActionRequest(
             group = actionGroupKey,
@@ -139,7 +141,7 @@ class AppCLIRunner(
             logger.error("Group not found: $resourceId")
             return printHelpRoot()
         }
-        val command = resource.actions.find { it.key == commandId }
+        val command = resource.actions.find { it.actionKey == commandId }
         if (command == null) {
             logger.error("Command not found: $resourceId $commandId")
             return printHelpResource(resourceId)
@@ -172,10 +174,10 @@ class AppCLIRunner(
             printHelpRoot()
         } else {
             logger.info("Get help on available commands: help $resourceId <commandName>")
-            val allCommands = resource.actions.sortedBy { it.key.lowercase() }
-            val maxKeySize = allCommands.map { it.key }.maxByOrNull { it.length }?.length ?: 0
+            val allCommands = resource.actions.sortedBy { it.actionKey.lowercase() }
+            val maxKeySize = allCommands.map { it.actionKey }.maxByOrNull { it.length }?.length ?: 0
             allCommands.forEach { command ->
-                logger.info(command.key.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
+                logger.info(command.actionKey.padEnd(maxKeySize) + ": " + command.title?.ifBlank { "" })
             }
         }
     }

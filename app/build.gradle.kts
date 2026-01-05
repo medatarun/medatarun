@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.ktorServerStatusPages)
     implementation(libs.microprofileConfigApi)
     implementation(libs.smallryeConfig)
+    testImplementation(kotlin("test"))
 }
 
 application {

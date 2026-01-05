@@ -6,6 +6,6 @@ enum class ActionParamJsonType(val code: String) {
 
     companion object {
         private val map = entries.associateBy { it.code }
-        fun valueOf(code: String): ActionParamJsonType = map[code] ?: throw ActionParamJsonTypeUnknownException(code)
+        fun valueOfCode(code: String): ActionParamJsonType = map[code] ?: throw ActionParamJsonTypeUnknownException(code)
     }
 }
