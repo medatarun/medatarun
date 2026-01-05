@@ -1,5 +1,5 @@
 ---
-slug: starting-medatarun
+slug: 2025-12-18-starting-medatarun
 title: Starting Medatarun
 authors: [ sebastienjust ]
 tags: [ announcements ]
