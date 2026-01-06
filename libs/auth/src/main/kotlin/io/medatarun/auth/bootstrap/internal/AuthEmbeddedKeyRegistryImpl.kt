@@ -17,13 +17,6 @@ class AuthEmbeddedKeyRegistryImpl(private val keystorePath: Path): AuthEmbeddedK
 
     enum class KeyAudience(val label: String) { PRIVATE("PRIVATE KEY"), PUBLIC("PUBLIC KEY") }
 
-    companion object {
-        private const val PRIVATE_KEY_FILENAME = "private.pem"
-        private const val PUBLIC_KEY_FILENAME = "public.pem"
-        private const val IDENTIFIER_KEY_FILENAME = "kid.txt"
-        private const val ENCRYPTION_ALGORITHM = "RSA"
-    }
-
     override fun loadOrCreateKeys(): JwtKeyMaterial {
 
         Files.createDirectories(keystorePath)
@@ -84,6 +77,13 @@ class AuthEmbeddedKeyRegistryImpl(private val keystorePath: Path): AuthEmbeddedK
             .filterNot { it.startsWith("-----") }
             .joinToString("")
         return Base64.getDecoder().decode(body)
+    }
+
+    companion object {
+        const val PRIVATE_KEY_FILENAME = "private.pem"
+        const val PUBLIC_KEY_FILENAME = "public.pem"
+        const val IDENTIFIER_KEY_FILENAME = "kid.txt"
+        const val ENCRYPTION_ALGORITHM = "RSA"
     }
 
 }

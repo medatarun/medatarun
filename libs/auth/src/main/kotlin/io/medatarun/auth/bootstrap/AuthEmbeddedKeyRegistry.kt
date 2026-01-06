@@ -1,9 +1,9 @@
 package io.medatarun.auth.bootstrap
 
 /**
- * Manages keys in a keystore.
+ * Manages the bootstrap key in the keystore for embeeded auth server.
  *
- * In Medatarun, keys are stored in MEDATARUN_HOME/secrets/auth/issuer
+ * In Medatarun, bootstrap key is stored in MEDATARUN_HOME/secrets/auth/issuer
  *
  * There are 3 files:
  * - issuer.key.pem: private signing key
@@ -18,6 +18,7 @@ interface AuthEmbeddedKeyRegistry {
         /**
          * Default location for keys relative to MEDATARUN_HOME
          */
-        const val defaultKeystorePath: String = "secrets/auth/issuer"
+        const val DEFAULT_KEYSTORE_PATH_NAME: String = "secrets/auth/issuer"
+
     }
 }

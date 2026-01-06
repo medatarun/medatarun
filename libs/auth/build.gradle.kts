@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.kotlinxSerialization)
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
 }
