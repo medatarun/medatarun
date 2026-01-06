@@ -22,6 +22,7 @@ plugins {
 include(":app")
 include(":utils")
 include(":ui")
+include(":libs:auth")
 include(":libs:lang")
 include(":libs:model")
 include(":extensions:config")
