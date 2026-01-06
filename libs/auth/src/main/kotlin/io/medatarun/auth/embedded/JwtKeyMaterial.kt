@@ -1,4 +1,4 @@
-package io.medatarun.auth.bootstrap
+package io.medatarun.auth.embedded
 
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey

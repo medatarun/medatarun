@@ -1,4 +1,4 @@
-package io.medatarun.auth.bootstrap
+package io.medatarun.auth.embedded
 
 data class AuthEmbeddedJwtConfig(
     val issuer: String = "urn:medatarun",

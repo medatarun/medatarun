@@ -1,4 +1,4 @@
-package io.medatarun.auth.bootstrap
+package io.medatarun.auth.embedded
 
 /**
  * Manages the bootstrap key in the keystore for embeeded auth server.

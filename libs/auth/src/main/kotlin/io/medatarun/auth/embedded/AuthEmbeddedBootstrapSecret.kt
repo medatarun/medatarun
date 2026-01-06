@@ -1,6 +1,6 @@
-package io.medatarun.auth.bootstrap
+package io.medatarun.auth.embedded
 
-import io.medatarun.auth.bootstrap.internal.AuthEmbeddedBootstrapState
+import io.medatarun.auth.embedded.internal.AuthEmbeddedBootstrapState
 
 /**
  * Manages the first bootstrap secret, that can only be used once

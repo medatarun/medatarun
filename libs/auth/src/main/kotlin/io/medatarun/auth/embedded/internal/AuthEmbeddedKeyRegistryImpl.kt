@@ -1,7 +1,7 @@
-package io.medatarun.auth.bootstrap.internal
+package io.medatarun.auth.embedded.internal
 
-import io.medatarun.auth.bootstrap.AuthEmbeddedKeyRegistry
-import io.medatarun.auth.bootstrap.JwtKeyMaterial
+import io.medatarun.auth.embedded.AuthEmbeddedKeyRegistry
+import io.medatarun.auth.embedded.JwtKeyMaterial
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption

@@ -1,4 +1,4 @@
-package io.medatarun.auth.bootstrap.internal
+package io.medatarun.auth.embedded.internal
 
 /**
  * Represents the bootstrap secret

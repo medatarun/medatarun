@@ -1,6 +1,6 @@
-package io.medatarun.auth.bootstrap
+package io.medatarun.auth.embedded
 
-import io.medatarun.auth.bootstrap.internal.JwksAdapter
+import io.medatarun.auth.embedded.internal.JwksAdapter
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.security.KeyFactory
