@@ -7,6 +7,8 @@ plugins {
 dependencies {
     implementation(libs.kotlinxSerialization)
     implementation(libs.auth0JavaJwt)
+    implementation(libs.slf4j)
+    implementation(project(":libs:model"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
 }

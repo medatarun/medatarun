@@ -13,7 +13,11 @@ import kotlin.test.assertTrue
 
 class AuthEmbeddedJwtTokenIssuerTest {
     private val jwtKeyMaterial = generateJwtKeyMaterial()
-    private val defaultConfig = AuthEmbeddedJwtConfig()
+    private val defaultConfig = AuthEmbeddedJwtConfig(
+        issuer = "urn:medatarun",
+        audience = "medatarun",
+        ttlSeconds = 3600
+    )
     private val service = AuthEmbeddedJwtTokenIssuerImpl(
         keys = jwtKeyMaterial,
         cfg = defaultConfig

@@ -1,0 +1,34 @@
+package io.medatarun.auth.embedded
+
+import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionParamDoc
+
+sealed interface AuthEmbeddedAction {
+    @ActionDoc(
+        key = "admin_bootstrap",
+        title = "Creates admin user",
+        description = "Creates admin user account and boostrap credentials. Consumes the one-time secret generated at install.",
+        uiLocation = ""
+    )
+    class AdminBootstrap(
+        @ActionParamDoc(
+            name = "secret",
+            description = "Secret provided at bootstrap",
+            order = 0
+        )
+        val secret: String,
+        @ActionParamDoc(
+            name = "username",
+            description = "Admin user name",
+            order = 0
+        )
+        val username: String,
+        @ActionParamDoc(
+            name = "password",
+            description = "Admin password",
+            order = 0
+        )
+        val password: String
+
+    ): AuthEmbeddedAction
+}

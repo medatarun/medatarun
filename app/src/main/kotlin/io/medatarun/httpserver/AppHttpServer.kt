@@ -15,12 +15,14 @@ import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.auth.embedded.AuthEmbeddedService
 import io.medatarun.httpserver.cli.CliActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.ui.UI
+import io.medatarun.kernel.getService
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
@@ -49,7 +51,7 @@ class AppHttpServer(
 ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry)
+    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry, runtime.services)
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
@@ -58,6 +60,23 @@ class AppHttpServer(
     private val restApiDoc = RestApiDoc(actionRegistry)
     private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
 
+
+    val authEmbeddedService = runtime.services.getService<AuthEmbeddedService>()
+    val bootstrap = authEmbeddedService.loadOrCreateBootstrapSecret { secret ->
+        logger.warn("-------------")
+        logger.warn("This message will only be displayed once")
+        logger.warn("")
+        logger.warn("BOOSTRAP SECRET (one time usage): $secret")
+        logger.warn("")
+        logger.warn("Use it to create your admin account with CLI")
+        logger.warn("")
+        logger.warn("medatarun auth bootstrap --username=your_admin_name --password=your_password --bootstrap=$secret")
+        logger.warn("")
+        logger.warn("or with API")
+        logger.warn("")
+        logger.warn("curl http://<host>:<port>/api/auth/bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
+        logger.warn("-------------")
+    }
 
     @Volatile
     private var engine: EmbeddedServer<*, *>? = null
@@ -139,6 +158,9 @@ class AppHttpServer(
                 }
             }
 
+            get(authEmbeddedService.oidcJwksUri()) {
+                call.respond(authEmbeddedService.oidcJwks())
+            }
             if (enableApi) {
 
                 get("/api") {

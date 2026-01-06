@@ -1,13 +1,16 @@
 package io.medatarun.runtime.internal
 
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.auth.embedded.AuthEmbeddedExtension
 import io.medatarun.data.DataExtension
 import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.db.DbExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.kernel.MedatarunServiceRegistry
 import io.medatarun.kernel.internal.ExtensionPlaformImpl
+import io.medatarun.kernel.internal.MedatarunServiceRegistryImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.infra.ModelStoragesComposite
@@ -24,12 +27,13 @@ import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.ConfigExtension
 import org.slf4j.LoggerFactory
 
-class AppRuntimeBuilder(config: AppRuntimeConfig) {
+class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
 
     // Things that are compile-build builds
 
     val extensions = listOf(
         ActionsExtension(),
+        AuthEmbeddedExtension(),
         ModelExtension(),
         ConfigExtension(),
         ModelJsonExtension(),
@@ -38,6 +42,7 @@ class AppRuntimeBuilder(config: AppRuntimeConfig) {
         DbExtension(),
         FrictionlessdataExtension()
     )
+    val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
     val platform = ExtensionPlaformImpl(extensions, config)
     val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
     val validation = ModelValidationImpl()
@@ -52,19 +57,22 @@ class AppRuntimeBuilder(config: AppRuntimeConfig) {
         val queries = ModelQueriesImpl(storage)
         val cmd = ModelCmdsImpl(storage, auditor)
         return AppRuntimeImpl(
+            config,
             cmd,
             queries,
             platform.extensionRegistry,
-            ModelHumanPrinterEmoji()
+            ModelHumanPrinterEmoji(),
+            serviceRegistry
         )
     }
 
     class AppRuntimeImpl(
+        override val config: AppRuntimeConfig,
         override val modelCmds: ModelCmds,
         override val modelQueries: ModelQueries,
         override val extensionRegistry: ExtensionRegistry,
         override val modelHumanPrinter: ModelHumanPrinter,
-
+        override val services: MedatarunServiceRegistry
     ) : AppRuntime
 
     companion object {

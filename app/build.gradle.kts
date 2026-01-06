@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":utils"))
     implementation(project(":libs:model"))
     implementation(project(":libs:lang"))
+    implementation(project(":libs:auth"))
     implementation(project(":extensions:config"))
     implementation(project(":extensions:modeljson"))
     implementation(project(":extensions:data-md-file"))

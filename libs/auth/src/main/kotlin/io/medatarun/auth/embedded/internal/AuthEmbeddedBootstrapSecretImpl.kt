@@ -10,7 +10,9 @@ import java.util.*
 /**
  * Creates a bootstrap secret, generated once only
  */
-class AuthEmbeddedBootstrapSecretImpl(private val bootstrapDir: Path): AuthEmbeddedBootstrapSecret {
+class AuthEmbeddedBootstrapSecretImpl(
+    private val bootstrapDir: Path
+): AuthEmbeddedBootstrapSecret {
     val secretPath = bootstrapDir.resolve("bootstrap.secret")
     val consumedPath = bootstrapDir.resolve("bootstrap.consumed.flag")
 
