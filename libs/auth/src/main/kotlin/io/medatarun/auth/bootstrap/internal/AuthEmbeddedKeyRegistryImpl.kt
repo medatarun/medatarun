@@ -37,16 +37,14 @@ class AuthEmbeddedKeyRegistryImpl(private val keystorePath: Path): AuthEmbeddedK
         pubPath: Path,
         kidPath: Path?
     ): JwtKeyMaterial {
-        val gen = KeyPairGenerator.getInstance(ENCRYPTION_ALGORITHM)
-        gen.initialize(2048)
-        val pair = gen.generateKeyPair()
-        val kid = UUID.randomUUID().toString()
+        val material = generateJwtKeyMaterial()
 
-        writePem(privPath, KeyAudience.PRIVATE, pair.private.encoded)
-        writePem(pubPath, KeyAudience.PUBLIC, pair.public.encoded)
-        Files.writeString(kidPath, kid, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+        writePem(privPath, KeyAudience.PRIVATE, material.privateKey.encoded)
+        writePem(pubPath, KeyAudience.PUBLIC, material.publicKey.encoded)
+        Files.writeString(kidPath, material.kid, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
 
-        return JwtKeyMaterial(pair.private as RSAPrivateKey, pair.public as RSAPublicKey, kid)
+
+        return material
     }
 
     private fun loadKeys(
@@ -84,6 +82,16 @@ class AuthEmbeddedKeyRegistryImpl(private val keystorePath: Path): AuthEmbeddedK
         const val PUBLIC_KEY_FILENAME = "public.pem"
         const val IDENTIFIER_KEY_FILENAME = "kid.txt"
         const val ENCRYPTION_ALGORITHM = "RSA"
+
+        fun generateJwtKeyMaterial(): JwtKeyMaterial {
+            val gen = KeyPairGenerator.getInstance(ENCRYPTION_ALGORITHM)
+            gen.initialize(2048)
+            val pair = gen.generateKeyPair()
+            val kid = UUID.randomUUID().toString()
+            val material = JwtKeyMaterial(pair.private as RSAPrivateKey, pair.public as RSAPublicKey, kid)
+            return material
+        }
+
     }
 
 }
