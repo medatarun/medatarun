@@ -17,7 +17,7 @@ class UserStoreSQLite(private val dbConnectionFactory: DbConnectionFactory) : Us
     override fun insert(
         id: String,
         login: String,
-        fullName: String,
+        fullname: String,
         password: String,
         admin: Boolean,
         bootstrap: Boolean,
@@ -34,7 +34,7 @@ class UserStoreSQLite(private val dbConnectionFactory: DbConnectionFactory) : Us
             ).use { ps ->
                 ps.setString(1, id)
                 ps.setString(2, login)
-                ps.setString(3, fullName)
+                ps.setString(3, fullname)
                 ps.setString(4, password)
                 ps.setInt(5, if (admin) 1 else 0)
                 ps.setInt(6, if (bootstrap) 1 else 0)
@@ -56,7 +56,7 @@ class UserStoreSQLite(private val dbConnectionFactory: DbConnectionFactory) : Us
                 User(
                     id = UUID.fromString(rs.getString("id")),
                     login = rs.getString("login"),
-                    fullName = rs.getString("full_name"),
+                    fullname = rs.getString("full_name"),
                     passwordHash = rs.getString("password_hash"),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,

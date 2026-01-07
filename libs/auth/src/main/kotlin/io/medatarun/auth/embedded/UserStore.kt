@@ -6,7 +6,7 @@ interface UserStore {
     fun insert(
         id: String,
         login: String,
-        fullName: String,
+        fullname: String,
         password: String,
         admin: Boolean,
         bootstrap: Boolean,

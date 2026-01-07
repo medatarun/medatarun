@@ -46,7 +46,7 @@ class AuthEmbeddedServiceImpl(
         bootstrapper.loadOrCreateBootstrapSecret(runOnce)
     }
 
-    override fun adminBootstrap(secret: String, login: String, fullName: String, password: String): JwtTokenResponse {
+    override fun adminBootstrap(secret: String, login: String, fullname: String, password: String): JwtTokenResponse {
         val bootstrapState = bootstrapper.load() ?: throw AuthEmbeddedServiceBootstrapNotReadyException()
         if (bootstrapState.consumed) throw AuthEmbeddedBootstrapAlreadyConsumedException()
         if (bootstrapState.secret != secret) throw AuthEmbeddedBootstrapBadSecretException()
@@ -54,7 +54,7 @@ class AuthEmbeddedServiceImpl(
         val user = createEmbeddedUserInternal(
             id=UUID.randomUUID(),
             login = login,
-            fullName = fullName,
+            fullname = fullname,
             clearPassword = password,
             admin = true,
             bootstrap = true
@@ -64,8 +64,8 @@ class AuthEmbeddedServiceImpl(
         return createTokenForUser(user)
     }
 
-    override fun createEmbeddedUser(login: String, fullName: String, clearPassword: String, admin: Boolean): User {
-        return createEmbeddedUserInternal(UUID.randomUUID(), login, fullName, clearPassword, admin, false)
+    override fun createEmbeddedUser(login: String, fullname: String, clearPassword: String, admin: Boolean): User {
+        return createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
     }
 
     override fun oidcLogin(login: String, password: String): JwtTokenResponse {
@@ -80,7 +80,7 @@ class AuthEmbeddedServiceImpl(
         val token = tokenIssuer.issueToken(
             sub = user.login,
             claims = mapOf(
-                "name" to user.fullName,
+                "name" to user.fullname,
                 "role" to (if (user.admin) "admin" else ""),
                 "bootstrap" to true,
                 "mid" to user.id.toString()
@@ -92,7 +92,7 @@ class AuthEmbeddedServiceImpl(
     fun createEmbeddedUserInternal(
         id: UUID,
         login: String,
-        fullName: String,
+        fullname: String,
         clearPassword: String,
         admin: Boolean,
         bootstrap: Boolean
@@ -102,11 +102,11 @@ class AuthEmbeddedServiceImpl(
             throw AuthEmbeddedCreateUserPasswordFailException(checkPasswordPolicy.reason)
         val password = authEmbeddedPwd.hashPassword(clearPassword)
 
-        userStorage.insert(id.toString(), login, fullName, password, admin, bootstrap, null)
+        userStorage.insert(id.toString(), login, fullname, password, admin, bootstrap, null)
         return User(
             id = id,
             login = login,
-            fullName = fullName,
+            fullname = fullname,
             passwordHash = password,
             admin = admin,
             bootstrap = bootstrap,
