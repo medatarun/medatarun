@@ -82,3 +82,27 @@ Test:
 - `cat err.txt` there should be an error
 - `cat ok.txt` there should be instructions
 
+### Exit with the right OS code
+
+Goal: test that scripts can stop if there are errors
+
+```bash
+medatarun config Inspect
+echo $?
+```
+
+Should return 0
+
+Without authentication, do that:
+```bash
+medatarun auth create_user --admin=false --fullName="My User" --password="some.dummy.0000" --username="my.user"
+echo $?
+```
+
+Should return 1, and you should see
+
+```txt
+Remote invocation failed with status 500
+Bad credentials.
+{"details":"Bad credentials."}
+```

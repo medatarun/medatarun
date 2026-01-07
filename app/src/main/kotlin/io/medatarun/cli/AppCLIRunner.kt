@@ -11,8 +11,12 @@ import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.httpserver.cli.CliActionGroupDto
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.system.exitProcess
 
 class AppCLIRunner(
     private val args: Array<String>,
@@ -21,7 +25,7 @@ class AppCLIRunner(
 ) {
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(AppCLIRunner::class.java)
+        private val logger: Logger = LoggerFactory.getLogger("CLI")
         private val HELP_FLAGS = setOf("help", "--help", "-h")
     }
 
@@ -84,12 +88,36 @@ class AppCLIRunner(
             invokeRemoteAction(request)
         }
 
-        if (result.isNotBlank()) {
-            logger.info(result)
+        when (result) {
+            is RemoteInvocationResult.OK -> {
+                logger.info(result.body)
+            }
+
+            is RemoteInvocationResult.Error -> {
+                val msg = try {
+                    val obj = Json.decodeFromString<JsonObject>(result.body)
+                    val details = obj["details"]
+                    if (details != null && details is JsonPrimitive) {
+                        details.content + " " + result.body
+                    } else {
+                        result.body
+                    }
+                } catch (e: Exception) {
+                    result.body
+
+                }
+                logger.error("" + result.status + " - " + msg)
+                exitProcess(1)
+            }
         }
     }
 
-    private suspend fun invokeRemoteAction(request: ActionRequest): String {
+    sealed interface RemoteInvocationResult {
+        class OK(val body: String) : RemoteInvocationResult
+        class Error(val status: Int, val body: String) : RemoteInvocationResult
+    }
+
+    private suspend fun invokeRemoteAction(request: ActionRequest): RemoteInvocationResult {
         val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {
             contentType(ContentType.Application.Json)
@@ -97,11 +125,9 @@ class AppCLIRunner(
         }
         val responseBody = response.bodyAsText()
         if (!response.status.isSuccess()) {
-            throw RemoteActionInvocationException(
-                "Remote invocation failed with status ${response.status.value}: $responseBody"
-            )
+            return RemoteInvocationResult.Error(response.status.value, responseBody)
         }
-        return responseBody
+        return RemoteInvocationResult.OK(responseBody)
     }
 
     private fun loadActionRegistry(): AppCLIActionRegistry {
