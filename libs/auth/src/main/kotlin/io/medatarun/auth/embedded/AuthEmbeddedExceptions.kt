@@ -7,10 +7,10 @@ import io.medatarun.model.domain.MedatarunException
 class AuthEmbeddedServiceBootstrapNotReadyException() :
     MedatarunException("Auth embedded service is not ready. Bootstrap has not been done yet")
 
-class AuthEmbeddedBoostrapAlreadyConsumedException() :
-    MedatarunException("Boostrap already consumed.", StatusCode.GONE)
+class AuthEmbeddedBootstrapAlreadyConsumedException() :
+    MedatarunException("Bootstrap already consumed.", StatusCode.GONE)
 
-class AuthEmbeddedBoostrapBadSecretException() :
+class AuthEmbeddedBootstrapBadSecretException() :
     MedatarunException("Bad bootstrap secret.", StatusCode.UNAUTHORIZED)
 
 class AuthEmbeddedCreateUserPasswordFailException(val reason: AuthEmbeddedPwd.PasswordPolicyFailReason) :

@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
@@ -24,6 +25,8 @@ class AuthEmbeddedActionsProvider(
         return when (cmd) {
             is AuthEmbeddedAction.AdminBootstrap -> launcher.adminBootstrap(cmd)
             is AuthEmbeddedAction.CreateUser -> launcher.createUser(cmd)
+            is AuthEmbeddedAction.Login -> launcher.login(cmd)
+            is AuthEmbeddedAction.WhoAmI -> launcher.whoami(cmd)
         }
     }
 
@@ -39,12 +42,41 @@ class AuthEmbeddedActionsLauncher(
     private val principal: ActionPrincipalCtx
 ) {
     fun adminBootstrap(cmd: AuthEmbeddedAction.AdminBootstrap) {
-        service.adminBootstrap(cmd.secret, cmd.username, cmd.fullName, cmd.password)
+        service.adminBootstrap(cmd.secret, cmd.username, cmd.fullname, cmd.password)
     }
 
     fun createUser(cmd: AuthEmbeddedAction.CreateUser) {
         principal.ensureIsAdmin()
-        service.createEmbeddedUser(cmd.username, cmd.fullName, cmd.password, cmd.admin)
+        service.createEmbeddedUser(cmd.username, cmd.fullname, cmd.password, cmd.admin)
+    }
+
+    fun login(cmd: AuthEmbeddedAction.Login): JwtTokenResponse {
+        return service.oidcLogin(cmd.username, cmd.password)
+    }
+
+    @Serializable
+    data class WhoAmIResp(
+        val issuer: String,
+        val sub: String,
+        val admin: Boolean,
+        val issuedAt: String?,
+        val expiresAt: String?,
+        val audience: List<String>,
+        val claims: Map<String, String?>,
+    )
+
+    fun whoami(cmd: AuthEmbeddedAction.WhoAmI): WhoAmIResp {
+        val actor = principal.ensureSignedIn()
+        return WhoAmIResp(
+            issuer = actor.issuer,
+            sub = actor.sub,
+            admin = actor.isAdmin,
+            issuedAt = actor.issuedAt?.toString(),
+            expiresAt = actor.expiresAt?.toString(),
+            audience = actor.audience,
+            claims = actor.claims
+        )
+
     }
 
 }

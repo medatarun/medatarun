@@ -22,6 +22,17 @@ You can configure server host and port. This acts when the server start, and als
 - `medatarun.server.port`: server port (defaults to `8080`)
 - `medatarun.server.host`: server listening host (defaults to `0.0.0.0`)
 
+## CLI
+
+You can configure the remote server location
+
+- `medatarun.server.port`: server port (defaults to `8080`)
+- `medatarun.server.host`: server listening host (defaults to `0.0.0.0`)
+
+As well as the token used to connect to the server
+
+- `medatarun.auth.token`: authentication token see [Managing users](./manage-users.md)
+
 ## How to configure
 
 Medatarun reads configuration properties from multiple configuration sources in this order:

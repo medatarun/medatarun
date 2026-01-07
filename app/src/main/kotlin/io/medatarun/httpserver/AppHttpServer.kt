@@ -35,6 +35,7 @@ import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import kotlinx.html.emptyMap
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.util.*
 
 /**
@@ -74,15 +75,15 @@ class AppHttpServer(
         logger.warn("----------------------------------------------------------")
         logger.warn("This message will only be displayed once")
         logger.warn("")
-        logger.warn("BOOSTRAP SECRET (one time usage): $secret")
+        logger.warn("BOOTSTRAP SECRET (one-time usage): $secret")
         logger.warn("")
         logger.warn("Use it to create your admin account with CLI")
         logger.warn("")
-        logger.warn("medatarun auth bootstrap --username=your_admin_name --password=your_password --bootstrap=$secret")
+        logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --bootstrap=$secret")
         logger.warn("")
         logger.warn("or with API")
         logger.warn("")
-        logger.warn("curl http://<host>:<port>/api/auth/bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
+        logger.warn("curl http://<host>:<port>/api/auth/bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"fullname\":\"Admin\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
         logger.warn("----------------------------------------------------------")
     }
 
@@ -195,12 +196,6 @@ class AppHttpServer(
                 call.respond(restApiDoc.buildApiDescription())
             }
 
-            post("/auth/login") {
-                // Authentication: all public -> otherwise people can not log in
-                val req = call.receive<LoginRequest>()
-                val token = authEmbeddedService.oidcLogin(req.username, req.password)
-                call.respond(token)
-            }
             authenticate(AUTH_MEDATARUN_JWT) {
                 get("/api/me") {
                     // Authentication: token required, we block if no principal
@@ -300,9 +295,14 @@ class AppHttpServer(
         val principalSubject = principal.subject ?: return null
         val principalAdmin = principal.getClaim("role", String::class) == "admin"
         return object : MedatarunPrincipal {
-            override val issuer: String = principalIssuer
             override val sub: String = principalSubject
+            override val issuer: String = principalIssuer
             override val isAdmin: Boolean = principalAdmin
+            override val issuedAt: Instant? = principal.issuedAt?.toInstant()
+            override val expiresAt: Instant? = principal.expiresAt?.toInstant()
+            override val audience: List<String> = principal.audience
+            override val claims = principal.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap()
+
         }
     }
 

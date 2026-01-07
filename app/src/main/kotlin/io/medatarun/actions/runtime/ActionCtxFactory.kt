@@ -23,6 +23,13 @@ class ActionCtxFactory(
             }
             override fun <T : Any> getService(type: KClass<T>): T = services.getService(type)
             override val principal: ActionPrincipalCtx = object: ActionPrincipalCtx {
+
+                override val actor: MedatarunPrincipal? = principal
+                override fun ensureSignedIn(): MedatarunPrincipal {
+                    if (principal == null) throw AuthEmbeddedBadCredentialsException()
+                    return principal
+                }
+
                 override fun ensureIsAdmin() {
                     if (principal == null) throw AuthEmbeddedBadCredentialsException()
                     if (!principal.isAdmin) throw AuthEmbeddedBadCredentialsException()

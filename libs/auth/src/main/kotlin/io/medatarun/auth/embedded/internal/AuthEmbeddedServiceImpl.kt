@@ -48,8 +48,8 @@ class AuthEmbeddedServiceImpl(
 
     override fun adminBootstrap(secret: String, login: String, fullName: String, password: String): JwtTokenResponse {
         val bootstrapState = bootstrapper.load() ?: throw AuthEmbeddedServiceBootstrapNotReadyException()
-        if (bootstrapState.consumed) throw AuthEmbeddedBoostrapAlreadyConsumedException()
-        if (bootstrapState.secret != secret) throw AuthEmbeddedBoostrapBadSecretException()
+        if (bootstrapState.consumed) throw AuthEmbeddedBootstrapAlreadyConsumedException()
+        if (bootstrapState.secret != secret) throw AuthEmbeddedBootstrapBadSecretException()
 
         val user = createEmbeddedUserInternal(
             id=UUID.randomUUID(),

@@ -8,9 +8,9 @@ import io.medatarun.auth.embedded.internal.AuthEmbeddedBootstrapState
 interface AuthEmbeddedBootstrapSecret {
 
     /**
-     * Loads or create the boostrap secret.
+     * Loads or create the bootstrap secret.
      *
-     * Once the boostrap secret had been created, calls back [logOnce] with the secret,
+     * Once the bootstrap secret had been created, calls back [logOnce] with the secret,
      * typically to display it in logs the first time, so that an admin can know him.
      */
     fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): AuthEmbeddedBootstrapState

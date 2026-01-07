@@ -9,39 +9,39 @@ sealed interface AuthEmbeddedAction {
     @ActionDoc(
         key = "admin_bootstrap",
         title = "Creates admin user",
-        description = "Creates admin user account and boostrap credentials. Consumes the one-time secret generated at install.",
+        description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install.",
         uiLocation = ""
     )
     class AdminBootstrap(
         @ActionParamDoc(
             name = "secret",
             description = "Secret provided at bootstrap",
-            order = 0
+            order = 5
         )
         val secret: String,
         @ActionParamDoc(
             name = "username",
             description = "Admin user name",
-            order = 0
+            order = 2
         )
         val username: String,
         @ActionParamDoc(
-            name = "fullName",
+            name = "fullname",
             description = "User full name (displayed name)",
-            order = 0
+            order = 3
         )
-        val fullName: String,
+        val fullname: String,
 
         @ActionParamDoc(
             name = "password",
             description = "Admin password",
-            order = 0
+            order = 4
         )
         val password: String
 
-    ): AuthEmbeddedAction
+    ) : AuthEmbeddedAction
 
-    @ActionDoc(key="create_user", title="Create user", description="Create a new user", uiLocation = "")
+    @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user", uiLocation = "")
     class CreateUser(
         @ActionParamDoc(
             name = "username",
@@ -50,11 +50,11 @@ sealed interface AuthEmbeddedAction {
         )
         val username: String,
         @ActionParamDoc(
-            name = "fullName",
+            name = "fullname",
             description = "User full name (displayed name)",
             order = 2
         )
-        val fullName: String,
+        val fullname: String,
         @ActionParamDoc(
             name = "password",
             description = "User password",
@@ -68,5 +68,35 @@ sealed interface AuthEmbeddedAction {
         )
         val admin: Boolean
 
-    ): AuthEmbeddedAction
+    ) : AuthEmbeddedAction
+
+    @ActionDoc(
+        key = "login",
+        title = "Login user",
+        description = "Generates a JWT Token that users can reuse to authenticate themselves",
+        uiLocation = ""
+    )
+    class Login(
+        @ActionParamDoc(
+            name = "username",
+            description = "User name",
+            order = 1
+        )
+        val username: String,
+
+        @ActionParamDoc(
+            name = "password",
+            description = "Password",
+            order = 2
+        )
+        val password: String
+    ) : AuthEmbeddedAction
+
+    @ActionDoc(
+        key="whoami",
+        title="Who am i",
+        description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
+        uiLocation = ""
+    )
+    class WhoAmI(): AuthEmbeddedAction
 }
