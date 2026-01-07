@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
 
     // Things that are compile-build builds
+    //
+    // BE CAREFUL: must be done in correct order, we don't have
+    // dependency graphs that launch them in correct order for now
 
     val extensions = listOf(
         ActionsExtension(),
@@ -44,34 +47,63 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     )
     val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
     val platform = ExtensionPlaformImpl(extensions, config)
-    val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
-    val validation = ModelValidationImpl()
-    val storage = ModelStoragesComposite(repositories, validation)
+
+    // 🤔 🤔 🤔
+    // Little dirty here
+    // Everything should be done in the "model" plugin or not?
+    //
+    // 🤔 not sure yet, if we define implems in plugins directly
+    //    we wouldn't be able to change them at runtime and we
+    //    would fall in the JavaEE/JarkataEE/Spring and other DI traps
+    //    to define what is default, what is not...
+    //
+    // 🤔 I don't see a good solution for now, let's think, we'll see that
+    //    later.
+    //
+    // 🤔 Note that the "auth" plugin declares its own services in Service
+    //    Registry, so it's a different behavior.
+    //    I think it relates on this inconsistency: not being sure which
+    //    initialization model is right or not
+    //
+    // 🤔 Final word: it's right to say that it's the main app role to do the
+    //    plumbing. So maybe plugins shall just provide default implementation
+    //    that we choose here. But forcing plugin to register implements is
+    //    maybe wrong. At the same time, making the "glue" here means the
+    //    plugin system is not really pluggable 🤯
+    //
     val auditor: ModelAuditor = object : ModelAuditor {
         override fun onCmdProcessed(cmd: ModelCmd) {
             logger.info("onCmdProcessed: $cmd")
         }
     }
+    val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
+    val validation = ModelValidationImpl()
+    val storage = ModelStoragesComposite(repositories, validation)
+    val modelQueriesImpl = ModelQueriesImpl(storage)
+    val modelCmdsImpl = ModelCmdsImpl(storage, auditor)
+    val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
+
+    // especially that:
+    init {
+        serviceRegistry.register(ModelCmds::class, modelCmdsImpl)
+        serviceRegistry.register(ModelQueries::class, modelQueriesImpl)
+        serviceRegistry.register(ModelHumanPrinter::class, modelHumanPrinterEmoji)
+    }
+
+    // End of 🤔 🤔 🤔 🤯
 
     fun build(): AppRuntime {
-        val queries = ModelQueriesImpl(storage)
-        val cmd = ModelCmdsImpl(storage, auditor)
+
         return AppRuntimeImpl(
             config,
-            cmd,
-            queries,
             platform.extensionRegistry,
-            ModelHumanPrinterEmoji(),
             serviceRegistry
         )
     }
 
     class AppRuntimeImpl(
         override val config: AppRuntimeConfig,
-        override val modelCmds: ModelCmds,
-        override val modelQueries: ModelQueries,
         override val extensionRegistry: ExtensionRegistry,
-        override val modelHumanPrinter: ModelHumanPrinter,
         override val services: MedatarunServiceRegistry
     ) : AppRuntime
 

@@ -1,17 +1,17 @@
 package io.medatarun.model.actions
 
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.model.domain.AttributeDef
 import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.ports.exposed.ModelQueries
 import kotlinx.serialization.json.*
 
-class ModelInspectJsonAction(private val actionCtx: ActionCtx) {
+class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
     private val jsonPretty = Json { prettyPrint = true }
     fun process(): String {
         val root = buildJsonObject {
             put("models", buildJsonArray {
-                actionCtx.modelQueries.findAllModelIds().forEach { modelId ->
-                    val model = actionCtx.modelQueries.findModelById(modelId)
+                modelQueries.findAllModelIds().forEach { modelId ->
+                    val model = modelQueries.findModelById(modelId)
                     add(buildJsonObject {
                         put("id", model.id.value)
                         put("version", model.version.value)

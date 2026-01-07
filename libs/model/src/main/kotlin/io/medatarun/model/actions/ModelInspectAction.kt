@@ -1,15 +1,16 @@
 package io.medatarun.model.actions
 
-import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.model.ports.exposed.ModelHumanPrinter
+import io.medatarun.model.ports.exposed.ModelQueries
 
-class ModelInspectAction(val runtime: ActionCtx) {
+class ModelInspectAction(val modelQueries: ModelQueries, val modelHumanPrinter: ModelHumanPrinter) {
     fun process(): String {
 
         val buf = StringBuilder()
-        val modelId = runtime.modelQueries.findAllModelIds()
+        val modelId = modelQueries.findAllModelIds()
         modelId.forEach { modelId ->
-            val model = runtime.modelQueries.findModelById(modelId)
-            buf.append(runtime.modelHumanPrinter.print(model))
+            val model = modelQueries.findModelById(modelId)
+            buf.append(modelHumanPrinter.print(model))
 
         }
         return buf.toString()

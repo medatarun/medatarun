@@ -1,17 +1,19 @@
 package io.medatarun.model.actions
 
-import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.ports.exposed.ModelCmd
+import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.needs.ModelImporter
 
 class ModelImportAction(
-    private val actionCtx: ActionCtx,
+    private val extensionRegistry: ExtensionRegistry,
+    private val modelCmds: ModelCmds,
     private val resourceLocator: ResourceLocator
 ) {
 
     fun process(cmd: ModelAction.Import) {
-        val contribs = actionCtx.extensionRegistry.findContributionsFlat(ModelImporter::class)
+        val contribs = extensionRegistry.findContributionsFlat(ModelImporter::class)
         val resourceLocator = resourceLocator.withPath(cmd.from)
         val contrib = contribs.firstOrNull { contrib ->
             contrib.accept(cmd.from, resourceLocator)
@@ -20,7 +22,7 @@ class ModelImportAction(
             throw ModelImportActionNotFoundException(cmd.from)
         }
         val model = contrib.toModel(cmd.from, resourceLocator)
-        actionCtx.modelCmds.dispatch(ModelCmd.ImportModel(model))
+        modelCmds.dispatch(ModelCmd.ImportModel(model))
     }
 
 }
