@@ -13,6 +13,7 @@ interface ActionCtx {
     val modelHumanPrinter: ModelHumanPrinter
     fun dispatchAction(req: ActionRequest): Any?
     fun <T : Any> getService(type: KClass<T>): T
+    val principal: ActionPrincipalCtx
 }
 
 inline fun <reified T : Any> ActionCtx.getService(): T {

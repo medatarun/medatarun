@@ -1,7 +1,10 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.MedatarunPrincipal
+import io.medatarun.auth.embedded.AuthEmbeddedBadCredentialsException
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.MedatarunServiceRegistry
 import io.medatarun.model.ports.exposed.ModelCmds
@@ -15,7 +18,7 @@ class ActionCtxFactory(
     val actionRegistry: ActionRegistry,
     val services: MedatarunServiceRegistry
 ) {
-    fun create(): ActionCtx {
+    fun create(principal: MedatarunPrincipal?): ActionCtx {
         return object : ActionCtx {
             override val extensionRegistry: ExtensionRegistry = runtime.extensionRegistry
             override val modelCmds: ModelCmds = runtime.modelCmds
@@ -25,6 +28,12 @@ class ActionCtxFactory(
                 return actionRegistry.handleInvocation(req, this)
             }
             override fun <T : Any> getService(type: KClass<T>): T = services.getService(type)
+            override val principal: ActionPrincipalCtx = object: ActionPrincipalCtx {
+                override fun ensureIsAdmin() {
+                    if (principal == null) throw AuthEmbeddedBadCredentialsException()
+                    if (!principal.isAdmin) throw AuthEmbeddedBadCredentialsException()
+                }
+            }
         }
     }
 }

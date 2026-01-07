@@ -39,7 +39,34 @@ sealed interface AuthEmbeddedAction {
         )
         val password: String
 
+    ): AuthEmbeddedAction
 
+    @ActionDoc(key="create_user", title="Create user", description="Create a new user", uiLocation = "")
+    class CreateUser(
+        @ActionParamDoc(
+            name = "username",
+            description = "Admin user name",
+            order = 1
+        )
+        val username: String,
+        @ActionParamDoc(
+            name = "fullName",
+            description = "User full name (displayed name)",
+            order = 2
+        )
+        val fullName: String,
+        @ActionParamDoc(
+            name = "password",
+            description = "User password",
+            order = 3
+        )
+        val password: String,
+        @ActionParamDoc(
+            name = "admin",
+            description = "Is user admin",
+            order = 4
+        )
+        val admin: Boolean
 
     ): AuthEmbeddedAction
 }

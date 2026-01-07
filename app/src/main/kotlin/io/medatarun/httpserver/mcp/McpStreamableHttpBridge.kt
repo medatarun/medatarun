@@ -17,10 +17,9 @@ import org.slf4j.LoggerFactory
  * module is still JSON-RPC SSE only. We keep the same surface as the future official module so
  * swapping back becomes trivial once upstream gains StreamableHttp support.
  */
-class McpStreamableHttpBridge(serverFactory: () -> Server) {
+class McpStreamableHttpBridge() {
 
-    private val streamableSessions = McpStreamableHttpSessionManager(serverFactory)
-
+    private val streamableSessions = McpStreamableHttpSessionManager()
 
     /**
      * Handles the SSE leg of a StreamableHTTP session: validates the session id, resumes delivery
@@ -62,7 +61,7 @@ class McpStreamableHttpBridge(serverFactory: () -> Server) {
      * associated session, forwards the message to the transport, and returns either the immediate
      * JSON response or HTTP 202 when the answer will arrive asynchronously via SSE.
      */
-    suspend fun handleStreamablePost(call: ApplicationCall) {
+    suspend fun handleStreamablePost(call: ApplicationCall, serverFactory: () -> Server) {
         // The POST leg bootstraps or continues the MCP conversation, so we do strict parsing
         // here to control error responses instead of delegating to Ktor's built-in pipeline.
         val rawBody = runCatching { call.receiveText() }.getOrElse {
@@ -91,7 +90,7 @@ class McpStreamableHttpBridge(serverFactory: () -> Server) {
             // No session id means the client is negotiating a brand new MCP session over HTTP.
             // We mint one eagerly because StreamableHttp requires both REST and SSE legs to
             // agree on the same identifier.
-            streamableSessions.createSession().also {
+            streamableSessions.createSession(serverFactory).also {
                 call.response.headers.append(MCP_SESSION_ID_HEADER, it.id)
             }
         } else {

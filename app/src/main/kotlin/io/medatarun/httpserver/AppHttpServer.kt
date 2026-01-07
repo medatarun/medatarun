@@ -17,6 +17,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.actions.ports.needs.MedatarunPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.auth.embedded.AuthEmbeddedService
@@ -31,6 +32,8 @@ import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
+import kotlinx.html.emptyMap
+import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -66,7 +69,7 @@ class AppHttpServer(
 
 
     val authEmbeddedService = runtime.services.getService<AuthEmbeddedService>()
-    val keys = authEmbeddedService.oidcJwks().keys.first()
+
     val bootstrap = authEmbeddedService.loadOrCreateBootstrapSecret { secret ->
         logger.warn("----------------------------------------------------------")
         logger.warn("This message will only be displayed once")
@@ -118,7 +121,7 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
-        val mcpStreamableHttpBridge = McpStreamableHttpBridge(serverFactory = mcpServerBuilder::buildMcpServer)
+        val mcpStreamableHttpBridge = McpStreamableHttpBridge()
 
         install(ContentNegotiation) { json() }
         install(SSE)
@@ -152,7 +155,10 @@ class AppHttpServer(
             }
         }
         install(Authentication) {
-            jwt("medatarun-jwt") {
+            jwt(AUTH_MEDATARUN_JWT) {
+                skipWhen { call ->
+                    call.request.headers[HttpHeaders.Authorization] == null
+                }
                 verifier(
                     JWT.require(Algorithm.RSA256(authEmbeddedService.oidcPublicKey(), null))
                         .withIssuer(authEmbeddedService.oidcIssuer())
@@ -169,67 +175,113 @@ class AppHttpServer(
         }
 
         routing {
+            // Authentication: all public
             staticResources("/", "static") {
                 default("index.html")
             }
-            if (enableHealth) {
-                get("/health") {
-                    call.respond(mapOf("status" to "ok"))
-                }
+
+            // Authentication: all public -> otherwise UI can not load
+            get("/health") {
+                call.respond(mapOf("status" to "ok"))
             }
 
+            // Authentication: all public -> Jwks must be public for discovert
             get(authEmbeddedService.oidcJwksUri()) {
                 call.respond(authEmbeddedService.oidcJwks())
             }
-            if (enableApi) {
 
-                get("/api") {
-                    call.respond(restApiDoc.buildApiDescription())
+            get("/api") {
+                // Authentication: all public -> everybody needs to know API description
+                call.respond(restApiDoc.buildApiDescription())
+            }
+
+            post("/auth/login") {
+                // Authentication: all public -> otherwise people can not log in
+                val req = call.receive<LoginRequest>()
+                val token = authEmbeddedService.oidcLogin(req.username, req.password)
+                call.respond(token)
+            }
+            authenticate(AUTH_MEDATARUN_JWT) {
+                get("/api/me") {
+                    // Authentication: token required, we block if no principal
+                    val p = call.principal<JWTPrincipal>()
+                    val user = toMedatarunPrincipal(call)
+                    if (p == null || user == null) {
+                        call.respond(HttpStatusCode.Unauthorized, "invalid or missing token")
+                    } else {
+                        val claims = p.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap
+                        call.respond(claims)
+                    }
                 }
-
                 route("/api/{actionGroupKey}/{actionKey}") {
-                    get { restCommandInvocation.processInvocation(call) }
-                    post { restCommandInvocation.processInvocation(call) }
+                    // Authentication: token required but not always, the action will check that principal
+                    // is present with correct roles the action require a principal, and not all actions need one
+                    // So we don't block actions if principal is missing
+                    get { restCommandInvocation.processInvocation(call, toMedatarunPrincipal(call)) }
+                    post { restCommandInvocation.processInvocation(call, toMedatarunPrincipal(call)) }
                 }
             }
             get("/cli/api/action-registry") {
-                call.respond(
-                    CliActionRegistry(actionRegistry).actionRegistryDto()
-                )
+                // Authentication: actino registry for CLI is public (otherwise no help on CLI)
+                call.respond(CliActionRegistry(actionRegistry).actionRegistryDto())
             }
             get("/ui/api/action-registry") {
-                call.respond(
-                    UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)),
+                // Authentication: action registry for UI is public (otherwise no help on UI)
+                call.respond(UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)))
+            }
 
+            authenticate(AUTH_MEDATARUN_JWT) {
+                // Authentication: required
+                get("/ui/api/models") {
+
+                    call.respondText(
+                        UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
+                        ContentType.Application.Json
                     )
-            }
-            get("/ui/api/models") {
-                call.respondText(
-                    UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
-                    ContentType.Application.Json
-                )
-            }
-            get("/ui/api/models/{modelId}") {
-                val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                call.respondText(
-                    UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
-                    ContentType.Application.Json
-                )
+
+                }
             }
 
+            authenticate(AUTH_MEDATARUN_JWT) {
+                get("/ui/api/models/{modelId}") {
+
+                    val modelId = call.parameters["modelId"] ?: throw NotFoundException()
+                    call.respondText(
+                        UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
+                        ContentType.Application.Json
+                    )
+
+                }
+            }
+
+            // ----------------------------------------------------------------
+            // MCP server
+            // ----------------------------------------------------------------
 
             if (enableMcpSse) {
+                // SSE protocol, buggy in Kotlin, waiting for fix, so disabled
+                // Authentication: some tools will required, some others not,
+                // we let the tool building and actions decide
+
                 route("/sse") {
                     mcp {
-                        return@mcp mcpServerBuilder.buildMcpServer()
+                        val user = toMedatarunPrincipal(call)
+                        return@mcp mcpServerBuilder.buildMcpServer(user)
                     }
                 }
             }
 
             if (enableMcpStreamingHttp) {
                 route("/mcp") {
-                    post { mcpStreamableHttpBridge.handleStreamablePost(call) }
-                    delete { mcpStreamableHttpBridge.handleStreamableDelete(call) }
+                    post {
+                        val principal = toMedatarunPrincipal(call)
+                        mcpStreamableHttpBridge.handleStreamablePost(call) {
+                            mcpServerBuilder.buildMcpServer(principal)
+                        }
+                    }
+                    delete {
+                        mcpStreamableHttpBridge.handleStreamableDelete(call)
+                    }
                     sse {
                         mcpStreamableHttpBridge.handleStreamableSse(this)
                     }
@@ -242,7 +294,23 @@ class AppHttpServer(
     }
 
 
+    private fun toMedatarunPrincipal(call: ApplicationCall): MedatarunPrincipal? {
+        val principal = call.authentication.principal<JWTPrincipal>() ?: return null
+        val principalIssuer = principal.issuer ?: return null
+        val principalSubject = principal.subject ?: return null
+        val principalAdmin = principal.getClaim("role", String::class) == "admin"
+        return object : MedatarunPrincipal {
+            override val issuer: String = principalIssuer
+            override val sub: String = principalSubject
+            override val isAdmin: Boolean = principalAdmin
+        }
+    }
+
+    companion object {
+        const val AUTH_MEDATARUN_JWT = "medatarun-jwt"
+    }
 }
+
 
 private fun detectLocale(call: ApplicationCall): Locale {
     val header = call.request.headers["Accept-Language"]
@@ -253,3 +321,6 @@ private fun detectLocale(call: ApplicationCall): Locale {
 
     return firstTag?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
 }
+
+@Serializable
+data class LoginRequest(val username: String, val password: String)
