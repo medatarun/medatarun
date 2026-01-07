@@ -1,8 +1,12 @@
 package io.medatarun.httpserver
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
@@ -62,8 +66,9 @@ class AppHttpServer(
 
 
     val authEmbeddedService = runtime.services.getService<AuthEmbeddedService>()
+    val keys = authEmbeddedService.oidcJwks().keys.first()
     val bootstrap = authEmbeddedService.loadOrCreateBootstrapSecret { secret ->
-        logger.warn("-------------")
+        logger.warn("----------------------------------------------------------")
         logger.warn("This message will only be displayed once")
         logger.warn("")
         logger.warn("BOOSTRAP SECRET (one time usage): $secret")
@@ -75,7 +80,7 @@ class AppHttpServer(
         logger.warn("or with API")
         logger.warn("")
         logger.warn("curl http://<host>:<port>/api/auth/bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
-        logger.warn("-------------")
+        logger.warn("----------------------------------------------------------")
     }
 
     @Volatile
@@ -146,7 +151,22 @@ class AppHttpServer(
                 call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
             }
         }
-
+        install(Authentication) {
+            jwt("medatarun-jwt") {
+                verifier(
+                    JWT.require(Algorithm.RSA256(authEmbeddedService.oidcPublicKey(), null))
+                        .withIssuer(authEmbeddedService.oidcIssuer())
+                        .withAudience(authEmbeddedService.oidcAudience())
+                        .build()
+                )
+                validate { cred ->
+                    JWTPrincipal(cred.payload)
+                }
+                challenge { _, _ ->
+                    call.respond(HttpStatusCode.Unauthorized, "invalid or missing token")
+                }
+            }
+        }
 
         routing {
             staticResources("/", "static") {

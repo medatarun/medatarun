@@ -19,6 +19,7 @@ interface AuthEmbeddedBootstrapSecret {
      * Marks the bootstrap secret consumed
      */
     fun markBootstrapConsumed()
+    fun load(): AuthEmbeddedBootstrapState?
 
     companion object {
         const val DEFAULT_BOOTSTRAP_SECRET_PATH_NAME = "secrets/auth/bootstrap"

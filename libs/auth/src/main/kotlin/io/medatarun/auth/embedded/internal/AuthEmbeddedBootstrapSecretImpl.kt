@@ -23,6 +23,9 @@ class AuthEmbeddedBootstrapSecretImpl(
         val consumed = Files.exists(consumedPath)
         if (Files.exists(secretPath)) {
             val secret = Files.readString(secretPath).trim()
+            if (!consumed) {
+                logOnce(secret)
+            }
             return AuthEmbeddedBootstrapState(secret, consumed)
         }
 
@@ -37,5 +40,13 @@ class AuthEmbeddedBootstrapSecretImpl(
 
     override fun markBootstrapConsumed() {
         Files.writeString(consumedPath, "consumed", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+    }
+
+    override fun load(): AuthEmbeddedBootstrapState? {
+        if (!Files.exists(secretPath)) return null
+        val secret = Files.readString(secretPath)
+        val consumed = Files.exists(consumedPath)
+        return AuthEmbeddedBootstrapState(secret, consumed)
+
     }
 }

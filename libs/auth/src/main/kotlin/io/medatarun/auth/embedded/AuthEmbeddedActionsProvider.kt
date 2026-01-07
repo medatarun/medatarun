@@ -21,7 +21,7 @@ class AuthEmbeddedActionsProvider(
         val service = actionCtx.getService<AuthEmbeddedService>()
         return when (cmd) {
             is AuthEmbeddedAction.AdminBootstrap -> {
-                service.adminBootstrap(cmd.secret, cmd.username, cmd.password)
+                service.adminBootstrap(cmd.secret, cmd.username, cmd.fullName, cmd.password)
             }
         }
     }

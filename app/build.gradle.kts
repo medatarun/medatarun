@@ -23,6 +23,8 @@ dependencies {
     implementation(project(":extensions:frictionlessdata"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
+    implementation(libs.ktorServerAuth)
+    implementation(libs.ktorServerAuthJwt)
     implementation(libs.ktorServerCore)
     implementation(libs.ktorServerNetty)
     implementation(libs.ktorServerContentNegotiation)

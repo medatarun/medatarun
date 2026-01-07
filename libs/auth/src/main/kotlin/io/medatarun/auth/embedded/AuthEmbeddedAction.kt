@@ -4,6 +4,8 @@ import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 
 sealed interface AuthEmbeddedAction {
+
+
     @ActionDoc(
         key = "admin_bootstrap",
         title = "Creates admin user",
@@ -24,11 +26,20 @@ sealed interface AuthEmbeddedAction {
         )
         val username: String,
         @ActionParamDoc(
+            name = "fullName",
+            description = "User full name (displayed name)",
+            order = 0
+        )
+        val fullName: String,
+
+        @ActionParamDoc(
             name = "password",
             description = "Admin password",
             order = 0
         )
         val password: String
+
+
 
     ): AuthEmbeddedAction
 }

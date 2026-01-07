@@ -19,6 +19,7 @@ mcpKotlin = "0.7.4"
 microprofileConfig = "3.1"
 slf4j = "2.0.17"
 smallryeConfig = "3.15.0"
+sqlite="3.45.1.0"
 
 [libraries]
 auth0JavaJwt = { module = "com.auth0:java-jwt", version.ref = "auth0JavaJwt" }
@@ -31,6 +32,8 @@ kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.r
 kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinxHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinxHtml"}
+ktorServerAuth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
+ktorServerAuthJwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
 ktorServerCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktorServerNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
@@ -46,6 +49,7 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j"}
 mcpKotlinServer = { module = "io.modelcontextprotocol:kotlin-sdk-server", version.ref = "mcpKotlin" }
 microprofileConfigApi = { module = "org.eclipse.microprofile.config:microprofile-config-api", version.ref = "microprofileConfig" }
 smallryeConfig = { module = "io.smallrye.config:smallrye-config", version.ref = "smallryeConfig" }
+sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
 
 # Libraries can be bundled together for easier import
 [bundles]

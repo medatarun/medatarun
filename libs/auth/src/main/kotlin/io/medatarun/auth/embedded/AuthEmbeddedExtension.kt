@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.embedded.AuthEmbeddedBootstrapSecret.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
 import io.medatarun.auth.embedded.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import io.medatarun.auth.embedded.internal.AuthEmbeddedServiceImpl
+import io.medatarun.auth.embedded.internal.UserStoreSQLite
 import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
@@ -19,9 +20,12 @@ class AuthEmbeddedExtension() : MedatarunExtension {
     override fun initServices(ctx: MedatarunServiceCtx) {
         val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
+        val dbConnectionFactory = DbConnectionFactoryImpl(ctx.resolveApplicationHomePath("data/users.db"))
+        val userStorage = UserStoreSQLite(dbConnectionFactory)
         val authEmbeddedService: AuthEmbeddedService = AuthEmbeddedServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
-            keyStorePath = cfgKeyStorePath
+            keyStorePath = cfgKeyStorePath,
+            userStorage = userStorage,
         )
         ctx.register(AuthEmbeddedService::class, authEmbeddedService)
     }
