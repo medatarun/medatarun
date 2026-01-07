@@ -22,6 +22,7 @@ class AppCLIRunner(
     private val args: Array<String>,
     private val defaultServerPort: Int,
     private val defaultServerHost: String,
+    private val authenticationToken: String?
 ) {
 
     companion object {
@@ -85,7 +86,7 @@ class AppCLIRunner(
         )
 
         val result = runBlocking {
-            invokeRemoteAction(request)
+            invokeRemoteAction(request, authenticationToken)
         }
 
         when (result) {
@@ -117,10 +118,11 @@ class AppCLIRunner(
         class Error(val status: Int, val body: String) : RemoteInvocationResult
     }
 
-    private suspend fun invokeRemoteAction(request: ActionRequest): RemoteInvocationResult {
+    private suspend fun invokeRemoteAction(request: ActionRequest, authenticationToken: String?): RemoteInvocationResult {
         val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {
             contentType(ContentType.Application.Json)
+            if (authenticationToken!=null) header("Authorization", "Bearer $authenticationToken")
             setBody(request.payload)
         }
         val responseBody = response.bodyAsText()

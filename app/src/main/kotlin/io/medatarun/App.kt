@@ -24,7 +24,8 @@ fun main(args: Array<String>) {
     } else {
         configureCliLogging()
         val c = createConfig(cli = true)
-        val cliRunner = AppCLIRunner(args, defaultServerHost = c.serverHost, defaultServerPort = c.serverPort)
+        val authenticationToken = c.config.getProperty("medatarun.auth.token")
+        val cliRunner = AppCLIRunner(args, defaultServerHost = c.serverHost, defaultServerPort = c.serverPort, authenticationToken=authenticationToken)
         cliRunner.handleCLI()
     }
 

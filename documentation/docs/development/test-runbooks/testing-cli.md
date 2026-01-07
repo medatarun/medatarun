@@ -106,3 +106,33 @@ Remote invocation failed with status 500
 Bad credentials.
 {"details":"Bad credentials."}
 ```
+
+## Testing authentication
+
+Make sure you don't have any environment variable with a token and try to create user
+
+```bash
+export MEDATARUN_AUTH_TOKEN=
+medatarun auth create_user --admin=false --fullName="My User" --password="some.dummy.0000" --username="my.user"
+```
+Test:
+- that `echo $?` returns `500`
+- that you have this message: `ERROR CLI - 500 - Bad credentials. {"details":"Bad credentials."}`
+
+Now log in as admin and put the token in an environment variable `MEDATARUN_AUTH_TOKEN`. Then try to create user again. 
+
+```bash
+export MEDATARUN_AUTH_TOKEN=$(curl -X POST --location "http://localhost:8080/auth/login" -H "Content-Type: application/json" -d '{ "username": "youradmin", "password": "yourpassword" }' | jq -r '.access_token')
+medatarun auth create_user --admin=false --fullName="My User" --password="some.dummy.0000" --username="my.user"
+```
+
+Test:
+- You should see : `{"status":"ok"}`
+- and `echo $?` should return `0` (process exited with success)
+
+Now you should be able to login with this user
+
+```bash
+export MEDATARUN_AUTH_TOKEN=$(curl -X POST --location "http://localhost:8080/auth/login" -H "Content-Type: application/json" -d '{ "username": "my.user", "password": "some.dummy.0000" }' | jq -r '.access_token')
+curl "http://localhost:8080/api/me" -H "Authorization: Bearer $MEDATARUN_AUTH_TOKEN" -H "Content-Type: application/json"
+```
