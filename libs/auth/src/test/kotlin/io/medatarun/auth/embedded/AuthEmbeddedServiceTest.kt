@@ -153,6 +153,15 @@ class AuthEmbeddedServiceTest {
             assertNotNull(adminToken)
         }
 
+        @Test
+        fun `can not reuse login of disabled john`() {
+            createJohn()
+            env.service.disableUser(johnUsername)
+            assertThrows<AuthEmbeddedUserAlreadyExistsException> {
+                env.service.createEmbeddedUser(johnUsername, "Another User", "test."+UUID.randomUUID(), false)
+            }
+        }
+
     }
 
 
