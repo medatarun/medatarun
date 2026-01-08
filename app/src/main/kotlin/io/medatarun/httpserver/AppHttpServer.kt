@@ -32,7 +32,6 @@ import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
-import kotlinx.html.emptyMap
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -197,17 +196,6 @@ class AppHttpServer(
             }
 
             authenticate(AUTH_MEDATARUN_JWT) {
-                get("/api/me") {
-                    // Authentication: token required, we block if no principal
-                    val p = call.principal<JWTPrincipal>()
-                    val user = toMedatarunPrincipal(call)
-                    if (p == null || user == null) {
-                        call.respond(HttpStatusCode.Unauthorized, "invalid or missing token")
-                    } else {
-                        val claims = p.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap
-                        call.respond(claims)
-                    }
-                }
                 route("/api/{actionGroupKey}/{actionKey}") {
                     // Authentication: token required but not always, the action will check that principal
                     // is present with correct roles the action require a principal, and not all actions need one
