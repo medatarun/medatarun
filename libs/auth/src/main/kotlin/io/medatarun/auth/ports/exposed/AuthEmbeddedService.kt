@@ -1,5 +1,7 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.ports.exposed
 
+import io.medatarun.auth.domain.Jwks
+import io.medatarun.auth.domain.User
 import java.security.interfaces.RSAPublicKey
 
 interface AuthEmbeddedService {

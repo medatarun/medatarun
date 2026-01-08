@@ -1,6 +1,6 @@
-package io.medatarun.auth.embedded.internal
+package io.medatarun.auth.internal
 
-import io.medatarun.auth.embedded.AuthEmbeddedBootstrapSecret
+import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption

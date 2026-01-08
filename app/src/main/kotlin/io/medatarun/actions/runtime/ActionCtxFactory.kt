@@ -4,7 +4,7 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.MedatarunPrincipal
-import io.medatarun.auth.embedded.AuthEmbeddedBadCredentialsException
+import io.medatarun.auth.domain.AuthEmbeddedBadCredentialsException
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.AppRuntime

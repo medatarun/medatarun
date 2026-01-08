@@ -2,7 +2,8 @@ package io.medatarun.auth.embedded
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.embedded.internal.AuthEmbeddedBootstrapSecretImpl
+import io.medatarun.auth.internal.AuthEmbeddedBootstrapSecretImpl
+import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals

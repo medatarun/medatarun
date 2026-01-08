@@ -1,6 +1,9 @@
-package io.medatarun.auth.embedded.internal
+package io.medatarun.auth.internal
 
-import io.medatarun.auth.embedded.*
+import io.medatarun.auth.domain.*
+import io.medatarun.auth.ports.exposed.AuthEmbeddedService
+import io.medatarun.auth.ports.exposed.JwtTokenResponse
+import io.medatarun.auth.ports.needs.UserStore
 import java.nio.file.Path
 import java.security.interfaces.RSAPublicKey
 import java.util.*

@@ -1,8 +1,8 @@
-package io.medatarun.auth.embedded.internal
+package io.medatarun.auth.internal
 
-import io.medatarun.auth.embedded.DbConnectionFactory
-import io.medatarun.auth.embedded.User
-import io.medatarun.auth.embedded.UserStore
+import io.medatarun.auth.domain.User
+import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.ports.needs.UserStore
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.util.*

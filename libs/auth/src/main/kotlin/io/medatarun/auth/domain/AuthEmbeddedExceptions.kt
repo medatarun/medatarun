@@ -1,6 +1,6 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.domain
 
-import io.medatarun.auth.embedded.internal.AuthEmbeddedPwd
+import io.medatarun.auth.internal.AuthEmbeddedPwd
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.MedatarunException
 

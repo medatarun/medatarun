@@ -1,9 +1,12 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import io.medatarun.auth.domain.AuthEmbeddedUserNotFoundException
+import io.medatarun.auth.ports.exposed.AuthEmbeddedService
+import io.medatarun.auth.ports.exposed.JwtTokenResponse
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass

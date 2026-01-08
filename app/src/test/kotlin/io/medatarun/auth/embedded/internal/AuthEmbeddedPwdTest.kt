@@ -1,7 +1,8 @@
 package io.medatarun.auth.embedded.internal
 
 
-import io.medatarun.auth.embedded.internal.AuthEmbeddedPwd.PasswordPolicyFailReason
+import io.medatarun.auth.internal.AuthEmbeddedPwd
+import io.medatarun.auth.internal.AuthEmbeddedPwd.PasswordPolicyFailReason
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*

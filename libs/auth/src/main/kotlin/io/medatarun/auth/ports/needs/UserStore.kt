@@ -1,5 +1,6 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.ports.needs
 
+import io.medatarun.auth.domain.User
 import java.time.Instant
 
 interface UserStore {

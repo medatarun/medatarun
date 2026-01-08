@@ -1,11 +1,11 @@
-package io.medatarun.auth.embedded.internal
+package io.medatarun.auth.internal
 
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.medatarun.auth.embedded.AuthEmbeddedJwtConfig
-import io.medatarun.auth.embedded.AuthEmbeddedJwtTokenIssuer
-import io.medatarun.auth.embedded.JwtKeyMaterial
+import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
+import io.medatarun.auth.domain.JwtKeyMaterial
+import io.medatarun.auth.ports.exposed.AuthEmbeddedJwtTokenIssuer
 import java.time.Instant
 import java.util.*
 

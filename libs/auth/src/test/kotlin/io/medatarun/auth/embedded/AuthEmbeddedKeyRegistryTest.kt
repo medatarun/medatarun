@@ -2,8 +2,8 @@ package io.medatarun.auth.embedded
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.embedded.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
-import io.medatarun.auth.embedded.internal.AuthEmbeddedKeyRegistryImpl
+import io.medatarun.auth.internal.AuthEmbeddedKeyRegistryImpl
+import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals

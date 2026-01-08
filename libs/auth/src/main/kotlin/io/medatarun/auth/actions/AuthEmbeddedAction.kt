@@ -1,4 +1,4 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc

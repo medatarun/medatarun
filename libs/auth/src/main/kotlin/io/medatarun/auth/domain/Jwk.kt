@@ -1,4 +1,4 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.domain
 
 import kotlinx.serialization.Serializable
 

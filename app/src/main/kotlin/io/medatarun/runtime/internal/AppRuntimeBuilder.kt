@@ -1,7 +1,7 @@
 package io.medatarun.runtime.internal
 
 import io.medatarun.actions.ActionsExtension
-import io.medatarun.auth.embedded.AuthEmbeddedExtension
+import io.medatarun.auth.AuthExtension
 import io.medatarun.data.DataExtension
 import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.db.DbExtension
@@ -36,7 +36,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
 
     val extensions = listOf(
         ActionsExtension(),
-        AuthEmbeddedExtension(),
+        AuthExtension(),
         ModelExtension(),
         ConfigExtension(),
         ModelJsonExtension(),

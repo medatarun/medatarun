@@ -1,4 +1,4 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth.ports.exposed
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

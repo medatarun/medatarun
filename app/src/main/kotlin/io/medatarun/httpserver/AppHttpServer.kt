@@ -20,7 +20,7 @@ import io.ktor.server.sse.*
 import io.medatarun.actions.ports.needs.MedatarunPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.auth.embedded.AuthEmbeddedService
+import io.medatarun.auth.ports.exposed.AuthEmbeddedService
 import io.medatarun.httpserver.cli.CliActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
