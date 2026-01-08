@@ -11,9 +11,7 @@ import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
-class AuthEmbeddedActionsProvider(
-
-) : ActionProvider<AuthEmbeddedAction> {
+class AuthEmbeddedActionsProvider : ActionProvider<AuthEmbeddedAction> {
     override val actionGroupKey: String = "auth"
     override fun findCommandClass(): KClass<AuthEmbeddedAction> {
         return AuthEmbeddedAction::class
