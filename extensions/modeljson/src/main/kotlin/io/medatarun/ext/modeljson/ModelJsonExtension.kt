@@ -10,7 +10,7 @@ class ModelJsonExtension : MedatarunExtension {
     override val id: String = "modeljson"
     override fun init(ctx: MedatarunExtensionCtx) {
 
-        val configPrettyPrint = ctx.config.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
+        val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
         val configRepoPath = ctx.resolveExtensionStoragePath(init = true)
 
         val repo = ModelJsonRepository(

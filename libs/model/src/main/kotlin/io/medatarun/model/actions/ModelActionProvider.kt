@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.actions.ports.needs.getService
 import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.*
@@ -23,7 +24,11 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
     override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any? {
         val rc = cmd as ModelAction
 
-        fun dispatch(businessCmd: ModelCmd) = actionCtx.modelCmds.dispatch(businessCmd)
+        val modelCmds = actionCtx.getService<ModelCmds>()
+        val modelQueries = actionCtx.getService<ModelQueries>()
+        val modelHumanPrinter = actionCtx.getService<ModelHumanPrinter>()
+
+        fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
 
         logger.info(rc.toString())
 
@@ -33,11 +38,11 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelAction.Import -> ModelImportAction(actionCtx, resourceLocator).process(rc)
-            is ModelAction.Inspect_Human -> ModelInspectAction(actionCtx).process()
-            is ModelAction.Inspect_Json -> ModelInspectJsonAction(actionCtx).process()
+            is ModelAction.Import -> ModelImportAction(actionCtx.extensionRegistry, modelCmds,  resourceLocator).process(rc)
+            is ModelAction.Inspect_Human -> ModelInspectAction(modelQueries, modelHumanPrinter).process()
+            is ModelAction.Inspect_Json -> ModelInspectJsonAction(modelQueries).process()
             is ModelAction.Model_Create -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.CreateModel(
                         modelKey = rc.modelKey.validated(),
                         name = LocalizedTextNotLocalized(rc.name),
@@ -47,7 +52,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             }
             is ModelAction.Model_Copy -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.CopyModel(
                         modelKey = rc.modelKey.validated(),
                         modelNewKey = rc.modelNewKey.validated()
@@ -56,7 +61,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Model_UpdateName -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateModelName(
                         modelKey = rc.modelKey.validated(),
                         name = LocalizedTextNotLocalized(rc.name),
@@ -65,7 +70,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Model_UpdateDescription -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateModelDescription(
                         modelKey = rc.modelKey.validated(),
                         description = rc.description?.let { LocalizedTextNotLocalized(it) },
@@ -74,7 +79,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Model_UpdateVersion -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateModelVersion(
                         modelKey = rc.modelKey.validated(),
                         version = ModelVersion(rc.version),
@@ -82,14 +87,14 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             }
 
-            is ModelAction.Model_AddTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Model_AddTag -> modelCmds.dispatch(
                 ModelCmd.UpdateModelHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     hashtag = rc.tag.validated()
                 )
             )
 
-            is ModelAction.Model_DeleteTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Model_DeleteTag -> modelCmds.dispatch(
                 ModelCmd.UpdateModelHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     hashtag = rc.tag.validated()
@@ -97,7 +102,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             )
 
             is ModelAction.Model_Delete -> {
-                actionCtx.modelCmds.dispatch(ModelCmd.DeleteModel(rc.modelKey.validated()))
+                modelCmds.dispatch(ModelCmd.DeleteModel(rc.modelKey.validated()))
             }
 
             // ------------------------------------------------------------------------
@@ -105,7 +110,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.Type_Create -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.CreateType(
                         modelKey = rc.modelKey.validated(),
                         initializer = ModelTypeInitializer(
@@ -118,7 +123,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Type_UpdateName -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateType(
                         modelKey = rc.modelKey.validated(),
                         typeId = rc.typeKey.validated(),
@@ -128,7 +133,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Type_UpdateDescription -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateType(
                         modelKey = rc.modelKey.validated(),
                         typeId = rc.typeKey.validated(),
@@ -138,7 +143,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Type_Delete -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.DeleteType(
                         modelKey = rc.modelKey.validated(),
                         typeId = rc.typeKey.validated(),
@@ -151,7 +156,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.Entity_Create -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.CreateEntityDef(
                         modelKey = rc.modelKey.validated(),
                         entityDefInitializer = EntityDefInitializer(
@@ -171,7 +176,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Entity_UpdateId -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
@@ -181,7 +186,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Entity_UpdateName -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
@@ -191,7 +196,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             }
 
             is ModelAction.Entity_UpdateDescription -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.UpdateEntityDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
@@ -200,7 +205,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             }
 
-            is ModelAction.Entity_AddTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Entity_AddTag -> modelCmds.dispatch(
                 ModelCmd.UpdateEntityDefHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
@@ -208,7 +213,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             )
 
-            is ModelAction.Entity_DeleteTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Entity_DeleteTag -> modelCmds.dispatch(
                 ModelCmd.UpdateEntityDefHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
@@ -217,7 +222,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             )
 
             is ModelAction.Entity_Delete -> {
-                actionCtx.modelCmds.dispatch(
+                modelCmds.dispatch(
                     ModelCmd.DeleteEntityDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated()
@@ -300,7 +305,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             }
 
-            is ModelAction.EntityAttribute_AddTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.EntityAttribute_AddTag -> modelCmds.dispatch(
                 ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
@@ -309,7 +314,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             )
 
-            is ModelAction.EntityAttribute_DeleteTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.EntityAttribute_DeleteTag -> modelCmds.dispatch(
                 ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
@@ -348,7 +353,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             )
 
-            is ModelAction.Relationship_AddTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Relationship_AddTag -> modelCmds.dispatch(
                 ModelCmd.UpdateRelationshipDefHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),
@@ -356,7 +361,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 )
             )
 
-            is ModelAction.Relationship_DeleteTag -> actionCtx.modelCmds.dispatch(
+            is ModelAction.Relationship_DeleteTag -> modelCmds.dispatch(
                 ModelCmd.UpdateRelationshipDefHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),

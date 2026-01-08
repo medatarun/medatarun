@@ -1,6 +1,8 @@
 package io.medatarun.model.domain
 
-open class MedatarunException(message: String) : Exception(message)
+import io.medatarun.lang.http.StatusCode
+
+open class MedatarunException(message: String, val httpStatusCode: StatusCode = StatusCode.INTERNAL_SERVER_ERROR) : Exception(message)
 
 class ModelNotFoundException(id: ModelKey) :
     MedatarunException("Model with id [${id.value}] was not found")

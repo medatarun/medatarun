@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
  * underlying MCP server all agree on the same state machine.
  */
 internal class McpStreamableHttpSessionManager(
-    private val mcpServerFactory: () -> Server,
+
 ) {
     // Multi-endpoint access means we need a thread-safe map shared between POST and SSE handlers.
     private val sessions = ConcurrentHashMap<String, McpStreamableHttpSession>()
@@ -17,7 +17,7 @@ internal class McpStreamableHttpSessionManager(
     /**
      * Creates a session for a new MCP Communication channel
      */
-    suspend fun createSession(): McpStreamableHttpSession {
+    suspend fun createSession(mcpServerFactory:()->Server): McpStreamableHttpSession {
         val sessionId = UUID.randomUUID().toString()
         val transport = McpStreamableHttpTransport(sessionId)
         val server = mcpServerFactory()

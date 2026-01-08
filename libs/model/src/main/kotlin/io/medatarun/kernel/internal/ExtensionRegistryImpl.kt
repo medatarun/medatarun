@@ -22,7 +22,13 @@ class ExtensionRegistryImpl(
         }
 
         extensions.forEach { extension ->
-            extension.init(MedatarunExtensionCtxImpl(extension, config, ExtensionRegistrar()))
+            extension.init(
+                MedatarunExtensionCtxImpl(
+                    extension,
+                    ExtensionRegistrar(),
+                    MedatarunExtensionCtxConfigImpl(extension, config)
+                )
+            )
         }
     }
 

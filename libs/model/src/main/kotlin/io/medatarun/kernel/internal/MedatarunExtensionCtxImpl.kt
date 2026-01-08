@@ -1,40 +1,17 @@
 package io.medatarun.kernel.internal
 
-import io.medatarun.kernel.*
-import io.medatarun.lang.trimToNull
-import java.nio.file.Path
-import kotlin.io.path.createDirectories
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
+import io.medatarun.kernel.ContributionPointId
+import io.medatarun.kernel.MedatarunExtension
+import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.kernel.MedatarunExtensionCtxConfig
 import kotlin.reflect.KClass
 
 class MedatarunExtensionCtxImpl(
     private val extension: MedatarunExtension,
-    private val _config: MedatarunConfig,
-    private val registrar: ExtensionRegistryImpl.ExtensionRegistrar
-) : MedatarunExtensionCtx {
+    private val registrar: ExtensionRegistryImpl.ExtensionRegistrar,
+    private val cfg: MedatarunExtensionCtxConfig
 
-    override val config = MedatarunExtensionCtxConfigImpl(_config)
-
-    override fun resolveProjectPath(relativePath: String?): Path {
-        return resolvePath(_config.projectDir, relativePath)
-    }
-
-    override fun resolveApplicationHomePath(relativePath: String): Path {
-        return resolvePath(_config.applicationHomeDir, relativePath)
-    }
-
-    override fun resolveExtensionStoragePath(init: Boolean): Path {
-        val path = resolvePath(_config.projectDir, extension.id)
-        if (!path.exists()) path.createDirectories()
-        if (!path.isDirectory()) throw ExtensionStoragePathNotDirectoryException(path)
-        return path
-    }
-
-    private fun resolvePath(basePath: Path, relativePath: String?): Path {
-        val trimmed = relativePath?.trimToNull() ?: return basePath
-        return basePath.resolve(trimmed).toAbsolutePath()
-    }
+) : MedatarunExtensionCtx, MedatarunExtensionCtxConfig by cfg {
 
     override fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>) {
         registrar.internalRegisterContributionPoint(extension, ContributionPoint(id, api, extension.id))
@@ -44,7 +21,4 @@ class MedatarunExtensionCtxImpl(
         registrar.internalRegisterContribution(extension.id, api, instance)
     }
 
-    override fun createResourceLocator(): ResourceLocator {
-        return _config.createResourceLocator()
-    }
 }

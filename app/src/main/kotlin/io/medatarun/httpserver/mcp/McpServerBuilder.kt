@@ -2,6 +2,7 @@ package io.medatarun.httpserver.mcp
 
 
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.MedatarunPrincipal
 import io.medatarun.actions.runtime.ActionCmdDescriptor
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
@@ -34,7 +35,7 @@ class McpServerBuilder(
         )
     )
 
-    fun buildMcpServer(): Server {
+    fun buildMcpServer(user: MedatarunPrincipal?): Server {
         val server = Server(
             serverInfo = serverInfo,
             options = serverOptions,
@@ -43,12 +44,12 @@ class McpServerBuilder(
             configAgentInstructions.process()
         }
 
-        server.addTools(buildRegisteredTools())
+        server.addTools(buildRegisteredTools(user))
         return server
     }
 
 
-    private fun buildRegisteredTools(): List<RegisteredTool> {
+    private fun buildRegisteredTools(user: MedatarunPrincipal?): List<RegisteredTool> {
         return actionRegistry.findAllGroupDescriptors().flatMap { group ->
             group.actions.map { action ->
                 val toolName = buildToolName(group.key, action.key)
@@ -64,7 +65,7 @@ class McpServerBuilder(
                 )
 
                 RegisteredTool(tool) { request ->
-                    handleToolInvocation(group.key, action.key, request)
+                    handleToolInvocation(group.key, action.key, request, user)
                 }
             }
         }
@@ -73,7 +74,8 @@ class McpServerBuilder(
     private suspend fun handleToolInvocation(
         actionGroupKey: String,
         actionKey: String,
-        request: CallToolRequest
+        request: CallToolRequest,
+        principal: MedatarunPrincipal?
     ): CallToolResult {
 
         val invocationRequest = ActionRequest(
@@ -84,7 +86,7 @@ class McpServerBuilder(
 
         return try {
             val result =
-                actionRegistry.handleInvocation(invocationRequest, actionCtxFactory.create())
+                actionRegistry.handleInvocation(invocationRequest, actionCtxFactory.create(principal))
             CallToolResult(
                 content = listOf(TextContent(formatInvocationResult(result)))
             )

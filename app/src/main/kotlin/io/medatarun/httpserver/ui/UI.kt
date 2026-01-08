@@ -1,7 +1,9 @@
 package io.medatarun.httpserver.ui
 
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.kernel.getService
 import io.medatarun.model.domain.*
+import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -9,8 +11,10 @@ import java.util.*
 
 class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
+    val modelQueries = runtime.services.getService<ModelQueries>()
+
     fun modelListJson(locale: Locale): String {
-        val data = runtime.modelQueries.findAllModelSummaries(locale)
+        val data = modelQueries.findAllModelSummaries(locale)
         return buildJsonArray {
             data.forEach { m ->
                 addJsonObject {
@@ -27,7 +31,7 @@ class UI(private val runtime: AppRuntime, private val actionRegistry: ActionRegi
     }
 
     fun modelJson(modelKey: ModelKey, locale: Locale): String {
-        val model = runtime.modelQueries.findModelById(modelKey)
+        val model = modelQueries.findModelById(modelKey)
 
         return buildJsonObject {
             put("id", model.id.value)
