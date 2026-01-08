@@ -71,7 +71,7 @@ class AppHttpServer(
 
     val bootstrap = authEmbeddedService.loadOrCreateBootstrapSecret { secret ->
         logger.warn("----------------------------------------------------------")
-        logger.warn("This message will only be displayed once")
+        logger.warn("⚠️ This message disappear once the secret is used.")
         logger.warn("")
         logger.warn("BOOTSTRAP SECRET (one-time usage): $secret")
         logger.warn("")
