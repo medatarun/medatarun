@@ -107,6 +107,18 @@ Current user must be logged in with their own token.
 medatarun auth change_my_password --old_password="john.doe.0123456789" --new_password="john.doe.9876543210"
 ```
 
+## Change user full name
+
+Changes the full name of a user.  
+The full name is used **only for display purposes**.
+
+This feature exists because name corrections and spelling mistakes are common,
+and being able to fix them matters to users.
+
+```bash
+medatarun auth change_user_fullname --username="john.doe" --fullname="John Doe"
+```
+
 ## Authentication model and scope
 
 Medatarun is designed to integrate naturally with a **full-featured OIDC identity provider**.
