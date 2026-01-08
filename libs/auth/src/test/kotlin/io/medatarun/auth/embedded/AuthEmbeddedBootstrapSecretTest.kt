@@ -36,7 +36,8 @@ class AuthEmbeddedBootstrapSecretTest {
         // Second load: same secret, no log callback
         var bootstrapSecretLog2: String? = null
         val state2 = service.loadOrCreateBootstrapSecret { secret -> bootstrapSecretLog2 = secret }
-        assertNull(bootstrapSecretLog2, "callback must not be called if secret already exists")
+        assertNotNull(bootstrapSecretLog2, "callback should be called until secret consumed")
+        assertEquals(bootstrapSecretLog2, state1.secret, "returned secret should match logged value")
         assertEquals(state1.secret, state2.secret, "secret must be stable across reloads")
         assertEquals(false, state2.consumed, "still not consumed before marking")
 
@@ -44,7 +45,9 @@ class AuthEmbeddedBootstrapSecretTest {
         service.markBootstrapConsumed()
         assertTrue(Files.exists(consumedFlagPath), "consumed flag file should exist after marking")
 
-        val state3 = service.loadOrCreateBootstrapSecret { /* should not be called */ }
+        var bootstrapSecretLog3: String? = null
+        val state3 = service.loadOrCreateBootstrapSecret { secret -> bootstrapSecretLog3 = secret }
+        assertNull(bootstrapSecretLog3, "callback should not be called after secret consumed")
         assertEquals(state2.secret, state3.secret, "secret must remain the same after consumption")
         assertEquals(true, state3.consumed, "consumed flag should be true after marking")
     }
