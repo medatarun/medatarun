@@ -134,5 +134,5 @@ Now you should be able to login with this user
 
 ```bash
 export MEDATARUN_AUTH_TOKEN=$(curl -X POST --location "http://localhost:8080/auth/login" -H "Content-Type: application/json" -d '{ "username": "my.user", "password": "some.dummy.0000" }' | jq -r '.access_token')
-curl "http://localhost:8080/api/me" -H "Authorization: Bearer $MEDATARUN_AUTH_TOKEN" -H "Content-Type: application/json"
+curl "http://localhost:8080/api/auth/whoami" -H "Authorization: Bearer $MEDATARUN_AUTH_TOKEN" -H "Content-Type: application/json"
 ```
