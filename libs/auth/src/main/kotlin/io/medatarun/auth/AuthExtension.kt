@@ -3,10 +3,11 @@ package io.medatarun.auth
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
+import io.medatarun.auth.internal.AuthEmbeddedPwd
 import io.medatarun.auth.internal.AuthEmbeddedServiceImpl
 import io.medatarun.auth.internal.UserStoreSQLite
-import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
-import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry
+import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
+import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import io.medatarun.auth.ports.exposed.AuthEmbeddedService
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.kernel.ExtensionId
@@ -23,20 +24,21 @@ class AuthExtension() : MedatarunExtension {
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
-        val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(AuthEmbeddedBootstrapSecret.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-        val cfgKeyStorePath = ctx.resolveApplicationHomePath(AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
-        val dbConnectionFactory = DbConnectionFactoryImpl(ctx.resolveApplicationHomePath("data/users.db"))
+        val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
+        val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
+        val dbConnectionFactory = DbConnectionFactoryImpl(
+            ctx.resolveApplicationHomePath("data/users.db").toAbsolutePath().toString()
+        )
         val userStorage = UserStoreSQLite(dbConnectionFactory)
-        val authClock = object: AuthClock{
-            override fun now(): Instant {
-                return Instant.now()
-            }
+        val authClock = object : AuthClock {
+            override fun now(): Instant = Instant.now()
         }
         val authEmbeddedService: AuthEmbeddedService = AuthEmbeddedServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
             keyStorePath = cfgKeyStorePath,
             userStorage = userStorage,
-            clock = authClock
+            clock = authClock,
+            passwordEncryptionIterations = AuthEmbeddedPwd.DEFAULT_ITERATIONS
         )
         ctx.register(AuthEmbeddedService::class, authEmbeddedService)
     }

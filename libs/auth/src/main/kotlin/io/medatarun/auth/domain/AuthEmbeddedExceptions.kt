@@ -19,3 +19,5 @@ class AuthEmbeddedBadCredentialsException():
         MedatarunException("Bad credentials.", StatusCode.UNAUTHORIZED)
 class AuthEmbeddedUserNotFoundException():
         MedatarunException("User not found.", StatusCode.NOT_FOUND)
+class AuthEmbeddedUserAlreadyExistsException:
+        MedatarunException("User already exists.", StatusCode.CONFLICT)

@@ -5,7 +5,9 @@ import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
-class AuthEmbeddedPwd {
+class AuthEmbeddedPwd(
+    private val passwordEncryptionIterations: Int = DEFAULT_ITERATIONS
+) {
 
     fun hashPassword(password: String): String {
         val salt = ByteArray(16)
@@ -14,7 +16,7 @@ class AuthEmbeddedPwd {
         val spec = PBEKeySpec(
             password.toCharArray(),
             salt,
-            ITERATIONS,
+            passwordEncryptionIterations,
             KEY_LENGTH
         )
 
@@ -22,7 +24,7 @@ class AuthEmbeddedPwd {
         val hash = skf.generateSecret(spec).encoded
 
         return listOf(
-            ITERATIONS.toString(),
+            passwordEncryptionIterations.toString(),
             Base64.getEncoder().encodeToString(salt),
             Base64.getEncoder().encodeToString(hash)
         ).joinToString(":")
@@ -113,7 +115,8 @@ class AuthEmbeddedPwd {
     }
 
     companion object {
-        private const val ITERATIONS = 310_000
+        const val DEFAULT_ITERATIONS = 310_000
+        const val DEFAULT_ITERATIONS_FOR_TESTS = 10_000
         private const val KEY_LENGTH = 256  // bits
      }
 }

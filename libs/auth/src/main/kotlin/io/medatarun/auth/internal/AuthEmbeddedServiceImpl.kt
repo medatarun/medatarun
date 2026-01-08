@@ -13,12 +13,13 @@ class AuthEmbeddedServiceImpl(
     private val bootstrapDirPath: Path,
     private val keyStorePath: Path,
     private val userStorage: UserStore,
-    private val clock: AuthClock
+    private val clock: AuthClock,
+    private val passwordEncryptionIterations: Int
 ) : AuthEmbeddedService {
     private val authEmbeddedKeyRegistry = AuthEmbeddedKeyRegistryImpl(keyStorePath)
     private val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
     private val bootstrapper = AuthEmbeddedBootstrapSecretImpl(bootstrapDirPath)
-    private val authEmbeddedPwd = AuthEmbeddedPwd()
+    private val authEmbeddedPwd = AuthEmbeddedPwd(passwordEncryptionIterations)
 
     private val jwtCfg = AuthEmbeddedJwtConfig(
         issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
@@ -107,6 +108,9 @@ class AuthEmbeddedServiceImpl(
             throw AuthEmbeddedCreateUserPasswordFailException(checkPasswordPolicy.reason)
         val password = authEmbeddedPwd.hashPassword(clearPassword)
 
+        val found = userStorage.findByLogin(login)
+        if (found != null) throw AuthEmbeddedUserAlreadyExistsException()
+
         userStorage.insert(id.toString(), login, fullname, password, admin, bootstrap, null)
         return User(
             id = id,
@@ -126,7 +130,8 @@ class AuthEmbeddedServiceImpl(
         val policyCheck = authEmbeddedPwd.checkPasswordPolicy(newPassword, username)
         if (policyCheck is AuthEmbeddedPwd.PasswordCheck.Fail)
             throw AuthEmbeddedCreateUserPasswordFailException(policyCheck.reason)
-        userStorage.updatePassword(username, newPassword)
+        val newPasswordHash = authEmbeddedPwd.hashPassword(newPassword)
+        userStorage.updatePassword(username, newPasswordHash)
     }
 
     override fun changeUserPassword(login: String, newPassword: String) {
@@ -134,7 +139,8 @@ class AuthEmbeddedServiceImpl(
         val policyCheck = authEmbeddedPwd.checkPasswordPolicy(newPassword, login)
         if (policyCheck is AuthEmbeddedPwd.PasswordCheck.Fail)
             throw AuthEmbeddedCreateUserPasswordFailException(policyCheck.reason)
-        userStorage.updatePassword(user.login, newPassword)
+        val newPasswordHash = authEmbeddedPwd.hashPassword(newPassword)
+        userStorage.updatePassword(user.login, newPasswordHash)
     }
 
     override fun disableUser(username: String) {
