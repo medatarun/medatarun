@@ -15,6 +15,6 @@ interface AuthEmbeddedService {
     fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit)
     fun adminBootstrap(secret: String, login: String, fullname: String, password: String): JwtTokenResponse
     fun createEmbeddedUser(login: String, fullname: String, clearPassword: String, admin: Boolean): User
-    fun changeOwnPassword(sub: String, oldPassword: String, newPassword: String)
+    fun changeOwnPassword(username: String, oldPassword: String, newPassword: String)
     fun changeUserPassword(login: String, newPassword: String)
 }
