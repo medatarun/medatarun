@@ -27,6 +27,8 @@ class AuthEmbeddedActionsProvider(
             is AuthEmbeddedAction.CreateUser -> launcher.createUser(cmd)
             is AuthEmbeddedAction.Login -> launcher.login(cmd)
             is AuthEmbeddedAction.WhoAmI -> launcher.whoami(cmd)
+            is AuthEmbeddedAction.ChangeMyPassword -> launcher.changeOwnPassword(cmd)
+            is AuthEmbeddedAction.ChangeUserPassword -> launcher.changeUserPassword(cmd)
         }
     }
 
@@ -77,6 +79,17 @@ class AuthEmbeddedActionsLauncher(
             claims = actor.claims
         )
 
+    }
+
+    fun changeOwnPassword(cmd: AuthEmbeddedAction.ChangeMyPassword) {
+        val actor = principal.ensureSignedIn()
+        if (actor.issuer != service.oidcIssuer()) throw AuthEmbeddedUserNotFoundException()
+        return service.changeOwnPassword(actor.sub, cmd.oldPassword, cmd.newPassword)
+    }
+
+    fun changeUserPassword(cmd: AuthEmbeddedAction.ChangeUserPassword) {
+        principal.ensureIsAdmin()
+        return service.changeUserPassword(cmd.username, cmd.password)
     }
 
 }

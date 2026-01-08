@@ -113,4 +113,22 @@ class AuthEmbeddedServiceImpl(
             disabledDate = null
         )
     }
+
+    override fun changeOwnPassword(login: String, oldPassword: String, newPassword: String) {
+        val user = userStorage.findByLogin(login) ?: throw AuthEmbeddedBadCredentialsException()
+        val valid = authEmbeddedPwd.verifyPassword(user.passwordHash, oldPassword)
+        if (!valid) throw AuthEmbeddedBadCredentialsException()
+        val policyCheck = authEmbeddedPwd.checkPasswordPolicy(newPassword, login)
+        if (policyCheck is AuthEmbeddedPwd.PasswordCheck.Fail)
+            throw AuthEmbeddedCreateUserPasswordFailException(policyCheck.reason)
+        userStorage.updatePassword(login, newPassword)
+    }
+
+    override fun changeUserPassword(login: String, newPassword: String) {
+        val user = userStorage.findByLogin(login) ?: throw AuthEmbeddedUserNotFoundException()
+        val policyCheck = authEmbeddedPwd.checkPasswordPolicy(newPassword, login)
+        if (policyCheck is AuthEmbeddedPwd.PasswordCheck.Fail)
+            throw AuthEmbeddedCreateUserPasswordFailException(policyCheck.reason)
+        userStorage.updatePassword(user.login, newPassword)
+    }
 }

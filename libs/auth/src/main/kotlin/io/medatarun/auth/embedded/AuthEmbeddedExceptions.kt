@@ -17,3 +17,5 @@ class AuthEmbeddedCreateUserPasswordFailException(val reason: AuthEmbeddedPwd.Pa
     MedatarunException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
 class AuthEmbeddedBadCredentialsException():
         MedatarunException("Bad credentials.", StatusCode.UNAUTHORIZED)
+class AuthEmbeddedUserNotFoundException():
+        MedatarunException("User not found.", StatusCode.NOT_FOUND)

@@ -69,12 +69,42 @@ To log out, close the terminal or unset the variable:
 unset MEDATARUN_AUTH_TOKEN
 ```
 
+## Users management (UI, CLI, APIs)
+
+Please remember that everything you do in CLI can be done with API and UI.
+
+UI provides a command panel where you can run those commands and a dynamic
+interface that builds from all available commands. UI may be easier to use
+since you don't have to fight with credentials.
+
 ## Create users
 
 To create users, be sure to be logged in as admin.
 
 ```bash
 medatarun auth create_user --username="john.doe" --fullname="John Doe" --password="john.doe.0123456789" --admin=false
+```
+
+## Change user password
+
+### Admins can change a password
+
+As logged as admin:
+
+```bash
+medatarun auth change_user_password --username="john.doe" --password="john.doe.0123456789"
+```
+
+### Feature to self-change their own password
+
+Users can change their own password. We are aware that they don't use API to do that, 
+but it provides a mechanism if you want to link another component to provide them
+this feature. Provided commands are for CLI for readability, but you can use API with the same actions.
+
+Current user must be logged in with their own token.
+
+```bash
+medatarun auth change_my_password --old_password="john.doe.0123456789" --new_password="john.doe.9876543210"
 ```
 
 ## Authentication model and scope

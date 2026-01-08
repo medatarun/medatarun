@@ -99,4 +99,46 @@ sealed interface AuthEmbeddedAction {
         uiLocation = ""
     )
     class WhoAmI(): AuthEmbeddedAction
+
+    @ActionDoc(
+        key="change_my_password",
+        title="Change own password",
+        description = "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
+        uiLocation = ""
+    )
+    class ChangeMyPassword(
+        @ActionParamDoc(
+            name = "currentPassword",
+            description = "Current Password",
+            order = 1
+        )
+        val oldPassword: String,
+        @ActionParamDoc(
+            name = "newPassword",
+            description = "New Password",
+            order = 2
+        )
+        val newPassword: String
+    ): AuthEmbeddedAction
+
+    @ActionDoc(
+        key="change_user_password",
+        title="Change user password",
+        description = "Change a user password. Only available for admins.",
+        uiLocation = ""
+    )
+    class ChangeUserPassword(
+        @ActionParamDoc(
+            name = "username",
+            description = "User name",
+            order = 1
+        )
+        val username: String,
+        @ActionParamDoc(
+            name = "password",
+            description = "New password for this user",
+            order = 2
+        )
+        val password: String
+    ): AuthEmbeddedAction
 }
