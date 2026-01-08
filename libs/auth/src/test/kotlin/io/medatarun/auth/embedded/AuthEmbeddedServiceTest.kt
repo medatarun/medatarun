@@ -1,5 +1,6 @@
 package io.medatarun.auth.embedded
 
+import com.auth0.jwt.JWT
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.domain.AuthEmbeddedBadCredentialsException
@@ -11,6 +12,7 @@ import io.medatarun.auth.internal.UserStoreSQLite
 import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
 import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry
 import io.medatarun.auth.ports.exposed.AuthEmbeddedService
+import io.medatarun.auth.ports.exposed.JwtTokenResponse
 import io.medatarun.auth.ports.needs.AuthClock
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -19,6 +21,7 @@ import java.nio.file.Files
 import java.sql.Connection
 import java.time.Instant
 import java.util.*
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class AuthEmbeddedServiceTest {
@@ -26,6 +29,7 @@ class AuthEmbeddedServiceTest {
     @Nested
     inner class AdminTests {
         val env = TestInit()
+
         @Test
         fun `admin can log in`() {
             val token = env.service.oidcLogin(env.adminUser, env.adminPassword)
@@ -53,7 +57,7 @@ class AuthEmbeddedServiceTest {
         val env = TestInit()
         val johnUsername = "john.doe"
         val johnFullname = "John Doe"
-        val johnPassword = "john.doe."+UUID.randomUUID().toString()
+        val johnPassword = "john.doe." + UUID.randomUUID().toString()
 
         fun createJohn() {
             env.service.createEmbeddedUser(johnUsername, johnFullname, johnPassword, false)
@@ -70,7 +74,7 @@ class AuthEmbeddedServiceTest {
         fun `can not create user with same login`() {
             createJohn()
             assertThrows<AuthEmbeddedUserAlreadyExistsException> {
-                env.service.createEmbeddedUser(johnUsername, "Other", "other.name."+UUID.randomUUID(), false)
+                env.service.createEmbeddedUser(johnUsername, "Other", "other.name." + UUID.randomUUID(), false)
             }
         }
 
@@ -89,6 +93,7 @@ class AuthEmbeddedServiceTest {
                 env.service.oidcLogin(johnUsername, "$johnPassword---")
             }
         }
+
         @Test
         fun `john cannot log in with admin password`() {
             createJohn()
@@ -96,6 +101,7 @@ class AuthEmbeddedServiceTest {
                 env.service.oidcLogin(johnUsername, env.adminPassword)
             }
         }
+
         @Test
         fun `john cannot fake admin with its password`() {
             createJohn()
@@ -158,8 +164,28 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.service.disableUser(johnUsername)
             assertThrows<AuthEmbeddedUserAlreadyExistsException> {
-                env.service.createEmbeddedUser(johnUsername, "Another User", "test."+UUID.randomUUID(), false)
+                env.service.createEmbeddedUser(johnUsername, "Another User", "test." + UUID.randomUUID(), false)
             }
+        }
+
+        @Test
+        fun `can change fullname`() {
+            createJohn()
+            fun extractFullname(token: JwtTokenResponse): String {
+                return JWT.decode(token.accessToken).getClaim("name").asString()
+            }
+            // Checks fullname before change
+            val tokenBefore = env.service.oidcLogin(johnUsername, johnPassword)
+            assertEquals(johnFullname, extractFullname(tokenBefore))
+            env.service.changeUserFullname(johnUsername, johnFullname + "new")
+
+            // Checks fullname after change
+            val tokenAfter = env.service.oidcLogin(johnUsername, johnPassword)
+            assertEquals(johnFullname + "new", extractFullname(tokenAfter))
+
+            // Make sure there are no side effects on other users (bad update directive or something like that)
+            val tokenAdmin = env.service.oidcLogin(env.adminUser, env.adminPassword)
+            assertEquals(env.adminFullname, extractFullname(tokenAdmin))
         }
 
     }

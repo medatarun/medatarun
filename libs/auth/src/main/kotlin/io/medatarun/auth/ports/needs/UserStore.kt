@@ -19,6 +19,7 @@ interface UserStore {
     fun updatePassword(login: String, newPassword: String)
 
     fun disable(login: String, at: Instant = Instant.now())
+    fun updateFullname(username: String, fullname: String)
 
 
 }

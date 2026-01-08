@@ -146,4 +146,9 @@ class AuthEmbeddedServiceImpl(
     override fun disableUser(username: String) {
         userStorage.disable(username, at = clock.now())
     }
+
+    override fun changeUserFullname(username: String, fullname: String) {
+        userStorage.findByLogin(username) ?: throw AuthEmbeddedUserNotFoundException()
+        userStorage.updateFullname(username, fullname)
+    }
 }

@@ -18,4 +18,5 @@ interface AuthEmbeddedService {
     fun changeOwnPassword(username: String, oldPassword: String, newPassword: String)
     fun changeUserPassword(login: String, newPassword: String)
     fun disableUser(username: String)
+    fun changeUserFullname(username: String, fullname: String)
 }

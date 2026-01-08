@@ -156,4 +156,25 @@ sealed interface AuthEmbeddedAction {
         )
         val username: String,
     ): AuthEmbeddedAction
+
+    @ActionDoc(
+        key="change_user_fullname",
+        title="Change user full name",
+        description = "Change user full name. Only available for admins.",
+        uiLocation = ""
+    )
+    class ChangeUserFullname(
+        @ActionParamDoc(
+            name = "username",
+            description = "User name",
+            order = 1
+        )
+        val username: String,
+        @ActionParamDoc(
+            name = "fullname",
+            description = "Full name (displayed name)",
+            order = 2
+        )
+        val fullname: String,
+    ): AuthEmbeddedAction
 }

@@ -91,6 +91,16 @@ class UserStoreSQLite(private val dbConnectionFactory: DbConnectionFactory) : Us
         }
     }
 
+    override fun updateFullname(username: String, fullname: String) {
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->
+                ps.setString(1, fullname)
+                ps.setString(2, username)
+                ps.executeUpdate()
+            }
+        }
+    }
+
     companion object {
         @Language("SQLite")
         private const val SCHEMA = """
