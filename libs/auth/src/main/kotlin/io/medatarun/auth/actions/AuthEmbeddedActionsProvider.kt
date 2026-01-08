@@ -32,6 +32,7 @@ class AuthEmbeddedActionsProvider(
             is AuthEmbeddedAction.WhoAmI -> launcher.whoami(cmd)
             is AuthEmbeddedAction.ChangeMyPassword -> launcher.changeOwnPassword(cmd)
             is AuthEmbeddedAction.ChangeUserPassword -> launcher.changeUserPassword(cmd)
+            is AuthEmbeddedAction.DisableUser -> launcher.disableUser(cmd)
         }
     }
 
@@ -93,6 +94,11 @@ class AuthEmbeddedActionsLauncher(
     fun changeUserPassword(cmd: AuthEmbeddedAction.ChangeUserPassword) {
         principal.ensureIsAdmin()
         return service.changeUserPassword(cmd.username, cmd.password)
+    }
+
+    fun disableUser(cmd: AuthEmbeddedAction.DisableUser) {
+        principal.ensureIsAdmin()
+        return service.disableUser(cmd.username)
     }
 
 }

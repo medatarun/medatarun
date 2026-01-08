@@ -17,4 +17,5 @@ interface AuthEmbeddedService {
     fun createEmbeddedUser(login: String, fullname: String, clearPassword: String, admin: Boolean): User
     fun changeOwnPassword(username: String, oldPassword: String, newPassword: String)
     fun changeUserPassword(login: String, newPassword: String)
+    fun disableUser(username: String)
 }

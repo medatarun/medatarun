@@ -8,10 +8,12 @@ import io.medatarun.auth.internal.UserStoreSQLite
 import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
 import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry
 import io.medatarun.auth.ports.exposed.AuthEmbeddedService
+import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.kernel.MedatarunServiceCtx
+import java.time.Instant
 
 class AuthExtension() : MedatarunExtension {
     override val id: ExtensionId = "authEmbedded"
@@ -25,10 +27,16 @@ class AuthExtension() : MedatarunExtension {
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
         val dbConnectionFactory = DbConnectionFactoryImpl(ctx.resolveApplicationHomePath("data/users.db"))
         val userStorage = UserStoreSQLite(dbConnectionFactory)
+        val authClock = object: AuthClock{
+            override fun now(): Instant {
+                return Instant.now()
+            }
+        }
         val authEmbeddedService: AuthEmbeddedService = AuthEmbeddedServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
             keyStorePath = cfgKeyStorePath,
             userStorage = userStorage,
+            clock = authClock
         )
         ctx.register(AuthEmbeddedService::class, authEmbeddedService)
     }

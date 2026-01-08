@@ -141,4 +141,19 @@ sealed interface AuthEmbeddedAction {
         )
         val password: String
     ): AuthEmbeddedAction
+
+    @ActionDoc(
+        key="disable_user",
+        title="Disable user",
+        description = "Disable a user account. Only available for admins.",
+        uiLocation = ""
+    )
+    class DisableUser(
+        @ActionParamDoc(
+            name = "username",
+            description = "User name",
+            order = 1
+        )
+        val username: String,
+    ): AuthEmbeddedAction
 }

@@ -3,6 +3,7 @@ package io.medatarun.auth.internal
 import io.medatarun.auth.domain.*
 import io.medatarun.auth.ports.exposed.AuthEmbeddedService
 import io.medatarun.auth.ports.exposed.JwtTokenResponse
+import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.UserStore
 import java.nio.file.Path
 import java.security.interfaces.RSAPublicKey
@@ -11,7 +12,8 @@ import java.util.*
 class AuthEmbeddedServiceImpl(
     private val bootstrapDirPath: Path,
     private val keyStorePath: Path,
-    private val userStorage: UserStore
+    private val userStorage: UserStore,
+    private val clock: AuthClock
 ) : AuthEmbeddedService {
     private val authEmbeddedKeyRegistry = AuthEmbeddedKeyRegistryImpl(keyStorePath)
     private val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
@@ -133,5 +135,9 @@ class AuthEmbeddedServiceImpl(
         if (policyCheck is AuthEmbeddedPwd.PasswordCheck.Fail)
             throw AuthEmbeddedCreateUserPasswordFailException(policyCheck.reason)
         userStorage.updatePassword(user.login, newPassword)
+    }
+
+    override fun disableUser(username: String) {
+        userStorage.disable(username, at = clock.now())
     }
 }
