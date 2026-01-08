@@ -32,7 +32,6 @@ import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
-import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
@@ -82,7 +81,7 @@ class AppHttpServer(
         logger.warn("")
         logger.warn("or with API")
         logger.warn("")
-        logger.warn("curl http://<host>:<port>/api/auth/bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"fullname\":\"Admin\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
+        logger.warn("curl http://<host>:<port>/api/auth/admin_bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"fullname\":\"Admin\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
         logger.warn("----------------------------------------------------------")
     }
 
@@ -289,7 +288,8 @@ class AppHttpServer(
             override val issuedAt: Instant? = principal.issuedAt?.toInstant()
             override val expiresAt: Instant? = principal.expiresAt?.toInstant()
             override val audience: List<String> = principal.audience
-            override val claims = principal.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap()
+            override val claims =
+                principal.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap()
 
         }
     }
@@ -310,5 +310,3 @@ private fun detectLocale(call: ApplicationCall): Locale {
     return firstTag?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
 }
 
-@Serializable
-data class LoginRequest(val username: String, val password: String)
