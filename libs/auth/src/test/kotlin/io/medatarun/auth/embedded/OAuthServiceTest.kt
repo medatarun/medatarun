@@ -5,26 +5,60 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
-import io.medatarun.auth.internal.AuthEmbeddedJwtTokenIssuerImpl
+import io.medatarun.auth.domain.User
 import io.medatarun.auth.internal.AuthEmbeddedKeyRegistryImpl.Companion.generateJwtKeyMaterial
+import io.medatarun.auth.internal.OAuthServiceImpl
+import io.medatarun.auth.internal.UserClaimsService
+import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
 import java.time.Instant
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class AuthEmbeddedJwtTokenIssuerTest {
-    private val jwtKeyMaterial = generateJwtKeyMaterial()
-    private val defaultConfig = AuthEmbeddedJwtConfig(
-        issuer = "urn:medatarun",
-        audience = "medatarun",
-        ttlSeconds = 3600
-    )
-    private val service = AuthEmbeddedJwtTokenIssuerImpl(
-        keys = jwtKeyMaterial,
-        cfg = defaultConfig
-    )
+class OAuthServiceTest {
 
+    class TestEnv(
+        val jwtConfig: AuthEmbeddedJwtConfig = AuthEmbeddedJwtConfig(
+            issuer = "urn:medatarun",
+            audience = "medatarun",
+            ttlSeconds = 3600
+        )
+    ) {
+
+        val jwtKeyMaterial = generateJwtKeyMaterial()
+        private val userService: AuthEmbeddedUserService = object : AuthEmbeddedUserService {
+            override fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit) = TODO("Not yet implemented")
+            override fun adminBootstrap(secret: String, login: String, fullname: String, password: String): User =
+                TODO("Not yet implemented")
+
+            override fun createEmbeddedUser(
+                login: String,
+                fullname: String,
+                clearPassword: String,
+                admin: Boolean
+            ): User = TODO("Not yet implemented")
+
+            override fun changeOwnPassword(username: String, oldPassword: String, newPassword: String) =
+                TODO("Not yet implemented")
+
+            override fun changeUserPassword(login: String, newPassword: String) = TODO("Not yet implemented")
+            override fun disableUser(username: String) = TODO("Not yet implemented")
+            override fun changeUserFullname(username: String, fullname: String) = TODO("Not yet implemented")
+            override fun loginUser(username: String, password: String): User = TODO("Not yet implemented")
+        }
+
+        val service = OAuthServiceImpl(
+            userService = userService,
+            jwtConfig = jwtConfig,
+            keys = jwtKeyMaterial,
+            userClaimsService = UserClaimsService(),
+        )
+    }
+
+
+    val env = TestEnv()
+    val service = env.service
 
     @Test
     fun `should issue token with default configuration and various claims`() {
@@ -37,7 +71,7 @@ class AuthEmbeddedJwtTokenIssuerTest {
             "ratio" to 0.75
         )
 
-        val token = service.issueToken(sub, claims)
+        val token = service.issueAccessToken(sub, claims)
         verifyToken(token, sub, expectedClaims = claims)
     }
 
@@ -48,11 +82,12 @@ class AuthEmbeddedJwtTokenIssuerTest {
             audience = "custom-audience",
             ttlSeconds = 60
         )
-        val customService = AuthEmbeddedJwtTokenIssuerImpl(jwtKeyMaterial, customConfig)
+        val customEnv = TestEnv(customConfig)
+        val customService = customEnv.service
         val sub = "custom-sub"
 
-        val token = customService.issueToken(sub, emptyMap())
-        val decoded = verifyToken(token, sub, expectedIssuer = "custom-issuer", expectedAudience = "custom-audience")
+        val token = customService.issueAccessToken(sub, emptyMap())
+        val decoded = verifyToken(token, sub, expectedIssuer = "custom-issuer", expectedAudience = "custom-audience", keyMaterial = customEnv.jwtKeyMaterial)
 
         val now = Instant.now()
         assertTrue(decoded.expiresAt.after(Date.from(now)), "Token should not be expired")
@@ -61,9 +96,9 @@ class AuthEmbeddedJwtTokenIssuerTest {
 
     @Test
     fun `should include kid in header`() {
-        val token = service.issueToken("sub", emptyMap())
+        val token = service.issueAccessToken("sub", emptyMap())
         val decoded = JWT.decode(token)
-        assertEquals(jwtKeyMaterial.kid, decoded.keyId)
+        assertEquals(env.jwtKeyMaterial.kid, decoded.keyId)
     }
 
     @Test
@@ -74,7 +109,7 @@ class AuthEmbeddedJwtTokenIssuerTest {
             "missing" to null
         )
 
-        val token = service.issueToken(sub, claims)
+        val token = service.issueAccessToken(sub, claims)
         val decoded = verifyToken(token, sub)
         assertEquals("value", decoded.getClaim("present").asString())
         assertTrue(decoded.getClaim("missing").isMissing || decoded.getClaim("missing").isNull)
@@ -84,10 +119,10 @@ class AuthEmbeddedJwtTokenIssuerTest {
     private fun verifyToken(
         token: String,
         expectedSub: String,
-        expectedIssuer: String = defaultConfig.issuer,
-        expectedAudience: String = defaultConfig.audience,
+        expectedIssuer: String = env.jwtConfig.issuer,
+        expectedAudience: String = env.jwtConfig.audience,
         expectedClaims: Map<String, Any?> = emptyMap(),
-        keyMaterial: JwtKeyMaterial = jwtKeyMaterial
+        keyMaterial: JwtKeyMaterial = env.jwtKeyMaterial
     ): DecodedJWT {
         val algorithm = Algorithm.RSA256(keyMaterial.publicKey, keyMaterial.privateKey)
         val verifier = JWT.require(algorithm)

@@ -16,6 +16,8 @@ interface AuthEmbeddedKeyRegistry {
 
     fun loadOrCreateKeys(): JwtKeyMaterial
 
+
+
     companion object {
         /**
          * Default location for keys relative to MEDATARUN_HOME

@@ -20,12 +20,21 @@ import io.ktor.server.sse.*
 import io.medatarun.actions.ports.needs.MedatarunPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.auth.ports.exposed.AuthEmbeddedService
+import io.medatarun.auth.domain.OIDCAuthorizeRequest
+import io.medatarun.auth.domain.OIDCTokenRequest
+import io.medatarun.auth.internal.AuthorizeResult
+import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
+import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.httpserver.cli.CliActionRegistry
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
+import io.medatarun.httpserver.ui.OIDCAuthorizePage
+import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_AUTH_CTX
+import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_PASSWORD
+import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_USERNAME
 import io.medatarun.httpserver.ui.UI
 import io.medatarun.kernel.getService
 import io.medatarun.model.domain.ModelKey
@@ -33,6 +42,7 @@ import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
+import java.net.URI
 import java.time.Instant
 import java.util.*
 
@@ -49,12 +59,14 @@ import java.util.*
  */
 class AppHttpServer(
     private val runtime: AppRuntime,
+    private val baseUri: URI,
 
     private val enableMcpSse: Boolean = false,
     private val enableMcpStreamingHttp: Boolean = true,
     private val enableHealth: Boolean = true,
-    private val enableApi: Boolean = true
-) {
+    private val enableApi: Boolean = true,
+
+    ) {
     private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry, runtime.services)
@@ -67,9 +79,10 @@ class AppHttpServer(
     private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
 
 
-    val authEmbeddedService = runtime.services.getService<AuthEmbeddedService>()
+    val userService = runtime.services.getService<AuthEmbeddedUserService>()
+    val oidcService = runtime.services.getService<AuthEmbeddedOIDCService>()
 
-    val bootstrap = authEmbeddedService.loadOrCreateBootstrapSecret { secret ->
+    val bootstrap = userService.loadOrCreateBootstrapSecret { secret ->
         logger.warn("----------------------------------------------------------")
         logger.warn("⚠️ This message disappear once the secret is used.")
         logger.warn("")
@@ -159,9 +172,9 @@ class AppHttpServer(
                     call.request.headers[HttpHeaders.Authorization] == null
                 }
                 verifier(
-                    JWT.require(Algorithm.RSA256(authEmbeddedService.oidcPublicKey(), null))
-                        .withIssuer(authEmbeddedService.oidcIssuer())
-                        .withAudience(authEmbeddedService.oidcAudience())
+                    JWT.require(Algorithm.RSA256(oidcService.oidcPublicKey(), null))
+                        .withIssuer(oidcService.oidcIssuer())
+                        .withAudience(oidcService.oidcAudience())
                         .build()
                 )
                 validate { cred ->
@@ -184,10 +197,121 @@ class AppHttpServer(
                 call.respond(mapOf("status" to "ok"))
             }
 
+            // ----------------------------------------------------------------
+            // OpenIdConnect
+            // ----------------------------------------------------------------
+
             // Authentication: all public -> Jwks must be public for discovert
-            get(authEmbeddedService.oidcJwksUri()) {
-                call.respond(authEmbeddedService.oidcJwks())
+            get(oidcService.oidcJwksUri()) {
+                call.respond(oidcService.oidcJwks())
             }
+
+            get(oidcService.oidcWellKnownOpenIdConfigurationUri()) {
+                call.respond(oidcService.oidcWellKnownOpenIdConfiguration(baseUri))
+            }
+
+            route(oidcService.oidcAuthorizeUri()) {
+                suspend fun process(call: ApplicationCall) {
+                    // Displays webpage where user should authenticate himself (login/password)
+                    val req = OIDCAuthorizeRequest(
+                        responseType = call.parameters["response_type"],
+                        clientId = call.parameters["client_id"],
+                        redirectUri = call.parameters["redirect_uri"],
+                        scope = call.parameters["scope"],
+                        state = call.parameters["state"],
+                        codeChallenge = call.parameters["code_challenge"],
+                        codeChallengeMethod = call.parameters["code_challenge_method"],
+                        nonce = call.parameters["nonce"]
+                    )
+
+                    val resp = oidcService.oidcAuthorize(req)
+                    when (resp) {
+                        is AuthorizeResult.FatalError -> {
+                            call.respond(HttpStatusCode.BadRequest, resp.reason)
+                        }
+
+                        is AuthorizeResult.RedirectError -> {
+                            call.respondRedirect(oidcService.oidcAuthorizeErrorLocation(resp), false)
+                        }
+
+                        is AuthorizeResult.Valid -> {
+                            call.respondRedirect("/ui/login?${PARAM_AUTH_CTX}=" + resp.authCtxCode, false)
+                        }
+                    }
+                }
+                get { process(call) }
+                post { process(call) }
+            }
+
+            route("/ui/auth/login") {
+                suspend fun handle(call: RoutingCall) {
+                    val authCtxCode = call.parameters[PARAM_AUTH_CTX]
+                    val username = call.parameters[PARAM_USERNAME]
+                    val password = call.parameters[PARAM_PASSWORD]
+
+
+                    val result = OIDCAuthorizePage(oidcService, userService).process(
+                        authCtxCode = authCtxCode,
+                        username = username,
+                        password = password
+                    )
+                    when (result) {
+                        is OIDCAuthorizePage.OIDCAuthorizePageResult.Fatal -> call.respondText(
+                            status = HttpStatusCode.BadRequest,
+                            contentType = ContentType.Text.Plain
+                        ) { result.message }
+
+                        is OIDCAuthorizePage.OIDCAuthorizePageResult.HtmlPage -> call.respondText(
+                            status = HttpStatusCode.OK,
+                            contentType = ContentType.Text.Html
+                        ) { result.body }
+
+                        is OIDCAuthorizePage.OIDCAuthorizePageResult.Redirect -> call.respondRedirect(
+                            url = result.location,
+                            permanent = false
+                        )
+                    }
+                }
+                get { handle(call) }
+                post { handle(call) }
+            }
+
+            get(oidcService.oidcTokenUri()) {
+                // - échange authorization_code → id_token + access_token
+                // - vérification PKCE
+                // - émission d’un ID Token conforme OIDC
+                // - signature RS256 avec ta clé persistante
+                // - support refresh_token si annoncé
+
+
+                fun process(): OIDCTokenResponseOrError {
+                    val request = OIDCTokenRequest(
+                        grantType = call.queryParameters["grant_type"]
+                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
+                        code = call.request.queryParameters["code"]
+                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
+                        redirectUri = call.request.queryParameters["redirect_uri"]
+                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
+                        clientId = call.request.queryParameters["client_id"]
+                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
+                        codeVerifier = call.request.queryParameters["code_verifier"]
+                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
+                    )
+                    return oidcService.oidcToken(request)
+                }
+
+                val tokenResponse = process()
+                when (tokenResponse) {
+                    is OIDCTokenResponseOrError.Success -> call.respond(tokenResponse.token)
+                    is OIDCTokenResponseOrError.Error -> call.respond(tokenResponse)
+                }
+
+
+            }
+
+            // ----------------------------------------------------------------
+            // API
+            // ----------------------------------------------------------------
 
             get("/api") {
                 // Authentication: all public -> everybody needs to know API description
@@ -203,10 +327,20 @@ class AppHttpServer(
                     post { restCommandInvocation.processInvocation(call, toMedatarunPrincipal(call)) }
                 }
             }
+
+            // ----------------------------------------------------------------
+            // CLI special APIs
+            // ----------------------------------------------------------------
+
             get("/cli/api/action-registry") {
                 // Authentication: actino registry for CLI is public (otherwise no help on CLI)
                 call.respond(CliActionRegistry(actionRegistry).actionRegistryDto())
             }
+
+            // ----------------------------------------------------------------
+            // UI special APIs
+            // ----------------------------------------------------------------
+
             get("/ui/api/action-registry") {
                 // Authentication: action registry for UI is public (otherwise no help on UI)
                 call.respond(UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)))

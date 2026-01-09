@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.infra
 
 import io.medatarun.auth.domain.User
 import io.medatarun.auth.ports.needs.DbConnectionFactory

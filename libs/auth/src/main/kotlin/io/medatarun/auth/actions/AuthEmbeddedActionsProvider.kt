@@ -5,8 +5,10 @@ import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.AuthEmbeddedUserNotFoundException
-import io.medatarun.auth.ports.exposed.AuthEmbeddedService
-import io.medatarun.auth.ports.exposed.JwtTokenResponse
+import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
+import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.ports.exposed.OAuthService
+import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
@@ -21,8 +23,10 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthEmbeddedAction> {
         cmd: AuthEmbeddedAction,
         actionCtx: ActionCtx
     ): Any? {
-        val service = actionCtx.getService<AuthEmbeddedService>()
-        val launcher = AuthEmbeddedActionsLauncher(service, actionCtx.principal)
+        val userService = actionCtx.getService<AuthEmbeddedUserService>()
+        val oidcService = actionCtx.getService<AuthEmbeddedOIDCService>()
+        val oauthService = actionCtx.getService<OAuthService>()
+        val launcher = AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actionCtx.principal)
         return when (cmd) {
             is AuthEmbeddedAction.AdminBootstrap -> launcher.adminBootstrap(cmd)
             is AuthEmbeddedAction.CreateUser -> launcher.createUser(cmd)
@@ -43,20 +47,26 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthEmbeddedAction> {
 
 
 class AuthEmbeddedActionsLauncher(
-    private val service: AuthEmbeddedService,
-    private val principal: ActionPrincipalCtx
-) {
-    fun adminBootstrap(cmd: AuthEmbeddedAction.AdminBootstrap) {
-        service.adminBootstrap(cmd.secret, cmd.username, cmd.fullname, cmd.password)
+    private val userService: AuthEmbeddedUserService,
+    private val oidcService: AuthEmbeddedOIDCService,
+    private val oauthService: OAuthService,
+    private val principal: ActionPrincipalCtx,
+
+    ) {
+    fun adminBootstrap(cmd: AuthEmbeddedAction.AdminBootstrap): OAuthTokenResponse {
+        val user = userService.adminBootstrap(cmd.secret, cmd.username, cmd.fullname, cmd.password)
+        return oauthService.createOAuthAccessTokenForUser(user)
     }
 
     fun createUser(cmd: AuthEmbeddedAction.CreateUser) {
         principal.ensureIsAdmin()
-        service.createEmbeddedUser(cmd.username, cmd.fullname, cmd.password, cmd.admin)
+        userService.createEmbeddedUser(cmd.username, cmd.fullname, cmd.password, cmd.admin)
+
     }
 
-    fun login(cmd: AuthEmbeddedAction.Login): JwtTokenResponse {
-        return service.oidcLogin(cmd.username, cmd.password)
+    fun login(cmd: AuthEmbeddedAction.Login): OAuthTokenResponse {
+        val user = userService.loginUser(cmd.username, cmd.password)
+        return oauthService.createOAuthAccessTokenForUser(user)
     }
 
     @Serializable
@@ -86,23 +96,23 @@ class AuthEmbeddedActionsLauncher(
 
     fun changeOwnPassword(cmd: AuthEmbeddedAction.ChangeMyPassword) {
         val actor = principal.ensureSignedIn()
-        if (actor.issuer != service.oidcIssuer()) throw AuthEmbeddedUserNotFoundException()
-        return service.changeOwnPassword(actor.sub, cmd.oldPassword, cmd.newPassword)
+        if (actor.issuer != oidcService.oidcIssuer()) throw AuthEmbeddedUserNotFoundException()
+        return userService.changeOwnPassword(actor.sub, cmd.oldPassword, cmd.newPassword)
     }
 
     fun changeUserPassword(cmd: AuthEmbeddedAction.ChangeUserPassword) {
         principal.ensureIsAdmin()
-        return service.changeUserPassword(cmd.username, cmd.password)
+        return userService.changeUserPassword(cmd.username, cmd.password)
     }
 
     fun disableUser(cmd: AuthEmbeddedAction.DisableUser) {
         principal.ensureIsAdmin()
-        return service.disableUser(cmd.username)
+        return userService.disableUser(cmd.username)
     }
 
     fun changeFullname(cmd: AuthEmbeddedAction.ChangeUserFullname) {
         principal.ensureIsAdmin()
-        return service.changeUserFullname(cmd.username, cmd.fullname)
+        return userService.changeUserFullname(cmd.username, cmd.fullname)
     }
 
 }

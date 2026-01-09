@@ -1,64 +1,33 @@
 package io.medatarun.auth.internal
 
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.ports.exposed.AuthEmbeddedService
-import io.medatarun.auth.ports.exposed.JwtTokenResponse
+import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.UserStore
 import java.nio.file.Path
-import java.security.interfaces.RSAPublicKey
 import java.util.*
 
-class AuthEmbeddedServiceImpl(
+class AuthEmbeddedUserServiceImpl(
     private val bootstrapDirPath: Path,
-    private val keyStorePath: Path,
     private val userStorage: UserStore,
     private val clock: AuthClock,
     private val passwordEncryptionIterations: Int
-) : AuthEmbeddedService {
-    private val authEmbeddedKeyRegistry = AuthEmbeddedKeyRegistryImpl(keyStorePath)
-    private val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
+) : AuthEmbeddedUserService {
+
     private val bootstrapper = AuthEmbeddedBootstrapSecretImpl(bootstrapDirPath)
     private val authEmbeddedPwd = AuthEmbeddedPwd(passwordEncryptionIterations)
-
-    private val jwtCfg = AuthEmbeddedJwtConfig(
-        issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
-        audience = "medatarun",
-        ttlSeconds = 3600
-    )
-    private val tokenIssuer = AuthEmbeddedJwtTokenIssuerImpl(authEmbeddedKeys, jwtCfg)
-
-    override fun oidcPublicKey(): RSAPublicKey {
-        return authEmbeddedKeys.publicKey
-    }
-
-    override fun oidcIssuer(): String {
-        return jwtCfg.issuer
-    }
-
-    override fun oidcAudience(): String {
-        return jwtCfg.audience
-    }
-
-    override fun oidcJwksUri(): String {
-        return "/jwks.json"
-    }
-
-    override fun oidcJwks(): Jwks {
-        return JwksAdapter.toJwks(authEmbeddedKeys.publicKey, authEmbeddedKeys.kid)
-    }
 
     override fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit) {
         bootstrapper.loadOrCreateBootstrapSecret(runOnce)
     }
 
-    override fun adminBootstrap(secret: String, login: String, fullname: String, password: String): JwtTokenResponse {
+    override fun adminBootstrap(secret: String, login: String, fullname: String, password: String): User {
         val bootstrapState = bootstrapper.load() ?: throw AuthEmbeddedServiceBootstrapNotReadyException()
         if (bootstrapState.consumed) throw AuthEmbeddedBootstrapAlreadyConsumedException()
         if (bootstrapState.secret != secret) throw AuthEmbeddedBootstrapBadSecretException()
 
         val user = createEmbeddedUserInternal(
-            id=UUID.randomUUID(),
+            id = UUID.randomUUID(),
             login = login,
             fullname = fullname,
             clearPassword = password,
@@ -67,32 +36,11 @@ class AuthEmbeddedServiceImpl(
         )
 
         bootstrapper.markBootstrapConsumed()
-        return createTokenForUser(user)
+        return user
     }
 
     override fun createEmbeddedUser(login: String, fullname: String, clearPassword: String, admin: Boolean): User {
         return createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
-    }
-
-    override fun oidcLogin(login: String, password: String): JwtTokenResponse {
-        val user = userStorage.findByLogin(login) ?: throw AuthEmbeddedBadCredentialsException()
-        if (user.disabledDate != null) throw AuthEmbeddedBadCredentialsException()
-        val valid = authEmbeddedPwd.verifyPassword(user.passwordHash, password)
-        if (!valid) throw AuthEmbeddedBadCredentialsException()
-        return createTokenForUser(user)
-    }
-
-    fun createTokenForUser(user: User): JwtTokenResponse {
-        val token = tokenIssuer.issueToken(
-            sub = user.login,
-            claims = mapOf(
-                "name" to user.fullname,
-                "role" to (if (user.admin) "admin" else ""),
-                "bootstrap" to true,
-                "mid" to user.id.toString()
-            )
-        )
-        return JwtTokenResponse(token, "Bearer", jwtCfg.ttlSeconds)
     }
 
     fun createEmbeddedUserInternal(
@@ -150,5 +98,13 @@ class AuthEmbeddedServiceImpl(
     override fun changeUserFullname(username: String, fullname: String) {
         userStorage.findByLogin(username) ?: throw AuthEmbeddedUserNotFoundException()
         userStorage.updateFullname(username, fullname)
+    }
+
+    override fun loginUser(username: String, password: String): User {
+        val user = userStorage.findByLogin(username) ?: throw AuthEmbeddedBadCredentialsException()
+        if (user.disabledDate != null) throw AuthEmbeddedBadCredentialsException()
+        val valid = authEmbeddedPwd.verifyPassword(user.passwordHash, password)
+        if (!valid) throw AuthEmbeddedBadCredentialsException()
+        return user
     }
 }

@@ -7,6 +7,7 @@ import io.medatarun.httpserver.AppHttpServer
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.runtime.internal.AppRuntimeConfig
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory
+import java.net.URI
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -16,7 +17,8 @@ fun main(args: Array<String>) {
     if (isServerMode) {
         val c = createConfig(cli = false)
         val runtime = AppRuntimeBuilder(c.config).build()
-        AppHttpServer(runtime).start(
+        val baseUri = URI("http://" + c.serverHost + ":" + c.serverPort)
+        AppHttpServer(runtime, baseUri).start(
             host = c.serverHost,
             port = c.serverPort,
             wait = true

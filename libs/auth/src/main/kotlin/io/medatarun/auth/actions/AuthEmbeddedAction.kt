@@ -73,7 +73,7 @@ sealed interface AuthEmbeddedAction {
     @ActionDoc(
         key = "login",
         title = "Login user",
-        description = "Generates a JWT Token that users can reuse to authenticate themselves",
+        description = "Generates a JWT Access Token for API calls that users can reuse to authenticate themselves in API or CLI calls (OAuth format, not OIDC)",
         uiLocation = ""
     )
     class Login(
