@@ -41,11 +41,11 @@ class AuthEmbeddedOIDCServiceImpl(
     }
 
     override fun oidcJwksUri(): String {
-        return "/jwks.json"
+        return "/oidc/jwks.json"
     }
 
     override fun oidcWellKnownOpenIdConfigurationUri(): String {
-        return "/.well-known/openid-configuration"
+        return "/oidc/.well-known/openid-configuration"
     }
 
     override fun oidcWellKnownOpenIdConfiguration(baseUri: URI): JsonObject {
@@ -55,7 +55,7 @@ class AuthEmbeddedOIDCServiceImpl(
             put("token_endpoint", baseUri.resolve("/oidc/token").toURL().toExternalForm())
             put("userinfo_endpoint", baseUri.resolve("/oidc/userinfo").toURL().toExternalForm())
 
-            put("jwks_uri", baseUri.resolve("/jwks.json").toURL().toExternalForm())
+            put("jwks_uri", baseUri.resolve("/oidc/jwks.json").toURL().toExternalForm())
 
             // Current OIDC recommendation is to only support "code" flow,
             // not "token" flow anymore (token flow, is when you send the JDBC token in URLs)

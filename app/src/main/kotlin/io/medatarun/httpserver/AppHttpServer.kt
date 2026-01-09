@@ -8,12 +8,9 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
-import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -32,20 +29,17 @@ import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
-import io.medatarun.httpserver.ui.OIDCAuthorizePage
+import io.medatarun.httpserver.ui.*
 import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_AUTH_CTX
 import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_PASSWORD
 import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_USERNAME
-import io.medatarun.httpserver.ui.UI
 import io.medatarun.kernel.getService
-import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.time.Instant
-import java.util.*
 
 /**
  * Main application Http server built with Ktor that serves:
@@ -79,6 +73,7 @@ class AppHttpServer(
     private val restApiDoc = RestApiDoc(actionRegistry)
     private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
 
+    private val uiIndexTemplate = UIIndexTemplate()
 
     val userService = runtime.services.getService<AuthEmbeddedUserService>()
     val oidcService = runtime.services.getService<AuthEmbeddedOIDCService>()
@@ -139,36 +134,8 @@ class AppHttpServer(
         install(ContentNegotiation) { json() }
         install(SSE)
         installCors()
+        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"))
 
-        install(StatusPages) {
-            status(HttpStatusCode.NotFound) { call, status ->
-                val path = call.request.path()
-
-                // Be careful to not replace 404 coming from API, MCP, SSE or files
-                if (
-                    path.startsWith("/api") ||
-                    path.startsWith("/mcp") ||
-                    path.startsWith("/sse") ||
-                    path.startsWith("/ui") ||
-                    path.startsWith("/assets") ||
-                    path.startsWith("/oidc") ||
-                    path.contains('.')
-                ) {
-                    call.respond(status)
-                    return@status
-                }
-
-                // Fallback React Router : servir index.html
-                val index = javaClass.classLoader.getResource("static/index.html")
-                if (index != null)
-                    call.respondBytes(index.readBytes(), ContentType.Text.Html)
-                else
-                    call.respond(status)
-            }
-            exception<Throwable> { call, cause ->
-                call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
-            }
-        }
         install(Authentication) {
             jwt(AUTH_MEDATARUN_JWT) {
                 skipWhen { call ->
@@ -190,10 +157,11 @@ class AppHttpServer(
         }
 
         routing {
-            // Authentication: all public
-            staticResources("/", "static") {
-                default("index.html")
-            }
+
+            installUIStaticResources()
+            installUIHomepage(uiIndexTemplate)
+            installUIApis(runtime, actionRegistry)
+
 
             // Authentication: all public -> otherwise UI can not load
             get("/health") {
@@ -355,39 +323,6 @@ class AppHttpServer(
             }
 
             // ----------------------------------------------------------------
-            // UI special APIs
-            // ----------------------------------------------------------------
-
-            get("/ui/api/action-registry") {
-                // Authentication: action registry for UI is public (otherwise no help on UI)
-                call.respond(UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)))
-            }
-
-            authenticate(AUTH_MEDATARUN_JWT) {
-                // Authentication: required
-                get("/ui/api/models") {
-
-                    call.respondText(
-                        UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
-                        ContentType.Application.Json
-                    )
-
-                }
-            }
-
-            authenticate(AUTH_MEDATARUN_JWT) {
-                get("/ui/api/models/{modelId}") {
-
-                    val modelId = call.parameters["modelId"] ?: throw NotFoundException()
-                    call.respondText(
-                        UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
-                        ContentType.Application.Json
-                    )
-
-                }
-            }
-
-            // ----------------------------------------------------------------
             // MCP server
             // ----------------------------------------------------------------
 
@@ -450,16 +385,6 @@ class AppHttpServer(
     }
 }
 
-
-private fun detectLocale(call: ApplicationCall): Locale {
-    val header = call.request.headers["Accept-Language"]
-    val firstTag = header
-        ?.split(",")
-        ?.map { it.substringBefore(";").trim() }
-        ?.firstOrNull { it.isNotEmpty() }
-
-    return firstTag?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
-}
 
 fun Application.installCors() {
     install(CORS) {

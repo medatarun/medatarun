@@ -140,7 +140,7 @@ declare module '@tanstack/react-router' {
 const baseURL = getOrDefault(import.meta.env.VITE_BASE_URL, window.location.origin);
 
 const authenticationConfig = createAuthenticationConfig({
-  authority: getOrDefault(import.meta.env.VITE_OIDC_AUTHORITY, "http://localhost:8080"),
+  authority: getOrDefault(import.meta.env.VITE_OIDC_AUTHORITY, "http://localhost:8080/oidc"),
   client_id: getOrDefault(import.meta.env.VITE_OIDC_CLIENT_ID, "medatarun-ui"),
   redirect_uri: baseURL + AuthenticationPaths.callback,
 });
