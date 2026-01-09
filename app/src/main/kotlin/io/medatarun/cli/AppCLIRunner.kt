@@ -16,12 +16,12 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.URI
 import kotlin.system.exitProcess
 
 class AppCLIRunner(
     private val args: Array<String>,
-    private val defaultServerPort: Int,
-    private val defaultServerHost: String,
+    private val publicBaseUrl: URI,
     private val authenticationToken: String?
 ) {
 
@@ -119,7 +119,7 @@ class AppCLIRunner(
     }
 
     private suspend fun invokeRemoteAction(request: ActionRequest, authenticationToken: String?): RemoteInvocationResult {
-        val url = "http://${defaultServerHost}:${defaultServerPort}/api/${request.actionGroupKey}/${request.actionKey}"
+        val url = "$publicBaseUrl/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {
             contentType(ContentType.Application.Json)
             if (authenticationToken!=null) header("Authorization", "Bearer $authenticationToken")
@@ -144,7 +144,7 @@ class AppCLIRunner(
     }
 
     private suspend fun fetchActionRegistry(): List<CliActionGroupDto> {
-        val url = "http://${defaultServerHost}:${defaultServerPort}/cli/api/action-registry"
+        val url = "$publicBaseUrl/cli/api/action-registry"
         val response = httpClient.get(url)
         if (!response.status.isSuccess()) {
             val responseBody = response.bodyAsText()
