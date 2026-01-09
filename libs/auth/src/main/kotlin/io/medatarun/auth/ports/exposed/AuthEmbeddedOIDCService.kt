@@ -19,7 +19,7 @@ interface AuthEmbeddedOIDCService {
 
 
     fun oidcWellKnownOpenIdConfigurationUri(): String
-    fun oidcWellKnownOpenIdConfiguration(baseUri: URI): JsonObject
+    fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject
 
 
     /**

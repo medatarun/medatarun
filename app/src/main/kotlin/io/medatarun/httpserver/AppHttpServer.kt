@@ -39,15 +39,9 @@ import java.net.URI
  */
 class AppHttpServer(
     private val runtime: AppRuntime,
-    private val baseUri: URI,
+    private val publicBaseUrl: URI,
+) {
 
-    private val enableMcpSse: Boolean = false,
-    private val enableMcpStreamingHttp: Boolean = true,
-    private val enableHealth: Boolean = true,
-    private val enableApi: Boolean = true,
-
-    ) {
-    private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry, runtime.services)
     private val mcpServerBuilder = McpServerBuilder(
@@ -63,21 +57,6 @@ class AppHttpServer(
     val userService = runtime.services.getService<AuthEmbeddedUserService>()
     val oidcService = runtime.services.getService<AuthEmbeddedOIDCService>()
 
-    val bootstrap = userService.loadOrCreateBootstrapSecret { secret ->
-        logger.warn("----------------------------------------------------------")
-        logger.warn("⚠️ This message disappear once the secret is used.")
-        logger.warn("")
-        logger.warn("BOOTSTRAP SECRET (one-time usage): $secret")
-        logger.warn("")
-        logger.warn("Use it to create your admin account with CLI")
-        logger.warn("")
-        logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --bootstrap=$secret")
-        logger.warn("")
-        logger.warn("or with API")
-        logger.warn("")
-        logger.warn("curl http://<host>:<port>/api/auth/admin_bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"fullname\":\"Admin\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
-        logger.warn("----------------------------------------------------------")
-    }
 
     @Volatile
     private var engine: EmbeddedServer<*, *>? = null
@@ -92,10 +71,14 @@ class AppHttpServer(
     ) {
         synchronized(this) {
             check(engine == null) { "RestApi server already running" }
-            engine = embeddedServer(Netty, host = host, port = port, module = { configure() }).also {
-                logger.info("Starting REST API on http://$host:$port")
-                it.start(wait = wait)
-            }
+            engine = embeddedServer(Netty, host = host, port = port, module = { configure() })
+                .also {
+                    @Suppress("HttpUrlsUsage")
+                    logger.info("Starting REST API on http://$host:$port with publicBaseUrl=$publicBaseUrl")
+                    // Important, this displays the boostrap admin secret at startup when not already consumed
+                    bootstrapMessage()
+                    it.start(wait = wait)
+                }
         }
     }
 
@@ -131,13 +114,35 @@ class AppHttpServer(
 
             installCLI(actionRegistry)
 
-            installOidc(oidcService, userService, baseUri)
+            installOidc(oidcService, userService, publicBaseUrl)
 
             installMcp(mcpServerBuilder)
 
             installHealth()
 
         }
+    }
+
+    fun bootstrapMessage() {
+        userService.loadOrCreateBootstrapSecret { secret ->
+            logger.warn("----------------------------------------------------------")
+            logger.warn("⚠️ This message disappear once the secret is used.")
+            logger.warn("")
+            logger.warn("BOOTSTRAP SECRET (one-time usage): $secret")
+            logger.warn("")
+            logger.warn("Use it to create your admin account with CLI")
+            logger.warn("")
+            logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --bootstrap=$secret")
+            logger.warn("")
+            logger.warn("or with API")
+            logger.warn("")
+            logger.warn("curl $publicBaseUrl/api/auth/admin_bootstrap -H \"Content-Type: application/json\" -d '{\"secret\":\"$secret\",\"fullname\":\"Admin\",\"username\":\"your_admin_name\",\"password\":\"your_password\"}'")
+            logger.warn("----------------------------------------------------------")
+        }
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     }
 }
 

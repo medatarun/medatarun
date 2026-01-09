@@ -16,7 +16,7 @@ import io.medatarun.httpserver.oidc.OIDCAuthorizePage.Companion.PARAM_PASSWORD
 import io.medatarun.httpserver.oidc.OIDCAuthorizePage.Companion.PARAM_USERNAME
 import java.net.URI
 
-fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthEmbeddedUserService, baseUri: URI) {
+fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthEmbeddedUserService, publicBaseUrl: URI) {
 
 // ----------------------------------------------------------------
 // OpenIdConnect
@@ -28,7 +28,7 @@ fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthE
     }
 
     get(oidcService.oidcWellKnownOpenIdConfigurationUri()) {
-        call.respond(oidcService.oidcWellKnownOpenIdConfiguration(baseUri))
+        call.respond(oidcService.oidcWellKnownOpenIdConfiguration(publicBaseUrl))
     }
 
     route(oidcService.oidcAuthorizeUri()) {
