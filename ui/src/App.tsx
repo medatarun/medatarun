@@ -137,9 +137,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const services = defaultConnection
-console.log("Services", services)
-
 const baseURL = getOrDefault(import.meta.env.VITE_BASE_URL, window.location.origin);
 
 const authenticationConfig = createAuthenticationConfig({
@@ -152,6 +149,7 @@ const apiConfig: ConnectionConfig = {
   apiBaseUrl: getOrDefault(import.meta.env.VITE_API_URL, ""),
   getApiAccessToken: authenticationConfig.getCurrentAccessToken
 };
+
 defaultConnection.reconfigure(apiConfig);
 
 function App() {

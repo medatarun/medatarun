@@ -151,6 +151,7 @@ class AppHttpServer(
                     path.startsWith("/sse") ||
                     path.startsWith("/ui") ||
                     path.startsWith("/assets") ||
+                    path.startsWith("/oidc") ||
                     path.contains('.')
                 ) {
                     call.respond(status)
