@@ -1,56 +1,41 @@
 package io.medatarun.httpserver
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.ports.needs.MedatarunPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.auth.domain.OIDCAuthorizeRequest
-import io.medatarun.auth.domain.OIDCTokenRequest
-import io.medatarun.auth.internal.AuthorizeResult
 import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
 import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
-import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
-import io.medatarun.httpserver.cli.CliActionRegistry
+import io.medatarun.httpserver.cli.installCLI
+import io.medatarun.httpserver.commons.installCors
+import io.medatarun.httpserver.commons.installHealth
+import io.medatarun.httpserver.commons.installJwtSecurity
 import io.medatarun.httpserver.mcp.McpServerBuilder
-import io.medatarun.httpserver.mcp.McpStreamableHttpBridge
+import io.medatarun.httpserver.mcp.installMcp
+import io.medatarun.httpserver.oidc.installOidc
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
+import io.medatarun.httpserver.rest.installActionsApi
 import io.medatarun.httpserver.ui.*
-import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_AUTH_CTX
-import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_PASSWORD
-import io.medatarun.httpserver.ui.OIDCAuthorizePage.Companion.PARAM_USERNAME
 import io.medatarun.kernel.getService
 import io.medatarun.runtime.AppRuntime
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
-import io.modelcontextprotocol.kotlin.sdk.server.mcp
 import org.slf4j.LoggerFactory
 import java.net.URI
-import java.time.Instant
 
 /**
  * Main application Http server built with Ktor that serves:
  *
- * - an MCP server with SSE (disabled by default, because of bugs in kotlin's official MCP SDK namely https://github.com/modelcontextprotocol/kotlin-sdk/issues/237)
- * - an MCP server with Streamable Http transport (built on top of the MCP SDK) as
- *   expected by modern AI agents (Codex, Claude Code, etc.). This had been built for this project as the official
- *   SDK can not provide it yet.
+ * - an MCP server
  * - a User Interface: accessible at http(s)://<host> or http(s)://<host>/ui
  * - a Rest API: accessible to http(s)://<host>/api
  * - a health endpoint:  https://<host>/health
+ * - OIDC endpoints
  */
 class AppHttpServer(
     private val runtime: AppRuntime,
@@ -129,32 +114,12 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
-        val mcpStreamableHttpBridge = McpStreamableHttpBridge()
 
         install(ContentNegotiation) { json() }
         install(SSE)
         installCors()
         installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"))
-
-        install(Authentication) {
-            jwt(AUTH_MEDATARUN_JWT) {
-                skipWhen { call ->
-                    call.request.headers[HttpHeaders.Authorization] == null
-                }
-                verifier(
-                    JWT.require(Algorithm.RSA256(oidcService.oidcPublicKey(), null))
-                        .withIssuer(oidcService.oidcIssuer())
-                        .withAudience(oidcService.oidcAudience())
-                        .build()
-                )
-                validate { cred ->
-                    JWTPrincipal(cred.payload)
-                }
-                challenge { _, _ ->
-                    call.respond(HttpStatusCode.Unauthorized, "invalid or missing token")
-                }
-            }
-        }
+        installJwtSecurity(oidcService)
 
         routing {
 
@@ -162,255 +127,17 @@ class AppHttpServer(
             installUIHomepage(uiIndexTemplate)
             installUIApis(runtime, actionRegistry)
 
+            installActionsApi(restApiDoc, restCommandInvocation)
 
-            // Authentication: all public -> otherwise UI can not load
-            get("/health") {
-                call.respond(mapOf("status" to "ok"))
-            }
+            installCLI(actionRegistry)
 
-            // ----------------------------------------------------------------
-            // OpenIdConnect
-            // ----------------------------------------------------------------
+            installOidc(oidcService, userService, baseUri)
 
-            // Authentication: all public -> Jwks must be public for discovert
-            get(oidcService.oidcJwksUri()) {
-                call.respond(oidcService.oidcJwks())
-            }
+            installMcp(mcpServerBuilder)
 
-            get(oidcService.oidcWellKnownOpenIdConfigurationUri()) {
-                call.respond(oidcService.oidcWellKnownOpenIdConfiguration(baseUri))
-            }
-
-            route(oidcService.oidcAuthorizeUri()) {
-                suspend fun process(call: ApplicationCall) {
-                    // Displays webpage where user should authenticate himself (login/password)
-                    val req = OIDCAuthorizeRequest(
-                        responseType = call.parameters["response_type"],
-                        clientId = call.parameters["client_id"],
-                        redirectUri = call.parameters["redirect_uri"],
-                        scope = call.parameters["scope"],
-                        state = call.parameters["state"],
-                        codeChallenge = call.parameters["code_challenge"],
-                        codeChallengeMethod = call.parameters["code_challenge_method"],
-                        nonce = call.parameters["nonce"]
-                    )
-
-                    val resp = oidcService.oidcAuthorize(req)
-                    when (resp) {
-                        is AuthorizeResult.FatalError -> {
-                            call.respond(HttpStatusCode.BadRequest, resp.reason)
-                        }
-
-                        is AuthorizeResult.RedirectError -> {
-                            call.respondRedirect(oidcService.oidcAuthorizeErrorLocation(resp), false)
-                        }
-
-                        is AuthorizeResult.Valid -> {
-                            call.respondRedirect("/ui/auth/login?${PARAM_AUTH_CTX}=" + resp.authCtxCode, false)
-                        }
-                    }
-                }
-                get { process(call) }
-                post { process(call) }
-            }
-
-            route("/ui/auth/login") {
-                suspend fun handle(call: RoutingCall) {
-                    val params = when (call.request.httpMethod) {
-                        HttpMethod.Get -> call.parameters
-                        HttpMethod.Post -> call.receiveParameters()
-                        else -> Parameters.Empty
-                    }
-                    val authCtxCode = params[PARAM_AUTH_CTX]
-                    val username = params[PARAM_USERNAME]
-                    val password = params[PARAM_PASSWORD]
-
-
-                    val result = OIDCAuthorizePage(oidcService, userService).process(
-                        authCtxCode = authCtxCode,
-                        username = username,
-                        password = password
-                    )
-                    when (result) {
-                        is OIDCAuthorizePage.OIDCAuthorizePageResult.Fatal -> call.respondText(
-                            status = HttpStatusCode.BadRequest,
-                            contentType = ContentType.Text.Plain
-                        ) { result.message }
-
-                        is OIDCAuthorizePage.OIDCAuthorizePageResult.HtmlPage -> call.respondText(
-                            status = HttpStatusCode.OK,
-                            contentType = ContentType.Text.Html
-                        ) { result.body }
-
-                        is OIDCAuthorizePage.OIDCAuthorizePageResult.Redirect -> call.respondRedirect(
-                            url = result.location,
-                            permanent = false
-                        )
-                    }
-                }
-                get { handle(call) }
-                post { handle(call) }
-            }
-
-            route(oidcService.oidcTokenUri()) {
-                suspend fun handleOidcToken(call: RoutingCall) {
-                    val params = when (call.request.httpMethod) {
-                        HttpMethod.Get -> call.parameters
-                        HttpMethod.Post -> call.receiveParameters()
-                        else -> Parameters.Empty
-                    }
-                    // - échange authorization_code → id_token + access_token
-                    // - vérification PKCE
-                    // - émission d’un ID Token conforme OIDC
-                    // - signature RS256 avec ta clé persistante
-                    // - support refresh_token si annoncé
-
-
-                    fun process(): OIDCTokenResponseOrError {
-                        val request = OIDCTokenRequest(
-                            grantType = params["grant_type"]
-                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
-                            code = params["code"]
-                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
-                            redirectUri = params["redirect_uri"]
-                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
-                            clientId = params["client_id"]
-                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
-                            codeVerifier = params["code_verifier"]
-                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
-                        )
-                        return oidcService.oidcToken(request)
-                    }
-
-                    val tokenResponse = process()
-                    when (tokenResponse) {
-                        is OIDCTokenResponseOrError.Success -> call.respond(tokenResponse.token)
-                        is OIDCTokenResponseOrError.Error -> call.respond(tokenResponse)
-                    }
-
-                }
-                get(){handleOidcToken(call)}
-                post(){handleOidcToken(call)}
-            }
-
-
-            // ----------------------------------------------------------------
-            // API
-            // ----------------------------------------------------------------
-
-            get("/api") {
-                // Authentication: all public -> everybody needs to know API description
-                call.respond(restApiDoc.buildApiDescription())
-            }
-
-            authenticate(AUTH_MEDATARUN_JWT) {
-                route("/api/{actionGroupKey}/{actionKey}") {
-                    // Authentication: token required but not always, the action will check that principal
-                    // is present with correct roles the action require a principal, and not all actions need one
-                    // So we don't block actions if principal is missing
-                    get { restCommandInvocation.processInvocation(call, toMedatarunPrincipal(call)) }
-                    post { restCommandInvocation.processInvocation(call, toMedatarunPrincipal(call)) }
-                }
-            }
-
-            // ----------------------------------------------------------------
-            // CLI special APIs
-            // ----------------------------------------------------------------
-
-            get("/cli/api/action-registry") {
-                // Authentication: actino registry for CLI is public (otherwise no help on CLI)
-                call.respond(CliActionRegistry(actionRegistry).actionRegistryDto())
-            }
-
-            // ----------------------------------------------------------------
-            // MCP server
-            // ----------------------------------------------------------------
-
-            if (enableMcpSse) {
-                // SSE protocol, buggy in Kotlin, waiting for fix, so disabled
-                // Authentication: some tools will required, some others not,
-                // we let the tool building and actions decide
-
-                route("/sse") {
-                    mcp {
-                        val user = toMedatarunPrincipal(call)
-                        return@mcp mcpServerBuilder.buildMcpServer(user)
-                    }
-                }
-            }
-
-            if (enableMcpStreamingHttp) {
-                route("/mcp") {
-                    post {
-                        val principal = toMedatarunPrincipal(call)
-                        mcpStreamableHttpBridge.handleStreamablePost(call) {
-                            mcpServerBuilder.buildMcpServer(principal)
-                        }
-                    }
-                    delete {
-                        mcpStreamableHttpBridge.handleStreamableDelete(call)
-                    }
-                    sse {
-                        mcpStreamableHttpBridge.handleStreamableSse(this)
-                    }
-                }
-            }
-
-
-        }
-
-    }
-
-
-    private fun toMedatarunPrincipal(call: ApplicationCall): MedatarunPrincipal? {
-        val principal = call.authentication.principal<JWTPrincipal>() ?: return null
-        val principalIssuer = principal.issuer ?: return null
-        val principalSubject = principal.subject ?: return null
-        val principalAdmin = principal.getClaim("role", String::class) == "admin"
-        return object : MedatarunPrincipal {
-            override val sub: String = principalSubject
-            override val issuer: String = principalIssuer
-            override val isAdmin: Boolean = principalAdmin
-            override val issuedAt: Instant? = principal.issuedAt?.toInstant()
-            override val expiresAt: Instant? = principal.expiresAt?.toInstant()
-            override val audience: List<String> = principal.audience
-            override val claims =
-                principal.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap()
+            installHealth()
 
         }
     }
-
-    companion object {
-        const val AUTH_MEDATARUN_JWT = "medatarun-jwt"
-    }
 }
 
-
-fun Application.installCors() {
-    install(CORS) {
-        // On n'assume pas le client : on autorise les méthodes usuelles + préflight
-        allowMethod(HttpMethod.Get)
-        allowMethod(HttpMethod.Options)
-
-        // On n'assume pas les headers : on laisse passer ceux courants
-        // (et on permet explicitement Authorization au cas où)
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.Accept)
-        allowHeader(HttpHeaders.Origin)
-
-
-        // Important : pour ne pas ouvrir toute l'API, on limite les chemins CORS
-        // à ceux que tu cites.
-        allowNonSimpleContentTypes = true
-
-        // Tu ne veux pas assumer l'origine, donc:
-        // - en dev : anyHost()
-        // - en prod : remplacer par allowHost("ui.example.com", schemes = listOf("https"))
-        anyHost()
-
-        // N'active PAS allowCredentials() tant que tu n'es pas sûr d'utiliser cookies.
-        // Sinon, anyHost + credentials est interdit par les navigateurs.
-        // allowCredentials = true
-    }
-}

@@ -1,5 +1,4 @@
-package io.medatarun.httpserver.ui
-
+package io.medatarun.httpserver.oidc
 
 import io.medatarun.auth.domain.AuthCtx
 import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
