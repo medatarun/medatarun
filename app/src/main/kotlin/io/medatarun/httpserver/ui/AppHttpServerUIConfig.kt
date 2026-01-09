@@ -10,7 +10,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.httpserver.AppHttpServer.Companion.AUTH_MEDATARUN_JWT
+import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
@@ -104,18 +104,15 @@ fun Routing.installUIApis(runtime: AppRuntime, actionRegistry: ActionRegistry) {
     authenticate(AUTH_MEDATARUN_JWT) {
         // Authentication: required
         get("/ui/api/models") {
-
             call.respondText(
                 UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
                 ContentType.Application.Json
             )
-
         }
     }
 
     authenticate(AUTH_MEDATARUN_JWT) {
         get("/ui/api/models/{modelId}") {
-
             val modelId = call.parameters["modelId"] ?: throw NotFoundException()
             call.respondText(
                 UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
