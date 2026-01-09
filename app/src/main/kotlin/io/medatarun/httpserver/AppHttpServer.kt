@@ -12,6 +12,7 @@ import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -137,6 +138,7 @@ class AppHttpServer(
 
         install(ContentNegotiation) { json() }
         install(SSE)
+        installCors()
 
         install(StatusPages) {
             status(HttpStatusCode.NotFound) { call, status ->
@@ -235,7 +237,7 @@ class AppHttpServer(
                         }
 
                         is AuthorizeResult.Valid -> {
-                            call.respondRedirect("/ui/login?${PARAM_AUTH_CTX}=" + resp.authCtxCode, false)
+                            call.respondRedirect("/ui/auth/login?${PARAM_AUTH_CTX}=" + resp.authCtxCode, false)
                         }
                     }
                 }
@@ -245,9 +247,14 @@ class AppHttpServer(
 
             route("/ui/auth/login") {
                 suspend fun handle(call: RoutingCall) {
-                    val authCtxCode = call.parameters[PARAM_AUTH_CTX]
-                    val username = call.parameters[PARAM_USERNAME]
-                    val password = call.parameters[PARAM_PASSWORD]
+                    val params = when (call.request.httpMethod) {
+                        HttpMethod.Get -> call.parameters
+                        HttpMethod.Post -> call.receiveParameters()
+                        else -> Parameters.Empty
+                    }
+                    val authCtxCode = params[PARAM_AUTH_CTX]
+                    val username = params[PARAM_USERNAME]
+                    val password = params[PARAM_PASSWORD]
 
 
                     val result = OIDCAuthorizePage(oidcService, userService).process(
@@ -276,38 +283,47 @@ class AppHttpServer(
                 post { handle(call) }
             }
 
-            get(oidcService.oidcTokenUri()) {
-                // - échange authorization_code → id_token + access_token
-                // - vérification PKCE
-                // - émission d’un ID Token conforme OIDC
-                // - signature RS256 avec ta clé persistante
-                // - support refresh_token si annoncé
+            route(oidcService.oidcTokenUri()) {
+                suspend fun handleOidcToken(call: RoutingCall) {
+                    val params = when (call.request.httpMethod) {
+                        HttpMethod.Get -> call.parameters
+                        HttpMethod.Post -> call.receiveParameters()
+                        else -> Parameters.Empty
+                    }
+                    // - échange authorization_code → id_token + access_token
+                    // - vérification PKCE
+                    // - émission d’un ID Token conforme OIDC
+                    // - signature RS256 avec ta clé persistante
+                    // - support refresh_token si annoncé
 
 
-                fun process(): OIDCTokenResponseOrError {
-                    val request = OIDCTokenRequest(
-                        grantType = call.queryParameters["grant_type"]
-                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
-                        code = call.request.queryParameters["code"]
-                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
-                        redirectUri = call.request.queryParameters["redirect_uri"]
-                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
-                        clientId = call.request.queryParameters["client_id"]
-                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
-                        codeVerifier = call.request.queryParameters["code_verifier"]
-                            ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
-                    )
-                    return oidcService.oidcToken(request)
+                    fun process(): OIDCTokenResponseOrError {
+                        val request = OIDCTokenRequest(
+                            grantType = params["grant_type"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
+                            code = params["code"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code"),
+                            redirectUri = params["redirect_uri"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "redirect_uri"),
+                            clientId = params["client_id"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "client_id"),
+                            codeVerifier = params["code_verifier"]
+                                ?: return OIDCTokenResponseOrError.Error("invalid_request", "code_verifier"),
+                        )
+                        return oidcService.oidcToken(request)
+                    }
+
+                    val tokenResponse = process()
+                    when (tokenResponse) {
+                        is OIDCTokenResponseOrError.Success -> call.respond(tokenResponse.token)
+                        is OIDCTokenResponseOrError.Error -> call.respond(tokenResponse)
+                    }
+
                 }
-
-                val tokenResponse = process()
-                when (tokenResponse) {
-                    is OIDCTokenResponseOrError.Success -> call.respond(tokenResponse.token)
-                    is OIDCTokenResponseOrError.Error -> call.respond(tokenResponse)
-                }
-
-
+                get(){handleOidcToken(call)}
+                post(){handleOidcToken(call)}
             }
+
 
             // ----------------------------------------------------------------
             // API
@@ -444,3 +460,31 @@ private fun detectLocale(call: ApplicationCall): Locale {
     return firstTag?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
 }
 
+fun Application.installCors() {
+    install(CORS) {
+        // On n'assume pas le client : on autorise les méthodes usuelles + préflight
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Options)
+
+        // On n'assume pas les headers : on laisse passer ceux courants
+        // (et on permet explicitement Authorization au cas où)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Accept)
+        allowHeader(HttpHeaders.Origin)
+
+
+        // Important : pour ne pas ouvrir toute l'API, on limite les chemins CORS
+        // à ceux que tu cites.
+        allowNonSimpleContentTypes = true
+
+        // Tu ne veux pas assumer l'origine, donc:
+        // - en dev : anyHost()
+        // - en prod : remplacer par allowHost("ui.example.com", schemes = listOf("https"))
+        anyHost()
+
+        // N'active PAS allowCredentials() tant que tu n'es pas sûr d'utiliser cookies.
+        // Sinon, anyHost + credentials est interdit par les navigateurs.
+        // allowCredentials = true
+    }
+}

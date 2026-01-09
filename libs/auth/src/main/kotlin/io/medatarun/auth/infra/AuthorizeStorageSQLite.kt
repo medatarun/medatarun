@@ -146,6 +146,7 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
             }
         }
     }
+
     override fun deleteAuthCtx(authorizeCtxCode: String) {
         val sql = "DELETE FROM auth_ctx WHERE authorize_ctx_code = ?"
 
@@ -185,7 +186,14 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
     }
 
     init {
-        dbConnectionFactory.getConnection().use { it.createStatement().execute(SCHEMA) }
+        dbConnectionFactory.getConnection().use { connection ->
+            SCHEMA.split(";")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .forEach { stmt ->
+                    connection.createStatement().execute(stmt)
+                }
+        }
     }
 
 

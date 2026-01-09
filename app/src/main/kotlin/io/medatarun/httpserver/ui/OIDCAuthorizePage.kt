@@ -6,7 +6,7 @@ import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
 import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
 import io.medatarun.lang.trimToNull
 import kotlinx.html.*
-import kotlinx.html.dom.createHTMLDocument
+import kotlinx.html.stream.createHTML
 
 class OIDCAuthorizePage(
     private val oidcService: AuthEmbeddedOIDCService,
@@ -49,7 +49,7 @@ class OIDCAuthorizePage(
 
     fun create(ctx: AuthCtx, username: String?, error: String?): String {
 
-        return createHTMLDocument().html {
+        return createHTML().html {
             head {
                 title { +"Medatarun Login" }
             }
@@ -57,7 +57,6 @@ class OIDCAuthorizePage(
                 h1 { +"Medatarun Login" }
                 p { +"Enter your username and password" }
                 div {
-                    input(type = InputType.hidden, name = PARAM_AUTH_CTX) { value = ctx.authCtxCode }
                     if (error!=null) {
                         div {
                             style = "color:red;"
@@ -65,6 +64,7 @@ class OIDCAuthorizePage(
                         }
                     }
                     form(method = FormMethod.post) {
+                        input(type = InputType.hidden, name = PARAM_AUTH_CTX) { value = ctx.authCtxCode }
                         div {
                             label() {
                                 htmlFor = PARAM_USERNAME
