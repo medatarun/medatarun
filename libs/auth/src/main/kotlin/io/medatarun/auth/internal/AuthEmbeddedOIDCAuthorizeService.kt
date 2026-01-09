@@ -17,7 +17,10 @@ class AuthEmbeddedOIDCAuthorizeService(
     val clients = listOf<OidcClient>(
         OidcClient(
             "medatarun-ui",
-            listOf("http://localhost:8080/authentication-callback"),
+            listOf(
+                "http://localhost:8080/authentication-callback",
+                "http://localhost:5173/authentication-callback"
+            ),
         ),
         OidcClient(
             "seij-gestion",
