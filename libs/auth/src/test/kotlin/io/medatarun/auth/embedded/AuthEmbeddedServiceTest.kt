@@ -1,25 +1,13 @@
 package io.medatarun.auth.embedded
 
 import com.auth0.jwt.JWT
-import com.google.common.jimfs.Configuration
-import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.AuthExtension.Companion.DEFAULT_AUTH_CTX_DURATION_SECONDS
 import io.medatarun.auth.domain.AuthUnauthorizedException
-import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.UserAlreadyExistsException
-import io.medatarun.auth.infra.DbConnectionFactoryImpl
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.infra.UserStorageSQLite
-import io.medatarun.auth.internal.*
-import io.medatarun.auth.ports.exposed.*
-import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.auth.ports.needs.OidcStorage
+import io.medatarun.auth.fixtures.AuthEnvTest
+import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.nio.file.Files
-import java.sql.Connection
-import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -28,25 +16,25 @@ class AuthEmbeddedServiceTest {
 
     @Nested
     inner class AdminTests {
-        val env = TestInit()
+        val env = AuthEnvTest()
 
         @Test
         fun `admin can log in`() {
-            val token = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
+            val token = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
             assertNotNull(token)
         }
 
         @Test
         fun `admin cannot log in with bad login`() {
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(env.adminUser + "--", env.adminPassword)
+                env.oauthService.oauthLogin(env.adminUser + "--", env.adminPassword)
             }
         }
 
         @Test
         fun `admin cannot log in with bad password`() {
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(env.adminUser, env.adminPassword + "---")
+                env.oauthService.oauthLogin(env.adminUser, env.adminPassword + "---")
             }
         }
     }
@@ -54,7 +42,7 @@ class AuthEmbeddedServiceTest {
 
     @Nested
     inner class UserCreationTests {
-        val env = TestInit()
+        val env = AuthEnvTest()
         val johnUsername = "john.doe"
         val johnFullname = "John Doe"
         val johnPassword = "john.doe." + UUID.randomUUID().toString()
@@ -66,7 +54,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `can create john`() {
             createJohn()
-            val token = env.oauthService.oidcLogin(johnUsername, johnPassword)
+            val token = env.oauthService.oauthLogin(johnUsername, johnPassword)
             assertNotNull(token)
         }
 
@@ -82,7 +70,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot log in with bad login`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin("$johnUsername--", johnPassword)
+                env.oauthService.oauthLogin("$johnUsername--", johnPassword)
             }
         }
 
@@ -90,7 +78,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot log in with bad password`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(johnUsername, "$johnPassword---")
+                env.oauthService.oauthLogin(johnUsername, "$johnPassword---")
             }
         }
 
@@ -98,7 +86,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot log in with admin password`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(johnUsername, env.adminPassword)
+                env.oauthService.oauthLogin(johnUsername, env.adminPassword)
             }
         }
 
@@ -106,7 +94,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot fake admin with its password`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(env.adminUser, johnPassword)
+                env.oauthService.oauthLogin(env.adminUser, johnPassword)
             }
         }
 
@@ -116,15 +104,15 @@ class AuthEmbeddedServiceTest {
             env.userService.changeOwnPassword(johnUsername, johnPassword, "$johnPassword.new")
             // Old password shall not work again
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(johnUsername, johnPassword)
+                env.oauthService.oauthLogin(johnUsername, johnPassword)
             }
             // New password works
-            env.oauthService.oidcLogin(johnUsername, "$johnPassword.new")
+            env.oauthService.oauthLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(env.adminUser, "$johnPassword.new")
+                env.oauthService.oauthLogin(env.adminUser, "$johnPassword.new")
             }
-            val adminToken = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -134,15 +122,15 @@ class AuthEmbeddedServiceTest {
             env.userService.changeUserPassword(johnUsername, "$johnPassword.new")
             // Old password shall not work again
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(johnUsername, johnPassword)
+                env.oauthService.oauthLogin(johnUsername, johnPassword)
             }
             // New password works
-            env.oauthService.oidcLogin(johnUsername, "$johnPassword.new")
+            env.oauthService.oauthLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(env.adminUser, "$johnPassword.new")
+                env.oauthService.oauthLogin(env.adminUser, "$johnPassword.new")
             }
-            val adminToken = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -152,10 +140,10 @@ class AuthEmbeddedServiceTest {
             env.userService.disableUser(johnUsername)
             // login shall fail
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oidcLogin(johnUsername, johnPassword)
+                env.oauthService.oauthLogin(johnUsername, johnPassword)
             }
             // Didn't changed by mistake admin login
-            val adminToken = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -175,109 +163,20 @@ class AuthEmbeddedServiceTest {
                 return JWT.decode(token.accessToken).getClaim("name").asString()
             }
             // Checks fullname before change
-            val tokenBefore = env.oauthService.oidcLogin(johnUsername, johnPassword)
+            val tokenBefore = env.oauthService.oauthLogin(johnUsername, johnPassword)
             assertEquals(johnFullname, extractFullname(tokenBefore))
             env.userService.changeUserFullname(johnUsername, johnFullname + "new")
 
             // Checks fullname after change
-            val tokenAfter = env.oauthService.oidcLogin(johnUsername, johnPassword)
+            val tokenAfter = env.oauthService.oauthLogin(johnUsername, johnPassword)
             assertEquals(johnFullname + "new", extractFullname(tokenAfter))
 
             // Make sure there are no side effects on other users (bad update directive or something like that)
-            val tokenAdmin = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
+            val tokenAdmin = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
             assertEquals(env.adminFullname, extractFullname(tokenAdmin))
         }
 
     }
 
 
-    class TestInit {
-        val userService: UserService
-        val oidcService: OidcService
-        val oauthService: OAuthService
-        val adminUser: String = "admin"
-        val adminFullname: String = "Admin"
-        val adminPassword: String = "admin." + UUID.randomUUID().toString()
-        val dbConnectionFactory: DbConnectionFactoryImpl
-
-        // Keeps connection alive until this class lifecycle ends
-        private val dbConnectionKeeper: Connection
-
-        init {
-            val fs = Jimfs.newFileSystem(Configuration.unix())
-            val home = fs.getPath("/opt/medatarun")
-            Files.createDirectories(home)
-
-            val cfgBootstrapSecretLifecyclePath = home.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-            val cfgKeyStorePath = home.resolve(JwtSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
-            this.dbConnectionFactory =
-                DbConnectionFactoryImpl("file:test_${UUID.randomUUID()}?mode=memory&cache=shared")
-            //this.dbConnectionFactory = DbConnectionFactoryImpl(":memory:")
-            dbConnectionKeeper = dbConnectionFactory.getConnection()
-            val authClock = ClockTester()
-            val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
-
-            // -----------------------------------------------------------
-            // Same as in extension, mutualization for later
-            // -----------------------------------------------------------
-
-            val userStorage = UserStorageSQLite(dbConnectionFactory)
-            val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
-
-            val userClaimsService = UserClaimsService()
-            val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
-            val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
-
-            val jwtCfg = JwtConfig(
-                issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
-                audience = "medatarun",
-                ttlSeconds = 3600
-            )
-
-            val userService: UserService = UserServiceImpl(
-                bootstrapDirPath = cfgBootstrapSecretLifecyclePath,
-                userStorage = userStorage,
-                clock = authClock,
-                passwordEncryptionIterations = passwordEncryptionDefaultIterations
-            )
-
-            val oauthService = OAuthServiceImpl(
-                userService = userService,
-                keys = authEmbeddedKeys,
-                jwtConfig = jwtCfg,
-                userClaimsService = userClaimsService
-            )
-
-
-            val oidcService: OidcService = OidcServiceImpl(
-                userStorage = userStorage,
-                oidcAuthCodeStorage = authStorage,
-                userClaimsService = userClaimsService,
-                oauthService = oauthService,
-                authEmbeddedKeys = authEmbeddedKeys,
-                jwtCfg = jwtCfg,
-                clock = authClock,
-                authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS
-            )
-
-            // ----------------------------------------------------------------
-            // End of initialization block
-            // Back to the tests
-            // ----------------------------------------------------------------
-
-            this.userService = userService
-            this.oidcService = oidcService
-            this.oauthService = oauthService
-
-            var bootstrapSecretKeeper: String = ""
-            userService.loadOrCreateBootstrapSecret { bootstrapSecret -> bootstrapSecretKeeper = bootstrapSecret }
-            userService.adminBootstrap(bootstrapSecretKeeper, adminUser, adminFullname, adminPassword)
-        }
-
-
-    }
-
-    class ClockTester(var staticNow: Instant = Instant.now()) : AuthClock {
-        override fun now(): Instant = staticNow
-    }
 }

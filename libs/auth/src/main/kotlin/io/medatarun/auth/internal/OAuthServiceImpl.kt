@@ -18,7 +18,7 @@ class OAuthServiceImpl(
     private val userClaimsService: UserClaimsService
 ): OAuthService {
 
-    override fun oidcLogin(username: String, password: String): OAuthTokenResponse {
+    override fun oauthLogin(username: String, password: String): OAuthTokenResponse {
         val user = userService.loginUser(username, password)
         return createOAuthAccessTokenForUser(user)
     }
@@ -32,7 +32,7 @@ class OAuthServiceImpl(
     }
 
 
-    override fun issueAccessToken(sub: String, claims: Map<String, Any?>): String {
+    fun issueAccessToken(sub: String, claims: Map<String, Any?>): String {
         val alg = Algorithm.RSA256(keys.publicKey, keys.privateKey)
         val now = Instant.now()
 
