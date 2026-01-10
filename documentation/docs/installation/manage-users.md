@@ -34,6 +34,15 @@ medatarun auth admin_bootstrap --username="admin" --fullname="Administrator" --p
 Once this command succeeds, the admin account is created and the bootstrap
 secret is permanently invalidated.
 
+:::tip
+If you came here from [Run Medatarun page](./run.mdx), this is enough to be able to sign in using the UI.
+
+The rest of this document covers additional user and access management options.
+:::
+
+**Note**: for environments where you can not see logs, see the [configuration options](./configuration.md) page.
+So, you can provide your own bootstrap secret (as environment variable, for example).
+
 ## Login as admin
 
 Most CLI commands require you to be logged in.

@@ -1,0 +1,172 @@
+---
+---
+
+# CLI Usage
+
+Medatarun allows you to interact with the server from the command line.
+
+It exposes the same action model as the server itself: each command triggers an explicit operation.
+
+The CLI is mainly intended for:
+- bootstrapping and administration,
+- automation and scripting,
+- exploration and inspection.
+
+### Prerequisites
+
+The Medatarun server must be running.
+
+The `medatarun` command must be available in your shell. If not, see the [installation page](../installation/install-from-distribution).
+
+Most commands require authentication.
+
+
+### Authentication
+
+Before running most commands, you must be authenticated.
+
+To log in, run:
+
+```bash
+medatarun auth login --username="admin" --password="admin.0123456789"
+```
+
+The command returns an access token.
+
+Make it available to the CLI by setting the `MEDATARUN_AUTH_TOKEN` environment variable:
+
+```bash
+export MEDATARUN_AUTH_TOKEN=<token>
+```
+
+If you have jq installed, you can do this in one step:
+
+```bash
+export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username="admin" --password="admin.0123456789" | jq -r '.access_token')
+```
+
+You can verify your current identity:
+
+```bash
+medatarun auth whoami
+```
+
+### Which server you talk to
+
+By default, the CLI connects to a Medatarun server running locally on http://localhost:8080.
+
+If the server is running on another host or port, you need to tell the CLI where to connect.
+This can be done by setting the server host, port, or public base URL in the configuration.
+
+See the [configuration options](../installation/configuration) page for details.
+
+Example:
+
+```
+export MEDATARUN_PUBLIC_BASE_URL=http://medatarun.app.internal.local:9000/medatarun
+medatarun auth whoami
+```
+
+## Command structure
+
+CLI commands follow a simple structure:
+
+```text
+medatarun <actionGroup> <action> [parameters]
+```
+
+- `actionGroup` identifies a functional domain (`auth`, `model`, `config`, …)
+- `action` identifies the operation to execute
+- parameters are passed using named options
+
+Example, to inspect current configuration:
+
+```bash
+medatarun config inspect_json
+```
+This command does not modify anything and is a good way to verify that:
+
+- the server is reachable,
+- authentication works,
+- the CLI is correctly configured.
+
+## Passing parameters
+
+Parameters are passed using named options, like you did for login before:
+
+```bash
+medatarun model import --from="http://my.schemas/schema.json"
+```
+
+The option names match the action parameters.
+
+Complex parameter values, that otherwise be Json objects or arrays, shall be quoted and passed as Json.
+
+## Discovering available commands
+
+The CLI is self-describing.
+
+To list available action groups and commands:
+
+```bash
+medatarun help
+```
+
+To get help for a specific action group:
+
+```bash
+medatarun help model
+```
+
+To get help for a specific command:
+
+```bash
+medatarun help model Import
+```
+
+This is the authoritative way to discover commands and parameters.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Once the server is launched, you can run commands against it. Examples:
+
+
+
+
+
+```
+medatarun config inspect_json
+medatarun model import --from="http://my.schemas/schema.json"
+medatarun model import --from="datasource:myapp"
+medatarun model inspect_json --modelKey=mymodel
+medatarun model model_add_tag --modelKey=mymodel --tag="my tag"
+```
+
+for example
+
+To get help: `medatarun help` will give you all the commands and parameters, which are the same commands as the API or
+what an MCP server can use.
+

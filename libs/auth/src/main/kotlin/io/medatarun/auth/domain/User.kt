@@ -11,4 +11,6 @@ data class User(
     val admin: Boolean,
     val bootstrap: Boolean,
     val disabledDate: Instant?
-)
+) {
+
+}

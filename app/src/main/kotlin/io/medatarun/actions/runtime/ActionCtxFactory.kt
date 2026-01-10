@@ -4,7 +4,7 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.MedatarunPrincipal
-import io.medatarun.auth.domain.AuthEmbeddedBadCredentialsException
+import io.medatarun.auth.domain.AuthUnauthorizedException
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.AppRuntime
@@ -26,13 +26,13 @@ class ActionCtxFactory(
 
                 override val actor: MedatarunPrincipal? = principal
                 override fun ensureSignedIn(): MedatarunPrincipal {
-                    if (principal == null) throw AuthEmbeddedBadCredentialsException()
+                    if (principal == null) throw AuthUnauthorizedException()
                     return principal
                 }
 
                 override fun ensureIsAdmin() {
-                    if (principal == null) throw AuthEmbeddedBadCredentialsException()
-                    if (!principal.isAdmin) throw AuthEmbeddedBadCredentialsException()
+                    if (principal == null) throw AuthUnauthorizedException()
+                    if (!principal.isAdmin) throw AuthUnauthorizedException()
                 }
             }
         }

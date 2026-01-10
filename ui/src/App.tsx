@@ -13,11 +13,20 @@ import {ModelPage} from "./views/ModelPage.tsx";
 import {EntityPage} from "./views/EntityPage.tsx";
 import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
-import {defaultConnection} from "@seij/common-services";
+import {type ConnectionConfig, defaultConnection} from "@seij/common-services";
 import {SeijUIProvider} from "@seij/common-ui";
 import {queryClient} from "./services/queryClient.ts";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import {
+  AuthenticationCallbackView,
+  AuthenticationLoginView,
+  AuthenticationLogoutView,
+  AuthenticationPaths,
+  AuthenticationProvider,
+  createAuthenticationConfig
+} from "@seij/common-ui-auth";
+import {getOrDefault} from "./utils/getOrDefault.ts";
 
 function DashboardRouteComponent() {
   return <DashboardPage/>
@@ -45,6 +54,20 @@ function EntityDefRouteComponent() {
   return <EntityPage modelId={modelId} entityDefId={entityDefId}/>
 }
 
+function AuthenticationCallbackComponent() {
+  const navigate = useNavigate();
+  return <AuthenticationCallbackView onClickHome={()=>navigate({to:"/"})} />
+}
+
+function AuthenticationLoginComponent() {
+  const navigate = useNavigate();
+  return <AuthenticationLoginView onClickHome={()=>navigate({to:"/"})} />
+}
+
+function AuthenticationLogoutComponent() {
+  const navigate = useNavigate();
+  return <AuthenticationLogoutView onClickHome={()=>navigate({to:"/"})} />
+}
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
@@ -79,7 +102,26 @@ const entityRoute = createRoute({
   path: '/model/$modelId/entityDef/$entityDefId',
   component: EntityDefRouteComponent
 })
+const authenticationLoginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.login,
+  component: AuthenticationLoginComponent,
+})
+const authenticationLogoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.logout,
+  component: AuthenticationLogoutComponent,
+})
+const authenticationCallbackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.callback,
+  component: AuthenticationCallbackComponent,
+})
+
 const routeTree = rootRoute.addChildren([
+  authenticationLoginRoute,
+  authenticationLogoutRoute,
+  authenticationCallbackRoute,
   dashboardRoute, modelsRoute, commandsRoute, modelRoute, entityRoute
 ]);
 
@@ -95,16 +137,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const services = defaultConnection
-console.log("Services", services)
+const baseURL = getOrDefault(import.meta.env.VITE_BASE_URL, window.location.origin);
+
+const authenticationConfig = createAuthenticationConfig({
+  authority: getOrDefault(import.meta.env.VITE_OIDC_AUTHORITY, "http://localhost:8080/oidc"),
+  client_id: getOrDefault(import.meta.env.VITE_OIDC_CLIENT_ID, "medatarun-ui"),
+  redirect_uri: baseURL + AuthenticationPaths.callback,
+});
+
+const apiConfig: ConnectionConfig = {
+  apiBaseUrl: getOrDefault(import.meta.env.VITE_API_URL, ""),
+  getApiAccessToken: authenticationConfig.getCurrentAccessToken
+};
+
+defaultConnection.reconfigure(apiConfig);
 
 function App() {
   return (
     <SeijUIProvider>
+      <AuthenticationProvider {...authenticationConfig}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router}/>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
+      </AuthenticationProvider>
     </SeijUIProvider>
   )
 }

@@ -44,7 +44,7 @@ Everything is French and you don't understand anything? See below.
 
 ## ⭐ Use with your AI agent 
 
-See [how to connect your AI Agent to Medatarun](installation/configure-ai-agents.md) if needed.
+See [how to connect your AI Agent to Medatarun](usages/mcp-usage.md) if needed.
 
 ### Use with your agent
 

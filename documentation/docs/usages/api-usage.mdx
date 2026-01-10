@@ -1,0 +1,153 @@
+---
+---
+
+# API Usage
+
+## Quick start: calling the API
+
+### Prerequisites
+
+You need at least a user account to get started. See [creating your first user](../installation/manage-users.md).
+
+### Create an access token
+
+To call the API, you need a valid JWT access token.
+You can obtain one by calling the authentication endpoint.
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{ "username": "john.doe", "password": "john.doe.0123456789" }' \
+  http://localhost:8080/api/auth/login
+```
+
+If the credentials are valid, the response contains an access token:
+
+```json
+{ "access_token": "<token>" }
+```
+
+This token can be included in all subsequent API calls using the HTTP Authorization header:
+
+```text
+Authorization: Bearer <token>
+```
+
+### Call a first API endpoint
+
+Start with a simple action that does not require parameters.
+
+```bash
+curl -H "Authorization: Bearer <your_token>" http://localhost:8080/api/config/InspectJson
+```
+If everything is correctly configured:
+- the request succeeds
+- the server returns a response
+- the token is validated
+
+This confirms that authentication and API access are working.
+
+### Passing parameters
+
+Some actions expect parameters.
+
+Parameters can be passed either as query parameters or as a JSON body.
+
+Example with a JSON body:
+
+```bash
+curl -X POST \
+     -H "Authorization: Bearer <your_token>" \
+     -H "Content-Type: application/json" \
+     -d '{ "from": "https://gitlab.com/opendatafrance/scdl/menus-collectifs/-/raw/master/schema.json" }' \
+     http://localhost:8080/api/model/import
+```
+
+The response contains the result of the action execution.
+
+Errors are returned with a semantic HTTP status code and a structured error body.
+
+
+## How the API works
+
+Medatarun API allows you to trigger the same actions as the server itself through HTTP calls.
+It is designed for automation, integration, and tooling.
+
+The API is action-based. Each HTTP call represents an explicit operation executed by Medatarun.
+There is no generic CRUD layer or resource abstraction.
+
+All API endpoints are exposed under the `/api` base path.
+
+An action is called using the following URL structure:
+
+```text
+/api/<actionGroup>/<action>
+```
+
+For example, calling an action named `inspect_json` in the `config` group results in:
+
+```text
+/api/config/inspect_json
+```
+
+Both **GET** and **POST** methods are accepted for action calls.
+The server does not distinguish between them semantically. Use POST when you need to send a request body.
+
+Request parameters are provided as follows:
+- simple parameters can be passed as query parameters
+- when an action expects structured input, parameters are passed as a JSON request body
+
+If no body is provided, an empty payload is assumed.
+
+::tip
+For your application integrations, POST with systematic JSON body is the preferred choice.
+GET is available as a convenience for __simple `curl` calls__
+::
+
+API calls require authentication, except for API discovery and some few public actions (login, auth, etc.).
+
+Requests must include a valid JWT access token using the standard HTTP header:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+The API accepts any valid OIDC token, including tokens issued by an external identity provider, as long as the provider is configured in Medatarun.
+See [configuration](../installation/configuration)
+
+There is no refresh mechanism at the API level. Tokens are expected to be managed by the client.
+
+To verify that your token is valid and that the API is reachable, you can start with a simple call that does not require parameters.
+
+Example:
+
+```
+GET /api/config/inspect_json
+```
+
+If authentication succeeds, the server returns the result of the action directly.
+
+Most actions return JSON data.
+Some actions intentionally return plain text responses. This is expected and depends on the action semantics.
+
+- On success, the HTTP status code is `200 OK`.
+- On error, the server returns a semantic HTTP status code (`400`, `401`, `403`, `404`, `500`, etc.).
+The response body follows the `application/problem+json` format and describes the error.
+
+The API is self-describing.
+
+You can retrieve the list of available action groups, actions, and their parameters by calling:
+
+```
+GET /api
+```
+
+This endpoint does not require authentication and returns the full API description, including:
+
+- available action groups
+- action names
+- parameters and their types
+- whether parameters are optional
+
+This endpoint is the authoritative source for discovering what the API supports at runtime.
+

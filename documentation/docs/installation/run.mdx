@@ -1,0 +1,58 @@
+---
+sidebar_position: 30
+---
+
+
+import {FeatureCard} from "@site/src/components/FeatureCard";
+import Link from "@docusaurus/Link";
+
+# Run Medatarun
+
+This page assumes Medatarun has been installed and the medatarun command is available in your shell.
+See [install](./install-from-distribution.mdx).
+
+## Launch the server
+
+Simply run
+
+`medatarun serve`
+
+You will see logs in the console. To stop the server, CTRL+C or Kill.
+
+Now you can browse on http://localhost:8080 to verify that everything is running correctly.
+
+## First access (admin account)
+
+At first startup, Medatarun does not contain any users yet.
+
+To actually start using it, you need to obtain an initial administrator access.
+This is a one-time bootstrap step.
+
+Follow the instructions in [Managing users](./manage-users.md)
+to create or obtain the initial admin account.
+
+Once this is done, you can log in and start working with Medatarun.
+
+## What next?
+
+From here, you can interact with Medatarun in different ways, depending on what you want to do.
+
+<div style={{display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "1em", marginBottom:"2em"}}>
+    <FeatureCard title="Using the UI">
+        <p>Open your browser at http://localhost:8080 to create, import, explore models visually.</p>
+    </FeatureCard>
+    <FeatureCard title="Using the CLI">
+        <p>Run commands from your terminal to import models, inspect them, or automate workflows.</p>
+        <p>See <Link to="../usages/cli-usage">CLI usage</Link></p>
+    </FeatureCard>
+    <FeatureCard title="Using the API">
+        <p>Integrate Medatarun into your own tools, scripts, or services. See <Link to="../usages/api-usage">API documentation</Link></p>
+        <p></p>
+    </FeatureCard>
+    <FeatureCard title="Using AI Agents with MCP">
+        <p>Connect Medatarun to AI agents or LLM-based tools. See <Link to="../usages/mcp-usage">Using with AI Agents</Link></p>
+    </FeatureCard>
+</div>
+
+**Thinking about production**: if you’re starting to think about deployment, networking, or runtime behavior, configuration options are documented here.
+See [configuration page](./configuration.md) when you are ready for production usage.
