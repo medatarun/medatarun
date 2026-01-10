@@ -1,8 +1,8 @@
 {
-  "label": "Development tools",
+  "label": "Developers resources",
   "position": 4,
   "link": {
     "type": "generated-index",
-    "description": "Tools and resources for developers"
+    "description": "Tools and resources for developers and contributors of Medatarun"
   }
 }

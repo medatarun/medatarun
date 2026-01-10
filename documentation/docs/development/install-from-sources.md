@@ -27,7 +27,7 @@ alias medatarun='f() {
 }; f'
 ```
 
-See [configuration](./configuration.md) for environment variables explanations.
+See [configuration](../installation/configuration.md) for environment variables explanations.
 
 
 
