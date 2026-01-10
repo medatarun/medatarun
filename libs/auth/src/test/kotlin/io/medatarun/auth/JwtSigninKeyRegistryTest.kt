@@ -1,23 +1,22 @@
-package io.medatarun.auth.embedded
+package io.medatarun.auth
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.internal.JwtSigninKeyRegistryImpl
-import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
+import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
-class AuthEmbeddedKeyRegistryTest {
+class JwtSigninKeyRegistryTest {
 
     @Test
     fun `should register embedded keys`() {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
-        val secretsPath = medatarunHomePath.resolve(DEFAULT_KEYSTORE_PATH_NAME)
+        val secretsPath = medatarunHomePath.resolve(JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
         val service = JwtSigninKeyRegistryImpl(secretsPath)
         val keys = service.loadOrCreateKeys()
 
