@@ -1,0 +1,59 @@
+---
+sidebar_position: 10
+---
+
+
+import Link from '@docusaurus/Link';
+
+# Download and Install
+
+Medatarun ships as a ZIP file.
+
+## Requirements 
+
+- Java 21+ : [download Java here](https://adoptium.net/fr) or if you need to manage multiple versions of Java on your computer, use https://sdkman.io/ then, `sdk install java 21-tem`
+- If you intend to use CLI or follow command-line tutorials, 
+  - on Windows you can use WSDL2
+  - on Linux, Bash or Zsh shell are ok and already installed on Mac/Linux. 
+
+## Download Medatarun
+
+<Link className="button button--secondary button--lg" to="https://github.com/medatarun/medatarun/releases" style={{marginBottom: "2em"}}>Download as zip</Link>
+
+- Unzip the file where you want, this is what we will call `MEDATARUN_HOME` directory.
+
+## Launcher
+
+In your `MEDATARUN_HOME` you will find
+- `$MEDATARUN_HOME/bin/medatarun` command for MacOS / Linux
+- `$MEDATARUN_HOME/bin/medatarun.bat` command for Windows
+
+## Shell integration (optional)
+
+
+:::tip
+In the rest of the documentation, you will regularly start the Medatarun server and run CLI commands.
+For convenience, it is recommended to make the `medatarun` command available in your shell.
+:::
+
+You can do this in different ways, depending on your environment.
+
+On macOS and Linux, you can either add the bin directory to your PATH, or define a shell alias.
+
+For example, adding `medatarun` to your PATH:
+
+```bash
+export PATH="$MEDATARUN_HOME/bin:$PATH"
+```
+
+You can place this line in your shell configuration file (`.bash_aliases`, `.bashrc`, `.zshrc`, etc.) to make it persistent.
+
+Alternatively, you can define an alias:
+
+```bash
+alias medatarun="$MEDATARUN_HOME/bin/medatarun"
+```
+
+On Windows, you can add the `bin` directory to the system `PATH`, or define a command alias depending on the shell you use.
+
+If you prefer not to modify your shell configuration, you can always run Medatarun by calling the executable directly from the `bin` directory.

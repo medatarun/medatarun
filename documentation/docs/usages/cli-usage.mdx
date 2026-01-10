@@ -1,0 +1,19 @@
+---
+---
+
+# CLI Usage
+Once the server is launched, you can run commands against it. Examples:
+
+```
+medatarun config InspectJson
+medatarun model Import --from="http://my.schemas/schema.json"
+medatarun model Import --from="datasource:myapp"
+medatarun model Inspect_Json --modelKey=mymodel
+medatarun model Model_AddTag --modelKey=mymodel --tag="my tag"
+```
+
+for example
+
+To get help: `medatarun help` will give you all the commands and parameters, which are the same commands as the API or
+what an MCP server can use.
+

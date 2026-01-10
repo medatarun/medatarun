@@ -4,7 +4,6 @@ sidebar_position: 50
 
 # Configuration options
 
-
 :::tip
 Medatarun starts with sensible defaults and requires no configuration for a basic setup.
 This page documents the available options if you need to go further.
@@ -25,9 +24,6 @@ If you don't define them (the default options) they will be where you unzipped M
 
 You can configure server host and port. This acts when the server start, and also tell the CLI what server to connect
 to.
-
-- `medatarun.server.port`: server port (defaults to `8080`)
-- `medatarun.server.host`: server listening host (defaults to `0.0.0.0`)
 
 <!-- See enums to copy/paste description -->
 
