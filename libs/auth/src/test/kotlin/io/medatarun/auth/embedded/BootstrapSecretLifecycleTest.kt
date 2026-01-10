@@ -2,8 +2,8 @@ package io.medatarun.auth.embedded
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.internal.AuthEmbeddedBootstrapSecretImpl
-import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
+import io.medatarun.auth.internal.BootstrapSecretLifecycleImpl
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals
@@ -11,13 +11,13 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class AuthEmbeddedBootstrapSecretTest {
+class BootstrapSecretLifecycleTest {
     @Test
     fun `should generate secret and make it usable only once`() {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
-        val secretsPath = medatarunHomePath.resolve(AuthEmbeddedBootstrapSecret.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-        val service = AuthEmbeddedBootstrapSecretImpl(secretsPath)
+        val secretsPath = medatarunHomePath.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
+        val service = BootstrapSecretLifecycleImpl(secretsPath)
         var bootstrapSecretLog: String? = null
         val state1 = service.loadOrCreateBootstrapSecret { secret -> bootstrapSecretLog = secret }
 

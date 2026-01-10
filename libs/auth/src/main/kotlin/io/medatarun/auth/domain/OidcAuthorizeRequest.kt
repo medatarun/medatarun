@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  * We will verify in our process validity
  */
 @Serializable
-data class OIDCAuthorizeRequest(
+data class OidcAuthorizeRequest(
     /**
      * Shall only be "code", we don't support "token"
      */

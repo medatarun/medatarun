@@ -2,7 +2,7 @@ package io.medatarun.auth.ports.exposed
 
 import io.medatarun.auth.domain.User
 
-interface AuthEmbeddedUserService {
+interface UserService {
 
     fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit)
     fun adminBootstrap(secret: String, login: String, fullname: String, password: String): User

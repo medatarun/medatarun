@@ -1,15 +1,15 @@
 package io.medatarun.httpserver.oidc
 
-import io.medatarun.auth.domain.AuthCtx
-import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.domain.OidcAuthorizeCtx
+import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.trimToNull
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
 class OIDCAuthorizePage(
-    private val oidcService: AuthEmbeddedOIDCService,
-    private val userService: AuthEmbeddedUserService,
+    private val oidcService: OidcService,
+    private val userService: UserService,
 
     ) {
 
@@ -46,7 +46,7 @@ class OIDCAuthorizePage(
 
     }
 
-    fun create(ctx: AuthCtx, username: String?, error: String?): String {
+    fun create(ctx: OidcAuthorizeCtx, username: String?, error: String?): String {
 
         return createHTML().html {
             head {

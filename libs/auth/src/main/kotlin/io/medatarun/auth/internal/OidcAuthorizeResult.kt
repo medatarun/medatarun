@@ -1,17 +1,17 @@
 package io.medatarun.auth.internal
 
-sealed interface AuthorizeResult {
+sealed interface OidcAuthorizeResult {
     data class Valid(
         val authCtxCode: String
-    ) : AuthorizeResult
+    ) : OidcAuthorizeResult
 
     data class RedirectError(
         val redirectUri: String,
         val error: String,
         val state: String?
-    ) : AuthorizeResult
+    ) : OidcAuthorizeResult
 
     data class FatalError(
         val reason: String
-    ) : AuthorizeResult
+    ) : OidcAuthorizeResult
 }

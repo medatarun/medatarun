@@ -3,7 +3,7 @@ package io.medatarun.auth.internal
 /**
  * Represents the bootstrap secret
  */
-data class AuthEmbeddedBootstrapState(
+data class BootstrapSecretState(
     /**
      * Secret phrase
      */

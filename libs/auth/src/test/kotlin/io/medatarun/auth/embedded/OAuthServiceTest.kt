@@ -3,13 +3,13 @@ package io.medatarun.auth.embedded
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
+import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
 import io.medatarun.auth.domain.User
-import io.medatarun.auth.internal.AuthEmbeddedKeyRegistryImpl.Companion.generateJwtKeyMaterial
+import io.medatarun.auth.internal.JwtSigninKeyRegistryImpl.Companion.generateJwtKeyMaterial
 import io.medatarun.auth.internal.OAuthServiceImpl
 import io.medatarun.auth.internal.UserClaimsService
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.ports.exposed.UserService
 import java.time.Instant
 import java.util.*
 import kotlin.test.Test
@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 class OAuthServiceTest {
 
     class TestEnv(
-        val jwtConfig: AuthEmbeddedJwtConfig = AuthEmbeddedJwtConfig(
+        val jwtConfig: JwtConfig = JwtConfig(
             issuer = "urn:medatarun",
             audience = "medatarun",
             ttlSeconds = 3600
@@ -27,7 +27,7 @@ class OAuthServiceTest {
     ) {
 
         val jwtKeyMaterial = generateJwtKeyMaterial()
-        private val userService: AuthEmbeddedUserService = object : AuthEmbeddedUserService {
+        private val userService: UserService = object : UserService {
             override fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit) = TODO("Not yet implemented")
             override fun adminBootstrap(secret: String, login: String, fullname: String, password: String): User =
                 TODO("Not yet implemented")
@@ -77,7 +77,7 @@ class OAuthServiceTest {
 
     @Test
     fun `should respect custom configuration`() {
-        val customConfig = AuthEmbeddedJwtConfig(
+        val customConfig = JwtConfig(
             issuer = "custom-issuer",
             audience = "custom-audience",
             ttlSeconds = 60

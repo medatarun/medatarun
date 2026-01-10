@@ -3,7 +3,7 @@ package io.medatarun.auth.ports.needs
 import io.medatarun.auth.domain.User
 import java.time.Instant
 
-interface UserStore {
+interface UserStorage {
     fun insert(
         id: String,
         login: String,

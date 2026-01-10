@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OIDCTokenRequest(
+data class OidcTokenRequest(
     /**
      * Must be "authorization_code" only
      *

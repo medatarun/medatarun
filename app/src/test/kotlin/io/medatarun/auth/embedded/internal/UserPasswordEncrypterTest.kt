@@ -1,20 +1,20 @@
 package io.medatarun.auth.embedded.internal
 
 
-import io.medatarun.auth.internal.AuthEmbeddedPwd
-import io.medatarun.auth.internal.AuthEmbeddedPwd.PasswordPolicyFailReason
+import io.medatarun.auth.internal.UserPasswordEncrypter
+import io.medatarun.auth.internal.UserPasswordEncrypter.PasswordPolicyFailReason
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
-class AuthEmbeddedPwdTest {
+class UserPasswordEncrypterTest {
 
-    private val authEmbeddedPwd = AuthEmbeddedPwd()
+    private val userPasswordEncrypter = UserPasswordEncrypter()
 
     @Test
     fun `hashPassword should generate a string with three parts separated by colons`() {
         val password = "mySecretPassword"
-        val hash = authEmbeddedPwd.hashPassword(password)
+        val hash = userPasswordEncrypter.hashPassword(password)
         
         val parts = hash.split(":")
         assertEquals(3, parts.size, "Hash should have 3 parts")
@@ -24,98 +24,98 @@ class AuthEmbeddedPwdTest {
     @Test
     fun `verifyPassword should return true for correct password`() {
         val password = "securePassword123"
-        val hash = authEmbeddedPwd.hashPassword(password)
+        val hash = userPasswordEncrypter.hashPassword(password)
         
-        assertTrue(authEmbeddedPwd.verifyPassword(hash, password), "Password verification should succeed")
+        assertTrue(userPasswordEncrypter.verifyPassword(hash, password), "Password verification should succeed")
     }
 
     @Test
     fun `verifyPassword should return false for incorrect password`() {
         val password = "securePassword123"
         val wrongPassword = "wrongPassword"
-        val hash = authEmbeddedPwd.hashPassword(password)
+        val hash = userPasswordEncrypter.hashPassword(password)
         
-        assertFalse(authEmbeddedPwd.verifyPassword(hash, wrongPassword), "Password verification should fail for wrong password")
+        assertFalse(userPasswordEncrypter.verifyPassword(hash, wrongPassword), "Password verification should fail for wrong password")
     }
 
     @Test
     fun `verifyPassword should return false if hash is for different password even if they share some prefix`() {
         val password = "password"
         val candidate = "password123"
-        val hash = authEmbeddedPwd.hashPassword(password)
+        val hash = userPasswordEncrypter.hashPassword(password)
         
-        assertFalse(authEmbeddedPwd.verifyPassword(hash, candidate))
+        assertFalse(userPasswordEncrypter.verifyPassword(hash, candidate))
     }
 
     @Test
     fun `verifyPassword should throw exception for malformed stored hash`() {
         val malformedHash = "310000:not-a-base64"
         assertThrows<IllegalArgumentException> {
-            authEmbeddedPwd.verifyPassword(malformedHash, "anyPassword")
+            userPasswordEncrypter.verifyPassword(malformedHash, "anyPassword")
         }
     }
 
     @Test
     fun `hashPassword should produce different hashes for the same password due to random salt`() {
         val password = "samePassword"
-        val hash1 = authEmbeddedPwd.hashPassword(password)
-        val hash2 = authEmbeddedPwd.hashPassword(password)
+        val hash1 = userPasswordEncrypter.hashPassword(password)
+        val hash2 = userPasswordEncrypter.hashPassword(password)
         
         assertNotEquals(hash1, hash2, "Hashes should be different due to salt")
     }
 
     @Test
     fun `checkPasswordPolicy should fail if password is too short`() {
-        val result = authEmbeddedPwd.checkPasswordPolicy("Short1!", "user")
+        val result = userPasswordEncrypter.checkPasswordPolicy("Short1!", "user")
         assertFalse(result.ok)
-        assertIs<AuthEmbeddedPwd.PasswordCheck.Fail>(result)
+        assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.TOO_SHORT, result.reason)
     }
 
     @Test
     fun `checkPasswordPolicy should fail if password is only whitespace`() {
-        val result = authEmbeddedPwd.checkPasswordPolicy("              ", "user")
+        val result = userPasswordEncrypter.checkPasswordPolicy("              ", "user")
         assertFalse(result.ok)
-        assertIs<AuthEmbeddedPwd.PasswordCheck.Fail>(result)
+        assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.WHITESPACES_ONLY, result.reason)
     }
 
     @Test
     fun `checkPasswordPolicy should fail if password is equal to username`() {
-        val result = authEmbeddedPwd.checkPasswordPolicy("VerySecurePassword1!", "VerySecurePassword1!")
+        val result = userPasswordEncrypter.checkPasswordPolicy("VerySecurePassword1!", "VerySecurePassword1!")
         assertFalse(result.ok)
-        assertIs<AuthEmbeddedPwd.PasswordCheck.Fail>(result)
+        assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.EQUALS_USERNAME, result.reason)
     }
 
     @Test
     fun `checkPasswordPolicy should fail if password has less than 3 character classes`() {
         // Only lowercase and uppercase (2 classes)
-        val result1 = authEmbeddedPwd.checkPasswordPolicy("OnlyLettersLongEnough", "user")
+        val result1 = userPasswordEncrypter.checkPasswordPolicy("OnlyLettersLongEnough", "user")
         assertFalse(result1.ok)
-        assertIs<AuthEmbeddedPwd.PasswordCheck.Fail>(result1)
+        assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result1)
         assertEquals(PasswordPolicyFailReason.MISSING_CHAR_CATEGORY, result1.reason)
 
         // Only lowercase and digits (2 classes)
-        val result2 = authEmbeddedPwd.checkPasswordPolicy("onlylettersand12345", "user")
+        val result2 = userPasswordEncrypter.checkPasswordPolicy("onlylettersand12345", "user")
         assertFalse(result2.ok)
-        assertIs<AuthEmbeddedPwd.PasswordCheck.Fail>(result2)
+        assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result2)
         assertEquals(PasswordPolicyFailReason.MISSING_CHAR_CATEGORY, result2.reason)
     }
 
     @Test
     fun `checkPasswordPolicy should succeed for valid passwords`() {
         // Lower, Upper, Digit
-        assertTrue(authEmbeddedPwd.checkPasswordPolicy("ValidPassword123", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword123", "user").ok)
         
         // Lower, Upper, Symbol
-        assertTrue(authEmbeddedPwd.checkPasswordPolicy("ValidPassword!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword!!!", "user").ok)
         
         // Lower, Digit, Symbol
-        assertTrue(authEmbeddedPwd.checkPasswordPolicy("validpassword123!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("validpassword123!!!", "user").ok)
         
         // Upper, Digit, Symbol
-        assertTrue(authEmbeddedPwd.checkPasswordPolicy("VALIDPASSWORD123!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("VALIDPASSWORD123!!!", "user").ok)
     }
 
 

@@ -3,7 +3,7 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 
-sealed interface AuthEmbeddedAction {
+sealed interface AuthAction {
 
 
     @ActionDoc(
@@ -39,7 +39,7 @@ sealed interface AuthEmbeddedAction {
         )
         val password: String
 
-    ) : AuthEmbeddedAction
+    ) : AuthAction
 
     @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user", uiLocation = "")
     class CreateUser(
@@ -68,7 +68,7 @@ sealed interface AuthEmbeddedAction {
         )
         val admin: Boolean
 
-    ) : AuthEmbeddedAction
+    ) : AuthAction
 
     @ActionDoc(
         key = "login",
@@ -90,7 +90,7 @@ sealed interface AuthEmbeddedAction {
             order = 2
         )
         val password: String
-    ) : AuthEmbeddedAction
+    ) : AuthAction
 
     @ActionDoc(
         key="whoami",
@@ -98,7 +98,7 @@ sealed interface AuthEmbeddedAction {
         description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
         uiLocation = ""
     )
-    class WhoAmI(): AuthEmbeddedAction
+    class WhoAmI(): AuthAction
 
     @ActionDoc(
         key="change_my_password",
@@ -119,7 +119,7 @@ sealed interface AuthEmbeddedAction {
             order = 2
         )
         val newPassword: String
-    ): AuthEmbeddedAction
+    ): AuthAction
 
     @ActionDoc(
         key="change_user_password",
@@ -140,7 +140,7 @@ sealed interface AuthEmbeddedAction {
             order = 2
         )
         val password: String
-    ): AuthEmbeddedAction
+    ): AuthAction
 
     @ActionDoc(
         key="disable_user",
@@ -155,7 +155,7 @@ sealed interface AuthEmbeddedAction {
             order = 1
         )
         val username: String,
-    ): AuthEmbeddedAction
+    ): AuthAction
 
     @ActionDoc(
         key="change_user_fullname",
@@ -176,5 +176,5 @@ sealed interface AuthEmbeddedAction {
             order = 2
         )
         val fullname: String,
-    ): AuthEmbeddedAction
+    ): AuthAction
 }

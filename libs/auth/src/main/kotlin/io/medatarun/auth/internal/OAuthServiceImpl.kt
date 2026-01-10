@@ -2,23 +2,21 @@ package io.medatarun.auth.internal
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
+import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
 import io.medatarun.auth.domain.User
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
+import io.medatarun.auth.ports.exposed.UserService
 import java.time.Instant
 import java.util.*
 
 class OAuthServiceImpl(
-    private val userService: AuthEmbeddedUserService,
-    private val jwtConfig: AuthEmbeddedJwtConfig,
+    private val userService: UserService,
+    private val jwtConfig: JwtConfig,
     private val keys: JwtKeyMaterial,
     private val userClaimsService: UserClaimsService
 ): OAuthService {
-
-
 
     override fun oidcLogin(username: String, password: String): OAuthTokenResponse {
         val user = userService.loginUser(username, password)

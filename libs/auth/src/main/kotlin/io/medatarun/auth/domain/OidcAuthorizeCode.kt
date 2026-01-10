@@ -2,7 +2,7 @@ package io.medatarun.auth.domain
 
 import java.time.Instant
 
-data class AuthCode(
+data class OidcAuthorizeCode(
     /**
      * Code that will be sent back to client after /oidc/authorize and that we must get back in /oidc/token
      * Generated on our side at the end of the login process

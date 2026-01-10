@@ -11,7 +11,7 @@ import java.time.Instant
  * Stores navigation context from /oidc/authorize to login page,
  * and login page loops until success
  */
-data class AuthCtx(
+data class OidcAuthorizeCtx(
     /**
      * Unique identifier of this context
      */

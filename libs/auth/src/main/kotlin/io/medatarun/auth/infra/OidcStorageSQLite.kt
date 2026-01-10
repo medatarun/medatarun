@@ -1,14 +1,14 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.AuthCode
-import io.medatarun.auth.domain.AuthCtx
-import io.medatarun.auth.ports.needs.AuthorizeStorage
+import io.medatarun.auth.domain.OidcAuthorizeCode
+import io.medatarun.auth.domain.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.ports.needs.OidcStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 
-class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : AuthorizeStorage {
-    override fun saveAuthCtx(authCtx: AuthCtx) {
+class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : OidcStorage {
+    override fun saveAuthCtx(oidcAuthorizeCtx: OidcAuthorizeCtx) {
         val sql = """
             INSERT INTO auth_ctx (
                 authorize_ctx_code,
@@ -26,22 +26,22 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
 
         dbConnectionFactory.getConnection().use { conn ->
             conn.prepareStatement(sql).use { ps ->
-                ps.setString(1, authCtx.authCtxCode)
-                ps.setString(2, authCtx.clientId)
-                ps.setString(3, authCtx.redirectUri)
-                ps.setString(4, authCtx.scope)
-                ps.setString(5, authCtx.state)
-                ps.setString(6, authCtx.codeChallenge)
-                ps.setString(7, authCtx.codeChallengeMethod)
-                ps.setString(8, authCtx.nonce)
-                ps.setString(9, authCtx.createdAt.toString())
-                ps.setString(10, authCtx.expiresAt.toString())
+                ps.setString(1, oidcAuthorizeCtx.authCtxCode)
+                ps.setString(2, oidcAuthorizeCtx.clientId)
+                ps.setString(3, oidcAuthorizeCtx.redirectUri)
+                ps.setString(4, oidcAuthorizeCtx.scope)
+                ps.setString(5, oidcAuthorizeCtx.state)
+                ps.setString(6, oidcAuthorizeCtx.codeChallenge)
+                ps.setString(7, oidcAuthorizeCtx.codeChallengeMethod)
+                ps.setString(8, oidcAuthorizeCtx.nonce)
+                ps.setString(9, oidcAuthorizeCtx.createdAt.toString())
+                ps.setString(10, oidcAuthorizeCtx.expiresAt.toString())
                 ps.executeUpdate()
             }
         }
     }
 
-    override fun findAuthCtx(authCtxId: String): AuthCtx {
+    override fun findAuthCtx(authCtxId: String): OidcAuthorizeCtx {
         val sql = """
             SELECT *
             FROM auth_ctx
@@ -56,7 +56,7 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
                         throw NoSuchElementException("auth_ctx not found: $authCtxId")
                     }
 
-                    return AuthCtx(
+                    return OidcAuthorizeCtx(
                         authCtxCode = rs.getString("authorize_ctx_code"),
                         clientId = rs.getString("client_id"),
                         redirectUri = rs.getString("redirect_uri"),
@@ -73,7 +73,7 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
         }
     }
 
-    override fun saveAuthCode(authCode: AuthCode) {
+    override fun saveAuthCode(oidcAuthorizeCode: OidcAuthorizeCode) {
         val sql = """
             INSERT INTO auth_code (
                 code,
@@ -91,22 +91,22 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
 
         dbConnectionFactory.getConnection().use { conn ->
             conn.prepareStatement(sql).use { ps ->
-                ps.setString(1, authCode.code)
-                ps.setString(2, authCode.clientId)
-                ps.setString(3, authCode.redirectUri)
-                ps.setString(4, authCode.subject)
-                ps.setString(5, authCode.scope)
-                ps.setString(6, authCode.codeChallenge)
-                ps.setString(7, authCode.codeChallengeMethod)
-                ps.setString(8, authCode.nonce)
-                ps.setString(9, authCode.authTime.toString())
-                ps.setString(10, authCode.expiresAt.toString())
+                ps.setString(1, oidcAuthorizeCode.code)
+                ps.setString(2, oidcAuthorizeCode.clientId)
+                ps.setString(3, oidcAuthorizeCode.redirectUri)
+                ps.setString(4, oidcAuthorizeCode.subject)
+                ps.setString(5, oidcAuthorizeCode.scope)
+                ps.setString(6, oidcAuthorizeCode.codeChallenge)
+                ps.setString(7, oidcAuthorizeCode.codeChallengeMethod)
+                ps.setString(8, oidcAuthorizeCode.nonce)
+                ps.setString(9, oidcAuthorizeCode.authTime.toString())
+                ps.setString(10, oidcAuthorizeCode.expiresAt.toString())
                 ps.executeUpdate()
             }
         }
     }
 
-    override fun findAuthCode(authCode: String): AuthCode? {
+    override fun findAuthCode(authCode: String): OidcAuthorizeCode? {
         val sql = """
             SELECT *
             FROM auth_code
@@ -119,7 +119,7 @@ class AuthorizeStorageSQLite(private val dbConnectionFactory: DbConnectionFactor
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
 
-                    return AuthCode(
+                    return OidcAuthorizeCode(
                         code = rs.getString("code"),
                         clientId = rs.getString("client_id"),
                         redirectUri = rs.getString("redirect_uri"),

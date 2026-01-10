@@ -9,8 +9,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.cli.installCLI
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
@@ -54,8 +54,8 @@ class AppHttpServer(
 
     private val uiIndexTemplate = UIIndexTemplate()
 
-    val userService = runtime.services.getService<AuthEmbeddedUserService>()
-    val oidcService = runtime.services.getService<AuthEmbeddedOIDCService>()
+    val userService = runtime.services.getService<UserService>()
+    val oidcService = runtime.services.getService<OidcService>()
 
 
     @Volatile

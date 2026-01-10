@@ -5,7 +5,7 @@ import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
-class AuthEmbeddedPwd(
+class UserPasswordEncrypter(
     private val passwordEncryptionIterations: Int = DEFAULT_ITERATIONS
 ) {
 

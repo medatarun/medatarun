@@ -1,6 +1,6 @@
 package io.medatarun.auth.domain
 
-data class AuthEmbeddedJwtConfig(
+data class JwtConfig(
     val issuer: String,
     val audience: String,
     val ttlSeconds: Long

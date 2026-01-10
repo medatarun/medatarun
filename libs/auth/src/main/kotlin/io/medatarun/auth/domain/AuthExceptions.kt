@@ -1,0 +1,26 @@
+package io.medatarun.auth.domain
+
+import io.medatarun.auth.internal.UserPasswordEncrypter
+import io.medatarun.lang.http.StatusCode
+import io.medatarun.model.domain.MedatarunException
+
+class BootstrapSecretNotReadyException() :
+    MedatarunException("Auth embedded service is not ready. Bootstrap has not been done yet")
+
+class BootstrapSecretAlreadyConsumedException() :
+    MedatarunException("Bootstrap already consumed.", StatusCode.GONE)
+
+class BootstrapSecretBadSecretException() :
+    MedatarunException("Bad bootstrap secret.", StatusCode.UNAUTHORIZED)
+
+class UserCreatePasswordFailException(val reason: UserPasswordEncrypter.PasswordPolicyFailReason) :
+    MedatarunException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
+
+class AuthUnauthorizedException :
+    MedatarunException("Bad credentials.", StatusCode.UNAUTHORIZED)
+
+class UserNotFoundException :
+    MedatarunException("User not found.", StatusCode.NOT_FOUND)
+
+class UserAlreadyExistsException :
+    MedatarunException("User already exists.", StatusCode.CONFLICT)

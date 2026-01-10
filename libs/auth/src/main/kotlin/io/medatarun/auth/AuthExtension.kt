@@ -2,18 +2,18 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
-import io.medatarun.auth.infra.AuthorizeStorageSQLite
+import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
-import io.medatarun.auth.infra.UserStoreSQLite
+import io.medatarun.auth.infra.OidcStorageSQLite
+import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.*
-import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
-import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
-import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
+import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import io.medatarun.auth.ports.exposed.OAuthService
+import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.auth.ports.needs.AuthorizeStorage
+import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
@@ -36,26 +36,26 @@ class AuthExtension() : MedatarunExtension {
         val authClock = object : AuthClock {
             override fun now(): Instant = Instant.now()
         }
-        val passwordEncryptionDefaultIterations = AuthEmbeddedPwd.DEFAULT_ITERATIONS
+        val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
 
         // ------------------------------------------
         // Should be the same in test initializations
         // ------------------------------------------
 
-        val userStorage = UserStoreSQLite(dbConnectionFactory)
-        val authStorage: AuthorizeStorage = AuthorizeStorageSQLite(dbConnectionFactory)
+        val userStorage = UserStorageSQLite(dbConnectionFactory)
+        val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
 
         val userClaimsService = UserClaimsService()
-        val authEmbeddedKeyRegistry = AuthEmbeddedKeyRegistryImpl(cfgKeyStorePath)
+        val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
         val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
-        val jwtCfg = AuthEmbeddedJwtConfig(
+        val jwtCfg = JwtConfig(
             issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
             audience = "medatarun",
             ttlSeconds = 3600
         )
 
-        val userService: AuthEmbeddedUserService = AuthEmbeddedUserServiceImpl(
+        val userService: UserService = UserServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
             userStorage = userStorage,
             clock = authClock,
@@ -69,22 +69,19 @@ class AuthExtension() : MedatarunExtension {
             userClaimsService = userClaimsService
         )
 
-        val oidcService: AuthEmbeddedOIDCService = AuthEmbeddedOIDCServiceImpl(
-            oidcAuthorizeService = AuthEmbeddedOIDCAuthorizeService(
-                storage = authStorage,
-                clock = authClock,
-                authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS
-            ),
+        val oidcService: OidcService = OidcServiceImpl(
             userStorage = userStorage,
             oidcAuthCodeStorage = authStorage,
             userClaimsService = userClaimsService,
             oauthService = oauthService,
             authEmbeddedKeys = authEmbeddedKeys,
-            jwtCfg = jwtCfg
+            jwtCfg = jwtCfg,
+            clock = authClock,
+            authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS
         )
 
-        ctx.register(AuthEmbeddedUserService::class, userService)
-        ctx.register(AuthEmbeddedOIDCService::class, oidcService)
+        ctx.register(UserService::class, userService)
+        ctx.register(OidcService::class, oidcService)
         ctx.register(OAuthService::class, oauthService)
     }
 

@@ -1,6 +1,6 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.ports.exposed.AuthEmbeddedBootstrapSecret
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -10,14 +10,14 @@ import java.util.*
 /**
  * Creates a bootstrap secret, generated once only
  */
-class AuthEmbeddedBootstrapSecretImpl(
+class BootstrapSecretLifecycleImpl(
     private val bootstrapDir: Path
-): AuthEmbeddedBootstrapSecret {
+): BootstrapSecretLifecycle {
     val secretPath = bootstrapDir.resolve("bootstrap.secret")
     val consumedPath = bootstrapDir.resolve("bootstrap.consumed.flag")
 
 
-    override fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): AuthEmbeddedBootstrapState {
+    override fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): BootstrapSecretState {
         Files.createDirectories(bootstrapDir)
 
         val consumed = Files.exists(consumedPath)
@@ -26,7 +26,7 @@ class AuthEmbeddedBootstrapSecretImpl(
             if (!consumed) {
                 logOnce(secret)
             }
-            return AuthEmbeddedBootstrapState(secret, consumed)
+            return BootstrapSecretState(secret, consumed)
         }
 
         val rnd = ByteArray(48)
@@ -35,18 +35,18 @@ class AuthEmbeddedBootstrapSecretImpl(
 
         Files.writeString(secretPath, secret, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
         logOnce(secret)
-        return AuthEmbeddedBootstrapState(secret, consumed)
+        return BootstrapSecretState(secret, consumed)
     }
 
     override fun markBootstrapConsumed() {
         Files.writeString(consumedPath, "consumed", StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
     }
 
-    override fun load(): AuthEmbeddedBootstrapState? {
+    override fun load(): BootstrapSecretState? {
         if (!Files.exists(secretPath)) return null
         val secret = Files.readString(secretPath)
         val consumed = Files.exists(consumedPath)
-        return AuthEmbeddedBootstrapState(secret, consumed)
+        return BootstrapSecretState(secret, consumed)
 
     }
 }

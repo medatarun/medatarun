@@ -2,8 +2,8 @@ package io.medatarun.auth.embedded
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.internal.AuthEmbeddedKeyRegistryImpl
-import io.medatarun.auth.ports.exposed.AuthEmbeddedKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
+import io.medatarun.auth.internal.JwtSigninKeyRegistryImpl
+import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals
@@ -18,7 +18,7 @@ class AuthEmbeddedKeyRegistryTest {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
         val secretsPath = medatarunHomePath.resolve(DEFAULT_KEYSTORE_PATH_NAME)
-        val service = AuthEmbeddedKeyRegistryImpl(secretsPath)
+        val service = JwtSigninKeyRegistryImpl(secretsPath)
         val keys = service.loadOrCreateKeys()
 
         // Files should be created
@@ -46,7 +46,7 @@ class AuthEmbeddedKeyRegistryTest {
         assertTrue(keys.kid.isNotBlank(), "kid should not be blank")
 
         // Loading again should return the same material (idempotency)
-        val secondService = AuthEmbeddedKeyRegistryImpl(secretsPath)
+        val secondService = JwtSigninKeyRegistryImpl(secretsPath)
         val keys2 = secondService.loadOrCreateKeys()
 
         assertEquals(keys.kid, keys2.kid, "kid should remain the same after reload")

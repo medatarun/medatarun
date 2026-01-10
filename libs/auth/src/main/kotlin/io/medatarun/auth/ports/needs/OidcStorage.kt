@@ -1,10 +1,10 @@
 package io.medatarun.auth.ports.needs
 
-import io.medatarun.auth.domain.AuthCode
-import io.medatarun.auth.domain.AuthCtx
+import io.medatarun.auth.domain.OidcAuthorizeCode
+import io.medatarun.auth.domain.OidcAuthorizeCtx
 import java.time.Instant
 
-interface AuthorizeStorage {
+interface OidcStorage {
 
     // ------------------------------------------------------------------------
     // AuthCtx management
@@ -15,8 +15,8 @@ interface AuthorizeStorage {
     // and login page loops until success
     // ------------------------------------------------------------------------
 
-    fun saveAuthCtx(authCtxId: AuthCtx)
-    fun findAuthCtx(authCtxId: String): AuthCtx
+    fun saveAuthCtx(oidcAuthorizeCtxId: OidcAuthorizeCtx)
+    fun findAuthCtx(authCtxId: String): OidcAuthorizeCtx
     fun deleteAuthCtx(authorizeCtxCode: String)
 
     // ------------------------------------------------------------------------
@@ -27,8 +27,8 @@ interface AuthorizeStorage {
     // Stores context associated with this code
     // ------------------------------------------------------------------------
 
-    fun saveAuthCode(authCode: AuthCode)
-    fun findAuthCode(authCode: String): AuthCode?
+    fun saveAuthCode(oidcAuthorizeCode: OidcAuthorizeCode)
+    fun findAuthCode(authCode: String): OidcAuthorizeCode?
     fun deleteAuthCode(authCode: String)
 
 

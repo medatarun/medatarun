@@ -7,7 +7,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
-import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
+import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 
 object AppHttpServerJwtSecurity {
@@ -23,7 +23,7 @@ object AppHttpServerJwtSecurity {
  *
  * Only OIDC have specific endpoints
  */
-fun Application.installJwtSecurity(oidcService: AuthEmbeddedOIDCService) {
+fun Application.installJwtSecurity(oidcService: OidcService) {
     install(Authentication) {
         jwt(AUTH_MEDATARUN_JWT) {
             skipWhen { call ->

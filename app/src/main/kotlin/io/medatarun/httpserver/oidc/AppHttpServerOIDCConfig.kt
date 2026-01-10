@@ -5,18 +5,18 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.medatarun.auth.domain.OIDCAuthorizeRequest
-import io.medatarun.auth.domain.OIDCTokenRequest
-import io.medatarun.auth.internal.AuthorizeResult
-import io.medatarun.auth.ports.exposed.AuthEmbeddedOIDCService
-import io.medatarun.auth.ports.exposed.AuthEmbeddedUserService
+import io.medatarun.auth.domain.OidcAuthorizeRequest
+import io.medatarun.auth.domain.OidcTokenRequest
+import io.medatarun.auth.internal.OidcAuthorizeResult
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
+import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.oidc.OIDCAuthorizePage.Companion.PARAM_AUTH_CTX
 import io.medatarun.httpserver.oidc.OIDCAuthorizePage.Companion.PARAM_PASSWORD
 import io.medatarun.httpserver.oidc.OIDCAuthorizePage.Companion.PARAM_USERNAME
 import java.net.URI
 
-fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthEmbeddedUserService, publicBaseUrl: URI) {
+fun Routing.installOidc(oidcService: OidcService, userService: UserService, publicBaseUrl: URI) {
 
 // ----------------------------------------------------------------
 // OpenIdConnect
@@ -34,7 +34,7 @@ fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthE
     route(oidcService.oidcAuthorizeUri()) {
         suspend fun process(call: ApplicationCall) {
             // Displays webpage where user should authenticate himself (login/password)
-            val req = OIDCAuthorizeRequest(
+            val req = OidcAuthorizeRequest(
                 responseType = call.parameters["response_type"],
                 clientId = call.parameters["client_id"],
                 redirectUri = call.parameters["redirect_uri"],
@@ -47,15 +47,15 @@ fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthE
 
             val resp = oidcService.oidcAuthorize(req)
             when (resp) {
-                is AuthorizeResult.FatalError -> {
+                is OidcAuthorizeResult.FatalError -> {
                     call.respond(HttpStatusCode.BadRequest, resp.reason)
                 }
 
-                is AuthorizeResult.RedirectError -> {
+                is OidcAuthorizeResult.RedirectError -> {
                     call.respondRedirect(oidcService.oidcAuthorizeErrorLocation(resp), false)
                 }
 
-                is AuthorizeResult.Valid -> {
+                is OidcAuthorizeResult.Valid -> {
                     call.respondRedirect("/ui/auth/login?${PARAM_AUTH_CTX}=" + resp.authCtxCode, false)
                 }
             }
@@ -117,7 +117,7 @@ fun Routing.installOidc(oidcService: AuthEmbeddedOIDCService, userService: AuthE
 
 
             fun process(): OIDCTokenResponseOrError {
-                val request = OIDCTokenRequest(
+                val request = OidcTokenRequest(
                     grantType = params["grant_type"]
                         ?: return OIDCTokenResponseOrError.Error("invalid_request", "grand_type"),
                     code = params["code"]

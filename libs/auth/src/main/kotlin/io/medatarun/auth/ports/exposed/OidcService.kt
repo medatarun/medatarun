@@ -1,15 +1,15 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.AuthCtx
 import io.medatarun.auth.domain.Jwks
-import io.medatarun.auth.domain.OIDCAuthorizeRequest
-import io.medatarun.auth.domain.OIDCTokenRequest
-import io.medatarun.auth.internal.AuthorizeResult
+import io.medatarun.auth.domain.OidcAuthorizeCtx
+import io.medatarun.auth.domain.OidcAuthorizeRequest
+import io.medatarun.auth.domain.OidcTokenRequest
+import io.medatarun.auth.internal.OidcAuthorizeResult
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 import java.security.interfaces.RSAPublicKey
 
-interface AuthEmbeddedOIDCService {
+interface OidcService {
     fun oidcJwks(): Jwks
     fun oidcJwksUri(): String
     fun oidcPublicKey(): RSAPublicKey
@@ -27,14 +27,14 @@ interface AuthEmbeddedOIDCService {
      * users can put their login and password.
      */
     fun oidcAuthorizeUri(): String
-    fun oidcAuthorize(req: OIDCAuthorizeRequest): AuthorizeResult
-    fun oidcAuthorizeFindAuthCtx(authCtxCode: String): AuthCtx?
+    fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult
+    fun oidcAuthorizeFindAuthCtx(authCtxCode: String): OidcAuthorizeCtx?
     fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String
 
     fun oidcTokenUri(): String
-    fun oidcToken(oidcTokenReq: OIDCTokenRequest): OIDCTokenResponseOrError
+    fun oidcToken(oidcTokenReq: OidcTokenRequest): OIDCTokenResponseOrError
 
-    fun oidcAuthorizeErrorLocation(resp: AuthorizeResult.RedirectError): String
+    fun oidcAuthorizeErrorLocation(resp: OidcAuthorizeResult.RedirectError): String
 
 
 

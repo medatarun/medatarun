@@ -1,11 +1,11 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.internal.AuthEmbeddedBootstrapState
+import io.medatarun.auth.internal.BootstrapSecretState
 
 /**
  * Manages the first bootstrap secret, that can only be used once
  */
-interface AuthEmbeddedBootstrapSecret {
+interface BootstrapSecretLifecycle {
 
     /**
      * Loads or create the bootstrap secret.
@@ -13,13 +13,13 @@ interface AuthEmbeddedBootstrapSecret {
      * Once the bootstrap secret had been created, calls back [logOnce] with the secret,
      * typically to display it in logs the first time, so that an admin can know him.
      */
-    fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): AuthEmbeddedBootstrapState
+    fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): BootstrapSecretState
 
     /**
      * Marks the bootstrap secret consumed
      */
     fun markBootstrapConsumed()
-    fun load(): AuthEmbeddedBootstrapState?
+    fun load(): BootstrapSecretState?
 
     companion object {
         const val DEFAULT_BOOTSTRAP_SECRET_PATH_NAME = "secrets/auth/bootstrap"

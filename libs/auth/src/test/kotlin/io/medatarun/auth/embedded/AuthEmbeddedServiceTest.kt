@@ -4,16 +4,16 @@ import com.auth0.jwt.JWT
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension.Companion.DEFAULT_AUTH_CTX_DURATION_SECONDS
-import io.medatarun.auth.domain.AuthEmbeddedBadCredentialsException
-import io.medatarun.auth.domain.AuthEmbeddedJwtConfig
-import io.medatarun.auth.domain.AuthEmbeddedUserAlreadyExistsException
-import io.medatarun.auth.infra.AuthorizeStorageSQLite
+import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.JwtConfig
+import io.medatarun.auth.domain.UserAlreadyExistsException
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
-import io.medatarun.auth.infra.UserStoreSQLite
+import io.medatarun.auth.infra.OidcStorageSQLite
+import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.*
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.auth.ports.needs.AuthorizeStorage
+import io.medatarun.auth.ports.needs.OidcStorage
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -38,14 +38,14 @@ class AuthEmbeddedServiceTest {
 
         @Test
         fun `admin cannot log in with bad login`() {
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(env.adminUser + "--", env.adminPassword)
             }
         }
 
         @Test
         fun `admin cannot log in with bad password`() {
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(env.adminUser, env.adminPassword + "---")
             }
         }
@@ -73,7 +73,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `can not create user with same login`() {
             createJohn()
-            assertThrows<AuthEmbeddedUserAlreadyExistsException> {
+            assertThrows<UserAlreadyExistsException> {
                 env.userService.createEmbeddedUser(johnUsername, "Other", "other.name." + UUID.randomUUID(), false)
             }
         }
@@ -81,7 +81,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `john cannot log in with bad login`() {
             createJohn()
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin("$johnUsername--", johnPassword)
             }
         }
@@ -89,7 +89,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `john cannot log in with bad password`() {
             createJohn()
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(johnUsername, "$johnPassword---")
             }
         }
@@ -97,7 +97,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `john cannot log in with admin password`() {
             createJohn()
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(johnUsername, env.adminPassword)
             }
         }
@@ -105,7 +105,7 @@ class AuthEmbeddedServiceTest {
         @Test
         fun `john cannot fake admin with its password`() {
             createJohn()
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(env.adminUser, johnPassword)
             }
         }
@@ -115,13 +115,13 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.userService.changeOwnPassword(johnUsername, johnPassword, "$johnPassword.new")
             // Old password shall not work again
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(johnUsername, johnPassword)
             }
             // New password works
             env.oauthService.oidcLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(env.adminUser, "$johnPassword.new")
             }
             val adminToken = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
@@ -133,13 +133,13 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.userService.changeUserPassword(johnUsername, "$johnPassword.new")
             // Old password shall not work again
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(johnUsername, johnPassword)
             }
             // New password works
             env.oauthService.oidcLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(env.adminUser, "$johnPassword.new")
             }
             val adminToken = env.oauthService.oidcLogin(env.adminUser, env.adminPassword)
@@ -151,7 +151,7 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.userService.disableUser(johnUsername)
             // login shall fail
-            assertThrows<AuthEmbeddedBadCredentialsException> {
+            assertThrows<AuthUnauthorizedException> {
                 env.oauthService.oidcLogin(johnUsername, johnPassword)
             }
             // Didn't changed by mistake admin login
@@ -163,7 +163,7 @@ class AuthEmbeddedServiceTest {
         fun `can not reuse login of disabled john`() {
             createJohn()
             env.userService.disableUser(johnUsername)
-            assertThrows<AuthEmbeddedUserAlreadyExistsException> {
+            assertThrows<UserAlreadyExistsException> {
                 env.userService.createEmbeddedUser(johnUsername, "Another User", "test." + UUID.randomUUID(), false)
             }
         }
@@ -192,8 +192,8 @@ class AuthEmbeddedServiceTest {
 
 
     class TestInit {
-        val userService: AuthEmbeddedUserService
-        val oidcService: AuthEmbeddedOIDCService
+        val userService: UserService
+        val oidcService: OidcService
         val oauthService: OAuthService
         val adminUser: String = "admin"
         val adminFullname: String = "Admin"
@@ -208,34 +208,34 @@ class AuthEmbeddedServiceTest {
             val home = fs.getPath("/opt/medatarun")
             Files.createDirectories(home)
 
-            val cfgBootstrapSecretPath = home.resolve(AuthEmbeddedBootstrapSecret.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-            val cfgKeyStorePath = home.resolve(AuthEmbeddedKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
+            val cfgBootstrapSecretLifecyclePath = home.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
+            val cfgKeyStorePath = home.resolve(JwtSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
             this.dbConnectionFactory =
                 DbConnectionFactoryImpl("file:test_${UUID.randomUUID()}?mode=memory&cache=shared")
             //this.dbConnectionFactory = DbConnectionFactoryImpl(":memory:")
             dbConnectionKeeper = dbConnectionFactory.getConnection()
             val authClock = ClockTester()
-            val passwordEncryptionDefaultIterations = AuthEmbeddedPwd.DEFAULT_ITERATIONS_FOR_TESTS
+            val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
 
             // -----------------------------------------------------------
             // Same as in extension, mutualization for later
             // -----------------------------------------------------------
 
-            val userStorage = UserStoreSQLite(dbConnectionFactory)
-            val authStorage: AuthorizeStorage = AuthorizeStorageSQLite(dbConnectionFactory)
+            val userStorage = UserStorageSQLite(dbConnectionFactory)
+            val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
 
             val userClaimsService = UserClaimsService()
-            val authEmbeddedKeyRegistry = AuthEmbeddedKeyRegistryImpl(cfgKeyStorePath)
+            val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
             val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
-            val jwtCfg = AuthEmbeddedJwtConfig(
+            val jwtCfg = JwtConfig(
                 issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
                 audience = "medatarun",
                 ttlSeconds = 3600
             )
 
-            val userService: AuthEmbeddedUserService = AuthEmbeddedUserServiceImpl(
-                bootstrapDirPath = cfgBootstrapSecretPath,
+            val userService: UserService = UserServiceImpl(
+                bootstrapDirPath = cfgBootstrapSecretLifecyclePath,
                 userStorage = userStorage,
                 clock = authClock,
                 passwordEncryptionIterations = passwordEncryptionDefaultIterations
@@ -249,18 +249,15 @@ class AuthEmbeddedServiceTest {
             )
 
 
-            val oidcService: AuthEmbeddedOIDCService = AuthEmbeddedOIDCServiceImpl(
-                oidcAuthorizeService = AuthEmbeddedOIDCAuthorizeService(
-                    storage = authStorage,
-                    clock = authClock,
-                    authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS
-                ),
+            val oidcService: OidcService = OidcServiceImpl(
                 userStorage = userStorage,
                 oidcAuthCodeStorage = authStorage,
                 userClaimsService = userClaimsService,
                 oauthService = oauthService,
                 authEmbeddedKeys = authEmbeddedKeys,
-                jwtCfg = jwtCfg
+                jwtCfg = jwtCfg,
+                clock = authClock,
+                authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS
             )
 
             // ----------------------------------------------------------------

@@ -2,12 +2,12 @@ package io.medatarun.auth.infra
 
 import io.medatarun.auth.domain.User
 import io.medatarun.auth.ports.needs.DbConnectionFactory
-import io.medatarun.auth.ports.needs.UserStore
+import io.medatarun.auth.ports.needs.UserStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.util.*
 
-class UserStoreSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStore {
+class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
     init {
         dbConnectionFactory.getConnection().use { it.createStatement().execute(SCHEMA) }
