@@ -31,7 +31,7 @@ to build robust systems will fail. Moreover, governance is time-consuming for ev
 it.
 
 Medatarun starts from those problems, without trying to solve them through static documentation. We invite you to
-read more of our experience here: [link to PROBLEM.md].
+read more of [our experience here](../../docs/resources/problem_en).
 
 Yes, ambition is high because we try to address all these issues at once. Precisely, this is because those concerns are
 never considered together that today's data management is unnecessarily complex.

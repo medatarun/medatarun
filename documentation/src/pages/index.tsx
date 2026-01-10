@@ -27,8 +27,8 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button button--secondary button--lg"
-            to="docs/quickstart">
-            Quickstart
+            to="docs/overview">
+            Overview and start
           </Link>
         </div>
       </div>
