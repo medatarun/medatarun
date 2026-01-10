@@ -55,11 +55,14 @@ class AuthExtension() : MedatarunExtension {
             ttlSeconds = 3600
         )
 
+        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath)
+
         val userService: UserService = UserServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
             userStorage = userStorage,
             clock = authClock,
-            passwordEncryptionIterations = passwordEncryptionDefaultIterations
+            passwordEncryptionIterations = passwordEncryptionDefaultIterations,
+            bootstrapper = bootstrapper
         )
 
         val oauthService = OAuthServiceImpl(

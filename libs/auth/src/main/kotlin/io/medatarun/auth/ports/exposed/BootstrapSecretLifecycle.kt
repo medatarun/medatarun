@@ -19,6 +19,10 @@ interface BootstrapSecretLifecycle {
      * Marks the bootstrap secret consumed
      */
     fun markBootstrapConsumed()
+
+    /**
+     * Loads the boostrap secret, consumed or not, but do not generate it
+     */
     fun load(): BootstrapSecretState?
 
     companion object {

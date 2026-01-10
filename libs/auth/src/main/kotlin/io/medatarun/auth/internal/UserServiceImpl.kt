@@ -1,6 +1,7 @@
 package io.medatarun.auth.internal
 
 import io.medatarun.auth.domain.*
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.UserStorage
@@ -11,10 +12,11 @@ class UserServiceImpl(
     private val bootstrapDirPath: Path,
     private val userStorage: UserStorage,
     private val clock: AuthClock,
-    private val passwordEncryptionIterations: Int
+    private val passwordEncryptionIterations: Int,
+    private val bootstrapper: BootstrapSecretLifecycle
 ) : UserService {
 
-    private val bootstrapper = BootstrapSecretLifecycleImpl(bootstrapDirPath)
+
     private val userPasswordEncrypter = UserPasswordEncrypter(passwordEncryptionIterations)
 
     override fun loadOrCreateBootstrapSecret(runOnce: (secret: String) -> Unit) {

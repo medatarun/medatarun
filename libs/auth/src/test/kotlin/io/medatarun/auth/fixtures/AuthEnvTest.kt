@@ -65,7 +65,7 @@ class AuthEnvTest(
         val home = fs.getPath("/opt/medatarun")
         Files.createDirectories(home)
 
-        val cfgBootstrapSecretLifecyclePath =
+        val cfgBootstrapSecretPath =
             home.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = home.resolve(JwtSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
 
@@ -98,12 +98,14 @@ class AuthEnvTest(
             audience = "medatarun",
             ttlSeconds = 3600
         )
+        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath)
 
         val userService: UserService = UserServiceImpl(
-            bootstrapDirPath = cfgBootstrapSecretLifecyclePath,
+            bootstrapDirPath = cfgBootstrapSecretPath,
             userStorage = userStorage,
             clock = authClock,
-            passwordEncryptionIterations = passwordEncryptionDefaultIterations
+            passwordEncryptionIterations = passwordEncryptionDefaultIterations,
+            bootstrapper = bootstrapper
         )
 
         val oauthService = OAuthServiceImpl(
