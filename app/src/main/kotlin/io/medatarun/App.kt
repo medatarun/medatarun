@@ -1,10 +1,12 @@
 package io.medatarun
 
+import io.medatarun.cli.AppCLIConfigProperty
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.cli.AppCLIUtils.configureCliLogging
 import io.medatarun.cli.AppCLIUtils.isServerMode
 import io.medatarun.config.createConfig
 import io.medatarun.httpserver.AppHttpServer
+import io.medatarun.lang.trimToNull
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import org.slf4j.LoggerFactory
 
@@ -28,7 +30,7 @@ fun main(args: Array<String>) {
     } else {
         configureCliLogging()
         val c = createConfig(cli = true)
-        val authenticationToken = c.config.getProperty("medatarun.auth.token")
+        val authenticationToken = c.config.getProperty(AppCLIConfigProperty.AuthToken.key)?.trimToNull()
         val cliRunner = AppCLIRunner(
             args,
             publicBaseUrl = c.publicBaseUrl,

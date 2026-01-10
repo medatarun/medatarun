@@ -82,6 +82,9 @@ class AuthEnvTest(
         // Reduce number of iterations needed for password encryption (from 31_0000 to 1000)
         val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
 
+        // No bootstrap secret in configuration, it will be random
+        val cfgBootstrapSecret = null
+
         // -----------------------------------------------------------
         // Same as in extension, mutualization for later
         // -----------------------------------------------------------
@@ -98,7 +101,7 @@ class AuthEnvTest(
             audience = "medatarun",
             ttlSeconds = 3600
         )
-        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath)
+        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
         val userService: UserService = UserServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,

@@ -1,12 +1,14 @@
 package io.medatarun.auth.domain
 
 import io.medatarun.auth.internal.UserPasswordEncrypter
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.MedatarunException
 
 class BootstrapSecretNotReadyException() :
     MedatarunException("Auth embedded service is not ready. Bootstrap has not been done yet")
-
+class BootstrapSecretPrefilledToShortException():
+        MedatarunException("Bootstrap secret, when prefilled, shall have a minimum size of $SECRET_MIN_SIZE chars.")
 class BootstrapSecretAlreadyConsumedException() :
     MedatarunException("Bootstrap already consumed.", StatusCode.GONE)
 

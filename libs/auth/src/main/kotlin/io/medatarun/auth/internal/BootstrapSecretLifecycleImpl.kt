@@ -1,6 +1,9 @@
 package io.medatarun.auth.internal
 
+import io.medatarun.auth.domain.BootstrapSecretPrefilledToShortException
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_SIZE
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -11,10 +14,19 @@ import java.util.*
  * Creates a bootstrap secret, generated once only
  */
 class BootstrapSecretLifecycleImpl(
-    private val bootstrapDir: Path
+    private val bootstrapDir: Path,
+    private val prefilledSecret: String?,
 ): BootstrapSecretLifecycle {
     val secretPath = bootstrapDir.resolve("bootstrap.secret")
     val consumedPath = bootstrapDir.resolve("bootstrap.consumed.flag")
+
+    init {
+        if (prefilledSecret!=null) {
+            if (prefilledSecret.length < SECRET_MIN_SIZE) {
+                throw BootstrapSecretPrefilledToShortException()
+            }
+        }
+    }
 
 
     override fun loadOrCreateBootstrapSecret(logOnce: (String) -> Unit): BootstrapSecretState {
@@ -29,7 +41,7 @@ class BootstrapSecretLifecycleImpl(
             return BootstrapSecretState(secret, consumed)
         }
 
-        val rnd = ByteArray(48)
+        val rnd = ByteArray(SECRET_SIZE)
         SecureRandom().nextBytes(rnd)
         val secret = Base64.getUrlEncoder().withoutPadding().encodeToString(rnd)
 
@@ -47,6 +59,9 @@ class BootstrapSecretLifecycleImpl(
         val secret = Files.readString(secretPath)
         val consumed = Files.exists(consumedPath)
         return BootstrapSecretState(secret, consumed)
+    }
+
+    companion object {
 
     }
 }

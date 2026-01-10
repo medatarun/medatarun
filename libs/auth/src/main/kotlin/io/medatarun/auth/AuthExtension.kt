@@ -2,6 +2,7 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
@@ -37,6 +38,7 @@ class AuthExtension() : MedatarunExtension {
             override fun now(): Instant = Instant.now()
         }
         val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
+        val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
 
         // ------------------------------------------
         // Should be the same in test initializations
@@ -55,7 +57,7 @@ class AuthExtension() : MedatarunExtension {
             ttlSeconds = 3600
         )
 
-        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath)
+        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
         val userService: UserService = UserServiceImpl(
             bootstrapDirPath = cfgBootstrapSecretPath,
@@ -92,3 +94,4 @@ class AuthExtension() : MedatarunExtension {
         const val DEFAULT_AUTH_CTX_DURATION_SECONDS: Long = 60 * 15
     }
 }
+

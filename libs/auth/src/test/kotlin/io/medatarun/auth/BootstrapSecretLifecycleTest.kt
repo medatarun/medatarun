@@ -2,20 +2,39 @@ package io.medatarun.auth
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import io.medatarun.auth.domain.BootstrapSecretPrefilledToShortException
 import io.medatarun.auth.internal.BootstrapSecretLifecycleImpl
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.nio.file.Files
 import kotlin.test.*
 
 class BootstrapSecretLifecycleTest {
+
+    @Test
+    fun `should use secret and make it usable only once`() {
+        testSuite(null)
+    }
+
     @Test
     fun `should generate secret and make it usable only once`() {
+        testSuite("THIS IS MY SECRET 0123456789")
+    }
+
+    @Test
+    fun `prefilled secret shall respect min size`() {
+        assertThrows<BootstrapSecretPrefilledToShortException> {
+            testSuite("secret bidon")
+        }
+    }
+
+    fun testSuite(cfgBootstrapSecret: String?) {
 
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
-        val secretsPath = medatarunHomePath.resolve(BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-        val service = BootstrapSecretLifecycleImpl(secretsPath)
+        val secretsPath = medatarunHomePath.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
+        val service = BootstrapSecretLifecycleImpl(secretsPath, cfgBootstrapSecret)
         var bootstrapSecretLog: String? = null
 
         val secretPath = secretsPath.resolve("bootstrap.secret")
@@ -36,6 +55,10 @@ class BootstrapSecretLifecycleTest {
         // ------------------------
 
         val state1 = service.loadOrCreateBootstrapSecret { secret -> bootstrapSecretLog = secret }
+        if (cfgBootstrapSecret != null) {
+            // If we gave a secret environment variable, it shall be used
+            assertEquals(cfgBootstrapSecret, bootstrapSecretLog, "Secret environment variable shall be used")
+        }
 
         // secret created and logged once
         assertNotNull(bootstrapSecretLog, "secret should be logged on first creation")

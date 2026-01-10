@@ -27,5 +27,7 @@ interface BootstrapSecretLifecycle {
 
     companion object {
         const val DEFAULT_BOOTSTRAP_SECRET_PATH_NAME = "secrets/auth/bootstrap"
+        const val SECRET_MIN_SIZE = 20
+        const val SECRET_SIZE = 48
     }
 }
