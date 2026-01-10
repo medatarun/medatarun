@@ -1,9 +1,9 @@
 ---
 sidebar_position: 2
 ---
-# Quickstart
+# Overview
 
-You’ll need the `medatarun` command installed. See the [installation guide](installation/install-from-distribution.md) for setup.
+You’ll need the `medatarun` command installed. See the [installation guide](./installation/install-from-distribution) for setup.
 
 ## Basic understanding
 
@@ -44,7 +44,7 @@ Everything is French and you don't understand anything? See below.
 
 ## ⭐ Use with your AI agent 
 
-See [how to connect your AI Agent to Medatarun](usages/mcp-usage.md) if needed.
+See [how to connect your AI Agent to Medatarun](./usages/mcp-usage) if needed.
 
 ### Use with your agent
 

@@ -2,7 +2,7 @@
 sidebar_position: 999
 ---
 
-# Test models
+# Sample models to import
 
 Here is a collection of models from various sources you can import to test medatarun.
 
