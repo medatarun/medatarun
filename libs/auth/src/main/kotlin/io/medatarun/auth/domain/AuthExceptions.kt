@@ -26,3 +26,14 @@ class UserNotFoundException :
 
 class UserAlreadyExistsException :
     MedatarunException("User already exists.", StatusCode.CONFLICT)
+
+class ActorNotFoundException :
+    MedatarunException("Actor not found.", StatusCode.NOT_FOUND)
+
+class ActorCreateFailedWithNotFoundException:
+    MedatarunException("Create failed. Can not find actor after creation.")
+
+class ActorDisabledException() :MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
+
+class AuthUnknownRoleException(val key: String)
+    : MedatarunException("Unknown role: $key")

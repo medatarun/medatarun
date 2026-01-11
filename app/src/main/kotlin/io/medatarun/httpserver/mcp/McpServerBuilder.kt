@@ -2,7 +2,7 @@ package io.medatarun.httpserver.mcp
 
 
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.MedatarunPrincipal
+import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.actions.runtime.ActionCmdDescriptor
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
@@ -35,7 +35,7 @@ class McpServerBuilder(
         )
     )
 
-    fun buildMcpServer(user: MedatarunPrincipal?): Server {
+    fun buildMcpServer(user: AppPrincipal?): Server {
         val server = Server(
             serverInfo = serverInfo,
             options = serverOptions,
@@ -49,7 +49,7 @@ class McpServerBuilder(
     }
 
 
-    private fun buildRegisteredTools(user: MedatarunPrincipal?): List<RegisteredTool> {
+    private fun buildRegisteredTools(user: AppPrincipal?): List<RegisteredTool> {
         return actionRegistry.findAllGroupDescriptors().flatMap { group ->
             group.actions.map { action ->
                 val toolName = buildToolName(group.key, action.key)
@@ -75,7 +75,7 @@ class McpServerBuilder(
         actionGroupKey: String,
         actionKey: String,
         request: CallToolRequest,
-        principal: MedatarunPrincipal?
+        principal: AppPrincipal?
     ): CallToolResult {
 
         val invocationRequest = ActionRequest(

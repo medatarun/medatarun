@@ -2,9 +2,8 @@ package io.medatarun.auth.internal
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.medatarun.auth.domain.JwtConfig
-import io.medatarun.auth.domain.JwtKeyMaterial
-import io.medatarun.auth.domain.User
+import io.medatarun.auth.domain.*
+import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import io.medatarun.auth.ports.exposed.UserService
@@ -15,8 +14,9 @@ class OAuthServiceImpl(
     private val userService: UserService,
     private val jwtConfig: JwtConfig,
     private val keys: JwtKeyMaterial,
-    private val userClaimsService: UserClaimsService
-): OAuthService {
+    private val actorClaimsAdapter: ActorClaimsAdapter,
+    private val actorService: ActorService
+) : OAuthService {
 
     override fun oauthLogin(username: String, password: String): OAuthTokenResponse {
         val user = userService.loginUser(username, password)
@@ -24,9 +24,20 @@ class OAuthServiceImpl(
     }
 
     override fun createOAuthAccessTokenForUser(user: User): OAuthTokenResponse {
+        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, user.login)
+            ?: throw ActorNotFoundException()
         val token = issueAccessToken(
             sub = user.login,
-            claims = userClaimsService.createUserClaims(user)
+            claims = actorClaimsAdapter.createUserClaims(actor)
+        )
+        return OAuthTokenResponse(token, "Bearer", jwtConfig.ttlSeconds)
+    }
+
+
+    override fun createOAuthAccessTokenForActor(actor: Actor): OAuthTokenResponse {
+        val token = issueAccessToken(
+            sub = actor.subject,
+            claims = actorClaimsAdapter.createUserClaims(actor)
         )
         return OAuthTokenResponse(token, "Bearer", jwtConfig.ttlSeconds)
     }
@@ -52,12 +63,13 @@ class OAuthServiceImpl(
                 is Int -> b.withClaim(k, v)
                 is Long -> b.withClaim(k, v)
                 is Double -> b.withClaim(k, v)
+                is List<*> -> b.withArrayClaim(k, v.filterIsInstance<String>().toTypedArray())
+                is Array<*> -> b.withArrayClaim(k, v.filterIsInstance<String>().toTypedArray())
                 else -> b.withClaim(k, v.toString())
             }
         }
 
         return b.sign(alg)
     }
-
 
 }

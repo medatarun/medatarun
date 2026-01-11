@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.MedatarunPrincipal
+import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionRegistry
@@ -18,7 +18,7 @@ class RestCommandInvocation(
     private val actionCtxFactory: ActionCtxFactory
 ) {
 
-    suspend fun processInvocation(call: ApplicationCall, principal: MedatarunPrincipal?) {
+    suspend fun processInvocation(call: ApplicationCall, principal: AppPrincipal?) {
         val actionGroupKeyPathValue = call.parameters["actionGroupKey"]
         val actionKeyPathValue = call.parameters["actionKey"]
         try {

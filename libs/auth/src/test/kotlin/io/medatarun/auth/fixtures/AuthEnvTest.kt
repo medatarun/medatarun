@@ -8,6 +8,7 @@ import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
+import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
@@ -91,8 +92,9 @@ class AuthEnvTest(
 
         val userStorage = UserStorageSQLite(dbConnectionFactory)
         val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
+        val actorStorage = ActorStorageSQLite(dbConnectionFactory)
 
-        val userClaimsService = UserClaimsService()
+        val actorClaimsAdapter = ActorClaimsAdapter()
         val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
         val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
@@ -103,30 +105,33 @@ class AuthEnvTest(
         )
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
+        val actorService = ActorServiceImpl(actorStorage, authClock)
+
         val userService: UserService = UserServiceImpl(
-            bootstrapDirPath = cfgBootstrapSecretPath,
             userStorage = userStorage,
             clock = authClock,
             passwordEncryptionIterations = passwordEncryptionDefaultIterations,
-            bootstrapper = bootstrapper
+            bootstrapper = bootstrapper,
+            userEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
         )
 
         val oauthService = OAuthServiceImpl(
             userService = userService,
             keys = authEmbeddedKeys,
             jwtConfig = jwtCfg,
-            userClaimsService = userClaimsService
+            actorClaimsAdapter = actorClaimsAdapter,
+            actorService = actorService
         )
 
 
         val oidcService: OidcService = OidcServiceImpl(
-            userStorage = userStorage,
             oidcAuthCodeStorage = authStorage,
-            userClaimsService = userClaimsService,
+            actorClaimsAdapter = actorClaimsAdapter,
             oauthService = oauthService,
             authEmbeddedKeys = authEmbeddedKeys,
             jwtCfg = jwtCfg,
             clock = authClock,
+            actorService = actorService,
             authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS
         )
 

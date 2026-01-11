@@ -3,17 +3,15 @@ package io.medatarun.auth.internal
 import io.medatarun.auth.domain.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import io.medatarun.auth.ports.exposed.UserService
-import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.auth.ports.needs.UserStorage
-import java.nio.file.Path
+import io.medatarun.auth.ports.needs.*
 import java.util.*
 
 class UserServiceImpl(
-    private val bootstrapDirPath: Path,
     private val userStorage: UserStorage,
     private val clock: AuthClock,
     private val passwordEncryptionIterations: Int,
-    private val bootstrapper: BootstrapSecretLifecycle
+    private val bootstrapper: BootstrapSecretLifecycle,
+    private val userEvents: UserServiceEvents
 ) : UserService {
 
 
@@ -38,11 +36,14 @@ class UserServiceImpl(
         )
 
         bootstrapper.markBootstrapConsumed()
+        userEvents.fire(UserEventCreated(user))
         return user
     }
 
     override fun createEmbeddedUser(login: String, fullname: String, clearPassword: String, admin: Boolean): User {
-        return createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
+        val user = createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
+        userEvents.fire(UserEventCreated(user))
+        return user
     }
 
     fun createEmbeddedUserInternal(
@@ -94,12 +95,18 @@ class UserServiceImpl(
     }
 
     override fun disableUser(username: String) {
-        userStorage.disable(username, at = clock.now())
+        val now = clock.now()
+        val user = userStorage.findByLogin(username)
+        userStorage.disable(username, at = now)
+        if (user != null) {
+            userEvents.fire(UserEventDisabledChanged(user.login, now))
+        }
     }
 
     override fun changeUserFullname(username: String, fullname: String) {
-        userStorage.findByLogin(username) ?: throw UserNotFoundException()
+        val user = userStorage.findByLogin(username) ?: throw UserNotFoundException()
         userStorage.updateFullname(username, fullname)
+        userEvents.fire(UserEventFullnameChanged(user.login, fullname))
     }
 
     override fun loginUser(username: String, password: String): User {

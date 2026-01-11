@@ -3,13 +3,9 @@ package io.medatarun.auth.internal
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.ports.exposed.OAuthService
-import io.medatarun.auth.ports.exposed.OIDCTokenResponse
-import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
-import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcStorage
-import io.medatarun.auth.ports.needs.UserStorage
 import kotlinx.serialization.json.*
 import java.net.URI
 import java.net.URLEncoder
@@ -19,13 +15,13 @@ import java.time.Instant
 import java.util.*
 
 class OidcServiceImpl(
-    private val userStorage: UserStorage,
     private val oidcAuthCodeStorage: OidcStorage,
-    private val userClaimsService: UserClaimsService,
+    private val actorClaimsAdapter: ActorClaimsAdapter,
     private val oauthService: OAuthService,
     private val authEmbeddedKeys: JwtKeyMaterial,
     private val jwtCfg: JwtConfig,
     private val clock: AuthClock,
+    private val actorService: ActorService,
     private val authCtxDurationSeconds: Long
 ) : OidcService {
 
@@ -85,7 +81,7 @@ class OidcServiceImpl(
             putJsonArray("id_token_signing_alg_values_supported") { add(oidcJwks().keys.first().alg) }
 
             putJsonArray("scopes_supported") { addAll(listOf("openid", "profile", "email")) }
-            putJsonArray("claims_supported") { addAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "role")) }
+            putJsonArray("claims_supported") { addAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "roles")) }
 
             putJsonArray("code_challenge_methods_supported") { add("S256") }
         }
@@ -264,17 +260,16 @@ class OidcServiceImpl(
 
         oidcAuthCodeStorage.deleteAuthCode(authCode.code)
 
-        val subject = authCode.subject
-        val user = userStorage.findByLogin(subject) ?: throw UserNotFoundException()
+        val actor = actorService.findByIssuerAndSubjectOptional(oidcIssuer(), authCode.subject) ?: throw ActorNotFoundException()
 
         val idToken = issueIdToken(
-            sub = user.login,
+            sub = authCode.subject,
             clientId = req.clientId,
-            claims = userClaimsService.createUserClaims(user),
+            claims = actorClaimsAdapter.createUserClaims(actor),
             authTime = authCode.authTime,
             nonce = authCode.nonce
         )
-        val oidcAccessTokenResp = oauthService.createOAuthAccessTokenForUser(user)
+        val oidcAccessTokenResp = oauthService.createOAuthAccessTokenForActor(actor)
 
         return OIDCTokenResponseOrError.Success(
             OIDCTokenResponse(
@@ -326,6 +321,8 @@ class OidcServiceImpl(
                 is Int -> b.withClaim(k, v)
                 is Long -> b.withClaim(k, v)
                 is Double -> b.withClaim(k, v)
+                is List<*> -> b.withArrayClaim(k, v.filterIsInstance<String>().toTypedArray())
+                is Array<*> -> b.withArrayClaim(k, v.filterIsInstance<String>().toTypedArray())
                 else -> b.withClaim(k, v.toString())
             }
         }
@@ -334,4 +331,3 @@ class OidcServiceImpl(
     }
 
 }
-

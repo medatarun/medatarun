@@ -2,6 +2,8 @@ package io.medatarun.auth.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
+import io.medatarun.auth.domain.ActorId
+import java.time.Instant
 
 sealed interface AuthAction {
 
@@ -9,7 +11,7 @@ sealed interface AuthAction {
     @ActionDoc(
         key = "admin_bootstrap",
         title = "Creates admin user",
-        description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install.",
+        description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install. This will automatically make the admin available as an actor and able to connect with tokens.",
         uiLocation = ""
     )
     class AdminBootstrap(
@@ -41,7 +43,7 @@ sealed interface AuthAction {
 
     ) : AuthAction
 
-    @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user", uiLocation = "")
+    @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.", uiLocation = "")
     class CreateUser(
         @ActionParamDoc(
             name = "username",
@@ -145,7 +147,7 @@ sealed interface AuthAction {
     @ActionDoc(
         key="disable_user",
         title="Disable user",
-        description = "Disable a user account. Only available for admins.",
+        description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
         uiLocation = ""
     )
     class DisableUser(
@@ -160,7 +162,7 @@ sealed interface AuthAction {
     @ActionDoc(
         key="change_user_fullname",
         title="Change user full name",
-        description = "Change user full name. Only available for admins.",
+        description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
         uiLocation = ""
     )
     class ChangeUserFullname(
@@ -176,5 +178,70 @@ sealed interface AuthAction {
             order = 2
         )
         val fullname: String,
+    ): AuthAction
+
+    @ActionDoc(
+        key="list_actors",
+        title="List actors",
+        description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
+        uiLocation = ""
+    )
+    class ListActors(): AuthAction
+
+    @ActionDoc(
+        key="set_actor_roles",
+        title="Set actor roles",
+        description = "Replace roles for an actor. Only available for admins.",
+        uiLocation = ""
+    )
+    class SetActorRoles(
+        @ActionParamDoc(
+            name = "actorId",
+            description = "Actor identifier",
+            order = 1
+        )
+        val actorId: ActorId,
+        @ActionParamDoc(
+            name = "roles",
+            description = "Role names",
+            order = 2
+        )
+        val roles: List<String>
+    ): AuthAction
+
+    @ActionDoc(
+        key="disable_actor",
+        title="Disable actor",
+        description = "Disable an actor. Only available for admins.",
+        uiLocation = ""
+    )
+    class DisableActor(
+        @ActionParamDoc(
+            name = "actorId",
+            description = "Actor identifier",
+            order = 1
+        )
+        val actorId: ActorId,
+        @ActionParamDoc(
+            name = "date",
+            description = "Disabled date. If not provided, will be the current instant.",
+            order = 1
+        )
+        val date: Instant? = null
+    ): AuthAction
+
+    @ActionDoc(
+        key="enable_actor",
+        title="Enable actor",
+        description = "Enable an actor. Only available for admins.",
+        uiLocation = ""
+    )
+    class EnableActor(
+        @ActionParamDoc(
+            name = "actorId",
+            description = "Actor identifier",
+            order = 1
+        )
+        val actorId: ActorId
     ): AuthAction
 }

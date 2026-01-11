@@ -9,6 +9,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
+import io.medatarun.lang.http.StatusCode
+import io.medatarun.model.domain.MedatarunException
 
 object AppHttpServerJwtSecurity {
     /**
@@ -44,3 +46,5 @@ fun Application.installJwtSecurity(oidcService: OidcService) {
         }
     }
 }
+
+class JwtInvalidTokenException() : MedatarunException("Invalid Jwt token, must contain iss and sub.", StatusCode.UNAUTHORIZED)

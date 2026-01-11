@@ -1,5 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
+import io.medatarun.auth.domain.Actor
 import io.medatarun.auth.domain.User
 
 /**
@@ -23,13 +24,19 @@ interface OAuthService {
      */
     fun oauthLogin(username: String, password: String): OAuthTokenResponse
 
-
     /**
-     * Creates an OAuth access token, for any user.
+     * Creates an OAuth access token, for any [User] of the embedded user storage.
      *
      * Same as [oauthLogin] but without the authentication part, just by looking
      * at [User] a user.
      */
     fun createOAuthAccessTokenForUser(user: User): OAuthTokenResponse
 
+    /**
+     * Creates an OAuth access token, for an [Actor] in the known actor list.
+     *
+     * This is mainly used in OIDC processes when we need to issue a token for
+     * an actor (from any IdP source).
+     */
+    fun createOAuthAccessTokenForActor(actor: Actor): OAuthTokenResponse
 }

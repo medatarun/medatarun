@@ -9,9 +9,11 @@ import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.cli.installCLI
+import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
 import io.medatarun.httpserver.commons.installJwtSecurity
@@ -56,6 +58,8 @@ class AppHttpServer(
 
     val userService = runtime.services.getService<UserService>()
     val oidcService = runtime.services.getService<OidcService>()
+    val actorService = runtime.services.getService<ActorService>()
+    private val principalFactory = AppPrincipalFactory(actorService)
 
 
     @Volatile
@@ -110,13 +114,13 @@ class AppHttpServer(
             installUIHomepage(uiIndexTemplate)
             installUIApis(runtime, actionRegistry)
 
-            installActionsApi(restApiDoc, restCommandInvocation)
+            installActionsApi(restApiDoc, restCommandInvocation, principalFactory)
 
             installCLI(actionRegistry)
 
             installOidc(oidcService, userService, publicBaseUrl)
 
-            installMcp(mcpServerBuilder)
+            installMcp(mcpServerBuilder, principalFactory = principalFactory)
 
             installHealth()
 
@@ -132,7 +136,7 @@ class AppHttpServer(
             logger.warn("")
             logger.warn("Use it to create your admin account with CLI")
             logger.warn("")
-            logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --bootstrap=$secret")
+            logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --secret=$secret")
             logger.warn("")
             logger.warn("or with API")
             logger.warn("")
@@ -145,4 +149,3 @@ class AppHttpServer(
         private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     }
 }
-

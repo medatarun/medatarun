@@ -3,7 +3,7 @@ package io.medatarun.actions.runtime
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.MedatarunPrincipal
+import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.auth.domain.AuthUnauthorizedException
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.MedatarunServiceRegistry
@@ -15,7 +15,7 @@ class ActionCtxFactory(
     val actionRegistry: ActionRegistry,
     val services: MedatarunServiceRegistry
 ) {
-    fun create(principal: MedatarunPrincipal?): ActionCtx {
+    fun create(principal: AppPrincipal?): ActionCtx {
         return object : ActionCtx {
             override val extensionRegistry: ExtensionRegistry = runtime.extensionRegistry
             override fun dispatchAction(req: ActionRequest): Any? {
@@ -24,8 +24,8 @@ class ActionCtxFactory(
             override fun <T : Any> getService(type: KClass<T>): T = services.getService(type)
             override val principal: ActionPrincipalCtx = object: ActionPrincipalCtx {
 
-                override val actor: MedatarunPrincipal? = principal
-                override fun ensureSignedIn(): MedatarunPrincipal {
+                override val principal: AppPrincipal? = principal
+                override fun ensureSignedIn(): AppPrincipal {
                     if (principal == null) throw AuthUnauthorizedException()
                     return principal
                 }

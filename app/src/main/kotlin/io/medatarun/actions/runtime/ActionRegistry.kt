@@ -3,6 +3,7 @@ package io.medatarun.actions.runtime
 import io.ktor.http.*
 import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.actions.ports.needs.*
+import io.medatarun.auth.domain.ActorId
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
@@ -10,6 +11,7 @@ import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
+import java.time.Instant
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
@@ -88,6 +90,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             String::class -> return ActionParamJsonType.STRING
             Boolean::class -> return ActionParamJsonType.BOOLEAN
             List::class -> return ActionParamJsonType.ARRAY
+            ActorId::class -> return ActionParamJsonType.STRING
             ActionWithPayload::class -> return ActionParamJsonType.OBJECT
             AttributeKey::class -> return ActionParamJsonType.STRING
             EntityKey::class -> return ActionParamJsonType.STRING
@@ -96,6 +99,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             ModelKey::class -> return ActionParamJsonType.STRING
             Hashtag::class -> return ActionParamJsonType.STRING
             ModelVersion::class -> return ActionParamJsonType.STRING
+            Instant::class -> return ActionParamJsonType.NUMBER
             // TODO shall not be here ???
             AttributeDef::class -> return ActionParamJsonType.OBJECT
             AttributeDefUpdateCmd::class -> return ActionParamJsonType.OBJECT
@@ -111,6 +115,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             String::class -> return "String"
             Boolean::class -> return "Boolean"
             List::class -> return "List<${toMultiplatformType(returnType.arguments[0].type!!)}>"
+            ActorId::class -> return "String"
             ActionWithPayload::class -> return "ActionWithPayload"
             AttributeKey::class -> return "AttributeKey"
             EntityKey::class -> return "EntityKey"
@@ -119,6 +124,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             ModelKey::class -> return "ModelKey"
             Hashtag::class -> return "Hashtag"
             ModelVersion::class -> return "ModelVersion"
+            Instant::class -> return "Instant"
             // TODO shall not be here ???
             AttributeDef::class -> return "AttributeDef"
             AttributeDefUpdateCmd::class -> return "AttributeDefUpdateCmd"
@@ -172,7 +178,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             )
         }
 
-        return try {
+        val actionInvocationResult = try {
             invoker.invoke()
         } catch (e: InvocationTargetException) {
             val cause = e.cause
@@ -205,6 +211,8 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 )
             )
         }
+        logger.info("{}", actionInvocationResult)
+        return actionInvocationResult
     }
 
     interface Invoker {
