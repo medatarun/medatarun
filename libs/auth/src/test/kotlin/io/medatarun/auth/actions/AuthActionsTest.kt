@@ -14,6 +14,10 @@ import kotlin.test.assertNotNull
 
 class AuthActionsTest {
 
+    // ------------------------------------------------------------------------
+    // Actions on our users and propagation to actors
+    // ------------------------------------------------------------------------
+
     @Test
     fun `bootstrap called`() {
         val env = AuthActionEnvTest(createAdmin = false)
@@ -244,9 +248,26 @@ class AuthActionsTest {
 
     }
 
+    // ------------------------------------------------------------------------
+    // Actions on actors only
+    // ------------------------------------------------------------------------
 
     // TODO listActors
+    //      rename method
+    //      make sure API is stable
+
     // TODO setActorRoles
+    //      cheks that roles are supported roles
+
     // TODO disableActor
+    //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
+    //      remember: if actor is disabled, the if there is a matching user it must be disabled too
+
     // TODO enableActor
+    //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
+    //      remember: if actor is disabled, the if there is a matching user it must be enabled too
+
+    // Remember,
+        // - you don't change actor fullname here, only via JWT Tokens
+        // - you don't change actor email here, only via JWT Tokens
 }
