@@ -3,7 +3,9 @@ package io.medatarun.auth
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.Fullname
 import io.medatarun.auth.domain.JwtConfig
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
@@ -22,13 +24,37 @@ import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.kernel.MedatarunServiceCtx
+import io.medatarun.types.JsonTypeEquiv
+import io.medatarun.types.TypeDescriptor
 import java.time.Instant
+import kotlin.reflect.KClass
 
 class AuthExtension() : MedatarunExtension {
     override val id: ExtensionId = "auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
         ctx.register(ActionProvider::class, actionProvider)
+        ctx.register(TypeDescriptor::class, UsernameTypeProvider())
+        ctx.register(TypeDescriptor::class, FullnameTypeProvider())
+    }
+
+    class UsernameTypeProvider: TypeDescriptor<Username> {
+        override val target: KClass<Username> = Username::class
+        override fun validate(value: Username): Username {
+            return value.validate()
+        }
+        override val equivMultiplatorm: String = "Username"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+    }
+    class FullnameTypeProvider: TypeDescriptor<Fullname> {
+        override val target: KClass<Fullname> = Fullname::class
+        override fun validate(value: Fullname): Fullname {
+            return value.validate()
+        }
+
+        override val equivMultiplatorm: String = "Fullname"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
@@ -97,6 +123,8 @@ class AuthExtension() : MedatarunExtension {
         ctx.register(OidcService::class, oidcService)
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
+
+
     }
 
     companion object {

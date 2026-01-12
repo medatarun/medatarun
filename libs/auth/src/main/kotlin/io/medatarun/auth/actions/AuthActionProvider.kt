@@ -4,7 +4,10 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.AuthUnknownRoleException
+import io.medatarun.auth.domain.UserNotFoundException
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.*
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
@@ -61,8 +64,8 @@ class AuthEmbeddedActionsLauncher(
     fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponse {
         val user = userService.adminBootstrap(
             cmd.secret,
-            Username(cmd.username).validate(),
-            Fullname(cmd.fullname).validate(),
+            cmd.username,
+            cmd.fullname,
             cmd.password
         )
         return oauthService.createOAuthAccessTokenForUser(user)
@@ -71,8 +74,8 @@ class AuthEmbeddedActionsLauncher(
     fun createUser(cmd: AuthAction.CreateUser) {
         principal.ensureIsAdmin()
         userService.createEmbeddedUser(
-            Username(cmd.username).validate(),
-            Fullname(cmd.fullname).validate(),
+            cmd.username,
+            cmd.fullname,
             cmd.password,
             cmd.admin
         )
@@ -81,7 +84,7 @@ class AuthEmbeddedActionsLauncher(
 
     fun login(cmd: AuthAction.Login): OAuthTokenResponse {
         val user = userService.loginUser(
-            Username(cmd.username).validate(),
+            cmd.username,
             cmd.password
         )
         return oauthService.createOAuthAccessTokenForUser(user)
@@ -119,7 +122,7 @@ class AuthEmbeddedActionsLauncher(
     fun changeUserPassword(cmd: AuthAction.ChangeUserPassword) {
         principal.ensureIsAdmin()
         return userService.changeUserPassword(
-            Username(cmd.username).validate(),
+            cmd.username,
             cmd.password
         )
     }
@@ -127,15 +130,15 @@ class AuthEmbeddedActionsLauncher(
     fun disableUser(cmd: AuthAction.DisableUser) {
         principal.ensureIsAdmin()
         return userService.disableUser(
-            Username(cmd.username).validate()
+            cmd.username
         )
     }
 
     fun changeFullname(cmd: AuthAction.ChangeUserFullname) {
         principal.ensureIsAdmin()
         return userService.changeUserFullname(
-            Username(cmd.username).validate(),
-            Fullname(cmd.fullname).validate()
+            cmd.username,
+            cmd.fullname
         )
     }
 

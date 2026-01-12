@@ -3,6 +3,8 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.ActorId
+import io.medatarun.auth.domain.Fullname
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import java.time.Instant
 
@@ -27,13 +29,13 @@ sealed interface AuthAction<R> {
             description = "Admin user name",
             order = 2
         )
-        val username: String,
+        val username: Username,
         @ActionParamDoc(
             name = "fullname",
             description = "User full name (displayed name)",
             order = 3
         )
-        val fullname: String,
+        val fullname: Fullname,
 
         @ActionParamDoc(
             name = "password",
@@ -51,13 +53,13 @@ sealed interface AuthAction<R> {
             description = "Admin user name",
             order = 1
         )
-        val username: String,
+        val username: Username,
         @ActionParamDoc(
             name = "fullname",
             description = "User full name (displayed name)",
             order = 2
         )
-        val fullname: String,
+        val fullname: Fullname,
         @ActionParamDoc(
             name = "password",
             description = "User password",
@@ -85,7 +87,7 @@ sealed interface AuthAction<R> {
             description = "User name",
             order = 1
         )
-        val username: String,
+        val username: Username,
 
         @ActionParamDoc(
             name = "password",
@@ -136,7 +138,7 @@ sealed interface AuthAction<R> {
             description = "User name",
             order = 1
         )
-        val username: String,
+        val username: Username,
         @ActionParamDoc(
             name = "password",
             description = "New password for this user",
@@ -157,7 +159,7 @@ sealed interface AuthAction<R> {
             description = "User name",
             order = 1
         )
-        val username: String,
+        val username: Username,
     ): AuthAction<Unit>
 
     @ActionDoc(
@@ -172,13 +174,13 @@ sealed interface AuthAction<R> {
             description = "User name",
             order = 1
         )
-        val username: String,
+        val username: Username,
         @ActionParamDoc(
             name = "fullname",
             description = "Full name (displayed name)",
             order = 2
         )
-        val fullname: String,
+        val fullname: Fullname,
     ): AuthAction<Unit>
 
     @ActionDoc(

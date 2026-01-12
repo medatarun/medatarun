@@ -24,6 +24,7 @@ import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.types.TypesExtension
 import io.metadatarun.ext.config.ConfigExtension
 import org.slf4j.LoggerFactory
 
@@ -35,6 +36,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // dependency graphs that launch them in correct order for now
 
     val extensions = listOf(
+        TypesExtension(),
         ActionsExtension(),
         AuthExtension(),
         ModelExtension(),

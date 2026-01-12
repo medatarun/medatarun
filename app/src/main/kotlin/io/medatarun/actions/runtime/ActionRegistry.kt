@@ -1,23 +1,22 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
-import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.actions.ports.needs.*
-import io.medatarun.auth.domain.ActorId
 import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.domain.*
-import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
-import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
-import java.time.Instant
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.typeOf
 
 class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
+
+    private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
 
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
@@ -35,6 +34,8 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionDescriptors: List<ActionCmdDescriptor> =
         actionGroupDescriptors.flatMap { it.actions }
+
+
 
 
     private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
@@ -75,8 +76,8 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                     description = paramdoc?.description?.trimIndent(),
                     optional = property.returnType.isMarkedNullable,
                     type = property.returnType,
-                    multiplatformType = toMultiplatformType(property.returnType),
-                    jsonType = toJsonType(property.returnType),
+                    multiplatformType = actionTypesRegistry.toMultiplatformType(property.returnType),
+                    jsonType = actionTypesRegistry.toJsonType(property.returnType),
                     order = paramdoc?.order ?: index
                 )
             },
@@ -85,55 +86,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             )
     }
 
-    fun toJsonType(returnType: KType): ActionParamJsonType {
-        val typeAlias = when (returnType.classifier) {
-            String::class -> return ActionParamJsonType.STRING
-            Boolean::class -> return ActionParamJsonType.BOOLEAN
-            List::class -> return ActionParamJsonType.ARRAY
-            ActorId::class -> return ActionParamJsonType.STRING
-            ActionWithPayload::class -> return ActionParamJsonType.OBJECT
-            AttributeKey::class -> return ActionParamJsonType.STRING
-            EntityKey::class -> return ActionParamJsonType.STRING
-            RelationshipKey::class -> return ActionParamJsonType.STRING
-            TypeKey::class -> return ActionParamJsonType.STRING
-            ModelKey::class -> return ActionParamJsonType.STRING
-            Hashtag::class -> return ActionParamJsonType.STRING
-            ModelVersion::class -> return ActionParamJsonType.STRING
-            Instant::class -> return ActionParamJsonType.NUMBER
-            // TODO shall not be here ???
-            AttributeDef::class -> return ActionParamJsonType.OBJECT
-            AttributeDefUpdateCmd::class -> return ActionParamJsonType.OBJECT
-            RelationshipDef::class -> return ActionParamJsonType.OBJECT
-            RelationshipDefUpdateCmd::class -> return ActionParamJsonType.OBJECT
-            else -> throw UndefinedMultiplatformTypeException(returnType)
-        }
-        return typeAlias
-    }
 
-    fun toMultiplatformType(returnType: KType): String {
-        val typeAlias = when (returnType.classifier) {
-            String::class -> return "String"
-            Boolean::class -> return "Boolean"
-            List::class -> return "List<${toMultiplatformType(returnType.arguments[0].type!!)}>"
-            ActorId::class -> return "String"
-            ActionWithPayload::class -> return "ActionWithPayload"
-            AttributeKey::class -> return "AttributeKey"
-            EntityKey::class -> return "EntityKey"
-            RelationshipKey::class -> return "RelationshipKey"
-            TypeKey::class -> return "TypeKey"
-            ModelKey::class -> return "ModelKey"
-            Hashtag::class -> return "Hashtag"
-            ModelVersion::class -> return "ModelVersion"
-            Instant::class -> return "Instant"
-            // TODO shall not be here ???
-            AttributeDef::class -> return "AttributeDef"
-            AttributeDefUpdateCmd::class -> return "AttributeDefUpdateCmd"
-            RelationshipDef::class -> return "RelationshipDef"
-            RelationshipDefUpdateCmd::class -> return "RelationshipDefUpdateCmd"
-            else -> throw UndefinedMultiplatformTypeException(returnType)
-        }
-        return typeAlias
-    }
 
 
     fun findAllGroupDescriptors(): Collection<ActionGroupDescriptor> {
@@ -289,7 +242,12 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                     if (raw != null) {
                         when (val conversion = convert(raw, parameter.type.classifier)) {
                             is ConversionResult.Error -> conversionErrors += conversion.message
-                            is ConversionResult.Value -> callArgs[parameter] = conversion.value
+                            is ConversionResult.Value -> callArgs[parameter] = try {
+                                validate(parameter, conversion.value)
+                            } catch (err: Throwable) {
+                                conversionErrors += "Invalid value for ${parameter.name}. " + (err.message ?: "")
+                            }
+
                         }
                     }
                 }
@@ -308,6 +266,17 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             )
         }
         return callArgs
+    }
+
+    private fun validate(parameter: KParameter, value: Any?): Any? {
+        val classifier = parameter.type.classifier as? KClass<*>
+
+        if (value != null && classifier != null) {
+            val validator = actionTypesRegistry.findValidator(classifier)
+            return validator.validate(value)
+        } else {
+            return value
+        }
     }
 
     private fun convert(raw: JsonElement, classifier: Any?): ConversionResult = when (classifier) {

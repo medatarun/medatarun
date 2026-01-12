@@ -1,9 +1,9 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.domain.UsernameEmptyException
+import io.medatarun.auth.domain.Fullname
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.fixtures.AuthActionEnvTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class AuthActionsTest {
 
@@ -13,42 +13,11 @@ class AuthActionsTest {
         val token = env.dispatch(
             AuthAction.AdminBootstrap(
                 secret = env.env.bootstrapSecretKeeper,
-                username = "admin",
+                username = Username("admin"),
                 password = "admin.0123456789",
-                fullname = "Admin"
+                fullname = Fullname("Admin")
             )
         )
         env.env.verifyToken(token.accessToken, expectedSub = "admin")
-    }
-
-    @Test
-    fun `bootstrap validates username`() {
-        val env = AuthActionEnvTest(createAdmin = false)
-        assertThrows<UsernameEmptyException> {
-            env.dispatch(
-                AuthAction.AdminBootstrap(
-                    secret = env.env.bootstrapSecretKeeper,
-                    username = "",
-                    password = "admin.0123456789",
-                    fullname = "Admin"
-                )
-            )
-        }
-    }
-
-
-    @Test
-    fun `bootstrap validates fullname`() {
-        val env = AuthActionEnvTest(createAdmin = false)
-        assertThrows<UsernameEmptyException> {
-            env.dispatch(
-                AuthAction.AdminBootstrap(
-                    secret = env.env.bootstrapSecretKeeper,
-                    username = "",
-                    password = "admin.0123456789",
-                    fullname = "Admin"
-                )
-            )
-        }
     }
 }
