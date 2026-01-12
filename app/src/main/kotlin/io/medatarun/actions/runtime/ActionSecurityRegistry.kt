@@ -16,7 +16,7 @@ class ActionSecurityRegistry(private val extensionRegistry: ExtensionRegistry) {
         val e = rules[ruleKey] ?: throw SecurityRuleEvaluatorNotFoundException(ruleKey)
         val ctx = object : SecurityRuleCtx {
             override fun isSignedIn(): Boolean {
-                return actionCtx.principal != null
+                return actionCtx.principal.principal != null
             }
 
             override fun isAdmin(): Boolean {

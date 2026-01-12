@@ -72,7 +72,6 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun createUser(cmd: AuthAction.UserCreate) {
-        principal.ensureIsAdmin()
         userService.createEmbeddedUser(
             cmd.username,
             cmd.fullname,
@@ -122,7 +121,6 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun changeUserPassword(cmd: AuthAction.UserChangePassword) {
-        principal.ensureIsAdmin()
         return userService.changeUserPassword(
             cmd.username,
             cmd.password
@@ -130,14 +128,12 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun disableUser(cmd: AuthAction.UserDisable) {
-        principal.ensureIsAdmin()
         return userService.disableUser(
             cmd.username
         )
     }
 
     fun changeUserFullname(cmd: AuthAction.UserChangeFullname) {
-        principal.ensureIsAdmin()
         return userService.changeUserFullname(
             cmd.username,
             cmd.fullname
@@ -158,7 +154,6 @@ class AuthEmbeddedActionsLauncher(
     )
 
     fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ListActors): List<ActorInfo> {
-        principal.ensureIsAdmin()
         return actorService.listActors().map { actor ->
             ActorInfo(
                 id = actor.id.value.toString(),
@@ -175,7 +170,6 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun setActorRoles(cmd: AuthAction.SetActorRoles) {
-        principal.ensureIsAdmin()
         val knownRoles = filterKnownRoles(cmd)
         actorService.setRoles(cmd.actorId, knownRoles)
     }
@@ -193,12 +187,10 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun disableActor(cmd: AuthAction.DisableActor) {
-        principal.ensureIsAdmin()
         actorService.disable(cmd.actorId, cmd.date ?: Instant.now())
     }
 
     fun enableActor(cmd: AuthAction.EnableActor) {
-        principal.ensureIsAdmin()
         actorService.disable(cmd.actorId, null)
     }
 
