@@ -1,14 +1,11 @@
 package io.medatarun.auth.ports.needs
 
-import io.medatarun.auth.domain.user.Fullname
-import io.medatarun.auth.domain.user.PasswordHash
-import io.medatarun.auth.domain.user.User
-import io.medatarun.auth.domain.user.Username
+import io.medatarun.auth.domain.user.*
 import java.time.Instant
 
 interface UserStorage {
     fun insert(
-        id: String,
+        id: UserId,
         login: Username,
         fullname: Fullname,
         password: PasswordHash,

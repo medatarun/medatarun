@@ -63,7 +63,7 @@ class UserServiceImpl(
         val found = userStorage.findByLogin(login)
         if (found != null) throw UserAlreadyExistsException()
 
-        userStorage.insert(id.toString(), login, fullname, password, admin, bootstrap, null)
+        userStorage.insert(id, login, fullname, password, admin, bootstrap, null)
         return User(
             id = id,
             username = login,

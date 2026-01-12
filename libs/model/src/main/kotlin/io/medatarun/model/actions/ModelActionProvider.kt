@@ -165,7 +165,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                             description = rc.description?.let { LocalizedTextNotLocalized(it) },
                             documentationHome = rc.documentationHome?.let { URI(it).toURL() },
                             identityAttribute = AttributeDefIdentityInitializer(
-                                attributeKey = rc.identityAttributeKey.validated(),
+                                attributeKey = rc.identityAttributeKey,
                                 type = rc.identityAttributeType,
                                 name = rc.name?.let { LocalizedTextNotLocalized(it) },
                                 description = rc.description?.let { LocalizedTextNotLocalized(it) },
@@ -240,7 +240,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
                         attributeDefInitializer = AttributeDefInitializer(
-                            attributeKey = rc.attributeKey.validated(),
+                            attributeKey = rc.attributeKey,
                             type = rc.type.validated(),
                             optional = rc.optional,
                             name = rc.name?.let { LocalizedTextNotLocalized(it) },
@@ -255,7 +255,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated(),
+                        attributeKey = rc.attributeKey,
                         cmd = AttributeDefUpdateCmd.Id(AttributeKey(rc.value))
                     )
                 )
@@ -266,7 +266,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated(),
+                        attributeKey = rc.attributeKey,
                         cmd = AttributeDefUpdateCmd.Name(rc.value?.let { LocalizedTextNotLocalized(it) })
                     )
                 )
@@ -277,7 +277,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated(),
+                        attributeKey = rc.attributeKey,
                         cmd = AttributeDefUpdateCmd.Description(rc.value?.let { LocalizedTextNotLocalized(it) })
                     )
                 )
@@ -288,7 +288,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated(),
+                        attributeKey = rc.attributeKey,
                         cmd = AttributeDefUpdateCmd.Type(TypeKey(rc.value))
                     )
                 )
@@ -299,7 +299,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.UpdateEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated(),
+                        attributeKey = rc.attributeKey,
                         cmd = AttributeDefUpdateCmd.Optional(rc.value)
                     )
                 )
@@ -309,7 +309,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                     hashtag = rc.tag.validated()
                 )
             )
@@ -318,7 +318,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     entityKey = rc.entityKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                     hashtag = rc.tag.validated()
                 )
             )
@@ -328,7 +328,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                     ModelCmd.DeleteEntityDefAttributeDef(
                         modelKey = rc.modelKey.validated(),
                         entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey.validated()
+                        attributeKey = rc.attributeKey
                     )
                 )
             }
@@ -388,7 +388,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.UpdateRelationshipAttributeDef(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                     cmd = rc.cmd
                 )
             )
@@ -397,7 +397,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.UpdateRelationshipAttributeDefHashtagAdd(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                     hashtag = rc.tag.validated()
                 )
             )
@@ -406,7 +406,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.UpdateRelationshipAttributeDefHashtagDelete(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                     hashtag = rc.tag.validated()
                 )
             )
@@ -415,7 +415,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 ModelCmd.DeleteRelationshipAttributeDef(
                     modelKey = rc.modelKey.validated(),
                     relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey.validated(),
+                    attributeKey = rc.attributeKey,
                 )
             )
         }

@@ -1,9 +1,9 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.actions.actions.ActionWithPayload
-import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.domain.*
+import io.medatarun.model.domain.AttributeDef
+import io.medatarun.model.domain.RelationshipDef
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import io.medatarun.types.JsonTypeEquiv
@@ -26,15 +26,7 @@ class ActionTypesRegistry(private val extensionRegistry: ExtensionRegistry) {
             String::class -> return JsonTypeEquiv.STRING
             Boolean::class -> return JsonTypeEquiv.BOOLEAN
             List::class -> return JsonTypeEquiv.ARRAY
-            ActorId::class -> return JsonTypeEquiv.STRING
             ActionWithPayload::class -> return JsonTypeEquiv.OBJECT
-            AttributeKey::class -> return JsonTypeEquiv.STRING
-            EntityKey::class -> return JsonTypeEquiv.STRING
-            RelationshipKey::class -> return JsonTypeEquiv.STRING
-            TypeKey::class -> return JsonTypeEquiv.STRING
-            ModelKey::class -> return JsonTypeEquiv.STRING
-            Hashtag::class -> return JsonTypeEquiv.STRING
-            ModelVersion::class -> return JsonTypeEquiv.STRING
             Instant::class -> return JsonTypeEquiv.NUMBER
             // TODO shall not be here ???
             AttributeDef::class -> return JsonTypeEquiv.OBJECT
@@ -55,15 +47,7 @@ class ActionTypesRegistry(private val extensionRegistry: ExtensionRegistry) {
             String::class -> return "String"
             Boolean::class -> return "Boolean"
             List::class -> return "List<${toMultiplatformType(returnType.arguments[0].type!!)}>"
-            ActorId::class -> return "String"
             ActionWithPayload::class -> return "ActionWithPayload"
-            AttributeKey::class -> return "AttributeKey"
-            EntityKey::class -> return "EntityKey"
-            RelationshipKey::class -> return "RelationshipKey"
-            TypeKey::class -> return "TypeKey"
-            ModelKey::class -> return "ModelKey"
-            Hashtag::class -> return "Hashtag"
-            ModelVersion::class -> return "ModelVersion"
             Instant::class -> return "Instant"
             // TODO shall not be here ???
             AttributeDef::class -> return "AttributeDef"

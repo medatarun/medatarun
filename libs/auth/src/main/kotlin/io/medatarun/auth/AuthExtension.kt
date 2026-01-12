@@ -3,6 +3,7 @@ package io.medatarun.auth
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
@@ -38,6 +39,7 @@ class AuthExtension() : MedatarunExtension {
         ctx.register(TypeDescriptor::class, UsernameTypeDescriptor())
         ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
+        ctx.register(TypeDescriptor::class, ActorIdDescriptor())
     }
 
     class UsernameTypeDescriptor: TypeDescriptor<Username> {
@@ -67,6 +69,17 @@ class AuthExtension() : MedatarunExtension {
             return value
         }
 
+    }
+
+    class ActorIdDescriptor: TypeDescriptor<ActorId> {
+        override val target: KClass<ActorId> = ActorId::class
+        override val equivMultiplatorm: String = "ActorId"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override fun validate(value: ActorId): ActorId {
+            // No validation in entrance because the rules are too specific
+            // Business will do it
+            return value
+        }
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {

@@ -14,7 +14,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
 
 
     override fun insert(
-        id: String,
+        id: UserId,
         login: Username,
         fullname: Fullname,
         password: PasswordHash,
@@ -31,7 +31,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """
             ).use { ps ->
-                ps.setString(1, id)
+                ps.setString(1, id.value.toString())
                 ps.setString(2, login.value)
                 ps.setString(3, fullname.value)
                 ps.setString(4, password.value)
