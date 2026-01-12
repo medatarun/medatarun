@@ -12,7 +12,7 @@ class ActionSecurityRegistry(private val extensionRegistry: ExtensionRegistry) {
         return rules[ruleKey]
     }
 
-    fun evaluateSecurity(ruleKey: String, actionCtx: ActionCtx): Boolean {
+    fun evaluateSecurity(ruleKey: String, actionCtx: ActionCtx): SecurityRuleEvaluatorResult {
         val e = rules[ruleKey] ?: throw SecurityRuleEvaluatorNotFoundException(ruleKey)
         val ctx = object : SecurityRuleCtx {
             override fun isSignedIn(): Boolean {

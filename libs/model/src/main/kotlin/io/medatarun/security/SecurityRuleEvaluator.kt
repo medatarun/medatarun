@@ -9,5 +9,10 @@ interface SecurityRuleEvaluator {
      * Security rule key
      */
     val key: String
-    fun evaluate(ctx: SecurityRuleCtx): Boolean
+    fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult
+}
+
+sealed interface SecurityRuleEvaluatorResult {
+    class Ok: SecurityRuleEvaluatorResult
+    class Error(val msg: String): SecurityRuleEvaluatorResult
 }

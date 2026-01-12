@@ -3,7 +3,7 @@ package io.medatarun.actions.runtime
 import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.kernel.ExtensionRegistry
-import kotlinx.html.emptyMap
+import io.medatarun.security.SecurityRuleEvaluatorResult
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
@@ -131,8 +131,11 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             )
 
         val securityRuleEvaluationResult = actionSecurityRegistry.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
-        if (!securityRuleEvaluationResult) {
-            throw ActionInvocationException(HttpStatusCode.Unauthorized, "Bad credentials", emptyMap)
+        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
+            throw ActionInvocationException(
+                HttpStatusCode.Unauthorized,
+                "Unauthorized",
+                mapOf("details" to securityRuleEvaluationResult.msg))
         }
 
         val invoker: Invoker = when (actionDescriptor.accessType) {
@@ -177,7 +180,6 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 )
             )
         }
-        logger.info("{}", actionInvocationResult)
         return actionInvocationResult
     }
 
