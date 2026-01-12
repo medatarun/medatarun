@@ -1,6 +1,7 @@
 package io.medatarun.auth.ports.needs
 
 import io.medatarun.auth.domain.Fullname
+import io.medatarun.auth.domain.PasswordHash
 import io.medatarun.auth.domain.User
 import io.medatarun.auth.domain.Username
 import java.time.Instant
@@ -10,7 +11,7 @@ interface UserStorage {
         id: String,
         login: Username,
         fullname: Fullname,
-        password: String,
+        password: PasswordHash,
         admin: Boolean,
         bootstrap: Boolean,
         disabledDate: Instant?
@@ -18,7 +19,7 @@ interface UserStorage {
 
     fun findByLogin(login: Username): User?
 
-    fun updatePassword(login: Username, newPassword: String)
+    fun updatePassword(login: Username, newPassword: PasswordHash)
 
     fun disable(login: Username, at: Instant = Instant.now())
     fun updateFullname(username: Username, fullname: Fullname)

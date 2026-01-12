@@ -2,10 +2,7 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.domain.ConfigProperties
-import io.medatarun.auth.domain.Fullname
-import io.medatarun.auth.domain.JwtConfig
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.*
 import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
@@ -34,26 +31,37 @@ class AuthExtension() : MedatarunExtension {
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
         ctx.register(ActionProvider::class, actionProvider)
-        ctx.register(TypeDescriptor::class, UsernameTypeProvider())
-        ctx.register(TypeDescriptor::class, FullnameTypeProvider())
+        ctx.register(TypeDescriptor::class, UsernameTypeDescriptor())
+        ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
+        ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
     }
 
-    class UsernameTypeProvider: TypeDescriptor<Username> {
+    class UsernameTypeDescriptor: TypeDescriptor<Username> {
         override val target: KClass<Username> = Username::class
+        override val equivMultiplatorm: String = "Username"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
         override fun validate(value: Username): Username {
             return value.validate()
         }
-        override val equivMultiplatorm: String = "Username"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
     }
-    class FullnameTypeProvider: TypeDescriptor<Fullname> {
+    class FullnameTypeDescriptor: TypeDescriptor<Fullname> {
         override val target: KClass<Fullname> = Fullname::class
+        override val equivMultiplatorm: String = "Fullname"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
         override fun validate(value: Fullname): Fullname {
             return value.validate()
         }
+    }
 
-        override val equivMultiplatorm: String = "Fullname"
+    class PasswordClearTypeDescriptor : TypeDescriptor<PasswordClear> {
+        override val target: KClass<PasswordClear> = PasswordClear::class
+        override val equivMultiplatorm: String = "PasswordClear"
         override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override fun validate(value: PasswordClear): PasswordClear {
+            // No validation in entrance because the rules are too specific
+            // Business will do it
+            return value
+        }
 
     }
 

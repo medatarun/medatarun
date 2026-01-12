@@ -1,6 +1,7 @@
 package io.medatarun.auth.infra
 
 import io.medatarun.auth.domain.Fullname
+import io.medatarun.auth.domain.PasswordHash
 import io.medatarun.auth.domain.User
 import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.needs.DbConnectionFactory
@@ -20,7 +21,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         id: String,
         login: Username,
         fullname: Fullname,
-        password: String,
+        password: PasswordHash,
         admin: Boolean,
         bootstrap: Boolean,
         disabledDate: Instant?
@@ -37,7 +38,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 ps.setString(1, id)
                 ps.setString(2, login.value)
                 ps.setString(3, fullname.value)
-                ps.setString(4, password)
+                ps.setString(4, password.value)
                 ps.setInt(5, if (admin) 1 else 0)
                 ps.setInt(6, if (bootstrap) 1 else 0)
                 ps.setString(7, disabledDate?.toString())
@@ -59,7 +60,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                     id = UUID.fromString(rs.getString("id")),
                     login = Username(rs.getString("login")),
                     fullname = Fullname(rs.getString("full_name")),
-                    passwordHash = rs.getString("password_hash"),
+                    passwordHash = PasswordHash(rs.getString("password_hash")),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,
                     disabledDate = rs.getString("disabled_date")?.let { Instant.parse(it) }
@@ -67,14 +68,14 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             }
         }
 
-    override fun updatePassword(login: Username, newPassword: String) {
+    override fun updatePassword(login: Username, newPassword: PasswordHash) {
 
 
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
                 "UPDATE users SET password_hash = ? WHERE login = ?"
             ).use { ps ->
-                ps.setString(1, newPassword)
+                ps.setString(1, newPassword.value)
                 ps.setString(2, login.value)
                 ps.executeUpdate()
             }

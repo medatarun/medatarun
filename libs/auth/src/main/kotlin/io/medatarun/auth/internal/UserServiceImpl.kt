@@ -21,7 +21,7 @@ class UserServiceImpl(
         bootstrapper.loadOrCreateBootstrapSecret(runOnce)
     }
 
-    override fun adminBootstrap(secret: String, login: Username, fullname: Fullname, password: String): User {
+    override fun adminBootstrap(secret: String, login: Username, fullname: Fullname, password: PasswordClear): User {
         val bootstrapState = bootstrapper.load() ?: throw BootstrapSecretNotReadyException()
         if (bootstrapState.consumed) throw BootstrapSecretAlreadyConsumedException()
         if (bootstrapState.secret != secret) throw BootstrapSecretBadSecretException()
@@ -40,7 +40,7 @@ class UserServiceImpl(
         return user
     }
 
-    override fun createEmbeddedUser(login: Username, fullname: Fullname, clearPassword: String, admin: Boolean): User {
+    override fun createEmbeddedUser(login: Username, fullname: Fullname, clearPassword: PasswordClear, admin: Boolean): User {
         val user = createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
         userEvents.fire(UserEventCreated(user))
         return user
@@ -50,7 +50,7 @@ class UserServiceImpl(
         id: UUID,
         login: Username,
         fullname: Fullname,
-        clearPassword: String,
+        clearPassword: PasswordClear,
         admin: Boolean,
         bootstrap: Boolean
     ): User {
@@ -74,7 +74,7 @@ class UserServiceImpl(
         )
     }
 
-    override fun changeOwnPassword(username: Username, oldPassword: String, newPassword: String) {
+    override fun changeOwnPassword(username: Username, oldPassword: PasswordClear, newPassword: PasswordClear) {
         val user = userStorage.findByLogin(username) ?: throw AuthUnauthorizedException()
         val valid = userPasswordEncrypter.verifyPassword(user.passwordHash, oldPassword)
         if (!valid) throw AuthUnauthorizedException()
@@ -85,7 +85,7 @@ class UserServiceImpl(
         userStorage.updatePassword(username, newPasswordHash)
     }
 
-    override fun changeUserPassword(login: Username, newPassword: String) {
+    override fun changeUserPassword(login: Username, newPassword: PasswordClear) {
         val user = userStorage.findByLogin(login) ?: throw UserNotFoundException()
         val policyCheck = userPasswordEncrypter.checkPasswordPolicy(newPassword, login)
         if (policyCheck is UserPasswordEncrypter.PasswordCheck.Fail)
@@ -109,7 +109,7 @@ class UserServiceImpl(
         userEvents.fire(UserEventFullnameChanged(user.login, fullname))
     }
 
-    override fun loginUser(username: Username, password: String): User {
+    override fun loginUser(username: Username, password: PasswordClear): User {
         val user = userStorage.findByLogin(username) ?: throw AuthUnauthorizedException()
         if (user.disabledDate != null) throw AuthUnauthorizedException()
         val valid = userPasswordEncrypter.verifyPassword(user.passwordHash, password)

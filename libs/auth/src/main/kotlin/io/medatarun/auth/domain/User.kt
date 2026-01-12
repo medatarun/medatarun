@@ -7,7 +7,7 @@ data class User(
     val id: UUID,
     val login: Username,
     val fullname: Fullname,
-    val passwordHash: String,
+    val passwordHash: PasswordHash,
     val admin: Boolean,
     val bootstrap: Boolean,
     val disabledDate: Instant?

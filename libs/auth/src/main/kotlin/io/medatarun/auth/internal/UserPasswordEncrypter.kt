@@ -1,5 +1,7 @@
 package io.medatarun.auth.internal
 
+import io.medatarun.auth.domain.PasswordClear
+import io.medatarun.auth.domain.PasswordHash
 import io.medatarun.auth.domain.Username
 import java.security.SecureRandom
 import java.util.*
@@ -10,6 +12,9 @@ class UserPasswordEncrypter(
     private val passwordEncryptionIterations: Int = DEFAULT_ITERATIONS
 ) {
 
+    fun hashPassword(password: PasswordClear): PasswordHash {
+        return PasswordHash(hashPassword(password.value))
+    }
     fun hashPassword(password: String): String {
         val salt = ByteArray(16)
         SecureRandom().nextBytes(salt)
@@ -30,7 +35,12 @@ class UserPasswordEncrypter(
             Base64.getEncoder().encodeToString(hash)
         ).joinToString(":")
     }
+
+    fun verifyPassword(stored: PasswordHash, candidate: PasswordClear): Boolean {
+        return verifyPassword(stored.value, candidate.value)
+    }
     fun verifyPassword(stored: String, candidate: String): Boolean {
+
         val parts = stored.split(":")
         require(parts.size == 3)
 
@@ -80,6 +90,9 @@ class UserPasswordEncrypter(
         MISSING_CHAR_CATEGORY("password must contain at least 3 of: lowercase, uppercase, digit, symbol")
     }
 
+    fun checkPasswordPolicy(password: PasswordClear, username: Username): PasswordCheck {
+        return checkPasswordPolicy(password.value, username)
+    }
     fun checkPasswordPolicy(password: String, username: Username): PasswordCheck {
         if (password.length < 14) {
             return PasswordCheck.Fail(PasswordPolicyFailReason.TOO_SHORT )

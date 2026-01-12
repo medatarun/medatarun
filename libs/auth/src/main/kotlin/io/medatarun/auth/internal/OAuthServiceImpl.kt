@@ -18,7 +18,7 @@ class OAuthServiceImpl(
     private val actorService: ActorService
 ) : OAuthService {
 
-    override fun oauthLogin(username: Username, password: String): OAuthTokenResponse {
+    override fun oauthLogin(username: Username, password: PasswordClear): OAuthTokenResponse {
         val user = userService.loginUser(username, password)
         return createOAuthAccessTokenForUser(user)
     }

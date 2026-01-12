@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.ActorId
 import io.medatarun.auth.domain.Fullname
+import io.medatarun.auth.domain.PasswordClear
 import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import java.time.Instant
@@ -42,7 +43,7 @@ sealed interface AuthAction<R> {
             description = "Admin password",
             order = 4
         )
-        val password: String
+        val password: PasswordClear
 
     ) : AuthAction<OAuthTokenResponse>
 
@@ -65,7 +66,7 @@ sealed interface AuthAction<R> {
             description = "User password",
             order = 3
         )
-        val password: String,
+        val password: PasswordClear,
         @ActionParamDoc(
             name = "admin",
             description = "Is user admin",
@@ -94,7 +95,7 @@ sealed interface AuthAction<R> {
             description = "Password",
             order = 2
         )
-        val password: String
+        val password: PasswordClear
     ) : AuthAction<OAuthTokenResponse>
 
     @ActionDoc(
@@ -117,13 +118,13 @@ sealed interface AuthAction<R> {
             description = "Current Password",
             order = 1
         )
-        val oldPassword: String,
+        val oldPassword: PasswordClear,
         @ActionParamDoc(
             name = "newPassword",
             description = "New Password",
             order = 2
         )
-        val newPassword: String
+        val newPassword: PasswordClear
     ): AuthAction<Unit>
 
     @ActionDoc(
@@ -144,7 +145,7 @@ sealed interface AuthAction<R> {
             description = "New password for this user",
             order = 2
         )
-        val password: String
+        val password: PasswordClear
     ): AuthAction<Unit>
 
     @ActionDoc(
