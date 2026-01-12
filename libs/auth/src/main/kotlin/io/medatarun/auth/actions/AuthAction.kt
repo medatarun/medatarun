@@ -47,8 +47,8 @@ sealed interface AuthAction<R> {
 
     ) : AuthAction<OAuthTokenResponse>
 
-    @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.", uiLocation = "")
-    class CreateUser(
+    @ActionDoc(key = "user_create", title = "Create user", description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.", uiLocation = "")
+    class UserCreate(
         @ActionParamDoc(
             name = "username",
             description = "Admin user name",
@@ -128,12 +128,12 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="change_user_password",
+        key="user_change_password",
         title="Change user password",
         description = "Change a user password. Only available for admins.",
         uiLocation = ""
     )
-    class ChangeUserPassword(
+    class UserChangePassword(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -149,12 +149,12 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="disable_user",
+        key="user_disable",
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
         uiLocation = ""
     )
-    class DisableUser(
+    class UserDisable(
         @ActionParamDoc(
             name = "username",
             description = "User name",
@@ -164,12 +164,12 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="change_user_fullname",
+        key="user_change_fullname",
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
         uiLocation = ""
     )
-    class ChangeUserFullname(
+    class UserChangeFullname(
         @ActionParamDoc(
             name = "username",
             description = "User name",

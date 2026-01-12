@@ -95,7 +95,7 @@ since you don't have to fight with credentials.
 To create users, be sure to be logged in as admin.
 
 ```bash
-medatarun auth create_user --username="john.doe" --fullname="John Doe" --password="john.doe.0123456789" --admin=false
+medatarun auth user_create --username="john.doe" --fullname="John Doe" --password="john.doe.0123456789" --admin=false
 ```
 
 ## Change user password
@@ -105,7 +105,7 @@ medatarun auth create_user --username="john.doe" --fullname="John Doe" --passwor
 As logged as admin:
 
 ```bash
-medatarun auth change_user_password --username="john.doe" --password="john.doe.0123456789"
+medatarun auth user_change_password --username="john.doe" --password="john.doe.0123456789"
 ```
 
 ### Feature to self-change their own password
@@ -129,7 +129,7 @@ This feature exists because name corrections and spelling mistakes are common,
 and being able to fix them matters to users.
 
 ```bash
-medatarun auth change_user_fullname --username="john.doe" --fullname="John Doe"
+medatarun auth user_change_fullname --username="john.doe" --fullname="John Doe"
 ```
 
 ## Authentication model and scope

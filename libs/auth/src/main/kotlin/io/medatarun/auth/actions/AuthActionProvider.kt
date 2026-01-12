@@ -32,13 +32,13 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
             AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal)
         return when (cmd) {
             is AuthAction.AdminBootstrap -> launcher.adminBootstrap(cmd)
-            is AuthAction.CreateUser -> launcher.createUser(cmd)
+            is AuthAction.UserCreate -> launcher.createUser(cmd)
             is AuthAction.Login -> launcher.login(cmd)
             is AuthAction.WhoAmI -> launcher.whoami(cmd)
             is AuthAction.ChangeMyPassword -> launcher.changeOwnPassword(cmd)
-            is AuthAction.ChangeUserPassword -> launcher.changeUserPassword(cmd)
-            is AuthAction.DisableUser -> launcher.disableUser(cmd)
-            is AuthAction.ChangeUserFullname -> launcher.changeFullname(cmd)
+            is AuthAction.UserChangePassword -> launcher.changeUserPassword(cmd)
+            is AuthAction.UserDisable -> launcher.disableUser(cmd)
+            is AuthAction.UserChangeFullname -> launcher.changeUserFullname(cmd)
             is AuthAction.ListActors -> launcher.listActors(cmd)
             is AuthAction.SetActorRoles -> launcher.setActorRoles(cmd)
             is AuthAction.DisableActor -> launcher.disableActor(cmd)
@@ -71,7 +71,7 @@ class AuthEmbeddedActionsLauncher(
         return oauthService.createOAuthAccessTokenForUser(user)
     }
 
-    fun createUser(cmd: AuthAction.CreateUser) {
+    fun createUser(cmd: AuthAction.UserCreate) {
         principal.ensureIsAdmin()
         userService.createEmbeddedUser(
             cmd.username,
@@ -94,6 +94,7 @@ class AuthEmbeddedActionsLauncher(
     data class WhoAmIResp(
         val issuer: String,
         val sub: String,
+        val fullname: String,
         val admin: Boolean,
         val roles: List<String>,
     )
@@ -105,6 +106,7 @@ class AuthEmbeddedActionsLauncher(
             issuer = actor.issuer,
             sub = actor.subject,
             admin = actor.isAdmin,
+            fullname = actor.fullname,
             roles = actor.roles.map { it.key },
         )
 
@@ -119,7 +121,7 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun changeUserPassword(cmd: AuthAction.ChangeUserPassword) {
+    fun changeUserPassword(cmd: AuthAction.UserChangePassword) {
         principal.ensureIsAdmin()
         return userService.changeUserPassword(
             cmd.username,
@@ -127,14 +129,14 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun disableUser(cmd: AuthAction.DisableUser) {
+    fun disableUser(cmd: AuthAction.UserDisable) {
         principal.ensureIsAdmin()
         return userService.disableUser(
             cmd.username
         )
     }
 
-    fun changeFullname(cmd: AuthAction.ChangeUserFullname) {
+    fun changeUserFullname(cmd: AuthAction.UserChangeFullname) {
         principal.ensureIsAdmin()
         return userService.changeUserFullname(
             cmd.username,

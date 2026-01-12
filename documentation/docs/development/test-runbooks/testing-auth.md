@@ -117,7 +117,7 @@ medatarun auth admin_bootstrap --username=admin --fullname="Administrator" --pas
 export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username=admin --password="admin.0123456789" | jq -r '.access_token')
 medatarun auth whoami
 # Created John Doe
-medatarun auth create_user --username="john.doe" --password="john.doe.0123456789" --fullname="John Doe" --admin=false
+medatarun auth user_create --username="john.doe" --password="john.doe.0123456789" --fullname="John Doe" --admin=false
 unset MEDATARUN_AUTH_TOKEN; export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username=admin --password="admin.0123456789" | jq -r '.access_token')
 medatarun auth whoami
 # Created users must appear as actors
