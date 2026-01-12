@@ -2,6 +2,7 @@ package io.medatarun.auth.embedded
 
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.Fullname
 import io.medatarun.auth.domain.UserAlreadyExistsException
 import io.medatarun.auth.domain.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
@@ -45,7 +46,7 @@ class AuthEmbeddedServiceTest {
     inner class UserCreationTests {
         val env = AuthEnvTest()
         val johnUsername = Username("john.doe")
-        val johnFullname = "John Doe"
+        val johnFullname = Fullname("John Doe")
         val johnPassword = "john.doe." + UUID.randomUUID().toString()
 
         fun createJohn() {
@@ -63,7 +64,7 @@ class AuthEmbeddedServiceTest {
         fun `can not create user with same login`() {
             createJohn()
             assertThrows<UserAlreadyExistsException> {
-                env.userService.createEmbeddedUser(johnUsername, "Other", "other.name." + UUID.randomUUID(), false)
+                env.userService.createEmbeddedUser(johnUsername, Fullname("Other"), "other.name." + UUID.randomUUID(), false)
             }
         }
 
@@ -153,7 +154,7 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.userService.disableUser(johnUsername)
             assertThrows<UserAlreadyExistsException> {
-                env.userService.createEmbeddedUser(johnUsername, "Another User", "test." + UUID.randomUUID(), false)
+                env.userService.createEmbeddedUser(johnUsername, Fullname("Another User"), "test." + UUID.randomUUID(), false)
             }
         }
 
@@ -165,16 +166,16 @@ class AuthEmbeddedServiceTest {
             }
             // Checks fullname before change
             val tokenBefore = env.oauthService.oauthLogin(johnUsername, johnPassword)
-            assertEquals(johnFullname, extractFullname(tokenBefore))
-            env.userService.changeUserFullname(johnUsername, johnFullname + "new")
+            assertEquals(johnFullname, Fullname(extractFullname(tokenBefore)))
+            env.userService.changeUserFullname(johnUsername, Fullname(johnFullname.value + "new"))
 
             // Checks fullname after change
             val tokenAfter = env.oauthService.oauthLogin(johnUsername, johnPassword)
-            assertEquals(johnFullname + "new", extractFullname(tokenAfter))
+            assertEquals(Fullname(johnFullname.value + "new"), Fullname(extractFullname(tokenAfter)))
 
             // Make sure there are no side effects on other users (bad update directive or something like that)
             val tokenAdmin = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
-            assertEquals(env.adminFullname, extractFullname(tokenAdmin))
+            assertEquals(env.adminFullname, Fullname(extractFullname(tokenAdmin)))
         }
 
     }

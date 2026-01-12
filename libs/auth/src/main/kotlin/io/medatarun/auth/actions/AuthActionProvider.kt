@@ -4,10 +4,7 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.auth.domain.ActorRole
-import io.medatarun.auth.domain.AuthUnknownRoleException
-import io.medatarun.auth.domain.UserNotFoundException
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.*
 import io.medatarun.auth.ports.exposed.*
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
@@ -65,7 +62,7 @@ class AuthEmbeddedActionsLauncher(
         val user = userService.adminBootstrap(
             cmd.secret,
             Username(cmd.username).validate(),
-            cmd.fullname,
+            Fullname(cmd.fullname).validate(),
             cmd.password
         )
         return oauthService.createOAuthAccessTokenForUser(user)
@@ -75,7 +72,7 @@ class AuthEmbeddedActionsLauncher(
         principal.ensureIsAdmin()
         userService.createEmbeddedUser(
             Username(cmd.username).validate(),
-            cmd.fullname,
+            Fullname(cmd.fullname).validate(),
             cmd.password,
             cmd.admin
         )
@@ -138,7 +135,7 @@ class AuthEmbeddedActionsLauncher(
         principal.ensureIsAdmin()
         return userService.changeUserFullname(
             Username(cmd.username).validate(),
-            cmd.fullname
+            Fullname(cmd.fullname).validate()
         )
     }
 

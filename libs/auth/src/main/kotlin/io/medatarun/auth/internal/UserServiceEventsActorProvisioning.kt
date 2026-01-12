@@ -30,7 +30,7 @@ class UserServiceEventsActorProvisioning(
             is UserEventFullnameChanged -> {
                 val actor = actorService.findByIssuerAndSubjectOptional(internalIssuer, evt.username.value)
                     ?: throw ActorNotFoundException()
-                actorService.updateFullname(actor.id, evt.fullname)
+                actorService.updateFullname(actor.id, evt.fullname.value)
             }
 
             is UserEventDisabledChanged -> {
@@ -47,7 +47,7 @@ class UserServiceEventsActorProvisioning(
         } else if (!evt.user.admin && actor.roles.contains(ADMIN)) {
             actorService.setRoles(actor.id, actor.roles.filter { it != ADMIN })
         }
-        actorService.updateFullname(actor.id, evt.user.fullname)
+        actorService.updateFullname(actor.id, evt.user.fullname.value)
         actorService.disable(actor.id, evt.user.disabledDate)
     }
 
@@ -55,7 +55,7 @@ class UserServiceEventsActorProvisioning(
         actorService.create(
             issuer = internalIssuer,
             subject = evt.user.login.value,
-            fullname = evt.user.fullname,
+            fullname = evt.user.fullname.value,
             roles = if (evt.user.admin) listOf(ActorRole.ADMIN) else emptyList(),
             email = null,
             disabled = evt.user.disabledDate

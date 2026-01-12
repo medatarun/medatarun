@@ -40,3 +40,24 @@ class AuthUnknownRoleException(val key: String)
 
 class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
 class UsernameTooShortException(minsize: Int) : MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
+class UsernameTooLongException(maxsize: Int) : MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
+class UsernameInvalidFormatException() : MedatarunException("Username invalid.", StatusCode.BAD_REQUEST)
+
+
+open class UserFullnameException(msg: String) :
+    MedatarunException(msg, StatusCode.BAD_REQUEST)
+
+class UserFullnameEmptyException :
+    UserFullnameException("fullname is empty")
+
+class UserFullnameTooLongException :
+    UserFullnameException("fullname is too long")
+
+
+
+
+
+
+
+class UserFullnameInvalidFormatException :
+    UserFullnameException("invalid fullname format")

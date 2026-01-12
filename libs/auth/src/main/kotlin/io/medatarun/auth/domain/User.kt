@@ -6,7 +6,7 @@ import java.util.*
 data class User(
     val id: UUID,
     val login: Username,
-    val fullname: String,
+    val fullname: Fullname,
     val passwordHash: String,
     val admin: Boolean,
     val bootstrap: Boolean,

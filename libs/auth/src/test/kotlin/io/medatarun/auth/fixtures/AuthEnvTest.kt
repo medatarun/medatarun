@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension
+import io.medatarun.auth.domain.Fullname
 import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
 import io.medatarun.auth.domain.Username
@@ -53,7 +54,7 @@ class AuthEnvTest(
     val oauthService: OAuthServiceImpl
 
     val adminUsername: Username = Username("admin")
-    val adminFullname: String = "Admin"
+    val adminFullname: Fullname = Fullname("Admin")
     val adminPassword: String = "admin." + UUID.randomUUID().toString()
     val dbConnectionFactory: DbConnectionFactoryImpl
     val jwtKeyMaterial: JwtKeyMaterial

@@ -1,5 +1,6 @@
 package io.medatarun.auth.infra
 
+import io.medatarun.auth.domain.Fullname
 import io.medatarun.auth.domain.User
 import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.needs.DbConnectionFactory
@@ -18,7 +19,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     override fun insert(
         id: String,
         login: Username,
-        fullname: String,
+        fullname: Fullname,
         password: String,
         admin: Boolean,
         bootstrap: Boolean,
@@ -35,7 +36,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             ).use { ps ->
                 ps.setString(1, id)
                 ps.setString(2, login.value)
-                ps.setString(3, fullname)
+                ps.setString(3, fullname.value)
                 ps.setString(4, password)
                 ps.setInt(5, if (admin) 1 else 0)
                 ps.setInt(6, if (bootstrap) 1 else 0)
@@ -57,7 +58,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 User(
                     id = UUID.fromString(rs.getString("id")),
                     login = Username(rs.getString("login")),
-                    fullname = rs.getString("full_name"),
+                    fullname = Fullname(rs.getString("full_name")),
                     passwordHash = rs.getString("password_hash"),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,
@@ -92,10 +93,10 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
-    override fun updateFullname(username: Username, fullname: String) {
+    override fun updateFullname(username: Username, fullname: Fullname) {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->
-                ps.setString(1, fullname)
+                ps.setString(1, fullname.value)
                 ps.setString(2, username.value)
                 ps.executeUpdate()
             }

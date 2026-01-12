@@ -21,7 +21,7 @@ class UserServiceImpl(
         bootstrapper.loadOrCreateBootstrapSecret(runOnce)
     }
 
-    override fun adminBootstrap(secret: String, login: Username, fullname: String, password: String): User {
+    override fun adminBootstrap(secret: String, login: Username, fullname: Fullname, password: String): User {
         val bootstrapState = bootstrapper.load() ?: throw BootstrapSecretNotReadyException()
         if (bootstrapState.consumed) throw BootstrapSecretAlreadyConsumedException()
         if (bootstrapState.secret != secret) throw BootstrapSecretBadSecretException()
@@ -40,7 +40,7 @@ class UserServiceImpl(
         return user
     }
 
-    override fun createEmbeddedUser(login: Username, fullname: String, clearPassword: String, admin: Boolean): User {
+    override fun createEmbeddedUser(login: Username, fullname: Fullname, clearPassword: String, admin: Boolean): User {
         val user = createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
         userEvents.fire(UserEventCreated(user))
         return user
@@ -49,7 +49,7 @@ class UserServiceImpl(
     fun createEmbeddedUserInternal(
         id: UUID,
         login: Username,
-        fullname: String,
+        fullname: Fullname,
         clearPassword: String,
         admin: Boolean,
         bootstrap: Boolean
@@ -103,7 +103,7 @@ class UserServiceImpl(
         }
     }
 
-    override fun changeUserFullname(username: Username, fullname: String) {
+    override fun changeUserFullname(username: Username, fullname: Fullname) {
         val user = userStorage.findByLogin(username) ?: throw UserNotFoundException()
         userStorage.updateFullname(username, fullname)
         userEvents.fire(UserEventFullnameChanged(user.login, fullname))
