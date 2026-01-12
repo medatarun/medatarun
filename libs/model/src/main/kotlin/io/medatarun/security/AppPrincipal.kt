@@ -1,4 +1,4 @@
-package io.medatarun.actions.ports.needs
+package io.medatarun.security
 
 /**
  * Defines what is a principal from a business perspective

@@ -1,6 +1,8 @@
 package io.medatarun.auth.fixtures
 
-import io.medatarun.actions.ports.needs.*
+import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionPrincipalCtx
+import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
@@ -10,6 +12,9 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.security.AppPrincipal
+import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppPrincipalRole
 import kotlin.reflect.KClass
 
 class AuthActionEnvTest(private val createAdmin: Boolean = true) {

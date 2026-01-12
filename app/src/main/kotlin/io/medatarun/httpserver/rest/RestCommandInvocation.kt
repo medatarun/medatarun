@@ -5,11 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.httpserver.commons.HttpAdapters
+import io.medatarun.security.AppPrincipal
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 

@@ -3,14 +3,14 @@ package io.medatarun.httpserver.commons
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.medatarun.actions.ports.needs.AppPrincipal
-import io.medatarun.actions.ports.needs.AppPrincipalId
-import io.medatarun.actions.ports.needs.AppPrincipalRole
 import io.medatarun.auth.domain.ActorDisabledException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
+import io.medatarun.security.AppPrincipal
+import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppPrincipalRole
 import java.time.Instant
 
 /**

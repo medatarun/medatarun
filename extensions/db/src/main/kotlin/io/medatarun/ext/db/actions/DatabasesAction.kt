@@ -1,5 +1,6 @@
 package io.medatarun.ext.db.actions
 
+import io.medatarun.actions.actions.SecurityRuleNames
 import io.medatarun.actions.ports.needs.ActionDoc
 
 sealed interface DatabasesAction {
@@ -8,7 +9,8 @@ sealed interface DatabasesAction {
         key="driver_list",
         title = "Database drivers",
         description = "Lists available database drivers",
-        uiLocation = "global"
+        uiLocation = "global",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class DatabaseDrivers() : DatabasesAction
 
@@ -16,7 +18,8 @@ sealed interface DatabasesAction {
         key="datasource_list",
         title = "Database sources",
         description = "Lists available datasources",
-        uiLocation = "global"
+        uiLocation = "global",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class Datasources() : DatabasesAction
 }

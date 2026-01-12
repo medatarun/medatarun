@@ -1,4 +1,4 @@
-package io.medatarun.actions.ports.needs
+package io.medatarun.security
 
 /**
  * Defines a role across application.

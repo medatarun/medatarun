@@ -1,8 +1,8 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.security.AppPrincipal
 
 object ActionPrincipalCtxAdapter {
     fun toActionPrincipalCtx(appPrincipal: AppPrincipal?): ActionPrincipalCtx {

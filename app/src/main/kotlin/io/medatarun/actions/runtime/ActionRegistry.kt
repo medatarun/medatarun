@@ -3,6 +3,7 @@ package io.medatarun.actions.runtime
 import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.kernel.ExtensionRegistry
+import kotlinx.html.emptyMap
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
@@ -17,6 +18,7 @@ import kotlin.reflect.typeOf
 class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
+    private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
 
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
@@ -60,6 +62,11 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             sealed.simpleName ?: "unknown"
         )
 
+        // Checks that all security rules are resolved
+        val securityRule = doc.securityRule
+        actionSecurityRegistry.findEvaluatorOptional(securityRule)
+            ?: throw ActionDefinitionWithUnknownSecurityRule(actionGroup, doc.key, securityRule)
+
         return ActionCmdDescriptor(
             accessType = ActionCmdAccessType.DISPATCH,
             key = doc.key,
@@ -82,6 +89,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 )
             },
             uiLocation = doc.uiLocation ?: "",
+            securityRule = securityRule
 
             )
     }
@@ -121,6 +129,11 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 HttpStatusCode.NotFound,
                 "Unknown action '$actionGroupKey/$actionKey'"
             )
+
+        val securityRuleEvaluationResult = actionSecurityRegistry.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
+        if (!securityRuleEvaluationResult) {
+            throw ActionInvocationException(HttpStatusCode.Unauthorized, "Bad credentials", emptyMap)
+        }
 
         val invoker: Invoker = when (actionDescriptor.accessType) {
             ActionCmdAccessType.DISPATCH -> createInvokerDispatch(
@@ -174,9 +187,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private fun createInvokerDispatch(
         actionDescriptor: ActionCmdDescriptor,
-
         actionProviderInstance: ActionProvider<Any>,
-
         actionPayload: JsonObject,
         actionCtx: ActionCtx
     ): Invoker {

@@ -1,5 +1,6 @@
 package io.medatarun.auth.actions
 
+import io.medatarun.actions.actions.SecurityRuleNames
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.actor.ActorId
@@ -16,7 +17,8 @@ sealed interface AuthAction<R> {
         key = "admin_bootstrap",
         title = "Creates admin user",
         description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install. This will automatically make the admin available as an actor and able to connect with tokens.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.PUBLIC
     )
     class AdminBootstrap(
         @ActionParamDoc(
@@ -47,7 +49,13 @@ sealed interface AuthAction<R> {
 
     ) : AuthAction<OAuthTokenResponse>
 
-    @ActionDoc(key = "user_create", title = "Create user", description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.", uiLocation = "")
+    @ActionDoc(
+        key = "user_create",
+        title = "Create user",
+        description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.",
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
+    )
     class UserCreate(
         @ActionParamDoc(
             name = "username",
@@ -80,7 +88,8 @@ sealed interface AuthAction<R> {
         key = "login",
         title = "Login user",
         description = "Generates a JWT Access Token for API calls that users can reuse to authenticate themselves in API or CLI calls (OAuth format, not OIDC)",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.PUBLIC
     )
     class Login(
         @ActionParamDoc(
@@ -102,7 +111,8 @@ sealed interface AuthAction<R> {
         key="whoami",
         title="Who am i",
         description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.SIGNED_IN
     )
     class WhoAmI(): AuthAction<AuthEmbeddedActionsLauncher.WhoAmIResp>
 
@@ -110,7 +120,8 @@ sealed interface AuthAction<R> {
         key="change_my_password",
         title="Change own password",
         description = "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.SIGNED_IN
     )
     class ChangeMyPassword(
         @ActionParamDoc(
@@ -131,7 +142,8 @@ sealed interface AuthAction<R> {
         key="user_change_password",
         title="Change user password",
         description = "Change a user password. Only available for admins.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class UserChangePassword(
         @ActionParamDoc(
@@ -152,7 +164,8 @@ sealed interface AuthAction<R> {
         key="user_disable",
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class UserDisable(
         @ActionParamDoc(
@@ -167,7 +180,8 @@ sealed interface AuthAction<R> {
         key="user_change_fullname",
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class UserChangeFullname(
         @ActionParamDoc(
@@ -188,7 +202,8 @@ sealed interface AuthAction<R> {
         key="list_actors",
         title="List actors",
         description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class ListActors(): AuthAction<AuthEmbeddedActionsLauncher.ActorInfo    >
 
@@ -196,7 +211,8 @@ sealed interface AuthAction<R> {
         key="set_actor_roles",
         title="Set actor roles",
         description = "Replace roles for an actor. Only available for admins.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class SetActorRoles(
         @ActionParamDoc(
@@ -217,7 +233,8 @@ sealed interface AuthAction<R> {
         key="disable_actor",
         title="Disable actor",
         description = "Disable an actor. Only available for admins.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class DisableActor(
         @ActionParamDoc(
@@ -238,7 +255,8 @@ sealed interface AuthAction<R> {
         key="enable_actor",
         title="Enable actor",
         description = "Enable an actor. Only available for admins.",
-        uiLocation = ""
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
     )
     class EnableActor(
         @ActionParamDoc(

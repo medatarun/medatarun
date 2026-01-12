@@ -3,11 +3,11 @@ package io.medatarun.actions.runtime
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.AppPrincipal
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.security.AppPrincipal
 import kotlin.reflect.KClass
 
 class ActionCtxFactory(
