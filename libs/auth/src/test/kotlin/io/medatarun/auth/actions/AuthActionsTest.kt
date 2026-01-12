@@ -252,22 +252,24 @@ class AuthActionsTest {
     // Actions on actors only
     // ------------------------------------------------------------------------
 
-    // TODO listActors
+    // TODO actor_list
     //      rename method
     //      make sure API is stable
 
-    // TODO setActorRoles
+    // TODO actor_change_roles
     //      cheks that roles are supported roles
 
-    // TODO disableActor
+    // TODO actor_disable
     //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
     //      remember: if actor is disabled, the if there is a matching user it must be disabled too
+    //      disabling an actor is removing its capacity to use our own app and may not come from JWT
 
-    // TODO enableActor
+    // TODO actor_enable
     //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
     //      remember: if actor is disabled, the if there is a matching user it must be enabled too
+    //      disabling an actor is removing its capacity to use our own app and may not come from JWT
 
     // Remember,
-        // - you don't change actor fullname here, only via JWT Tokens
-        // - you don't change actor email here, only via JWT Tokens
+    // - you don't change actor fullname here, only via JWT Tokens
+    // - you don't change actor email here, only via JWT Tokens
 }
