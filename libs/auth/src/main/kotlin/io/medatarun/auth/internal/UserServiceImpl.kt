@@ -1,6 +1,7 @@
 package io.medatarun.auth.internal
 
 import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*

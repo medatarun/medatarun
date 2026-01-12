@@ -1,13 +1,13 @@
 package io.medatarun.auth.fixtures
 
 import io.medatarun.actions.ports.needs.*
+import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.adapters.ActionPrincipalCtxAdapter
-import io.medatarun.auth.domain.Actor
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ActorRole
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.kernel.ExtensionRegistry
 import kotlin.reflect.KClass

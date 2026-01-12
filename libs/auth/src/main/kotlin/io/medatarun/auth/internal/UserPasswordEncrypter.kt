@@ -1,8 +1,8 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.domain.PasswordClear
-import io.medatarun.auth.domain.PasswordHash
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.PasswordHash
+import io.medatarun.auth.domain.user.Username
 import java.security.SecureRandom
 import java.util.*
 import javax.crypto.SecretKeyFactory

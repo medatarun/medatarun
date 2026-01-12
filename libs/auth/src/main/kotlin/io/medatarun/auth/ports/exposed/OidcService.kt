@@ -1,9 +1,9 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.Jwks
-import io.medatarun.auth.domain.OidcAuthorizeCtx
-import io.medatarun.auth.domain.OidcAuthorizeRequest
-import io.medatarun.auth.domain.OidcTokenRequest
+import io.medatarun.auth.domain.jwt.Jwks
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.OidcAuthorizeResult
 import kotlinx.serialization.json.JsonObject
 import java.net.URI

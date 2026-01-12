@@ -1,6 +1,6 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.domain.JwtKeyMaterial
+import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry
 import java.nio.file.Files
 import java.nio.file.Path

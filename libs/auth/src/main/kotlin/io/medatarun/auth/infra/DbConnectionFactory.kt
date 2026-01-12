@@ -1,4 +1,4 @@
-package io.medatarun.auth.ports.needs
+package io.medatarun.auth.infra
 
 import java.sql.Connection
 

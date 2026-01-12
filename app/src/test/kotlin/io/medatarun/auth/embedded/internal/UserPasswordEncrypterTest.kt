@@ -1,7 +1,7 @@
 package io.medatarun.auth.embedded.internal
 
 
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.internal.UserPasswordEncrypter
 import io.medatarun.auth.internal.UserPasswordEncrypter.PasswordPolicyFailReason
 import org.junit.jupiter.api.Test

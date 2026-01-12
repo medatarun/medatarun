@@ -1,7 +1,11 @@
 package io.medatarun.auth.embedded
 
 import com.auth0.jwt.JWT
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.UserAlreadyExistsException
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import org.junit.jupiter.api.Nested
@@ -61,7 +65,8 @@ class AuthEmbeddedServiceTest {
         fun `can not create user with same login`() {
             createJohn()
             assertThrows<UserAlreadyExistsException> {
-                env.userService.createEmbeddedUser(johnUsername, Fullname("Other"), PasswordClear("other.name." + UUID.randomUUID()), false)
+                env.userService.createEmbeddedUser(johnUsername, Fullname("Other"),
+                    PasswordClear("other.name." + UUID.randomUUID()), false)
             }
         }
 
@@ -77,7 +82,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot log in with bad password`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(johnUsername, PasswordClear(johnPassword.value+"---"))
+                env.oauthService.oauthLogin(johnUsername, PasswordClear(johnPassword.value + "---"))
             }
         }
 
@@ -153,7 +158,8 @@ class AuthEmbeddedServiceTest {
             createJohn()
             env.userService.disableUser(johnUsername)
             assertThrows<UserAlreadyExistsException> {
-                env.userService.createEmbeddedUser(johnUsername, Fullname("Another User"), PasswordClear("test." + UUID.randomUUID()), false)
+                env.userService.createEmbeddedUser(johnUsername, Fullname("Another User"),
+                    PasswordClear("test." + UUID.randomUUID()), false)
             }
         }
 

@@ -1,8 +1,7 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.OidcAuthorizeCode
-import io.medatarun.auth.domain.OidcAuthorizeCtx
-import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.OidcStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant

@@ -7,7 +7,7 @@ import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.domain.UserNotFoundException
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.*
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory

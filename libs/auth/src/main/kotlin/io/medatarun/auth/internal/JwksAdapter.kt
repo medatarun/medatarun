@@ -1,7 +1,7 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.domain.Jwk
-import io.medatarun.auth.domain.Jwks
+import io.medatarun.auth.domain.jwt.Jwk
+import io.medatarun.auth.domain.jwt.Jwks
 import java.math.BigInteger
 import java.security.interfaces.RSAPublicKey
 import java.util.*

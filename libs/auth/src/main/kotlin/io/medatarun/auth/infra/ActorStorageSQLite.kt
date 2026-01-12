@@ -1,10 +1,9 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.Actor
-import io.medatarun.auth.domain.ActorId
 import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.needs.ActorStorage
-import io.medatarun.auth.ports.needs.DbConnectionFactory
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json

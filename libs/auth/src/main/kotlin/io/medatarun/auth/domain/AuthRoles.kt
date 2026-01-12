@@ -1,7 +1,7 @@
 package io.medatarun.auth.domain
 
 /**
- * Role from [Actor] point of vue.
+ * Role from [io.medatarun.auth.domain.actor.Actor] point of vue.
  *
  * Roles are interfaces with a key, so that we may extend that later.
  *

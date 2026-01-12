@@ -6,7 +6,11 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.jwt.JwtConfig
+import io.medatarun.auth.domain.jwt.JwtKeyMaterial
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite

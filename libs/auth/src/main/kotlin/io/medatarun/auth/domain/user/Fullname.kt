@@ -1,4 +1,8 @@
-package io.medatarun.auth.domain
+package io.medatarun.auth.domain.user
+
+import io.medatarun.auth.domain.UserFullnameEmptyException
+import io.medatarun.auth.domain.UserFullnameInvalidFormatException
+import io.medatarun.auth.domain.UserFullnameTooLongException
 
 @JvmInline
 value class Fullname(val value: String) {

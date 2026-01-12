@@ -1,5 +1,6 @@
 package io.medatarun.auth.domain
 
+import io.medatarun.auth.domain.user.Username
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test

@@ -1,8 +1,8 @@
 package io.medatarun.auth.ports.needs
 
-import io.medatarun.auth.domain.Fullname
-import io.medatarun.auth.domain.User
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.User
+import io.medatarun.auth.domain.user.Username
 import java.time.Instant
 
 /**

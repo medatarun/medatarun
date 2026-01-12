@@ -1,9 +1,9 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.Actor
-import io.medatarun.auth.domain.PasswordClear
-import io.medatarun.auth.domain.User
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.User
+import io.medatarun.auth.domain.user.Username
 
 /**
  * Issue an OAuth token response containing an OAuth token (also known

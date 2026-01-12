@@ -1,7 +1,6 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.*
-import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant

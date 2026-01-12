@@ -1,7 +1,7 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.actions.actions.ActionWithPayload
-import io.medatarun.auth.domain.ActorId
+import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd

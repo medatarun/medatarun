@@ -1,4 +1,4 @@
-package io.medatarun.auth.adapters
+package io.medatarun.auth.actions
 
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.AppPrincipal

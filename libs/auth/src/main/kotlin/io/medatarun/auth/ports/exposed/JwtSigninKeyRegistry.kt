@@ -1,6 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.JwtKeyMaterial
+import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 
 /**
  * Manages the bootstrap key in the keystore for embeeded auth server.

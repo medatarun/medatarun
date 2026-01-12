@@ -1,6 +1,10 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthActionEnvTest
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.UserService

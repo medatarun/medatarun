@@ -1,4 +1,4 @@
-package io.medatarun.auth.domain
+package io.medatarun.auth.domain.user
 
 import java.time.Instant
 

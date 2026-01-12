@@ -1,4 +1,9 @@
-package io.medatarun.auth.domain
+package io.medatarun.auth.domain.user
+
+import io.medatarun.auth.domain.UsernameEmptyException
+import io.medatarun.auth.domain.UsernameInvalidFormatException
+import io.medatarun.auth.domain.UsernameTooLongException
+import io.medatarun.auth.domain.UsernameTooShortException
 
 @JvmInline
 value class Username(val value: String) {

@@ -2,7 +2,11 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.jwt.JwtConfig
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite

@@ -1,6 +1,6 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.domain.Actor
+import io.medatarun.auth.domain.actor.Actor
 
 /**
  * Utility class to build claims for an [Actor].

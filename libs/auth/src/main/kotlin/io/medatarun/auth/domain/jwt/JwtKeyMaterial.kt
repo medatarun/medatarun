@@ -1,4 +1,4 @@
-package io.medatarun.auth.domain
+package io.medatarun.auth.domain.jwt
 
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey

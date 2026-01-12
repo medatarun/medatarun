@@ -1,9 +1,9 @@
 package io.medatarun.auth.internal
 
-import io.medatarun.auth.domain.Actor
 import io.medatarun.auth.domain.ActorCreateFailedWithNotFoundException
-import io.medatarun.auth.domain.ActorId
 import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.needs.ActorStorage

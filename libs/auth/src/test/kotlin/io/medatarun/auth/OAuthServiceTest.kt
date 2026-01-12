@@ -1,7 +1,7 @@
 package io.medatarun.auth
 
 import com.auth0.jwt.JWT
-import io.medatarun.auth.domain.JwtConfig
+import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.fixtures.AuthEnvTest
 import java.time.Instant
 import java.util.*

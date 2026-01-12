@@ -1,5 +1,6 @@
-package io.medatarun.auth.domain
+package io.medatarun.auth.domain.actor
 
+import io.medatarun.auth.domain.ActorRole
 import java.time.Instant
 
 /**
