@@ -1,9 +1,6 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.Fullname
-import io.medatarun.auth.domain.PasswordHash
-import io.medatarun.auth.domain.User
-import io.medatarun.auth.domain.Username
+import io.medatarun.auth.domain.*
 import io.medatarun.auth.ports.needs.DbConnectionFactory
 import io.medatarun.auth.ports.needs.UserStorage
 import org.intellij.lang.annotations.Language
@@ -57,8 +54,8 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 if (!rs.next()) return null
 
                 User(
-                    id = UUID.fromString(rs.getString("id")),
-                    login = Username(rs.getString("login")),
+                    id = UserId(UUID.fromString(rs.getString("id"))),
+                    username = Username(rs.getString("login")),
                     fullname = Fullname(rs.getString("full_name")),
                     passwordHash = PasswordHash(rs.getString("password_hash")),
                     admin = rs.getInt("admin") == 1,

@@ -27,7 +27,7 @@ class UserServiceImpl(
         if (bootstrapState.secret != secret) throw BootstrapSecretBadSecretException()
 
         val user = createEmbeddedUserInternal(
-            id = UUID.randomUUID(),
+            id = UserId(UUID.randomUUID()),
             login = login,
             fullname = fullname,
             clearPassword = password,
@@ -41,13 +41,13 @@ class UserServiceImpl(
     }
 
     override fun createEmbeddedUser(login: Username, fullname: Fullname, clearPassword: PasswordClear, admin: Boolean): User {
-        val user = createEmbeddedUserInternal(UUID.randomUUID(), login, fullname, clearPassword, admin, false)
+        val user = createEmbeddedUserInternal(UserId(UUID.randomUUID()), login, fullname, clearPassword, admin, false)
         userEvents.fire(UserEventCreated(user))
         return user
     }
 
     fun createEmbeddedUserInternal(
-        id: UUID,
+        id: UserId,
         login: Username,
         fullname: Fullname,
         clearPassword: PasswordClear,
@@ -65,7 +65,7 @@ class UserServiceImpl(
         userStorage.insert(id.toString(), login, fullname, password, admin, bootstrap, null)
         return User(
             id = id,
-            login = login,
+            username = login,
             fullname = fullname,
             passwordHash = password,
             admin = admin,
@@ -91,7 +91,7 @@ class UserServiceImpl(
         if (policyCheck is UserPasswordEncrypter.PasswordCheck.Fail)
             throw UserCreatePasswordFailException(policyCheck.reason)
         val newPasswordHash = userPasswordEncrypter.hashPassword(newPassword)
-        userStorage.updatePassword(user.login, newPasswordHash)
+        userStorage.updatePassword(user.username, newPasswordHash)
     }
 
     override fun disableUser(username: Username) {
@@ -99,14 +99,14 @@ class UserServiceImpl(
         val user = userStorage.findByLogin(username)
         userStorage.disable(username, at = now)
         if (user != null) {
-            userEvents.fire(UserEventDisabledChanged(user.login, now))
+            userEvents.fire(UserEventDisabledChanged(user.username, now))
         }
     }
 
     override fun changeUserFullname(username: Username, fullname: Fullname) {
         val user = userStorage.findByLogin(username) ?: throw UserNotFoundException()
         userStorage.updateFullname(username, fullname)
-        userEvents.fire(UserEventFullnameChanged(user.login, fullname))
+        userEvents.fire(UserEventFullnameChanged(user.username, fullname))
     }
 
     override fun loginUser(username: Username, password: PasswordClear): User {

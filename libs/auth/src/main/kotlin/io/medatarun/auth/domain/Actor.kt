@@ -18,8 +18,6 @@ import java.time.Instant
  * **NEVER** rely on [issuer]+[subject] in apps. The only guaranteed
  * identifier is [id]
  *
- *
- *
  */
 data class Actor(
     /**

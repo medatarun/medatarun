@@ -19,7 +19,7 @@ class UserServiceEventsActorProvisioning(
     override fun fire(evt: UserEvent) {
         when (evt) {
             is UserEventCreated -> {
-                val actor = actorService.findByIssuerAndSubjectOptional(internalIssuer, evt.user.login.value)
+                val actor = actorService.findByIssuerAndSubjectOptional(internalIssuer, evt.user.username.value)
                 if (actor != null) {
                     updateFromUser(evt, actor)
                 } else {
@@ -54,7 +54,7 @@ class UserServiceEventsActorProvisioning(
     private fun createFromUser(evt: UserEventCreated) {
         actorService.create(
             issuer = internalIssuer,
-            subject = evt.user.login.value,
+            subject = evt.user.username.value,
             fullname = evt.user.fullname.value,
             roles = if (evt.user.admin) listOf(ActorRole.ADMIN) else emptyList(),
             email = null,

@@ -24,10 +24,10 @@ class OAuthServiceImpl(
     }
 
     override fun createOAuthAccessTokenForUser(user: User): OAuthTokenResponse {
-        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, user.login.value)
+        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, user.username.value)
             ?: throw ActorNotFoundException()
         val token = issueAccessToken(
-            sub = user.login.value,
+            sub = user.username.value,
             claims = actorClaimsAdapter.createUserClaims(actor)
         )
         return OAuthTokenResponse(token, "Bearer", jwtConfig.ttlSeconds)

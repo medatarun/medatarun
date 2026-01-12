@@ -37,11 +37,11 @@ class AuthActionsTest {
 
         val userService = env.getService(UserService::class)
         val user = userService.loginUser(username, password)
-        assertEquals(username, user.login)
+        assertEquals(username, user.username)
 
         // Test user exists in Actors
         val actorService = env.getService(ActorService::class)
-        val actor = actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), user.login.value)
+        val actor = actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), user.username.value)
         assertNotNull(actor)
         assertEquals(1, actor.roles.size)
         assertTrue(actor.roles.any { it.key == ActorRole.ADMIN.key })
@@ -64,7 +64,7 @@ class AuthActionsTest {
         )
         val user = env.getService(UserService::class).loginUser(username, password)
         assertFalse(user.admin)
-        assertEquals(username, user.login)
+        assertEquals(username, user.username)
         assertEquals(fullname, user.fullname)
     }
 

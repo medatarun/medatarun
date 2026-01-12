@@ -37,7 +37,7 @@ class OIDCAuthorizePage(
         if (!userNameSafe.isNullOrBlank() && !passwordSafe.isNullOrBlank()) {
             try {
                 val user = userService.loginUser(Username(userNameSafe).validate(), PasswordClear(passwordSafe))
-                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.login.value)
+                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.username.value)
                 return OIDCAuthorizePageResult.Redirect(redirectUri)
             } catch (ex: Exception) {
                 loginError = ex.message ?: "Login failed"
