@@ -41,9 +41,14 @@ class BootstrapSecretLifecycleImpl(
             return BootstrapSecretState(secret, consumed)
         }
 
-        val rnd = ByteArray(SECRET_SIZE)
-        SecureRandom().nextBytes(rnd)
-        val secret = Base64.getUrlEncoder().withoutPadding().encodeToString(rnd)
+        val secret = if (prefilledSecret != null) {
+            prefilledSecret
+        } else {
+            val rnd = ByteArray(SECRET_SIZE)
+            SecureRandom().nextBytes(rnd)
+            Base64.getUrlEncoder().withoutPadding().encodeToString(rnd)
+        }
+
 
         Files.writeString(secretPath, secret, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
         logOnce(secret)

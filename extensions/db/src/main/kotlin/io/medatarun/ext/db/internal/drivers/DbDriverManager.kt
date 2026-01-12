@@ -1,7 +1,6 @@
 package io.medatarun.ext.db.internal.drivers
 
-import io.medatarun.ext.db.internal.drivers.DbDriverRegistry
-import io.medatarun.ext.db.model.DbConnection
+import io.medatarun.ext.db.model.DbDatasource
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.net.URLClassLoader
@@ -9,7 +8,7 @@ import java.nio.file.Path
 import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverManager
-import java.util.Properties
+import java.util.*
 
 class DbDriverLoader(val registry: DbDriverRegistry) {
     private val loadedDrivers = mutableSetOf<String>()
@@ -50,7 +49,7 @@ class DbDriverManager(driversJsonPath: Path, jdbcDriversPath: Path) {
     val driverRegistry: DbDriverRegistry = DbDriverRegistry(driversJsonPath, jdbcDriversPath)
     val driverLoader: DbDriverLoader = DbDriverLoader(driverRegistry)
 
-    fun getConnection(connection: DbConnection): Connection {
+    fun getConnection(connection: DbDatasource): Connection {
         driverLoader.loadDriverIfNeeded(connection.driver)
         val info = Properties()
         info["user"] = connection.username

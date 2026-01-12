@@ -8,8 +8,11 @@ node {
     pnpmVersion.set("10.14.0")
 }
 
+/** Tells if we are running in Continuous Integration. GitHub Actions shall put that to true */
+val isCI = System.getenv("CI") == "true"
+
 tasks.register<com.github.gradle.node.npm.task.NpmTask>("viteBuild") {
-    dependsOn(tasks.pnpmInstall)
+    if (isCI) dependsOn(tasks.pnpmInstall)
     npmCommand.set(listOf("run", "build"))
     inputs.file("package.json")
     inputs.file("pnpm-lock.yaml")

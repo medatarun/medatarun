@@ -1,11 +1,11 @@
 package io.medatarun.ext.db.model
 
 /**
- * A connection to a database, identified by an abstract name amongst all available connections
+ * A connection to a database, identified by an abstract name amongst all available datasources
  */
-data class DbConnection(
+data class DbDatasource(
     /**
-     * is a logical name for your connection. This is the name you will use to do imports and will be shared in your
+     * is a logical name for your datasource. This is the name you will use to do imports and will be shared in your
      *   project. This way, all your team members can rely on the same names.
      */
     val name: String,

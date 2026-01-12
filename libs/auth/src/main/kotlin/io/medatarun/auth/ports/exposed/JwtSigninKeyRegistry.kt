@@ -22,7 +22,7 @@ interface JwtSigninKeyRegistry {
         /**
          * Default location for keys relative to MEDATARUN_HOME
          */
-        const val DEFAULT_KEYSTORE_PATH_NAME: String = "secrets/auth/issuer"
+        const val DEFAULT_KEYSTORE_PATH_NAME: String = "data/secrets/auth/issuer"
 
     }
 }

@@ -35,7 +35,7 @@ class AuthExtension() : MedatarunExtension {
         val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
         val dbConnectionFactory = DbConnectionFactoryImpl(
-            ctx.resolveApplicationHomePath("data/users.db").toAbsolutePath().toString()
+            ctx.resolveApplicationHomePath("data/database.db").toAbsolutePath().toString()
         )
         val authClock = object : AuthClock {
             override fun now(): Instant = Instant.now()
