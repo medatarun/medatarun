@@ -8,15 +8,13 @@ import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.domain.JwtConfig
 import io.medatarun.auth.domain.JwtKeyMaterial
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.*
-import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
-import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry
-import io.medatarun.auth.ports.exposed.OidcService
-import io.medatarun.auth.ports.exposed.UserService
+import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.OidcStorage
 import java.nio.file.Files
 import java.sql.Connection
@@ -40,21 +38,27 @@ import kotlin.test.assertTrue
  */
 class AuthEnvTest(
     private val overrideJwtConfig: JwtConfig? = null,
+    private val createAdmin: Boolean = true
 ) {
+
+
 
     val userService: UserService
     val oidcService: OidcService
+    val actorService: ActorService
+    val bootstrapSecretLifecycle: BootstrapSecretLifecycle
 
     // We provide impl and not only the interface because some tests are trick and focus only
     // on JWT Generation. Could be better but for now it's ok.
     val oauthService: OAuthServiceImpl
 
-    val adminUser: String = "admin"
+    val adminUsername: Username = Username("admin")
     val adminFullname: String = "Admin"
     val adminPassword: String = "admin." + UUID.randomUUID().toString()
     val dbConnectionFactory: DbConnectionFactoryImpl
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
+    var bootstrapSecretKeeper = ""
 
     // Keeps connection alive until this class lifecycle ends
     private val dbConnectionKeeper: Connection
@@ -145,10 +149,15 @@ class AuthEnvTest(
         this.oauthService = oauthService
         this.jwtKeyMaterial = authEmbeddedKeys
         this.jwtConfig = jwtCfg
+        this.actorService = actorService
+        this.bootstrapSecretLifecycle = bootstrapper
+        this.bootstrapSecretKeeper = ""
 
-        var bootstrapSecretKeeper: String = ""
         userService.loadOrCreateBootstrapSecret { bootstrapSecret -> bootstrapSecretKeeper = bootstrapSecret }
-        userService.adminBootstrap(bootstrapSecretKeeper, adminUser, adminFullname, adminPassword)
+
+        if (createAdmin) {
+            userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
+        }
     }
 
 

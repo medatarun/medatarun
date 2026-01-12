@@ -1,6 +1,7 @@
 package io.medatarun.httpserver.oidc
 
 import io.medatarun.auth.domain.OidcAuthorizeCtx
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.trimToNull
@@ -34,8 +35,8 @@ class OIDCAuthorizePage(
 
         if (!userNameSafe.isNullOrBlank() && !passwordSafe.isNullOrBlank()) {
             try {
-                val user = userService.loginUser(userNameSafe, passwordSafe)
-                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.login)
+                val user = userService.loginUser(Username(userNameSafe).validate(), passwordSafe)
+                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.login.value)
                 return OIDCAuthorizePageResult.Redirect(redirectUri)
             } catch (ex: Exception) {
                 loginError = ex.message ?: "Login failed"

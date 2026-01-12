@@ -1,6 +1,7 @@
 package io.medatarun.auth.embedded.internal
 
 
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.internal.UserPasswordEncrypter
 import io.medatarun.auth.internal.UserPasswordEncrypter.PasswordPolicyFailReason
 import org.junit.jupiter.api.Test
@@ -66,7 +67,7 @@ class UserPasswordEncrypterTest {
 
     @Test
     fun `checkPasswordPolicy should fail if password is too short`() {
-        val result = userPasswordEncrypter.checkPasswordPolicy("Short1!", "user")
+        val result = userPasswordEncrypter.checkPasswordPolicy("Short1!", Username("user"))
         assertFalse(result.ok)
         assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.TOO_SHORT, result.reason)
@@ -74,7 +75,7 @@ class UserPasswordEncrypterTest {
 
     @Test
     fun `checkPasswordPolicy should fail if password is only whitespace`() {
-        val result = userPasswordEncrypter.checkPasswordPolicy("              ", "user")
+        val result = userPasswordEncrypter.checkPasswordPolicy("              ", Username("user"))
         assertFalse(result.ok)
         assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.WHITESPACES_ONLY, result.reason)
@@ -82,7 +83,7 @@ class UserPasswordEncrypterTest {
 
     @Test
     fun `checkPasswordPolicy should fail if password is equal to username`() {
-        val result = userPasswordEncrypter.checkPasswordPolicy("VerySecurePassword1!", "VerySecurePassword1!")
+        val result = userPasswordEncrypter.checkPasswordPolicy("VerySecurePassword1!", Username("VerySecurePassword1!"))
         assertFalse(result.ok)
         assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result)
         assertEquals(PasswordPolicyFailReason.EQUALS_USERNAME, result.reason)
@@ -91,13 +92,13 @@ class UserPasswordEncrypterTest {
     @Test
     fun `checkPasswordPolicy should fail if password has less than 3 character classes`() {
         // Only lowercase and uppercase (2 classes)
-        val result1 = userPasswordEncrypter.checkPasswordPolicy("OnlyLettersLongEnough", "user")
+        val result1 = userPasswordEncrypter.checkPasswordPolicy("OnlyLettersLongEnough", Username("user"))
         assertFalse(result1.ok)
         assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result1)
         assertEquals(PasswordPolicyFailReason.MISSING_CHAR_CATEGORY, result1.reason)
 
         // Only lowercase and digits (2 classes)
-        val result2 = userPasswordEncrypter.checkPasswordPolicy("onlylettersand12345", "user")
+        val result2 = userPasswordEncrypter.checkPasswordPolicy("onlylettersand12345", Username("user"))
         assertFalse(result2.ok)
         assertIs<UserPasswordEncrypter.PasswordCheck.Fail>(result2)
         assertEquals(PasswordPolicyFailReason.MISSING_CHAR_CATEGORY, result2.reason)
@@ -106,16 +107,16 @@ class UserPasswordEncrypterTest {
     @Test
     fun `checkPasswordPolicy should succeed for valid passwords`() {
         // Lower, Upper, Digit
-        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword123", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword123", Username("user")).ok)
         
         // Lower, Upper, Symbol
-        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("ValidPassword!!!", Username("user")).ok)
         
         // Lower, Digit, Symbol
-        assertTrue(userPasswordEncrypter.checkPasswordPolicy("validpassword123!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("validpassword123!!!", Username("user")).ok)
         
         // Upper, Digit, Symbol
-        assertTrue(userPasswordEncrypter.checkPasswordPolicy("VALIDPASSWORD123!!!", "user").ok)
+        assertTrue(userPasswordEncrypter.checkPasswordPolicy("VALIDPASSWORD123!!!", Username("user")).ok)
     }
 
 

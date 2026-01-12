@@ -105,15 +105,21 @@ export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username=admin --password="
 medatarun auth whoami
 ```
 
-## Create users
+## Create user and sign-in with him
 
 ```bash
+# prepare
 export MEDATARUN_AUTH_BOOTSTRAP_SECRET="012345678901234567890123456789"
 rm -rf ${MEDATARUN_HOME}/data; medatarun serve
 unset MEDATARUN_AUTH_TOKEN
+# Boostrap and create admin
 medatarun auth admin_bootstrap --username=admin --fullname="Administrator" --password="admin.0123456789" --secret="${MEDATARUN_AUTH_BOOTSTRAP_SECRET}"
 export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username=admin --password="admin.0123456789" | jq -r '.access_token')
 medatarun auth whoami
+# Created John Doe
 medatarun auth create_user --username="john.doe" --password="john.doe.0123456789" --fullname="John Doe" --admin=false
+unset MEDATARUN_AUTH_TOKEN; export MEDATARUN_AUTH_TOKEN=$(medatarun auth login --username=admin --password="admin.0123456789" | jq -r '.access_token')
+medatarun auth whoami
+# Created users must appear as actors
 medatarun auth list_actors | jq
 ```

@@ -3,6 +3,7 @@ package io.medatarun.auth.embedded
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.AuthUnauthorizedException
 import io.medatarun.auth.domain.UserAlreadyExistsException
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import org.junit.jupiter.api.Nested
@@ -20,21 +21,21 @@ class AuthEmbeddedServiceTest {
 
         @Test
         fun `admin can log in`() {
-            val token = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
+            val token = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(token)
         }
 
         @Test
         fun `admin cannot log in with bad login`() {
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(env.adminUser + "--", env.adminPassword)
+                env.oauthService.oauthLogin(Username(env.adminUsername.value + "--"), env.adminPassword)
             }
         }
 
         @Test
         fun `admin cannot log in with bad password`() {
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(env.adminUser, env.adminPassword + "---")
+                env.oauthService.oauthLogin(env.adminUsername, env.adminPassword + "---")
             }
         }
     }
@@ -43,7 +44,7 @@ class AuthEmbeddedServiceTest {
     @Nested
     inner class UserCreationTests {
         val env = AuthEnvTest()
-        val johnUsername = "john.doe"
+        val johnUsername = Username("john.doe")
         val johnFullname = "John Doe"
         val johnPassword = "john.doe." + UUID.randomUUID().toString()
 
@@ -70,7 +71,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot log in with bad login`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin("$johnUsername--", johnPassword)
+                env.oauthService.oauthLogin(Username(johnUsername.value + "--"), johnPassword)
             }
         }
 
@@ -94,7 +95,7 @@ class AuthEmbeddedServiceTest {
         fun `john cannot fake admin with its password`() {
             createJohn()
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(env.adminUser, johnPassword)
+                env.oauthService.oauthLogin(env.adminUsername, johnPassword)
             }
         }
 
@@ -110,9 +111,9 @@ class AuthEmbeddedServiceTest {
             env.oauthService.oauthLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(env.adminUser, "$johnPassword.new")
+                env.oauthService.oauthLogin(env.adminUsername, "$johnPassword.new")
             }
-            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -128,9 +129,9 @@ class AuthEmbeddedServiceTest {
             env.oauthService.oauthLogin(johnUsername, "$johnPassword.new")
             // Didn't changed by mistake admin password
             assertThrows<AuthUnauthorizedException> {
-                env.oauthService.oauthLogin(env.adminUser, "$johnPassword.new")
+                env.oauthService.oauthLogin(env.adminUsername, "$johnPassword.new")
             }
-            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -143,7 +144,7 @@ class AuthEmbeddedServiceTest {
                 env.oauthService.oauthLogin(johnUsername, johnPassword)
             }
             // Didn't changed by mistake admin login
-            val adminToken = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
+            val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(adminToken)
         }
 
@@ -172,7 +173,7 @@ class AuthEmbeddedServiceTest {
             assertEquals(johnFullname + "new", extractFullname(tokenAfter))
 
             // Make sure there are no side effects on other users (bad update directive or something like that)
-            val tokenAdmin = env.oauthService.oauthLogin(env.adminUser, env.adminPassword)
+            val tokenAdmin = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertEquals(env.adminFullname, extractFullname(tokenAdmin))
         }
 

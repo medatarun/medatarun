@@ -3,9 +3,10 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.ActorId
+import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import java.time.Instant
 
-sealed interface AuthAction {
+sealed interface AuthAction<R> {
 
 
     @ActionDoc(
@@ -41,7 +42,7 @@ sealed interface AuthAction {
         )
         val password: String
 
-    ) : AuthAction
+    ) : AuthAction<OAuthTokenResponse>
 
     @ActionDoc(key = "create_user", title = "Create user", description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.", uiLocation = "")
     class CreateUser(
@@ -70,7 +71,7 @@ sealed interface AuthAction {
         )
         val admin: Boolean
 
-    ) : AuthAction
+    ) : AuthAction<Unit>
 
     @ActionDoc(
         key = "login",
@@ -92,7 +93,7 @@ sealed interface AuthAction {
             order = 2
         )
         val password: String
-    ) : AuthAction
+    ) : AuthAction<OAuthTokenResponse>
 
     @ActionDoc(
         key="whoami",
@@ -100,7 +101,7 @@ sealed interface AuthAction {
         description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
         uiLocation = ""
     )
-    class WhoAmI(): AuthAction
+    class WhoAmI(): AuthAction<AuthEmbeddedActionsLauncher.WhoAmIResp>
 
     @ActionDoc(
         key="change_my_password",
@@ -121,7 +122,7 @@ sealed interface AuthAction {
             order = 2
         )
         val newPassword: String
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="change_user_password",
@@ -142,7 +143,7 @@ sealed interface AuthAction {
             order = 2
         )
         val password: String
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="disable_user",
@@ -157,7 +158,7 @@ sealed interface AuthAction {
             order = 1
         )
         val username: String,
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="change_user_fullname",
@@ -178,7 +179,7 @@ sealed interface AuthAction {
             order = 2
         )
         val fullname: String,
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="list_actors",
@@ -186,7 +187,7 @@ sealed interface AuthAction {
         description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
         uiLocation = ""
     )
-    class ListActors(): AuthAction
+    class ListActors(): AuthAction<AuthEmbeddedActionsLauncher.ActorInfo    >
 
     @ActionDoc(
         key="set_actor_roles",
@@ -207,7 +208,7 @@ sealed interface AuthAction {
             order = 2
         )
         val roles: List<String>
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="disable_actor",
@@ -228,7 +229,7 @@ sealed interface AuthAction {
             order = 1
         )
         val date: Instant? = null
-    ): AuthAction
+    ): AuthAction<Unit>
 
     @ActionDoc(
         key="enable_actor",
@@ -243,5 +244,5 @@ sealed interface AuthAction {
             order = 1
         )
         val actorId: ActorId
-    ): AuthAction
+    ): AuthAction<Unit>
 }

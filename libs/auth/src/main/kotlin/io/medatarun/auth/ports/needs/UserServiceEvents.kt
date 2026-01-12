@@ -1,6 +1,7 @@
 package io.medatarun.auth.ports.needs
 
 import io.medatarun.auth.domain.User
+import io.medatarun.auth.domain.Username
 import java.time.Instant
 
 /**
@@ -21,12 +22,12 @@ sealed interface UserEvent
 /**
  * User was marked disabled (operation is already done)
  */
-data class UserEventDisabledChanged(val username: String, val date: Instant?) : UserEvent
+data class UserEventDisabledChanged(val username: Username, val date: Instant?) : UserEvent
 
 /**
  * User full name changed (operation is already done)
  */
-data class UserEventFullnameChanged(val username: String, val fullname: String) : UserEvent
+data class UserEventFullnameChanged(val username: Username, val fullname: String) : UserEvent
 
 /**
  * User has been created (operation is already done)

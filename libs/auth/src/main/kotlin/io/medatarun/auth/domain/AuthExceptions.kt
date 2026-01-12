@@ -37,3 +37,6 @@ class ActorDisabledException() :MedatarunException("Actor is disabled.", StatusC
 
 class AuthUnknownRoleException(val key: String)
     : MedatarunException("Unknown role: $key")
+
+class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
+class UsernameTooShortException(minsize: Int) : MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)

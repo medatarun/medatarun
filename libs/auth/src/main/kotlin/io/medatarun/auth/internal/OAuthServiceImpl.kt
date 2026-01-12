@@ -18,16 +18,16 @@ class OAuthServiceImpl(
     private val actorService: ActorService
 ) : OAuthService {
 
-    override fun oauthLogin(username: String, password: String): OAuthTokenResponse {
+    override fun oauthLogin(username: Username, password: String): OAuthTokenResponse {
         val user = userService.loginUser(username, password)
         return createOAuthAccessTokenForUser(user)
     }
 
     override fun createOAuthAccessTokenForUser(user: User): OAuthTokenResponse {
-        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, user.login)
+        val actor = actorService.findByIssuerAndSubjectOptional(jwtConfig.issuer, user.login.value)
             ?: throw ActorNotFoundException()
         val token = issueAccessToken(
-            sub = user.login,
+            sub = user.login.value,
             claims = actorClaimsAdapter.createUserClaims(actor)
         )
         return OAuthTokenResponse(token, "Bearer", jwtConfig.ttlSeconds)

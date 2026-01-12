@@ -2,6 +2,7 @@ package io.medatarun.auth.ports.exposed
 
 import io.medatarun.auth.domain.Actor
 import io.medatarun.auth.domain.User
+import io.medatarun.auth.domain.Username
 
 /**
  * Issue an OAuth token response containing an OAuth token (also known
@@ -22,7 +23,7 @@ interface OAuthService {
      * Issues a [OAuthTokenResponse] containing an OAuth token (access_token)
      * given a username (login) and password.
      */
-    fun oauthLogin(username: String, password: String): OAuthTokenResponse
+    fun oauthLogin(username: Username, password: String): OAuthTokenResponse
 
     /**
      * Creates an OAuth access token, for any [User] of the embedded user storage.

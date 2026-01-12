@@ -1,5 +1,6 @@
 package io.medatarun.auth.internal
 
+import io.medatarun.auth.domain.Username
 import java.security.SecureRandom
 import java.util.*
 import javax.crypto.SecretKeyFactory
@@ -79,7 +80,7 @@ class UserPasswordEncrypter(
         MISSING_CHAR_CATEGORY("password must contain at least 3 of: lowercase, uppercase, digit, symbol")
     }
 
-    fun checkPasswordPolicy(password: String, username: String): PasswordCheck {
+    fun checkPasswordPolicy(password: String, username: Username): PasswordCheck {
         if (password.length < 14) {
             return PasswordCheck.Fail(PasswordPolicyFailReason.TOO_SHORT )
         }
@@ -88,7 +89,7 @@ class UserPasswordEncrypter(
             return PasswordCheck.Fail( PasswordPolicyFailReason.WHITESPACES_ONLY)
         }
 
-        if (password.equals(username, ignoreCase = true)) {
+        if (password.equals(username.value, ignoreCase = true)) {
             return PasswordCheck.Fail( PasswordPolicyFailReason.EQUALS_USERNAME)
         }
 

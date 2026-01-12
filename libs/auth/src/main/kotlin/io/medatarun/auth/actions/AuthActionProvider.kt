@@ -7,20 +7,21 @@ import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.domain.UserNotFoundException
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.*
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class AuthEmbeddedActionsProvider : ActionProvider<AuthAction> {
+class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
     override val actionGroupKey: String = "auth"
-    override fun findCommandClass(): KClass<AuthAction> {
+    override fun findCommandClass(): KClass<AuthAction<*>> {
         return AuthAction::class
     }
 
     override fun dispatch(
-        cmd: AuthAction,
+        cmd: AuthAction<*>,
         actionCtx: ActionCtx
     ): Any? {
         val userService = actionCtx.getService<UserService>()
@@ -61,18 +62,31 @@ class AuthEmbeddedActionsLauncher(
 
     ) {
     fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponse {
-        val user = userService.adminBootstrap(cmd.secret, cmd.username, cmd.fullname, cmd.password)
+        val user = userService.adminBootstrap(
+            cmd.secret,
+            Username(cmd.username).validate(),
+            cmd.fullname,
+            cmd.password
+        )
         return oauthService.createOAuthAccessTokenForUser(user)
     }
 
     fun createUser(cmd: AuthAction.CreateUser) {
         principal.ensureIsAdmin()
-        userService.createEmbeddedUser(cmd.username, cmd.fullname, cmd.password, cmd.admin)
+        userService.createEmbeddedUser(
+            Username(cmd.username).validate(),
+            cmd.fullname,
+            cmd.password,
+            cmd.admin
+        )
 
     }
 
     fun login(cmd: AuthAction.Login): OAuthTokenResponse {
-        val user = userService.loginUser(cmd.username, cmd.password)
+        val user = userService.loginUser(
+            Username(cmd.username).validate(),
+            cmd.password
+        )
         return oauthService.createOAuthAccessTokenForUser(user)
     }
 
@@ -99,22 +113,33 @@ class AuthEmbeddedActionsLauncher(
     fun changeOwnPassword(cmd: AuthAction.ChangeMyPassword) {
         val actor = principal.ensureSignedIn()
         if (actor.issuer != oidcService.oidcIssuer()) throw UserNotFoundException()
-        return userService.changeOwnPassword(actor.subject, cmd.oldPassword, cmd.newPassword)
+        return userService.changeOwnPassword(
+            Username(actor.subject).validate(),
+            cmd.oldPassword, cmd.newPassword
+        )
     }
 
     fun changeUserPassword(cmd: AuthAction.ChangeUserPassword) {
         principal.ensureIsAdmin()
-        return userService.changeUserPassword(cmd.username, cmd.password)
+        return userService.changeUserPassword(
+            Username(cmd.username).validate(),
+            cmd.password
+        )
     }
 
     fun disableUser(cmd: AuthAction.DisableUser) {
         principal.ensureIsAdmin()
-        return userService.disableUser(cmd.username)
+        return userService.disableUser(
+            Username(cmd.username).validate()
+        )
     }
 
     fun changeFullname(cmd: AuthAction.ChangeUserFullname) {
         principal.ensureIsAdmin()
-        return userService.changeUserFullname(cmd.username, cmd.fullname)
+        return userService.changeUserFullname(
+            Username(cmd.username).validate(),
+            cmd.fullname
+        )
     }
 
     @Serializable
