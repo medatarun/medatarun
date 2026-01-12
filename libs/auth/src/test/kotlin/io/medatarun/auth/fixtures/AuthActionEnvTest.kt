@@ -1,11 +1,13 @@
 package io.medatarun.auth.fixtures
 
-import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.AppPrincipal
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.adapters.ActionPrincipalCtxAdapter
+import io.medatarun.auth.domain.Actor
+import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.Username
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.kernel.ExtensionRegistry
 import kotlin.reflect.KClass
@@ -16,48 +18,76 @@ class AuthActionEnvTest(private val createAdmin: Boolean = true) {
 
     val provider = AuthEmbeddedActionsProvider()
 
+    var actionCtx: ActionCtx = ActionCtxWithActor(this, null)
+
     fun <R> dispatch(action: AuthAction<R>): R {
-        return provider.dispatch(action, buildActionCtx()) as R
+        return provider.dispatch(action, actionCtx) as R
     }
+
+    fun logout()  {
+        this.actionCtx = ActionCtxWithActor(this, null)
+    }
+
+    fun asAdmin() {
+        val actorService = env.actorService
+        val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), env.adminUsername.value)
+            ?: throw ActorNotFoundException()
+        this.actionCtx = ActionCtxWithActor(this, actor)
+    }
+
+    fun asUser(username: Username) {
+        val actorService = env.actorService
+        val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), username.value)
+            ?: throw ActorNotFoundException()
+        this.actionCtx = ActionCtxWithActor(this, actor)
+    }
+
     fun <T : Any> getService(type: KClass<T>): T {
         if (type == OidcService::class) return env.oidcService as T
         if (type == UserService::class) return env.userService as T
         if (type == OAuthService::class) return env.oauthService as T
         if (type == ActorService::class) return env.actorService as T
         if (type == BootstrapSecretLifecycle::class) return env.bootstrapSecretLifecycle as T
-        throw IllegalStateException("Unknown service "+type)
+        throw IllegalStateException("Unknown service " + type)
     }
-    private fun buildActionCtx(): ActionCtx {
-        val closure = this
-        return object : ActionCtx {
-            override val extensionRegistry: ExtensionRegistry
-                get() = throw IllegalStateException("Should not be called")
 
-            override fun dispatchAction(req: ActionRequest): Any? {
-                throw IllegalStateException("Should not be called")
+    class ActionCtxWithActor(
+        private val closure: AuthActionEnvTest,
+        private val actor: Actor?
+    ) : ActionCtx {
+
+        private val appPrincipal = if (actor==null) null else toAppPrincipal(actor)
+        private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
+
+
+        override val extensionRegistry: ExtensionRegistry
+            get() = throw IllegalStateException("Should not be called")
+
+        override fun dispatchAction(req: ActionRequest): Any? {
+            throw IllegalStateException("Should not be called")
+        }
+
+        override fun <T : Any> getService(type: KClass<T>): T = closure.getService(type)
+
+        override val principal: ActionPrincipalCtx = actionPrincipal
+    }
+    companion object {
+
+        private fun toAppPrincipal(actor: Actor): AppPrincipal {
+            return object : AppPrincipal {
+                override val id: AppPrincipalId = AppPrincipalId(actor.id.value.toString())
+                override val issuer: String = actor.issuer
+                override val subject: String = actor.subject
+                override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }
+                override val roles: List<AppPrincipalRole> = actor.roles.map(::toMedatarunPrincipalRole)
+                override val fullname: String = actor.fullname
             }
+        }
 
-            override fun <T : Any> getService(type: KClass<T>): T {
-                return closure.getService(type)
+        private fun toMedatarunPrincipalRole(role: ActorRole): AppPrincipalRole {
+            return object : AppPrincipalRole {
+                override val key = role.key
             }
-
-            override val principal: ActionPrincipalCtx
-                get() {
-                    return object : ActionPrincipalCtx {
-                        override fun ensureIsAdmin() {
-                            TODO("Not yet implemented")
-                        }
-
-                        override fun ensureSignedIn(): AppPrincipal {
-                            TODO("Not yet implemented")
-                        }
-
-                        override val principal: AppPrincipal?
-                            get() = TODO("Not yet implemented")
-
-                    }
-                }
-
         }
     }
 }
