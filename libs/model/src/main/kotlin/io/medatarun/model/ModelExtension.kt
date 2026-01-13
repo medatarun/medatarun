@@ -5,6 +5,7 @@ import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.domain.*
+import io.medatarun.model.internal.KeyValidation
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.types.JsonTypeEquiv
@@ -38,6 +39,7 @@ class AttributeKeyDescriptor : TypeDescriptor<AttributeKey> {
     override fun validate(value: AttributeKey): AttributeKey {
         return value.validated()
     }
+    override val description = KeyValidation.DESCRIPTION
 
 }
 class EntityKeyDescriptor : TypeDescriptor<EntityKey> {
@@ -47,6 +49,7 @@ class EntityKeyDescriptor : TypeDescriptor<EntityKey> {
     override fun validate(value: EntityKey): EntityKey {
         return value.validated()
     }
+    override val description = KeyValidation.DESCRIPTION
 
 }
 class RelationshipKeyDescriptor : TypeDescriptor<RelationshipKey> {
@@ -56,6 +59,7 @@ class RelationshipKeyDescriptor : TypeDescriptor<RelationshipKey> {
     override fun validate(value: RelationshipKey): RelationshipKey {
         return value.validated()
     }
+    override val description = KeyValidation.DESCRIPTION
 }
 class TypeKeyDescriptor : TypeDescriptor<TypeKey> {
     override val target: KClass<TypeKey> = TypeKey::class
@@ -64,6 +68,7 @@ class TypeKeyDescriptor : TypeDescriptor<TypeKey> {
     override fun validate(value: TypeKey): TypeKey {
         return value.validated()
     }
+    override val description = KeyValidation.DESCRIPTION
 }
 class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override val target: KClass<ModelKey> = ModelKey::class
@@ -72,6 +77,7 @@ class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override fun validate(value: ModelKey): ModelKey {
         return value.validated()
     }
+    override val description = KeyValidation.DESCRIPTION
 }
 class HashtagDescriptor : TypeDescriptor<Hashtag> {
     override val target: KClass<Hashtag> = Hashtag::class
@@ -88,4 +94,18 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     override fun validate(value: ModelVersion): ModelVersion {
         return value.validate()
     }
+
+    override val description: String = """
+ModelVersion follows Semantic Versioning (MAJOR.MINOR.PATCH).
+
+Each part is a number, for example 1.2.3. The version must not be empty.
+
+An optional pre-release can be added after -, using dot-separated identifiers, for example 1.2.3-alpha or 1.2.3-alpha.1.
+Optional build metadata can be added after +, for example 1.2.3+build.1. Pre-release and build metadata can be combined.
+
+Numeric identifiers (major, minor, patch, and numeric pre-release parts) must not contain leading zeros.
+Pre-release and build identifiers may only contain letters, digits, and hyphens.
+
+This format allows versions to be compared and ordered consistently over time.     
+""".trimIndent()
 }

@@ -8,4 +8,5 @@ interface TypeDescriptor<T:Any> {
     val equivMultiplatorm: String
     val equivJson: JsonTypeEquiv
     val redacted: Boolean get() = false
+    val description: String get() = ""
 }

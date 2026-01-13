@@ -39,4 +39,18 @@ object KeyValidation {
     }
 
     const val MAX_LENGTH = 128
+
+    const val DESCRIPTION = """
+A key is a technical, user-defined identifier that may originate from heterogeneous systems and becomes canonical inside Medatarun.
+
+A valid key must:
+
+- be a non-empty string with a bounded length (maximum 128 characters),
+- contain only printable ASCII characters (code points 0x20 to 0x7E),
+- not contain any ASCII control characters (0x00–0x1F and 0x7F),
+- not contain characters with implicit escaping or execution semantics: backslash (\), single quote ('), double quote ("), or backtick (`).
+
+No normalization, transformation, or semantic interpretation is applied.
+The key is compared and stored exactly as provided.
+ """
 }
