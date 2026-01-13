@@ -8,8 +8,6 @@ import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
@@ -19,7 +17,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
     private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
-    private val actionParametersParser = ActionParametersParser(actionTypesRegistry)
+    private val actionParamBinder = ActionParamBinder(actionTypesRegistry)
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
@@ -36,8 +34,6 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionDescriptors: List<ActionCmdDescriptor> =
         actionGroupDescriptors.flatMap { it.actions }
-
-
 
 
     private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
@@ -91,10 +87,8 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             uiLocation = doc.uiLocation ?: "",
             securityRule = securityRule
 
-            )
+        )
     }
-
-
 
 
     fun findAllGroupDescriptors(): Collection<ActionGroupDescriptor> {
@@ -130,12 +124,14 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
                 "Unknown action '$actionGroupKey/$actionKey'"
             )
 
-        val securityRuleEvaluationResult = actionSecurityRegistry.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
+        val securityRuleEvaluationResult =
+            actionSecurityRegistry.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
             throw ActionInvocationException(
                 HttpStatusCode.Unauthorized,
                 "Unauthorized",
-                mapOf("details" to securityRuleEvaluationResult.msg))
+                mapOf("details" to securityRuleEvaluationResult.msg)
+            )
         }
 
         val invoker: Invoker = when (actionDescriptor.accessType) {
@@ -195,85 +191,39 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
     ): Invoker {
         val actionGroupKey = actionDescriptor.group
         val actionKey = actionDescriptor.key
-        val cls =
-            actionProviderInstance.findCommandClass()
-                ?.sealedSubclasses
-                ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
-                ?: throw ActionInvocationException(
-                    HttpStatusCode.NotFound,
-                    "Action $actionGroupKey/$actionKey not found"
-                )
+        val actionClass = actionProviderInstance.findCommandClass()
+            ?.sealedSubclasses
+            ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
+            ?: throw ActionInvocationException(
+                HttpStatusCode.NotFound,
+                "Action $actionGroupKey/$actionKey not found"
+            )
 
-        val function = cls.primaryConstructor ?: throw ActionInvocationException(
-            HttpStatusCode.InternalServerError,
-            "Action $actionGroupKey/$actionKey has no primary constructor"
+        val bindings = actionParamBinder.buildConstructorArgs(
+            actionClass = actionClass,
+            actionProviderInstance = actionProviderInstance,
+            actionPayload = actionPayload,
         )
 
-        val callArgs = createCallArgs(actionGroupKey, actionKey, actionProviderInstance, function, actionPayload)
-        logger.debug("call args: {}", callArgs)
+        // This will throw exceptions if invalid parameters exists (missing, with errors, etc.)
+        bindings.technicalValidation()
 
-
+        // Now we can assume there is no error anymore on parameters
+        logger.debug("call args: {}", bindings)
 
         return object : Invoker {
             override fun invoke(): Any? {
-                val cmd = function.callBy(callArgs)
+                val cmd = actionClass.primaryConstructor?.callBy(bindings.toCallArgs())
+                    ?: throw ActionInvocationException(
+                        HttpStatusCode.InternalServerError,
+                        "Action class $actionClass has no primary constructor"
+                    )
                 return actionProviderInstance.dispatch(cmd, actionCtx)
             }
         }
     }
 
-
-    fun createCallArgs(
-        actionGroup: String,
-        actionCmd: String,
-        actionProviderInstance: ActionProvider<Any>,
-        actionCommandFunction: KFunction<*>,
-        actionPayload: JsonObject
-    ): Map<KParameter, Any?> {
-        val missing = actionCommandFunction.parameters
-            .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in actionPayload.keys }
-            .mapNotNull { it.name }
-
-        if (missing.isNotEmpty()) {
-            throw ActionInvocationException(
-                HttpStatusCode.BadRequest,
-                "Missing parameter(s): ${missing.joinToString(", ")}",
-                mapOf(
-                    "usage" to buildUsageHint(actionGroup, actionCmd, actionCommandFunction)
-                )
-            )
-        }
-
-        val params = actionParametersParser.buildCallArgs(
-            actionCommandFunction = actionCommandFunction,
-            actionProviderInstance = actionProviderInstance,
-            actionPayload = actionPayload,
-        )
-
-
-        if (params.conversionErrors.isNotEmpty()) {
-            throw ActionInvocationException(
-                HttpStatusCode.BadRequest,
-                "Invalid parameter values",
-                mapOf(
-                    "details" to params.conversionErrors.joinToString(", ")
-                )
-            )
-        }
-        return params.callArgs
-    }
-
-
-
-    private fun buildUsageHint(actionGroup: String, actionCmd: String, function: KFunction<*>): String =
-        listOf(actionGroup, actionCmd).joinToString(separator = " ") + " " + function.parameters
-            .filter { it.kind == KParameter.Kind.VALUE }
-            .joinToString(" ") { param -> "--${param.name}=<${param.type}>" }
-
-
-
     companion object {
-
         private val logger = LoggerFactory.getLogger(ActionRegistry::class.java)
     }
 }
