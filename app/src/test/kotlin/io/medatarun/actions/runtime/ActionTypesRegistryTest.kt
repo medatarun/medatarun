@@ -9,10 +9,11 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDate
-import kotlin.reflect.typeOf
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
+import kotlin.reflect.full.createType
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalStdlibApi::class)
 class ActionTypesRegistryTest {
 
     private class CustomType(val value: String)
@@ -51,7 +52,7 @@ class ActionTypesRegistryTest {
     fun `toJsonType should use descriptor mapping when available`() {
         val registry = ActionTypesRegistry(listOf(CustomTypeDescriptor()))
 
-        val result = registry.toJsonType(typeOf<CustomType>())
+        val result = registry.toJsonType(CustomType::class.createType())
 
         assertEquals(JsonTypeEquiv.OBJECT, result)
     }
@@ -60,7 +61,7 @@ class ActionTypesRegistryTest {
     fun `toMultiplatformType should use descriptor mapping when available`() {
         val registry = ActionTypesRegistry(listOf(CustomTypeDescriptor()))
 
-        val result = registry.toMultiplatformType(typeOf<CustomType>())
+        val result = registry.toMultiplatformType(CustomType::class.createType())
 
         assertEquals("CustomTypeAlias", result)
     }
@@ -69,32 +70,32 @@ class ActionTypesRegistryTest {
     fun `toJsonType should map known primitives and lists`() {
         val registry = ActionTypesRegistry(emptyList())
 
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(typeOf<String>()))
-        assertEquals(JsonTypeEquiv.BOOLEAN, registry.toJsonType(typeOf<Boolean>()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(typeOf<Int>()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(typeOf<BigInteger>()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(typeOf<Double>()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(typeOf<BigDecimal>()))
-        assertEquals(JsonTypeEquiv.ARRAY, registry.toJsonType(typeOf<List<String>>()))
-        assertEquals(JsonTypeEquiv.OBJECT, registry.toJsonType(typeOf<Map<String, Int>>()))
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(typeOf<Instant>()))
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(typeOf<LocalDate>()))
+        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(String::class.createType()))
+        assertEquals(JsonTypeEquiv.BOOLEAN, registry.toJsonType(Boolean::class.createType()))
+        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(Int::class.createType()))
+        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(BigInteger::class.createType()))
+        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(Double::class.createType()))
+        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(BigDecimal::class.createType()))
+        assertEquals(JsonTypeEquiv.ARRAY, registry.toJsonType(listType(String::class.createType())))
+        assertEquals(JsonTypeEquiv.OBJECT, registry.toJsonType(mapType(String::class.createType(), Int::class.createType())))
+        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(Instant::class.createType()))
+        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(LocalDate::class.createType()))
     }
 
     @Test
     fun `toMultiplatformType should map known primitives and lists`() {
         val registry = ActionTypesRegistry(emptyList())
 
-        assertEquals("String", registry.toMultiplatformType(typeOf<String>()))
-        assertEquals("Boolean", registry.toMultiplatformType(typeOf<Boolean>()))
-        assertEquals("List<String>", registry.toMultiplatformType(typeOf<List<String>>()))
-        assertEquals("Integer", registry.toMultiplatformType(typeOf<Int>()))
-        assertEquals("Integer", registry.toMultiplatformType(typeOf<BigInteger>()))
-        assertEquals("Decimal", registry.toMultiplatformType(typeOf<Double>()))
-        assertEquals("Decimal", registry.toMultiplatformType(typeOf<BigDecimal>()))
-        assertEquals("Map<String,Integer>", registry.toMultiplatformType(typeOf<Map<String, Int>>()))
-        assertEquals("Instant", registry.toMultiplatformType(typeOf<Instant>()))
-        assertEquals("LocalDate", registry.toMultiplatformType(typeOf<LocalDate>()))
+        assertEquals("String", registry.toMultiplatformType(String::class.createType()))
+        assertEquals("Boolean", registry.toMultiplatformType(Boolean::class.createType()))
+        assertEquals("List<String>", registry.toMultiplatformType(listType(String::class.createType())))
+        assertEquals("Integer", registry.toMultiplatformType(Int::class.createType()))
+        assertEquals("Integer", registry.toMultiplatformType(BigInteger::class.createType()))
+        assertEquals("Decimal", registry.toMultiplatformType(Double::class.createType()))
+        assertEquals("Decimal", registry.toMultiplatformType(BigDecimal::class.createType()))
+        assertEquals("Map<String,Integer>", registry.toMultiplatformType(mapType(String::class.createType(), Int::class.createType())))
+        assertEquals("Instant", registry.toMultiplatformType(Instant::class.createType()))
+        assertEquals("LocalDate", registry.toMultiplatformType(LocalDate::class.createType()))
     }
 
     @Test
@@ -102,7 +103,7 @@ class ActionTypesRegistryTest {
         val registry = ActionTypesRegistry(emptyList())
 
         assertThrows<UndefinedMultiplatformTypeException> {
-            registry.toJsonType(typeOf<UnknownType>())
+            registry.toJsonType(UnknownType::class.createType())
         }
     }
 
@@ -111,7 +112,7 @@ class ActionTypesRegistryTest {
         val registry = ActionTypesRegistry(emptyList())
 
         assertThrows<UndefinedMultiplatformTypeException> {
-            registry.toMultiplatformType(typeOf<UnknownType>())
+            registry.toMultiplatformType(UnknownType::class.createType())
         }
     }
 
@@ -133,5 +134,17 @@ class ActionTypesRegistryTest {
         assertThrows<InvalidPhoneNumberException> {
             validator.validate(PhoneNumber("12345"))
         }
+    }
+
+    private fun listType(elementType: KType): KType {
+        return List::class.createType(listOf(KTypeProjection.invariant(elementType)))
+    }
+
+    private fun mapType(keyType: KType, valueType: KType): KType {
+        val arguments = listOf(
+            KTypeProjection.invariant(keyType),
+            KTypeProjection.invariant(valueType)
+        )
+        return Map::class.createType(arguments)
     }
 }

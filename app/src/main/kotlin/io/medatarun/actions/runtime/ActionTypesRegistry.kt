@@ -20,11 +20,12 @@ class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>
 
     fun toJsonType(returnType: KType): JsonTypeEquiv {
 
-        val kclass = returnType.classifier as? KClass<*>
+        val classifier = returnType.classifier
+        val kclass = classifier as? KClass<*>
         val equivJson = kclass?.let { typeDescriptors[it]?.equivJson }
         if (equivJson != null) return equivJson
 
-        val typeAlias = when (returnType.classifier) {
+        val typeAlias = when (classifier) {
             String::class -> return JsonTypeEquiv.STRING
             Boolean::class -> return JsonTypeEquiv.BOOLEAN
             Int::class -> return JsonTypeEquiv.NUMBER
