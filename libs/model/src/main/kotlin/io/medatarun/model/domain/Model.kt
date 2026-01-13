@@ -2,16 +2,6 @@ package io.medatarun.model.domain
 
 import java.net.URL
 
-@JvmInline value class ModelKey(val value: String) {
-    fun validated(): ModelKey {
-        return this
-    }
-}
-
-@JvmInline value class ModelLocation(val value: String) {
-
-}
-
 /**
  * A model contains multiple [EntityDef] that contains [AttributeDef].
  *

@@ -22,407 +22,520 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
     override fun findCommandClass() = ModelAction::class
 
     override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any? {
-        val rc = cmd as ModelAction
 
         val modelCmds = actionCtx.getService<ModelCmds>()
         val modelQueries = actionCtx.getService<ModelQueries>()
         val modelHumanPrinter = actionCtx.getService<ModelHumanPrinter>()
 
-        fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
+        val handler = ModelActionHandler(modelCmds, modelQueries, modelHumanPrinter, resourceLocator)
 
-        logger.info(rc.toString())
+        logger.info(cmd.toString())
 
-        val result = when (rc) {
+
+        val result = when (cmd) {
 
             // ------------------------------------------------------------------------
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelAction.Import -> ModelImportAction(actionCtx.extensionRegistry, modelCmds,  resourceLocator).process(rc)
-            is ModelAction.Inspect_Human -> ModelInspectAction(modelQueries, modelHumanPrinter).process()
-            is ModelAction.Inspect_Json -> ModelInspectJsonAction(modelQueries).process()
-            is ModelAction.Model_Create -> {
-                modelCmds.dispatch(
-                    ModelCmd.CreateModel(
-                        modelKey = rc.modelKey.validated(),
-                        name = LocalizedTextNotLocalized(rc.name),
-                        description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                        version = rc.version ?: ModelVersion("0.0.1")
-                    )
-                )
-            }
-            is ModelAction.Model_Copy -> {
-                modelCmds.dispatch(
-                    ModelCmd.CopyModel(
-                        modelKey = rc.modelKey.validated(),
-                        modelNewKey = rc.modelNewKey.validated()
-                    )
-                )
-            }
+            is ModelAction.Import -> handler.modelImport(actionCtx, cmd)
+            is ModelAction.Inspect_Human -> handler.modelInspectHuman()
+            is ModelAction.Inspect_Json -> handler.modelInspectJson()
 
-            is ModelAction.Model_UpdateName -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateModelName(
-                        modelKey = rc.modelKey.validated(),
-                        name = LocalizedTextNotLocalized(rc.name),
-                    )
-                )
-            }
-
-            is ModelAction.Model_UpdateDescription -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateModelDescription(
-                        modelKey = rc.modelKey.validated(),
-                        description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                    )
-                )
-            }
-
-            is ModelAction.Model_UpdateVersion -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateModelVersion(
-                        modelKey = rc.modelKey.validated(),
-                        version = rc.version,
-                    )
-                )
-            }
-
-            is ModelAction.Model_AddTag -> modelCmds.dispatch(
-                ModelCmd.UpdateModelHashtagAdd(
-                    modelKey = rc.modelKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Model_DeleteTag -> modelCmds.dispatch(
-                ModelCmd.UpdateModelHashtagDelete(
-                    modelKey = rc.modelKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Model_Delete -> {
-                modelCmds.dispatch(ModelCmd.DeleteModel(rc.modelKey.validated()))
-            }
+            is ModelAction.Model_Create -> handler.modelCreate(cmd)
+            is ModelAction.Model_Copy -> handler.modelCopy(cmd)
+            is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
+            is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
+            is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
+            is ModelAction.Model_AddTag -> handler.modelAddTag(cmd)
+            is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(cmd)
+            is ModelAction.Model_Delete -> handler.modelDelete(cmd)
 
             // ------------------------------------------------------------------------
             // Types
             // ------------------------------------------------------------------------
 
-            is ModelAction.Type_Create -> {
-                modelCmds.dispatch(
-                    ModelCmd.CreateType(
-                        modelKey = rc.modelKey.validated(),
-                        initializer = ModelTypeInitializer(
-                            id = rc.typeKey.validated(),
-                            name = rc.name?.let { LocalizedTextNotLocalized(it) },
-                            description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                        )
-                    )
-                )
-            }
-
-            is ModelAction.Type_UpdateName -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateType(
-                        modelKey = rc.modelKey.validated(),
-                        typeId = rc.typeKey.validated(),
-                        cmd = ModelTypeUpdateCmd.Name(rc.name?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.Type_UpdateDescription -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateType(
-                        modelKey = rc.modelKey.validated(),
-                        typeId = rc.typeKey.validated(),
-                        cmd = ModelTypeUpdateCmd.Description(rc.description?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.Type_Delete -> {
-                modelCmds.dispatch(
-                    ModelCmd.DeleteType(
-                        modelKey = rc.modelKey.validated(),
-                        typeId = rc.typeKey.validated(),
-                    )
-                )
-            }
+            is ModelAction.Type_Create -> handler.typeCreate(cmd)
+            is ModelAction.Type_UpdateName -> handler.typeUpdateName(cmd)
+            is ModelAction.Type_UpdateDescription -> handler.typeUpdateDescription(cmd)
+            is ModelAction.Type_Delete -> handler.typeDelete(cmd)
 
             // ------------------------------------------------------------------------
             // Entities
             // ------------------------------------------------------------------------
 
-            is ModelAction.Entity_Create -> {
-                modelCmds.dispatch(
-                    ModelCmd.CreateEntityDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityDefInitializer = EntityDefInitializer(
-                            entityKey = rc.entityKey.validated(),
-                            name = rc.name?.let { LocalizedTextNotLocalized(it) },
-                            description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                            documentationHome = rc.documentationHome?.let { URI(it).toURL() },
-                            identityAttribute = AttributeDefIdentityInitializer(
-                                attributeKey = rc.identityAttributeKey,
-                                type = rc.identityAttributeType,
-                                name = rc.name?.let { LocalizedTextNotLocalized(it) },
-                                description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                            )
-                        ),
-                    )
-                )
-            }
-
-            is ModelAction.Entity_UpdateId -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateEntityDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        cmd = EntityDefUpdateCmd.Id(EntityKey(rc.value))
-                    )
-                )
-            }
-
-            is ModelAction.Entity_UpdateName -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateEntityDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        cmd = EntityDefUpdateCmd.Name(rc.value?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.Entity_UpdateDescription -> {
-                modelCmds.dispatch(
-                    ModelCmd.UpdateEntityDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        cmd = EntityDefUpdateCmd.Description(rc.value?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.Entity_AddTag -> modelCmds.dispatch(
-                ModelCmd.UpdateEntityDefHashtagAdd(
-                    modelKey = rc.modelKey.validated(),
-                    entityKey = rc.entityKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Entity_DeleteTag -> modelCmds.dispatch(
-                ModelCmd.UpdateEntityDefHashtagDelete(
-                    modelKey = rc.modelKey.validated(),
-                    entityKey = rc.entityKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Entity_Delete -> {
-                modelCmds.dispatch(
-                    ModelCmd.DeleteEntityDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated()
-                    )
-                )
-            }
+            is ModelAction.Entity_Create -> handler.entityCreate(cmd)
+            is ModelAction.Entity_UpdateId -> handler.entityUpdateId(cmd)
+            is ModelAction.Entity_UpdateName -> handler.entityUpdateName(cmd)
+            is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(cmd)
+            is ModelAction.Entity_AddTag -> handler.entityAddTag(cmd)
+            is ModelAction.Entity_DeleteTag -> handler.entityDeleteTag(cmd)
+            is ModelAction.Entity_Delete -> handler.entityDelete(cmd)
 
             // ------------------------------------------------------------------------
             // Entity attributes
             // ------------------------------------------------------------------------
 
-            is ModelAction.EntityAttribute_Create -> {
-                dispatch(
-                    ModelCmd.CreateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeDefInitializer = AttributeDefInitializer(
-                            attributeKey = rc.attributeKey,
-                            type = rc.type.validated(),
-                            optional = rc.optional,
-                            name = rc.name?.let { LocalizedTextNotLocalized(it) },
-                            description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                        )
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_UpdateId -> {
-                dispatch(
-                    ModelCmd.UpdateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey,
-                        cmd = AttributeDefUpdateCmd.Id(AttributeKey(rc.value))
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_UpdateName -> {
-                dispatch(
-                    ModelCmd.UpdateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey,
-                        cmd = AttributeDefUpdateCmd.Name(rc.value?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_UpdateDescription -> {
-                dispatch(
-                    ModelCmd.UpdateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey,
-                        cmd = AttributeDefUpdateCmd.Description(rc.value?.let { LocalizedTextNotLocalized(it) })
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_UpdateType -> {
-                dispatch(
-                    ModelCmd.UpdateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey,
-                        cmd = AttributeDefUpdateCmd.Type(TypeKey(rc.value))
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_UpdateOptional -> {
-                dispatch(
-                    ModelCmd.UpdateEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey,
-                        cmd = AttributeDefUpdateCmd.Optional(rc.value)
-                    )
-                )
-            }
-
-            is ModelAction.EntityAttribute_AddTag -> modelCmds.dispatch(
-                ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
-                    modelKey = rc.modelKey.validated(),
-                    entityKey = rc.entityKey.validated(),
-                    attributeKey = rc.attributeKey,
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.EntityAttribute_DeleteTag -> modelCmds.dispatch(
-                ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
-                    modelKey = rc.modelKey.validated(),
-                    entityKey = rc.entityKey.validated(),
-                    attributeKey = rc.attributeKey,
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.EntityAttribute_Delete -> {
-                dispatch(
-                    ModelCmd.DeleteEntityDefAttributeDef(
-                        modelKey = rc.modelKey.validated(),
-                        entityKey = rc.entityKey.validated(),
-                        attributeKey = rc.attributeKey
-                    )
-                )
-            }
-
+            is ModelAction.EntityAttribute_Create -> handler.entityAttributeCreate(cmd)
+            is ModelAction.EntityAttribute_UpdateId -> handler.entityAttributeUpdateId(cmd)
+            is ModelAction.EntityAttribute_UpdateName -> handler.entityAttributeUpdateName(cmd)
+            is ModelAction.EntityAttribute_UpdateDescription -> handler.entityAttributeUpdateDescription(cmd)
+            is ModelAction.EntityAttribute_UpdateType -> handler.entityAttributeUpdateType(cmd)
+            is ModelAction.EntityAttribute_UpdateOptional -> handler.entityAttributeUpdateOptional(cmd)
+            is ModelAction.EntityAttribute_AddTag -> handler.entityAttributeAddTag(cmd)
+            is ModelAction.EntityAttribute_DeleteTag -> handler.entityAttributeDeleteTag(cmd)
+            is ModelAction.EntityAttribute_Delete -> handler.entityAttributeDelete(cmd)
 
             // ------------------------------------------------------------------------
             // Relationships
             // ------------------------------------------------------------------------
 
-            is ModelAction.Relationship_Create -> dispatch(
-                ModelCmd.CreateRelationshipDef(
-                    modelKey = rc.modelKey.validated(),
-                    initializer = rc.initializer
-                )
-            )
-
-            is ModelAction.Relationship_Update -> dispatch(
-                ModelCmd.UpdateRelationshipDef(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    cmd = rc.cmd
-                )
-            )
-
-            is ModelAction.Relationship_AddTag -> modelCmds.dispatch(
-                ModelCmd.UpdateRelationshipDefHashtagAdd(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Relationship_DeleteTag -> modelCmds.dispatch(
-                ModelCmd.UpdateRelationshipDefHashtagDelete(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.Relationship_Delete -> dispatch(
-                ModelCmd.DeleteRelationshipDef(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated()
-                )
-            )
-
-            is ModelAction.RelationshipAttribute_Create -> dispatch(
-                ModelCmd.CreateRelationshipAttributeDef(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    attr = rc.attr
-                )
-            )
-
-            is ModelAction.RelationshipAttribute_Update -> dispatch(
-                ModelCmd.UpdateRelationshipAttributeDef(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey,
-                    cmd = rc.cmd
-                )
-            )
-
-            is ModelAction.RelationshipAttribute_AddTag -> dispatch(
-                ModelCmd.UpdateRelationshipAttributeDefHashtagAdd(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey,
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.RelationshipAttribute_DeleteTag -> dispatch(
-                ModelCmd.UpdateRelationshipAttributeDefHashtagDelete(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey,
-                    hashtag = rc.tag.validated()
-                )
-            )
-
-            is ModelAction.RelationshipAttribute_Delete -> dispatch(
-                ModelCmd.DeleteRelationshipAttributeDef(
-                    modelKey = rc.modelKey.validated(),
-                    relationshipKey = rc.relationshipKey.validated(),
-                    attributeKey = rc.attributeKey,
-                )
-            )
+            is ModelAction.Relationship_Create -> handler.relationshipCreate(cmd)
+            is ModelAction.Relationship_Update -> handler.relationshipUpdate(cmd)
+            is ModelAction.Relationship_AddTag -> handler.relationshipAddTag(cmd)
+            is ModelAction.Relationship_DeleteTag -> handler.relationshipDeleteTag(cmd)
+            is ModelAction.Relationship_Delete -> handler.relationshipDelete(cmd)
+            is ModelAction.RelationshipAttribute_Create -> handler.relationshipAttributeCreate(cmd)
+            is ModelAction.RelationshipAttribute_Update -> handler.relationshipAttributeUpdate(cmd)
+            is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(cmd)
+            is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(cmd)
+            is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(cmd)
         }
         return result
     }
 
+
+
     companion object {
         private val logger = LoggerFactory.getLogger(ModelActionProvider::class.java)
+    }
+}
+
+
+class ModelActionHandler(
+    private val modelCmds: ModelCmds,
+    private val modelQueries: ModelQueries,
+    private val modelHumanPrinter: ModelHumanPrinter,
+    private val resourceLocator: ResourceLocator
+) {
+    fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
+
+    fun modelImport(actionCtx: ActionCtx, rc: ModelAction.Import) {
+        ModelImportAction(actionCtx.extensionRegistry, modelCmds, resourceLocator)
+            .process(rc)
+    }
+
+    fun modelInspectHuman(): String = ModelInspectAction(modelQueries, modelHumanPrinter).process()
+
+    fun modelInspectJson(): String = ModelInspectJsonAction(modelQueries).process()
+
+    fun modelCreate(cmd: ModelAction.Model_Create) {
+        dispatch(
+            ModelCmd.CreateModel(
+                modelKey = cmd.modelKey,
+                name = LocalizedTextNotLocalized(cmd.name),
+                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                version = cmd.version ?: ModelVersion("0.0.1")
+            )
+        )
+    }
+
+    fun modelCopy(cmd: ModelAction.Model_Copy) {
+        dispatch(
+            ModelCmd.CopyModel(
+                modelKey = cmd.modelKey,
+                modelNewKey = cmd.modelNewKey
+            )
+        )
+    }
+
+    fun modelUpdateName(cmd: ModelAction.Model_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateModelName(
+                modelKey = cmd.modelKey,
+                name = LocalizedTextNotLocalized(cmd.name),
+            )
+        )
+    }
+
+    fun modelUpdateDescription(cmd: ModelAction.Model_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateModelDescription(
+                modelKey = cmd.modelKey,
+                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+            )
+        )
+    }
+
+    fun modelUpdateVersion(cmd: ModelAction.Model_UpdateVersion) {
+        dispatch(
+            ModelCmd.UpdateModelVersion(
+                modelKey = cmd.modelKey,
+                version = cmd.version,
+            )
+        )
+    }
+
+    fun modelAddTag(cmd: ModelAction.Model_AddTag) {
+        dispatch(
+            ModelCmd.UpdateModelHashtagAdd(
+                modelKey = cmd.modelKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun modelDeleteTag(cmd: ModelAction.Model_DeleteTag) {
+        dispatch(
+            ModelCmd.UpdateModelHashtagDelete(
+                modelKey = cmd.modelKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun modelDelete(cmd: ModelAction.Model_Delete) {
+        dispatch(ModelCmd.DeleteModel(cmd.modelKey))
+    }
+
+    // ------------------------------------------------------------------------
+    // Types
+    // ------------------------------------------------------------------------
+
+    fun typeCreate(cmd: ModelAction.Type_Create) {
+        dispatch(
+            ModelCmd.CreateType(
+                modelKey = cmd.modelKey,
+                initializer = ModelTypeInitializer(
+                    id = cmd.typeKey,
+                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
+                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                )
+            )
+        )
+    }
+
+    fun typeUpdateName(cmd: ModelAction.Type_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateType(
+                modelKey = cmd.modelKey,
+                typeId = cmd.typeKey,
+                cmd = ModelTypeUpdateCmd.Name(cmd.name?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+    fun typeUpdateDescription(cmd: ModelAction.Type_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateType(
+                modelKey = cmd.modelKey,
+                typeId = cmd.typeKey,
+                cmd = ModelTypeUpdateCmd.Description(cmd.description?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+    fun typeDelete(cmd: ModelAction.Type_Delete) {
+        dispatch(
+            ModelCmd.DeleteType(
+                modelKey = cmd.modelKey,
+                typeId = cmd.typeKey,
+            )
+        )
+    }
+    // ------------------------------------------------------------------------
+    // Entities
+    // ------------------------------------------------------------------------
+
+    fun entityCreate(cmd: ModelAction.Entity_Create) {
+        dispatch(
+            ModelCmd.CreateEntityDef(
+                modelKey = cmd.modelKey,
+                entityDefInitializer = EntityDefInitializer(
+                    entityKey = cmd.entityKey,
+                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
+                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
+                    identityAttribute = AttributeDefIdentityInitializer(
+                        attributeKey = cmd.identityAttributeKey,
+                        type = cmd.identityAttributeType,
+                        name = cmd.name?.let { LocalizedTextNotLocalized(it) },
+                        description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    )
+                ),
+            )
+        )
+    }
+
+    fun entityUpdateId(cmd: ModelAction.Entity_UpdateId) {
+        dispatch(
+            ModelCmd.UpdateEntityDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                cmd = EntityDefUpdateCmd.Id(EntityKey(cmd.value))
+            )
+        )
+    }
+
+    fun entityUpdateName(cmd: ModelAction.Entity_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateEntityDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                cmd = EntityDefUpdateCmd.Name(cmd.value?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+    fun entityUpdateDescription(cmd: ModelAction.Entity_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateEntityDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                cmd = EntityDefUpdateCmd.Description(cmd.value?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+    fun entityAddTag(cmd: ModelAction.Entity_AddTag) {
+        dispatch(
+            ModelCmd.UpdateEntityDefHashtagAdd(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun entityDeleteTag(cmd: ModelAction.Entity_DeleteTag) {
+        dispatch(
+            ModelCmd.UpdateEntityDefHashtagDelete(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun entityDelete(cmd: ModelAction.Entity_Delete) {
+        dispatch(
+            ModelCmd.DeleteEntityDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey
+            )
+        )
+    }
+
+    // ------------------------------------------------------------------------
+    // Entity attributes
+    // ------------------------------------------------------------------------
+
+    fun entityAttributeCreate(cmd: ModelAction.EntityAttribute_Create) {
+        dispatch(
+            ModelCmd.CreateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeDefInitializer = AttributeDefInitializer(
+                    attributeKey = cmd.attributeKey,
+                    type = cmd.type,
+                    optional = cmd.optional,
+                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
+                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                )
+            )
+        )
+    }
+
+    fun entityAttributeUpdateId(cmd: ModelAction.EntityAttribute_UpdateId) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Id(AttributeKey(cmd.value))
+            )
+        )
+    }
+
+    fun entityAttributeUpdateName(cmd: ModelAction.EntityAttribute_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Name(cmd.value?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+
+    fun entityAttributeUpdateDescription(cmd: ModelAction.EntityAttribute_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Description(cmd.value?.let { LocalizedTextNotLocalized(it) })
+            )
+        )
+    }
+
+    fun entityAttributeUpdateType(cmd: ModelAction.EntityAttribute_UpdateType) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Type(TypeKey(cmd.value))
+            )
+        )
+    }
+
+    fun entityAttributeUpdateOptional(cmd: ModelAction.EntityAttribute_UpdateOptional) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Optional(cmd.value)
+            )
+        )
+    }
+
+
+    fun entityAttributeAddTag(cmd: ModelAction.EntityAttribute_AddTag) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun entityAttributeDeleteTag(cmd: ModelAction.EntityAttribute_DeleteTag) {
+        dispatch(
+            ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun entityAttributeDelete(cmd: ModelAction.EntityAttribute_Delete) {
+        dispatch(
+            ModelCmd.DeleteEntityDefAttributeDef(
+                modelKey = cmd.modelKey,
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey
+            )
+        )
+    }
+    // ------------------------------------------------------------------------
+    // Relationships
+    // ------------------------------------------------------------------------
+
+    fun relationshipCreate(cmd: ModelAction.Relationship_Create) {
+        dispatch(
+            ModelCmd.CreateRelationshipDef(
+                modelKey = cmd.modelKey,
+                initializer = cmd.initializer
+            )
+        )
+    }
+
+    fun relationshipUpdate(cmd: ModelAction.Relationship_Update) {
+        dispatch(
+            ModelCmd.UpdateRelationshipDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                cmd = cmd.cmd
+            )
+        )
+    }
+
+    fun relationshipAddTag(cmd: ModelAction.Relationship_AddTag) {
+        dispatch(
+            ModelCmd.UpdateRelationshipDefHashtagAdd(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun relationshipDeleteTag(cmd: ModelAction.Relationship_DeleteTag) {
+        dispatch(
+            ModelCmd.UpdateRelationshipDefHashtagDelete(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun relationshipDelete(cmd: ModelAction.Relationship_Delete) {
+        dispatch(
+            ModelCmd.DeleteRelationshipDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey
+            )
+        )
+    }
+
+    fun relationshipAttributeCreate(cmd: ModelAction.RelationshipAttribute_Create) {
+        dispatch(
+            ModelCmd.CreateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attr = cmd.attr
+            )
+        )
+    }
+
+    fun relationshipAttributeUpdate(cmd: ModelAction.RelationshipAttribute_Update) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                cmd = cmd.cmd
+            )
+        )
+    }
+
+    fun relationshipAttributeDelete(cmd: ModelAction.RelationshipAttribute_Delete) {
+        dispatch(
+            ModelCmd.DeleteRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+            )
+        )
+    }
+
+    fun relationshipAttributeAddTag(cmd: ModelAction.RelationshipAttribute_AddTag) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDefHashtagAdd(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.tag
+            )
+        )
+    }
+
+    fun relationshipAttributeDeleteTag(cmd: ModelAction.RelationshipAttribute_DeleteTag) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDefHashtagDelete(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.tag
+            )
+        )
     }
 }

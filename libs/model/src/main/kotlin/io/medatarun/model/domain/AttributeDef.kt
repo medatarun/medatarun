@@ -1,12 +1,5 @@
 package io.medatarun.model.domain
 
-@JvmInline
-value class AttributeKey(val value: String) {
-    fun validated(): AttributeKey {
-        return this
-    }
-}
-
 /**
  * Attribute definition for an [EntityDef]
  */
