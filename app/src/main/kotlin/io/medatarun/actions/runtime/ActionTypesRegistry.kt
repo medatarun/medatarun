@@ -14,7 +14,7 @@ import java.time.LocalDate
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>) {
+class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
 
     private val typeDescriptors = typeContributions.associateBy { it.target }
 
@@ -25,7 +25,7 @@ class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>
         val equivJson = kclass?.let { typeDescriptors[it]?.equivJson }
         if (equivJson != null) return equivJson
 
-        val typeAlias = when (classifier) {
+        when (classifier) {
             String::class -> return JsonTypeEquiv.STRING
             Boolean::class -> return JsonTypeEquiv.BOOLEAN
             Int::class -> return JsonTypeEquiv.NUMBER
@@ -45,7 +45,7 @@ class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>
             RelationshipDefUpdateCmd::class -> return JsonTypeEquiv.OBJECT
             else -> throw UndefinedMultiplatformTypeException(returnType)
         }
-        return typeAlias
+
     }
 
     fun toMultiplatformType(returnType: KType): String {
@@ -53,11 +53,11 @@ class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>
         val equivMultiplatorm = kclass?.let { typeDescriptors[it]?.equivMultiplatorm }
         if (equivMultiplatorm != null) return equivMultiplatorm
 
-        val typeAlias = when (returnType.classifier) {
+        when (returnType.classifier) {
             String::class -> return "String"
             Boolean::class -> return "Boolean"
             Int::class -> return "Integer"
-            BigInteger::class -> "Integer"
+            BigInteger::class -> return "Integer"
             Double::class -> return "Decimal"
             BigDecimal::class -> return "Decimal"
             List::class -> return "List<${toMultiplatformType(returnType.arguments[0].type!!)}>"
@@ -72,7 +72,7 @@ class ActionTypesRegistry(private val typeContributions: List<TypeDescriptor<*>>
             RelationshipDefUpdateCmd::class -> return "RelationshipDefUpdateCmd"
             else -> throw UndefinedMultiplatformTypeException(returnType)
         }
-        return typeAlias
+
     }
 
 
