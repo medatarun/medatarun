@@ -25,6 +25,10 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
         )
         function.parameters.forEach { parameter ->
             when (parameter.kind) {
+                // Action classes are inner classes of ActionProvider(s).
+                // Kotlin reflection represents the outer instance as a synthetic INSTANCE parameter.
+                // When calling the constructor of the action via callBy(), this outer instance must be provided,
+                // otherwise the reflective call fails.
                 KParameter.Kind.INSTANCE -> callArgs[parameter] = ActionParamBindingState.Ok(actionProviderInstance)
                 KParameter.Kind.VALUE -> {
                     val paramSerialName = parameter.name ?: throw ActionInvocationException(
