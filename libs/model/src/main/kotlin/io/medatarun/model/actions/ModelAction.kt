@@ -136,7 +136,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.model,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateVersion(val modelKey: ModelKey, val version: String) : ModelAction
+    data class Model_UpdateVersion(val modelKey: ModelKey, val version: ModelVersion) : ModelAction
 
     @ActionDoc(
         key = "model_add_tag",

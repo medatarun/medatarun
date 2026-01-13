@@ -9,6 +9,18 @@ class ModelNotFoundException(id: ModelKey) :
 class ModelDuplicateIdException(id: ModelKey) :
         MedatarunException("Model with id [${id.value}] already exists")
 
+class ModelVersionEmptyException :
+    MedatarunException("Model version can not be empty", StatusCode.BAD_REQUEST)
+
+class ModelVersionInvalidFormatException :
+    MedatarunException("Model version invalid.", StatusCode.BAD_REQUEST)
+
+class ModelVersionCoreLeadingZeroException :
+    MedatarunException("Model version numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
+
+class ModelVersionPreReleaseLeadingZeroException :
+    MedatarunException("Model version pre-release numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
+
 class EntityDefNotFoundException(modelKey: ModelKey, entityId: EntityKey) :
     MedatarunException("Entity with id [${entityId.value}] not found in model [${modelKey.value}]")
 

@@ -8,8 +8,9 @@ import java.net.URL
     }
 }
 
-@JvmInline value class ModelLocation(val value: String)
-@JvmInline value class ModelVersion(val value: String)
+@JvmInline value class ModelLocation(val value: String) {
+
+}
 
 /**
  * A model contains multiple [EntityDef] that contains [AttributeDef].
@@ -94,5 +95,4 @@ interface Model {
     fun ensureRelationshipExists(relationshipKey: RelationshipKey) = findRelationshipDef(relationshipKey)
 
 }
-
 

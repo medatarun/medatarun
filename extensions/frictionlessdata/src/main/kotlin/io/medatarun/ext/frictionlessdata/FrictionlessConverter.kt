@@ -60,7 +60,11 @@ class FrictionlessConverter() {
             id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
-            version = ModelVersion(datapackage.version ?: "0.0.0"),
+            version = try {
+                ModelVersion(datapackage.version ?: "0.0.0").validate()
+            } catch (_:Exception) {
+                ModelVersion("0.0.0")
+            },
             origin = ModelOrigin.Uri(uri),
             types = types,
             entityDefs = datapackage.resources.mapNotNull { resource ->

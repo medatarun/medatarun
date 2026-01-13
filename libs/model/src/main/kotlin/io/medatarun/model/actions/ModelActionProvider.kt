@@ -47,7 +47,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                         modelKey = rc.modelKey.validated(),
                         name = LocalizedTextNotLocalized(rc.name),
                         description = rc.description?.let { LocalizedTextNotLocalized(it) },
-                        version = rc.version ?: ModelVersion("1.0.0")
+                        version = rc.version ?: ModelVersion("0.0.1")
                     )
                 )
             }
@@ -82,7 +82,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
                 modelCmds.dispatch(
                     ModelCmd.UpdateModelVersion(
                         modelKey = rc.modelKey.validated(),
-                        version = ModelVersion(rc.version),
+                        version = rc.version,
                     )
                 )
             }

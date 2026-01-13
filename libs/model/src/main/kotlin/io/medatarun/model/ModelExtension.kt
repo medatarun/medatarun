@@ -86,6 +86,6 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     override val equivMultiplatorm: String = "ModelVersion"
     override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
     override fun validate(value: ModelVersion): ModelVersion {
-        return value
+        return value.validate()
     }
 }
