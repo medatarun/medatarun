@@ -1,12 +1,14 @@
 package io.medatarun.actions.runtime
 
+import io.medatarun.actions.adapters.SecurityRuleCtxAction
 import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.security.*
+import io.medatarun.security.SecurityRuleEvaluator
+import io.medatarun.security.SecurityRuleEvaluatorNotFoundException
+import io.medatarun.security.SecurityRuleEvaluatorResult
 
-class ActionSecurityRegistry(private val extensionRegistry: ExtensionRegistry) {
-    private val ruleProviders = extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
-    private val rules = ruleProviders.flatMap { it.getRules() }.associateBy { it.key }
+class ActionSecurityRegistry(ruleList: List<SecurityRuleEvaluator>) {
+
+    private val rules = ruleList.associateBy { it.key }
 
     fun findEvaluatorOptional(ruleKey: String): SecurityRuleEvaluator? {
         return rules[ruleKey]
@@ -14,21 +16,8 @@ class ActionSecurityRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     fun evaluateSecurity(ruleKey: String, actionCtx: ActionCtx): SecurityRuleEvaluatorResult {
         val e = rules[ruleKey] ?: throw SecurityRuleEvaluatorNotFoundException(ruleKey)
-        val ctx = object : SecurityRuleCtx {
-            override fun isSignedIn(): Boolean {
-                return actionCtx.principal.principal != null
-            }
-
-            override fun isAdmin(): Boolean {
-                val p = actionCtx.principal.principal
-                return p != null && p.isAdmin
-            }
-
-            override fun getRoles(): List<AppPrincipalRole> {
-                val roles = actionCtx.principal.principal?.roles ?: emptyList()
-                return roles
-            }
-        }
-        return e.evaluate(ctx)
+        val securityCtx = SecurityRuleCtxAction(actionCtx)
+        return e.evaluate(securityCtx)
     }
 }
+

@@ -15,14 +15,15 @@ import kotlin.reflect.full.primaryConstructor
 
 class ActionInvoker(
     val registry: ActionRegistry,
-    val extensionRegistry: ExtensionRegistry
+    val extensionRegistry: ExtensionRegistry,
+    val actionSecurityRegistry: ActionSecurityRegistry
 ) {
 
     private val actionTypesRegistry = ActionTypesRegistry(
         extensionRegistry.findContributionsFlat(TypeDescriptor::class)
     )
     private val actionParamBinder = ActionParamBinder(actionTypesRegistry)
-    private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
+
 
     fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
         val actionKey = invocation.actionKey

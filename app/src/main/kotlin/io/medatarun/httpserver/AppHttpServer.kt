@@ -10,6 +10,7 @@ import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvoker
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.runtime.ActionSecurityRegistry
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
@@ -27,6 +28,7 @@ import io.medatarun.httpserver.rest.installActionsApi
 import io.medatarun.httpserver.ui.*
 import io.medatarun.kernel.getService
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.security.SecurityRulesProvider
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -45,11 +47,15 @@ class AppHttpServer(
     private val publicBaseUrl: URI,
 ) {
 
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry)
+    private val actionSecurityRegistry = ActionSecurityRegistry(
+        runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
+            .flatMap { it.getRules() }
+    )
+    private val actionRegistry = ActionRegistry(runtime.extensionRegistry, actionSecurityRegistry)
+    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry, actionSecurityRegistry)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
     private val mcpServerBuilder = McpServerBuilder(
-        actionRegistry=         actionRegistry,
+        actionRegistry = actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
         actionCtxFactory = actionCtxFactory,
         actionInvoker = actionInvoker,

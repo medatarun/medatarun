@@ -11,13 +11,14 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.typeOf
 
-class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
+class ActionRegistry(
+    private val extensionRegistry: ExtensionRegistry,
+    private val actionSecurityRegistry: ActionSecurityRegistry
+) {
 
     private val actionTypesRegistry = ActionTypesRegistry(
         extensionRegistry.findContributionsFlat(TypeDescriptor::class)
     )
-    private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
-
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
