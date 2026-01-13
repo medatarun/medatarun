@@ -16,7 +16,7 @@ import kotlin.reflect.full.primaryConstructor
 class ActionInvoker(
     val registry: ActionRegistry,
     val extensionRegistry: ExtensionRegistry,
-    val actionSecurityRegistry: ActionSecurityRegistry
+    val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ) {
 
     private val actionTypesRegistry = ActionTypesRegistry(
@@ -46,7 +46,7 @@ class ActionInvoker(
             )
 
         val securityRuleEvaluationResult =
-            actionSecurityRegistry.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
+            actionSecurityRuleEvaluators.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
             throw ActionInvocationException(
                 HttpStatusCode.Unauthorized,

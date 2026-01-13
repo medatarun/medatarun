@@ -1,71 +1,68 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.actions.adapters.SecurityRuleCtxAction
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
-import io.medatarun.security.AppPrincipalRole
-import org.junit.jupiter.api.Assertions.*
+import io.medatarun.security.*
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KClass
 
-class ActionSecurityContextTest {
+class ActionSecurityRuleEvaluatorsTest {
 
     @Test
-    fun `principal present means signed in`() {
-        val principal = TestPrincipal(isAdmin = false, roles = emptyList())
-        val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
+    fun `findEvaluatorOptional returns evaluator when present`() {
+        val evaluator = DummyEvaluator("rule.test")
+        val registry = ActionSecurityRuleEvaluators(listOf(evaluator))
 
-        assertTrue(ctx.isSignedIn())
-        assertFalse(ctx.isAdmin())
-        assertEquals(emptyList<AppPrincipalRole>(), ctx.getRoles())
+        assertSame(evaluator, registry.findEvaluatorOptional("rule.test"))
     }
 
     @Test
-    fun `admin principal is admin`() {
-        val role = TestRole("admin")
-        val principal = TestPrincipal(isAdmin = true, roles = listOf(role))
-        val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
+    fun `evaluateSecurity throws when rule is missing`() {
+        val registry = ActionSecurityRuleEvaluators(emptyList())
 
-        assertTrue(ctx.isSignedIn())
-        assertTrue(ctx.isAdmin())
-        assertEquals(listOf(role), ctx.getRoles())
-    }
-
-    @Test
-    fun `missing principal means signed out`() {
-        val ctx = SecurityRuleCtxAction(TestActionCtx(null))
-
-        assertFalse(ctx.isSignedIn())
-        assertFalse(ctx.isAdmin())
-        assertEquals(emptyList<AppPrincipalRole>(), ctx.getRoles())
-    }
-
-    // fixtures minimales
-
-    private class TestPrincipal(
-        override val isAdmin: Boolean,
-        override val roles: List<AppPrincipalRole>
-    ) : AppPrincipal {
-        override val id = AppPrincipalId("id")
-        override val issuer = "issuer"
-        override val subject = "subject"
-        override val fullname = "name"
-    }
-
-    private class TestRole(override val key: String) : AppPrincipalRole
-
-    private class TestActionCtx(principal: AppPrincipal?) : ActionCtx {
-        override val principal = object : ActionPrincipalCtx {
-            override val principal = principal
-            override fun ensureIsAdmin() = error("not used")
-            override fun ensureSignedIn(): AppPrincipal = error("not used")
+        assertThrows<SecurityRuleEvaluatorNotFoundException> {
+            registry.evaluateSecurity("missing", dummyActionCtx())
         }
-
-        override val extensionRegistry get() = error("not used")
-        override fun dispatchAction(req: ActionRequest): Any? = error("not used")
-        override fun <T : Any> getService(type: KClass<T>): T = error("not used")
     }
+
+    @Test
+    fun `evaluateSecurity delegates to evaluator`() {
+        val evaluator = RecordingEvaluator("rule.test")
+        val registry = ActionSecurityRuleEvaluators(listOf(evaluator))
+
+        val result = registry.evaluateSecurity("rule.test", dummyActionCtx())
+
+        assertTrue(result is SecurityRuleEvaluatorResult.Ok)
+        assertTrue(evaluator.called)
+    }
+
+    private class DummyEvaluator(override val key: String) : SecurityRuleEvaluator {
+        override fun evaluate(ctx: SecurityRuleCtx) =
+            SecurityRuleEvaluatorResult.Ok()
+    }
+
+    private class RecordingEvaluator(override val key: String) : SecurityRuleEvaluator {
+        var called = false
+        override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
+            called = true
+            return SecurityRuleEvaluatorResult.Ok()
+        }
+    }
+
+    private fun dummyActionCtx(): ActionCtx =
+        object : ActionCtx {
+            override val principal = object : ActionPrincipalCtx {
+                override val principal: AppPrincipal? = null
+                override fun ensureIsAdmin() = error("not used")
+                override fun ensureSignedIn(): AppPrincipal = error("not used")
+            }
+
+            override val extensionRegistry get() = error("not used")
+            override fun dispatchAction(req: ActionRequest): Any? = error("not used")
+            override fun <T : Any> getService(type: KClass<T>): T = error("not used")
+        }
 }

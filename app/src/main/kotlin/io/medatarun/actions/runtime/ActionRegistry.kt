@@ -13,7 +13,7 @@ import kotlin.reflect.typeOf
 
 class ActionRegistry(
     private val extensionRegistry: ExtensionRegistry,
-    private val actionSecurityRegistry: ActionSecurityRegistry
+    private val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ) {
 
     private val actionTypesRegistry = ActionTypesRegistry(
@@ -61,7 +61,7 @@ class ActionRegistry(
 
         // Checks that all security rules are resolved
         val securityRule = doc.securityRule
-        actionSecurityRegistry.findEvaluatorOptional(securityRule)
+        actionSecurityRuleEvaluators.findEvaluatorOptional(securityRule)
             ?: throw ActionDefinitionWithUnknownSecurityRule(actionGroup, doc.key, securityRule)
 
         return ActionCmdDescriptor(

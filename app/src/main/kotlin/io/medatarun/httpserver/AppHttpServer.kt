@@ -10,7 +10,7 @@ import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvoker
 import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.actions.runtime.ActionSecurityRegistry
+import io.medatarun.actions.runtime.ActionSecurityRuleEvaluators
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
@@ -47,12 +47,12 @@ class AppHttpServer(
     private val publicBaseUrl: URI,
 ) {
 
-    private val actionSecurityRegistry = ActionSecurityRegistry(
+    private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(
         runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
             .flatMap { it.getRules() }
     )
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry, actionSecurityRegistry)
-    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry, actionSecurityRegistry)
+    private val actionRegistry = ActionRegistry(runtime.extensionRegistry, actionSecurityRuleEvaluators)
+    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry, actionSecurityRuleEvaluators)
     private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry = actionRegistry,
