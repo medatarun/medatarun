@@ -7,7 +7,6 @@ import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import java.time.Instant
 
 sealed interface AuthAction<R> {
@@ -47,7 +46,7 @@ sealed interface AuthAction<R> {
         )
         val password: PasswordClear
 
-    ) : AuthAction<OAuthTokenResponse>
+    ) : AuthAction<OAuthTokenResponseDto>
 
     @ActionDoc(
         key = "user_create",
@@ -105,7 +104,7 @@ sealed interface AuthAction<R> {
             order = 2
         )
         val password: PasswordClear
-    ) : AuthAction<OAuthTokenResponse>
+    ) : AuthAction<OAuthTokenResponseDto>
 
     @ActionDoc(
         key="whoami",
@@ -114,7 +113,7 @@ sealed interface AuthAction<R> {
         uiLocation = "",
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class WhoAmI(): AuthAction<AuthEmbeddedActionsLauncher.WhoAmIResp>
+    class WhoAmI(): AuthAction<WhoAmIRespDto>
 
     @ActionDoc(
         key="change_my_password",
@@ -205,7 +204,7 @@ sealed interface AuthAction<R> {
         uiLocation = "",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class ListActors(): AuthAction<AuthEmbeddedActionsLauncher.ActorInfo    >
+    class ActorList(): AuthAction<List<ActorInfoDto>>
 
     @ActionDoc(
         key="set_actor_roles",
@@ -214,7 +213,7 @@ sealed interface AuthAction<R> {
         uiLocation = "",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class SetActorRoles(
+    class ActorSetRoles(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",

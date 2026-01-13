@@ -44,7 +44,7 @@ class AuthEnvTest(
 ) {
 
 
-
+    val authClock: ClockTester
     val userService: UserService
     val oidcService: OidcService
     val actorService: ActorService
@@ -84,7 +84,7 @@ class AuthEnvTest(
         dbConnectionKeeper = dbConnectionFactory.getConnection()
 
         // Fake clock that always give the same point in time. Used to tests instant.now()
-        val authClock = ClockTester()
+        this.authClock = ClockTester()
 
         // Reduce number of iterations needed for password encryption (from 31_0000 to 1000)
         val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS

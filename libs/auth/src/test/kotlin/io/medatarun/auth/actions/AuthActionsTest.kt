@@ -7,11 +7,14 @@ import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthActionEnvTest
 import io.medatarun.auth.ports.exposed.ActorService
+import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.time.Instant
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -27,7 +30,8 @@ class AuthActionsTest {
         val env = AuthActionEnvTest(createAdmin = false)
         val username = Username("admin")
         val password = PasswordClear("admin.0123456789")
-        val token = env.dispatch(
+        // Important, keep the type to check response type
+        val token: OAuthTokenResponseDto = env.dispatch(
             AuthAction.AdminBootstrap(
                 secret = env.env.bootstrapSecretKeeper,
                 username = username,
@@ -58,7 +62,8 @@ class AuthActionsTest {
         val password = PasswordClear("john.doe.0123456789")
         val fullname = Fullname("John Doe")
         env.asAdmin()
-        env.dispatch(
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(
             AuthAction.UserCreate(
                 username = username,
                 password = password,
@@ -89,7 +94,7 @@ class AuthActionsTest {
         )
         env.logout()
         assertDoesNotThrow {
-            val token = env.dispatch(AuthAction.Login(username, password))
+            val token: OAuthTokenResponseDto = env.dispatch(AuthAction.Login(username, password))
             env.env.verifyToken(token.accessToken, expectedSub = "john.doe")
         }
     }
@@ -116,7 +121,7 @@ class AuthActionsTest {
 
         env.logout()
         env.asAdmin()
-        val whoamiAdmin = env.dispatch(AuthAction.WhoAmI())
+        val whoamiAdmin: WhoAmIRespDto = env.dispatch(AuthAction.WhoAmI())
         assertEquals(whoamiAdmin.issuer, env.env.oidcService.oidcIssuer())
         assertEquals(whoamiAdmin.admin, true)
         assertEquals(whoamiAdmin.sub, env.env.adminUsername.value)
@@ -149,7 +154,8 @@ class AuthActionsTest {
             )
         )
         env.asUser(username)
-        env.dispatch(AuthAction.ChangeMyPassword(password, passwordNext))
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(AuthAction.ChangeMyPassword(password, passwordNext))
         // Allow testing that we didn't invert passwords
         assertThrows<AuthUnauthorizedException> {
             env.dispatch(AuthAction.Login(username, password))
@@ -177,7 +183,9 @@ class AuthActionsTest {
             )
         )
         env.asAdmin()
-        env.dispatch(AuthAction.UserChangePassword(username, passwordNext))
+
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(AuthAction.UserChangePassword(username, passwordNext))
 
         env.logout()
         // Allow testing that we didn't invert passwords
@@ -207,7 +215,9 @@ class AuthActionsTest {
             )
         )
 
-        env.dispatch(AuthAction.UserDisable(username))
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(AuthAction.UserDisable(username))
+
         assertThrows<AuthUnauthorizedException> {
             env.dispatch(AuthAction.Login(username, password))
         }
@@ -217,7 +227,8 @@ class AuthActionsTest {
         }
 
         // Makes sure this propagates to actors
-        val actorDisabled = env.env.actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), username.value)
+        val actorDisabled =
+            env.env.actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), username.value)
         assertTrue(actorDisabled?.disabledDate != null)
 
     }
@@ -239,7 +250,9 @@ class AuthActionsTest {
             )
         )
 
-        env.dispatch(AuthAction.UserChangeFullname(username, fullnameNext))
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(AuthAction.UserChangeFullname(username, fullnameNext))
+
         env.asUser(username)
 
         // Test on our user database
@@ -249,6 +262,70 @@ class AuthActionsTest {
         // We can test with whoami, which makes sure that it propagated to actors
         val whoami = env.dispatch(AuthAction.WhoAmI())
         assertEquals(fullnameNext.value, whoami.fullname)
+
+    }
+
+    @Test
+    fun actorList() {
+        val env = AuthActionEnvTest()
+        env.asAdmin()
+        env.dispatch(
+            AuthAction.UserCreate(
+                username = Username("john.doe"),
+                password = PasswordClear("john.doe.0123456789"),
+                fullname = Fullname("John Doe"),
+                admin = false
+            )
+        )
+        env.dispatch(
+            AuthAction.UserCreate(
+                username = Username("john.doe2"),
+                password = PasswordClear("john.doe2.0123456789"),
+                fullname = Fullname("John Doe2"),
+                admin = false
+            )
+        )
+
+        env.env.actorService.syncFromJwtExternalPrincipal(
+            object: AuthJwtExternalPrincipal {
+                override val issuer: String = "https://microsoft.com/azuread/123456789"
+                override val subject: String = "sandra.tafroilanuit"
+                override val issuedAt: Instant? = null
+                override val expiresAt: Instant? = null
+                override val audience: List<String> = emptyList()
+                override val roles: List<String> = emptyList()
+                override val name: String? = "Sandra Tafroilanuit"
+                override val fullname: String? = null
+                override val preferredUsername: String? = null
+                override val email: String? = "sandra.tafroilanuit@test.azure.local"
+            }
+        )
+
+        val actors: List<ActorInfoDto> = env.dispatch(AuthAction.ActorList())
+        assertEquals(4, actors.size)
+
+        val adminActor = actors.first { actor -> actor.subject == env.env.adminUsername.value }
+        assertEquals(env.env.adminUsername.value, adminActor.subject)
+        assertEquals(env.env.adminFullname.value, adminActor.fullname)
+        assertEquals(env.env.oidcService.oidcIssuer(), adminActor.issuer)
+        assertDoesNotThrow { UUID.fromString(adminActor.id) }
+        assertEquals(env.env.authClock.staticNow, adminActor.createdAt)
+        assertEquals(env.env.authClock.staticNow, adminActor.lastSeenAt)
+
+        val johnActor = actors.first { actor -> actor.subject == Username("john.doe").value }
+        assertEquals("john.doe", johnActor.subject)
+        assertEquals("John Doe", johnActor.fullname)
+        assertEquals(env.env.oidcService.oidcIssuer(), johnActor.issuer)
+
+        val john2Actor = actors.first { actor -> actor.subject == Username("john.doe2").value }
+        assertEquals("john.doe2", john2Actor.subject)
+        assertEquals("John Doe2", john2Actor.fullname)
+        assertEquals(env.env.oidcService.oidcIssuer(), john2Actor.issuer)
+
+        val sandraActor = actors.first { actor -> actor.subject == Username("sandra.tafroilanuit").value }
+        assertEquals("sandra.tafroilanuit", sandraActor.subject)
+        assertEquals("Sandra Tafroilanuit", sandraActor.fullname)
+        assertEquals("https://microsoft.com/azuread/123456789", sandraActor.issuer)
 
     }
 

@@ -8,8 +8,10 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.ports.exposed.*
-import kotlinx.serialization.Serializable
+import io.medatarun.auth.ports.exposed.ActorService
+import io.medatarun.auth.ports.exposed.OAuthService
+import io.medatarun.auth.ports.exposed.OidcService
+import io.medatarun.auth.ports.exposed.UserService
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import kotlin.reflect.KClass
@@ -39,8 +41,8 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
             is AuthAction.UserChangePassword -> launcher.changeUserPassword(cmd)
             is AuthAction.UserDisable -> launcher.disableUser(cmd)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(cmd)
-            is AuthAction.ListActors -> launcher.listActors(cmd)
-            is AuthAction.SetActorRoles -> launcher.setActorRoles(cmd)
+            is AuthAction.ActorList -> launcher.listActors(cmd)
+            is AuthAction.ActorSetRoles -> launcher.setActorRoles(cmd)
             is AuthAction.DisableActor -> launcher.disableActor(cmd)
             is AuthAction.EnableActor -> launcher.enableActor(cmd)
         }
@@ -61,14 +63,14 @@ class AuthEmbeddedActionsLauncher(
     private val principal: ActionPrincipalCtx,
 
     ) {
-    fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponse {
+    fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponseDto {
         val user = userService.adminBootstrap(
             cmd.secret,
             cmd.username,
             cmd.fullname,
             cmd.password
         )
-        return oauthService.createOAuthAccessTokenForUser(user)
+        return OAuthTokenResponseDto.valueOf(oauthService.createOAuthAccessTokenForUser(user))
     }
 
     fun createUser(cmd: AuthAction.UserCreate) {
@@ -81,27 +83,20 @@ class AuthEmbeddedActionsLauncher(
 
     }
 
-    fun login(cmd: AuthAction.Login): OAuthTokenResponse {
+    fun login(cmd: AuthAction.Login): OAuthTokenResponseDto {
         val user = userService.loginUser(
             cmd.username,
             cmd.password
         )
-        return oauthService.createOAuthAccessTokenForUser(user)
+        return OAuthTokenResponseDto.valueOf(
+            oauthService.createOAuthAccessTokenForUser(user)
+        )
     }
 
-    @Serializable
-    data class WhoAmIResp(
-        val issuer: String,
-        val sub: String,
-        val fullname: String,
-        val admin: Boolean,
-        val roles: List<String>,
-    )
-
     @Suppress("unused")
-    fun whoami(cmd: AuthAction.WhoAmI): WhoAmIResp {
+    fun whoami(cmd: AuthAction.WhoAmI): WhoAmIRespDto {
         val actor = principal.ensureSignedIn()
-        return WhoAmIResp(
+        return WhoAmIRespDto(
             issuer = actor.issuer,
             sub = actor.subject,
             admin = actor.isAdmin,
@@ -140,22 +135,10 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    @Serializable
-    data class ActorInfo(
-        val id: String,
-        val issuer: String,
-        val subject: String,
-        val fullname: String,
-        val email: String?,
-        val roles: List<String>,
-        val disabledAt: String?,
-        val createdAt: String,
-        val lastSeenAt: String
-    )
 
-    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ListActors): List<ActorInfo> {
+    fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ActorList): List<ActorInfoDto> {
         return actorService.listActors().map { actor ->
-            ActorInfo(
+            ActorInfoDto(
                 id = actor.id.value.toString(),
                 issuer = actor.issuer,
                 subject = actor.subject,
@@ -163,18 +146,18 @@ class AuthEmbeddedActionsLauncher(
                 email = actor.email,
                 roles = actor.roles.map { it.key },
                 disabledAt = actor.disabledDate?.toString(),
-                createdAt = actor.createdAt.toString(),
-                lastSeenAt = actor.lastSeenAt.toString()
+                createdAt = actor.createdAt,
+                lastSeenAt = actor.lastSeenAt
             )
         }
     }
 
-    fun setActorRoles(cmd: AuthAction.SetActorRoles) {
+    fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
         val knownRoles = filterKnownRoles(cmd)
         actorService.setRoles(cmd.actorId, knownRoles)
     }
 
-    private fun filterKnownRoles(cmd: AuthAction.SetActorRoles): List<ActorRole> {
+    private fun filterKnownRoles(cmd: AuthAction.ActorSetRoles): List<ActorRole> {
         val roles = cmd.roles.map { ActorRole(it) }
         roles.forEach {
             if (!isKnownRole(it.key)) throw AuthUnknownRoleException(it.key)
