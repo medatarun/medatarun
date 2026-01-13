@@ -6,6 +6,7 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.types.TypeDescriptor
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,7 +18,9 @@ class ActionInvoker(
     val extensionRegistry: ExtensionRegistry
 ) {
 
-    private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
+    private val actionTypesRegistry = ActionTypesRegistry(
+        extensionRegistry.findContributionsFlat(TypeDescriptor::class)
+    )
     private val actionParamBinder = ActionParamBinder(actionTypesRegistry)
     private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
 

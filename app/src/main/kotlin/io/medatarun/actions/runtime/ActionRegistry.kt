@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.types.TypeDescriptor
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -12,7 +13,9 @@ import kotlin.reflect.typeOf
 
 class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
-    private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
+    private val actionTypesRegistry = ActionTypesRegistry(
+        extensionRegistry.findContributionsFlat(TypeDescriptor::class)
+    )
     private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
 
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
