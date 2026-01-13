@@ -2,10 +2,12 @@ package io.medatarun.auth.internal
 
 import io.medatarun.auth.domain.ActorCreateFailedWithNotFoundException
 import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
+import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.auth.ports.needs.AuthClock
 import org.slf4j.LoggerFactory
@@ -14,7 +16,8 @@ import java.util.*
 
 class ActorServiceImpl(
     private val actorStorage: ActorStorage,
-    private val clock: AuthClock
+    private val clock: AuthClock,
+    private val appRoles: ActorRolesRegistry
 ) : ActorService {
 
     override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor {
@@ -89,8 +92,16 @@ class ActorServiceImpl(
     }
 
     override fun setRoles(actorId: ActorId, roles: List<ActorRole>) {
+        ensureRolesExist(roles)
         val existing = actorStorage.findById(actorId)
         actorStorage.updateRoles(existing.id, roles)
+    }
+
+    private fun ensureRolesExist(roles: List<ActorRole>): List<ActorRole> {
+        roles.forEach {
+            if (!appRoles.isKnownRole(it.key)) throw AuthUnknownRoleException(it.key)
+        }
+        return roles
     }
 
     override fun disable(actorId: ActorId, at: Instant?) {

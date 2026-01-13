@@ -17,9 +17,12 @@ import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
 import kotlin.reflect.KClass
 
-class AuthActionEnvTest(private val createAdmin: Boolean = true) {
+class AuthActionEnvTest(
+    private val createAdmin: Boolean = true,
+    private val otherRoles: Set<String> = emptySet(),
+) {
 
-    val env = AuthEnvTest(createAdmin = createAdmin)
+    val env = AuthEnvTest(createAdmin = createAdmin, otherRoles = otherRoles)
 
     val provider = AuthEmbeddedActionsProvider()
 

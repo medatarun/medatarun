@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.AuthExtension
+import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
@@ -17,6 +18,7 @@ import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.*
 import io.medatarun.auth.ports.exposed.*
+import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
 import java.nio.file.Files
 import java.sql.Connection
@@ -40,7 +42,8 @@ import kotlin.test.assertTrue
  */
 class AuthEnvTest(
     private val overrideJwtConfig: JwtConfig? = null,
-    private val createAdmin: Boolean = true
+    private val createAdmin: Boolean = true,
+    private val otherRoles: Set<String> = emptySet(),
 ) {
 
 
@@ -111,7 +114,12 @@ class AuthEnvTest(
         )
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
-        val actorService = ActorServiceImpl(actorStorage, authClock)
+        val actorService = ActorServiceImpl(actorStorage, authClock, object : ActorRolesRegistry {
+            override fun isKnownRole(key: String): Boolean {
+                return key == ActorRole.ADMIN.key || otherRoles.contains(key)
+            }
+
+        })
 
         val userService: UserService = UserServiceImpl(
             userStorage = userStorage,

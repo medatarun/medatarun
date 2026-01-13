@@ -287,18 +287,12 @@ class AuthActionsTest {
         )
 
         env.env.actorService.syncFromJwtExternalPrincipal(
-            object: AuthJwtExternalPrincipal {
-                override val issuer: String = "https://microsoft.com/azuread/123456789"
-                override val subject: String = "sandra.tafroilanuit"
-                override val issuedAt: Instant? = null
-                override val expiresAt: Instant? = null
-                override val audience: List<String> = emptyList()
-                override val roles: List<String> = emptyList()
-                override val name: String? = "Sandra Tafroilanuit"
-                override val fullname: String? = null
-                override val preferredUsername: String? = null
-                override val email: String? = "sandra.tafroilanuit@test.azure.local"
-            }
+            createActorJwt(
+                "https://microsoft.com/azuread/123456789",
+                "sandra.tafroilanuit",
+                "Sandra Tafroilanuit",
+                "sandra.tafroilanuit@test.azure.local"
+            )
         )
 
         val actors: List<ActorInfoDto> = env.dispatch(AuthAction.ActorList())
@@ -329,13 +323,46 @@ class AuthActionsTest {
 
     }
 
+    @Test
+    fun changeRolesOnActor() {
+        val env = AuthActionEnvTest(otherRoles = setOf("ROLE1", "ROLE2"))
+        env.asAdmin()
+        val iss = "https://microsoft.com/azuread/987654321"
+        val sub = "john.doe"
+        env.env.actorService.syncFromJwtExternalPrincipal(createActorJwt(iss, sub))
+        val actor = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
+        assertNotNull(actor)
+        assertTrue(actor.roles.isEmpty())
+        val result: Unit = env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = listOf("ROLE1", "ROLE2")))
+        val actorAfter = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
+        assertNotNull(actorAfter)
+        assertTrue(actorAfter.roles.any {it.key == "ROLE1" })
+        assertTrue(actorAfter.roles.any {it.key == "ROLE2" })
+    }
+
+    private fun createActorJwt(
+        issuer: String,
+        subject: String,
+        name: String? = null,
+        email: String? = null
+    ): AuthJwtExternalPrincipal {
+        return object : AuthJwtExternalPrincipal {
+            override val issuer: String = issuer
+            override val subject: String = subject
+            override val issuedAt: Instant? = null
+            override val expiresAt: Instant? = null
+            override val audience: List<String> = emptyList()
+            override val roles: List<String> = emptyList()
+            override val name: String? = name
+            override val fullname: String? = null
+            override val preferredUsername: String? = null
+            override val email: String? = email
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Actions on actors only
     // ------------------------------------------------------------------------
-
-    // TODO actor_list
-    //      rename method
-    //      make sure API is stable
 
     // TODO actor_change_roles
     //      cheks that roles are supported roles

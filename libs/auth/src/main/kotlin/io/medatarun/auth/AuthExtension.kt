@@ -2,6 +2,8 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPrincipalRole
+import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.jwt.JwtConfig
@@ -19,6 +21,7 @@ import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry.Companion.DEFAULT_KE
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
+import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.auth.ports.needs.UserServiceEvents
@@ -26,6 +29,9 @@ import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.kernel.MedatarunServiceCtx
+import io.medatarun.security.AppPrincipalRole
+import io.medatarun.security.SecurityRolesProvider
+import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
 import java.time.Instant
@@ -35,7 +41,13 @@ class AuthExtension() : MedatarunExtension {
     override val id: ExtensionId = "auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
+        val rolesProvider = object: SecurityRolesProvider {
+            override fun getRoles(): List<AppPrincipalRole> {
+                return listOf(toAppPrincipalRole(ActorRole.ADMIN))
+            }
+        }
         ctx.register(ActionProvider::class, actionProvider)
+        ctx.register(SecurityRolesProvider::class, rolesProvider)
         ctx.register(TypeDescriptor::class, UsernameTypeDescriptor())
         ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
@@ -93,6 +105,12 @@ class AuthExtension() : MedatarunExtension {
         }
         val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
         val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
+        val actorRolesRegistry = object: ActorRolesRegistry {
+            override fun isKnownRole(key: String): Boolean {
+                val ext = ctx.getService(SecurityRolesRegistry::class)
+                return ext.findAllRoles().any { it.key == key }
+            }
+        }
 
         // ------------------------------------------
         // Should be the same in test initializations
@@ -114,7 +132,7 @@ class AuthExtension() : MedatarunExtension {
 
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
-        val actorService: ActorService = ActorServiceImpl(actorStorage, authClock)
+        val actorService: ActorService = ActorServiceImpl(actorStorage, authClock, actorRolesRegistry)
         val userEvents: UserServiceEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
 
         val userService: UserService = UserServiceImpl(

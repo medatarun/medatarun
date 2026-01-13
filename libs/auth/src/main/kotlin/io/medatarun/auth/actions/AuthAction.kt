@@ -198,7 +198,7 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="list_actors",
+        key="actor_list",
         title="List actors",
         description = "List all known actors: all actors maintained by Medatarun and also all external actor that have connected at least once. Only available for admins.",
         uiLocation = "",
@@ -207,7 +207,7 @@ sealed interface AuthAction<R> {
     class ActorList(): AuthAction<List<ActorInfoDto>>
 
     @ActionDoc(
-        key="set_actor_roles",
+        key="actor_set_roles",
         title="Set actor roles",
         description = "Replace roles for an actor. Only available for admins.",
         uiLocation = "",

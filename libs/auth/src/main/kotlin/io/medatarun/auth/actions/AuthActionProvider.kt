@@ -5,7 +5,6 @@ import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
-import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
@@ -153,21 +152,9 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
-        val knownRoles = filterKnownRoles(cmd)
-        actorService.setRoles(cmd.actorId, knownRoles)
+        actorService.setRoles(cmd.actorId, cmd.roles.map { ActorRole(it) })
     }
 
-    private fun filterKnownRoles(cmd: AuthAction.ActorSetRoles): List<ActorRole> {
-        val roles = cmd.roles.map { ActorRole(it) }
-        roles.forEach {
-            if (!isKnownRole(it.key)) throw AuthUnknownRoleException(it.key)
-        }
-        return roles
-    }
-
-    private fun isKnownRole(role: String): Boolean {
-        return role == ActorRole.ADMIN.key
-    }
 
     fun disableActor(cmd: AuthAction.DisableActor) {
         actorService.disable(cmd.actorId, cmd.date ?: Instant.now())

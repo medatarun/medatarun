@@ -4,7 +4,7 @@ import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
@@ -19,7 +19,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
 
     private val actionTypesRegistry = ActionTypesRegistry(extensionRegistry)
     private val actionSecurityRegistry = ActionSecurityRegistry(extensionRegistry)
-
+    private val actionParametersParser = ActionParametersParser(actionTypesRegistry)
     private val actionProviderContributions = extensionRegistry.findContributionsFlat(ActionProvider::class)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
@@ -229,7 +229,7 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
         actionProviderInstance: ActionProvider<Any>,
         actionCommandFunction: KFunction<*>,
         actionPayload: JsonObject
-    ): MutableMap<KParameter, Any?> {
+    ): Map<KParameter, Any?> {
         val missing = actionCommandFunction.parameters
             .filter { it.kind == KParameter.Kind.VALUE && !it.isOptional && it.name !in actionPayload.keys }
             .mapNotNull { it.name }
@@ -244,120 +244,32 @@ class ActionRegistry(private val extensionRegistry: ExtensionRegistry) {
             )
         }
 
-        val callArgs = mutableMapOf<KParameter, Any?>()
-        val conversionErrors = mutableListOf<String>()
+        val params = actionParametersParser.buildCallArgs(
+            actionCommandFunction = actionCommandFunction,
+            actionProviderInstance = actionProviderInstance,
+            actionPayload = actionPayload,
+        )
 
-        actionCommandFunction.parameters.forEach { parameter ->
-            when (parameter.kind) {
-                KParameter.Kind.INSTANCE -> callArgs[parameter] = actionProviderInstance
-                KParameter.Kind.VALUE -> {
-                    val raw = parameter.name?.let(actionPayload::get)
-                    if (raw != null) {
-                        when (val conversion = convert(raw, parameter.type.classifier)) {
-                            is ConversionResult.Error -> conversionErrors += conversion.message
-                            is ConversionResult.Value -> callArgs[parameter] = try {
-                                validate(parameter, conversion.value)
-                            } catch (err: Throwable) {
-                                conversionErrors += "Invalid value for ${parameter.name}. " + (err.message ?: "")
-                            }
 
-                        }
-                    }
-                }
-
-                else -> Unit
-            }
-        }
-
-        if (conversionErrors.isNotEmpty()) {
+        if (params.conversionErrors.isNotEmpty()) {
             throw ActionInvocationException(
                 HttpStatusCode.BadRequest,
                 "Invalid parameter values",
                 mapOf(
-                    "details" to conversionErrors.joinToString(", ")
+                    "details" to params.conversionErrors.joinToString(", ")
                 )
             )
         }
-        return callArgs
+        return params.callArgs
     }
 
-    private fun validate(parameter: KParameter, value: Any?): Any? {
-        val classifier = parameter.type.classifier as? KClass<*>
 
-        if (value != null && classifier != null) {
-            val validator = actionTypesRegistry.findValidator(classifier)
-            return validator.validate(value)
-        } else {
-            return value
-        }
-    }
-
-    private fun convert(raw: JsonElement, classifier: Any?): ConversionResult = when (classifier) {
-        Int::class -> runCatching { raw.jsonPrimitive.int }
-            .fold(
-                onSuccess = { ConversionResult.Value(it) },
-                onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
-            )
-
-        Boolean::class -> ConversionResult.Value(raw.jsonPrimitive.boolean)
-        String::class -> ConversionResult.Value(raw.jsonPrimitive.content)
-        is KClass<*> -> {
-            if (classifier.isValue) {
-                val ctor = classifier.primaryConstructor
-                    ?: return ConversionResult.Error("No constructor for value class ${classifier.simpleName}")
-
-                val innerParam = ctor.parameters.single()
-                when (val inner = convert(raw, innerParam.type.classifier)) {
-                    is ConversionResult.Value ->
-                        ConversionResult.Value(ctor.call(inner.value))
-
-                    is ConversionResult.Error ->
-                        inner
-                }
-            } else if (classifier.isData) {
-                val ctor = classifier.primaryConstructor
-                if (ctor == null) {
-                    ConversionResult.Error("No primary constructor for data class ${classifier.simpleName}")
-                } else {
-                    val obj = raw.jsonObject
-                    val args = mutableMapOf<KParameter, Any?>()
-                    var error: ConversionResult.Error? = null
-
-                    for (param in ctor.parameters) {
-                        val field = obj[param.name]
-                        if (field == null) {
-                            error = ConversionResult.Error("Missing field '${param.name}' for ${classifier.simpleName}")
-                            break
-                        }
-
-                        val converted = convert(field, param.type.classifier)
-                        if (converted is ConversionResult.Value)
-                            args[param] = converted.value
-                        else if (converted is ConversionResult.Error) {
-                            error = converted
-                            break
-                        }
-                    }
-
-                    if (error != null) error else ConversionResult.Value(ctor.callBy(args))
-                }
-            } else {
-                ConversionResult.Error("Unsupported parameter type: ${classifier.simpleName}")
-            }
-        }
-
-        else -> ConversionResult.Value(raw)
-    }
 
     private fun buildUsageHint(actionGroup: String, actionCmd: String, function: KFunction<*>): String =
         listOf(actionGroup, actionCmd).joinToString(separator = " ") + " " + function.parameters
             .filter { it.kind == KParameter.Kind.VALUE }
             .joinToString(" ") { param -> "--${param.name}=<${param.type}>" }
 
-    private sealed interface ConversionResult {
-        data class Value(val value: Any?) : ConversionResult
-        data class Error(val message: String) : ConversionResult
-    }
 
 
     companion object {
