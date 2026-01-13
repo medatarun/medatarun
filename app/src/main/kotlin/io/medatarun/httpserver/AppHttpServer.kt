@@ -8,6 +8,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionInvoker
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
@@ -45,14 +46,16 @@ class AppHttpServer(
 ) {
 
     private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry, runtime.services)
+    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry)
+    private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
     private val mcpServerBuilder = McpServerBuilder(
-        actionRegistry,
+        actionRegistry=         actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
-        actionCtxFactory = actionCtxFactory
+        actionCtxFactory = actionCtxFactory,
+        actionInvoker = actionInvoker,
     )
     private val restApiDoc = RestApiDoc(actionRegistry)
-    private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
+    private val restCommandInvocation = RestCommandInvocation(actionInvoker, actionCtxFactory)
 
     private val uiIndexTemplate = UIIndexTemplate()
 

@@ -12,14 +12,14 @@ import kotlin.reflect.KClass
 
 class ActionCtxFactory(
     val runtime: AppRuntime,
-    val actionRegistry: ActionRegistry,
+    val actionInvoker: ActionInvoker,
     val services: MedatarunServiceRegistry
 ) {
     fun create(principal: AppPrincipal?): ActionCtx {
         return object : ActionCtx {
             override val extensionRegistry: ExtensionRegistry = runtime.extensionRegistry
             override fun dispatchAction(req: ActionRequest): Any? {
-                return actionRegistry.handleInvocation(req, this)
+                return actionInvoker.handleInvocation(req, this)
             }
             override fun <T : Any> getService(type: KClass<T>): T = services.getService(type)
             override val principal: ActionPrincipalCtx = ActionPrincipalCtxAdapter.toActionPrincipalCtx(principal)

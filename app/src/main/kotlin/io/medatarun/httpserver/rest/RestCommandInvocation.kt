@@ -7,14 +7,14 @@ import io.ktor.server.response.*
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.runtime.ActionInvoker
 import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.security.AppPrincipal
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(
-    private val actionRegistry: ActionRegistry,
+    private val actionInvoker: ActionInvoker,
     private val actionCtxFactory: ActionCtxFactory
 ) {
 
@@ -42,7 +42,7 @@ class RestCommandInvocation(
                 payload = json
             )
 
-            val result = actionRegistry.handleInvocation(request, actionCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(request, actionCtxFactory.create(principal))
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)
