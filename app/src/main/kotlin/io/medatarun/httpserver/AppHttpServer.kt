@@ -7,6 +7,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.runtime.*
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
@@ -53,9 +54,9 @@ class AppHttpServer(
         runtime.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
     )
     private val actionRegistry = ActionRegistry(
-        runtime.extensionRegistry,
         actionSecurityRuleEvaluators,
-        actionTypesRegistry
+        actionTypesRegistry,
+        runtime.extensionRegistry.findContributionsFlat(ActionProvider::class)
     )
 
     private val actionInvoker = ActionInvoker(
