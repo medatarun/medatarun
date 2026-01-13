@@ -1,5 +1,11 @@
 package io.medatarun.model.domain
 
+import io.medatarun.model.domain.ModelVersion.Companion.DESCRIPTION
+
+
+/**
+ * See [DESCRIPTION] for infos
+ */
 @JvmInline
 value class ModelVersion(val value: String) {
     val match
@@ -49,5 +55,19 @@ value class ModelVersion(val value: String) {
                     "(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?" +
                     "(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?\$"
         )
+
+        const val DESCRIPTION = """
+ModelVersion follows Semantic Versioning (MAJOR.MINOR.PATCH).
+
+Each part is a number, for example 1.2.3. The version must not be empty.
+
+An optional pre-release can be added after -, using dot-separated identifiers, for example 1.2.3-alpha or 1.2.3-alpha.1.
+Optional build metadata can be added after +, for example 1.2.3+build.1. Pre-release and build metadata can be combined.
+
+Numeric identifiers (major, minor, patch, and numeric pre-release parts) must not contain leading zeros.
+Pre-release and build identifiers may only contain letters, digits, and hyphens.
+
+This format allows versions to be compared and ordered consistently over time.     
+"""
     }
 }

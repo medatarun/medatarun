@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 /**
  * Extension to register the "model" base plugin to the kernel.
  */
-class ModelExtension: MedatarunExtension {
+class ModelExtension : MedatarunExtension {
     override val id: String = "model"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
@@ -39,9 +39,11 @@ class AttributeKeyDescriptor : TypeDescriptor<AttributeKey> {
     override fun validate(value: AttributeKey): AttributeKey {
         return value.validated()
     }
+
     override val description = KeyValidation.DESCRIPTION
 
 }
+
 class EntityKeyDescriptor : TypeDescriptor<EntityKey> {
     override val target: KClass<EntityKey> = EntityKey::class
     override val equivMultiplatorm: String = "EntityKey"
@@ -49,9 +51,11 @@ class EntityKeyDescriptor : TypeDescriptor<EntityKey> {
     override fun validate(value: EntityKey): EntityKey {
         return value.validated()
     }
+
     override val description = KeyValidation.DESCRIPTION
 
 }
+
 class RelationshipKeyDescriptor : TypeDescriptor<RelationshipKey> {
     override val target: KClass<RelationshipKey> = RelationshipKey::class
     override val equivMultiplatorm: String = "RelationshipKey"
@@ -59,8 +63,10 @@ class RelationshipKeyDescriptor : TypeDescriptor<RelationshipKey> {
     override fun validate(value: RelationshipKey): RelationshipKey {
         return value.validated()
     }
+
     override val description = KeyValidation.DESCRIPTION
 }
+
 class TypeKeyDescriptor : TypeDescriptor<TypeKey> {
     override val target: KClass<TypeKey> = TypeKey::class
     override val equivMultiplatorm: String = "TypeKey"
@@ -68,8 +74,10 @@ class TypeKeyDescriptor : TypeDescriptor<TypeKey> {
     override fun validate(value: TypeKey): TypeKey {
         return value.validated()
     }
+
     override val description = KeyValidation.DESCRIPTION
 }
+
 class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override val target: KClass<ModelKey> = ModelKey::class
     override val equivMultiplatorm: String = "ModelKey"
@@ -77,8 +85,10 @@ class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override fun validate(value: ModelKey): ModelKey {
         return value.validated()
     }
+
     override val description = KeyValidation.DESCRIPTION
 }
+
 class HashtagDescriptor : TypeDescriptor<Hashtag> {
     override val target: KClass<Hashtag> = Hashtag::class
     override val equivMultiplatorm: String = "Hashtag"
@@ -87,6 +97,7 @@ class HashtagDescriptor : TypeDescriptor<Hashtag> {
         return value.validated()
     }
 }
+
 class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     override val target: KClass<ModelVersion> = ModelVersion::class
     override val equivMultiplatorm: String = "ModelVersion"
@@ -95,17 +106,5 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
         return value.validate()
     }
 
-    override val description: String = """
-ModelVersion follows Semantic Versioning (MAJOR.MINOR.PATCH).
-
-Each part is a number, for example 1.2.3. The version must not be empty.
-
-An optional pre-release can be added after -, using dot-separated identifiers, for example 1.2.3-alpha or 1.2.3-alpha.1.
-Optional build metadata can be added after +, for example 1.2.3+build.1. Pre-release and build metadata can be combined.
-
-Numeric identifiers (major, minor, patch, and numeric pre-release parts) must not contain leading zeros.
-Pre-release and build identifiers may only contain letters, digits, and hyphens.
-
-This format allows versions to be compared and ordered consistently over time.     
-""".trimIndent()
+    override val description: String = ModelVersion.DESCRIPTION
 }
