@@ -30,7 +30,7 @@ class ActionParametersParser(private val actionTypesRegistry: ActionTypesRegistr
                 KParameter.Kind.VALUE -> {
                     val raw = parameter.name?.let(actionPayload::get)
                     if (raw != null) {
-                        when (val conversion = jsonValueConverter.convert(raw, parameter.type.classifier)) {
+                        when (val conversion = jsonValueConverter.convert(raw, parameter.type)) {
                             is ConversionResult.Error -> conversionErrors += conversion.message
                             is ConversionResult.Value -> callArgs[parameter] = try {
                                 validate(parameter, conversion.value)
