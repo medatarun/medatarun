@@ -4,9 +4,7 @@ import io.ktor.http.*
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import io.medatarun.types.TypeDescriptor
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,13 +13,11 @@ import kotlin.reflect.full.primaryConstructor
 
 class ActionInvoker(
     val registry: ActionRegistry,
-    val extensionRegistry: ExtensionRegistry,
+    val actionTypesRegistry : ActionTypesRegistry,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ) {
 
-    private val actionTypesRegistry = ActionTypesRegistry(
-        extensionRegistry.findContributionsFlat(TypeDescriptor::class)
-    )
+
     private val actionParamBinder = ActionParamBinder(actionTypesRegistry)
 
 

@@ -7,10 +7,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.runtime.ActionCtxFactory
-import io.medatarun.actions.runtime.ActionInvoker
-import io.medatarun.actions.runtime.ActionRegistry
-import io.medatarun.actions.runtime.ActionSecurityRuleEvaluators
+import io.medatarun.actions.runtime.*
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
@@ -29,6 +26,7 @@ import io.medatarun.httpserver.ui.*
 import io.medatarun.kernel.getService
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityRulesProvider
+import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -51,9 +49,23 @@ class AppHttpServer(
         runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
             .flatMap { it.getRules() }
     )
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry, actionSecurityRuleEvaluators)
-    private val actionInvoker = ActionInvoker(actionRegistry, runtime.extensionRegistry, actionSecurityRuleEvaluators)
+    private val actionTypesRegistry = ActionTypesRegistry(
+        runtime.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
+    )
+    private val actionRegistry = ActionRegistry(
+        runtime.extensionRegistry,
+        actionSecurityRuleEvaluators,
+        actionTypesRegistry
+    )
+
+    private val actionInvoker = ActionInvoker(
+        actionRegistry,
+        actionTypesRegistry,
+        actionSecurityRuleEvaluators
+    )
+
     private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
+
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry = actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
