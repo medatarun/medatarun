@@ -333,11 +333,21 @@ class AuthActionsTest {
         val actor = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
         assertNotNull(actor)
         assertTrue(actor.roles.isEmpty())
-        val result: Unit = env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = listOf("ROLE1", "ROLE2")))
+
+        @Suppress("UnusedVariable", "unused") val result: Unit = env.dispatch(
+            AuthAction.ActorSetRoles(actor.id, roles = listOf("ROLE1", "ROLE2"))
+        )
+
         val actorAfter = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
         assertNotNull(actorAfter)
         assertTrue(actorAfter.roles.any {it.key == "ROLE1" })
         assertTrue(actorAfter.roles.any {it.key == "ROLE2" })
+
+        // Test empty
+        env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = emptyList()))
+        val actorEmptyRoles = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
+        assertNotNull(actorEmptyRoles)
+        assertTrue(actorEmptyRoles.roles.isEmpty())
     }
 
     private fun createActorJwt(
