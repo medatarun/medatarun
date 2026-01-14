@@ -60,9 +60,9 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 ps.setString(4, fullname)
                 ps.setString(5, email)
                 ps.setString(6, encodeRoles(roles))
-                ps.setString(7, disabled?.toString())
-                ps.setString(8, createdAt.toString())
-                ps.setString(9, lastSeenAt.toString())
+                ps.setString(7, disabled?.let { InstantSql.toSql(it) })
+                ps.setString(8, InstantSql.toSql(createdAt))
+                ps.setString(9, InstantSql.toSql(lastSeenAt))
                 ps.executeUpdate()
             }
         }
@@ -84,7 +84,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             ).use { ps ->
                 ps.setString(1, fullname)
                 ps.setString(2, email)
-                ps.setString(3, lastSeenAt.toString())
+                ps.setString(3, InstantSql.toSql(lastSeenAt))
                 ps.setString(4, toSql(id))
                 ps.executeUpdate()
             }
@@ -108,7 +108,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             c.prepareStatement(
                 "UPDATE actors SET disabled_date = ? WHERE id = ?"
             ).use { ps ->
-                ps.setString(1, at.toString())
+                ps.setString(1, InstantSql.toSql(at))
                 ps.setString(2, toSql(id))
                 ps.executeUpdate()
             }
@@ -180,9 +180,9 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             fullname = rs.getString("full_name"),
             email = rs.getString("email"),
             roles = decodeRoles(rolesJson),
-            disabledDate = rs.getString("disabled_date")?.let { Instant.parse(it) },
-            createdAt = Instant.parse(rs.getString("created_at")),
-            lastSeenAt = Instant.parse(rs.getString("last_seen_at"))
+            disabledDate = InstantSql.fromSql(rs, "disabled_date"),
+            createdAt = InstantSql.fromSqlRequired(rs, "created_at"),
+            lastSeenAt = InstantSql.fromSqlRequired(rs, "last_seen_at")
         )
     }
 

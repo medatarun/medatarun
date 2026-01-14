@@ -37,7 +37,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 ps.setString(4, password.value)
                 ps.setInt(5, if (admin) 1 else 0)
                 ps.setInt(6, if (bootstrap) 1 else 0)
-                ps.setString(7, disabledDate?.toString())
+                ps.setString(7, disabledDate?.let { InstantSql.toSql(it) })
                 ps.executeUpdate()
             }
         }
@@ -59,7 +59,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                     passwordHash = PasswordHash(rs.getString("password_hash")),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,
-                    disabledDate = rs.getString("disabled_date")?.let { Instant.parse(it) }
+                    disabledDate = InstantSql.fromSql(rs, "disabled_date")
                 )
             }
         }
@@ -83,7 +83,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             c.prepareStatement(
                 "UPDATE users SET disabled_date = ? WHERE login = ?"
             ).use { ps ->
-                ps.setString(1, at.toString())
+                ps.setString(1, InstantSql.toSql(at))
                 ps.setString(2, login.value)
                 ps.executeUpdate()
             }
