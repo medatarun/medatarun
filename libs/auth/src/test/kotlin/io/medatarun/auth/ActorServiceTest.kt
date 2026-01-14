@@ -43,8 +43,49 @@ class ActorServiceTest {
     }
 
     @Test
-    fun `listActors returns all known actors`() {
+    fun `create stores disabled date when provided`() {
         val env = AuthEnvTest(createAdmin = false)
+        val disabledAt = Instant.parse("2024-01-05T08:30:00Z")
+
+        val actor = env.actorService.create(
+            issuer = "issuer-disabled",
+            subject = "subject-disabled",
+            fullname = "Disabled User",
+            email = null,
+            roles = emptyList(),
+            disabled = disabledAt
+        )
+
+        assertEquals(disabledAt, actor.disabledDate)
+    }
+
+    @Test
+    fun `create validates roles`() {
+        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("known-role"))
+        env.actorService.create(
+            issuer = "issuer-role",
+            subject = "subject-role",
+            fullname = "Known Role",
+            email = null,
+            roles = listOf(ActorRole("known-role")),
+            disabled = null
+        )
+
+        assertThrows<AuthUnknownRoleException> {
+            env.actorService.create(
+                issuer = "issuer-role-unknown",
+                subject = "subject-role-unknown",
+                fullname = "Unknown Role",
+                email = null,
+                roles = listOf(ActorRole("unknown-role")),
+                disabled = null
+            )
+        }
+    }
+
+    @Test
+    fun `listActors returns all known actors`() {
+        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-b"))
         val actorA = env.actorService.create(
             issuer = "issuer-a",
             subject = "subject-a",
@@ -100,7 +141,7 @@ class ActorServiceTest {
 
     @Test
     fun `sync updates existing actor profile`() {
-        val env = AuthEnvTest(createAdmin = false)
+        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-x"))
         val initialTime = Instant.parse("2024-02-01T00:00:00Z")
         val updatedTime = Instant.parse("2024-02-02T00:00:00Z")
         env.authClock.staticNow = initialTime
