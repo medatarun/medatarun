@@ -40,6 +40,7 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
             is AuthAction.ChangeMyPassword -> launcher.changeOwnPassword(cmd)
             is AuthAction.UserChangePassword -> launcher.changeUserPassword(cmd)
             is AuthAction.UserDisable -> launcher.disableUser(cmd)
+            is AuthAction.UserEnable -> launcher.enableUser(cmd)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(cmd)
             is AuthAction.ActorList -> launcher.listActors(cmd)
             is AuthAction.ActorGet -> launcher.getActor(cmd)
@@ -125,6 +126,12 @@ class AuthEmbeddedActionsLauncher(
 
     fun disableUser(cmd: AuthAction.UserDisable) {
         return userService.disableUser(
+            cmd.username
+        )
+    }
+
+    fun enableUser(cmd: AuthAction.UserEnable) {
+        return userService.enableUser(
             cmd.username
         )
     }

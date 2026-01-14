@@ -175,6 +175,22 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
+        key="user_enable",
+        title="Enable user",
+        description = "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class UserEnable(
+        @ActionParamDoc(
+            name = "username",
+            description = "User name",
+            order = 1
+        )
+        val username: Username,
+    ): AuthAction<Unit>
+
+    @ActionDoc(
         key="user_change_fullname",
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",

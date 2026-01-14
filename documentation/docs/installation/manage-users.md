@@ -132,6 +132,16 @@ and being able to fix them matters to users.
 medatarun auth user_change_fullname --username="john.doe" --fullname="John Doe"
 ```
 
+## Disable and enable users
+
+You can disable and enable users. This will make them unable ou able to login.
+
+```bash
+medatarun auth user_disable --username="john.doe"
+medatarun auth user_enable --username="john.doe"
+```
+
+
 ## Authentication model and scope
 
 Medatarun is designed to integrate naturally with a **full-featured OIDC identity provider**.

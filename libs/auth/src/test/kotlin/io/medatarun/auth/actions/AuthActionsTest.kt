@@ -234,6 +234,37 @@ class AuthActionsTest {
     }
 
     @Test
+    fun `enable user called`() {
+        val env = AuthActionEnvTest()
+        val username = Username("john.doe")
+        val password = PasswordClear("john.doe.0123456789")
+        val fullname = Fullname("John Doe")
+        env.asAdmin()
+        env.dispatch(
+            AuthAction.UserCreate(
+                username = username,
+                password = password,
+                fullname = fullname,
+                admin = false
+            )
+        )
+        env.dispatch(AuthAction.UserDisable(username))
+
+        @Suppress("UnusedVariable", "unused")
+        val result: Unit = env.dispatch(AuthAction.UserEnable(username))
+
+        assertDoesNotThrow {
+            env.dispatch(AuthAction.Login(username, password))
+        }
+
+        // Makes sure this propagates to actors
+        val actorEnabled =
+            env.env.actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), username.value)
+        assertNotNull(actorEnabled)
+        assertEquals(null, actorEnabled.disabledDate)
+    }
+
+    @Test
     fun `actor disable uses user service for internal issuer`() {
         val env = AuthActionEnvTest()
         val username = Username("jane.doe")

@@ -136,6 +136,26 @@ class UserServiceTest {
     }
 
     @Test
+    fun `admin can enable john`() {
+        val env = AuthEnvTest()
+        createJohn(env)
+        env.userService.disableUser(johnUsername)
+        // login shall fail while disabled
+        assertThrows<AuthUnauthorizedException> {
+            env.oauthService.oauthLogin(johnUsername, johnPassword)
+        }
+
+        env.userService.enableUser(johnUsername)
+
+        val token = env.oauthService.oauthLogin(johnUsername, johnPassword)
+        assertNotNull(token)
+
+        // Didn't changed by mistake admin login
+        val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
+        assertNotNull(adminToken)
+    }
+
+    @Test
     fun `can not reuse login of disabled john`() {
         val env = AuthEnvTest()
         createJohn(env)
