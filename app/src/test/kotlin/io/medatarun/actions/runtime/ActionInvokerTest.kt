@@ -17,6 +17,9 @@ import kotlinx.serialization.json.buildJsonObject
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Instant
+import java.time.LocalDate
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
@@ -110,6 +113,111 @@ class ActionInvokerTest {
         assertTrue(cmd is TestAction.WithDecimal)
         val decimal = cmd as TestAction.WithDecimal
         assertEquals(0, BigDecimal("12.5").compareTo(decimal.price))
+    }
+
+    @Test
+    fun `big integer parameters are converted from string`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("12345678901234567890"))
+        }
+
+        runtime.invoke("big_integer", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithBigInteger)
+        val big = cmd as TestAction.WithBigInteger
+        assertEquals(BigInteger("12345678901234567890"), big.value)
+    }
+
+    @Test
+    fun `big integer parameters are converted from number`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive(1234567890))
+        }
+
+        runtime.invoke("big_integer", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithBigInteger)
+        val big = cmd as TestAction.WithBigInteger
+        assertEquals(BigInteger("1234567890"), big.value)
+    }
+
+    @Test
+    fun `double parameters are converted from string`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("12.75"))
+        }
+
+        runtime.invoke("double", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithDouble)
+        val dbl = cmd as TestAction.WithDouble
+        assertEquals(12.75, dbl.value)
+    }
+
+    @Test
+    fun `double parameters are converted from number`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive(12.75))
+        }
+
+        runtime.invoke("double", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithDouble)
+        val dbl = cmd as TestAction.WithDouble
+        assertEquals(12.75, dbl.value)
+    }
+
+    @Test
+    fun `instant parameters are converted from string`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("at", JsonPrimitive("2023-11-14T00:00:00Z"))
+        }
+
+        runtime.invoke("instant", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithInstant)
+        val instant = cmd as TestAction.WithInstant
+        assertEquals(Instant.parse("2023-11-14T00:00:00Z"), instant.at)
+    }
+
+    @Test
+    fun `instant parameters are converted from number`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("at", JsonPrimitive(1700000000123))
+        }
+
+        runtime.invoke("instant", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithInstant)
+        val instant = cmd as TestAction.WithInstant
+        assertEquals(Instant.ofEpochMilli(1700000000123), instant.at)
+    }
+
+    @Test
+    fun `local date parameters are converted from string`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("date", JsonPrimitive("2023-11-14"))
+        }
+
+        runtime.invoke("local_date", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithLocalDate)
+        val date = cmd as TestAction.WithLocalDate
+        assertEquals(LocalDate.parse("2023-11-14"), date.date)
     }
 
     @Test
@@ -320,6 +428,70 @@ class ActionInvokerTest {
                 order = 1
             )
             val price: BigDecimal
+        ) : TestAction
+
+        @ActionDoc(
+            key = "big_integer",
+            title = "BigInteger",
+            description = "Action with BigInteger",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithBigInteger(
+            @ActionParamDoc(
+                name = "value",
+                description = "Value",
+                order = 1
+            )
+            val value: BigInteger
+        ) : TestAction
+
+        @ActionDoc(
+            key = "double",
+            title = "Double",
+            description = "Action with Double",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithDouble(
+            @ActionParamDoc(
+                name = "value",
+                description = "Value",
+                order = 1
+            )
+            val value: Double
+        ) : TestAction
+
+        @ActionDoc(
+            key = "instant",
+            title = "Instant",
+            description = "Action with Instant",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithInstant(
+            @ActionParamDoc(
+                name = "at",
+                description = "Instant",
+                order = 1
+            )
+            val at: Instant
+        ) : TestAction
+
+        @ActionDoc(
+            key = "local_date",
+            title = "LocalDate",
+            description = "Action with LocalDate",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithLocalDate(
+            @ActionParamDoc(
+                name = "date",
+                description = "Date",
+                order = 1
+            )
+            val date: LocalDate
         ) : TestAction
 
         @ActionDoc(

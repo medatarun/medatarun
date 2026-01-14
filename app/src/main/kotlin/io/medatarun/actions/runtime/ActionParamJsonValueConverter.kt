@@ -3,6 +3,9 @@ package io.medatarun.actions.runtime
 import io.ktor.http.*
 import kotlinx.serialization.json.*
 import java.math.BigDecimal
+import java.math.BigInteger
+import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -63,37 +66,16 @@ class ActionParamJsonValueConverter {
                 "Can not manage KType of kind [$type]"
             )
 
-        val result = when (kclass) {
-            Int::class -> runCatching { raw.jsonPrimitive.int }
-                .fold(
-                    onSuccess = { ConversionResult.Value(it) },
-                    onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
-                )
-
-            Boolean::class -> runCatching { raw.jsonPrimitive.boolean }
-                .fold(
-                    onSuccess = { ConversionResult.Value(it) },
-                    onFailure = { ConversionResult.Error("Parameter expecting Boolean cannot parse value '$raw'") }
-                )
-
-            String::class -> runCatching { raw.jsonPrimitive.content }
-                .fold(
-                    onSuccess = { ConversionResult.Value(it) },
-                    onFailure = { ConversionResult.Error("Parameter expecting String cannot parse value '$raw'") }
-                )
-
-            BigDecimal::class -> runCatching { BigDecimal(raw.jsonPrimitive.content) }
-                .fold(
-                    onSuccess = { ConversionResult.Value(it) },
-                    onFailure = { ConversionResult.Error("Parameter expecting BigDecimal cannot parse value '$raw'") }
-                )
-
-            UUID::class -> runCatching { UUID.fromString(raw.jsonPrimitive.content) }
-                .fold(
-                    onSuccess = { ConversionResult.Value(it) },
-                    onFailure = { ConversionResult.Error("Parameter expecting UUID cannot parse value '$raw'") }
-                )
-
+        return when (kclass) {
+            Int::class -> convertInt(raw)
+            Boolean::class -> convertBoolean(raw)
+            String::class -> convertString(raw)
+            BigDecimal::class -> convertBigDecimal(raw)
+            BigInteger::class -> convertBigInteger(raw)
+            Double::class -> convertDouble(raw)
+            Instant::class -> convertInstant(raw)
+            LocalDate::class -> convertLocalDate(raw)
+            UUID::class -> convertUuid(raw)
             else -> {
                 if (kclass.isValue) {
                     convertValueClass(kclass, raw)
@@ -106,10 +88,86 @@ class ActionParamJsonValueConverter {
                     )
                 }
             }
-
-
         }
-        return result
+    }
+
+    private fun convertInt(raw: JsonElement): ConversionResult {
+        return runCatching { raw.jsonPrimitive.int }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertBoolean(raw: JsonElement): ConversionResult {
+        return runCatching { raw.jsonPrimitive.boolean }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting Boolean cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertString(raw: JsonElement): ConversionResult {
+        return runCatching { raw.jsonPrimitive.content }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting String cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertBigDecimal(raw: JsonElement): ConversionResult {
+        return runCatching { BigDecimal(raw.jsonPrimitive.content) }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting BigDecimal cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertBigInteger(raw: JsonElement): ConversionResult {
+        return runCatching { BigInteger(raw.jsonPrimitive.content) }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting BigInteger cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertDouble(raw: JsonElement): ConversionResult {
+        return runCatching { raw.jsonPrimitive.content.toDouble() }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting Double cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertInstant(raw: JsonElement): ConversionResult {
+        return runCatching {
+            val content = raw.jsonPrimitive.content
+            val epochMilli = content.toLongOrNull()
+            if (epochMilli != null) {
+                Instant.ofEpochMilli(epochMilli)
+            } else {
+                Instant.parse(content)
+            }
+        }.fold(
+            onSuccess = { ConversionResult.Value(it) },
+            onFailure = { ConversionResult.Error("Parameter expecting Instant cannot parse value '$raw'") }
+        )
+    }
+
+    private fun convertLocalDate(raw: JsonElement): ConversionResult {
+        return runCatching { LocalDate.parse(raw.jsonPrimitive.content) }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting LocalDate cannot parse value '$raw'") }
+            )
+    }
+
+    private fun convertUuid(raw: JsonElement): ConversionResult {
+        return runCatching { UUID.fromString(raw.jsonPrimitive.content) }
+            .fold(
+                onSuccess = { ConversionResult.Value(it) },
+                onFailure = { ConversionResult.Error("Parameter expecting UUID cannot parse value '$raw'") }
+            )
     }
 
     fun convertMap(raw: JsonElement, type: KType): ConversionResult {
