@@ -1,15 +1,46 @@
 package io.medatarun.auth
 
 import com.auth0.jwt.JWT
+import io.medatarun.auth.domain.AuthUnauthorizedException
 import io.medatarun.auth.domain.jwt.JwtConfig
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class OAuthServiceTest {
+
+    @Nested
+    inner class AdminTests {
+        val env = AuthEnvTest()
+
+        @Test
+        fun `admin can log in`() {
+            val token = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
+            assertNotNull(token)
+        }
+
+        @Test
+        fun `admin cannot log in with bad login`() {
+            assertThrows<AuthUnauthorizedException> {
+                env.oauthService.oauthLogin(Username(env.adminUsername.value + "--"), env.adminPassword)
+            }
+        }
+
+        @Test
+        fun `admin cannot log in with bad password`() {
+            assertThrows<AuthUnauthorizedException> {
+                env.oauthService.oauthLogin(env.adminUsername, PasswordClear(env.adminPassword.value + "---"))
+            }
+        }
+    }
 
     @Test
     fun `should issue token with default configuration and various claims`() {
