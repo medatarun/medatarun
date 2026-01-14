@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.bootstrap
 
 import io.medatarun.auth.domain.BootstrapSecretPrefilledToShortException
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle

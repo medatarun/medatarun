@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.jwk
 
 import io.medatarun.auth.domain.jwt.Jwk
 import io.medatarun.auth.domain.jwt.Jwks

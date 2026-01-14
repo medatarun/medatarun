@@ -9,7 +9,6 @@ import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
-import io.medatarun.auth.domain.oidc.ExternalOidcProvidersConfig
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -17,7 +16,16 @@ import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
-import io.medatarun.auth.internal.*
+import io.medatarun.auth.internal.actors.ActorClaimsAdapter
+import io.medatarun.auth.internal.actors.ActorServiceImpl
+import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
+import io.medatarun.auth.internal.jwk.JwtExternalProvidersEmpty
+import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
+import io.medatarun.auth.internal.oauth.OAuthServiceImpl
+import io.medatarun.auth.internal.oidc.OidcServiceImpl
+import io.medatarun.auth.internal.users.UserPasswordEncrypter
+import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
+import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
@@ -78,7 +86,7 @@ class AuthEnvTest(
 
         val cfgBootstrapSecretPath =
             home.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-        val cfgKeyStorePath = home.resolve(JwtSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
+        val cfgKeyStorePath = home.resolve(JwtInternalSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
 
         // In memory database. Be sure to keep one connection alive during the lifecycle
         // of any instance of this class. Using UUIDs to name in memory databases or else
@@ -105,7 +113,7 @@ class AuthEnvTest(
         val actorStorage = ActorStorageSQLite(dbConnectionFactory)
 
         val actorClaimsAdapter = ActorClaimsAdapter()
-        val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
+        val authEmbeddedKeyRegistry = JwtInternalInternalSigninKeyRegistryImpl(cfgKeyStorePath)
         val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
         val jwtCfg = overrideJwtConfig ?: JwtConfig(
@@ -148,7 +156,7 @@ class AuthEnvTest(
             clock = authClock,
             actorService = actorService,
             authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalOidcProviders = ExternalOidcProvidersConfig.empty()
+            externalOidcProviders = JwtExternalProvidersEmpty()
         )
 
         // ----------------------------------------------------------------
@@ -171,8 +179,6 @@ class AuthEnvTest(
             userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
         }
     }
-
-    
 
 
     fun verifyToken(

@@ -27,6 +27,9 @@ class JwtUnknownKidException(kid: String, issuer: String) :
 class JwtJwksFetchException(issuer: String, jwksUri: String) :
     MedatarunException("Could not fetch JWKS for issuer [$issuer] at [$jwksUri].", StatusCode.UNAUTHORIZED)
 
+class JwtJwksUnknownExternalProvider(issuer: String) :
+    MedatarunException("Unknown JWK external provider for issuer [$issuer].", StatusCode.UNAUTHORIZED)
+
 class JwtJwksParseException(issuer: String) :
     MedatarunException("Invalid JWKS payload for issuer [$issuer].", StatusCode.UNAUTHORIZED)
 

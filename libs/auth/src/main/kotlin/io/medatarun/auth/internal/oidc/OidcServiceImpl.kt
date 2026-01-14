@@ -1,14 +1,19 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.oidc
 
-import com.auth0.jwk.JwkProvider
-import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.jwt.Jwks
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
-import io.medatarun.auth.domain.oidc.*
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.internal.actors.ActorClaimsAdapter
+import io.medatarun.auth.internal.jwk.JwkExternalProviders
+import io.medatarun.auth.internal.jwk.JwksAdapter
+import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcStorage
@@ -29,7 +34,7 @@ class OidcServiceImpl(
     private val clock: AuthClock,
     private val actorService: ActorService,
     private val authCtxDurationSeconds: Long,
-    externalOidcProviders: ExternalOidcProvidersConfig
+    private val externalOidcProviders: JwkExternalProviders,
 ) : OidcService {
 
     val clients = listOf<OidcClient>(
@@ -49,30 +54,15 @@ class OidcServiceImpl(
     private val jwtVerifierResolver: JwtVerifierResolver
 
     init {
-        val jwkProvidersByIssuer = buildJwkProviders(externalOidcProviders)
         jwtVerifierResolver = JwtVerifierResolverImpl(
             internalIssuer = jwtCfg.issuer,
             internalAudience = jwtCfg.audience,
             internalPublicKey = authEmbeddedKeys.publicKey,
-            externalProviders = externalOidcProviders.providers,
-            externalJwkProviders = jwkProvidersByIssuer
+            externalJwkProviders = externalOidcProviders
         )
     }
 
-    private fun buildJwkProviders(
-        externalOidcProviders: ExternalOidcProvidersConfig
-    ): Map<String, JwkProvider> {
-        val providers = mutableMapOf<String, JwkProvider>()
-        val cacheDuration = externalOidcProviders.getCacheDuration()
-        for (provider in externalOidcProviders.providers) {
-            val uri = URI.create(provider.jwksUri).toURL()
-            val jwkProvider = JwkProviderBuilder(uri)
-                .cached(10, cacheDuration)
-                .build()
-            providers[provider.issuer] = jwkProvider
-        }
-        return providers
-    }
+
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
         return jwtVerifierResolver

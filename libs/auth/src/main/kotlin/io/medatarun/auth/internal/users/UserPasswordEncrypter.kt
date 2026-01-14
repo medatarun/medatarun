@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.users
 
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.PasswordHash

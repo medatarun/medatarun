@@ -1,7 +1,6 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.users
 
 import io.medatarun.auth.domain.ActorNotFoundException
-import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ActorRole.Companion.ADMIN
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.ports.exposed.ActorService
@@ -56,7 +55,7 @@ class UserServiceEventsActorProvisioning(
             issuer = internalIssuer,
             subject = evt.user.username.value,
             fullname = evt.user.fullname.value,
-            roles = if (evt.user.admin) listOf(ActorRole.ADMIN) else emptyList(),
+            roles = if (evt.user.admin) listOf(ADMIN) else emptyList(),
             email = null,
             disabled = evt.user.disabledDate
         )

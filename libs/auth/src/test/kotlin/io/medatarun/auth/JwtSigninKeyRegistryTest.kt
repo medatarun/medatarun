@@ -2,8 +2,8 @@ package io.medatarun.auth
 
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
-import io.medatarun.auth.internal.JwtSigninKeyRegistryImpl
-import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry
+import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
+import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import kotlin.test.assertEquals
@@ -16,8 +16,8 @@ class JwtSigninKeyRegistryTest {
     fun `should register embedded keys`() {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
-        val secretsPath = medatarunHomePath.resolve(JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
-        val service = JwtSigninKeyRegistryImpl(secretsPath)
+        val secretsPath = medatarunHomePath.resolve(JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
+        val service = JwtInternalInternalSigninKeyRegistryImpl(secretsPath)
         val keys = service.loadOrCreateKeys()
 
         // Files should be created
@@ -45,7 +45,7 @@ class JwtSigninKeyRegistryTest {
         assertTrue(keys.kid.isNotBlank(), "kid should not be blank")
 
         // Loading again should return the same material (idempotency)
-        val secondService = JwtSigninKeyRegistryImpl(secretsPath)
+        val secondService = JwtInternalInternalSigninKeyRegistryImpl(secretsPath)
         val keys2 = secondService.loadOrCreateKeys()
 
         assertEquals(keys.kid, keys2.kid, "kid should remain the same after reload")

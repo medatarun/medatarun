@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.oidc
 
 sealed interface OidcAuthorizeResult {
     data class Valid(

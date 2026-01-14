@@ -1,4 +1,4 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.actors
 
 import io.medatarun.auth.domain.ActorCreateFailedWithNotFoundException
 import io.medatarun.auth.domain.ActorRole

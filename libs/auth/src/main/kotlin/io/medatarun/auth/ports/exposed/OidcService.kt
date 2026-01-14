@@ -4,7 +4,7 @@ import io.medatarun.auth.domain.jwt.Jwks
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
-import io.medatarun.auth.internal.OidcAuthorizeResult
+import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 import java.security.interfaces.RSAPublicKey

@@ -12,7 +12,7 @@ import io.medatarun.auth.domain.jwt.JwtKeyMaterial
  * - issuer.pub.pem: public key
  * - issuer.kid: contains the key unique identifier
  */
-interface JwtSigninKeyRegistry {
+interface JwtInternalSigninKeyRegistry {
 
     fun loadOrCreateKeys(): JwtKeyMaterial
 

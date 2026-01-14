@@ -1,6 +1,7 @@
 package io.medatarun.auth.internal
 
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.*

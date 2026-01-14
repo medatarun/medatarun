@@ -7,7 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
-import io.medatarun.auth.internal.OidcAuthorizeResult
+import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService

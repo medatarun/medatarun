@@ -1,7 +1,7 @@
-package io.medatarun.auth.internal
+package io.medatarun.auth.internal.jwk
 
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
-import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry
+import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -13,7 +13,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
-class JwtSigninKeyRegistryImpl(private val keystorePath: Path): JwtSigninKeyRegistry {
+class JwtInternalInternalSigninKeyRegistryImpl(private val keystorePath: Path): JwtInternalSigninKeyRegistry {
 
     enum class KeyAudience(val label: String) { PRIVATE("PRIVATE KEY"), PUBLIC("PUBLIC KEY") }
 

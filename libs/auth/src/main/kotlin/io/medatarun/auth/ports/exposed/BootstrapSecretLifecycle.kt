@@ -1,6 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.internal.BootstrapSecretState
+import io.medatarun.auth.internal.bootstrap.BootstrapSecretState
 
 /**
  * Manages the first bootstrap secret, that can only be used once

@@ -3,11 +3,10 @@ package io.medatarun.auth
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPrincipalRole
-import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.jwt.JwtConfig
-import io.medatarun.auth.domain.oidc.ExternalOidcProviderConfig
-import io.medatarun.auth.domain.oidc.ExternalOidcProvidersConfig
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -15,10 +14,20 @@ import io.medatarun.auth.infra.ActorStorageSQLite
 import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
-import io.medatarun.auth.internal.*
+import io.medatarun.auth.internal.actors.ActorClaimsAdapter
+import io.medatarun.auth.internal.actors.ActorServiceImpl
+import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
+import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl
+import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl.Companion.createJwtExternalProvidersFromConfigProperties
+import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
+import io.medatarun.auth.internal.oauth.OAuthServiceImpl
+import io.medatarun.auth.internal.oidc.OidcServiceImpl
+import io.medatarun.auth.internal.users.UserPasswordEncrypter
+import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
+import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
-import io.medatarun.auth.ports.exposed.JwtSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
+import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
@@ -42,7 +51,7 @@ class AuthExtension() : MedatarunExtension {
     override val id: ExtensionId = "auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
-        val rolesProvider = object: SecurityRolesProvider {
+        val rolesProvider = object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {
                 return listOf(toAppPrincipalRole(ActorRole.ADMIN))
             }
@@ -55,7 +64,7 @@ class AuthExtension() : MedatarunExtension {
         ctx.register(TypeDescriptor::class, ActorIdDescriptor())
     }
 
-    class UsernameTypeDescriptor: TypeDescriptor<Username> {
+    class UsernameTypeDescriptor : TypeDescriptor<Username> {
         override val target: KClass<Username> = Username::class
         override val equivMultiplatorm: String = "Username"
         override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
@@ -63,7 +72,8 @@ class AuthExtension() : MedatarunExtension {
             return value.validate()
         }
     }
-    class FullnameTypeDescriptor: TypeDescriptor<Fullname> {
+
+    class FullnameTypeDescriptor : TypeDescriptor<Fullname> {
         override val target: KClass<Fullname> = Fullname::class
         override val equivMultiplatorm: String = "Fullname"
         override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
@@ -84,7 +94,7 @@ class AuthExtension() : MedatarunExtension {
 
     }
 
-    class ActorIdDescriptor: TypeDescriptor<ActorId> {
+    class ActorIdDescriptor : TypeDescriptor<ActorId> {
         override val target: KClass<ActorId> = ActorId::class
         override val equivMultiplatorm: String = "ActorId"
         override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
@@ -106,7 +116,7 @@ class AuthExtension() : MedatarunExtension {
         }
         val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
         val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
-        val actorRolesRegistry = object: ActorRolesRegistry {
+        val actorRolesRegistry = object : ActorRolesRegistry {
             override fun isKnownRole(key: String): Boolean {
                 val ext = ctx.getService(SecurityRolesRegistry::class)
                 return ext.findAllRoles().any { it.key == key }
@@ -122,7 +132,7 @@ class AuthExtension() : MedatarunExtension {
         val actorStorage = ActorStorageSQLite(dbConnectionFactory)
 
         val actorClaimsAdapter = ActorClaimsAdapter()
-        val authEmbeddedKeyRegistry = JwtSigninKeyRegistryImpl(cfgKeyStorePath)
+        val authEmbeddedKeyRegistry = JwtInternalInternalSigninKeyRegistryImpl(cfgKeyStorePath)
         val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
         val jwtCfg = JwtConfig(
@@ -161,7 +171,19 @@ class AuthExtension() : MedatarunExtension {
             clock = authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalOidcProviders = loadExternalOidcProviders(ctx, jwtCfg.issuer)
+            externalOidcProviders = JwkExternalProvidersImpl(
+                createJwtExternalProvidersFromConfigProperties(object :
+                    JwkExternalProvidersImpl.Companion.ConfigResolver {
+                    override fun getConfigProperty(key: String, defaultValue: String): String {
+                        return ctx.getConfigProperty(key, defaultValue = defaultValue)
+                    }
+
+                    override fun getConfigProperty(key: String): String? {
+                        return ctx.getConfigProperty(key)
+                    }
+
+                }, jwtCfg.issuer)
+            )
         )
 
         ctx.register(UserService::class, userService)
@@ -176,66 +198,5 @@ class AuthExtension() : MedatarunExtension {
         const val DEFAULT_AUTH_CTX_DURATION_SECONDS: Long = 60 * 15
     }
 
-    private fun loadExternalOidcProviders(
-        ctx: MedatarunServiceCtx,
-        internalIssuer: String
-    ): ExternalOidcProvidersConfig {
-        // The list of providers is explicit to keep configuration simple and avoid parsing JSON.
-        val rawNames = ctx.getConfigProperty("medatarun.auth.oidc.external.names") ?: return ExternalOidcProvidersConfig.empty()
-        val names = parseCsv(rawNames)
-        if (names.isEmpty()) {
-            return ExternalOidcProvidersConfig.empty()
-        }
-        val durationRaw = ctx.getConfigProperty(
-            "medatarun.auth.oidc.jwkscache.duration",
-            ExternalOidcProvidersConfig.DEFAULT_CACHE_DURATION_SECONDS.toString()
-        )
-        val durationSeconds = durationRaw.toLongOrNull()
-            ?: throw ExternalOidcProviderCacheDurationInvalidException(durationRaw)
-        val providers = mutableListOf<ExternalOidcProviderConfig>()
-        for (name in names) {
-            val prefix = "medatarun.auth.oidc.external.$name"
-            val issuer = ctx.getConfigProperty("$prefix.issuer")
-                ?: throw ExternalOidcProviderMissingConfigException(name, "issuer")
-            if (issuer == internalIssuer) {
-                throw ExternalOidcProviderIssuerConflictException(issuer)
-            }
-            val jwksUri = ctx.getConfigProperty("$prefix.jwksUri")
-                ?: throw ExternalOidcProviderMissingConfigException(name, "jwksUri")
-            val audienceRaw = ctx.getConfigProperty("$prefix.audience")
-                ?: throw ExternalOidcProviderMissingConfigException(name, "audience")
-            val audiences = parseCsv(audienceRaw)
-            if (audiences.isEmpty()) {
-                throw ExternalOidcProviderMissingConfigException(name, "audience")
-            }
-            val algsRaw = ctx.getConfigProperty("$prefix.algs", "RS256")
-            val algs = parseCsv(algsRaw)
-            val allowedAlgs = if (algs.isEmpty()) listOf("RS256") else algs
-            providers.add(
-                ExternalOidcProviderConfig(
-                    name = name,
-                    issuer = issuer,
-                    jwksUri = jwksUri,
-                    audiences = audiences,
-                    allowedAlgs = allowedAlgs
-                )
-            )
-        }
-        return ExternalOidcProvidersConfig(providers, durationSeconds)
-    }
 
-    private fun parseCsv(value: String): List<String> {
-        if (value.isBlank()) {
-            return emptyList()
-        }
-        val parts = value.split(",")
-        val trimmed = mutableListOf<String>()
-        for (part in parts) {
-            val token = part.trim()
-            if (token.isNotEmpty()) {
-                trimmed.add(token)
-            }
-        }
-        return trimmed
-    }
 }
