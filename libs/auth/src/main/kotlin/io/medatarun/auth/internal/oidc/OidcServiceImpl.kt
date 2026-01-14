@@ -62,7 +62,19 @@ class OidcServiceImpl(
         )
     }
 
+    override fun oidcAuthority(publicBaseUrl: URI): URI {
+        val first = externalOidcProviders.firstOrNull()
+        return first?.issuer?.let { URI(it) } ?: publicBaseUrl.resolve("/oidc")
+    }
 
+    override fun oidcClientId(): String {
+        val first = externalOidcProviders.firstOrNull()
+        return if (first != null) {
+            first.audiences.firstOrNull() ?: ""
+        } else {
+            "medatarun-ui"
+        }
+    }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
         return jwtVerifierResolver
@@ -289,7 +301,8 @@ class OidcServiceImpl(
 
         oidcAuthCodeStorage.deleteAuthCode(authCode.code)
 
-        val actor = actorService.findByIssuerAndSubjectOptional(oidcIssuer(), authCode.subject) ?: throw ActorNotFoundException()
+        val actor = actorService.findByIssuerAndSubjectOptional(oidcIssuer(), authCode.subject)
+            ?: throw ActorNotFoundException()
 
         val idToken = issueIdToken(
             sub = authCode.subject,

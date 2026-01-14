@@ -123,17 +123,19 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
+        val oidcAuthority = oidcService.oidcAuthority(publicBaseUrl)
+        val oidcClientId = oidcService.oidcClientId()
 
         install(ContentNegotiation) { json() }
         install(SSE)
         installCors()
-        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"))
+        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"), oidcAuthority, oidcClientId)
         installJwtSecurity(oidcService)
 
         routing {
 
             installUIStaticResources()
-            installUIHomepage(uiIndexTemplate)
+            installUIHomepage(uiIndexTemplate, oidcAuthority, oidcClientId)
             installUIApis(runtime, actionRegistry)
 
             installActionsApi(restApiDoc, restCommandInvocation, principalFactory)

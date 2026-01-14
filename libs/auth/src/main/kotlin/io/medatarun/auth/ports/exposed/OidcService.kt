@@ -40,7 +40,8 @@ interface OidcService {
     fun oidcToken(oidcTokenReq: OidcTokenRequest): OIDCTokenResponseOrError
 
     fun oidcAuthorizeErrorLocation(resp: OidcAuthorizeResult.RedirectError): String
-
+    fun oidcAuthority(publicBaseUrl: URI): URI
+    fun oidcClientId(): String
 
 
 }

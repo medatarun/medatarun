@@ -10,6 +10,7 @@ import java.net.URI
 interface JwkExternalProviders {
     fun findByIssuer(issuer: String): JwkProvider
     fun findExternalProvider(issuer: String): ExternalOidcProviderConfig
+    fun firstOrNull(): ExternalOidcProviderConfig?
 }
 
 class JwtExternalProvidersEmpty : JwkExternalProviders {
@@ -20,6 +21,10 @@ class JwtExternalProvidersEmpty : JwkExternalProviders {
     override fun findExternalProvider(issuer: String): ExternalOidcProviderConfig {
         throw JwtJwksUnknownExternalProvider(issuer)
     }
+
+    override fun firstOrNull(): ExternalOidcProviderConfig? {
+        return null
+    }
 }
 
 class JwkExternalProvidersImpl(
@@ -27,6 +32,9 @@ class JwkExternalProvidersImpl(
 ) : JwkExternalProviders {
     private val providers: Map<String, JwkProvider> = buildJwkProviders(providersConfigs)
 
+    override fun firstOrNull(): ExternalOidcProviderConfig? {
+        return providersConfigs.providers.firstOrNull()
+    }
 
     override fun findByIssuer(issuer: String): JwkProvider {
         return providers[issuer]

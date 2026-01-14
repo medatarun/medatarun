@@ -458,6 +458,10 @@ class JwtVerifierResolverImplTest {
             }
             return provider
         }
+
+        override fun firstOrNull(): ExternalOidcProviderConfig? {
+            return config.providers.firstOrNull()
+        }
     }
 
     private class MapBackedJwkProvider(
