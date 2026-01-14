@@ -12,6 +12,22 @@ import java.time.Instant
  * or a tool (synonym of "service", "tool" or "service account").
  *
  * Roles in our system are declared on [Actor] (not users).
+ *
+ * Rules:
+ *
+ * - roles: the source of truth is ActorService only (not JWT tokens, not UserService).
+ *   The admin flag of UserService, when changed, provokes a refresh of roles
+ *   here to add/remove the admin role.
+ * - email: the source of truth is only JWT tokens
+ *   (we don't store emails in our internal IdP)
+ * - fullname: the source of truth is only JWT tokens or our internal IdP via UserEvents.
+ *   If an external IdP decides to not send full names in any way, we fall back on "subject"
+ *   because there may be GPDR related considerations behind this decision from the IdP.
+ * - disable/enable (disabledAt instant): it depends of the issuer. The method exists on ActorService
+ *   but it's not ActorService who decides the rules.
+ *   - when issuer is our IdP, then disable/enable is made by an action on UserServce then reflected
+ *     by UserEvents in the matching Actor
+ *   - when issuers is not our IdP, then disable/enable is made directly by using ActorService.
  */
 interface ActorService {
     /**
