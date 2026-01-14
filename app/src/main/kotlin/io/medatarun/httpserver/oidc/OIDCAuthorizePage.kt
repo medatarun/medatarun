@@ -5,7 +5,7 @@ import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
-import io.medatarun.lang.trimToNull
+import io.medatarun.lang.strings.trimToNull
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 

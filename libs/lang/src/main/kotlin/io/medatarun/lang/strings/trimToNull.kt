@@ -1,4 +1,4 @@
-package io.medatarun.lang
+package io.medatarun.lang.strings
 
 fun String?.trimToNull(): String? {
     if (this == null) return null

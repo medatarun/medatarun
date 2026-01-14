@@ -1,7 +1,7 @@
 package io.medatarun.kernel.internal
 
 import io.medatarun.kernel.*
-import io.medatarun.lang.trimToNull
+import io.medatarun.lang.strings.trimToNull
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists

@@ -6,7 +6,7 @@ import io.medatarun.cli.AppCLIUtils.configureCliLogging
 import io.medatarun.cli.AppCLIUtils.isServerMode
 import io.medatarun.config.createConfig
 import io.medatarun.httpserver.AppHttpServer
-import io.medatarun.lang.trimToNull
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import org.slf4j.LoggerFactory
 
