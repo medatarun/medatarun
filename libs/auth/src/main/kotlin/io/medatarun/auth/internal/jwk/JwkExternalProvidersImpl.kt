@@ -79,7 +79,7 @@ class JwkExternalProvidersImpl(
         ): ExternalOidcProvidersConfig {
 
             // The list of providers is explicit to keep configuration simple and avoid parsing JSON.
-            val rawNames = ctx.getConfigProperty("medatarun.auth.oidc.external.names")
+            val rawNames = ctx.getConfigProperty(ConfigProperties.Issuers.key)
                 ?: return ExternalOidcProvidersConfig.empty()
 
             val names = parseCsv(rawNames)
@@ -87,24 +87,24 @@ class JwkExternalProvidersImpl(
                 return ExternalOidcProvidersConfig.empty()
             }
             val durationRaw = ctx.getConfigProperty(
-                "medatarun.auth.oidc.jwkscache.duration",
+                ConfigProperties.JwksCacheDuration.key,
                 ExternalOidcProvidersConfig.DEFAULT_CACHE_DURATION_SECONDS.toString()
             )
             val durationSeconds = durationRaw.toLongOrNull()
                 ?: throw ExternalOidcProviderCacheDurationInvalidException(durationRaw)
             val providers = mutableListOf<ExternalOidcProviderConfig>()
             for (name in names) {
-                val prefix = "medatarun.auth.oidc.external.$name"
-                val issuer = ctx.getConfigProperty("$prefix.issuer")
+
+                val issuer = ctx.getConfigProperty(ConfigProperties.IssuerIssuer.withName(name))
                     ?: throw ExternalOidcProviderMissingConfigException(name, "issuer")
                 if (issuer == internalIssuer) {
                     throw ExternalOidcProviderIssuerConflictException(issuer)
                 }
-                val jwksUri = ctx.getConfigProperty("$prefix.jwksUri")
+                val jwksUri = ctx.getConfigProperty(ConfigProperties.IssuerJWKS.withName(name))
                     ?: throw ExternalOidcProviderMissingConfigException(name, "jwksUri")
-                val audienceRaw = ctx.getConfigProperty("$prefix.audience")
+                val audienceRaw = ctx.getConfigProperty(ConfigProperties.IssuerAudiences.withName(name))
                 val audiences = parseCsv(audienceRaw ?: "")
-                val algsRaw = ctx.getConfigProperty("$prefix.algs", "RS256")
+                val algsRaw = ctx.getConfigProperty(ConfigProperties.IssuerAlgorithms.withName(name), "RS256")
                 val algs = parseCsv(algsRaw)
                 val allowedAlgs = if (algs.isEmpty()) listOf(JwtSupportedAlgorithm.RS256) else algs.map {
                     JwtSupportedAlgorithm.valueOfKey(it)

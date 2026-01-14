@@ -15,15 +15,15 @@ class JwkExternalProvidersImplTest {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to "google, azure",
-                    "medatarun.auth.oidc.jwkscache.duration" to "120",
-                    "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                    "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs",
-                    "medatarun.auth.oidc.external.google.audience" to "client-id-1, client-id-2",
-                    "medatarun.auth.oidc.external.google.algs" to "RS256, ES256",
-                    "medatarun.auth.oidc.external.azure.issuer" to "https://login.microsoftonline.com/common/v2.0",
-                    "medatarun.auth.oidc.external.azure.jwksUri" to "https://login.microsoftonline.com/common/discovery/v2.0/keys",
-                    "medatarun.auth.oidc.external.azure.algs" to ""
+                    ConfigProperties.Issuers.key to "google, azure",
+                    ConfigProperties.JwksCacheDuration.key to "120",
+                    ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                    ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs",
+                    ConfigProperties.IssuerAudiences.withName("google") to "client-id-1, client-id-2",
+                    ConfigProperties.IssuerAlgorithms.withName("google") to "RS256, ES256",
+                    ConfigProperties.IssuerIssuer.withName("azure") to "https://login.microsoftonline.com/common/v2.0",
+                    ConfigProperties.IssuerJWKS.withName("azure") to "https://login.microsoftonline.com/common/discovery/v2.0/keys",
+                    ConfigProperties.IssuerAlgorithms.withName("azure") to ""
                 )
             ),
             "medatarun"
@@ -71,7 +71,7 @@ class JwkExternalProvidersImplTest {
     fun `should return empty providers when names are blank`() {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
-                mapOf("medatarun.auth.oidc.external.names" to " ,  , ")
+                mapOf(ConfigProperties.Issuers.key to " ,  , ")
             ),
             "medatarun"
         )
@@ -88,9 +88,9 @@ class JwkExternalProvidersImplTest {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to "google",
-                    "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                    "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs"
+                    ConfigProperties.Issuers.key to "google",
+                    ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                    ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs"
                 )
             ),
             "medatarun"
@@ -105,10 +105,10 @@ class JwkExternalProvidersImplTest {
             JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
                 MapConfigResolver(
                     mapOf(
-                        "medatarun.auth.oidc.external.names" to "google",
-                        "medatarun.auth.oidc.jwkscache.duration" to "not-a-number",
-                        "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                        "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs"
+                        ConfigProperties.Issuers.key to "google",
+                        ConfigProperties.JwksCacheDuration.key to "not-a-number",
+                        ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                        ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs"
                     )
                 ),
                 "medatarun"
@@ -122,9 +122,9 @@ class JwkExternalProvidersImplTest {
             JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
                 MapConfigResolver(
                     mapOf(
-                        "medatarun.auth.oidc.external.names" to "internal",
-                        "medatarun.auth.oidc.external.internal.issuer" to "medatarun",
-                        "medatarun.auth.oidc.external.internal.jwksUri" to "https://issuer.example/jwks"
+                        ConfigProperties.Issuers.key to "internal",
+                        ConfigProperties.IssuerIssuer.withName("internal") to "medatarun",
+                        ConfigProperties.IssuerJWKS.withName("internal") to "https://issuer.example/jwks"
                     )
                 ),
                 "medatarun"
@@ -138,8 +138,8 @@ class JwkExternalProvidersImplTest {
             JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
                 MapConfigResolver(
                     mapOf(
-                        "medatarun.auth.oidc.external.names" to "google",
-                        "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs"
+                        ConfigProperties.Issuers.key to "google",
+                        ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs"
                     )
                 ),
                 "medatarun"
@@ -153,8 +153,8 @@ class JwkExternalProvidersImplTest {
             JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
                 MapConfigResolver(
                     mapOf(
-                        "medatarun.auth.oidc.external.names" to "google",
-                        "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com"
+                        ConfigProperties.Issuers.key to "google",
+                        ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com"
                     )
                 ),
                 "medatarun"
@@ -168,10 +168,10 @@ class JwkExternalProvidersImplTest {
             JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
                 MapConfigResolver(
                     mapOf(
-                        "medatarun.auth.oidc.external.names" to "google",
-                        "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                        "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs",
-                        "medatarun.auth.oidc.external.google.algs" to "RS256, HS256"
+                        ConfigProperties.Issuers.key to "google",
+                        ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                        ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs",
+                        ConfigProperties.IssuerAlgorithms.withName("google") to "RS256, HS256"
                     )
                 ),
                 "medatarun"
@@ -184,13 +184,13 @@ class JwkExternalProvidersImplTest {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to " google, azure, ",
-                    "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                    "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs",
-                    "medatarun.auth.oidc.external.google.audience" to " audience-1, , audience-2, ",
-                    "medatarun.auth.oidc.external.google.algs" to " RS256, ES256, ",
-                    "medatarun.auth.oidc.external.azure.issuer" to "https://login.microsoftonline.com/common/v2.0",
-                    "medatarun.auth.oidc.external.azure.jwksUri" to "https://login.microsoftonline.com/common/discovery/v2.0/keys"
+                    ConfigProperties.Issuers.key to " google, azure, ",
+                    ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                    ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs",
+                    ConfigProperties.IssuerAudiences.withName("google") to " audience-1, , audience-2, ",
+                    ConfigProperties.IssuerAlgorithms.withName("google") to " RS256, ES256, ",
+                    ConfigProperties.IssuerIssuer.withName("azure") to "https://login.microsoftonline.com/common/v2.0",
+                    ConfigProperties.IssuerJWKS.withName("azure") to "https://login.microsoftonline.com/common/discovery/v2.0/keys"
                 )
             ),
             "medatarun"
@@ -215,12 +215,12 @@ class JwkExternalProvidersImplTest {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to "google, azure",
-                    "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                    "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs",
-                    "medatarun.auth.oidc.external.azure.issuer" to "https://login.microsoftonline.com/common/v2.0",
-                    "medatarun.auth.oidc.external.azure.jwksUri" to "https://login.microsoftonline.com/common/discovery/v2.0/keys",
-                    "medatarun.auth.oidc.external.azure.algs" to ""
+                    ConfigProperties.Issuers.key to "google, azure",
+                    ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                    ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs",
+                    ConfigProperties.IssuerIssuer.withName("azure") to "https://login.microsoftonline.com/common/v2.0",
+                    ConfigProperties.IssuerJWKS.withName("azure") to "https://login.microsoftonline.com/common/discovery/v2.0/keys",
+                    ConfigProperties.IssuerAlgorithms.withName("azure") to ""
                 )
             ),
             "medatarun"
@@ -238,9 +238,9 @@ class JwkExternalProvidersImplTest {
         val providers = JwkExternalProvidersImpl.createJwtExternalProvidersFromConfigProperties(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to "google",
-                    "medatarun.auth.oidc.external.google.issuer" to "https://accounts.google.com",
-                    "medatarun.auth.oidc.external.google.jwksUri" to "https://www.googleapis.com/oauth2/v3/certs"
+                    ConfigProperties.Issuers.key to "google",
+                    ConfigProperties.IssuerIssuer.withName("google") to "https://accounts.google.com",
+                    ConfigProperties.IssuerJWKS.withName("google") to "https://www.googleapis.com/oauth2/v3/certs"
                 )
             ),
             "medatarun"

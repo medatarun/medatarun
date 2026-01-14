@@ -314,11 +314,11 @@ class JwtVerifierResolverImplTest {
         val config = JwkExternalProvidersImpl.createConfig(
             MapConfigResolver(
                 mapOf(
-                    "medatarun.auth.oidc.external.names" to "external",
-                    "medatarun.auth.oidc.external.external.issuer" to externalIssuer,
-                    "medatarun.auth.oidc.external.external.jwksUri" to jwksUri,
-                    "medatarun.auth.oidc.external.external.audience" to externalAudience,
-                    "medatarun.auth.oidc.external.external.algs" to allowedAlgs
+                    ConfigProperties.Issuers.key to "external",
+                    ConfigProperties.IssuerIssuer.withName("external") to externalIssuer,
+                    ConfigProperties.IssuerJWKS.withName("external") to jwksUri,
+                    ConfigProperties.IssuerAudiences.withName("external") to externalAudience,
+                    ConfigProperties.IssuerAlgorithms.withName("external") to allowedAlgs
                 )
             ),
             internalIssuer
