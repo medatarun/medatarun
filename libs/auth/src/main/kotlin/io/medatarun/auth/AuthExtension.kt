@@ -171,9 +171,8 @@ class AuthExtension() : MedatarunExtension {
             clock = authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalOidcProviders = JwkExternalProvidersImpl(
-                createJwtExternalProvidersFromConfigProperties(object :
-                    JwkExternalProvidersImpl.Companion.ConfigResolver {
+            externalOidcProviders = createJwtExternalProvidersFromConfigProperties(
+                object : JwkExternalProvidersImpl.Companion.ConfigResolver {
                     override fun getConfigProperty(key: String, defaultValue: String): String {
                         return ctx.getConfigProperty(key, defaultValue = defaultValue)
                     }
@@ -182,8 +181,9 @@ class AuthExtension() : MedatarunExtension {
                         return ctx.getConfigProperty(key)
                     }
 
-                }, jwtCfg.issuer)
+                }, jwtCfg.issuer
             )
+
         )
 
         ctx.register(UserService::class, userService)

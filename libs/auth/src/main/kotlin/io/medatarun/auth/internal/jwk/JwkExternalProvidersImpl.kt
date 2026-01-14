@@ -66,14 +66,15 @@ class JwkExternalProvidersImpl(
         fun createJwtExternalProvidersFromConfigProperties(
             ctx: ConfigResolver,
             internalIssuer: String
-        ): ExternalOidcProvidersConfig {
+        ): JwkExternalProviders {
 
             // The list of providers is explicit to keep configuration simple and avoid parsing JSON.
-            val rawNames =
-                ctx.getConfigProperty("medatarun.auth.oidc.external.names") ?: return ExternalOidcProvidersConfig.empty()
+            val rawNames = ctx.getConfigProperty("medatarun.auth.oidc.external.names")
+                ?: return JwtExternalProvidersEmpty()
+
             val names = parseCsv(rawNames)
             if (names.isEmpty()) {
-                return ExternalOidcProvidersConfig.empty()
+                return JwtExternalProvidersEmpty()
             }
             val durationRaw = ctx.getConfigProperty(
                 "medatarun.auth.oidc.jwkscache.duration",
@@ -96,7 +97,7 @@ class JwkExternalProvidersImpl(
                 val algsRaw = ctx.getConfigProperty("$prefix.algs", "RS256")
                 val algs = parseCsv(algsRaw)
                 val allowedAlgs = if (algs.isEmpty()) listOf(JwtSupportedAlgorithm.RS256) else algs.map {
-                    JwtSupportedAlgorithm.Companion.valueOfKey(it)
+                    JwtSupportedAlgorithm.valueOfKey(it)
                 }
                 providers.add(
                     ExternalOidcProviderConfig(
@@ -108,7 +109,7 @@ class JwkExternalProvidersImpl(
                     )
                 )
             }
-            return ExternalOidcProvidersConfig(providers, durationSeconds)
+            return JwkExternalProvidersImpl(ExternalOidcProvidersConfig(providers, durationSeconds))
         }
 
         private fun parseCsv(value: String): List<String> {
