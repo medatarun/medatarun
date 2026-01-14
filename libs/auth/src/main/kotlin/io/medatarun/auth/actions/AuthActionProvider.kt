@@ -44,8 +44,8 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
             is AuthAction.ActorList -> launcher.listActors(cmd)
             is AuthAction.ActorGet -> launcher.getActor(cmd)
             is AuthAction.ActorSetRoles -> launcher.setActorRoles(cmd)
-            is AuthAction.DisableActor -> launcher.disableActor(cmd)
-            is AuthAction.EnableActor -> launcher.enableActor(cmd)
+            is AuthAction.ActorDisable -> launcher.disableActor(cmd)
+            is AuthAction.ActorEnable -> launcher.enableActor(cmd)
         }
     }
 
@@ -150,12 +150,22 @@ class AuthEmbeddedActionsLauncher(
     }
 
 
-    fun disableActor(cmd: AuthAction.DisableActor) {
-        actorService.disable(cmd.actorId, cmd.date ?: Instant.now())
+    fun disableActor(cmd: AuthAction.ActorDisable) {
+        val actor = actorService.findById(cmd.actorId)
+        if (actor.issuer == oidcService.oidcIssuer()) {
+            userService.disableUser(Username(actor.subject).validate())
+        } else {
+            actorService.disable(actor.id, Instant.now())
+        }
     }
 
-    fun enableActor(cmd: AuthAction.EnableActor) {
-        actorService.disable(cmd.actorId, null)
+    fun enableActor(cmd: AuthAction.ActorEnable) {
+        val actor = actorService.findById(cmd.actorId)
+        if (actor.issuer == oidcService.oidcIssuer()) {
+            userService.enableUser(Username(actor.subject).validate())
+        } else {
+            actorService.disable(actor.id, null)
+        }
     }
 
     private fun toActorInfo(actor: Actor): ActorInfoDto {

@@ -18,7 +18,8 @@ interface UserStorage {
 
     fun updatePassword(login: Username, newPassword: PasswordHash)
 
-    fun disable(login: Username, at: Instant = Instant.now())
+    fun disable(login: Username, at: Instant)
+    fun enable(login: Username)
     fun updateFullname(username: Username, fullname: Fullname)
 
 

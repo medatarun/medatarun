@@ -234,6 +234,74 @@ class AuthActionsTest {
     }
 
     @Test
+    fun `actor disable uses user service for internal issuer`() {
+        val env = AuthActionEnvTest()
+        val username = Username("jane.doe")
+        val password = PasswordClear("jane.doe.0123456789")
+        val fullname = Fullname("Jane Doe")
+        env.asAdmin()
+        env.dispatch(
+            AuthAction.UserCreate(
+                username = username,
+                password = password,
+                fullname = fullname,
+                admin = false
+            )
+        )
+
+        val actor = env.env.actorService.findByIssuerAndSubjectOptional(
+            env.env.oidcService.oidcIssuer(),
+            username.value
+        )
+        assertNotNull(actor)
+
+        env.dispatch(AuthAction.ActorDisable(actor.id))
+
+        env.logout()
+        assertThrows<AuthUnauthorizedException> {
+            env.dispatch(AuthAction.Login(username, password))
+        }
+
+        val actorDisabled =
+            env.env.actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), username.value)
+        assertTrue(actorDisabled?.disabledDate != null)
+
+        env.dispatch(AuthAction.ActorEnable(actor.id))
+
+        assertDoesNotThrow {
+            env.dispatch(AuthAction.Login(username, password))
+        }
+
+        val actorEnabled =
+            env.env.actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), username.value)
+        assertNotNull(actorEnabled)
+        assertEquals(null, actorEnabled.disabledDate)
+    }
+
+    @Test
+    fun `actor disable uses actor service for external issuer`() {
+        val env = AuthActionEnvTest()
+        env.asAdmin()
+        val issuer = "https://example.com/oidc"
+        val subject = "external.user"
+        env.env.actorService.syncFromJwtExternalPrincipal(createActorJwt(issuer, subject))
+        val actor = env.env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
+        assertNotNull(actor)
+
+        env.dispatch(AuthAction.ActorDisable(actor.id))
+
+        val actorDisabled = env.env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
+        assertNotNull(actorDisabled)
+        assertTrue(actorDisabled.disabledDate != null)
+
+        env.dispatch(AuthAction.ActorEnable(actor.id))
+
+        val actorEnabled = env.env.actorService.findByIssuerAndSubjectOptional(issuer, subject)
+        assertNotNull(actorEnabled)
+        assertEquals(null, actorEnabled.disabledDate)
+    }
+
+    @Test
     fun `change user full name`() {
         val env = AuthActionEnvTest()
         val username = Username("john.doe")
@@ -400,15 +468,5 @@ class AuthActionsTest {
     // ------------------------------------------------------------------------
     // Actions on actors only
     // ------------------------------------------------------------------------
-
-    // TODO actor_disable
-    //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
-    //      remember: if actor is disabled, the if there is a matching user it must be disabled too
-    //      disabling an actor is removing its capacity to use our own app and may not come from JWT
-
-    // TODO actor_enable
-    //      route depends on issuer, if issuer internal, then disable is made on user, else only on actors
-    //      remember: if actor is disabled, the if there is a matching user it must be enabled too
-    //      disabling an actor is removing its capacity to use our own app and may not come from JWT
 
 }

@@ -7,7 +7,6 @@ import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import java.time.Instant
 
 sealed interface AuthAction<R> {
 
@@ -245,35 +244,29 @@ sealed interface AuthAction<R> {
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="disable_actor",
+        key="actor_disable",
         title="Disable actor",
         description = "Disable an actor. Only available for admins.",
         uiLocation = "",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class DisableActor(
+    class ActorDisable(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",
             order = 1
         )
-        val actorId: ActorId,
-        @ActionParamDoc(
-            name = "date",
-            description = "Disabled date. If not provided, will be the current instant.",
-            order = 1
-        )
-        val date: Instant? = null
+        val actorId: ActorId
     ): AuthAction<Unit>
 
     @ActionDoc(
-        key="enable_actor",
+        key="actor_enable",
         title="Enable actor",
         description = "Enable an actor. Only available for admins.",
         uiLocation = "",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class EnableActor(
+    class ActorEnable(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",

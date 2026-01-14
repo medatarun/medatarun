@@ -13,6 +13,7 @@ interface UserService {
     fun changeOwnPassword(username: Username, oldPassword: PasswordClear, newPassword: PasswordClear)
     fun changeUserPassword(login: Username, newPassword: PasswordClear)
     fun disableUser(username: Username)
+    fun enableUser(username: Username)
     fun changeUserFullname(username: Username, fullname: Fullname)
     fun loginUser(username: Username, password: PasswordClear): User
 

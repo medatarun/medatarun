@@ -90,6 +90,17 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
+    override fun enable(login: Username) {
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement(
+                "UPDATE users SET disabled_date = NULL WHERE login = ?"
+            ).use { ps ->
+                ps.setString(1, login.value)
+                ps.executeUpdate()
+            }
+        }
+    }
+
     override fun updateFullname(username: Username, fullname: Fullname) {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->

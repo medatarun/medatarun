@@ -104,6 +104,14 @@ class UserServiceImpl(
         }
     }
 
+    override fun enableUser(username: Username) {
+        val user = userStorage.findByLogin(username)
+        userStorage.enable(username)
+        if (user != null) {
+            userEvents.fire(UserEventDisabledChanged(user.username, null))
+        }
+    }
+
     override fun changeUserFullname(username: Username, fullname: Fullname) {
         val user = userStorage.findByLogin(username) ?: throw UserNotFoundException()
         userStorage.updateFullname(username, fullname)
