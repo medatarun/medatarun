@@ -59,7 +59,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                     passwordHash = PasswordHash(rs.getString("password_hash")),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,
-                    disabledDate = InstantSql.fromSql(rs, "disabled_date")
+                    disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date")
                 )
             }
         }

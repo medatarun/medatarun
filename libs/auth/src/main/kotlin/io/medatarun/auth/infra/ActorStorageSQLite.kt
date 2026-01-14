@@ -180,7 +180,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             fullname = rs.getString("full_name"),
             email = rs.getString("email"),
             roles = decodeRoles(rolesJson),
-            disabledDate = InstantSql.fromSql(rs, "disabled_date"),
+            disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date"),
             createdAt = InstantSql.fromSqlRequired(rs, "created_at"),
             lastSeenAt = InstantSql.fromSqlRequired(rs, "last_seen_at")
         )

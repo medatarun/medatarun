@@ -22,7 +22,7 @@ class InstantSqlTest {
     fun fromSqlReturnsNullWhenColumnIsNull() {
         val holder = createResultSetWithValue(null)
         try {
-            assertNull(InstantSql.fromSql(holder.resultSet, "instant_value"))
+            assertNull(InstantSql.fromSqlOptional(holder.resultSet, "instant_value"))
         } finally {
             holder.close()
         }

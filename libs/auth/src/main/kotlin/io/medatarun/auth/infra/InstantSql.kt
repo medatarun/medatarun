@@ -7,7 +7,7 @@ import java.time.format.DateTimeParseException
 
 object InstantSql {
 
-    fun fromSql(rs: ResultSet, column: String): Instant? {
+    fun fromSqlOptional(rs: ResultSet, column: String): Instant? {
         val rawValue = rs.getString(column) ?: return null
         return parseValue(rawValue, column)
     }
