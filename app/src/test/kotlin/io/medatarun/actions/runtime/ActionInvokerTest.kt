@@ -221,6 +221,21 @@ class ActionInvokerTest {
     }
 
     @Test
+    fun `type validation error returns bad request with details`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("TOOLONG"))
+        }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke("abbreviation", payload)
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, ex.status)
+        assertEquals("Abbreviation must be at most 4 chars", ex.payload["details"])
+    }
+
+    @Test
     fun `complex object parameters are converted`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
@@ -321,7 +336,10 @@ class ActionInvokerTest {
         evaluators: List<SecurityRuleEvaluator> = listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
     ) {
         private val actionTypesRegistry = ActionTypesRegistry(
-            listOf<TypeDescriptor<*>>(ComplexPayloadTypeDescriptor)
+            listOf<TypeDescriptor<*>>(
+                ComplexPayloadTypeDescriptor,
+                AbbreviationTypeDescriptor
+            )
         )
         private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(evaluators)
         private val actionRegistry = ActionRegistry(
@@ -495,6 +513,22 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
+            key = "abbreviation",
+            title = "Abbreviation",
+            description = "Action with validated abbreviation",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithAbbreviation(
+            @ActionParamDoc(
+                name = "value",
+                description = "Abbreviation value",
+                order = 1
+            )
+            val value: Abbreviation
+        ) : TestAction
+
+        @ActionDoc(
             key = "complex",
             title = "Complex",
             description = "Action with complex payload",
@@ -528,6 +562,25 @@ class ActionInvokerTest {
             return value
         }
     }
+
+    @JvmInline
+    value class Abbreviation(val value: String)
+
+    private object AbbreviationTypeDescriptor : TypeDescriptor<Abbreviation> {
+        override val target: KClass<Abbreviation> = Abbreviation::class
+        override val equivMultiplatorm: String = "Abbreviation"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+
+        override fun validate(value: Abbreviation): Abbreviation {
+            if (value.value.length > 4) {
+                throw AbbreviationTooLongException()
+            }
+            return value
+        }
+    }
+
+    private class AbbreviationTooLongException :
+        MedatarunException("Abbreviation must be at most 4 chars")
 
     private class TestActionProvider : ActionProvider<TestAction> {
         override val actionGroupKey: String = "test"
