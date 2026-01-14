@@ -6,6 +6,7 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.UserNotFoundException
+import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
@@ -41,6 +42,7 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
             is AuthAction.UserDisable -> launcher.disableUser(cmd)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(cmd)
             is AuthAction.ActorList -> launcher.listActors(cmd)
+            is AuthAction.ActorGet -> launcher.getActor(cmd)
             is AuthAction.ActorSetRoles -> launcher.setActorRoles(cmd)
             is AuthAction.DisableActor -> launcher.disableActor(cmd)
             is AuthAction.EnableActor -> launcher.enableActor(cmd)
@@ -136,19 +138,11 @@ class AuthEmbeddedActionsLauncher(
 
 
     fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ActorList): List<ActorInfoDto> {
-        return actorService.listActors().map { actor ->
-            ActorInfoDto(
-                id = actor.id.value.toString(),
-                issuer = actor.issuer,
-                subject = actor.subject,
-                fullname = actor.fullname,
-                email = actor.email,
-                roles = actor.roles.map { it.key },
-                disabledAt = actor.disabledDate?.toString(),
-                createdAt = actor.createdAt,
-                lastSeenAt = actor.lastSeenAt
-            )
-        }
+        return actorService.listActors().map { actor -> toActorInfo(actor) }
+    }
+
+    fun getActor(cmd: AuthAction.ActorGet): ActorInfoDto {
+        return toActorInfo(actorService.findById(cmd.actorId))
     }
 
     fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
@@ -164,5 +158,18 @@ class AuthEmbeddedActionsLauncher(
         actorService.disable(cmd.actorId, null)
     }
 
+    private fun toActorInfo(actor: Actor): ActorInfoDto {
+        return ActorInfoDto(
+            id = actor.id.value.toString(),
+            issuer = actor.issuer,
+            subject = actor.subject,
+            fullname = actor.fullname,
+            email = actor.email,
+            roles = actor.roles.map { it.key },
+            disabledAt = actor.disabledDate?.toString(),
+            createdAt = actor.createdAt,
+            lastSeenAt = actor.lastSeenAt
+        )
+    }
 
 }

@@ -35,6 +35,11 @@ interface ActorService {
     fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor?
 
     /**
+     * Finds an actor based on its unique identifier
+     */
+    fun findById(actorId: ActorId): Actor
+
+    /**
      * Lists all actors currently known
      */
     fun listActors(): List<Actor>

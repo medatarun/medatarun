@@ -24,6 +24,7 @@ interface ActorStorage {
         fullname: String,
         email: String?,
         roles: List<ActorRole>,
+        disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
     )

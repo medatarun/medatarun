@@ -33,6 +33,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         fullname: String,
         email: String?,
         roles: List<ActorRole>,
+        disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
     ) {
@@ -59,7 +60,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 ps.setString(4, fullname)
                 ps.setString(5, email)
                 ps.setString(6, encodeRoles(roles))
-                ps.setString(7, null)
+                ps.setString(7, disabled?.toString())
                 ps.setString(8, createdAt.toString())
                 ps.setString(9, lastSeenAt.toString())
                 ps.executeUpdate()

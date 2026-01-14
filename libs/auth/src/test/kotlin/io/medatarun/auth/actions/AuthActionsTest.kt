@@ -324,6 +324,33 @@ class AuthActionsTest {
     }
 
     @Test
+    fun actorGet() {
+        val env = AuthActionEnvTest()
+        env.asAdmin()
+
+        env.dispatch(
+            AuthAction.UserCreate(
+                username = Username("jane.doe"),
+                password = PasswordClear("jane.doe.0123456789"),
+                fullname = Fullname("Jane Doe"),
+                admin = false
+            )
+        )
+
+        val actor = env.env.actorService.findByIssuerAndSubjectOptional(
+            env.env.oidcService.oidcIssuer(),
+            "jane.doe"
+        )
+        assertNotNull(actor)
+
+        val actorInfo: ActorInfoDto = env.dispatch(AuthAction.ActorGet(actor.id))
+        assertEquals(actor.id.value.toString(), actorInfo.id)
+        assertEquals("jane.doe", actorInfo.subject)
+        assertEquals("Jane Doe", actorInfo.fullname)
+        assertEquals(env.env.oidcService.oidcIssuer(), actorInfo.issuer)
+    }
+
+    @Test
     fun changeRolesOnActor() {
         val env = AuthActionEnvTest(otherRoles = setOf("ROLE1", "ROLE2"))
         env.asAdmin()

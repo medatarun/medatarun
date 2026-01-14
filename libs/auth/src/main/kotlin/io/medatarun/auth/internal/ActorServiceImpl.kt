@@ -68,6 +68,7 @@ class ActorServiceImpl(
         roles: List<ActorRole>,
         disabled: Instant?
     ): Actor {
+        ensureRolesExist(roles)
         val id = ActorId(UUID.randomUUID())
         actorStorage.insert(
             id = id,
@@ -76,6 +77,7 @@ class ActorServiceImpl(
             fullname = fullname,
             email = email,
             roles = roles,
+            disabled = disabled,
             createdAt = clock.now(),
             lastSeenAt = clock.now()
         )
@@ -89,6 +91,10 @@ class ActorServiceImpl(
 
     override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
         return actorStorage.findByIssuerAndSubjectOptional(issuer, subject)
+    }
+
+    override fun findById(actorId: ActorId): Actor {
+        return actorStorage.findById(actorId)
     }
 
     override fun setRoles(actorId: ActorId, roles: List<ActorRole>) {

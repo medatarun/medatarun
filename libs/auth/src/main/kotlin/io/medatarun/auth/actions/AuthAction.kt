@@ -207,6 +207,22 @@ sealed interface AuthAction<R> {
     class ActorList(): AuthAction<List<ActorInfoDto>>
 
     @ActionDoc(
+        key="actor_get",
+        title="Get actor",
+        description = "Get an actor by identifier. Only available for admins.",
+        uiLocation = "",
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class ActorGet(
+        @ActionParamDoc(
+            name = "actorId",
+            description = "Actor identifier",
+            order = 1
+        )
+        val actorId: ActorId
+    ): AuthAction<ActorInfoDto>
+
+    @ActionDoc(
         key="actor_set_roles",
         title="Set actor roles",
         description = "Replace roles for an actor. Only available for admins.",
