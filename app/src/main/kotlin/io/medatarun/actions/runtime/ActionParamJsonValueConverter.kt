@@ -2,6 +2,7 @@ package io.medatarun.actions.runtime
 
 import io.ktor.http.*
 import kotlinx.serialization.json.*
+import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -26,6 +27,7 @@ class ActionParamJsonValueConverter {
 
         return when {
             classifier == List::class -> convertList(raw, type)
+            classifier == Map::class -> convertMap(raw, type)
             else -> convertScalar(raw, type)
         }
 
@@ -68,16 +70,22 @@ class ActionParamJsonValueConverter {
                     onFailure = { ConversionResult.Error("Parameter expecting Int cannot parse value '$raw'") }
                 )
 
-            Boolean::class -> runCatching { ConversionResult.Value(raw.jsonPrimitive.boolean) }
+            Boolean::class -> runCatching { raw.jsonPrimitive.boolean }
                 .fold(
                     onSuccess = { ConversionResult.Value(it) },
                     onFailure = { ConversionResult.Error("Parameter expecting Boolean cannot parse value '$raw'") }
                 )
 
-            String::class -> runCatching { ConversionResult.Value(raw.jsonPrimitive.content) }
+            String::class -> runCatching { raw.jsonPrimitive.content }
                 .fold(
                     onSuccess = { ConversionResult.Value(it) },
                     onFailure = { ConversionResult.Error("Parameter expecting String cannot parse value '$raw'") }
+                )
+
+            BigDecimal::class -> runCatching { BigDecimal(raw.jsonPrimitive.content) }
+                .fold(
+                    onSuccess = { ConversionResult.Value(it) },
+                    onFailure = { ConversionResult.Error("Parameter expecting BigDecimal cannot parse value '$raw'") }
                 )
 
             UUID::class -> runCatching { UUID.fromString(raw.jsonPrimitive.content) }
@@ -102,6 +110,37 @@ class ActionParamJsonValueConverter {
 
         }
         return result
+    }
+
+    fun convertMap(raw: JsonElement, type: KType): ConversionResult {
+        val keyType = type.arguments.getOrNull(0)?.type
+            ?: throw ActionInvocationException(
+                HttpStatusCode.InternalServerError,
+                "Map type has no key generic argument"
+            )
+        val valueType = type.arguments.getOrNull(1)?.type
+            ?: throw ActionInvocationException(
+                HttpStatusCode.InternalServerError,
+                "Map type has no value generic argument"
+            )
+
+        val obj = raw as? JsonObject
+            ?: return ConversionResult.Error("Expected JSON object but got $raw")
+
+        val values = mutableMapOf<Any?, Any?>()
+        for (entry in obj) {
+            val keyElement = JsonPrimitive(entry.key)
+            val convertedKey = convert(keyElement, keyType)
+            val convertedValue = convert(entry.value, valueType)
+            when {
+                convertedKey is ConversionResult.Error -> return convertedKey
+                convertedValue is ConversionResult.Error -> return convertedValue
+                convertedKey is ConversionResult.Value && convertedValue is ConversionResult.Value -> {
+                    values[convertedKey.value] = convertedValue.value
+                }
+            }
+        }
+        return ConversionResult.Value(values)
     }
 
     private fun convertValueClass(

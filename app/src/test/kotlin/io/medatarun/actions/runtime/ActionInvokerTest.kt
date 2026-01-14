@@ -1,0 +1,445 @@
+package io.medatarun.actions.runtime
+
+import io.ktor.http.*
+import io.medatarun.actions.ports.needs.*
+import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.model.domain.MedatarunException
+import io.medatarun.security.AppPrincipal
+import io.medatarun.security.SecurityRuleCtx
+import io.medatarun.security.SecurityRuleEvaluator
+import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.types.JsonTypeEquiv
+import io.medatarun.types.TypeDescriptor
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.assertThrows
+import java.math.BigDecimal
+import kotlin.reflect.KClass
+import kotlin.test.Test
+
+class ActionInvokerTest {
+
+    @Test
+    fun `dispatch uses the action class resolved from json`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("name", JsonPrimitive("alpha"))
+            put("count", JsonPrimitive(2))
+        }
+
+        val result = runtime.invoke("alpha", payload)
+
+        assertEquals("ok", result)
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.Alpha)
+        val alpha = cmd as TestAction.Alpha
+        assertEquals("alpha", alpha.name)
+        assertEquals(2, alpha.count)
+        assertEquals(null, alpha.note)
+        assertNotNull(runtime.lastActionCtx())
+    }
+
+    @Test
+    fun `optional params are respected when provided`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("name", JsonPrimitive("alpha"))
+            put("count", JsonPrimitive(2))
+            put("note", JsonPrimitive("memo"))
+        }
+
+        runtime.invoke("alpha", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.Alpha)
+        val alpha = cmd as TestAction.Alpha
+        assertEquals("memo", alpha.note)
+    }
+
+    @Test
+    fun `list and map parameters are converted`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("names", buildJsonArray {
+                add(JsonPrimitive("alpha"))
+                add(JsonPrimitive("beta"))
+            })
+            put("counts", buildJsonObject {
+                put("alpha", JsonPrimitive(1))
+                put("beta", JsonPrimitive(2))
+            })
+        }
+
+        runtime.invoke("collections", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithCollections)
+        val collections = cmd as TestAction.WithCollections
+        assertEquals(listOf("alpha", "beta"), collections.names)
+        assertEquals(mapOf("alpha" to 1, "beta" to 2), collections.counts)
+    }
+
+    @Test
+    fun `big decimal parameters are converted from string`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("price", JsonPrimitive("12.50"))
+        }
+
+        runtime.invoke("decimal", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithDecimal)
+        val decimal = cmd as TestAction.WithDecimal
+        assertEquals(0, BigDecimal("12.50").compareTo(decimal.price))
+    }
+
+    @Test
+    fun `big decimal parameters are converted from number`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("price", JsonPrimitive(12.50))
+        }
+
+        runtime.invoke("decimal", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithDecimal)
+        val decimal = cmd as TestAction.WithDecimal
+        assertEquals(0, BigDecimal("12.5").compareTo(decimal.price))
+    }
+
+    @Test
+    fun `complex object parameters are converted`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("payload", buildJsonObject {
+                put("name", JsonPrimitive("pack"))
+                put("amount", JsonPrimitive("9.99"))
+                put("tags", buildJsonArray {
+                    add(JsonPrimitive("t1"))
+                    add(JsonPrimitive("t2"))
+                })
+                put("meta", buildJsonObject {
+                    put("a", JsonPrimitive(7))
+                    put("b", JsonPrimitive(8))
+                })
+                put("note", JsonPrimitive("note"))
+            })
+        }
+
+        runtime.invoke("complex", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithComplex)
+        val complex = cmd as TestAction.WithComplex
+        assertEquals("pack", complex.payload.name)
+        assertEquals(0, BigDecimal("9.99").compareTo(complex.payload.amount))
+        assertEquals(listOf("t1", "t2"), complex.payload.tags)
+        assertEquals(mapOf("a" to 7, "b" to 8), complex.payload.meta)
+        assertEquals("note", complex.payload.note)
+    }
+
+    @Test
+    fun `unknown action group throws not found`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invokeWithGroup("missing", "alpha", payload)
+        }
+
+        assertEquals(HttpStatusCode.NotFound, ex.status)
+    }
+
+    @Test
+    fun `unknown action key throws not found`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke("missing", payload)
+        }
+
+        assertEquals(HttpStatusCode.NotFound, ex.status)
+    }
+
+    @Test
+    fun `security rule error returns unauthorized`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke("denied", payload)
+        }
+
+        assertEquals(HttpStatusCode.Unauthorized, ex.status)
+    }
+
+    @Test
+    fun `missing required param is rejected`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("name", JsonPrimitive("alpha"))
+        }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke("alpha", payload)
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, ex.status)
+    }
+
+    @Test
+    fun `invalid parameter type is rejected`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("name", JsonPrimitive("alpha"))
+            put("count", JsonPrimitive("wrong"))
+        }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke("alpha", payload)
+        }
+
+        assertEquals(HttpStatusCode.BadRequest, ex.status)
+    }
+
+    private class TestRuntime(
+        private val actionProvider: TestActionProvider = TestActionProvider(),
+        evaluators: List<SecurityRuleEvaluator> = listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
+    ) {
+        private val actionTypesRegistry = ActionTypesRegistry(
+            listOf<TypeDescriptor<*>>(ComplexPayloadTypeDescriptor)
+        )
+        private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(evaluators)
+        private val actionRegistry = ActionRegistry(
+            actionSecurityRuleEvaluators,
+            actionTypesRegistry,
+            listOf(actionProvider)
+        )
+        private val actionInvoker = ActionInvoker(
+            actionRegistry,
+            actionTypesRegistry,
+            actionSecurityRuleEvaluators
+        )
+        private val actionCtx = TestActionCtx()
+
+        fun invoke(actionKey: String, payload: JsonObject): Any? {
+            return invokeWithGroup(actionProvider.actionGroupKey, actionKey, payload)
+        }
+
+        fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
+            val request = ActionRequest(actionGroupKey, actionKey, payload)
+            return actionInvoker.handleInvocation(request, actionCtx)
+        }
+
+        fun lastCommand(): TestAction? {
+            return actionProvider.lastCommand
+        }
+
+        fun lastActionCtx(): ActionCtx? {
+            return actionProvider.lastActionCtx
+        }
+    }
+
+    private sealed interface TestAction {
+        @ActionDoc(
+            key = "alpha",
+            title = "Alpha",
+            description = "Test action",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class Alpha(
+            @ActionParamDoc(
+                name = "name",
+                description = "Action name",
+                order = 1
+            )
+            val name: String,
+            @ActionParamDoc(
+                name = "count",
+                description = "Action count",
+                order = 2
+            )
+            val count: Int,
+            @ActionParamDoc(
+                name = "note",
+                description = "Optional note",
+                order = 3
+            )
+            val note: String? = null
+        ) : TestAction
+
+        @ActionDoc(
+            key = "denied",
+            title = "Denied",
+            description = "Action denied by security",
+            uiLocation = "",
+            securityRule = RuleDeny
+        )
+        class Denied : TestAction
+
+        @ActionDoc(
+            key = "collections",
+            title = "Collections",
+            description = "Action with list and map",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithCollections(
+            @ActionParamDoc(
+                name = "names",
+                description = "Names list",
+                order = 1
+            )
+            val names: List<String>,
+            @ActionParamDoc(
+                name = "counts",
+                description = "Counts map",
+                order = 2
+            )
+            val counts: Map<String, Int>
+        ) : TestAction
+
+        @ActionDoc(
+            key = "decimal",
+            title = "Decimal",
+            description = "Action with BigDecimal",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithDecimal(
+            @ActionParamDoc(
+                name = "price",
+                description = "Price",
+                order = 1
+            )
+            val price: BigDecimal
+        ) : TestAction
+
+        @ActionDoc(
+            key = "complex",
+            title = "Complex",
+            description = "Action with complex payload",
+            uiLocation = "",
+            securityRule = RuleAllow
+        )
+        class WithComplex(
+            @ActionParamDoc(
+                name = "payload",
+                description = "Payload",
+                order = 1
+            )
+            val payload: ComplexPayload
+        ) : TestAction
+    }
+
+    data class ComplexPayload(
+        val name: String,
+        val amount: BigDecimal,
+        val tags: List<String>,
+        val meta: Map<String, Int>,
+        val note: String? = null
+    )
+
+    private object ComplexPayloadTypeDescriptor : TypeDescriptor<ComplexPayload> {
+        override val target: KClass<ComplexPayload> = ComplexPayload::class
+        override val equivMultiplatorm: String = "ComplexPayload"
+        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.OBJECT
+
+        override fun validate(value: ComplexPayload): ComplexPayload {
+            return value
+        }
+    }
+
+    private class TestActionProvider : ActionProvider<TestAction> {
+        override val actionGroupKey: String = "test"
+        var lastCommand: TestAction? = null
+        var lastActionCtx: ActionCtx? = null
+
+        override fun findCommandClass(): KClass<TestAction>? {
+            return TestAction::class
+        }
+
+        override fun dispatch(cmd: TestAction, actionCtx: ActionCtx): Any? {
+            lastCommand = cmd
+            lastActionCtx = actionCtx
+            return "ok"
+        }
+    }
+
+    private class TestActionCtx : ActionCtx {
+        override val extensionRegistry: ExtensionRegistry = object : ExtensionRegistry {
+            override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
+                return emptyList()
+            }
+
+            override fun inspectHumanReadable(): String {
+                return ""
+            }
+
+            override fun inspectJson(): JsonObject {
+                return buildJsonObject { }
+            }
+        }
+
+        override fun dispatchAction(req: ActionRequest): Any? {
+            throw TestActionCtxDispatchException()
+        }
+
+        override fun <T : Any> getService(type: KClass<T>): T {
+            throw TestActionCtxServiceNotFoundException(type)
+        }
+
+        override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
+    }
+
+    private class TestActionPrincipalCtx(private val providedPrincipal: AppPrincipal?) : ActionPrincipalCtx {
+        override val principal: AppPrincipal?
+            get() = providedPrincipal
+
+        override fun ensureIsAdmin() {
+            if (providedPrincipal == null || !providedPrincipal.isAdmin) {
+                throw TestPrincipalNotAdminException()
+            }
+        }
+
+        override fun ensureSignedIn(): AppPrincipal {
+            val principal = providedPrincipal ?: throw TestPrincipalMissingException()
+            return principal
+        }
+    }
+
+    private class AllowSecurityRuleEvaluator : SecurityRuleEvaluator {
+        override val key: String = RuleAllow
+
+        override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
+            return SecurityRuleEvaluatorResult.Ok()
+        }
+    }
+
+    private class DenySecurityRuleEvaluator : SecurityRuleEvaluator {
+        override val key: String = RuleDeny
+
+        override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
+            return SecurityRuleEvaluatorResult.Error("blocked")
+        }
+    }
+
+    private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
+    private class TestActionCtxServiceNotFoundException(type: KClass<*>) :
+        MedatarunException("Service not found for ${type.simpleName}")
+
+    private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
+    private class TestPrincipalMissingException : MedatarunException("Principal is missing")
+
+    private companion object {
+        const val RuleAllow = "allow"
+        const val RuleDeny = "deny"
+    }
+}
