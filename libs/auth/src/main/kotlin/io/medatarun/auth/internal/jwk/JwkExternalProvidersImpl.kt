@@ -67,14 +67,24 @@ class JwkExternalProvidersImpl(
             ctx: ConfigResolver,
             internalIssuer: String
         ): JwkExternalProviders {
+            val config = createConfig(ctx, internalIssuer)
+            return if (config.providers.isEmpty()) {
+                JwtExternalProvidersEmpty()
+            } else JwkExternalProvidersImpl(config)
+        }
+
+        fun createConfig(
+            ctx: ConfigResolver,
+            internalIssuer: String
+        ): ExternalOidcProvidersConfig {
 
             // The list of providers is explicit to keep configuration simple and avoid parsing JSON.
             val rawNames = ctx.getConfigProperty("medatarun.auth.oidc.external.names")
-                ?: return JwtExternalProvidersEmpty()
+                ?: return ExternalOidcProvidersConfig.empty()
 
             val names = parseCsv(rawNames)
             if (names.isEmpty()) {
-                return JwtExternalProvidersEmpty()
+                return ExternalOidcProvidersConfig.empty()
             }
             val durationRaw = ctx.getConfigProperty(
                 "medatarun.auth.oidc.jwkscache.duration",
@@ -109,7 +119,10 @@ class JwkExternalProvidersImpl(
                     )
                 )
             }
-            return JwkExternalProvidersImpl(ExternalOidcProvidersConfig(providers, durationSeconds))
+
+            val config = ExternalOidcProvidersConfig(providers, durationSeconds)
+            return config
+
         }
 
         private fun parseCsv(value: String): List<String> {
