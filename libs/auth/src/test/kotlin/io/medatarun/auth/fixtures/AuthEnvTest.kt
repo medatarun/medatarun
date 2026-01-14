@@ -9,6 +9,7 @@ import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
+import io.medatarun.auth.domain.oidc.ExternalOidcProvidersConfig
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -146,7 +147,8 @@ class AuthEnvTest(
             jwtCfg = jwtCfg,
             clock = authClock,
             actorService = actorService,
-            authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS
+            authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
+            externalOidcProviders = ExternalOidcProvidersConfig.empty()
         )
 
         // ----------------------------------------------------------------
@@ -169,6 +171,8 @@ class AuthEnvTest(
             userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
         }
     }
+
+    
 
 
     fun verifyToken(

@@ -4,6 +4,7 @@
 
 [versions]
 auth0JavaJwt = "4.4.0"
+auth0JwksRsa = "0.23.0"
 commonmark = "0.27.0"
 gradleNodePluginVersion = "7.0.2"
 gradleVersionsPlugin = "0.53.0"
@@ -23,6 +24,7 @@ sqlite="3.45.1.0"
 
 [libraries]
 auth0JavaJwt = { module = "com.auth0:java-jwt", version.ref = "auth0JavaJwt" }
+auth0JwksRsa = { module = "com.auth0:jwks-rsa", version.ref = "auth0JwksRsa" }
 commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
 commonmarkYamlFrontMatter = { module = "org.commonmark:commonmark-ext-yaml-front-matter", version.ref = "commonmark" }
 jimfs = { module = "com.google.jimfs:jimfs", version.ref = "jimfs" }

@@ -17,6 +17,11 @@ interface OidcService {
 
     fun oidcAudience(): String
 
+    /**
+     * Provides a JWT verifier resolver so the HTTP layer can stay minimal and delegate
+     * verification rules to the auth domain.
+     */
+    fun jwtVerifierResolver(): JwtVerifierResolver
 
     fun oidcWellKnownOpenIdConfigurationUri(): String
     fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject
