@@ -37,12 +37,12 @@ class McpServerBuilder(
         val server = Server(
             serverInfo = serverInfo,
             options = serverOptions,
-
             ) {
             configAgentInstructions.process()
         }
 
-        server.addTools(buildRegisteredTools(user))
+        val toolsToAdd = buildRegisteredTools(user)
+        server.addTools(toolsToAdd)
         return server
     }
 

@@ -2,7 +2,6 @@ package io.medatarun.httpserver
 
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -14,7 +13,6 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.cli.installCLI
-import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
@@ -146,9 +144,9 @@ class AppHttpServer(
 
             installOidc(oidcService, userService, publicBaseUrl)
 
-            authenticate(AUTH_MEDATARUN_JWT) {
-                installMcp(mcpServerBuilder, principalFactory = principalFactory)
-            }
+
+            installMcp(mcpServerBuilder, principalFactory = principalFactory)
+
 
             installHealth()
 

@@ -44,6 +44,7 @@ class McpStreamableHttpBridge() {
 
         val lastEventId = session.call.request.headers[LAST_EVENT_ID_HEADER]?.toLongOrNull()
 
+        // Ktor commits SSE responses before invoking the handler, so headers must not be mutated here.
         session.call.response.headers.append(HttpHeaders.CacheControl, "no-store")
 
         // We let the transport handle SSE attachments so it can restore inflight messages if
