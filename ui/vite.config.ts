@@ -11,6 +11,14 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
         login: path.resolve(__dirname, 'login.html'),
       },
+      output: {
+        manualChunks(id) {
+          if (id.includes('@seij/common-ui') || id.includes('@seij/common-ui-auth')) {
+            return 'seij-common-ui';
+          }
+          return undefined;
+        },
+      },
     },
   },
   server: {
