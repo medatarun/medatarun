@@ -12,21 +12,27 @@ This is often referred as MCP or "tools" in their documentation.
 The thing to remember is that the URL your agent needs is `http://localhost:8080/mcp`, it means
 `http(s)://<yourhost>:<yourport>/mcp`, always `/mcp` at the end.
 
-Note that we are only using the Streamable Http version.
+Note that we are only compatible with the Streamable Http version of the protocol.
 
 
 ## Example and test with ChatGPT's Codex
 
-In your `~/.codex/config.toml` add
+Be sure that in your environment you have a variable containing an authentication token.
+
+In your `~/.codex/config.toml` add your server address and the token variable name.
 
 ```toml
 [mcp_servers.medatarun]
 url = "http://localhost:8080/mcp"
+bearer_token_env_var = "MEDATARUN_AUTH_TOKEN"
 ```
+
+When you will launch codex, be sure that this variable is set. See [Authenticating with CLI](../usages/cli-usage)
+or [use the API](../usages/api-usage).
 
 Try to import something in Medatarun using UI's Import Button, or using CLI.
 
-You can try this URL (it's from France public Open Data) : https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json
+You can try this URL (it's from France public Open Data): https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json
 
 ```
 ./medatarun model Import --from="https://gitlab.com/opendatafrance/scdl/plats-menus-collectifs/-/raw/master/schema.json"
@@ -37,7 +43,7 @@ You don't know what it is? neither do I.
 Open Codex and ask this question
 
 ```text
-I'm a business user from US, I don't understand french. Using Medatarun MCP,
+I'm a business user from United States, I don't understand french. Using Medatarun MCP,
 tell me what the model "plats-menus-collectifs" is and what it means,
 what's inside, what it is used for
 ```
@@ -79,9 +85,16 @@ What it’s used for
 
 ### Optional: update your AI AGENTS.md
 
-If your AI Agent doesn't support MCP Instructions ([see column Instructions on this table](https://modelcontextprotocol.io/clients))
-you'll need to create or add usage instructions in an `AGENTS.md` file, where you launch your Agent.
-Otherwise, your AI may act strange.
+Some AI Agents (like ChatGPT Codex) do not support what is named _MCP Instructions_. ([You can check the "Instructions" column of this table](https://modelcontextprotocol.io/clients)).
+
+_MCP Instructions_ teach your agent how to functionally (not technically) use Medatarun.
+
+Therefore, agents without this compatibility may not act accordingly.
+
+To compensate that, you can create an `AGENTS.md` file, containing those instructions, in one of the locations
+known from your agents. Often, you can place this file in the directory where you launch the agent.
+
+You can fill this file with contents coming from Medatarun's API or command line.
 
 ```bash
 echo "# AGENTS.md" > AGENTS.md
