@@ -39,19 +39,38 @@ class OidcServiceImpl(
     private val oidcProviderConfig: OidcProviderConfig?
 ) : OidcService {
 
-    val clients = listOf<OidcClient>(
-        OidcClient(
-            "medatarun-ui",
-            listOf(
-                "http://localhost:8080/authentication-callback",
-                "http://localhost:5173/authentication-callback"
-            ),
-        ),
-        OidcClient(
-            "seij-gestion",
-            listOf("http://localhost:4200/authentication-callback"),
-        )
-    ).associateBy { it.clientId }
+    private val oidcInternalClientId = "medatarun-ui"
+
+    /**
+     * public base URL must come from the application configuration
+     * (environment variable or config properties)
+     */
+    inner class Clients(private val publicBaseUrl: URI) {
+        val clients = listOf<OidcClient>(
+            OidcClient(oidcInternalClientId, listOf(publicBaseUrl.resolve("/authentication-callback")))
+        ).associateBy { it.clientId }
+
+        fun find(clientId: String): OidcClient? {
+            return clients[clientId]
+        }
+
+        fun exists(clientId: String): Boolean {
+            return clients.containsKey(clientId)
+        }
+
+        fun matchesUri(clientId: String, redirectUriStr: String): Boolean {
+            val client = clients[clientId] ?: return false
+            val redirectUri: URI = URI(redirectUriStr)
+            return client.redirectUris.any {
+                it.scheme == redirectUri.scheme
+                        && it.fragment == null
+                        && it.host == redirectUri.host
+                        && it.path == redirectUri.path
+                        && (redirectUri.host == "localhost" || it.port == redirectUri.port)
+            }
+        }
+    }
+
 
     private val jwtVerifierResolver: JwtVerifierResolver = JwtVerifierResolverImpl(
         internalIssuer = jwtCfg.issuer,
@@ -61,12 +80,14 @@ class OidcServiceImpl(
     )
 
 
+
+
     override fun oidcAuthority(publicBaseUrl: URI): URI {
         return oidcProviderConfig?.authority ?: publicBaseUrl.resolve("/oidc")
     }
 
     override fun oidcClientId(): String {
-        return oidcProviderConfig?.clientId ?: "medatarun-ui"
+        return oidcProviderConfig?.clientId ?: oidcInternalClientId
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
@@ -130,7 +151,7 @@ class OidcServiceImpl(
         return "/oidc/authorize"
     }
 
-    override fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult {
+    override fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult {
 
         val redirectUri = req.redirectUri
             ?: return OidcAuthorizeResult.FatalError("missing redirect_uri")
@@ -146,12 +167,13 @@ class OidcServiceImpl(
                 redirectUri, "unauthorized_client", req.state
             )
 
-        val client = clients[clientId]
-            ?: return OidcAuthorizeResult.RedirectError(
+        val clients = Clients(publicBaseUrl)
+
+        if (!clients.exists(clientId)) return OidcAuthorizeResult.RedirectError(
                 redirectUri, "unauthorized_client", req.state
             )
 
-        if (!client.redirectUris.contains(redirectUri)) {
+        if (!clients.matchesUri(clientId, redirectUri)) {
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 

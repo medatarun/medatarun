@@ -29,6 +29,7 @@ fun Application.installJwtSecurity(oidcService: OidcService) {
         jwt(AUTH_MEDATARUN_JWT) {
             skipWhen { call ->
                 call.request.headers[HttpHeaders.Authorization] == null
+                        && call.request.headers[HttpHeaders.Authorization.lowercase()] == null
             }
             verifier { header ->
                 val token = extractBearerToken(header) ?: return@verifier null

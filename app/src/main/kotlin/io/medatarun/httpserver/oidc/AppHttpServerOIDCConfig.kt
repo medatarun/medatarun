@@ -45,7 +45,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                 nonce = call.parameters["nonce"]
             )
 
-            val resp = oidcService.oidcAuthorize(req)
+            val resp = oidcService.oidcAuthorize(req, publicBaseUrl)
             when (resp) {
                 is OidcAuthorizeResult.FatalError -> {
                     call.respond(HttpStatusCode.BadRequest, resp.reason)

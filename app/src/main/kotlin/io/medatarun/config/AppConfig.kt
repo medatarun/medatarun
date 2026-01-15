@@ -47,9 +47,10 @@ fun createConfig(cli: Boolean): BasicConfig {
         config.getProperty(AppConfigProperties.ServerPort.key, AppConfigProperties.ServerPort.defaultValue).toInt()
     val serverHost: String =
         config.getProperty(AppConfigProperties.ServerHost.key, AppConfigProperties.ServerHost.defaultValue)
+    val serverHostPublicBaseUrlDefault = config.getProperty(AppConfigProperties.ServerHost.key, "localhost")
 
     @Suppress("HttpUrlsUsage")
-    val publicBaseUrl: String = config.getProperty(AppConfigProperties.BaseUrl.key, "http://$serverHost:$serverPort/")
+    val publicBaseUrl: String = config.getProperty(AppConfigProperties.BaseUrl.key, "http://$serverHostPublicBaseUrlDefault:$serverPort/")
     return object : BasicConfig {
         override val config: AppRuntimeConfig = config
         override val serverHost: String = serverHost

@@ -32,7 +32,7 @@ interface OidcService {
      * users can put their login and password.
      */
     fun oidcAuthorizeUri(): String
-    fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult
+    fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult
     fun oidcAuthorizeFindAuthCtx(authCtxCode: String): OidcAuthorizeCtx?
     fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String
 
