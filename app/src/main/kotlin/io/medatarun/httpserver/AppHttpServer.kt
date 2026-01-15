@@ -7,11 +7,13 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.runtime.ActionCtxFactory
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.actions.runtime.*
+import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.cli.installCLI
+import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
 import io.medatarun.httpserver.commons.installJwtSecurity
@@ -24,6 +26,8 @@ import io.medatarun.httpserver.rest.installActionsApi
 import io.medatarun.httpserver.ui.*
 import io.medatarun.kernel.getService
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.security.SecurityRulesProvider
+import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -42,20 +46,42 @@ class AppHttpServer(
     private val publicBaseUrl: URI,
 ) {
 
-    private val actionRegistry = ActionRegistry(runtime.extensionRegistry)
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionRegistry, runtime.services)
-    private val mcpServerBuilder = McpServerBuilder(
+    private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(
+        runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
+            .flatMap { it.getRules() }
+    )
+    private val actionTypesRegistry = ActionTypesRegistry(
+        runtime.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
+    )
+    private val actionRegistry = ActionRegistry(
+        actionSecurityRuleEvaluators,
+        actionTypesRegistry,
+        runtime.extensionRegistry.findContributionsFlat(ActionProvider::class)
+    )
+
+    private val actionInvoker = ActionInvoker(
         actionRegistry,
+        actionTypesRegistry,
+        actionSecurityRuleEvaluators
+    )
+
+    private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
+
+    private val mcpServerBuilder = McpServerBuilder(
+        actionRegistry = actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
-        actionCtxFactory = actionCtxFactory
+        actionCtxFactory = actionCtxFactory,
+        actionInvoker = actionInvoker,
     )
     private val restApiDoc = RestApiDoc(actionRegistry)
-    private val restCommandInvocation = RestCommandInvocation(actionRegistry, actionCtxFactory)
+    private val restCommandInvocation = RestCommandInvocation(actionInvoker, actionCtxFactory)
 
     private val uiIndexTemplate = UIIndexTemplate()
 
     val userService = runtime.services.getService<UserService>()
     val oidcService = runtime.services.getService<OidcService>()
+    val actorService = runtime.services.getService<ActorService>()
+    private val principalFactory = AppPrincipalFactory(actorService)
 
 
     @Volatile
@@ -97,26 +123,28 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
+        val oidcAuthority = oidcService.oidcAuthority(publicBaseUrl)
+        val oidcClientId = oidcService.oidcClientId()
 
         install(ContentNegotiation) { json() }
         install(SSE)
         installCors()
-        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"))
+        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"), oidcAuthority, oidcClientId)
         installJwtSecurity(oidcService)
 
         routing {
 
             installUIStaticResources()
-            installUIHomepage(uiIndexTemplate)
+            installUIHomepage(uiIndexTemplate, oidcAuthority, oidcClientId)
             installUIApis(runtime, actionRegistry)
 
-            installActionsApi(restApiDoc, restCommandInvocation)
+            installActionsApi(restApiDoc, restCommandInvocation, principalFactory)
 
             installCLI(actionRegistry)
 
             installOidc(oidcService, userService, publicBaseUrl)
 
-            installMcp(mcpServerBuilder)
+            installMcp(mcpServerBuilder, principalFactory = principalFactory)
 
             installHealth()
 
@@ -132,7 +160,7 @@ class AppHttpServer(
             logger.warn("")
             logger.warn("Use it to create your admin account with CLI")
             logger.warn("")
-            logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --bootstrap=$secret")
+            logger.warn("medatarun auth admin_bootstrap --username=your_admin_name --fullname=\"your name\" --password=your_password --secret=$secret")
             logger.warn("")
             logger.warn("or with API")
             logger.warn("")
@@ -145,4 +173,3 @@ class AppHttpServer(
         private val logger = LoggerFactory.getLogger(AppHttpServer::class.java)
     }
 }
-

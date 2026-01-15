@@ -1,15 +1,5 @@
 package io.medatarun.model.domain
 
-@JvmInline
-value class TypeKey(val value : String ) {
-    fun validated(): TypeKey {
-        if (value.length==0) throw InvalidModelTypeIdException()
-        if (value.length>20) throw InvalidModelTypeIdException()
-        return this
-    }
-}
-
-class InvalidModelTypeIdException : MedatarunException("ModelTypeId is invalid")
 
 /**
  * Defines one of the types known by the model, that can be used as [AttributeDef]

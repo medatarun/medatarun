@@ -1,7 +1,7 @@
 package io.medatarun.auth.ports.needs
 
-import io.medatarun.auth.domain.OidcAuthorizeCode
-import io.medatarun.auth.domain.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import java.time.Instant
 
 interface OidcStorage {

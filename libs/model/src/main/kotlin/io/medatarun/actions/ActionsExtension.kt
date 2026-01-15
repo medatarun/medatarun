@@ -9,6 +9,8 @@ class ActionsExtension : MedatarunExtension {
     override val id: String = "actions"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
+
         ctx.register(ActionProvider::class, BatchActionProvider())
+
     }
 }

@@ -24,6 +24,10 @@ import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.runtime.AppRuntime
+import io.medatarun.security.SecurityExtension
+import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.security.SecurityRolesRegistryImpl
+import io.medatarun.types.TypesExtension
 import io.metadatarun.ext.config.ConfigExtension
 import org.slf4j.LoggerFactory
 
@@ -35,6 +39,8 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // dependency graphs that launch them in correct order for now
 
     val extensions = listOf(
+        TypesExtension(),
+        SecurityExtension(),
         ActionsExtension(),
         AuthExtension(),
         ModelExtension(),
@@ -82,12 +88,14 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     val modelQueriesImpl = ModelQueriesImpl(storage)
     val modelCmdsImpl = ModelCmdsImpl(storage, auditor)
     val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
+    val securityRolesRegistry = SecurityRolesRegistryImpl(platform.extensionRegistry)
 
     // especially that:
     init {
         serviceRegistry.register(ModelCmds::class, modelCmdsImpl)
         serviceRegistry.register(ModelQueries::class, modelQueriesImpl)
         serviceRegistry.register(ModelHumanPrinter::class, modelHumanPrinterEmoji)
+        serviceRegistry.register(SecurityRolesRegistry::class, securityRolesRegistry)
     }
 
     // End of 🤔 🤔 🤔 🤯

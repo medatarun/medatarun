@@ -2,7 +2,7 @@ package io.medatarun.httpserver.mcp
 
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.httpserver.commons.AppHttpServerTools.toMedatarunPrincipal
+import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
 
 /**
@@ -18,6 +18,7 @@ import io.modelcontextprotocol.kotlin.sdk.server.mcp
  */
 fun Routing.installMcp(
     mcpServerBuilder: McpServerBuilder,
+    principalFactory: AppPrincipalFactory,
     enableMcpSse: Boolean = false,
     enableMcpStreamingHttp: Boolean = true
 ) {
@@ -35,7 +36,7 @@ fun Routing.installMcp(
 
         route("/sse") {
             mcp {
-                val user = toMedatarunPrincipal(call)
+                val user = principalFactory.getAndSync(call)
                 return@mcp mcpServerBuilder.buildMcpServer(user)
             }
         }
@@ -44,7 +45,7 @@ fun Routing.installMcp(
     if (enableMcpStreamingHttp) {
         route("/mcp") {
             post {
-                val principal = toMedatarunPrincipal(call)
+                val principal = principalFactory.getAndSync(call)
                 mcpStreamableHttpBridge.handleStreamablePost(call) {
                     mcpServerBuilder.buildMcpServer(principal)
                 }

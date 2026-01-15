@@ -40,7 +40,7 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
         val model = ModelInMemory(
             id = ModelKey(modelId),
             name = LocalizedTextNotLocalized(modelName),
-            version = ModelVersion("0.0.0"),
+            version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
             types = result.types().map { ModelTypeInMemory(TypeKey(it), null, null) },

@@ -2,13 +2,6 @@ package io.medatarun.model.domain
 
 import java.net.URL
 
-@JvmInline
-value class EntityKey(val value: String) {
-    fun validated(): EntityKey {
-        return this
-    }
-}
-
 /**
  * Definition of an Entity.
  */

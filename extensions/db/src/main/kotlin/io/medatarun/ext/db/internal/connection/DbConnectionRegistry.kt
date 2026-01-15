@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.connection
 
-import io.medatarun.ext.db.model.DbConnection
 import io.medatarun.ext.db.model.DbConnectionSecret
+import io.medatarun.ext.db.model.DbDatasource
 import kotlinx.serialization.json.Json
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -18,23 +18,23 @@ class DbConnectionRegistry(
     /**
      * Hashmap connection name to real connection infos
      */
-    var map = mapOf<String, DbConnection>()
+    var map = mapOf<String, DbDatasource>()
 
     init {
         val connectionsJson = readJson()
         this.map = connectionsJson.associateBy { it.name }
     }
 
-    fun listConnections():List<DbConnection> {
+    fun listConnections():List<DbDatasource> {
         return map.values.toList()
     }
 
-    fun readJson(): List<DbConnection> {
+    fun readJson(): List<DbDatasource> {
         if (!path.exists()) return emptyList()
-        val connections = Json.decodeFromString<DbConnectionsJson>(path.readText())
-        return connections.connections
+        val connections = Json.decodeFromString<DbDatasourcesJson>(path.readText())
+        return connections.datasources
             .map {
-                DbConnection(
+                DbDatasource(
                     name = it.name,
                     driver = it.driver,
                     url = it.url,
@@ -46,7 +46,7 @@ class DbConnectionRegistry(
 
     }
 
-    fun findByNameOptional(connectionName: String): DbConnection? {
+    fun findByNameOptional(connectionName: String): DbDatasource? {
             return map[connectionName]
     }
 }

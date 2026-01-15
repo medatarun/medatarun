@@ -14,6 +14,7 @@ import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_J
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.runtime.AppRuntime
+import java.net.URI
 
 /**
  * Install Status pages and SPA fallback. It means
@@ -33,7 +34,9 @@ import io.medatarun.runtime.AppRuntime
  */
 fun Application.installUIStatusPageAndSpaFallback(
     uiIndexTemplate: UIIndexTemplate,
-    noFallbackOn: List<String>
+    noFallbackOn: List<String>,
+    oidcAuthority: URI,
+    oidcClientId: String,
 ) {
 
     // We add to the generic list of "noFallbackOn" our owns that we know
@@ -56,7 +59,7 @@ fun Application.installUIStatusPageAndSpaFallback(
             // Fallback to the UI home page, by making a template
             val index = javaClass.classLoader.getResource("static/index.html")
             if (index != null)
-                call.respondText(uiIndexTemplate.render(index), ContentType.Text.Html)
+                call.respondText(uiIndexTemplate.render(index, oidcAuthority, oidcClientId), ContentType.Text.Html)
             else
                 call.respond(status)
         }
@@ -80,13 +83,15 @@ fun Routing.installUIStaticResources() {
  */
 fun Routing.installUIHomepage(
     uiIndexTemplate: UIIndexTemplate,
+    oidcAuthority: URI,
+    oidcClientId: String,
 ) {
     get("/") {
 
         val index = javaClass.classLoader.getResource("static/index.html")
             ?: return@get call.respond(HttpStatusCode.NotFound)
 
-        call.respondText(uiIndexTemplate.render(index), ContentType.Text.Html)
+        call.respondText(uiIndexTemplate.render(index, oidcAuthority, oidcClientId), ContentType.Text.Html)
 
     }
 }

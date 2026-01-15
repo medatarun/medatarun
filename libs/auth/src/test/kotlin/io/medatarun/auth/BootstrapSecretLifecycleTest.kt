@@ -3,7 +3,7 @@ package io.medatarun.auth
 import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
 import io.medatarun.auth.domain.BootstrapSecretPrefilledToShortException
-import io.medatarun.auth.internal.BootstrapSecretLifecycleImpl
+import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

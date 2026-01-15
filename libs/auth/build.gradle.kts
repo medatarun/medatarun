@@ -9,6 +9,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinxSerialization)
     implementation(libs.auth0JavaJwt)
+    implementation(libs.auth0JwksRsa)
     implementation(libs.slf4j)
     implementation(libs.sqliteJdbc)
     implementation(project(":libs:lang"))

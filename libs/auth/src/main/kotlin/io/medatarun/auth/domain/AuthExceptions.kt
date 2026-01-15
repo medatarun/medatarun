@@ -1,6 +1,6 @@
 package io.medatarun.auth.domain
 
-import io.medatarun.auth.internal.UserPasswordEncrypter
+import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.MedatarunException
@@ -26,3 +26,38 @@ class UserNotFoundException :
 
 class UserAlreadyExistsException :
     MedatarunException("User already exists.", StatusCode.CONFLICT)
+
+class ActorNotFoundException :
+    MedatarunException("Actor not found.", StatusCode.NOT_FOUND)
+
+class ActorCreateFailedWithNotFoundException:
+    MedatarunException("Create failed. Can not find actor after creation.")
+
+class ActorDisabledException() :MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
+
+class AuthUnknownRoleException(val key: String)
+    : MedatarunException("Unknown role: $key")
+
+class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
+class UsernameTooShortException(minsize: Int) : MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
+class UsernameTooLongException(maxsize: Int) : MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
+class UsernameInvalidFormatException() : MedatarunException("Username invalid.", StatusCode.BAD_REQUEST)
+
+
+open class UserFullnameException(msg: String) :
+    MedatarunException(msg, StatusCode.BAD_REQUEST)
+
+class UserFullnameEmptyException :
+    UserFullnameException("fullname is empty")
+
+class UserFullnameTooLongException :
+    UserFullnameException("fullname is too long")
+
+
+
+
+
+
+
+class UserFullnameInvalidFormatException :
+    UserFullnameException("invalid fullname format")

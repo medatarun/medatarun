@@ -37,7 +37,7 @@ class MicroProfileConfigLoader {
 
 
     companion object {
-        private const val MEDATARUN_PROPERTIES_FILE = "medatarun.properties"
+        private const val MEDATARUN_PROPERTIES_FILE = "config/medatarun.properties"
 
         // Keep project files above classpath defaults, but below env/system properties.
         private const val MEDATARUN_PROPERTIES_ORDINAL = 200

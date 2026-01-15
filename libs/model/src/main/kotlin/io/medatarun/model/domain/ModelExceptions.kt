@@ -9,6 +9,18 @@ class ModelNotFoundException(id: ModelKey) :
 class ModelDuplicateIdException(id: ModelKey) :
         MedatarunException("Model with id [${id.value}] already exists")
 
+class ModelVersionEmptyException :
+    MedatarunException("Model version can not be empty", StatusCode.BAD_REQUEST)
+
+class ModelVersionInvalidFormatException :
+    MedatarunException("Model version invalid.", StatusCode.BAD_REQUEST)
+
+class ModelVersionCoreLeadingZeroException :
+    MedatarunException("Model version numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
+
+class ModelVersionPreReleaseLeadingZeroException :
+    MedatarunException("Model version pre-release numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
+
 class EntityDefNotFoundException(modelKey: ModelKey, entityId: EntityKey) :
     MedatarunException("Entity with id [${entityId.value}] not found in model [${modelKey.value}]")
 
@@ -56,3 +68,7 @@ class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleId>
 
 class RelationshipDuplicateAttributeException(modelKey: ModelKey, relationshipKey: RelationshipKey, attributeId: AttributeKey) :
     MedatarunException("In model [${modelKey.value}], relationship [${relationshipKey.value}] already has another attribute with id [${attributeId.value}]")
+
+class KeyInvalidFormatException(): MedatarunException("Invalid key format", StatusCode.BAD_REQUEST)
+class KeyEmptyException(): MedatarunException("Invalid key format, a key can not be empty", StatusCode.BAD_REQUEST)
+class KeyTooLongException(maxsize:Int): MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)

@@ -1,6 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.internal.BootstrapSecretState
+import io.medatarun.auth.internal.bootstrap.BootstrapSecretState
 
 /**
  * Manages the first bootstrap secret, that can only be used once
@@ -26,7 +26,7 @@ interface BootstrapSecretLifecycle {
     fun load(): BootstrapSecretState?
 
     companion object {
-        const val DEFAULT_BOOTSTRAP_SECRET_PATH_NAME = "secrets/auth/bootstrap"
+        const val DEFAULT_BOOTSTRAP_SECRET_PATH_NAME = "data/secrets/auth/bootstrap"
         const val SECRET_MIN_SIZE = 20
         const val SECRET_SIZE = 48
     }

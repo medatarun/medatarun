@@ -1,6 +1,5 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.ports.needs.DbConnectionFactory
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.sql.Connection

@@ -1,7 +1,6 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.User
-import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant
@@ -15,10 +14,10 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
 
 
     override fun insert(
-        id: String,
-        login: String,
-        fullname: String,
-        password: String,
+        id: UserId,
+        login: Username,
+        fullname: Fullname,
+        password: PasswordHash,
         admin: Boolean,
         bootstrap: Boolean,
         disabledDate: Instant?
@@ -32,70 +31,81 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """
             ).use { ps ->
-                ps.setString(1, id)
-                ps.setString(2, login)
-                ps.setString(3, fullname)
-                ps.setString(4, password)
+                ps.setString(1, id.value.toString())
+                ps.setString(2, login.value)
+                ps.setString(3, fullname.value)
+                ps.setString(4, password.value)
                 ps.setInt(5, if (admin) 1 else 0)
                 ps.setInt(6, if (bootstrap) 1 else 0)
-                ps.setString(7, disabledDate?.toString())
+                ps.setString(7, disabledDate?.let { InstantSql.toSql(it) })
                 ps.executeUpdate()
             }
         }
     }
 
-    override fun findByLogin(login: String): User? =
+    override fun findByLogin(login: Username): User? =
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
                 "SELECT id, login, full_name, password_hash, admin, bootstrap, disabled_date FROM users WHERE login = ?"
             ).use { ps ->
-                ps.setString(1, login)
+                ps.setString(1, login.value)
                 val rs = ps.executeQuery()
                 if (!rs.next()) return null
 
                 User(
-                    id = UUID.fromString(rs.getString("id")),
-                    login = rs.getString("login"),
-                    fullname = rs.getString("full_name"),
-                    passwordHash = rs.getString("password_hash"),
+                    id = UserId(UUID.fromString(rs.getString("id"))),
+                    username = Username(rs.getString("login")),
+                    fullname = Fullname(rs.getString("full_name")),
+                    passwordHash = PasswordHash(rs.getString("password_hash")),
                     admin = rs.getInt("admin") == 1,
                     bootstrap = rs.getInt("bootstrap") == 1,
-                    disabledDate = rs.getString("disabled_date")?.let { Instant.parse(it) }
+                    disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date")
                 )
             }
         }
 
-    override fun updatePassword(login: String, newPassword: String) {
+    override fun updatePassword(login: Username, newPassword: PasswordHash) {
 
 
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
                 "UPDATE users SET password_hash = ? WHERE login = ?"
             ).use { ps ->
-                ps.setString(1, newPassword)
-                ps.setString(2, login)
+                ps.setString(1, newPassword.value)
+                ps.setString(2, login.value)
                 ps.executeUpdate()
             }
         }
     }
 
-    override fun disable(login: String, at: Instant) {
+    override fun disable(login: Username, at: Instant) {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
                 "UPDATE users SET disabled_date = ? WHERE login = ?"
             ).use { ps ->
-                ps.setString(1, at.toString())
-                ps.setString(2, login)
+                ps.setString(1, InstantSql.toSql(at))
+                ps.setString(2, login.value)
                 ps.executeUpdate()
             }
         }
     }
 
-    override fun updateFullname(username: String, fullname: String) {
+    override fun enable(login: Username) {
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement(
+                "UPDATE users SET disabled_date = NULL WHERE login = ?"
+            ).use { ps ->
+                ps.setString(1, login.value)
+                ps.executeUpdate()
+            }
+        }
+    }
+
+    override fun updateFullname(username: Username, fullname: Fullname) {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->
-                ps.setString(1, fullname)
-                ps.setString(2, username)
+                ps.setString(1, fullname.value)
+                ps.setString(2, username.value)
                 ps.executeUpdate()
             }
         }

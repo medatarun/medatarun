@@ -1,9 +1,11 @@
 package io.medatarun.httpserver.oidc
 
-import io.medatarun.auth.domain.OidcAuthorizeCtx
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
-import io.medatarun.lang.trimToNull
+import io.medatarun.lang.strings.trimToNull
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 
@@ -34,8 +36,8 @@ class OIDCAuthorizePage(
 
         if (!userNameSafe.isNullOrBlank() && !passwordSafe.isNullOrBlank()) {
             try {
-                val user = userService.loginUser(userNameSafe, passwordSafe)
-                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.login)
+                val user = userService.loginUser(Username(userNameSafe).validate(), PasswordClear(passwordSafe))
+                val redirectUri = oidcService.oidcAuthorizeCreateCode(authCtxCode, user.username.value)
                 return OIDCAuthorizePageResult.Redirect(redirectUri)
             } catch (ex: Exception) {
                 loginError = ex.message ?: "Login failed"

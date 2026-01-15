@@ -1,7 +1,7 @@
 package io.medatarun.runtime.internal
 
 import io.medatarun.kernel.internal.ResourceLocatorDefault
-import io.medatarun.lang.trimToNull
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory

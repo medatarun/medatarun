@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.modelimport
 
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
-import io.medatarun.ext.db.model.DbConnection
+import io.medatarun.ext.db.model.DbDatasource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.DatabaseMetaData
@@ -9,7 +9,7 @@ import java.sql.ResultSet
 
 class DbIntrospect(val dbDriverManager: DbDriverManager) {
 
-    fun introspect(connection: DbConnection): IntrospectResult {
+    fun introspect(connection: DbDatasource): IntrospectResult {
         val extractedTables = mutableListOf<IntrospectTable>()
         dbDriverManager.getConnection(connection).use { conn ->
             val meta: DatabaseMetaData = conn.metaData

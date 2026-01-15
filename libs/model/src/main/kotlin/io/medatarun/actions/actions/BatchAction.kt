@@ -11,7 +11,8 @@ sealed interface BatchAction {
         key="batch_run",
         title = "Batch commands",
         description = "Process a list of commands all at once",
-        uiLocation = "global"
+        uiLocation = "global",
+        securityRule = SecurityRuleNames.ADMIN,
     )
     class BatchRun(
         val actions: List<ActionWithPayload>,

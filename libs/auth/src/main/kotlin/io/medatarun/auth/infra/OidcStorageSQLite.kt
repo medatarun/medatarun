@@ -1,8 +1,7 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.auth.domain.OidcAuthorizeCode
-import io.medatarun.auth.domain.OidcAuthorizeCtx
-import io.medatarun.auth.ports.needs.DbConnectionFactory
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.OidcStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant
@@ -34,8 +33,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 ps.setString(6, oidcAuthorizeCtx.codeChallenge)
                 ps.setString(7, oidcAuthorizeCtx.codeChallengeMethod)
                 ps.setString(8, oidcAuthorizeCtx.nonce)
-                ps.setString(9, oidcAuthorizeCtx.createdAt.toString())
-                ps.setString(10, oidcAuthorizeCtx.expiresAt.toString())
+                ps.setString(9, InstantSql.toSql(oidcAuthorizeCtx.createdAt))
+                ps.setString(10, InstantSql.toSql(oidcAuthorizeCtx.expiresAt))
                 ps.executeUpdate()
             }
         }
@@ -65,8 +64,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                         codeChallenge = rs.getString("code_challenge"),
                         codeChallengeMethod = rs.getString("code_challenge_method"),
                         nonce = rs.getString("nonce"),
-                        createdAt = Instant.parse(rs.getString("created_at")),
-                        expiresAt = Instant.parse(rs.getString("expires_at"))
+                        createdAt = InstantSql.fromSqlRequired(rs, "created_at"),
+                        expiresAt = InstantSql.fromSqlRequired(rs, "expires_at")
                     )
                 }
             }
@@ -99,8 +98,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 ps.setString(6, oidcAuthorizeCode.codeChallenge)
                 ps.setString(7, oidcAuthorizeCode.codeChallengeMethod)
                 ps.setString(8, oidcAuthorizeCode.nonce)
-                ps.setString(9, oidcAuthorizeCode.authTime.toString())
-                ps.setString(10, oidcAuthorizeCode.expiresAt.toString())
+                ps.setString(9, InstantSql.toSql(oidcAuthorizeCode.authTime))
+                ps.setString(10, InstantSql.toSql(oidcAuthorizeCode.expiresAt))
                 ps.executeUpdate()
             }
         }
@@ -128,8 +127,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                         codeChallenge = rs.getString("code_challenge"),
                         codeChallengeMethod = rs.getString("code_challenge_method"),
                         nonce = rs.getString("nonce"),
-                        authTime = Instant.parse(rs.getString("auth_time")),
-                        expiresAt = Instant.parse(rs.getString("expires_at"))
+                        authTime = InstantSql.fromSqlRequired(rs, "auth_time"),
+                        expiresAt = InstantSql.fromSqlRequired(rs, "expires_at")
                     )
                 }
             }
@@ -166,12 +165,12 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             conn.autoCommit = false
             try {
                 conn.prepareStatement(purgeAuthCtx).use { ps ->
-                    ps.setString(1, now.toString())
+                    ps.setString(1, InstantSql.toSql(now))
                     ps.executeUpdate()
                 }
 
                 conn.prepareStatement(purgeAuthCode).use { ps ->
-                    ps.setString(1, now.toString())
+                    ps.setString(1, InstantSql.toSql(now))
                     ps.executeUpdate()
                 }
 

@@ -1,25 +1,26 @@
 package io.medatarun.auth.ports.needs
 
-import io.medatarun.auth.domain.User
+import io.medatarun.auth.domain.user.*
 import java.time.Instant
 
 interface UserStorage {
     fun insert(
-        id: String,
-        login: String,
-        fullname: String,
-        password: String,
+        id: UserId,
+        login: Username,
+        fullname: Fullname,
+        password: PasswordHash,
         admin: Boolean,
         bootstrap: Boolean,
         disabledDate: Instant?
     )
 
-    fun findByLogin(login: String): User?
+    fun findByLogin(login: Username): User?
 
-    fun updatePassword(login: String, newPassword: String)
+    fun updatePassword(login: Username, newPassword: PasswordHash)
 
-    fun disable(login: String, at: Instant = Instant.now())
-    fun updateFullname(username: String, fullname: String)
+    fun disable(login: Username, at: Instant)
+    fun enable(login: Username)
+    fun updateFullname(username: Username, fullname: Fullname)
 
 
 }
