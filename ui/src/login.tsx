@@ -3,25 +3,42 @@ import {createRoot} from 'react-dom/client'
 import {SeijUIProvider} from "@seij/common-ui";
 import './index.css'
 import './login.css'
-import {Button, Input} from "@fluentui/react-components";
+import {Button, Field, Input, MessageBar, Title3} from "@fluentui/react-components";
+import logoUrl from '../public/favicon/favicon.svg'
 
 function LoginForm() {
   const config = window.__MEDATARUN_CONFIG__ ?? {};
   const errorMessage = config.error ?? "";
   const authCtx = config.auth_ctx ?? "";
+  const  defaultUserName = config.username ?? ""
 
   return (
     <div className="login-page">
       <form method="post" action="" className="login-form">
-        <h1 className="login-title">Sign in</h1>
-        <label className="login-label" htmlFor="login-username">Username</label>
-        <Input id="login-username" name="username" type="text" autoComplete="username" required />
-        <label className="login-label" htmlFor="login-password">Password</label>
-        <Input id="login-password" name="password" type="password" autoComplete="current-password" required />
-        <input type="hidden" name="auth_ctx" value={authCtx} />
-        {errorMessage ? <div className="login-error" role="alert">{errorMessage}</div> : null}
-        <div className="login-actions">
-          <Button appearance="primary" type="submit">Log in</Button>
+        <input type="hidden" name="auth_ctx" value={authCtx}/>
+        <div className="login-brand">
+          <img className="login-logo" src={logoUrl} alt="Medatarun"/>
+          <div>
+            <Title3>Medatarun</Title3>
+          </div>
+        </div>
+        <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
+          <div>
+            <Field label="Username">
+              <Input id="login-username" name="username" type="text" autoFocus={true} autoComplete="username" required defaultValue={defaultUserName}/>
+            </Field>
+          </div>
+          <div>
+            <Field label="Password">
+              <Input id="login-password" name="password" type="password" autoComplete="current-password" required/>
+            </Field>
+          </div>
+          <div>
+            {errorMessage ? <MessageBar intent="error" role="alert">{errorMessage}</MessageBar> : null}
+          </div>
+          <div style={{display:"flex", alignItems:"flex-end"}}>
+            <Button appearance="primary" type="submit">Sign in</Button>
+          </div>
         </div>
       </form>
     </div>
@@ -31,13 +48,13 @@ function LoginForm() {
 function LoginApp() {
   return (
     <SeijUIProvider>
-      <LoginForm />
+      <LoginForm/>
     </SeijUIProvider>
   )
 }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <LoginApp />
+    <LoginApp/>
   </StrictMode>,
 )

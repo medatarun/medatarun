@@ -18,26 +18,21 @@
   box-shadow: 0 12px 36px rgba(19, 33, 68, 0.12);
 }
 
-.login-title {
-  margin: 0 0 8px;
-  font-size: 22px;
-  color: #1d2433;
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.login-label {
-  font-size: 13px;
-  color: #41526a;
+.login-logo {
+  width: 64px;
+  height: 64px;
 }
 
-.login-actions {
-  margin-top: 8px;
-}
-
-.login-error {
-  margin-top: 4px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #fde8e8;
-  color: #a01a1a;
-  font-size: 13px;
+.login-app-name {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #2b3445;
 }
