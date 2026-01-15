@@ -139,18 +139,9 @@ declare module '@tanstack/react-router' {
 
 const baseURL = getOrDefault(import.meta.env.VITE_BASE_URL, window.location.origin);
 
-declare global {
-  interface Window {
-    __MEDATARUN_CONFIG__?: {
-      oidcAuthority?: string;
-      oidcClientId?: string;
-    };
-  }
-}
-
 const authenticationConfig = createAuthenticationConfig({
-  authority: getOrDefault(import.meta.env.VITE_OIDC_AUTHORITY, (window).__MEDATARUN_CONFIG__?.oidcAuthority ?? "http://localhost:8080/oidc"),
-  client_id: getOrDefault(import.meta.env.VITE_OIDC_CLIENT_ID, (window).__MEDATARUN_CONFIG__?.oidcClientId ?? "medatarun-ui"),
+  authority: getOidcAuthority(),
+  client_id: getOidcClientId(),
   redirect_uri: baseURL + AuthenticationPaths.callback,
 });
 
@@ -172,6 +163,38 @@ function App() {
       </AuthenticationProvider>
     </SeijUIProvider>
   )
+}
+
+function getOidcAuthority() {
+  const win = (window).__MEDATARUN_CONFIG__?.oidcAuthority
+  if (win) {
+    console.log("oidcAuthority from window:", win)
+    return win
+  }
+
+  const vite = import.meta.env.VITE_OIDC_AUTHORITY
+  if (vite) {
+    console.log("oidcAuthority from Vite config:", vite)
+    return vite
+  }
+
+  return "http://localhost:8080/oidc"
+}
+
+function getOidcClientId() {
+  const win = (window).__MEDATARUN_CONFIG__?.oidcClientId
+  if (win) {
+    console.log("oidcAuthority from window:", win)
+    return win
+  }
+
+  const vite = import.meta.env.VITE_OIDC_CLIENT_ID
+  if (vite) {
+    console.log("oidcAuthority from Vite config:", vite)
+    return vite
+  }
+
+  return "medatarun-ui"
 }
 
 export default App

@@ -6,8 +6,8 @@ import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.strings.trimToNull
-import kotlinx.html.*
-import kotlinx.html.stream.createHTML
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class OIDCAuthorizePage(
     private val oidcService: OidcService,
@@ -49,49 +49,17 @@ class OIDCAuthorizePage(
     }
 
     fun create(ctx: OidcAuthorizeCtx, username: String?, error: String?): String {
+        val index = javaClass.classLoader.getResource("static/login.html")
 
-        return createHTML().html {
-            head {
-                title { +"Medatarun Login" }
-            }
-            body {
-                h1 { +"Medatarun Login" }
-                p { +"Enter your username and password" }
-                div {
-                    if (error!=null) {
-                        div {
-                            style = "color:red;"
-                            +error
-                        }
-                    }
-                    form(method = FormMethod.post) {
-                        input(type = InputType.hidden, name = PARAM_AUTH_CTX) { value = ctx.authCtxCode }
-                        div {
-                            label() {
-                                htmlFor = PARAM_USERNAME
+        val html = index.readText()
+        val json = buildJsonObject {
+            put(PARAM_USERNAME, username ?: "")
+            put("error", error ?: "")
+            put(PARAM_AUTH_CTX, ctx.authCtxCode)
+        }
+        val replaced = html.replace("<!-- __SERVER_CONFIG__ -->", "<script>window.__MEDATARUN_CONFIG__=${json}</script>")
+        return replaced
 
-                                +"Login"
-                            }
-                            input(type = InputType.text, name = PARAM_USERNAME) {
-                                value = username ?: ""
-                            }
-                        }
-                        div {
-                            label() {
-                                htmlFor = PARAM_PASSWORD
-                                +"Password"
-                            }
-                            input(type = InputType.password, name = PARAM_PASSWORD) {
-
-                            }
-                        }
-                        button(type = ButtonType.submit) {
-                            +"Sign-in"
-                        }
-                    }
-                }
-            }
-        }.toString()
     }
 
     companion object {
