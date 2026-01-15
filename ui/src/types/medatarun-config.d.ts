@@ -1,4 +1,5 @@
 declare global {
+  // Base type for server-provided config; feature-specific files extend this interface.
   interface MedatarunConfig {
   }
 
