@@ -4,8 +4,8 @@ import com.auth0.jwk.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.domain.oidc.ExternalOidcProviderConfig
 import io.medatarun.auth.domain.oidc.ExternalOidcProvidersConfig
+import io.medatarun.auth.domain.oidc.JwtIssuerConfig
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
 import java.security.KeyPair
@@ -451,7 +451,7 @@ class JwtVerifierResolverImplTest {
             return provider
         }
 
-        override fun findExternalProvider(issuer: String): ExternalOidcProviderConfig {
+        override fun findExternalProvider(issuer: String): JwtIssuerConfig {
             val provider = config.providers.firstOrNull { it.issuer == issuer }
             if (provider == null) {
                 throw JwtUnknownIssuerException(issuer)
@@ -459,7 +459,7 @@ class JwtVerifierResolverImplTest {
             return provider
         }
 
-        override fun firstOrNull(): ExternalOidcProviderConfig? {
+        override fun firstOrNull(): JwtIssuerConfig? {
             return config.providers.firstOrNull()
         }
     }

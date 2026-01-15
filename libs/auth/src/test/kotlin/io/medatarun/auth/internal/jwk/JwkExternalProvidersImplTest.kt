@@ -1,7 +1,7 @@
 package io.medatarun.auth.internal.jwk
 
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.domain.oidc.ExternalOidcProviderConfig
+import io.medatarun.auth.domain.oidc.JwtIssuerConfig
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -31,7 +31,7 @@ class JwkExternalProvidersImplTest {
 
         val google = providers.findExternalProvider("https://accounts.google.com")
         assertEquals(
-            ExternalOidcProviderConfig(
+            JwtIssuerConfig(
                 name = "google",
                 issuer = "https://accounts.google.com",
                 jwksUri = "https://www.googleapis.com/oauth2/v3/certs",
@@ -43,7 +43,7 @@ class JwkExternalProvidersImplTest {
 
         val azure = providers.findExternalProvider("https://login.microsoftonline.com/common/v2.0")
         assertEquals(
-            ExternalOidcProviderConfig(
+            JwtIssuerConfig(
                 name = "azure",
                 issuer = "https://login.microsoftonline.com/common/v2.0",
                 jwksUri = "https://login.microsoftonline.com/common/discovery/v2.0/keys",
@@ -198,7 +198,7 @@ class JwkExternalProvidersImplTest {
 
         val google = providers.findExternalProvider("https://accounts.google.com")
         assertEquals(
-            ExternalOidcProviderConfig(
+            JwtIssuerConfig(
                 name = "google",
                 issuer = "https://accounts.google.com",
                 jwksUri = "https://www.googleapis.com/oauth2/v3/certs",

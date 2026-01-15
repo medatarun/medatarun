@@ -31,10 +31,7 @@ import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DE
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
-import io.medatarun.auth.ports.needs.ActorRolesRegistry
-import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.auth.ports.needs.OidcStorage
-import io.medatarun.auth.ports.needs.UserServiceEvents
+import io.medatarun.auth.ports.needs.*
 import io.medatarun.kernel.ExtensionId
 import io.medatarun.kernel.MedatarunExtension
 import io.medatarun.kernel.MedatarunExtensionCtx
@@ -171,7 +168,7 @@ class AuthExtension() : MedatarunExtension {
             clock = authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalOidcProviders = createJwtExternalProvidersFromConfigProperties(
+            externalProviders = createJwtExternalProvidersFromConfigProperties(
                 object : JwkExternalProvidersImpl.Companion.ConfigResolver {
                     override fun getConfigProperty(key: String, defaultValue: String): String {
                         return ctx.getConfigProperty(key, defaultValue = defaultValue)
@@ -182,6 +179,10 @@ class AuthExtension() : MedatarunExtension {
                     }
 
                 }, jwtCfg.issuer
+            ),
+            oidcProviderConfig = OidcProviderConfig.valueOf(
+                ctx.getConfigProperty(ConfigProperties.UIOidcAuthority.key),
+                ctx.getConfigProperty(ConfigProperties.UiOidcClientId.key)
             )
 
         )

@@ -156,7 +156,8 @@ class AuthEnvTest(
             clock = authClock,
             actorService = actorService,
             authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalOidcProviders = JwtExternalProvidersEmpty()
+            externalProviders = JwtExternalProvidersEmpty(),
+            oidcProviderConfig = null
         )
 
         // ----------------------------------------------------------------

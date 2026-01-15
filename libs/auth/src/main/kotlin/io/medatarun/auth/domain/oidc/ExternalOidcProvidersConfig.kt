@@ -6,7 +6,7 @@ import java.time.Duration
  * Aggregates external OIDC providers and JWKS cache configuration.
  */
 data class ExternalOidcProvidersConfig(
-    val providers: List<ExternalOidcProviderConfig>,
+    val providers: List<JwtIssuerConfig>,
     val cacheDurationSeconds: Long
 ) {
     fun getCacheDuration(): Duration {

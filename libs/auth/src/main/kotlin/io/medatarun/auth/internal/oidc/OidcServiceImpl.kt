@@ -16,6 +16,7 @@ import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
+import io.medatarun.auth.ports.needs.OidcProviderConfig
 import io.medatarun.auth.ports.needs.OidcStorage
 import kotlinx.serialization.json.*
 import java.net.URI
@@ -34,7 +35,8 @@ class OidcServiceImpl(
     private val clock: AuthClock,
     private val actorService: ActorService,
     private val authCtxDurationSeconds: Long,
-    private val externalOidcProviders: JwkExternalProviders,
+    private val externalProviders: JwkExternalProviders,
+    private val oidcProviderConfig: OidcProviderConfig?
 ) : OidcService {
 
     val clients = listOf<OidcClient>(
@@ -51,29 +53,20 @@ class OidcServiceImpl(
         )
     ).associateBy { it.clientId }
 
-    private val jwtVerifierResolver: JwtVerifierResolver
+    private val jwtVerifierResolver: JwtVerifierResolver = JwtVerifierResolverImpl(
+        internalIssuer = jwtCfg.issuer,
+        internalAudience = jwtCfg.audience,
+        internalPublicKey = authEmbeddedKeys.publicKey,
+        externalJwkProviders = externalProviders
+    )
 
-    init {
-        jwtVerifierResolver = JwtVerifierResolverImpl(
-            internalIssuer = jwtCfg.issuer,
-            internalAudience = jwtCfg.audience,
-            internalPublicKey = authEmbeddedKeys.publicKey,
-            externalJwkProviders = externalOidcProviders
-        )
-    }
 
     override fun oidcAuthority(publicBaseUrl: URI): URI {
-        val first = externalOidcProviders.firstOrNull()
-        return first?.issuer?.let { URI(it) } ?: publicBaseUrl.resolve("/oidc")
+        return oidcProviderConfig?.authority ?: publicBaseUrl.resolve("/oidc")
     }
 
     override fun oidcClientId(): String {
-        val first = externalOidcProviders.firstOrNull()
-        return if (first != null) {
-            first.audiences.firstOrNull() ?: ""
-        } else {
-            "medatarun-ui"
-        }
+        return oidcProviderConfig?.clientId ?: "medatarun-ui"
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {

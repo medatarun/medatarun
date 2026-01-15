@@ -5,7 +5,7 @@ import io.medatarun.auth.internal.jwk.JwtSupportedAlgorithm
 /**
  * External OIDC provider configuration used to validate JWTs.
  */
-data class ExternalOidcProviderConfig(
+data class JwtIssuerConfig(
     val name: String,
     /**
      * The issuer (iss) claim expected in JWTs for this provider.

@@ -3,14 +3,14 @@ package io.medatarun.auth.internal.jwk
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import io.medatarun.auth.domain.*
-import io.medatarun.auth.domain.oidc.ExternalOidcProviderConfig
 import io.medatarun.auth.domain.oidc.ExternalOidcProvidersConfig
+import io.medatarun.auth.domain.oidc.JwtIssuerConfig
 import java.net.URI
 
 interface JwkExternalProviders {
     fun findByIssuer(issuer: String): JwkProvider
-    fun findExternalProvider(issuer: String): ExternalOidcProviderConfig
-    fun firstOrNull(): ExternalOidcProviderConfig?
+    fun findExternalProvider(issuer: String): JwtIssuerConfig
+    fun firstOrNull(): JwtIssuerConfig?
 }
 
 class JwtExternalProvidersEmpty : JwkExternalProviders {
@@ -18,11 +18,11 @@ class JwtExternalProvidersEmpty : JwkExternalProviders {
         throw JwtJwksUnknownExternalProvider(issuer)
     }
 
-    override fun findExternalProvider(issuer: String): ExternalOidcProviderConfig {
+    override fun findExternalProvider(issuer: String): JwtIssuerConfig {
         throw JwtJwksUnknownExternalProvider(issuer)
     }
 
-    override fun firstOrNull(): ExternalOidcProviderConfig? {
+    override fun firstOrNull(): JwtIssuerConfig? {
         return null
     }
 }
@@ -32,7 +32,7 @@ class JwkExternalProvidersImpl(
 ) : JwkExternalProviders {
     private val providers: Map<String, JwkProvider> = buildJwkProviders(providersConfigs)
 
-    override fun firstOrNull(): ExternalOidcProviderConfig? {
+    override fun firstOrNull(): JwtIssuerConfig? {
         return providersConfigs.providers.firstOrNull()
     }
 
@@ -41,7 +41,7 @@ class JwkExternalProvidersImpl(
             ?: throw JwtJwksUnknownExternalProvider(issuer)
     }
 
-    override fun findExternalProvider(issuer: String): ExternalOidcProviderConfig {
+    override fun findExternalProvider(issuer: String): JwtIssuerConfig {
         val provider = providersConfigs.providers.firstOrNull { it.issuer == issuer }
         if (provider == null) {
             throw JwtUnknownIssuerException(issuer)
@@ -100,7 +100,7 @@ class JwkExternalProvidersImpl(
             )
             val durationSeconds = durationRaw.toLongOrNull()
                 ?: throw ExternalOidcProviderCacheDurationInvalidException(durationRaw)
-            val providers = mutableListOf<ExternalOidcProviderConfig>()
+            val issuers = mutableListOf<JwtIssuerConfig>()
             for (name in names) {
 
                 val issuer = ctx.getConfigProperty(ConfigProperties.IssuerIssuer.withName(name))
@@ -117,8 +117,8 @@ class JwkExternalProvidersImpl(
                 val allowedAlgs = if (algs.isEmpty()) listOf(JwtSupportedAlgorithm.RS256) else algs.map {
                     JwtSupportedAlgorithm.valueOfKey(it)
                 }
-                providers.add(
-                    ExternalOidcProviderConfig(
+                issuers.add(
+                    JwtIssuerConfig(
                         name = name,
                         issuer = issuer,
                         jwksUri = jwksUri,
@@ -128,7 +128,7 @@ class JwkExternalProvidersImpl(
                 )
             }
 
-            val config = ExternalOidcProvidersConfig(providers, durationSeconds)
+            val config = ExternalOidcProvidersConfig(issuers, durationSeconds)
             return config
 
         }
