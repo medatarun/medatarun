@@ -1,9 +1,9 @@
 package io.medatarun.security
 
 import io.medatarun.actions.actions.SecurityRuleNames
-import io.medatarun.kernel.ExtensionId
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.ExtensionId
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class SecurityExtension : MedatarunExtension {
     override val id: ExtensionId = "security"

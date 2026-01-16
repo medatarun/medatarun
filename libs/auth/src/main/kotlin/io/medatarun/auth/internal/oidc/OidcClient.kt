@@ -5,6 +5,4 @@ import java.net.URI
 data class OidcClient(
     val clientId: String,
     val redirectUris: List<URI>
-) {
-
-}
+)

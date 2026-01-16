@@ -13,17 +13,17 @@ class TrimToNullTest {
     }
     @Test
     fun `empty is null`() {
-        val str: String? = ""
+        val str = ""
         Assertions.assertNull(str.trimToNull())
     }
     @Test
     fun `blank is null`() {
-        val str: String = "   "
+        val str = "   "
         Assertions.assertNull(str.trimToNull())
     }
     @Test
     fun `trimmed is not null`() {
-        val str: String = "  a "
+        val str = "  a "
         assertNotNull(str.trimToNull())
         assertEquals("a", str.trimToNull())
     }

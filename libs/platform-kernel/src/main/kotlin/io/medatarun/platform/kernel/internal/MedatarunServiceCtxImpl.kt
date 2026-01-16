@@ -1,7 +1,7 @@
-package io.medatarun.kernel.internal
+package io.medatarun.platform.kernel.internal
 
-import io.medatarun.kernel.MedatarunExtensionCtxConfig
-import io.medatarun.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.MedatarunExtensionCtxConfig
+import io.medatarun.platform.kernel.MedatarunServiceCtx
 import kotlin.reflect.KClass
 
 class MedatarunServiceCtxImpl(

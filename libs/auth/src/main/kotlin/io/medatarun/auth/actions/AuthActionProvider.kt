@@ -25,7 +25,7 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
     override fun dispatch(
         cmd: AuthAction<*>,
         actionCtx: ActionCtx
-    ): Any? {
+    ): Any {
         val userService = actionCtx.getService<UserService>()
         val oidcService = actionCtx.getService<OidcService>()
         val oauthService = actionCtx.getService<OAuthService>()

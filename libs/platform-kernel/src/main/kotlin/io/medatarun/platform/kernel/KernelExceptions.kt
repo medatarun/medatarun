@@ -1,4 +1,4 @@
-package io.medatarun.kernel
+package io.medatarun.platform.kernel
 
 import io.medatarun.lang.exceptions.MedatarunException
 import java.nio.file.Path

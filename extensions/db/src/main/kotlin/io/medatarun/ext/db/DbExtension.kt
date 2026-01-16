@@ -5,9 +5,9 @@ import io.medatarun.ext.db.actions.DatabasesActionProvider
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.internal.modelimport.DbModelImporter
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import org.slf4j.LoggerFactory
 
 class DbExtension : MedatarunExtension {

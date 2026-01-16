@@ -75,7 +75,7 @@ class UserPasswordEncrypter(
 
     sealed interface PasswordCheck {
         val ok: Boolean
-        class OK(): PasswordCheck {
+        class OK : PasswordCheck {
             override val ok: Boolean = true
         }
         data class Fail(val reason: PasswordPolicyFailReason): PasswordCheck {

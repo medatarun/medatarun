@@ -8,7 +8,7 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-class DbDriverRegistry(val driversJsonPath: Path, val jdbcDriversPath: Path) {
+class DbDriverRegistry(driversJsonPath: Path, val jdbcDriversPath: Path) {
     private val descriptionFile = driversJsonPath
     private val knownDrivers: MutableList<DbDriverInfo> = mutableListOf()
     init {
@@ -16,7 +16,7 @@ class DbDriverRegistry(val driversJsonPath: Path, val jdbcDriversPath: Path) {
     }
     fun loadDriverDescriptions():List<DbDriverInfo> {
         if (!descriptionFile.exists()) return emptyList()
-        val d = Json.Default.decodeFromString<DriversJson>(descriptionFile.readText())
+        val d = Json.decodeFromString<DriversJson>(descriptionFile.readText())
         val drivers = d.drivers.map {
             DbDriverInfo(
                 id = it.id,
@@ -32,10 +32,6 @@ class DbDriverRegistry(val driversJsonPath: Path, val jdbcDriversPath: Path) {
 
     fun listDrivers(): List<DbDriverInfo> {
         return knownDrivers
-    }
-
-    fun isKnown(database: String): Boolean {
-        return knownDrivers.any { it.id == database }
     }
 
     fun find(database: String): DbDriverInfo {

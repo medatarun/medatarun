@@ -1,13 +1,13 @@
 package io.medatarun.model
 
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.domain.*
 import io.medatarun.model.internal.KeyValidation
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
 import kotlin.reflect.KClass

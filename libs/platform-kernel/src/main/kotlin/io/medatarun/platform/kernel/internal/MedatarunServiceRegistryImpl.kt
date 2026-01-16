@@ -1,8 +1,8 @@
-package io.medatarun.kernel.internal
+package io.medatarun.platform.kernel.internal
 
-import io.medatarun.kernel.MedatarunConfig
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunServiceRegistry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass

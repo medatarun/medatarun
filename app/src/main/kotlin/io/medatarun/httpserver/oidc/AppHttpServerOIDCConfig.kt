@@ -45,8 +45,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                 nonce = call.parameters["nonce"]
             )
 
-            val resp = oidcService.oidcAuthorize(req, publicBaseUrl)
-            when (resp) {
+            when (val resp = oidcService.oidcAuthorize(req, publicBaseUrl)) {
                 is OidcAuthorizeResult.FatalError -> {
                     call.respond(HttpStatusCode.BadRequest, resp.reason)
                 }
@@ -132,15 +131,14 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                 return oidcService.oidcToken(request)
             }
 
-            val tokenResponse = process()
-            when (tokenResponse) {
+            when (val tokenResponse = process()) {
                 is OIDCTokenResponseOrError.Success -> call.respond(tokenResponse.token)
                 is OIDCTokenResponseOrError.Error -> call.respond(tokenResponse)
             }
 
         }
-        get() { handleOidcToken(call) }
-        post() { handleOidcToken(call) }
+        get { handleOidcToken(call) }
+        post { handleOidcToken(call) }
     }
 
 }

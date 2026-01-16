@@ -16,7 +16,7 @@ class JwtSigninKeyRegistryTest {
     fun `should register embedded keys`() {
         val fs = Jimfs.newFileSystem(Configuration.unix())
         val medatarunHomePath = fs.getPath("/opt/medatarun")
-        val secretsPath = medatarunHomePath.resolve(JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME)
+        val secretsPath = medatarunHomePath.resolve(JwtInternalSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
         val service = JwtInternalInternalSigninKeyRegistryImpl(secretsPath)
         val keys = service.loadOrCreateKeys()
 

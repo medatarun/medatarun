@@ -24,7 +24,7 @@ import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.rest.installActionsApi
 import io.medatarun.httpserver.ui.*
-import io.medatarun.kernel.getService
+import io.medatarun.platform.kernel.getService
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor

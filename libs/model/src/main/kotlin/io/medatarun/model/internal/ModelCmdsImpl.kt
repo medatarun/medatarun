@@ -369,7 +369,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDef(cmd: ModelCmd.UpdateRelationshipDef) {
-        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey);
+        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDef(
                 modelKey = cmd.modelKey,
@@ -380,7 +380,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipDefHashtagAdd) {
-        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey);
+        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDefHashtagAdd(
                 modelKey = cmd.modelKey,
@@ -391,7 +391,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipDefHashtagDelete) {
-        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey);
+        findModelById(cmd.modelKey).ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDefHashtagDelete(
                 modelKey = cmd.modelKey,

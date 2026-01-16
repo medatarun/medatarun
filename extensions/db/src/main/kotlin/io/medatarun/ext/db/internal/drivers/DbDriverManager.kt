@@ -26,7 +26,7 @@ class DbDriverLoader(val registry: DbDriverRegistry) {
                 arrayOf<URL>(driverUrl),
                 Thread.currentThread().getContextClassLoader()
             )
-            val driverClass = Class.forName(driverClassName, true, loader);
+            val driverClass = Class.forName(driverClassName, true, loader)
             val driverInstance = driverClass.getDeclaredConstructor().newInstance() as Driver
             logger.debug("Registering driver instance for [$database]")
             DriverManager.registerDriver(
@@ -58,8 +58,5 @@ class DbDriverManager(driversJsonPath: Path, jdbcDriversPath: Path) {
         return DriverManager.getConnection(connection.url, info)
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(DbDriverManager::class.java)
-    }
 }
 

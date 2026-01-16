@@ -1,9 +1,9 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.kernel.ExtensionId
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.platform.kernel.ExtensionId
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class FrictionlessdataExtension : MedatarunExtension {
     override val id: ExtensionId = "frictionlessdata"

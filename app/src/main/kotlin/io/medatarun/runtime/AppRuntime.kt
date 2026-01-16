@@ -1,7 +1,7 @@
 package io.medatarun.runtime
 
-import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.internal.AppRuntimeConfig
 
 interface AppRuntime {

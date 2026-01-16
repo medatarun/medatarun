@@ -1,4 +1,4 @@
-package io.medatarun.kernel
+package io.medatarun.platform.kernel
 
 import kotlinx.serialization.json.JsonObject
 import kotlin.reflect.KClass

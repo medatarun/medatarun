@@ -1,6 +1,6 @@
-package io.medatarun.kernel.internal
+package io.medatarun.platform.kernel.internal
 
-import io.medatarun.kernel.ResourceLocator
+import io.medatarun.platform.kernel.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient

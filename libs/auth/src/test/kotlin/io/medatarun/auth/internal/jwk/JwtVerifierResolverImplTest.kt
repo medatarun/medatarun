@@ -446,7 +446,7 @@ class JwtVerifierResolverImplTest {
         override fun findByIssuer(issuer: String): JwkProvider {
             val provider = jwkProviders[issuer]
             if (provider == null) {
-                throw io.medatarun.auth.domain.JwtJwksUnknownExternalProvider(issuer)
+                throw JwtJwksUnknownExternalProvider(issuer)
             }
             return provider
         }

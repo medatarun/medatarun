@@ -1,7 +1,7 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.kernel.internal.ResourceLocatorDefault
 import io.medatarun.lang.strings.trimToNull
+import io.medatarun.platform.kernel.internal.ResourceLocatorDefault
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
@@ -22,7 +22,10 @@ class AppRuntimeConfigFactory (private val cli: Boolean){
         if (!cli) logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
         if (!cli) logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
         return AppRuntimeConfig(applicationHomeDir, projectDir, config) {
-            ResourceLocatorDefault(rootPath = projectDir.toString(), fileSystem = fileSystem)
+            ResourceLocatorDefault(
+                rootPath = projectDir.toString(),
+                fileSystem = fileSystem
+            )
         }
     }
 

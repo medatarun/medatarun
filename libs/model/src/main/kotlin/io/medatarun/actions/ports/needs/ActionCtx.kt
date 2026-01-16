@@ -1,6 +1,6 @@
 package io.medatarun.actions.ports.needs
 
-import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.ExtensionRegistry
 import kotlin.reflect.KClass
 
 interface ActionCtx {

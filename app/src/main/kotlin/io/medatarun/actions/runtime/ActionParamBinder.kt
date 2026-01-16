@@ -48,8 +48,7 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
                             "Parameter [${paramSerialName}] could not be found in Json payload"
                         )
 
-                        val conversion = jsonValueConverter.convert(raw, parameter.type)
-                        when (conversion) {
+                        when (val conversion = jsonValueConverter.convert(raw, parameter.type)) {
                             is ActionParamJsonValueConverter.ConversionResult.Error ->
                                 callArgs[parameter] = ActionParamBindingState.Error(HttpStatusCode.BadRequest, conversion.message)
 

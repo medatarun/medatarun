@@ -3,9 +3,9 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.*
+import io.medatarun.platform.kernel.ResourceLocator
 import org.slf4j.LoggerFactory
 import java.net.URI
 
@@ -21,7 +21,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
      */
     override fun findCommandClass() = ModelAction::class
 
-    override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any? {
+    override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any {
 
         val modelCmds = actionCtx.getService<ModelCmds>()
         val modelQueries = actionCtx.getService<ModelQueries>()

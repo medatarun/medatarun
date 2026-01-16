@@ -44,7 +44,7 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
 
     )
-    class Inspect_Human() : ModelAction
+    class Inspect_Human : ModelAction
 
     @ActionDoc(
         key = "inspect_models_json",
@@ -53,7 +53,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.general,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class Inspect_Json() : ModelAction
+    class Inspect_Json : ModelAction
 
     @ActionDoc(
         key = "model_create",

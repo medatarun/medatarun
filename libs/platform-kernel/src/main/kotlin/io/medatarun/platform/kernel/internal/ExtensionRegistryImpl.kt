@@ -1,6 +1,6 @@
-package io.medatarun.kernel.internal
+package io.medatarun.platform.kernel.internal
 
-import io.medatarun.kernel.*
+import io.medatarun.platform.kernel.*
 import kotlinx.serialization.json.*
 import kotlin.io.path.absolute
 import kotlin.reflect.KClass
@@ -26,7 +26,10 @@ class ExtensionRegistryImpl(
                 MedatarunExtensionCtxImpl(
                     extension,
                     ExtensionRegistrar(),
-                    MedatarunExtensionCtxConfigImpl(extension, config)
+                    MedatarunExtensionCtxConfigImpl(
+                        extension,
+                        config
+                    )
                 )
             )
         }

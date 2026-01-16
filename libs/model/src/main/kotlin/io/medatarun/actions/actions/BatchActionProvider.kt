@@ -3,7 +3,7 @@ package io.medatarun.actions.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 
-class BatchActionProvider() : ActionProvider<BatchAction> {
+class BatchActionProvider : ActionProvider<BatchAction> {
     override val actionGroupKey: String = "batch"
 
 
@@ -13,7 +13,7 @@ class BatchActionProvider() : ActionProvider<BatchAction> {
      * with user facing actions.
      */
     override fun findCommandClass() = BatchAction::class
-    override fun dispatch(cmd: BatchAction, actionCtx: ActionCtx): Any? {
+    override fun dispatch(cmd: BatchAction, actionCtx: ActionCtx): Any {
         return when (cmd) {
             is BatchAction.BatchRun -> runActions(cmd, actionCtx)
         }

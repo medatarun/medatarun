@@ -17,7 +17,7 @@ class DatabasesActionProvider(
     override val actionGroupKey: String = "databases"
 
 
-    override fun findCommandClass(): KClass<DatabasesAction>? {
+    override fun findCommandClass(): KClass<DatabasesAction> {
         return DatabasesAction::class
     }
 

@@ -12,7 +12,7 @@ sealed interface DatabasesAction {
         uiLocation = "global",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class DatabaseDrivers() : DatabasesAction
+    class DatabaseDrivers : DatabasesAction
 
     @ActionDoc(
         key="datasource_list",
@@ -21,5 +21,5 @@ sealed interface DatabasesAction {
         uiLocation = "global",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class Datasources() : DatabasesAction
+    class Datasources : DatabasesAction
 }

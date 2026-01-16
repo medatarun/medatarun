@@ -1,7 +1,7 @@
 package io.medatarun.types
 
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class TypesExtension : MedatarunExtension {
     override val id: String = "types"

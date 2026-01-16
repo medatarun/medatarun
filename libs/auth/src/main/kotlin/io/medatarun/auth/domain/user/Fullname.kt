@@ -23,16 +23,13 @@ value class Fullname(val value: String) {
 
         // lettres + diacritiques (accents combinants)
         val t = Character.getType(cp)
-        if (t == Character.UPPERCASE_LETTER.toInt() ||
-            t == Character.LOWERCASE_LETTER.toInt() ||
-            t == Character.TITLECASE_LETTER.toInt() ||
-            t == Character.MODIFIER_LETTER.toInt() ||
-            t == Character.OTHER_LETTER.toInt() ||
-            t == Character.NON_SPACING_MARK.toInt() ||
-            t == Character.COMBINING_SPACING_MARK.toInt() ||
-            t == Character.ENCLOSING_MARK.toInt()
-        ) return true
-
-        return false
+        return t == Character.UPPERCASE_LETTER.toInt() ||
+                t == Character.LOWERCASE_LETTER.toInt() ||
+                t == Character.TITLECASE_LETTER.toInt() ||
+                t == Character.MODIFIER_LETTER.toInt() ||
+                t == Character.OTHER_LETTER.toInt() ||
+                t == Character.NON_SPACING_MARK.toInt() ||
+                t == Character.COMBINING_SPACING_MARK.toInt() ||
+                t == Character.ENCLOSING_MARK.toInt()
     }
 }

@@ -32,10 +32,10 @@ import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
-import io.medatarun.kernel.ExtensionId
-import io.medatarun.kernel.MedatarunExtension
-import io.medatarun.kernel.MedatarunExtensionCtx
-import io.medatarun.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.ExtensionId
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.MedatarunServiceCtx
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -44,7 +44,7 @@ import io.medatarun.types.TypeJsonEquiv
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class AuthExtension() : MedatarunExtension {
+class AuthExtension : MedatarunExtension {
     override val id: ExtensionId = "auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()

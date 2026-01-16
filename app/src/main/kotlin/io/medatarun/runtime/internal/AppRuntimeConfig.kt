@@ -1,7 +1,7 @@
 package io.medatarun.runtime.internal
 
-import io.medatarun.kernel.MedatarunConfig
-import io.medatarun.kernel.ResourceLocator
+import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.ResourceLocator
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -9,7 +9,7 @@ import java.nio.file.Path
 class AppRuntimeConfig(
     override val applicationHomeDir: Path,
     override val projectDir: Path,
-    public val config: Config,
+    val config: Config,
     val resourceLocatorFactory: () -> ResourceLocator,
 ) : MedatarunConfig {
 

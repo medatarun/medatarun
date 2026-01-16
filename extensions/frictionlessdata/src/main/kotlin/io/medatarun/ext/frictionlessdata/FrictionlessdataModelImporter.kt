@@ -1,8 +1,8 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.domain.Model
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.platform.kernel.ResourceLocator
 
 class FrictionlessdataModelImporter: ModelImporter {
     val converter = FrictionlessConverter()

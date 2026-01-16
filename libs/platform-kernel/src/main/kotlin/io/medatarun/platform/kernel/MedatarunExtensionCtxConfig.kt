@@ -1,4 +1,4 @@
-package io.medatarun.kernel
+package io.medatarun.platform.kernel
 
 import java.nio.file.Path
 
@@ -14,7 +14,7 @@ interface MedatarunExtensionCtxConfig {
     fun resolveProjectPath(relativePath: String?): Path
 
     /**
-     * Returns extension storage path and create. When [init] is true, the directory is created if it doesn't exist yet.
+     * Returns extension storage path and create.
      */
     fun resolveExtensionStoragePath(): Path
 

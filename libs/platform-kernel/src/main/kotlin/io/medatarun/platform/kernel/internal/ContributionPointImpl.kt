@@ -1,7 +1,7 @@
-package io.medatarun.kernel.internal
+package io.medatarun.platform.kernel.internal
 
-import io.medatarun.kernel.ContributionPointId
-import io.medatarun.kernel.ExtensionId
+import io.medatarun.platform.kernel.ContributionPointId
+import io.medatarun.platform.kernel.ExtensionId
 import kotlin.reflect.KClass
 
 

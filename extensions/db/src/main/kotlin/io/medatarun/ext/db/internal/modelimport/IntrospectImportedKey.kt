@@ -15,6 +15,4 @@ data class IntrospectImportedKey(
     val fkName: String?,
     val pkName: String?,
     val deferrability: IntrospectImportedKeyDeferrability,
-) {
-
-}
+)

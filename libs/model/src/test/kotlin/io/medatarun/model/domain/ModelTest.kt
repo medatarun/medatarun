@@ -171,7 +171,7 @@ class ModelTest {
         assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelById(modelKey).name)
     }
 
-    class TestEnvOneModel() {
+    class TestEnvOneModel {
         val runtime = createRuntime()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
@@ -1047,7 +1047,7 @@ class ModelTest {
     // Attributes
     // -----------------------------------------------------------------------------------------------------------------
 
-    class TestEnvAttribute() {
+    class TestEnvAttribute {
         val runtime = createRuntime()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries

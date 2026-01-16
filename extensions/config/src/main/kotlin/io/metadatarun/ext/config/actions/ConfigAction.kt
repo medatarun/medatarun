@@ -11,7 +11,7 @@ sealed interface ConfigAction {
         uiLocation = "global",
         securityRule = SecurityRuleNames.PUBLIC
     )
-    class AIAgentsInstructions() : ConfigAction
+    class AIAgentsInstructions : ConfigAction
 
     @ActionDoc(
         key="inspect_config_text",
@@ -20,7 +20,7 @@ sealed interface ConfigAction {
         uiLocation = "global",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class Inspect() : ConfigAction
+    class Inspect : ConfigAction
 
     @ActionDoc(
         key="inspect_config_json",
@@ -29,6 +29,6 @@ sealed interface ConfigAction {
         uiLocation = "global",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class InspectJson() : ConfigAction
+    class InspectJson : ConfigAction
 
 }

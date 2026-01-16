@@ -7,12 +7,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonDecoder
-import kotlinx.serialization.json.JsonEncoder
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonPrimitive
-import kotlin.collections.map
+import kotlinx.serialization.json.*
 
 @Serializable(with = StringOrStringArraySerializer::class)
 data class StringOrStringArray(val values: List<String>)
@@ -31,8 +26,7 @@ object StringOrStringArraySerializer : KSerializer<StringOrStringArray> {
 
     override fun deserialize(decoder: Decoder): StringOrStringArray {
         val input = decoder as JsonDecoder
-        val element = input.decodeJsonElement()
-        return when (element) {
+        return when (val element = input.decodeJsonElement()) {
             is JsonArray ->
                 StringOrStringArray(element.map { it.jsonPrimitive.content })
 

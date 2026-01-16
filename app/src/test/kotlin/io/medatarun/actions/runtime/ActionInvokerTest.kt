@@ -2,8 +2,8 @@ package io.medatarun.actions.runtime
 
 import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
-import io.medatarun.kernel.ExtensionRegistry
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluator
@@ -600,7 +600,8 @@ class ActionInvokerTest {
     }
 
     private class TestActionCtx : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = object : ExtensionRegistry {
+        override val extensionRegistry: ExtensionRegistry = object :
+            ExtensionRegistry {
             override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
                 return emptyList()
             }

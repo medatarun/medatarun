@@ -11,7 +11,7 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.*
-import io.medatarun.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole

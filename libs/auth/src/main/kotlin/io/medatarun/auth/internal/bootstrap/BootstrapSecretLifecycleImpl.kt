@@ -66,7 +66,5 @@ class BootstrapSecretLifecycleImpl(
         return BootstrapSecretState(secret, consumed)
     }
 
-    companion object {
-
-    }
+    companion object
 }

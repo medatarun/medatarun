@@ -40,8 +40,7 @@ class LocalizedTextSerializer : KSerializer<LocalizedText> {
     }
 
     override fun deserialize(decoder: Decoder): LocalizedText {
-        val element = decoder.decodeSerializableValue(JsonElement.serializer())
-        return when (element) {
+        return when (val element = decoder.decodeSerializableValue(JsonElement.serializer())) {
             is JsonPrimitive -> LocalizedTextNotLocalized(element.content)
             is JsonObject -> LocalizedTextMap(element.mapValues { it.value.jsonPrimitive.content })
             else -> throw SerializationException("Invalid format for LocalizedText")

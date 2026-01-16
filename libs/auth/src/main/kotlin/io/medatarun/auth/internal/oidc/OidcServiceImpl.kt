@@ -225,7 +225,7 @@ class OidcServiceImpl(
         }
     }
 
-    override fun oidcAuthorizeFindAuthCtx(authCtxCode: String): OidcAuthorizeCtx? {
+    override fun oidcAuthorizeFindAuthCtx(authCtxCode: String): OidcAuthorizeCtx {
         return oidcAuthCodeStorage.findAuthCtx(authCtxCode)
     }
 

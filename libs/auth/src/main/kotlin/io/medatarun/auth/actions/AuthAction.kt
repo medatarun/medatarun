@@ -112,7 +112,7 @@ sealed interface AuthAction<R> {
         uiLocation = "",
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class WhoAmI(): AuthAction<WhoAmIRespDto>
+    class WhoAmI : AuthAction<WhoAmIRespDto>
 
     @ActionDoc(
         key="change_my_password",
@@ -219,7 +219,7 @@ sealed interface AuthAction<R> {
         uiLocation = "",
         securityRule = SecurityRuleNames.ADMIN
     )
-    class ActorList(): AuthAction<List<ActorInfoDto>>
+    class ActorList : AuthAction<List<ActorInfoDto>>
 
     @ActionDoc(
         key="actor_get",

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
  * module is still JSON-RPC SSE only. We keep the same surface as the future official module so
  * swapping back becomes trivial once upstream gains StreamableHttp support.
  */
-class McpStreamableHttpBridge() {
+class McpStreamableHttpBridge {
 
     private val streamableSessions = McpStreamableHttpSessionManager()
 

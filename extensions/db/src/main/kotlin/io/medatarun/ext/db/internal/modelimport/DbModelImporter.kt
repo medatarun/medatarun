@@ -3,17 +3,16 @@ package io.medatarun.ext.db.internal.modelimport
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.model.DbConnectionNotFoundException
-import io.medatarun.kernel.ResourceLocator
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.needs.ModelImporter
-import org.slf4j.LoggerFactory
+import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
 import java.util.*
 
-class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
+class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
     ModelImporter {
 
     private val introspect = DbIntrospect(dbDriverManager)
@@ -104,8 +103,4 @@ class DbModelImporter(val dbDriverManager: DbDriverManager, val dbConnectionRegi
         return model
     }
 
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(DbModelImporter::class.java)
-    }
 }

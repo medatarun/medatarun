@@ -8,7 +8,7 @@ export interface ActionPerformerContextValue {
   confirmAction: (formData: ActionPerformerRequestParams) => Promise<ActionResp>;
   cancelAction: (reason?: unknown) => void;
   finishAction: () => void
-};
+}
 
 
 export const ActionPerformerContext = createContext<ActionPerformerContextValue | null>(null);
