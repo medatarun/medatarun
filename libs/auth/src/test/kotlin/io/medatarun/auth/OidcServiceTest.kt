@@ -8,10 +8,8 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertNotNull
+import java.net.URI
+import kotlin.test.*
 
 class OidcServiceTest {
 
@@ -82,8 +80,78 @@ class OidcServiceTest {
 
     @Test
     fun `oidcWellKnownOpenIdConfiguration  correct`() {
-        // Test to complete by assuring that the protocol is correct
-        // (not based on the code but the protocol)
+        // Validate OIDC Discovery metadata required fields and advertised capabilities.
+        val publicBaseUrl = URI("https://auth.example.test")
+
+        val json = env.oidcService.oidcWellKnownOpenIdConfiguration(publicBaseUrl)
+
+        fun requireStringField(source: JsonObject, key: String): String {
+            val element = source[key]
+            assertNotNull(element)
+            assertIs<JsonPrimitive>(element)
+            val primitive = element as JsonPrimitive
+            assertTrue(primitive.isString)
+            return primitive.content
+        }
+
+        fun requireStringArrayField(source: JsonObject, key: String): List<String> {
+            val element = source[key]
+            assertNotNull(element)
+            assertIs<JsonArray>(element)
+            val array = element as JsonArray
+            val values = mutableListOf<String>()
+            for (item in array) {
+                assertIs<JsonPrimitive>(item)
+                val primitive = item as JsonPrimitive
+                assertTrue(primitive.isString)
+                values.add(primitive.content)
+            }
+            return values
+        }
+
+        val issuer = requireStringField(json, "issuer")
+        assertEquals(env.jwtConfig.issuer, issuer)
+
+        val authorizationEndpoint = requireStringField(json, "authorization_endpoint")
+        val tokenEndpoint = requireStringField(json, "token_endpoint")
+        val userinfoEndpoint = requireStringField(json, "userinfo_endpoint")
+        val jwksUri = requireStringField(json, "jwks_uri")
+
+        assertEquals(publicBaseUrl.resolve("/oidc/authorize").toString(), authorizationEndpoint)
+        assertEquals(publicBaseUrl.resolve("/oidc/token").toString(), tokenEndpoint)
+        assertEquals(publicBaseUrl.resolve("/oidc/userinfo").toString(), userinfoEndpoint)
+        assertEquals(publicBaseUrl.resolve(env.oidcService.oidcJwksUri()).toString(), jwksUri)
+
+        // Ensure we have only "code"
+        val responseTypesSupported = requireStringArrayField(json, "response_types_supported")
+        assertEquals(1, responseTypesSupported.size)
+        assertTrue(responseTypesSupported.contains("code"))
+
+        // Ensure we have only "authorization_code" (and no refresh token)
+        val grantTypesSupported = requireStringArrayField(json, "grant_types_supported")
+        assertEquals(1, grantTypesSupported.size)
+        assertTrue(grantTypesSupported.contains("authorization_code"))
+        assertEquals(false, grantTypesSupported.contains("refresh_token"))
+
+        // Ensure we have only "public"
+        val subjectTypesSupported = requireStringArrayField(json, "subject_types_supported")
+        assertEquals(1, subjectTypesSupported.size)
+        assertTrue(subjectTypesSupported.contains("public"))
+
+        val idTokenAlgs = requireStringArrayField(json, "id_token_signing_alg_values_supported")
+        val expectedAlg = JwksAdapter.toJwks(env.jwtKeyMaterial.publicKey, env.jwtKeyMaterial.kid).keys[0].alg
+        assertEquals(1, idTokenAlgs.size)
+        assertTrue(idTokenAlgs.contains(expectedAlg))
+
+        val scopesSupported = requireStringArrayField(json, "scopes_supported")
+        assertTrue(scopesSupported.contains("openid"))
+
+        val claimsSupported = requireStringArrayField(json, "claims_supported")
+        assertTrue(claimsSupported.containsAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "roles")))
+
+        val pkceMethods = requireStringArrayField(json, "code_challenge_methods_supported")
+        assertEquals(1, pkceMethods.size)
+        assertTrue(pkceMethods.contains("S256"))
     }
 
 }

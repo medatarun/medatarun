@@ -35,7 +35,15 @@ interface OidcService {
      */
     fun jwtVerifierResolver(): JwtVerifierResolver
 
+    /**
+     * URI relative to public base URL to get the well-known openId configuration
+     */
     fun oidcWellKnownOpenIdConfigurationUri(): String
+
+    /**
+     * Contents of well-known openid configuration in Json.
+     * Must respect the standard
+     */
     fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject
 
 
