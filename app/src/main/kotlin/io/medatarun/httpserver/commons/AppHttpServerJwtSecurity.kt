@@ -28,16 +28,23 @@ fun Application.installJwtSecurity(oidcService: OidcService) {
     install(Authentication) {
         jwt(AUTH_MEDATARUN_JWT) {
             skipWhen { call ->
-                call.request.headers[HttpHeaders.Authorization] == null
+                // Skip authentication if there is no authorization header.
+                // Be careful, authorization header can be mixed lowercase (ChatGPT Codex) sometimes
+                // If skipped then principal will be null (or another mechanism will relay)
+                call.request.headers.names().none{ it.equals(HttpHeaders.Authorization, ignoreCase = true) }
             }
             verifier { header ->
+                // Extract the bearer token and call our resolver that can mix
+                // multiple JWT issuers
                 val token = extractBearerToken(header) ?: return@verifier null
                 oidcService.jwtVerifierResolver().resolve(token)
             }
             validate { cred ->
+                // Build a principal
                 JWTPrincipal(cred.payload)
             }
             challenge { _, _ ->
+                // In case of errors
                 call.respond(HttpStatusCode.Unauthorized, "invalid or missing token")
             }
         }

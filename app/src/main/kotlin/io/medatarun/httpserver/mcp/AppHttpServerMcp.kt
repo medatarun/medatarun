@@ -1,9 +1,15 @@
 package io.medatarun.httpserver.mcp
 
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
+import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.modelcontextprotocol.kotlin.sdk.server.mcp
+import org.slf4j.LoggerFactory
 
 /**
  * Install routes for MCP (Model Context Protocol) for AIs
@@ -22,6 +28,15 @@ fun Routing.installMcp(
     enableMcpSse: Boolean = false,
     enableMcpStreamingHttp: Boolean = true
 ) {
+    val logger = LoggerFactory.getLogger("MCP")
+
+    fun debugCall(call: ApplicationCall) {
+        val method = call.request.httpMethod.value
+        val path = call.request.path()
+        val principal = call.authentication.principal<JWTPrincipal>()
+        val headers = call.request.headers.names().map { it to call.request.headers[it] }.toMap()
+        logger.debug("path=$path method=$method principal=$principal headers=$headers")
+    }
 
     val mcpStreamableHttpBridge = McpStreamableHttpBridge()
 
@@ -43,18 +58,24 @@ fun Routing.installMcp(
     }
 
     if (enableMcpStreamingHttp) {
-        route("/mcp") {
-            post {
-                val principal = principalFactory.getAndSync(call)
-                mcpStreamableHttpBridge.handleStreamablePost(call) {
-                    mcpServerBuilder.buildMcpServer(principal)
+        authenticate(AUTH_MEDATARUN_JWT) {
+            route("/mcp") {
+                post {
+                    debugCall(call)
+                    val principal = principalFactory.getAndSync(call)
+                    mcpStreamableHttpBridge.handleStreamablePost(call) {
+                        logger.debug(call.request.headers.entries().map { it.key to it.value }.toMap().toString())
+                        mcpServerBuilder.buildMcpServer(principal)
+                    }
                 }
-            }
-            delete {
-                mcpStreamableHttpBridge.handleStreamableDelete(call)
-            }
-            sse {
-                mcpStreamableHttpBridge.handleStreamableSse(this)
+                delete {
+                    debugCall(call)
+                    mcpStreamableHttpBridge.handleStreamableDelete(call)
+                }
+                sse {
+                    debugCall(call)
+                    mcpStreamableHttpBridge.handleStreamableSse(this)
+                }
             }
         }
     }

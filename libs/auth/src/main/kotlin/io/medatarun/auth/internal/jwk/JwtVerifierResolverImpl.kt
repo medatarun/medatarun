@@ -19,10 +19,10 @@ import java.security.interfaces.RSAPublicKey
  * Resolves verifiers by issuer so Ktor only has to delegate token verification.
  */
 class JwtVerifierResolverImpl(
-    private val internalIssuer: String,
-    private val internalAudience: String,
-    private val internalPublicKey: RSAPublicKey,
-    private val externalJwkProviders: JwkExternalProviders
+    val internalIssuer: String,
+    val internalAudience: String,
+    val internalPublicKey: RSAPublicKey,
+    val externalJwkProviders: JwkExternalProviders
 ) : JwtVerifierResolver {
     private val logger = LoggerFactory.getLogger(JwtVerifierResolverImpl::class.java)
 

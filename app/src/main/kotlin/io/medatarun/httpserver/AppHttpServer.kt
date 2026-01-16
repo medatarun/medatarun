@@ -144,7 +144,9 @@ class AppHttpServer(
 
             installOidc(oidcService, userService, publicBaseUrl)
 
+
             installMcp(mcpServerBuilder, principalFactory = principalFactory)
+
 
             installHealth()
 

@@ -22,7 +22,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
 // OpenIdConnect
 // ----------------------------------------------------------------
 
-// Authentication: all public -> Jwks must be public for discovert
+    // Authentication: all public -> Jwks must be public for discovery
     get(oidcService.oidcJwksUri()) {
         call.respond(oidcService.oidcJwks())
     }
@@ -45,7 +45,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                 nonce = call.parameters["nonce"]
             )
 
-            val resp = oidcService.oidcAuthorize(req)
+            val resp = oidcService.oidcAuthorize(req, publicBaseUrl)
             when (resp) {
                 is OidcAuthorizeResult.FatalError -> {
                     call.respond(HttpStatusCode.BadRequest, resp.reason)
