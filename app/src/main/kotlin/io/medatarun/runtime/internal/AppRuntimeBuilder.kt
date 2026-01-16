@@ -2,8 +2,6 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.auth.AuthExtension
-import io.medatarun.data.DataExtension
-import io.medatarun.ext.datamdfile.DataMdFileExtension
 import io.medatarun.ext.db.DbExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
@@ -46,8 +44,6 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         ModelExtension(),
         ConfigExtension(),
         ModelJsonExtension(),
-        DataExtension(),
-        DataMdFileExtension(),
         DbExtension(),
         FrictionlessdataExtension()
     )

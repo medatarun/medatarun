@@ -18,7 +18,6 @@ dependencies {
     implementation(project(":libs:auth"))
     implementation(project(":extensions:config"))
     implementation(project(":extensions:modeljson"))
-    implementation(project(":extensions:data-md-file"))
     implementation(project(":extensions:db"))
     implementation(project(":extensions:frictionlessdata"))
     implementation(libs.kotlinReflect)
