@@ -275,10 +275,14 @@ class OidcServiceImpl(
 
     override fun oidcToken(req: OidcTokenRequest): OIDCTokenResponseOrError {
 
+        if (req.grantType != "authorization_code") {
+            return OIDCTokenResponseOrError.Error("invalid_grant")
+        }
+
         val authCode = oidcAuthCodeStorage.findAuthCode(req.code)
             ?: return OIDCTokenResponseOrError.Error("invalid_grant")
 
-        if (Instant.now().isAfter(authCode.expiresAt)) {
+        if (clock.now().isAfter(authCode.expiresAt)) {
             return OIDCTokenResponseOrError.Error("invalid_grant")
         }
         if (authCode.clientId != req.clientId) {
@@ -316,7 +320,7 @@ class OidcServiceImpl(
                 idToken = idToken,
                 accessToken = oidcAccessTokenResp.accessToken,
                 tokenType = "Bearer",
-                expiresIn = Instant.now().plusSeconds(3600).epochSecond,
+                expiresIn = jwtCfg.ttlSeconds,
             )
         )
 
@@ -338,7 +342,7 @@ class OidcServiceImpl(
         nonce: String?
     ): String {
         val alg = Algorithm.RSA256(authEmbeddedKeys.publicKey, authEmbeddedKeys.privateKey)
-        val now = Instant.now()
+        val now = clock.now()
 
         val b = JWT.create()
             .withKeyId(authEmbeddedKeys.kid)

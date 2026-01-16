@@ -1,19 +1,36 @@
 package io.medatarun.auth
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
+import io.medatarun.auth.domain.oidc.OidcTokenRequest
+import io.medatarun.auth.domain.user.Fullname
+import io.medatarun.auth.domain.user.PasswordClear
+import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
+import io.medatarun.auth.infra.OidcStorageSQLite
+import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwksAdapter
+import io.medatarun.auth.internal.jwk.JwtExternalProvidersEmpty
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.OidcClientRegistry
+import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.JWKS_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
+import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
+import io.medatarun.auth.ports.needs.OidcProviderConfig
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.Nested
 import java.net.URI
+import java.net.URLDecoder
+import java.security.MessageDigest
+import java.util.*
 import kotlin.test.*
 
 class OidcServiceTest {
@@ -21,27 +38,6 @@ class OidcServiceTest {
     val env = AuthEnvTest()
     val publicBaseUrl = URI("https://auth.example.test")
 
-    private fun buildAuthorizeRequest(
-        responseType: String? = "code",
-        clientId: String? = OidcClientRegistry.oidcInternalClientId,
-        redirectUri: String? = publicBaseUrl.resolve("/authentication-callback").toString(),
-        scope: String? = "openid",
-        state: String? = "state-123",
-        codeChallenge: String? = "challenge-123",
-        codeChallengeMethod: String? = "S256",
-        nonce: String? = "nonce-123"
-    ): OidcAuthorizeRequest {
-        return OidcAuthorizeRequest(
-            responseType = responseType,
-            clientId = clientId,
-            redirectUri = redirectUri,
-            scope = scope,
-            state = state,
-            codeChallenge = codeChallenge,
-            codeChallengeMethod = codeChallengeMethod,
-            nonce = nonce
-        )
-    }
 
     @Test
     fun `oidcJwks responses matches standard JWKS`() {
@@ -183,6 +179,35 @@ class OidcServiceTest {
     @Test
     fun `oidcAuthorizeUri fixed`() {
         assertEquals(OIDC_AUTHORIZE_URI, env.oidcService.oidcAuthorizeUri())
+    }
+
+    @Test
+    fun `oidcAuthority and oidcClientId use provider config when defined`() {
+        /*
+         * Goal: Prefer configured authority and client id over the public base URL.
+         * Why: External IdP configuration must override the default internal endpoints.
+         * How: Build a service with OidcProviderConfig and verify authority/clientId values.
+         */
+        val configuredAuthority = URI("https://issuer.example.test")
+        val configuredClientId = "client-oidc"
+        val providerConfig = OidcProviderConfig(configuredAuthority, configuredClientId)
+
+        val service = OidcServiceImpl(
+            oidcAuthCodeStorage = OidcStorageSQLite(env.dbConnectionFactory),
+            actorClaimsAdapter = ActorClaimsAdapter(),
+            oauthService = env.oauthService,
+            authEmbeddedKeys = env.jwtKeyMaterial,
+            jwtCfg = env.jwtConfig,
+            clock = env.authClock,
+            actorService = env.actorService,
+            authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
+            externalProviders = JwtExternalProvidersEmpty(),
+            oidcProviderConfig = providerConfig
+        )
+
+        val authority = service.oidcAuthority(URI("https://public.example.test"))
+        assertEquals(configuredAuthority, authority)
+        assertEquals(configuredClientId, service.oidcClientId())
     }
 
     @Nested inner class OidcAuthorizeTests {
@@ -513,4 +538,524 @@ class OidcServiceTest {
 
     }
 
+    @Nested inner class OidcAuthorizeCreateCodeTests {
+
+        @Test
+        fun `oidcAuthorizeCreateCode returns redirect with code and state`() {
+            /*
+             * Goal: Return a redirect URI containing a one-time authorization code and the original state.
+             * Why: OIDC requires redirecting back to the client with code + state after user login.
+             * How: Create an auth context, exchange it for a code, and verify redirect parameters and token exchange.
+             */
+            val fixedNow = env.authClock.now()
+            val actor = createUserActor()
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeChallenge = pkceChallengeForTest(codeVerifier)
+            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+
+            val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+            assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+            val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(
+                authorizeResult.authCtxCode,
+                actor.subject
+            )
+            val params = parseQueryParams(redirectLocation)
+            val code = params["code"]
+
+            assertNotNull(code)
+            assertEquals("state-123", params["state"])
+
+            val tokenResult = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = code,
+                    redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
+                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+            assertIs<OIDCTokenResponseOrError.Success>(tokenResult)
+            val token = tokenResult.token
+
+            val algorithm = Algorithm.RSA256(env.jwtKeyMaterial.publicKey, env.jwtKeyMaterial.privateKey)
+            val verifier = JWT.require(algorithm)
+                .withIssuer(env.jwtConfig.issuer)
+                .withAudience(OidcClientRegistry.oidcInternalClientId)
+                .withSubject(actor.subject)
+                .build()
+            val decoded = verifier.verify(token.idToken)
+
+            assertEquals("nonce-123", decoded.getClaim("nonce").asString())
+            assertEquals(env.authClock.staticNow.epochSecond, decoded.getClaim("auth_time").asLong())
+            assertEquals(actor.fullname, decoded.getClaim("name").asString())
+            assertEquals(actor.id.value.toString(), decoded.getClaim("mid").asString())
+            assertEquals(fixedNow.epochSecond, decoded.issuedAt.toInstant().epochSecond)
+            assertEquals(
+                fixedNow.plusSeconds(env.jwtConfig.ttlSeconds).epochSecond,
+                decoded.expiresAt.toInstant().epochSecond
+            )
+        }
+
+        @Test
+        fun `oidcAuthorizeCreateCode omits state when missing`() {
+            /*
+             * Goal: Return a redirect URI without state when the original request did not include it.
+             * Why: State is optional in OIDC and must not be added by the server.
+             * How: Create an auth context with null state and verify the redirect only contains code.
+             */
+            val subject = createUserSubject()
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeChallenge = pkceChallengeForTest(codeVerifier)
+            val request = buildAuthorizeRequest(state = null, codeChallenge = codeChallenge)
+
+            val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+            assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+            val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(
+                authorizeResult.authCtxCode,
+                subject
+            )
+            val params = parseQueryParams(redirectLocation)
+
+            assertNotNull(params["code"])
+            assertEquals(null, params["state"])
+        }
+
+        @Test
+        fun `oidcAuthorizeCreateCode removes auth context`() {
+            /*
+             * Goal: Ensure the authorization context is one-time use.
+             * Why: Reusing the same auth context would allow code replay.
+             * How: After createCode, assert that the auth context cannot be found anymore.
+             */
+            val subject = createUserSubject()
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeChallenge = pkceChallengeForTest(codeVerifier)
+            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+
+            val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+            assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+            env.oidcService.oidcAuthorizeCreateCode(
+                authorizeResult.authCtxCode,
+                subject
+            )
+
+            assertFailsWith<NoSuchElementException> {
+                env.oidcService.oidcAuthorizeFindAuthCtx(authorizeResult.authCtxCode)
+            }
+        }
+
+        @Test
+        fun `oidcAuthorizeCreateCode fails with unknown auth context`() {
+            /*
+             * Goal: Fail when the authorization context does not exist.
+             * Why: Authorization codes must only be created from a valid authorization context.
+             * How: Call createCode with a non-existent context id and expect a storage error.
+             */
+            val subject = "missing-subject-" + UUID.randomUUID()
+
+            assertFailsWith<NoSuchElementException> {
+                env.oidcService.oidcAuthorizeCreateCode("missing-auth-ctx", subject)
+            }
+        }
+
+    }
+
+    @Nested inner class OidcTokenTests {
+
+        @Test
+        fun `oidcToken rejects unsupported grant_type`() {
+            /*
+             * Goal: Reject token exchanges when grant_type is not authorization_code.
+             * Why: OIDC token endpoint must only accept the authorization_code grant in our server.
+             * How: Send a valid code with an unsupported grant_type and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "refresh_token",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = fixture.clientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken rejects unknown code`() {
+            /*
+             * Goal: Reject unknown authorization codes.
+             * Why: OIDC requires codes to be previously issued by the authorization endpoint.
+             * How: Call oidcToken with a random code and expect invalid_grant.
+             */
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = "missing-code",
+                    redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
+                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    codeVerifier = "verifier"
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken rejects expired code`() {
+            /*
+             * Goal: Reject expired authorization codes.
+             * Why: OIDC requires codes to be short-lived and unusable after expiration.
+             * How: Move the clock past expiration and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+            val originalNow = env.authClock.staticNow
+            env.authClock.staticNow = env.authClock.staticNow.plusSeconds(60 * 60)
+
+            val response = try {
+                env.oidcService.oidcToken(
+                    OidcTokenRequest(
+                        grantType = "authorization_code",
+                        code = fixture.code,
+                        redirectUri = fixture.redirectUri,
+                        clientId = fixture.clientId,
+                        codeVerifier = codeVerifier
+                    )
+                )
+            } finally {
+                env.authClock.staticNow = originalNow
+            }
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken rejects mismatched client_id`() {
+            /*
+             * Goal: Reject token exchange when the client_id does not match the issued code.
+             * Why: OIDC ties authorization codes to a client to prevent token theft.
+             * How: Use a valid code but send a different client_id and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = "other-client",
+                    codeVerifier = codeVerifier
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken rejects mismatched redirect_uri`() {
+            /*
+             * Goal: Reject token exchange when redirect_uri does not match the issued code.
+             * Why: OIDC binds the code to the redirect_uri to prevent code injection.
+             * How: Use a valid code but send a different redirect_uri and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = publicBaseUrl.resolve("/other-callback").toString(),
+                    clientId = fixture.clientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken rejects invalid code_verifier`() {
+            /*
+             * Goal: Reject token exchange when PKCE verification fails.
+             * Why: PKCE prevents authorization code interception attacks.
+             * How: Use a valid code but provide an incorrect code_verifier and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = fixture.clientId,
+                    codeVerifier = "wrong-" + UUID.randomUUID()
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Error>(response)
+            assertEquals("invalid_grant", response.error)
+        }
+
+        @Test
+        fun `oidcToken returns error when actor is missing`() {
+            /*
+             * Goal: Fail when the subject behind the authorization code cannot be found.
+             * Why: OIDC token issuance requires a valid subject to populate claims.
+             * How: Create a code for a non-existent subject and expect ActorNotFoundException on token exchange.
+             */
+            val subject = "missing-subject-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeChallenge = pkceChallengeForTest(codeVerifier)
+            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+
+            val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+            assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+            val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(
+                authorizeResult.authCtxCode,
+                subject
+            )
+            val params = parseQueryParams(redirectLocation)
+            val code = params["code"]
+            assertNotNull(code)
+
+            assertFailsWith<ActorNotFoundException> {
+                env.oidcService.oidcToken(
+                    OidcTokenRequest(
+                        grantType = "authorization_code",
+                        code = code,
+                        redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
+                        clientId = OidcClientRegistry.oidcInternalClientId,
+                        codeVerifier = codeVerifier
+                    )
+                )
+            }
+        }
+
+        @Test
+        fun `oidcToken returns expected token fields`() {
+            /*
+             * Goal: Return a complete OIDC token response with expected fields.
+             * Why: Clients rely on token_type, expires_in, and access_token for subsequent API calls.
+             * How: Exchange a valid code and verify response fields match the server configuration.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = fixture.clientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Success>(response)
+            val token = response.token
+            assertEquals("Bearer", token.tokenType)
+            assertEquals(env.jwtConfig.ttlSeconds, token.expiresIn)
+            assertTrue(token.accessToken.isNotBlank())
+            assertTrue(token.idToken.isNotBlank())
+        }
+
+        @Test
+        fun `oidcToken omits nonce when not provided`() {
+            /*
+             * Goal: Ensure nonce is not added when the authorization request did not include it.
+             * Why: OIDC requires nonce to be echoed only when provided by the client.
+             * How: Create a code with null nonce and verify the ID token has no nonce claim.
+             */
+            val actor = createUserActor()
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val request = buildAuthorizeRequest(
+                nonce = null,
+                state = null,
+                codeChallenge = pkceChallengeForTest(codeVerifier)
+            )
+
+            val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+            assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+            val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(
+                authorizeResult.authCtxCode,
+                actor.subject
+            )
+            val params = parseQueryParams(redirectLocation)
+            val code = params["code"]
+            assertNotNull(code)
+
+            val response = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = code,
+                    redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
+                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+
+            assertIs<OIDCTokenResponseOrError.Success>(response)
+            val decoded = JWT.decode(response.token.idToken)
+            assertTrue(decoded.getClaim("nonce").isMissing || decoded.getClaim("nonce").isNull)
+        }
+
+        @Test
+        fun `oidcToken rejects reused code`() {
+            /*
+             * Goal: Reject reuse of the same authorization code.
+             * Why: OIDC requires codes to be single-use to prevent replay attacks.
+             * How: Exchange a valid code once, then reuse it and expect invalid_grant.
+             */
+            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val fixture = createAuthorizationCodeFixture(codeVerifier)
+
+            val first = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = fixture.clientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+            assertIs<OIDCTokenResponseOrError.Success>(first)
+
+            val second = env.oidcService.oidcToken(
+                OidcTokenRequest(
+                    grantType = "authorization_code",
+                    code = fixture.code,
+                    redirectUri = fixture.redirectUri,
+                    clientId = fixture.clientId,
+                    codeVerifier = codeVerifier
+                )
+            )
+            assertIs<OIDCTokenResponseOrError.Error>(second)
+            assertEquals("invalid_grant", second.error)
+        }
+
+    }
+
+    // ------------------------------------------------------------------------
+    // Tests helpers
+    // ------------------------------------------------------------------------
+
+    data class AuthorizationCodeFixture(
+        val code: String,
+        val subject: String,
+        val redirectUri: String,
+        val clientId: String
+    )
+
+    private fun buildAuthorizeRequest(
+        responseType: String? = "code",
+        clientId: String? = OidcClientRegistry.oidcInternalClientId,
+        redirectUri: String? = publicBaseUrl.resolve("/authentication-callback").toString(),
+        scope: String? = "openid",
+        state: String? = "state-123",
+        codeChallenge: String? = "challenge-123",
+        codeChallengeMethod: String? = "S256",
+        nonce: String? = "nonce-123"
+    ): OidcAuthorizeRequest {
+        return OidcAuthorizeRequest(
+            responseType = responseType,
+            clientId = clientId,
+            redirectUri = redirectUri,
+            scope = scope,
+            state = state,
+            codeChallenge = codeChallenge,
+            codeChallengeMethod = codeChallengeMethod,
+            nonce = nonce
+        )
+    }
+
+    private fun pkceChallengeForTest(verifier: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(verifier.toByteArray(Charsets.US_ASCII))
+        return Base64.getUrlEncoder()
+            .withoutPadding()
+            .encodeToString(hash)
+    }
+
+    private fun parseQueryParams(uri: String): Map<String, String> {
+        val query = URI(uri).rawQuery ?: return emptyMap()
+        val params = mutableMapOf<String, String>()
+        val pairs = query.split("&")
+        for (pair in pairs) {
+            if (pair.isEmpty()) {
+                continue
+            }
+            val splitIndex = pair.indexOf("=")
+            if (splitIndex < 0) {
+                val key = URLDecoder.decode(pair, Charsets.UTF_8)
+                params[key] = ""
+            } else {
+                val key = URLDecoder.decode(pair.substring(0, splitIndex), Charsets.UTF_8)
+                val value = URLDecoder.decode(pair.substring(splitIndex + 1), Charsets.UTF_8)
+                params[key] = value
+            }
+        }
+        return params
+    }
+
+    private fun createUserActor(): Actor {
+        val username = Username("oidc-user-" + UUID.randomUUID())
+        val fullname = Fullname("Oidc User")
+        val password = PasswordClear("oidc-pass-" + UUID.randomUUID())
+        env.userService.createEmbeddedUser(username, fullname, password, false)
+        val actor = env.actorService.findByIssuerAndSubjectOptional(env.jwtConfig.issuer, username.value)
+        assertNotNull(actor)
+        return actor
+    }
+
+    private fun createUserSubject(): String {
+        return createUserActor().subject
+    }
+
+    private fun createAuthorizationCodeFixture(
+        codeVerifier: String,
+        state: String? = "state-123"
+    ): AuthorizationCodeFixture {
+        val actor = createUserActor()
+        val codeChallenge = pkceChallengeForTest(codeVerifier)
+        val request = buildAuthorizeRequest(
+            state = state,
+            codeChallenge = codeChallenge
+        )
+
+        val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
+        assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
+
+        val redirectLocation = env.oidcService.oidcAuthorizeCreateCode(
+            authorizeResult.authCtxCode,
+            actor.subject
+        )
+        val params = parseQueryParams(redirectLocation)
+        val code = params["code"]
+        assertNotNull(code)
+
+        return AuthorizationCodeFixture(
+            code = code,
+            subject = actor.subject,
+            redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
+            clientId = OidcClientRegistry.oidcInternalClientId
+        )
+    }
 }
