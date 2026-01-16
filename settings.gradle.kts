@@ -25,10 +25,12 @@ include(":ui")
 include(":libs:auth")
 include(":libs:lang")
 include(":libs:model")
-include(":libs:kernel")
+include(":libs:platform-type-system")
+include(":libs:platform-kernel")
 include(":extensions:config")
 include(":extensions:modeljson")
 include(":extensions:db")
 include(":extensions:frictionlessdata")
+
 
 rootProject.name = "medatarun-core"

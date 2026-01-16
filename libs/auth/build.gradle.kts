@@ -12,7 +12,7 @@ dependencies {
     implementation(libs.auth0JwksRsa)
     implementation(libs.slf4j)
     implementation(libs.sqliteJdbc)
-    implementation(project(":libs:kernel"))
+    implementation(project(":libs:platform-kernel"))
     implementation(project(":libs:lang"))
     implementation(project(":libs:model"))
     testImplementation(kotlin("test"))
