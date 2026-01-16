@@ -9,6 +9,7 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.junit.jupiter.api.Nested
 import java.net.URI
 import kotlin.test.*
 
@@ -158,6 +159,10 @@ class OidcServiceTest {
     @Test
     fun `oidcAuthorizeUri fixed`() {
         assertEquals(OIDC_AUTHORIZE_URI, env.oidcService.oidcAuthorizeUri())
+    }
+
+    @Nested inner class OidcAuthorizeTests {
+
     }
 
 }

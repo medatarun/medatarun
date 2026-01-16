@@ -200,8 +200,8 @@ class OidcServiceImpl(
                 codeChallengeMethod = codeChallengeMethod,
                 authCtxCode = authorizeCtxCode,
                 nonce = nonce,
-                createdAt = clock.now(),
-                expiresAt = clock.now().plusSeconds(60 * 15),
+                createdAt = createdAt,
+                expiresAt = expiresAt,
             )
         )
         return OidcAuthorizeResult.Valid(authCtxCode = authorizeCtxCode)
