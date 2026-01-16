@@ -11,6 +11,8 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.slf4j)
     implementation(project(":libs:platform-kernel"))
+    implementation(project(":libs:platform-actions"))
+    implementation(project(":libs:platform-security"))
     implementation(project(":libs:model"))
     implementation(project(":libs:lang"))
     testImplementation(kotlin("test"))

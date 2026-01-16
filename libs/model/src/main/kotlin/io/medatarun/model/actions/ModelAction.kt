@@ -1,12 +1,12 @@
 package io.medatarun.model.actions
 
 import io.medatarun.actions.actions.ActionUILocation
-import io.medatarun.actions.actions.SecurityRuleNames
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
+import io.medatarun.security.SecurityRuleNames
 
 @Suppress("ClassName")
 sealed interface ModelAction {

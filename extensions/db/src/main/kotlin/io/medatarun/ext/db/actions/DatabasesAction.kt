@@ -1,7 +1,8 @@
 package io.medatarun.ext.db.actions
 
-import io.medatarun.actions.actions.SecurityRuleNames
+
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.security.SecurityRuleNames
 
 sealed interface DatabasesAction {
 

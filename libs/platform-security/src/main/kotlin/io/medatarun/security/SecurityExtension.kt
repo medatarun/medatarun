@@ -1,6 +1,5 @@
 package io.medatarun.security
 
-import io.medatarun.actions.actions.SecurityRuleNames
 import io.medatarun.platform.kernel.ExtensionId
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx

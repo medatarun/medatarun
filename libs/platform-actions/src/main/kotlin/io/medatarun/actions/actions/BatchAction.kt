@@ -2,6 +2,7 @@ package io.medatarun.actions.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.security.SecurityRuleNames
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject

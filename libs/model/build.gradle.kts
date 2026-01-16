@@ -12,5 +12,7 @@ dependencies {
     implementation(libs.slf4j)
     implementation(project(":libs:lang"))
     implementation(project(":libs:platform-kernel"))
+    implementation(project(":libs:platform-actions"))
+    implementation(project(":libs:platform-security"))
     testImplementation(kotlin("test"))
 }

@@ -7,16 +7,10 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinxSerialization)
-    implementation(libs.auth0JavaJwt)
-    implementation(libs.auth0JwksRsa)
+    // Apply the kotlinx bundle of dependencies from the version catalog (`gradle/libs.versions.toml`).
+    implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.slf4j)
-    implementation(libs.sqliteJdbc)
-    implementation(project(":libs:platform-kernel"))
-    implementation(project(":libs:platform-actions"))
-    implementation(project(":libs:platform-security"))
     implementation(project(":libs:lang"))
-    implementation(project(":libs:model"))
+    implementation(project(":libs:platform-kernel"))
     testImplementation(kotlin("test"))
-    testImplementation(libs.jimfs)
 }

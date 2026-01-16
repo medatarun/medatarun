@@ -1,12 +1,12 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.actions.actions.SecurityRuleNames
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.security.SecurityRuleNames
 
 sealed interface AuthAction<R> {
 

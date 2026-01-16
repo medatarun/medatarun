@@ -1,4 +1,4 @@
-package io.medatarun.actions.actions
+package io.medatarun.security
 
 object SecurityRuleNames {
     const val PUBLIC = "public"
