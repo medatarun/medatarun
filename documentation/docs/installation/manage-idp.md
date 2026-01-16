@@ -48,7 +48,7 @@ medatarun.auth.jwt.trusted.issuer.azure.issuer=https://login.microsoftonline.com
 medatarun.auth.jwt.trusted.issuer.azure.jwks=https://login.microsoftonline.com/common/discovery/v2.0/keys
 ```
 
-:::warn
+:::warning
 **Those values are examples**. Use the exact values provided by your identity provider.
 :::
 
