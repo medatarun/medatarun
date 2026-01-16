@@ -77,12 +77,26 @@ expect them to act on.
   refine it: adjust types and relationships, add tags and descriptions, and reshape entities or attributes when the
   import didn’t capture enough information.
 
+- **Action-level traceability with explicit actors (humans and non-humans)**
+
+  Every operation is executed by an identified actor, whether it is a human user, an external identity, an automation, a CI/CD pipeline or an AI agent.
+  Authentication (local users or external OIDC providers) and JWT validation are used to establish identity, but never blur authorship.
+  This makes all changes attributable and auditable: you can know who or what modified which part of a model, when, and through which operation, across all channels.
 
 - **Multilingual and rich descriptions with stable IDs**.
 
   Textual content translations (names, descriptions) are stored in-place everywhere they are.
   Long texts (entity or relationship descriptions for example) accept Markdown formatting.
   One canonical structure, multiple languages for different audiences and agents, without duplicating or drifting.
+
+- **Rich, in-model documentation** without breaking structure
+
+  Medatarun is made to carry real explanations: names, descriptions and long-form texts (Markdown) live directly on
+  models, entities, relationships and attributes, so business meaning and context are written where they apply.
+  
+  At the same time, text does not define identity. Operations, automation and model comparisons rely on explicit
+  structural keys, so structural changes (including renamed columns/tables on import) surface as real diffs that can’t
+  be hidden by wording, and can be reviewed alongside the documentation they impact.
 
 - **Extension system**.
 
