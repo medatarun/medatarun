@@ -4,6 +4,7 @@ import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.JWKS_URI
+import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -152,6 +153,11 @@ class OidcServiceTest {
         val pkceMethods = requireStringArrayField(json, "code_challenge_methods_supported")
         assertEquals(1, pkceMethods.size)
         assertTrue(pkceMethods.contains("S256"))
+    }
+
+    @Test
+    fun `oidcAuthorizeUri fixed`() {
+        assertEquals(OIDC_AUTHORIZE_URI, env.oidcService.oidcAuthorizeUri())
     }
 
 }

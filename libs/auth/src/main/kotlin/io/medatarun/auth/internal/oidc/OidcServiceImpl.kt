@@ -126,7 +126,7 @@ class OidcServiceImpl(
     }
 
     override fun oidcAuthorizeUri(): String {
-        return "/oidc/authorize"
+        return OIDC_AUTHORIZE_URI
     }
 
     override fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult {
@@ -368,6 +368,7 @@ class OidcServiceImpl(
     companion object {
         const val JWKS_URI = "/oidc/jwks.json"
         const val OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION = "/oidc/.well-known/openid-configuration"
+        const val OIDC_AUTHORIZE_URI = "/oidc/authorize"
     }
 
 }

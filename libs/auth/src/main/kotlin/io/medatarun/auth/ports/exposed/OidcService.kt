@@ -46,7 +46,6 @@ interface OidcService {
      */
     fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject
 
-
     /**
      * Returns URL where authorize is done. Implementation shall return a URL where
      * users can put their login and password.
