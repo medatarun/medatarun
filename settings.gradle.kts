@@ -27,7 +27,6 @@ include(":libs:lang")
 include(":libs:model")
 include(":extensions:config")
 include(":extensions:modeljson")
-include(":extensions:data-md-file")
 include(":extensions:db")
 include(":extensions:frictionlessdata")
 
