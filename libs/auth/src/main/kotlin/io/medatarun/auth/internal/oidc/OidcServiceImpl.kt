@@ -3,6 +3,7 @@ package io.medatarun.auth.internal.oidc
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.jwt.Jwk
 import io.medatarun.auth.domain.jwt.Jwks
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
@@ -14,6 +15,7 @@ import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwkExternalProviders
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
+import io.medatarun.auth.internal.oidc.OidcClientRegistry.Companion.oidcInternalClientId
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcProviderConfig
@@ -22,7 +24,6 @@ import kotlinx.serialization.json.*
 import java.net.URI
 import java.net.URLEncoder
 import java.security.MessageDigest
-import java.security.interfaces.RSAPublicKey
 import java.time.Instant
 import java.util.*
 
@@ -39,48 +40,12 @@ class OidcServiceImpl(
     private val oidcProviderConfig: OidcProviderConfig?
 ) : OidcService {
 
-    private val oidcInternalClientId = "medatarun-ui"
-
-    /**
-     * public base URL must come from the application configuration
-     * (environment variable or config properties)
-     */
-    inner class Clients(private val publicBaseUrl: URI) {
-        val clients = listOf<OidcClient>(
-            OidcClient(oidcInternalClientId, listOf(publicBaseUrl.resolve("/authentication-callback")))
-        ).associateBy { it.clientId }
-
-        fun find(clientId: String): OidcClient? {
-            return clients[clientId]
-        }
-
-        fun exists(clientId: String): Boolean {
-            return clients.containsKey(clientId)
-        }
-
-        fun matchesUri(clientId: String, redirectUriStr: String): Boolean {
-            val client = clients[clientId] ?: return false
-            val redirectUri: URI = URI(redirectUriStr)
-            return client.redirectUris.any {
-                it.scheme == redirectUri.scheme
-                        && it.fragment == null
-                        && it.host == redirectUri.host
-                        && it.path == redirectUri.path
-                        && (redirectUri.host == "localhost" || it.port == redirectUri.port)
-            }
-        }
-    }
-
-
     private val jwtVerifierResolver: JwtVerifierResolver = JwtVerifierResolverImpl(
         internalIssuer = jwtCfg.issuer,
         internalAudience = jwtCfg.audience,
         internalPublicKey = authEmbeddedKeys.publicKey,
         externalJwkProviders = externalProviders
     )
-
-
-
 
     override fun oidcAuthority(publicBaseUrl: URI): URI {
         return oidcProviderConfig?.authority ?: publicBaseUrl.resolve("/oidc")
@@ -94,24 +59,16 @@ class OidcServiceImpl(
         return jwtVerifierResolver
     }
 
-    override fun oidcPublicKey(): RSAPublicKey {
-        return authEmbeddedKeys.publicKey
-    }
-
     override fun oidcIssuer(): String {
         return jwtCfg.issuer
     }
 
-    override fun oidcAudience(): String {
-        return jwtCfg.audience
-    }
-
     override fun oidcJwksUri(): String {
-        return "/oidc/jwks.json"
+        return JWKS_URI
     }
 
     override fun oidcWellKnownOpenIdConfigurationUri(): String {
-        return "/oidc/.well-known/openid-configuration"
+        return OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
     }
 
     override fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject {
@@ -121,7 +78,7 @@ class OidcServiceImpl(
             put("token_endpoint", publicBaseUrl.resolve("/oidc/token").toURL().toExternalForm())
             put("userinfo_endpoint", publicBaseUrl.resolve("/oidc/userinfo").toURL().toExternalForm())
 
-            put("jwks_uri", publicBaseUrl.resolve("/oidc/jwks.json").toURL().toExternalForm())
+            put("jwks_uri", publicBaseUrl.resolve(JWKS_URI).toURL().toExternalForm())
 
             // Current OIDC recommendation is to only support "code" flow,
             // not "token" flow anymore (token flow, is when you send the JDBC token in URLs)
@@ -133,7 +90,7 @@ class OidcServiceImpl(
 
             // Indicates that the "sub" in the token is the same whatever the client who requests the token
             putJsonArray("subject_types_supported") { add("public") }
-            putJsonArray("id_token_signing_alg_values_supported") { add(oidcJwks().keys.first().alg) }
+            putJsonArray("id_token_signing_alg_values_supported") { add(oidcJwkKeySingle().alg) }
 
             putJsonArray("scopes_supported") { addAll(listOf("openid", "profile", "email")) }
             putJsonArray("claims_supported") { addAll(listOf("sub", "iss", "aud", "exp", "iat", "email", "roles")) }
@@ -142,9 +99,30 @@ class OidcServiceImpl(
         }
     }
 
-
-    override fun oidcJwks(): Jwks {
+    fun oidcJwksKeys(): Jwks {
         return JwksAdapter.toJwks(authEmbeddedKeys.publicKey, authEmbeddedKeys.kid)
+    }
+
+    fun oidcJwkKeySingle(): Jwk {
+        return oidcJwksKeys().keys.first()
+    }
+
+    override fun oidcJwks(): JsonObject {
+        val jwks = oidcJwksKeys()
+        return buildJsonObject {
+            putJsonArray("keys") {
+                jwks.keys.forEach {
+                    addJsonObject {
+                        put("kty", it.kty)
+                        put("use", it.use)
+                        put("alg", it.alg)
+                        put("kid", it.kid)
+                        put("n", it.n)
+                        put("e", it.e)
+                    }
+                }
+            }
+        }
     }
 
     override fun oidcAuthorizeUri(): String {
@@ -167,13 +145,13 @@ class OidcServiceImpl(
                 redirectUri, "unauthorized_client", req.state
             )
 
-        val clients = Clients(publicBaseUrl)
+        val oidcClientRegistry = OidcClientRegistry(publicBaseUrl)
 
-        if (!clients.exists(clientId)) return OidcAuthorizeResult.RedirectError(
-                redirectUri, "unauthorized_client", req.state
-            )
+        if (!oidcClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
+            redirectUri, "unauthorized_client", req.state
+        )
 
-        if (!clients.matchesUri(clientId, redirectUri)) {
+        if (!oidcClientRegistry.matchesUri(clientId, redirectUri)) {
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 
@@ -385,6 +363,11 @@ class OidcServiceImpl(
         }
 
         return b.sign(alg)
+    }
+
+    companion object {
+        const val JWKS_URI = "/oidc/jwks.json"
+        const val OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION = "/oidc/.well-known/openid-configuration"
     }
 
 }

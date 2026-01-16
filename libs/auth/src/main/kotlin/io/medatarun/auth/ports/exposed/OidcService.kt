@@ -1,21 +1,33 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.jwt.Jwks
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
-import java.security.interfaces.RSAPublicKey
 
 interface OidcService {
-    fun oidcJwks(): Jwks
-    fun oidcJwksUri(): String
-    fun oidcPublicKey(): RSAPublicKey
-    fun oidcIssuer(): String
+    /**
+     * Returns Json object that matches RFC-7517 JSON Web Key (JWK)
+     */
+    fun oidcJwks(): JsonObject
 
-    fun oidcAudience(): String
+    /**
+     * URL relative to public base URL where the JWKS is located
+     */
+    fun oidcJwksUri(): String
+
+    /**
+     * Returns our issuer as configured.
+     *
+     * This is used in many parts to know "it is use who issued the key"
+     *
+     * Changes some behaviors in other parts of the system to distinguish
+     * external sources (external IdP for example) from an internal source (our
+     * internal IdP)
+     */
+    fun oidcIssuer(): String
 
     /**
      * Provides a JWT verifier resolver so the HTTP layer can stay minimal and delegate

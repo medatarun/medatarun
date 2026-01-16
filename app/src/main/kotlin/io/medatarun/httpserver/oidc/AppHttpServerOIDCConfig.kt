@@ -22,7 +22,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
 // OpenIdConnect
 // ----------------------------------------------------------------
 
-// Authentication: all public -> Jwks must be public for discovert
+    // Authentication: all public -> Jwks must be public for discovery
     get(oidcService.oidcJwksUri()) {
         call.respond(oidcService.oidcJwks())
     }
