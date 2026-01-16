@@ -30,11 +30,14 @@ expect them to act on.
   Business users can understand and adjust the model directly, which turns it into a shared workspace
   instead of an engineering artefact.
 
-- **MCP-based AI interaction** with full access to the model.
+- **Rich, in-model documentation** without breaking structure
 
-  Agents use the same commands and structures as humans, all of them. No glue code, no custom API surface, no bespoke
-  parsing layer.
-  The AI operates natively on the model.
+  Medatarun is made to carry real explanations: names, descriptions and long-form texts (Markdown) live directly on
+  models, entities, relationships and attributes, so business meaning and context are written where they apply.
+
+  At the same time, text does not define identity. Operations, automation and model comparisons rely on explicit
+  structural keys, so structural changes (including renamed columns/tables on import) surface as real diffs that can’t
+  be hidden by wording, and can be reviewed alongside the documentation they impact.
 
 - **Support for many models and many entities**
 
@@ -56,11 +59,11 @@ expect them to act on.
   Gives immediate visibility on cross-cutting concerns such as personal data, sensitivity, compliance scope, data
   quality or business rules.
 
-- **Unified UI/CLI/REST/AI Agents via MCP operations**
+- **Unified operations for UI, CLI, APIs and AI Agents**
 
-  The same resources, commands and behaviours everywhere. Eliminates divergence between human workflows, automation and
-  agents.
-  Fast learning curve.
+  The same operations are exposed everywhere: user interface, command line, REST APIs and AI Agents via MCP Protocol.
+  Humans and automation act on the exact same primitives, ensuring consistency, traceability and no divergence
+  between workflows: no glue code, no custom API surface, no bespoke parsing layer... and a linear learning curve for you.
 
   Builtin commands allow to view and manipulate
 
@@ -82,21 +85,6 @@ expect them to act on.
   Every operation is executed by an identified actor, whether it is a human user, an external identity, an automation, a CI/CD pipeline or an AI agent.
   Authentication (local users or external OIDC providers) and JWT validation are used to establish identity, but never blur authorship.
   This makes all changes attributable and auditable: you can know who or what modified which part of a model, when, and through which operation, across all channels.
-
-- **Multilingual and rich descriptions with stable IDs**.
-
-  Textual content translations (names, descriptions) are stored in-place everywhere they are.
-  Long texts (entity or relationship descriptions for example) accept Markdown formatting.
-  One canonical structure, multiple languages for different audiences and agents, without duplicating or drifting.
-
-- **Rich, in-model documentation** without breaking structure
-
-  Medatarun is made to carry real explanations: names, descriptions and long-form texts (Markdown) live directly on
-  models, entities, relationships and attributes, so business meaning and context are written where they apply.
-  
-  At the same time, text does not define identity. Operations, automation and model comparisons rely on explicit
-  structural keys, so structural changes (including renamed columns/tables on import) surface as real diffs that can’t
-  be hidden by wording, and can be reviewed alongside the documentation they impact.
 
 - **Extension system**.
 
