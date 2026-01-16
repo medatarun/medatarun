@@ -147,6 +147,11 @@ class OidcServiceImpl(
 
         val oidcClientRegistry = OidcClientRegistry(publicBaseUrl)
 
+        val redirectUriParsed = URI(redirectUri)
+        if (redirectUriParsed.fragment != null) {
+            return OidcAuthorizeResult.FatalError("invalid redirect_uri")
+        }
+
         if (!oidcClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
             redirectUri, "unauthorized_client", req.state
         )
