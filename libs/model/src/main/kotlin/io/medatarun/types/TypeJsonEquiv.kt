@@ -1,11 +1,11 @@
 package io.medatarun.types
 
-enum class JsonTypeEquiv(val code: String) {
+enum class TypeJsonEquiv(val code: String) {
     STRING("string"), BOOLEAN("boolean"), NUMBER("number"), OBJECT("object"), ARRAY("array")
     ;
 
     companion object {
         private val map = entries.associateBy { it.code }
-        fun valueOfCode(code: String): JsonTypeEquiv = map[code] ?: throw ActionParamJsonTypeUnknownException(code)
+        fun valueOfCode(code: String): TypeJsonEquiv = map[code] ?: throw TypeJsonEquivUnknownException(code)
     }
 }

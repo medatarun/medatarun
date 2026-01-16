@@ -39,8 +39,8 @@ import io.medatarun.kernel.MedatarunServiceCtx
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
-import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonEquiv
 import java.time.Instant
 import kotlin.reflect.KClass
 
@@ -64,7 +64,7 @@ class AuthExtension() : MedatarunExtension {
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
         override val target: KClass<Username> = Username::class
         override val equivMultiplatorm: String = "Username"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
         override fun validate(value: Username): Username {
             return value.validate()
         }
@@ -73,7 +73,7 @@ class AuthExtension() : MedatarunExtension {
     class FullnameTypeDescriptor : TypeDescriptor<Fullname> {
         override val target: KClass<Fullname> = Fullname::class
         override val equivMultiplatorm: String = "Fullname"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
         override fun validate(value: Fullname): Fullname {
             return value.validate()
         }
@@ -82,7 +82,7 @@ class AuthExtension() : MedatarunExtension {
     class PasswordClearTypeDescriptor : TypeDescriptor<PasswordClear> {
         override val target: KClass<PasswordClear> = PasswordClear::class
         override val equivMultiplatorm: String = "PasswordClear"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
         override fun validate(value: PasswordClear): PasswordClear {
             // No validation in entrance because the rules are too specific
             // Business will do it
@@ -94,7 +94,7 @@ class AuthExtension() : MedatarunExtension {
     class ActorIdDescriptor : TypeDescriptor<ActorId> {
         override val target: KClass<ActorId> = ActorId::class
         override val equivMultiplatorm: String = "ActorId"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
         override fun validate(value: ActorId): ActorId {
             // No validation in entrance because the rules are too specific
             // Business will do it

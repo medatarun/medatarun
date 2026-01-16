@@ -8,8 +8,8 @@ import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonEquiv
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -557,7 +557,7 @@ class ActionInvokerTest {
     private object ComplexPayloadTypeDescriptor : TypeDescriptor<ComplexPayload> {
         override val target: KClass<ComplexPayload> = ComplexPayload::class
         override val equivMultiplatorm: String = "ComplexPayload"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.OBJECT
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.OBJECT
 
         override fun validate(value: ComplexPayload): ComplexPayload {
             return value
@@ -570,7 +570,7 @@ class ActionInvokerTest {
     private object AbbreviationTypeDescriptor : TypeDescriptor<Abbreviation> {
         override val target: KClass<Abbreviation> = Abbreviation::class
         override val equivMultiplatorm: String = "Abbreviation"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
 
         override fun validate(value: Abbreviation): Abbreviation {
             if (value.value.length > 4) {

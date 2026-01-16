@@ -5,8 +5,8 @@ import io.medatarun.model.domain.AttributeDef
 import io.medatarun.model.domain.RelationshipDef
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
-import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonEquiv
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -18,7 +18,7 @@ class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
 
     private val typeDescriptors = typeContributions.associateBy { it.target }
 
-    fun toJsonType(returnType: KType): JsonTypeEquiv {
+    fun toJsonType(returnType: KType): TypeJsonEquiv {
 
         val classifier = returnType.classifier
         val kclass = classifier as? KClass<*>
@@ -26,23 +26,23 @@ class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
         if (equivJson != null) return equivJson
 
         when (classifier) {
-            String::class -> return JsonTypeEquiv.STRING
-            Boolean::class -> return JsonTypeEquiv.BOOLEAN
-            Int::class -> return JsonTypeEquiv.NUMBER
-            BigInteger::class -> return JsonTypeEquiv.NUMBER
-            Double::class -> return JsonTypeEquiv.NUMBER
-            BigDecimal::class -> return JsonTypeEquiv.NUMBER
-            List::class -> return JsonTypeEquiv.ARRAY
-            Map::class -> return JsonTypeEquiv.OBJECT
-            Instant::class -> return JsonTypeEquiv.STRING
-            LocalDate::class -> return JsonTypeEquiv.STRING
+            String::class -> return TypeJsonEquiv.STRING
+            Boolean::class -> return TypeJsonEquiv.BOOLEAN
+            Int::class -> return TypeJsonEquiv.NUMBER
+            BigInteger::class -> return TypeJsonEquiv.NUMBER
+            Double::class -> return TypeJsonEquiv.NUMBER
+            BigDecimal::class -> return TypeJsonEquiv.NUMBER
+            List::class -> return TypeJsonEquiv.ARRAY
+            Map::class -> return TypeJsonEquiv.OBJECT
+            Instant::class -> return TypeJsonEquiv.STRING
+            LocalDate::class -> return TypeJsonEquiv.STRING
 
             // TODO those types shall not be here -- do not test that
-            ActionWithPayload::class -> return JsonTypeEquiv.OBJECT
-            AttributeDef::class -> return JsonTypeEquiv.OBJECT
-            AttributeDefUpdateCmd::class -> return JsonTypeEquiv.OBJECT
-            RelationshipDef::class -> return JsonTypeEquiv.OBJECT
-            RelationshipDefUpdateCmd::class -> return JsonTypeEquiv.OBJECT
+            ActionWithPayload::class -> return TypeJsonEquiv.OBJECT
+            AttributeDef::class -> return TypeJsonEquiv.OBJECT
+            AttributeDefUpdateCmd::class -> return TypeJsonEquiv.OBJECT
+            RelationshipDef::class -> return TypeJsonEquiv.OBJECT
+            RelationshipDefUpdateCmd::class -> return TypeJsonEquiv.OBJECT
             else -> throw UndefinedMultiplatformTypeException(returnType)
         }
 
