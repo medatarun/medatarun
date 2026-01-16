@@ -1,5 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
+import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
@@ -51,8 +52,31 @@ interface OidcService {
      * users can put their login and password.
      */
     fun oidcAuthorizeUri(): String
+
+    /**
+     * Creates an Authorize code based on request.
+     * If there are errors on the request, returns an error and data that will allow use to build an error URL.
+     * If it is ok, creates a context identified by "authCtxCode" and persist it in storage. Also includes a URL to our login page.
+     * This context will be re-read after a successful login to redirect the user to its client application.
+     */
     fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult
+
+    /**
+     * Finds an authorized context by its identifier (identifier is an [authCtxCode])
+     */
     fun oidcAuthorizeFindAuthCtx(authCtxCode: String): OidcAuthorizeCtx?
+
+    /**
+     * Called after a successful login. Then, the authCtxCode and the subject (= user login)
+     * are used to transform the auth context into an [OidcAuthorizeCode].
+     *
+     * This code with all the context will be stored along with the subject.
+     *
+     * Then we return a redirect URI, based on the initial redirect uri, that contains the code
+     *
+     * UI will redirect user to its client application using this URI. The user's OIDC client
+     * will call /token and give /token this code again, so OIDC the process can continue.
+     */
     fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String
 
     fun oidcTokenUri(): String

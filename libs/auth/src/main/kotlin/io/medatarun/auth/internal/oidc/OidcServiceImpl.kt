@@ -229,8 +229,8 @@ class OidcServiceImpl(
         return oidcAuthCodeStorage.findAuthCtx(authCtxCode)
     }
 
-    override fun oidcAuthorizeCreateCode(authorizeCtxCode: String, subject: String): String {
-        val authorizeCtx = oidcAuthCodeStorage.findAuthCtx(authorizeCtxCode)
+    override fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String {
+        val authorizeCtx = oidcAuthCodeStorage.findAuthCtx(authCtxCode)
 
         val code = UUID.randomUUID().toString()
 
@@ -250,7 +250,7 @@ class OidcServiceImpl(
         )
 
         // tu stockes authCode dans une map / DB
-        oidcAuthCodeStorage.deleteAuthCtx(authorizeCtxCode)
+        oidcAuthCodeStorage.deleteAuthCtx(authCtxCode)
         oidcAuthCodeStorage.saveAuthCode(oidcAuthorizeCode)
 
         // tu envoies *uniquement*, la string au client
