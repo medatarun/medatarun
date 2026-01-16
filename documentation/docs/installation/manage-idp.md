@@ -1,3 +1,6 @@
+---
+sidebar_position: 40
+---
 # Connect your identity provider
 
 :::note
@@ -17,6 +20,13 @@ This page also assumes basic familiarity with authentication concepts.
 A JWT (JSON Web Token) is a signed token used to authenticate and authorize requests.
 An identity provider (IdP) is the system that issues these tokens after user authentication.
 A client_id identifies Medatarun as a registered application in that provider.
+
+## JWT and actors
+
+When a JWT token is received and approved, Medatarun [actors](./actors.md) are updated accordingly.
+
+External actors are created lazily, the first time a valid token issued by a trusted provider is presented.
+Once created, they persist and can be managed like any other actor.
 
 ## Configure trusted JWT issuers
 

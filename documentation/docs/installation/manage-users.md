@@ -2,11 +2,16 @@
 sidebar_position: 30
 ---
 
-# Managing users
+# Managing local users
 
 :::tip
 Medatarun includes a minimal built-in authentication system to get started.
 For production and large-scale deployments, see _Authentication model and scope_ at the end of this page.
+:::
+
+:::note
+Local users created in Medatarun are automatically represented as [actors](./actors.md).
+Any action performed on a user (enable, disable, role changes) directly affects the corresponding actor.
 :::
 
 ## Bootstrap and first admin user
