@@ -8,8 +8,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-import io.medatarun.model.domain.MedatarunException
 
 object AppHttpServerJwtSecurity {
     /**
@@ -19,10 +19,10 @@ object AppHttpServerJwtSecurity {
 }
 
 /**
- * Note that there is NO endpoint to get OAuth tokens, this is done with
- * https://<medatarun>/api/auth/token which is an Action as all other actions.
+ * Note that there is NO endpoint to get OAuth tokens; this is done with
+ * `https://<medatarun>/api/auth/token` which is an Action as all other actions.
  *
- * Only OIDC have specific endpoints
+ * Only OIDC has specific endpoints
  */
 fun Application.installJwtSecurity(oidcService: OidcService) {
     install(Authentication) {
@@ -30,7 +30,7 @@ fun Application.installJwtSecurity(oidcService: OidcService) {
             skipWhen { call ->
                 // Skip authentication if there is no authorization header.
                 // Be careful, authorization header can be mixed lowercase (ChatGPT Codex) sometimes
-                // If skipped then principal will be null (or another mechanism will relay)
+                // If skipped, then principal will be null (or another mechanism will relay)
                 call.request.headers.names().none{ it.equals(HttpHeaders.Authorization, ignoreCase = true) }
             }
             verifier { header ->
@@ -54,7 +54,7 @@ fun Application.installJwtSecurity(oidcService: OidcService) {
 private fun extractBearerToken(header: HttpAuthHeader): String? {
     // Ktor exposes a single parsed Authorization header, not the raw list. If multiple Authorization headers
     // are sent, they may be merged or only the first retained depending on the server. Returning null keeps
-    // this path as an auth failure (401 via challenge) instead of throwing and risking a 500. Detecting
+    // this path as an auth failure (401 via "challenge" method) instead of throwing and risking a 500. Detecting
     // multiple headers requires inspecting raw headers earlier in the pipeline.
     if (header !is HttpAuthHeader.Single) {
         return null
@@ -65,4 +65,4 @@ private fun extractBearerToken(header: HttpAuthHeader): String? {
     return header.blob
 }
 
-class JwtInvalidTokenException() : MedatarunException("Invalid Jwt token, must contain iss and sub.", StatusCode.UNAUTHORIZED)
+class JwtInvalidTokenException : MedatarunException("Invalid Jwt token, must contain iss and sub.", StatusCode.UNAUTHORIZED)

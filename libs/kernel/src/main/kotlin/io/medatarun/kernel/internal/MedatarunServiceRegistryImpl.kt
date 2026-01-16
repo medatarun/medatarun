@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 class MedatarunServiceRegistryImpl(
-    val extensions: List<MedatarunExtension>,
+    extensions: List<MedatarunExtension>,
     val config: MedatarunConfig
 ) : MedatarunServiceRegistry {
 

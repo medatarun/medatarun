@@ -10,8 +10,9 @@ dependencies {
     // Apply the kotlinx bundle of dependencies from the version catalog (`gradle/libs.versions.toml`).
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.slf4j)
-    implementation(project(":libs:model"))
     implementation(project(":libs:lang"))
+    implementation(project(":libs:kernel"))
+    implementation(project(":libs:model"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
 

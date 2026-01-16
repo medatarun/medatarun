@@ -1,6 +1,10 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.domain.*
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.Hashtag
+import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.EntityDefUpdateCmd
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
@@ -8,7 +12,7 @@ import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import io.medatarun.model.ports.needs.ModelRepositoryCmd
 import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
 
-class ModelInMemoryReducer() {
+class ModelInMemoryReducer {
     fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmdOnModel): ModelInMemory {
         return when (cmd) {
 

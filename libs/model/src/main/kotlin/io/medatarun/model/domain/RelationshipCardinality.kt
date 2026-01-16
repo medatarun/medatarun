@@ -1,5 +1,7 @@
 package io.medatarun.model.domain
 
+import io.medatarun.lang.exceptions.MedatarunException
+
 enum class RelationshipCardinality(val code: String) {
     ZeroOrOne("zeroOrOne"), Many("many"), One("one"), Unknown("unknown");
     companion object {

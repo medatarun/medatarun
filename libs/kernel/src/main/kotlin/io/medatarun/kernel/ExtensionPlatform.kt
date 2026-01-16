@@ -10,6 +10,6 @@ interface ExtensionPlatform {
     /**
      * Gets initialized and running extension registry
      */
-    val extensionRegistry: ExtensionRegistry;
+    val extensionRegistry: ExtensionRegistry
 
 }

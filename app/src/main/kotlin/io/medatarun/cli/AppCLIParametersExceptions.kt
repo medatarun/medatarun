@@ -1,6 +1,6 @@
 package io.medatarun.cli
 
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
 
 class CliParameterFormatException(argument: String) :
     MedatarunException("Invalid parameter format. Expected --param=value but got [$argument]")

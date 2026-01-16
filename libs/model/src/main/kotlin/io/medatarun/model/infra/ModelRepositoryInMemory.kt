@@ -1,6 +1,6 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepository

@@ -1,5 +1,6 @@
 package io.medatarun.model.infra
 
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.needs.*
 
@@ -43,7 +44,7 @@ class ModelStoragesComposite(
     }
 
     override fun findAllModelIds(): List<ModelKey> {
-        return repositories.map { it.findAllModelIds() }.flatten()
+        return repositories.flatMap { it.findAllModelIds() }
     }
 
 

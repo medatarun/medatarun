@@ -2,20 +2,22 @@ package io.medatarun.auth.domain
 
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-import io.medatarun.model.domain.MedatarunException
 
-class BootstrapSecretNotReadyException() :
+class BootstrapSecretNotReadyException :
     MedatarunException("Auth embedded service is not ready. Bootstrap has not been done yet")
-class BootstrapSecretPrefilledToShortException():
-        MedatarunException("Bootstrap secret, when prefilled, shall have a minimum size of $SECRET_MIN_SIZE chars.")
-class BootstrapSecretAlreadyConsumedException() :
+
+class BootstrapSecretPrefilledToShortException :
+    MedatarunException("Bootstrap secret, when prefilled, shall have a minimum size of $SECRET_MIN_SIZE chars.")
+
+class BootstrapSecretAlreadyConsumedException :
     MedatarunException("Bootstrap already consumed.", StatusCode.GONE)
 
-class BootstrapSecretBadSecretException() :
+class BootstrapSecretBadSecretException :
     MedatarunException("Bad bootstrap secret.", StatusCode.UNAUTHORIZED)
 
-class UserCreatePasswordFailException(val reason: UserPasswordEncrypter.PasswordPolicyFailReason) :
+class UserCreatePasswordFailException(reason: UserPasswordEncrypter.PasswordPolicyFailReason) :
     MedatarunException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
 
 class AuthUnauthorizedException :
@@ -30,18 +32,21 @@ class UserAlreadyExistsException :
 class ActorNotFoundException :
     MedatarunException("Actor not found.", StatusCode.NOT_FOUND)
 
-class ActorCreateFailedWithNotFoundException:
+class ActorCreateFailedWithNotFoundException :
     MedatarunException("Create failed. Can not find actor after creation.")
 
-class ActorDisabledException() :MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
+class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
 
-class AuthUnknownRoleException(val key: String)
-    : MedatarunException("Unknown role: $key")
+class AuthUnknownRoleException(val key: String) : MedatarunException("Unknown role: $key")
 
 class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
-class UsernameTooShortException(minsize: Int) : MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
-class UsernameTooLongException(maxsize: Int) : MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
-class UsernameInvalidFormatException() : MedatarunException("Username invalid.", StatusCode.BAD_REQUEST)
+class UsernameTooShortException(minsize: Int) :
+    MedatarunException("Username shall be at least $minsize characters.", StatusCode.BAD_REQUEST)
+
+class UsernameTooLongException(maxsize: Int) :
+    MedatarunException("Username shall be at most $maxsize characters.", StatusCode.BAD_REQUEST)
+
+class UsernameInvalidFormatException : MedatarunException("Username invalid.", StatusCode.BAD_REQUEST)
 
 
 open class UserFullnameException(msg: String) :
@@ -52,11 +57,6 @@ class UserFullnameEmptyException :
 
 class UserFullnameTooLongException :
     UserFullnameException("fullname is too long")
-
-
-
-
-
 
 
 class UserFullnameInvalidFormatException :

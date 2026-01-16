@@ -1,7 +1,7 @@
 package io.medatarun.ext.modeljson
 
 
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.ModelInMemory

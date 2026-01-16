@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 interface MedatarunExtensionCtxConfig {
     /**
-     * Resolves a path relative to application home directory (where medatarun binary is located)
+     * Resolves a path relative to the application home directory (where medatarun binary is located)
      */
     fun resolveApplicationHomePath(relativePath: String): Path
 
@@ -16,7 +16,7 @@ interface MedatarunExtensionCtxConfig {
     /**
      * Returns extension storage path and create. When [init] is true, the directory is created if it doesn't exist yet.
      */
-    fun resolveExtensionStoragePath(init: Boolean = false): Path
+    fun resolveExtensionStoragePath(): Path
 
     fun getConfigProperty(key: String): String?
     fun getConfigProperty(key: String, defaultValue: String): String

@@ -6,8 +6,8 @@ import io.medatarun.kernel.MedatarunConfig
 import io.medatarun.kernel.MedatarunExtension
 
 class ExtensionPlaformImpl(
-    private val extensions: List<MedatarunExtension>,
-    private val config: MedatarunConfig
+    extensions: List<MedatarunExtension>,
+    config: MedatarunConfig
 ) : ExtensionPlatform {
     override val extensionRegistry: ExtensionRegistry = ExtensionRegistryImpl(extensions, config)
         .also { it.init() }

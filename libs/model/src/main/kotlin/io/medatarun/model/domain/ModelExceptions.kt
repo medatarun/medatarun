@@ -1,13 +1,13 @@
 package io.medatarun.model.domain
 
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-
-open class MedatarunException(message: String, val httpStatusCode: StatusCode = StatusCode.INTERNAL_SERVER_ERROR) : Exception(message)
 
 class ModelNotFoundException(id: ModelKey) :
     MedatarunException("Model with id [${id.value}] was not found")
+
 class ModelDuplicateIdException(id: ModelKey) :
-        MedatarunException("Model with id [${id.value}] already exists")
+    MedatarunException("Model with id [${id.value}] already exists")
 
 class ModelVersionEmptyException :
     MedatarunException("Model version can not be empty", StatusCode.BAD_REQUEST)
@@ -19,7 +19,10 @@ class ModelVersionCoreLeadingZeroException :
     MedatarunException("Model version numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
 
 class ModelVersionPreReleaseLeadingZeroException :
-    MedatarunException("Model version pre-release numeric identifiers must not include leading zeros.", StatusCode.BAD_REQUEST)
+    MedatarunException(
+        "Model version pre-release numeric identifiers must not include leading zeros.",
+        StatusCode.BAD_REQUEST
+    )
 
 class EntityDefNotFoundException(modelKey: ModelKey, entityId: EntityKey) :
     MedatarunException("Entity with id [${entityId.value}] not found in model [${modelKey.value}]")
@@ -52,13 +55,13 @@ class TypeNotFoundException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] not found in model [${modelKey.value}]")
 
 class DeleteAttributeIdentifierException(modelKey: ModelKey, entityId: EntityKey, attributeId: AttributeKey) :
-        MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelKey.value}] because it is used as the entity's identifier")
+    MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelKey.value}] because it is used as the entity's identifier")
 
 class ModelInvalidException(modelKey: ModelKey, errors: List<ModelValidationError>) :
-        MedatarunException("Model with id [${modelKey.value}] could not be validated. " + errors.joinToString(". ") { it.message })
+    MedatarunException("Model with id [${modelKey.value}] could not be validated. " + errors.joinToString(". ") { it.message })
 
 class RelationshipDefNotFoundException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
-        MedatarunException("Relationship with id [${relationshipKey.value}] not found in model [${modelKey.value}]")
+    MedatarunException("Relationship with id [${relationshipKey.value}] not found in model [${modelKey.value}]")
 
 class RelationshipDuplicateIdException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
     MedatarunException("Another relationship in model [${modelKey.value}] already has identifier [${relationshipKey.value}].")
@@ -66,9 +69,18 @@ class RelationshipDuplicateIdException(modelKey: ModelKey, relationshipKey: Rela
 class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleId>) :
     MedatarunException("A relationship can not have the same role ids. Duplicate roles ids: [${roles.joinToString(", ")}]")
 
-class RelationshipDuplicateAttributeException(modelKey: ModelKey, relationshipKey: RelationshipKey, attributeId: AttributeKey) :
+class RelationshipDuplicateAttributeException(
+    modelKey: ModelKey,
+    relationshipKey: RelationshipKey,
+    attributeId: AttributeKey
+) :
     MedatarunException("In model [${modelKey.value}], relationship [${relationshipKey.value}] already has another attribute with id [${attributeId.value}]")
 
-class KeyInvalidFormatException(): MedatarunException("Invalid key format", StatusCode.BAD_REQUEST)
-class KeyEmptyException(): MedatarunException("Invalid key format, a key can not be empty", StatusCode.BAD_REQUEST)
-class KeyTooLongException(maxsize:Int): MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)
+class KeyInvalidFormatException :
+    MedatarunException("Invalid key format", StatusCode.BAD_REQUEST)
+
+class KeyEmptyException :
+    MedatarunException("Invalid key format, a key can not be empty", StatusCode.BAD_REQUEST)
+
+class KeyTooLongException(maxsize: Int) :
+    MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)

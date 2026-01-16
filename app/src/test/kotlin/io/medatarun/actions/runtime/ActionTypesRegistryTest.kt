@@ -1,6 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
 import org.junit.jupiter.api.Test
@@ -16,8 +16,10 @@ import kotlin.test.assertEquals
 
 class ActionTypesRegistryTest {
 
+    @Suppress("unused")
     private class CustomType(val value: String)
 
+    @Suppress("unused")
     private class UnknownType(val value: String)
 
     private class CustomTypeDescriptor : TypeDescriptor<CustomType> {
@@ -29,7 +31,9 @@ class ActionTypesRegistryTest {
         override val equivJson: JsonTypeEquiv = JsonTypeEquiv.OBJECT
     }
 
+
     @JvmInline
+    @Suppress("SameParameterValue")
     private value class PhoneNumber(val value: String)
 
     private class PhoneNumberDescriptor : TypeDescriptor<PhoneNumber> {

@@ -4,12 +4,12 @@ import java.nio.file.Path
 
 interface MedatarunConfig {
     /**
-     * Home of Medatarun runtime (where application is installed)
+     * Home of Medatarun runtime (where the application is installed)
      */
     val applicationHomeDir: Path
 
     /**
-     * Project directory, meaning the location where Medatarun is run, where user
+     * Project directory, meaning the location where Medatarun is run, where the user
      * stores its files
      */
     val projectDir: Path

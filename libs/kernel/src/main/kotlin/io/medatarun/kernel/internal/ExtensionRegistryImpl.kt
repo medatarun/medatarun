@@ -58,7 +58,7 @@ class ExtensionRegistryImpl(
                 toContributinoPointId = contributionPoint.id,
                 instance = instance
             )
-            // Add to map considering the key may have no value yet (append or create + append)
+            // Add to the map considering the key may have no value yet (append or create + append)
             contributions.compute(c.toContributinoPointId) { _, v -> (v ?: emptyList()) + c }
         }
 

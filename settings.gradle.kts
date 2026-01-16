@@ -12,7 +12,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    // Use the Foojay Toolchains plugin to automatically download JDKs required by subprojects.
+    // Use Foojay-Toolchains plugin to automatically download JDKs required by subprojects.
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
@@ -25,6 +25,7 @@ include(":ui")
 include(":libs:auth")
 include(":libs:lang")
 include(":libs:model")
+include(":libs:kernel")
 include(":extensions:config")
 include(":extensions:modeljson")
 include(":extensions:db")

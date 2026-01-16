@@ -1,6 +1,6 @@
 package io.medatarun.auth.infra
 
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
 import java.sql.ResultSet
 import java.time.Instant
 import java.time.format.DateTimeParseException
