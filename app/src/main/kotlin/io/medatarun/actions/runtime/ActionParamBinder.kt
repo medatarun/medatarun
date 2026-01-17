@@ -9,7 +9,7 @@ import kotlin.reflect.full.primaryConstructor
 
 class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
 
-    private val jsonValueConverter = ActionParamJsonValueConverter()
+    private val jsonValueConverter = ActionParamJsonValueConverter(actionTypesRegistry)
 
 
     fun buildConstructorArgs(

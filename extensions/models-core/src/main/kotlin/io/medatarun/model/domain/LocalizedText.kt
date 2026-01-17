@@ -9,7 +9,7 @@ const val DEFAULT_LANG_FALLBACK = "en"
  * Base type for all localizable texts.
  * Wrapper around some texts.
  */
-sealed interface LocalizedText {
+sealed interface LocalizedTextBase {
     /**
      * indicates that this text has localized variants
      */
@@ -33,9 +33,17 @@ sealed interface LocalizedText {
     fun get(locale: Locale): String {
         return get(locale.language)
     }
+
+}
+
+// Simple text ----------------------------------------------------------------
+
+/**
+ * Base type for all localizable texts.
+ * Wrapper around some texts.
+ */
+sealed interface LocalizedText: LocalizedTextBase {
     fun validate(): LocalizedText { return this }
-
-
 }
 
 /**
@@ -63,9 +71,43 @@ data class LocalizedTextMap(val values: Map<String, String>) : LocalizedText {
     override val isLocalized: Boolean = true
 }
 
-typealias LocalizedMarkdown = LocalizedText
+// Markdown -------------------------------------------------------------------
+
+sealed interface LocalizedMarkdown: LocalizedTextBase {
+    fun validate(): LocalizedMarkdown { return this }
+}
+
+/**
+ * Specialized LocalizedText that doesn't contain localization, just a default text
+ */
+data class LocalizedMarkdownNotLocalized(override val name: String) : LocalizedMarkdown {
+    override val isLocalized: Boolean = false
+    override fun get(locale: String): String = name
+    override fun all() = mapOf(DEFAULT_LANG_KEY to name)
+}
+
+/**
+ * Specialized LocalizedText that contains translations.
+ */
+data class LocalizedMarkdownMap(val values: Map<String, String>) : LocalizedMarkdown {
+    init {
+        if (values.isEmpty()) throw LocalizedTextMapEmptyException()
+    }
+
+    override val name: String =
+        values[DEFAULT_LANG_KEY] ?: values[DEFAULT_LANG_FALLBACK] ?: values.entries.first().value
+
+    override fun get(locale: String): String = values[locale] ?: name
+    override fun all() = values
+    override val isLocalized: Boolean = true
+}
+
+
+
+
+
+
+
 const val LOCALIZED_MARKDOWN_DESCRIPTION = """A rich formatted text. Can be translated in multiple languages."""
 const val LOCALIZED_TEXT_DESCRIPTION = """A text on a single line, that doesn't exceed 200 characters long. Can be translated in multiple languages."""
 
-typealias LocalizedMarkdownNotLocalized = LocalizedTextNotLocalized
-typealias LocalizedMarkdownMap = LocalizedTextMap

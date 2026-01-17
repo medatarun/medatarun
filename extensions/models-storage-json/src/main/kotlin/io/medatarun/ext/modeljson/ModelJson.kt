@@ -48,6 +48,26 @@ class LocalizedTextSerializer : KSerializer<LocalizedText> {
     }
 }
 
+class LocalizedMarkdownSerializer : KSerializer<LocalizedMarkdown> {
+    override val descriptor = JsonElement.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: LocalizedMarkdown) {
+        val json = if (!value.isLocalized)
+            JsonPrimitive(value.name)
+        else
+            JsonObject(value.all().mapValues { JsonPrimitive(it.value) })
+        encoder.encodeSerializableValue(JsonElement.serializer(), json)
+    }
+
+    override fun deserialize(decoder: Decoder): LocalizedMarkdown {
+        return when (val element = decoder.decodeSerializableValue(JsonElement.serializer())) {
+            is JsonPrimitive -> LocalizedMarkdownNotLocalized(element.content)
+            is JsonObject -> LocalizedMarkdownMap(element.mapValues { it.value.jsonPrimitive.content })
+            else -> throw SerializationException("Invalid format for LocalizedText")
+        }
+    }
+}
+
 class ModelJsonConverter(private val prettyPrint: Boolean) {
     val json = Json {
         prettyPrint = this@ModelJsonConverter.prettyPrint
@@ -56,6 +76,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             contextual(EntityKey::class, valueClassSerializer(::EntityKey) { it.value })
             contextual(AttributeKey::class, valueClassSerializer(::AttributeKey) { it.value })
             contextual(LocalizedText::class, LocalizedTextSerializer())
+            contextual(LocalizedMarkdown::class, LocalizedMarkdownSerializer())
         }
     }
 
@@ -168,7 +189,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = relationJson.description,
                     roles = relationJson.roles.map { roleJson ->
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleId(roleJson.id),
+                            id = RelationshipRoleKey(roleJson.id),
                             name = roleJson.name,
                             entityId = EntityKey(roleJson.entityId),
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),

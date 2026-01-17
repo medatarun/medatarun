@@ -66,7 +66,7 @@ class RelationshipDefNotFoundException(modelKey: ModelKey, relationshipKey: Rela
 class RelationshipDuplicateIdException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
     MedatarunException("Another relationship in model [${modelKey.value}] already has identifier [${relationshipKey.value}].")
 
-class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleId>) :
+class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleKey>) :
     MedatarunException("A relationship can not have the same role ids. Duplicate roles ids: [${roles.joinToString(", ")}]")
 
 class RelationshipDuplicateAttributeException(

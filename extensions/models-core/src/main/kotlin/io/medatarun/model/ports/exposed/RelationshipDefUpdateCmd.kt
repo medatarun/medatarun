@@ -5,9 +5,9 @@ import io.medatarun.model.domain.*
 sealed interface RelationshipDefUpdateCmd {
     class Key(val value: RelationshipKey) : RelationshipDefUpdateCmd
     class Name(val value: LocalizedText?) : RelationshipDefUpdateCmd
-    class Description(val value: LocalizedText?) : RelationshipDefUpdateCmd
-    class RoleKey(val relationshipRoleKey: RelationshipRoleId, val value: RelationshipRoleId) : RelationshipDefUpdateCmd
-    class RoleName(val relationshipRoleKey: RelationshipRoleId, val value: LocalizedText?) : RelationshipDefUpdateCmd
-    class RoleEntity(val relationshipRoleKey: RelationshipRoleId, val value: EntityKey) : RelationshipDefUpdateCmd
-    class RoleCardinality(val relationshipRoleKey: RelationshipRoleId, val value: RelationshipCardinality) : RelationshipDefUpdateCmd
+    class Description(val value: LocalizedMarkdown?) : RelationshipDefUpdateCmd
+    class RoleKey(val relationshipRoleKey: RelationshipRoleKey, val value: RelationshipRoleKey) : RelationshipDefUpdateCmd
+    class RoleName(val relationshipRoleKey: RelationshipRoleKey, val value: LocalizedText?) : RelationshipDefUpdateCmd
+    class RoleEntity(val relationshipRoleKey: RelationshipRoleKey, val value: EntityKey) : RelationshipDefUpdateCmd
+    class RoleCardinality(val relationshipRoleKey: RelationshipRoleKey, val value: RelationshipCardinality) : RelationshipDefUpdateCmd
 }

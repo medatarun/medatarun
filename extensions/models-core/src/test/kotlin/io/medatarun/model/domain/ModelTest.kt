@@ -155,7 +155,7 @@ class ModelTest {
             cmd.dispatch(
                 ModelCmd.UpdateModelDescription(
                     modelKeyWrong,
-                    LocalizedTextNotLocalized("other description")
+                    LocalizedMarkdownNotLocalized("other description")
                 )
             )
         }
@@ -206,14 +206,14 @@ class ModelTest {
     @Test
     fun `updates on model description persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelKey, LocalizedTextNotLocalized("Model description 2")))
-        assertEquals(LocalizedTextNotLocalized("Model description 2"), env.query.findModelById(env.modelKey).description)
+        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelKey, LocalizedMarkdownNotLocalized("Model description 2")))
+        assertEquals(LocalizedMarkdownNotLocalized("Model description 2"), env.query.findModelById(env.modelKey).description)
     }
 
     @Test
     fun `updates on model description to null persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelKey, LocalizedTextNotLocalized("Model description 2")))
+        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelKey, LocalizedMarkdownNotLocalized("Model description 2")))
         env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelKey, null))
         assertNull(env.query.findModelById(env.modelKey).description)
     }
@@ -379,7 +379,7 @@ class ModelTest {
                 ModelTypeInitializer(
                     TypeKey("String"),
                     LocalizedTextNotLocalized("Simple string"),
-                    LocalizedTextNotLocalized("Simple string description")
+                    LocalizedMarkdownNotLocalized("Simple string description")
                 )
             )
         )
@@ -387,7 +387,7 @@ class ModelTest {
         val type = env.model.findTypeOptional(TypeKey("String"))
         assertNotNull(type)
         assertEquals(LocalizedTextNotLocalized("Simple string"), type.name)
-        assertEquals(LocalizedTextNotLocalized("Simple string description"), type.description)
+        assertEquals(LocalizedMarkdownNotLocalized("Simple string description"), type.description)
     }
 
     @Test
@@ -462,12 +462,12 @@ class ModelTest {
             ModelCmd.UpdateType(
                 env.modelKey,
                 TypeKey("String"),
-                ModelTypeUpdateCmd.Description(LocalizedTextNotLocalized("This is a string"))
+                ModelTypeUpdateCmd.Description(LocalizedMarkdownNotLocalized("This is a string"))
             )
         )
         val t = env.model.findTypeOptional(TypeKey("String"))
         assertNotNull(t)
-        assertEquals(LocalizedTextNotLocalized("This is a string"), t.description)
+        assertEquals(LocalizedMarkdownNotLocalized("This is a string"), t.description)
     }
 
     @Test
@@ -601,7 +601,7 @@ class ModelTest {
                         attributeKey = AttributeKey("id"),
                         type = TypeKey("String"),
                         name = LocalizedTextNotLocalized("Identifier"),
-                        description = LocalizedTextNotLocalized("Identifier description")
+                        description = LocalizedMarkdownNotLocalized("Identifier description")
                     )
                 ) {
                     this.name = name
@@ -1139,11 +1139,11 @@ class ModelTest {
             type = TypeKey("String"),
             optional = false,
             name = LocalizedTextNotLocalized("Business Key"),
-            description = LocalizedTextNotLocalized("Unique business key"),
+            description = LocalizedMarkdownNotLocalized("Unique business key"),
         )
         assertEquals(AttributeKey("businesskey"), reloaded.id)
         assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
-        assertEquals(LocalizedTextNotLocalized("Unique business key"), reloaded.description)
+        assertEquals(LocalizedMarkdownNotLocalized("Unique business key"), reloaded.description)
         assertEquals(TypeKey("String"), reloaded.type)
         assertEquals(false, reloaded.optional)
     }
@@ -1330,7 +1330,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(description = null)
-        val nextValue = LocalizedTextNotLocalized("New description")
+        val nextValue = LocalizedMarkdownNotLocalized("New description")
         val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Description(nextValue))
         assertEquals(nextValue, reloaded.description)
     }
@@ -1339,7 +1339,7 @@ class ModelTest {
     fun `update attribute description to null stays null`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
-        val attr = env.createAttributeDef(description = LocalizedTextNotLocalized("New description"))
+        val attr = env.createAttributeDef(description = LocalizedMarkdownNotLocalized("New description"))
         val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Description(null))
         assertNull(reloaded.description)
     }
@@ -1486,7 +1486,7 @@ class ModelTest {
 
         // This test only checks loading and basic behaviour of model operations
 
-        // Each method that need checking shall be checked independently
+        // Each method that needs checking shall be checked independently
         // as some methods can effectively work on invalid models (for example to be able
         // to correct them)
 

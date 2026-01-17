@@ -3,9 +3,6 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.RelationshipDefInMemory
@@ -50,6 +47,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 
             is ModelAction.Model_Create -> handler.modelCreate(cmd)
             is ModelAction.Model_Copy -> handler.modelCopy(cmd)
+            is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
             is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
             is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
@@ -151,8 +149,8 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.CreateModel(
                 modelKey = cmd.modelKey,
-                name = LocalizedTextNotLocalized(cmd.name),
-                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                name = cmd.name,
+                description = cmd.description,
                 version = cmd.version ?: ModelVersion("0.0.1")
             )
         )
@@ -167,11 +165,15 @@ class ModelActionHandler(
         )
     }
 
+    fun modelUpdateKey(cmd: ModelAction.Model_UpdateKey) {
+        TODO("Not yet implemented")
+    }
+
     fun modelUpdateName(cmd: ModelAction.Model_UpdateName) {
         dispatch(
             ModelCmd.UpdateModelName(
                 modelKey = cmd.modelKey,
-                name = LocalizedTextNotLocalized(cmd.name),
+                name = cmd.value,
             )
         )
     }
@@ -180,7 +182,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateModelDescription(
                 modelKey = cmd.modelKey,
-                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                description = cmd.value,
             )
         )
     }
@@ -189,7 +191,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateModelVersion(
                 modelKey = cmd.modelKey,
-                version = cmd.version,
+                version = cmd.value,
             )
         )
     }
@@ -226,8 +228,8 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 initializer = ModelTypeInitializer(
                     id = cmd.typeKey,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                 )
             )
         )
@@ -238,7 +240,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelKey = cmd.modelKey,
                 typeId = cmd.typeKey,
-                cmd = ModelTypeUpdateCmd.Name(cmd.name?.let { LocalizedTextNotLocalized(it) })
+                cmd = ModelTypeUpdateCmd.Name(cmd.name)
             )
         )
     }
@@ -248,7 +250,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelKey = cmd.modelKey,
                 typeId = cmd.typeKey,
-                cmd = ModelTypeUpdateCmd.Description(cmd.description?.let { LocalizedTextNotLocalized(it) })
+                cmd = ModelTypeUpdateCmd.Description(cmd.description)
             )
         )
     }
@@ -271,14 +273,14 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityDefInitializer = EntityDefInitializer(
                     entityKey = cmd.entityKey,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                     documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeKey = cmd.identityAttributeKey,
                         type = cmd.identityAttributeType,
-                        name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                        description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                        name = cmd.name,
+                        description = cmd.description,
                     )
                 ),
             )
@@ -290,7 +292,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Id(EntityKey(cmd.value))
+                cmd = EntityDefUpdateCmd.Id(cmd.value)
             )
         )
     }
@@ -300,7 +302,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Name(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = EntityDefUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -310,7 +312,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Description(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = EntityDefUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -357,8 +359,8 @@ class ModelActionHandler(
                     attributeKey = cmd.attributeKey,
                     type = cmd.type,
                     optional = cmd.optional,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                 )
             )
         )
@@ -370,7 +372,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
                 attributeKey = cmd.attributeKey,
-                cmd = AttributeDefUpdateCmd.Key(AttributeKey(cmd.value))
+                cmd = AttributeDefUpdateCmd.Key(cmd.value)
             )
         )
     }

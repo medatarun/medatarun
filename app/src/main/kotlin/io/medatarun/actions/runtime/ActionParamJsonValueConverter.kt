@@ -1,6 +1,9 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.types.TypeJsonConverter
+import io.medatarun.types.TypeJsonConverterBadFormatException
+import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.*
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -12,7 +15,9 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
-class ActionParamJsonValueConverter {
+class ActionParamJsonValueConverter(
+    private val typeConverters: ActionTypesRegistry,
+) {
     sealed interface ConversionResult {
         data class Value(val value: Any?) : ConversionResult
         data class Error(val message: String) : ConversionResult
@@ -28,12 +33,32 @@ class ActionParamJsonValueConverter {
                 "Unsupported type $type"
             )
 
+        val converter: TypeJsonConverter<*>? = typeConverters.findConverterOptional(classifier)
+
         return when {
+            converter != null -> convertWithConverter(raw, converter)
             classifier == List::class -> convertList(raw, type)
             classifier == Map::class -> convertMap(raw, type)
             else -> convertScalar(raw, type)
         }
 
+    }
+
+    private fun convertWithConverter(
+        raw: JsonElement,
+        converter: TypeJsonConverter<*>
+    ): ConversionResult {
+        try {
+            val value = converter.deserialize(raw)
+            return ConversionResult.Value(value)
+        } catch (e: TypeJsonConverterIllegalNullException) {
+            throw ActionInvocationException(
+                HttpStatusCode.InternalServerError,
+                e.msg
+            )
+        } catch (e: TypeJsonConverterBadFormatException) {
+            return ConversionResult.Error(e.msg)
+        }
     }
 
     fun convertList(raw: JsonElement, type: KType): ConversionResult {

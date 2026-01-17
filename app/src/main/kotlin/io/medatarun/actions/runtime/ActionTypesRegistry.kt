@@ -2,6 +2,7 @@ package io.medatarun.actions.runtime
 
 import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -68,6 +69,11 @@ class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
     fun findValidator(classifier: KClass<*>): Validator {
         val typeDescriptor = typeDescriptors[classifier] ?: return ValidatorNoop
         return ValidatorDelegate(typeDescriptor)
+    }
+
+    fun findConverterOptional(classifier: KClass<*>): TypeJsonConverter<*>? {
+        val typeDescriptor = typeDescriptors[classifier] ?: return null
+        return typeDescriptor.jsonConverter
     }
 
     interface Validator {

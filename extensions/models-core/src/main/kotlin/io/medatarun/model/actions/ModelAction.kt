@@ -10,7 +10,7 @@ import io.medatarun.security.SecurityRuleNames
 sealed interface ModelAction {
 
     // ------------------------------------------------------------------------
-    // Models
+    // Import
     // ------------------------------------------------------------------------
 
     @ActionDoc(
@@ -34,6 +34,10 @@ sealed interface ModelAction {
         val from: String
     ) : ModelAction
 
+    // ------------------------------------------------------------------------
+    // Inspect
+    // ------------------------------------------------------------------------
+
     @ActionDoc(
         key = "inspect_models_text",
         title = "Inspect models",
@@ -53,6 +57,10 @@ sealed interface ModelAction {
     )
     class Inspect_Json : ModelAction
 
+    // ------------------------------------------------------------------------
+    // Model
+    // ------------------------------------------------------------------------
+
     @ActionDoc(
         key = "model_create",
         title = "Create model",
@@ -69,14 +77,14 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
 
         @ActionParamDoc(order = 2, name = "Name", description = "Human readable name of your model.")
-        val name: String,
+        val name: LocalizedText,
 
         @ActionParamDoc(
             order = 3,
             name = "Description",
             description = "Provide a comprehensive description of your model, what is its purpose and usage."
         )
-        val description: String? = null,
+        val description: LocalizedMarkdown? = null,
 
         @ActionParamDoc(
             order = 4,
@@ -109,13 +117,22 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
+        key = "model_update_key",
+        title = "Update model key",
+        description = "Changes model key",
+        uiLocation = ActionUILocation.model,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Model_UpdateKey(val modelKey: ModelKey, val value: LocalizedText) : ModelAction
+
+    @ActionDoc(
         key = "model_update_name",
         title = "Update model name",
         description = "Changes model name",
         uiLocation = ActionUILocation.model,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateName(val modelKey: ModelKey, val name: String) : ModelAction
+    data class Model_UpdateName(val modelKey: ModelKey, val value: LocalizedText) : ModelAction
 
     @ActionDoc(
         key = "model_update_description",
@@ -124,7 +141,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.model,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateDescription(val modelKey: ModelKey, val description: String?) : ModelAction
+    data class Model_UpdateDescription(val modelKey: ModelKey, val value: LocalizedMarkdown?) : ModelAction
 
 
     @ActionDoc(
@@ -134,7 +151,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.model,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateVersion(val modelKey: ModelKey, val version: ModelVersion) : ModelAction
+    data class Model_UpdateVersion(val modelKey: ModelKey, val value: ModelVersion) : ModelAction
 
     @ActionDoc(
         key = "model_add_tag",
@@ -192,13 +209,13 @@ sealed interface ModelAction {
             description = "Display name of the type.",
             order = 30
         )
-        val name: String?,
+        val name: LocalizedText?,
         @ActionParamDoc(
             "Description",
             "Description of the type, when and what for it should be used. Express constraints and rules for this type.",
             order = 50
         )
-        val description: String?
+        val description: LocalizedMarkdown?
     ) :
         ModelAction
 
@@ -210,7 +227,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.type,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Type_UpdateName(val modelKey: ModelKey, val typeKey: TypeKey, val name: String?) : ModelAction
+    data class Type_UpdateName(val modelKey: ModelKey, val typeKey: TypeKey, val name: LocalizedText?) : ModelAction
 
     @ActionDoc(
         key = "type_update_description",
@@ -219,7 +236,7 @@ sealed interface ModelAction {
         uiLocation = ActionUILocation.type,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Type_UpdateDescription(val modelKey: ModelKey, val typeKey: TypeKey, val description: String?) :
+    data class Type_UpdateDescription(val modelKey: ModelKey, val typeKey: TypeKey, val description: LocalizedMarkdown?) :
         ModelAction
 
     @ActionDoc(
@@ -245,25 +262,25 @@ sealed interface ModelAction {
     data class Entity_Create(
         val modelKey: ModelKey,
         val entityKey: EntityKey,
-        val name: String? = null,
-        val description: String? = null,
+        val name: LocalizedText? = null,
+        val description: LocalizedMarkdown? = null,
         val identityAttributeKey: AttributeKey,
         val identityAttributeType: TypeKey,
-        val identityAttributeName: String? = null,
+        val identityAttributeName: LocalizedText? = null,
         val documentationHome: String? = null
     ) : ModelAction
 
     @ActionDoc(
-        key = "entity_update_id",
-        title = "Update entity id",
-        description = "Changes identifier of an entity.",
+        key = "entity_update_key",
+        title = "Update entity key",
+        description = "Changes entity key.",
         uiLocation = ActionUILocation.entity,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateId(
         val modelKey: ModelKey,
         val entityKey: EntityKey,
-        val value: String
+        val value: EntityKey
     ) : ModelAction
 
 
@@ -277,7 +294,7 @@ sealed interface ModelAction {
     data class Entity_UpdateName(
         val modelKey: ModelKey,
         val entityKey: EntityKey,
-        val value: String?
+        val value: LocalizedText?
     ) : ModelAction
 
     @ActionDoc(
@@ -290,7 +307,7 @@ sealed interface ModelAction {
     data class Entity_UpdateDescription(
         val modelKey: ModelKey,
         val entityKey: EntityKey,
-        val value: String?
+        val value: LocalizedMarkdown?
     ) : ModelAction
 
     @ActionDoc(
@@ -351,8 +368,8 @@ sealed interface ModelAction {
         val attributeKey: AttributeKey,
         val type: TypeKey,
         val optional: Boolean = false,
-        val name: String? = null,
-        val description: String? = null
+        val name: LocalizedText? = null,
+        val description: LocalizedMarkdown? = null
     ) : ModelAction
 
 
@@ -367,7 +384,7 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
         val entityKey: EntityKey,
         val attributeKey: AttributeKey,
-        val value: String
+        val value: AttributeKey
     ) : ModelAction
 
     @ActionDoc(
@@ -486,12 +503,12 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
         val name: LocalizedText?,
-        val description: LocalizedText?,
-        val roleAKey: RelationshipRoleId,
+        val description: LocalizedMarkdown?,
+        val roleAKey: RelationshipRoleKey,
         val roleAEntityKey: EntityKey,
         val roleAName: LocalizedText?,
         val roleACardinality: RelationshipCardinality,
-        val roleBKey: RelationshipRoleId,
+        val roleBKey: RelationshipRoleKey,
         val roleBEntityKey: EntityKey,
         val roleBName: LocalizedText?,
         val roleBCardinality: RelationshipCardinality,
@@ -546,8 +563,8 @@ sealed interface ModelAction {
     data class RelationshipRole_Create(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
-        val roleKey: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
+        val roleKey: RelationshipRoleKey,
         val roleEntityKey: EntityKey,
         val roleName: LocalizedText?,
         val roleCardinality: RelationshipCardinality,
@@ -563,8 +580,8 @@ sealed interface ModelAction {
     data class RelationshipRole_UpdateKey(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
-        val value: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
+        val value: RelationshipRoleKey,
     ) : ModelAction
 
     @ActionDoc(
@@ -577,7 +594,7 @@ sealed interface ModelAction {
     data class RelationshipRole_UpdateEntity(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
         val value: EntityKey,
     ) : ModelAction
 
@@ -591,7 +608,7 @@ sealed interface ModelAction {
     data class RelationshipRole_UpdateName(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
         val value: LocalizedText?,
     ) : ModelAction
 
@@ -605,7 +622,7 @@ sealed interface ModelAction {
     data class RelationshipRole_UpdateCardinality(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
         val value: RelationshipCardinality,
     ) : ModelAction
 
@@ -619,7 +636,7 @@ sealed interface ModelAction {
     data class RelationshipRole_Delete(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleId,
+        val relationshipRoleKey: RelationshipRoleKey,
     ) : ModelAction
 
     @ActionDoc(

@@ -9,4 +9,5 @@ interface TypeDescriptor<T:Any> {
     val equivJson: TypeJsonEquiv
     val redacted: Boolean get() = false
     val description: String get() = ""
+    val jsonConverter: TypeJsonConverter<T>? get() = null
 }
