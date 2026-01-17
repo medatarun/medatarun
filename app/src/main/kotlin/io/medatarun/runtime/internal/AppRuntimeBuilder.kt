@@ -2,13 +2,9 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.auth.AuthExtension
-import io.medatarun.ext.db.DbExtension
+import io.medatarun.ext.db.ModelsImportJdbcExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
-import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.kernel.MedatarunServiceRegistry
-import io.medatarun.kernel.internal.ExtensionPlaformImpl
-import io.medatarun.kernel.internal.MedatarunServiceRegistryImpl
 import io.medatarun.model.ModelExtension
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.infra.ModelStoragesComposite
@@ -21,12 +17,16 @@ import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
+import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityExtension
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRolesRegistryImpl
-import io.medatarun.types.TypesExtension
-import io.metadatarun.ext.config.ConfigExtension
+import io.medatarun.types.TypeSystemExtension
+import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 import org.slf4j.LoggerFactory
 
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
@@ -37,17 +37,18 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // dependency graphs that launch them in correct order for now
 
     val extensions = listOf(
-        TypesExtension(),
+        TypeSystemExtension(),
         SecurityExtension(),
         ActionsExtension(),
         AuthExtension(),
         ModelExtension(),
-        ConfigExtension(),
+        SysopsConfigInspectorExtension(),
         ModelJsonExtension(),
-        DbExtension(),
+        ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
-    val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
+    val serviceRegistry =
+        MedatarunServiceRegistryImpl(extensions, config)
     val platform = ExtensionPlaformImpl(extensions, config)
 
     // 🤔 🤔 🤔

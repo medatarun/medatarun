@@ -8,9 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Coordinates the lifecycle of [McpStreamableHttpSession] sessions so the HTTP endpoints, SSE transport and
  * underlying MCP server all agree on the same state machine.
  */
-internal class McpStreamableHttpSessionManager(
-
-) {
+internal class McpStreamableHttpSessionManager {
     // Multi-endpoint access means we need a thread-safe map shared between POST and SSE handlers.
     private val sessions = ConcurrentHashMap<String, McpStreamableHttpSession>()
 

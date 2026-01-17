@@ -4,8 +4,8 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
-import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.AppPrincipal
 import kotlin.reflect.KClass

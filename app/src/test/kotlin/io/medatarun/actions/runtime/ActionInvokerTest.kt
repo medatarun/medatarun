@@ -2,14 +2,14 @@ package io.medatarun.actions.runtime
 
 import io.ktor.http.*
 import io.medatarun.actions.ports.needs.*
-import io.medatarun.kernel.ExtensionRegistry
-import io.medatarun.model.domain.MedatarunException
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import io.medatarun.types.JsonTypeEquiv
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonEquiv
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -336,7 +336,7 @@ class ActionInvokerTest {
         evaluators: List<SecurityRuleEvaluator> = listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
     ) {
         private val actionTypesRegistry = ActionTypesRegistry(
-            listOf<TypeDescriptor<*>>(
+            listOf(
                 ComplexPayloadTypeDescriptor,
                 AbbreviationTypeDescriptor
             )
@@ -372,13 +372,14 @@ class ActionInvokerTest {
         }
     }
 
+    @Suppress("unused") // Remove unused because "key" launches actions, doesn't mean the action is not used.
     private sealed interface TestAction {
         @ActionDoc(
             key = "alpha",
             title = "Alpha",
             description = "Test action",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class Alpha(
             @ActionParamDoc(
@@ -406,7 +407,7 @@ class ActionInvokerTest {
             title = "Denied",
             description = "Action denied by security",
             uiLocation = "",
-            securityRule = RuleDeny
+            securityRule = RULE_DENY
         )
         class Denied : TestAction
 
@@ -415,7 +416,7 @@ class ActionInvokerTest {
             title = "Collections",
             description = "Action with list and map",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithCollections(
             @ActionParamDoc(
@@ -437,7 +438,7 @@ class ActionInvokerTest {
             title = "Decimal",
             description = "Action with BigDecimal",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithDecimal(
             @ActionParamDoc(
@@ -453,7 +454,7 @@ class ActionInvokerTest {
             title = "BigInteger",
             description = "Action with BigInteger",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithBigInteger(
             @ActionParamDoc(
@@ -469,7 +470,7 @@ class ActionInvokerTest {
             title = "Double",
             description = "Action with Double",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithDouble(
             @ActionParamDoc(
@@ -485,7 +486,7 @@ class ActionInvokerTest {
             title = "Instant",
             description = "Action with Instant",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithInstant(
             @ActionParamDoc(
@@ -501,7 +502,7 @@ class ActionInvokerTest {
             title = "LocalDate",
             description = "Action with LocalDate",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithLocalDate(
             @ActionParamDoc(
@@ -517,7 +518,7 @@ class ActionInvokerTest {
             title = "Abbreviation",
             description = "Action with validated abbreviation",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithAbbreviation(
             @ActionParamDoc(
@@ -533,7 +534,7 @@ class ActionInvokerTest {
             title = "Complex",
             description = "Action with complex payload",
             uiLocation = "",
-            securityRule = RuleAllow
+            securityRule = RULE_ALLOW
         )
         class WithComplex(
             @ActionParamDoc(
@@ -556,7 +557,7 @@ class ActionInvokerTest {
     private object ComplexPayloadTypeDescriptor : TypeDescriptor<ComplexPayload> {
         override val target: KClass<ComplexPayload> = ComplexPayload::class
         override val equivMultiplatorm: String = "ComplexPayload"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.OBJECT
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.OBJECT
 
         override fun validate(value: ComplexPayload): ComplexPayload {
             return value
@@ -569,7 +570,7 @@ class ActionInvokerTest {
     private object AbbreviationTypeDescriptor : TypeDescriptor<Abbreviation> {
         override val target: KClass<Abbreviation> = Abbreviation::class
         override val equivMultiplatorm: String = "Abbreviation"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
 
         override fun validate(value: Abbreviation): Abbreviation {
             if (value.value.length > 4) {
@@ -587,11 +588,11 @@ class ActionInvokerTest {
         var lastCommand: TestAction? = null
         var lastActionCtx: ActionCtx? = null
 
-        override fun findCommandClass(): KClass<TestAction>? {
+        override fun findCommandClass(): KClass<TestAction> {
             return TestAction::class
         }
 
-        override fun dispatch(cmd: TestAction, actionCtx: ActionCtx): Any? {
+        override fun dispatch(cmd: TestAction, actionCtx: ActionCtx): Any {
             lastCommand = cmd
             lastActionCtx = actionCtx
             return "ok"
@@ -599,7 +600,8 @@ class ActionInvokerTest {
     }
 
     private class TestActionCtx : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = object : ExtensionRegistry {
+        override val extensionRegistry: ExtensionRegistry = object :
+            ExtensionRegistry {
             override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
                 return emptyList()
             }
@@ -641,7 +643,7 @@ class ActionInvokerTest {
     }
 
     private class AllowSecurityRuleEvaluator : SecurityRuleEvaluator {
-        override val key: String = RuleAllow
+        override val key: String = RULE_ALLOW
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
             return SecurityRuleEvaluatorResult.Ok()
@@ -649,7 +651,7 @@ class ActionInvokerTest {
     }
 
     private class DenySecurityRuleEvaluator : SecurityRuleEvaluator {
-        override val key: String = RuleDeny
+        override val key: String = RULE_DENY
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
             return SecurityRuleEvaluatorResult.Error("blocked")
@@ -664,7 +666,7 @@ class ActionInvokerTest {
     private class TestPrincipalMissingException : MedatarunException("Principal is missing")
 
     private companion object {
-        const val RuleAllow = "allow"
-        const val RuleDeny = "deny"
+        const val RULE_ALLOW = "allow"
+        const val RULE_DENY = "deny"
     }
 }

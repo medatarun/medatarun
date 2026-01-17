@@ -2,8 +2,8 @@ package io.medatarun.cli
 
 import io.medatarun.httpserver.cli.CliActionDto
 import io.medatarun.httpserver.cli.CliActionParamDto
-import io.medatarun.types.JsonTypeEquiv
-import io.medatarun.types.JsonTypeEquiv.*
+import io.medatarun.types.TypeJsonEquiv
+import io.medatarun.types.TypeJsonEquiv.*
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -295,7 +295,7 @@ class AppCLIParametersParserTest {
 
         fun createActionParam(
             key: String,
-            jsonType: JsonTypeEquiv,
+            jsonType: TypeJsonEquiv,
             optional: Boolean = false
         ): CliActionParamDto {
             return CliActionParamDto(

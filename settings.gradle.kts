@@ -12,7 +12,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    // Use the Foojay Toolchains plugin to automatically download JDKs required by subprojects.
+    // Use Foojay-Toolchains plugin to automatically download JDKs required by subprojects.
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
@@ -22,12 +22,17 @@ plugins {
 include(":app")
 include(":utils")
 include(":ui")
-include(":libs:auth")
+include(":libs:platform-auth")
 include(":libs:lang")
-include(":libs:model")
-include(":extensions:config")
-include(":extensions:modeljson")
-include(":extensions:db")
-include(":extensions:frictionlessdata")
+include(":extensions:models-core")
+include(":libs:platform-actions")
+include(":libs:platform-type-system")
+include(":libs:platform-kernel")
+include(":libs:platform-security")
+include(":extensions:sysops-config-inspector")
+include(":extensions:models-storage-json")
+include(":extensions:models-import-jdbc")
+include(":extensions:models-import-frictionlessdata")
+
 
 rootProject.name = "medatarun-core"

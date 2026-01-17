@@ -1,7 +1,7 @@
 package io.medatarun.cli
 
 import io.medatarun.httpserver.cli.CliActionDto
-import io.medatarun.types.JsonTypeEquiv
+import io.medatarun.types.TypeJsonEquiv
 import kotlinx.serialization.json.*
 
 class AppCLIParametersParser {
@@ -42,7 +42,7 @@ class AppCLIParametersParser {
                     }
                     put(param.key, JsonNull)
                 } else {
-                    val jsonType = JsonTypeEquiv.valueOfCode(param.jsonType)
+                    val jsonType = TypeJsonEquiv.valueOfCode(param.jsonType)
                     val jsonValue = parseValue(param.key, rawValue, jsonType)
                     put(param.key, jsonValue)
                 }
@@ -50,15 +50,15 @@ class AppCLIParametersParser {
         }
     }
 
-    private fun parseValue(paramKey: String, rawValue: String, jsonType: JsonTypeEquiv): JsonElement {
+    private fun parseValue(paramKey: String, rawValue: String, jsonType: TypeJsonEquiv): JsonElement {
         return when (jsonType) {
-            JsonTypeEquiv.STRING -> JsonPrimitive(rawValue)
-            JsonTypeEquiv.BOOLEAN -> {
+            TypeJsonEquiv.STRING -> JsonPrimitive(rawValue)
+            TypeJsonEquiv.BOOLEAN -> {
                 val value = rawValue.toBooleanStrictOrNull()
                     ?: throw CliParameterBooleanValueException(paramKey, rawValue)
                 JsonPrimitive(value)
             }
-            JsonTypeEquiv.NUMBER -> {
+            TypeJsonEquiv.NUMBER -> {
                 val value = rawValue.toDoubleOrNull()
                     ?: throw CliParameterNumberValueException(paramKey, rawValue)
                 if (!value.isFinite()) {
@@ -66,14 +66,14 @@ class AppCLIParametersParser {
                 }
                 JsonPrimitive(value)
             }
-            JsonTypeEquiv.OBJECT -> {
+            TypeJsonEquiv.OBJECT -> {
                 val element = parseJsonValue(paramKey, rawValue, jsonType)
                 if (element !is JsonObject) {
                     throw CliParameterObjectValueException(paramKey, rawValue)
                 }
                 element
             }
-            JsonTypeEquiv.ARRAY -> {
+            TypeJsonEquiv.ARRAY -> {
                 val element = parseJsonValue(paramKey, rawValue, jsonType)
                 if (element !is JsonArray) {
                     throw CliParameterArrayValueException(paramKey, rawValue)
@@ -83,7 +83,7 @@ class AppCLIParametersParser {
         }
     }
 
-    private fun parseJsonValue(paramKey: String, rawValue: String, jsonType: JsonTypeEquiv): JsonElement {
+    private fun parseJsonValue(paramKey: String, rawValue: String, jsonType: TypeJsonEquiv): JsonElement {
         try {
             return Json.parseToJsonElement(rawValue)
         } catch (exception: Exception) {

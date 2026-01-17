@@ -1,8 +1,8 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.model.domain.MedatarunException
-import io.medatarun.types.JsonTypeEquiv
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonEquiv
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -16,8 +16,10 @@ import kotlin.test.assertEquals
 
 class ActionTypesRegistryTest {
 
+    @Suppress("unused")
     private class CustomType(val value: String)
 
+    @Suppress("unused")
     private class UnknownType(val value: String)
 
     private class CustomTypeDescriptor : TypeDescriptor<CustomType> {
@@ -26,10 +28,12 @@ class ActionTypesRegistryTest {
             return value
         }
         override val equivMultiplatorm: String = "CustomTypeAlias"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.OBJECT
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.OBJECT
     }
 
+
     @JvmInline
+    @Suppress("SameParameterValue")
     private value class PhoneNumber(val value: String)
 
     private class PhoneNumberDescriptor : TypeDescriptor<PhoneNumber> {
@@ -41,7 +45,7 @@ class ActionTypesRegistryTest {
             return value
         }
         override val equivMultiplatorm: String = "PhoneNumber"
-        override val equivJson: JsonTypeEquiv = JsonTypeEquiv.STRING
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
     }
 
     private class InvalidPhoneNumberException(number: String) : MedatarunException(
@@ -54,7 +58,7 @@ class ActionTypesRegistryTest {
 
         val result = registry.toJsonType(CustomType::class.createType())
 
-        assertEquals(JsonTypeEquiv.OBJECT, result)
+        assertEquals(TypeJsonEquiv.OBJECT, result)
     }
 
     @Test
@@ -70,16 +74,16 @@ class ActionTypesRegistryTest {
     fun `toJsonType should map known primitives and lists`() {
         val registry = ActionTypesRegistry(emptyList())
 
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(String::class.createType()))
-        assertEquals(JsonTypeEquiv.BOOLEAN, registry.toJsonType(Boolean::class.createType()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(Int::class.createType()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(BigInteger::class.createType()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(Double::class.createType()))
-        assertEquals(JsonTypeEquiv.NUMBER, registry.toJsonType(BigDecimal::class.createType()))
-        assertEquals(JsonTypeEquiv.ARRAY, registry.toJsonType(listType(String::class.createType())))
-        assertEquals(JsonTypeEquiv.OBJECT, registry.toJsonType(mapType(String::class.createType(), Int::class.createType())))
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(Instant::class.createType()))
-        assertEquals(JsonTypeEquiv.STRING, registry.toJsonType(LocalDate::class.createType()))
+        assertEquals(TypeJsonEquiv.STRING, registry.toJsonType(String::class.createType()))
+        assertEquals(TypeJsonEquiv.BOOLEAN, registry.toJsonType(Boolean::class.createType()))
+        assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(Int::class.createType()))
+        assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(BigInteger::class.createType()))
+        assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(Double::class.createType()))
+        assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(BigDecimal::class.createType()))
+        assertEquals(TypeJsonEquiv.ARRAY, registry.toJsonType(listType(String::class.createType())))
+        assertEquals(TypeJsonEquiv.OBJECT, registry.toJsonType(mapType(String::class.createType(), Int::class.createType())))
+        assertEquals(TypeJsonEquiv.STRING, registry.toJsonType(Instant::class.createType()))
+        assertEquals(TypeJsonEquiv.STRING, registry.toJsonType(LocalDate::class.createType()))
     }
 
     @Test

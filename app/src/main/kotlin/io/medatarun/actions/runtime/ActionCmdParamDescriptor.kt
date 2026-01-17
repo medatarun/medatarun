@@ -1,6 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.types.JsonTypeEquiv
+import io.medatarun.types.TypeJsonEquiv
 import kotlin.reflect.KType
 
 data class ActionCmdParamDescriptor(
@@ -8,7 +8,7 @@ data class ActionCmdParamDescriptor(
     val title: String?,
     val type: KType,
     val multiplatformType: String,
-    val jsonType: JsonTypeEquiv,
+    val jsonType: TypeJsonEquiv,
     val optional: Boolean,
     val order: Int,
     val description: String?,

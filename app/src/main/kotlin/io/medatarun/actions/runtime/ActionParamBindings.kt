@@ -10,8 +10,7 @@ data class ActionParamBindings(
     fun technicalValidation() {
         for (paramState in paramStates) {
             val param = paramState.key
-            val state = paramState.value
-            when (state) {
+            when (val state = paramState.value) {
                 is ActionParamBindingState.Ok -> {
 
                 }
@@ -33,15 +32,14 @@ data class ActionParamBindings(
         val callArgs = mutableMapOf<KParameter, Any?>()
         for (paramState in paramStates) {
             val param = paramState.key
-            val state = paramState.value
-            when (state) {
+            when (val state = paramState.value) {
                 is ActionParamBindingState.Ok -> {
                     callArgs[param] = state.value
                 }
 
                 is ActionParamBindingState.Error, is ActionParamBindingState.Missing -> {
                     throw ActionInvocationException(
-                        HttpStatusCode.Companion.InternalServerError,
+                        HttpStatusCode.InternalServerError,
                         "Parameter [${param.name}] is invalid. Error should have been thrown before."
                     )
                 }
