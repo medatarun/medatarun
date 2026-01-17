@@ -6,7 +6,7 @@ import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.TypeKey
 
 sealed class AttributeDefUpdateCmd {
-    data class Id(val value: AttributeKey) : AttributeDefUpdateCmd()
+    data class Key(val value: AttributeKey) : AttributeDefUpdateCmd()
     data class Name(val value: LocalizedText?) : AttributeDefUpdateCmd()
     data class Description(val value: LocalizedMarkdown?) : AttributeDefUpdateCmd()
     data class Type(val value: TypeKey) : AttributeDefUpdateCmd()

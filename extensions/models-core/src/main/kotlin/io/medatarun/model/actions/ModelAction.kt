@@ -4,8 +4,6 @@ import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.model.domain.*
-import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
-import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import io.medatarun.security.SecurityRuleNames
 
 @Suppress("ClassName")
@@ -383,7 +381,7 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
         val entityKey: EntityKey,
         val attributeKey: AttributeKey,
-        val value: String?
+        val value: LocalizedText?
     ) : ModelAction
 
 
@@ -398,7 +396,7 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
         val entityKey: EntityKey,
         val attributeKey: AttributeKey,
-        val value: String?
+        val value: LocalizedMarkdown?
     ) : ModelAction
 
 
@@ -413,7 +411,7 @@ sealed interface ModelAction {
         val modelKey: ModelKey,
         val entityKey: EntityKey,
         val attributeKey: AttributeKey,
-        val value: String
+        val value: TypeKey
     ) : ModelAction
 
 
@@ -486,20 +484,142 @@ sealed interface ModelAction {
     )
     data class Relationship_Create(
         val modelKey: ModelKey,
-        val initializer: RelationshipDef
+        val relationshipKey: RelationshipKey,
+        val name: LocalizedText?,
+        val description: LocalizedText?,
+        val roleAKey: RelationshipRoleId,
+        val roleAEntityKey: EntityKey,
+        val roleAName: LocalizedText?,
+        val roleACardinality: RelationshipCardinality,
+        val roleBKey: RelationshipRoleId,
+        val roleBEntityKey: EntityKey,
+        val roleBName: LocalizedText?,
+        val roleBCardinality: RelationshipCardinality,
     ) : ModelAction
 
     @ActionDoc(
-        key = "relationship_update",
-        title = "Update relationship",
-        description = "Update relationship details (syntax will change soon)",
+        key="relationship_update_key",
+        title="Update relationship key",
+        description = "Changes the key of the relationship",
         uiLocation = ActionUILocation.relationship,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Relationship_Update(
+    data class Relationship_UpdateKey(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val cmd: RelationshipDefUpdateCmd
+        val value: RelationshipKey,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_update_name",
+        title="Update relationship name",
+        description = "Changes the name of the relationship",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Relationship_UpdateName(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val value: LocalizedText?,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_update_description",
+        title="Update relationship description",
+        description = "Changes the description of the relationship",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Relationship_UpdateDescription(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val value: LocalizedMarkdown?,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_create",
+        title="Create relationship role",
+        description = "Creates a new relationship role in relationship",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_Create(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
+        val roleKey: RelationshipRoleId,
+        val roleEntityKey: EntityKey,
+        val roleName: LocalizedText?,
+        val roleCardinality: RelationshipCardinality,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_update_key",
+        title="Update relationship role key",
+        description = "Changes the key of the relationship role",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_UpdateKey(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
+        val value: RelationshipRoleId,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_update_entity",
+        title="Update relationship role entity",
+        description = "Changes the entity that the relationship role represents",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_UpdateEntity(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
+        val value: EntityKey,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_update_name",
+        title="Update relationship role name",
+        description = "Changes the name of the relationship role.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_UpdateName(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
+        val value: LocalizedText?,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_update_cardinality",
+        title="Update relationship role cardinality",
+        description = "Changes the cardinality of the role within the relationship.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_UpdateCardinality(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
+        val value: RelationshipCardinality,
+    ) : ModelAction
+
+    @ActionDoc(
+        key="relationship_role_delete",
+        title="Delete relationship role",
+        description = "Deletes relationship role. There must be at least two roles in a relationship left, otherwise this will fail.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipRole_Delete(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val relationshipRoleKey: RelationshipRoleId,
     ) : ModelAction
 
     @ActionDoc(
@@ -551,21 +671,81 @@ sealed interface ModelAction {
     data class RelationshipAttribute_Create(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
-        val attr: AttributeDef
+        val attributeKey: AttributeKey,
+        val type: TypeKey,
+        val optional: Boolean,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
     ) : ModelAction
 
     @ActionDoc(
-        key = "relationship_attribute_update",
-        title = "Updates relationship attribute",
-        description = "Updates a relationship attribute (subject to change)",
+        key = "relationship_attribute_update_key",
+        title = "Update relationship attribute key",
+        description = "Changes key of a relationship attribute.",
         uiLocation = ActionUILocation.relationship,
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class RelationshipAttribute_Update(
+    data class RelationshipAttribute_UpdateKey(
         val modelKey: ModelKey,
         val relationshipKey: RelationshipKey,
         val attributeKey: AttributeKey,
-        val cmd: AttributeDefUpdateCmd
+        val value: AttributeKey
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "relationship_attribute_update_name",
+        title = "Update relationship attribute name",
+        description = "Changes the display title of a relationship attribute.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipAttribute_UpdateName(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
+        val value: LocalizedText?
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "relationship_attribute_update_description",
+        title = "Update relationship attribute description",
+        description = "Changes the description of a relationship attribute.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipAttribute_UpdateDescription(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
+        val value: LocalizedMarkdown?
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "relationship_attribute_update_type",
+        title = "Update relationship attribute type",
+        description = "Changes the declared type of a relationship attribute.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipAttribute_UpdateType(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
+        val value: TypeKey
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "relationship_attribute_update_optional",
+        title = "Update relationship attribute optionality",
+        description = "Changes whether a relationship attribute is optional.",
+        uiLocation = ActionUILocation.relationship,
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class RelationshipAttribute_UpdateOptional(
+        val modelKey: ModelKey,
+        val relationshipKey: RelationshipKey,
+        val attributeKey: AttributeKey,
+        val value: Boolean
     ) : ModelAction
 
     @ActionDoc(

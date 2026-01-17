@@ -1,10 +1,6 @@
 package io.medatarun.actions.runtime
 
 import io.medatarun.actions.actions.ActionWithPayload
-import io.medatarun.model.domain.AttributeDef
-import io.medatarun.model.domain.RelationshipDef
-import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
-import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
 import java.math.BigDecimal
@@ -39,10 +35,6 @@ class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
 
             // TODO those types shall not be here -- do not test that
             ActionWithPayload::class -> return TypeJsonEquiv.OBJECT
-            AttributeDef::class -> return TypeJsonEquiv.OBJECT
-            AttributeDefUpdateCmd::class -> return TypeJsonEquiv.OBJECT
-            RelationshipDef::class -> return TypeJsonEquiv.OBJECT
-            RelationshipDefUpdateCmd::class -> return TypeJsonEquiv.OBJECT
             else -> throw UndefinedMultiplatformTypeException(returnType)
         }
 
@@ -66,10 +58,6 @@ class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
             LocalDate::class -> return "LocalDate"
             // TODO those types shall not be here -- do not test that
             ActionWithPayload::class -> return "ActionWithPayload"
-            AttributeDef::class -> return "AttributeDef"
-            AttributeDefUpdateCmd::class -> return "AttributeDefUpdateCmd"
-            RelationshipDef::class -> return "RelationshipDef"
-            RelationshipDefUpdateCmd::class -> return "RelationshipDefUpdateCmd"
             else -> throw UndefinedMultiplatformTypeException(returnType)
         }
 

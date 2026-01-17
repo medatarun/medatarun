@@ -97,14 +97,20 @@ class AppHttpServer(
     ) {
         synchronized(this) {
             check(engine == null) { "RestApi server already running" }
-            engine = embeddedServer(Netty, host = host, port = port, module = { configure() })
-                .also {
-                    @Suppress("HttpUrlsUsage")
-                    logger.info("Starting REST API on http://$host:$port with publicBaseUrl=$publicBaseUrl")
-                    // Important, this displays the boostrap admin secret at startup when not already consumed
-                    bootstrapMessage()
-                    it.start(wait = wait)
+            engine = embeddedServer(
+                factory = Netty,
+                host = host,
+                port = port,
+                module = {
+                    configure()
+                    monitor.subscribe(ServerReady) {
+                        // Important, this displays the boostrap admin secret at startup when not already consumed
+                        bootstrapMessage()
+                        @Suppress("HttpUrlsUsage")
+                        logger.info("Starting REST API on http://$host:$port with publicBaseUrl=$publicBaseUrl")
+                    }
                 }
+            ).also { it.start(wait = wait) }
         }
     }
 
@@ -129,7 +135,12 @@ class AppHttpServer(
         install(ContentNegotiation) { json() }
         install(SSE)
         installCors()
-        installUIStatusPageAndSpaFallback(uiIndexTemplate, listOf("/api", "/mcp", "/sse", "/oidc"), oidcAuthority, oidcClientId)
+        installUIStatusPageAndSpaFallback(
+            uiIndexTemplate,
+            listOf("/api", "/mcp", "/sse", "/oidc"),
+            oidcAuthority,
+            oidcClientId
+        )
         installJwtSecurity(oidcService)
 
         routing {

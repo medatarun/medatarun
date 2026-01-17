@@ -28,6 +28,10 @@ class ModelExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, ModelKeyDescriptor())
         ctx.register(TypeDescriptor::class, HashtagDescriptor())
         ctx.register(TypeDescriptor::class, ModelVersionDescriptor())
+        ctx.register(TypeDescriptor::class, LocalizedTextDescriptor())
+        ctx.register(TypeDescriptor::class, LocalizedMarkdownDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipCardinalityDescriptor())
     }
 
 }
@@ -89,6 +93,17 @@ class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override val description = KeyValidation.DESCRIPTION
 }
 
+class RelationshipRoleKeyDescriptor : TypeDescriptor<RelationshipRoleId> {
+    override val target: KClass<RelationshipRoleId> = RelationshipRoleId::class
+    override val equivMultiplatorm: String = "RelationshipRoleKey"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: RelationshipRoleId): RelationshipRoleId {
+        return value.validated()
+    }
+
+    override val description = KeyValidation.DESCRIPTION
+}
+
 class HashtagDescriptor : TypeDescriptor<Hashtag> {
     override val target: KClass<Hashtag> = Hashtag::class
     override val equivMultiplatorm: String = "Hashtag"
@@ -107,4 +122,36 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     }
 
     override val description: String = ModelVersion.DESCRIPTION
+}
+
+class LocalizedTextDescriptor : TypeDescriptor<LocalizedText> {
+    override val target: KClass<LocalizedText> = LocalizedText::class
+    override val equivMultiplatorm: String = "LocalizedText"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: LocalizedText): LocalizedText {
+        return value.validate()
+    }
+
+    override val description: String = LOCALIZED_TEXT_DESCRIPTION
+}
+
+class LocalizedMarkdownDescriptor : TypeDescriptor<LocalizedMarkdown> {
+    override val target: KClass<LocalizedMarkdown> = LocalizedMarkdown::class
+    override val equivMultiplatorm: String = "LocalizedMarkdown"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: LocalizedMarkdown): LocalizedMarkdown {
+        return value.validate()
+    }
+    override val description: String = LOCALIZED_MARKDOWN_DESCRIPTION
+}
+
+class RelationshipCardinalityDescriptor : TypeDescriptor<RelationshipCardinality> {
+    override val target: KClass<RelationshipCardinality> = RelationshipCardinality::class
+    override val equivMultiplatorm: String = "RelationshipCardinality"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: RelationshipCardinality): RelationshipCardinality {
+        return value
+    }
+
+    override val description: String = LOCALIZED_MARKDOWN_DESCRIPTION
 }

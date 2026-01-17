@@ -1271,7 +1271,7 @@ class ModelTest {
             // Rename firstname to lastname causes exception because lastname already exists
             env.updateAttributeDef(
                 attributeKey = AttributeKey("firstname"),
-                AttributeDefUpdateCmd.Id(AttributeKey("lastname"))
+                AttributeDefUpdateCmd.Key(AttributeKey("lastname"))
             )
         }
     }
@@ -1284,7 +1284,7 @@ class ModelTest {
         env.createAttributeDef(AttributeKey("firstname"))
         val reloaded = env.updateAttributeDef(
             AttributeKey("firstname"),
-            AttributeDefUpdateCmd.Id(AttributeKey("nextname")),
+            AttributeDefUpdateCmd.Key(AttributeKey("nextname")),
             AttributeKey("nextname"),
         )
         assertEquals(AttributeKey("nextname"), reloaded.id)
@@ -1298,7 +1298,7 @@ class ModelTest {
         val attrId = e.identifierAttributeKey
         val attrIdNext = AttributeKey("id_next")
         // Be careful to specify "reloadId" because the attribute's id changed
-        env.updateAttributeDef(attrId, command = AttributeDefUpdateCmd.Id(attrIdNext), reloadId = attrIdNext)
+        env.updateAttributeDef(attrId, command = AttributeDefUpdateCmd.Key(attrIdNext), reloadId = attrIdNext)
         val reloadedEntity = env.query.findModelById(env.sampleModelKey).findEntityDef(env.sampleEntityKey)
         assertEquals(attrIdNext, reloadedEntity.identifierAttributeKey)
 

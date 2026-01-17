@@ -202,7 +202,7 @@ class ModelCmdsImpl(
         // TODO how do we ensure transactions here ?
 
 
-        if (c.cmd is AttributeDefUpdateCmd.Id) {
+        if (c.cmd is AttributeDefUpdateCmd.Key) {
             // We can not have two attributes with the same id
             if (entity.attributes.any { it.id == c.cmd.value && it.id != c.attributeKey }) {
                 throw UpdateAttributeDefDuplicateIdException(c.entityKey, c.attributeKey)

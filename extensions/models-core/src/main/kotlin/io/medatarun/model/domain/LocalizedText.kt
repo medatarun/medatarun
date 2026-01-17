@@ -33,6 +33,8 @@ sealed interface LocalizedText {
     fun get(locale: Locale): String {
         return get(locale.language)
     }
+    fun validate(): LocalizedText { return this }
+
 
 }
 
@@ -62,5 +64,8 @@ data class LocalizedTextMap(val values: Map<String, String>) : LocalizedText {
 }
 
 typealias LocalizedMarkdown = LocalizedText
+const val LOCALIZED_MARKDOWN_DESCRIPTION = """A rich formatted text. Can be translated in multiple languages."""
+const val LOCALIZED_TEXT_DESCRIPTION = """A text on a single line, that doesn't exceed 200 characters long. Can be translated in multiple languages."""
+
 typealias LocalizedMarkdownNotLocalized = LocalizedTextNotLocalized
 typealias LocalizedMarkdownMap = LocalizedTextMap

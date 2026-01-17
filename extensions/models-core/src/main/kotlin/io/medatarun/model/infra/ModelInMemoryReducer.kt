@@ -83,7 +83,7 @@ class ModelInMemoryReducer {
 
             is ModelRepositoryCmd.UpdateEntityDefAttributeDef ->
                 modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
-                    updateEntityAttribute(cmd, a)
+                    updateEntityAttribute(a, cmd)
                 }
 
             is ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagAdd ->
@@ -104,18 +104,18 @@ class ModelInMemoryReducer {
             )
 
             is ModelRepositoryCmd.UpdateRelationshipDef ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) {
-                    rel -> updateRelationship(rel, cmd)
+                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
+                    updateRelationship(rel, cmd)
                 }
 
             is ModelRepositoryCmd.UpdateRelationshipDefHashtagAdd ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) {
-                    rel -> rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
+                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
+                    rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
                 }
 
             is ModelRepositoryCmd.UpdateRelationshipDefHashtagDelete ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) {
-                    rel -> rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
+                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
+                    rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
                 }
 
 
@@ -161,41 +161,54 @@ class ModelInMemoryReducer {
 }
 
 private fun updateEntityAttribute(
-    cmd: ModelRepositoryCmd.UpdateEntityDefAttributeDef,
-    a: AttributeDefInMemory
-): AttributeDefInMemory? = when (val target = cmd.cmd) {
-    is AttributeDefUpdateCmd.Id -> a.copy(id = target.value)
-    is AttributeDefUpdateCmd.Name -> a.copy(name = target.value)
-    is AttributeDefUpdateCmd.Description -> a.copy(description = target.value)
-    is AttributeDefUpdateCmd.Type -> a.copy(type = target.value)
-    is AttributeDefUpdateCmd.Optional -> a.copy(optional = target.value)
+    attribute: AttributeDefInMemory,
+    cmd: ModelRepositoryCmd.UpdateEntityDefAttributeDef
+): AttributeDefInMemory? = when (val input = cmd.cmd) {
+    is AttributeDefUpdateCmd.Key -> attribute.copy(id = input.value)
+    is AttributeDefUpdateCmd.Name -> attribute.copy(name = input.value)
+    is AttributeDefUpdateCmd.Description -> attribute.copy(description = input.value)
+    is AttributeDefUpdateCmd.Type -> attribute.copy(type = input.value)
+    is AttributeDefUpdateCmd.Optional -> attribute.copy(optional = input.value)
 }
 
 private fun updateRelationshipAttribute(
-    attr: AttributeDefInMemory,
+    attribute: AttributeDefInMemory,
     cmd: ModelRepositoryCmd.UpdateRelationshipAttributeDef,
-): AttributeDefInMemory = when (cmd.cmd) {
-    is AttributeDefUpdateCmd.Id -> attr.copy(id = attr.id)
-    is AttributeDefUpdateCmd.Name -> attr.copy(name = attr.name)
-    is AttributeDefUpdateCmd.Description -> attr.copy(description = attr.description)
-    is AttributeDefUpdateCmd.Optional -> attr.copy(optional = attr.optional)
-    is AttributeDefUpdateCmd.Type -> attr.copy(type = attr.type)
+): AttributeDefInMemory = when (val input = cmd.cmd) {
+    is AttributeDefUpdateCmd.Key -> attribute.copy(id = input.value)
+    is AttributeDefUpdateCmd.Name -> attribute.copy(name = input.value)
+    is AttributeDefUpdateCmd.Description -> attribute.copy(description = input.value)
+    is AttributeDefUpdateCmd.Optional -> attribute.copy(optional = input.value)
+    is AttributeDefUpdateCmd.Type -> attribute.copy(type = input.value)
 }
 
 private fun updateRelationship(
-    attr: RelationshipDefInMemory,
+    rel: RelationshipDefInMemory,
     cmd: ModelRepositoryCmd.UpdateRelationshipDef,
-): RelationshipDefInMemory = when (cmd.cmd) {
-    is RelationshipDefUpdateCmd.Name -> attr.copy(name = attr.name)
-    is RelationshipDefUpdateCmd.Description -> attr.copy(description = attr.name)
-    is RelationshipDefUpdateCmd.RoleName -> attr.copy(roles = attr.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
+): RelationshipDefInMemory = when (val input = cmd.cmd) {
+    is RelationshipDefUpdateCmd.Key -> rel.copy(id = input.value)
+    is RelationshipDefUpdateCmd.Name -> rel.copy(name = input.value)
+    is RelationshipDefUpdateCmd.Description -> rel.copy(description = input.value)
+    is RelationshipDefUpdateCmd.RoleKey -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+            id = cmd.cmd.value
+        )
+    })
+
+    is RelationshipDefUpdateCmd.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+            entityId = cmd.cmd.value
+        )
+    })
+
+    is RelationshipDefUpdateCmd.RoleName -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
             name = cmd.cmd.value
         )
     })
 
-    is RelationshipDefUpdateCmd.RoleCardinality -> attr.copy(roles = attr.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
+    is RelationshipDefUpdateCmd.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
             cardinality = cmd.cmd.value
         )
     })
