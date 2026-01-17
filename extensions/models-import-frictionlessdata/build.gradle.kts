@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":libs:platform-actions"))
     implementation(project(":libs:platform-security"))
     implementation(project(":libs:lang"))
-    implementation(project(":libs:model"))
+    implementation(project(":extensions:models-core"))
     testImplementation(kotlin("test"))
     testImplementation(libs.bundles.slf4jTests)
 }

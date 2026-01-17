@@ -1,6 +1,5 @@
 package io.medatarun.ext.db.internal.connection
 
-import io.medatarun.ext.db.model.DbConnectionSecret
 import kotlinx.serialization.Serializable
 
 @Serializable
