@@ -6,8 +6,9 @@ const useStyles = makeStyles({
   root: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
-    overflow: "hidden"
+    height: "100vh",
+    maxHeight: "100vh",
+    overflow: "hidden",
   },
   titleBar: {
     flex: 0,

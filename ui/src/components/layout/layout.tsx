@@ -8,6 +8,7 @@ import logo from "../../../public/favicon/favicon.svg"
 import {ErrorBoundary} from "./ErrorBoundary.tsx";
 import {Loader, type NavigationTreeItem} from "@seij/common-ui";
 import {ApplicationShellSecured} from "@seij/common-ui-auth";
+import {useDetailLevelContext} from "../business/DetailLevelContext.tsx";
 
 
 export function Layout2() {
@@ -16,6 +17,7 @@ export function Layout2() {
   const navigate = useNavigate()
   const matchRoute = useMatchRoute()
   const {pathname} = useLocation()
+  const {isDetailLevelTech} = useDetailLevelContext()
 
   useEffect(() => {
     fetchActionDescriptors()
@@ -32,7 +34,7 @@ export function Layout2() {
   }, [])
 
   const matchPath = (path: string | undefined) => !!matchRoute({to: path, fuzzy: true})
-  const navigationItems: NavigationTreeItem[] = [
+  const navigationItemsBase: NavigationTreeItem[] = [
     {
       id: "home",
       parentId: null,
@@ -62,8 +64,21 @@ export function Layout2() {
       description: undefined,
       icon: "dashboard",
       rule: undefined
+    },
+    {
+      id: "preferences",
+      parentId: null,
+      type: "page",
+      path: "/preferences",
+      label: "Preferences",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
     }
   ]
+  const nav = navigationItemsBase.filter(it => it.id !== "commands" || isDetailLevelTech)
+
+
   return <ApplicationShellSecured
     applicationName={"Medatarun"}
     applicationIcon={<img src={logo} alt="Medatarun logo" style={{
@@ -94,7 +109,7 @@ export function Layout2() {
     }
     navigate={path => navigate({to: path})}
     onClickHome={() => navigate({to: "/"})}
-    navigationItems={navigationItems}
+    navigationItems={nav}
     matchPath={matchPath}
   >
 

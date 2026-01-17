@@ -2,7 +2,6 @@ import {Table, TableBody, TableCell, TableRow} from "@fluentui/react-components"
 import {Markdown} from "../../views/ModelPage.tsx";
 import {type AttributeDto, useActionRegistry} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
-import {ActionsBar} from "./ActionsBar.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 
 export function AttributesTable({entityId, attributes}: {entityId: string, attributes: AttributeDto[] }) {
@@ -10,9 +9,6 @@ export function AttributesTable({entityId, attributes}: {entityId: string, attri
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("entity.attribute")
   return <div>
-    <div>
-      <ActionsBar location="entity.attributes" params={{modelKey: model.id, entityKey: entityId, }}/>
-    </div>
     <Table size="small">
     <TableBody>{attributes.map(attribute => <TableRow key={attribute.id}>
       <TableCell style={{width: "10em"}}>{attribute.name ?? attribute.id}</TableCell>

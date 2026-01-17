@@ -21,7 +21,7 @@ class MedatarunExtensionCtxConfigImpl(
     }
 
     override fun resolveExtensionStoragePath(): Path {
-        val path = resolvePath(_config.projectDir, extension.id)
+        val path = resolvePath(_config.applicationHomeDir.resolve("data").resolve("extensions"), extension.id)
         if (!path.exists()) path.createDirectories()
         if (!path.isDirectory()) throw ExtensionStoragePathNotDirectoryException(path)
         return path
