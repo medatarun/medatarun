@@ -59,7 +59,7 @@ class FrictionlessConverter {
         val model = ModelInMemory(
             id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-            description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
+            description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = try {
                 ModelVersion(datapackage.version ?: "0.0.0").validate()
             } catch (_:Exception) {
@@ -100,7 +100,7 @@ class FrictionlessConverter {
         val model = ModelInMemory(
             id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-            description = datapackage.description?.let { LocalizedTextNotLocalized(it) },
+            description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
             types = types,
             origin = ModelOrigin.Uri(uri),
@@ -136,12 +136,12 @@ class FrictionlessConverter {
         val entity = EntityDefInMemory(
             id = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
-            description = entityDescription?.let(::LocalizedTextNotLocalized),
+            description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
             attributes = schema.fields.map { field ->
                 AttributeDefInMemory(
                     id = AttributeKey(field.name),
                     name = field.title?.let(::LocalizedTextNotLocalized),
-                    description = field.description?.let(::LocalizedTextNotLocalized),
+                    description = field.description?.let(::LocalizedMarkdownNotLocalized),
                     type = TypeKey(field.type),
                     optional = field.isOptional(),
                     hashtags = emptyList()

@@ -8,8 +8,8 @@ import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
-import io.medatarun.types.TypeDescriptor
-import io.medatarun.types.TypeJsonEquiv
+import io.medatarun.types.*
+import kotlinx.serialization.json.*
 import kotlin.reflect.KClass
 
 /**
@@ -28,6 +28,10 @@ class ModelExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, ModelKeyDescriptor())
         ctx.register(TypeDescriptor::class, HashtagDescriptor())
         ctx.register(TypeDescriptor::class, ModelVersionDescriptor())
+        ctx.register(TypeDescriptor::class, LocalizedTextDescriptor())
+        ctx.register(TypeDescriptor::class, LocalizedMarkdownDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipCardinalityDescriptor())
     }
 
 }
@@ -89,6 +93,17 @@ class ModelKeyDescriptor : TypeDescriptor<ModelKey> {
     override val description = KeyValidation.DESCRIPTION
 }
 
+class RelationshipRoleKeyDescriptor : TypeDescriptor<RelationshipRoleKey> {
+    override val target: KClass<RelationshipRoleKey> = RelationshipRoleKey::class
+    override val equivMultiplatorm: String = "RelationshipRoleKey"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: RelationshipRoleKey): RelationshipRoleKey {
+        return value.validated()
+    }
+
+    override val description = KeyValidation.DESCRIPTION
+}
+
 class HashtagDescriptor : TypeDescriptor<Hashtag> {
     override val target: KClass<Hashtag> = Hashtag::class
     override val equivMultiplatorm: String = "Hashtag"
@@ -107,4 +122,86 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     }
 
     override val description: String = ModelVersion.DESCRIPTION
+}
+
+class LocalizedTextDescriptor : TypeDescriptor<LocalizedText> {
+    override val target: KClass<LocalizedText> = LocalizedText::class
+    override val equivMultiplatorm: String = "LocalizedText"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: LocalizedText): LocalizedText {
+        return value.validate()
+    }
+
+    override val description: String = LOCALIZED_TEXT_DESCRIPTION
+    override val jsonConverter: TypeJsonConverter<LocalizedText> = LocalizedTextTypeJsonConverter()
+}
+
+class LocalizedMarkdownDescriptor : TypeDescriptor<LocalizedMarkdown> {
+    override val target: KClass<LocalizedMarkdown> = LocalizedMarkdown::class
+    override val equivMultiplatorm: String = "LocalizedMarkdown"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: LocalizedMarkdown): LocalizedMarkdown {
+        return value.validate()
+    }
+    override val description: String = LOCALIZED_MARKDOWN_DESCRIPTION
+    override val jsonConverter: TypeJsonConverter<LocalizedMarkdown> = LocalizedMarkdownTypeJsonConverter()
+}
+
+class LocalizedMarkdownTypeJsonConverter : TypeJsonConverter<LocalizedMarkdown> {
+    override fun deserialize(json: JsonElement): LocalizedMarkdown {
+        return when (json) {
+            is JsonNull -> throw TypeJsonConverterIllegalNullException()
+            is JsonArray -> throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
+            is JsonObject -> {
+                try {
+                    LocalizedMarkdownMap(json.entries.associate { it.key to it.value.jsonPrimitive.content })
+                } catch(e: Exception) {
+                    throw TypeJsonConverterBadFormatException("Could not parse JSON object. ${e.message}: $json")
+                }
+            }
+            is JsonPrimitive -> {
+                if (json.isString) {
+                    val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
+                    return LocalizedMarkdownNotLocalized(content)
+                } else {
+                    throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
+                }
+            }
+        }
+    }
+}
+
+class LocalizedTextTypeJsonConverter : TypeJsonConverter<LocalizedText> {
+    override fun deserialize(json: JsonElement): LocalizedText {
+        return when (json) {
+            is JsonNull -> throw TypeJsonConverterIllegalNullException()
+            is JsonArray -> throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
+            is JsonObject -> {
+                try {
+                    LocalizedTextMap(json.entries.associate { it.key to it.value.jsonPrimitive.content })
+                } catch(e: Exception) {
+                    throw TypeJsonConverterBadFormatException("Could not parse JSON object. ${e.message}: $json")
+                }
+            }
+            is JsonPrimitive -> {
+                if (json.isString) {
+                    val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
+                    return LocalizedTextNotLocalized(content)
+                } else {
+                    throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
+                }
+            }
+        }
+    }
+}
+
+class RelationshipCardinalityDescriptor : TypeDescriptor<RelationshipCardinality> {
+    override val target: KClass<RelationshipCardinality> = RelationshipCardinality::class
+    override val equivMultiplatorm: String = "RelationshipCardinality"
+    override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+    override fun validate(value: RelationshipCardinality): RelationshipCardinality {
+        return value
+    }
+
+    override val description: String = ""
 }

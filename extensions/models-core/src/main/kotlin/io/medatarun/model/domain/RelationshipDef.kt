@@ -24,7 +24,7 @@ interface RelationshipDef {
      * Optional textual description providing semantic context.
      * This is explanatory metadata, not executable logic.
      **/
-    val description: LocalizedText?
+    val description: LocalizedMarkdown?
 
     /**
      * The list of roles that participate in this relationship.
@@ -91,7 +91,7 @@ interface RelationshipRole {
      *
      * Used for referencing from other definitions or instances.
      */
-    val id: RelationshipRoleId
+    val id: RelationshipRoleKey
 
     /**
      * Reference to the participating entity (defined in [EntityDef]).

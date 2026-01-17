@@ -1,22 +1,39 @@
 import {Table, TableBody, TableCell, TableRow} from "@fluentui/react-components";
 import {Markdown} from "../../views/ModelPage.tsx";
-import type {AttributeDto} from "../../business";
+import {type AttributeDto, useActionRegistry} from "../../business";
+import {ActionMenuButton} from "./TypesTable.tsx";
+import {ActionsBar} from "./ActionsBar.tsx";
+import {useModelContext} from "./ModelContext.tsx";
 
-export function AttributesTable({attributes}: { attributes: AttributeDto[] }) {
-  return <Table size="small">
-    <TableBody>{attributes.map(a => <TableRow key={a.id}>
-      <TableCell style={{width: "10em"}}>{a.name ?? a.id}</TableCell>
+export function AttributesTable({entityId, attributes}: {entityId: string, attributes: AttributeDto[] }) {
+  const model = useModelContext();
+  const actionRegistry = useActionRegistry();
+  const itemActions = actionRegistry.findActions("entity.attribute")
+  return <div>
+    <div>
+      <ActionsBar location="entity.attributes" params={{modelKey: model.id, entityKey: entityId, }}/>
+    </div>
+    <Table size="small">
+    <TableBody>{attributes.map(attribute => <TableRow key={attribute.id}>
+      <TableCell style={{width: "10em"}}>{attribute.name ?? attribute.id}</TableCell>
       <TableCell>
         <div>
-          <Markdown value={a.description}/>
+          <Markdown value={attribute.description}/>
         </div>
         <div>
-          <code>{a.id}</code>
+          <code>{attribute.id}</code>
           {" "}
-          <code>{a.type} {a.optional ? "?" : ""}</code>
-          {a.identifierAttribute ? "🔑" : ""}
+          <code>{attribute.type} {attribute.optional ? "?" : ""}</code>
+          {attribute.identifierAttribute ? "🔑" : ""}
         </div>
+      </TableCell>
+      <TableCell style={{width: "2em"}}>
+        <ActionMenuButton
+          itemActions={itemActions}
+          actionParams={{modelKey: model.id, entityKey: entityId, attributeKey: attribute.id}}
+        />
       </TableCell>
     </TableRow>)}</TableBody>
   </Table>
+  </div>
 }

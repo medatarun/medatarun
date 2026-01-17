@@ -3,7 +3,10 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.model.domain.*
+import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.RelationshipDefInMemory
+import io.medatarun.model.infra.RelationshipRoleInMemory
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.platform.kernel.ResourceLocator
 import org.slf4j.LoggerFactory
@@ -44,6 +47,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 
             is ModelAction.Model_Create -> handler.modelCreate(cmd)
             is ModelAction.Model_Copy -> handler.modelCopy(cmd)
+            is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
             is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
             is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
@@ -91,12 +95,24 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.Relationship_Create -> handler.relationshipCreate(cmd)
-            is ModelAction.Relationship_Update -> handler.relationshipUpdate(cmd)
+            is ModelAction.Relationship_UpdateKey -> handler.relationshipUpdateKey(cmd)
+            is ModelAction.Relationship_UpdateName -> handler.relationshipUpdateName(cmd)
+            is ModelAction.Relationship_UpdateDescription -> handler.relationshipUpdateDescription(cmd)
             is ModelAction.Relationship_AddTag -> handler.relationshipAddTag(cmd)
             is ModelAction.Relationship_DeleteTag -> handler.relationshipDeleteTag(cmd)
             is ModelAction.Relationship_Delete -> handler.relationshipDelete(cmd)
+            is ModelAction.RelationshipRole_Create -> handler.relationshipRoleCreate(cmd)
+            is ModelAction.RelationshipRole_UpdateKey -> handler.relationshipRoleUpdateKey(cmd)
+            is ModelAction.RelationshipRole_UpdateName -> handler.relationshipRoleUpdateName(cmd)
+            is ModelAction.RelationshipRole_UpdateCardinality -> handler.relationshipRoleUpdateCardinality(cmd)
+            is ModelAction.RelationshipRole_UpdateEntity -> handler.relationshipRoleUpdateEntity(cmd)
+            is ModelAction.RelationshipRole_Delete -> handler.relationshipRoleDelete(cmd)
             is ModelAction.RelationshipAttribute_Create -> handler.relationshipAttributeCreate(cmd)
-            is ModelAction.RelationshipAttribute_Update -> handler.relationshipAttributeUpdate(cmd)
+            is ModelAction.RelationshipAttribute_UpdateKey -> handler.relationshipAttributeUpdateId(cmd)
+            is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(cmd)
+            is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(cmd)
+            is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(cmd)
+            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(cmd)
             is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(cmd)
             is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(cmd)
             is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(cmd)
@@ -133,8 +149,8 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.CreateModel(
                 modelKey = cmd.modelKey,
-                name = LocalizedTextNotLocalized(cmd.name),
-                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                name = cmd.name,
+                description = cmd.description,
                 version = cmd.version ?: ModelVersion("0.0.1")
             )
         )
@@ -149,11 +165,15 @@ class ModelActionHandler(
         )
     }
 
+    fun modelUpdateKey(cmd: ModelAction.Model_UpdateKey) {
+        TODO("Not yet implemented")
+    }
+
     fun modelUpdateName(cmd: ModelAction.Model_UpdateName) {
         dispatch(
             ModelCmd.UpdateModelName(
                 modelKey = cmd.modelKey,
-                name = LocalizedTextNotLocalized(cmd.name),
+                name = cmd.value,
             )
         )
     }
@@ -162,7 +182,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateModelDescription(
                 modelKey = cmd.modelKey,
-                description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                description = cmd.value,
             )
         )
     }
@@ -171,7 +191,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateModelVersion(
                 modelKey = cmd.modelKey,
-                version = cmd.version,
+                version = cmd.value,
             )
         )
     }
@@ -208,8 +228,8 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 initializer = ModelTypeInitializer(
                     id = cmd.typeKey,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                 )
             )
         )
@@ -220,7 +240,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelKey = cmd.modelKey,
                 typeId = cmd.typeKey,
-                cmd = ModelTypeUpdateCmd.Name(cmd.name?.let { LocalizedTextNotLocalized(it) })
+                cmd = ModelTypeUpdateCmd.Name(cmd.name)
             )
         )
     }
@@ -230,7 +250,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelKey = cmd.modelKey,
                 typeId = cmd.typeKey,
-                cmd = ModelTypeUpdateCmd.Description(cmd.description?.let { LocalizedTextNotLocalized(it) })
+                cmd = ModelTypeUpdateCmd.Description(cmd.description)
             )
         )
     }
@@ -253,14 +273,14 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityDefInitializer = EntityDefInitializer(
                     entityKey = cmd.entityKey,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                     documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
                     identityAttribute = AttributeDefIdentityInitializer(
                         attributeKey = cmd.identityAttributeKey,
                         type = cmd.identityAttributeType,
-                        name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                        description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                        name = cmd.name,
+                        description = cmd.description,
                     )
                 ),
             )
@@ -272,7 +292,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Id(EntityKey(cmd.value))
+                cmd = EntityDefUpdateCmd.Id(cmd.value)
             )
         )
     }
@@ -282,7 +302,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Name(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = EntityDefUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -292,7 +312,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntityDef(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
-                cmd = EntityDefUpdateCmd.Description(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = EntityDefUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -339,8 +359,8 @@ class ModelActionHandler(
                     attributeKey = cmd.attributeKey,
                     type = cmd.type,
                     optional = cmd.optional,
-                    name = cmd.name?.let { LocalizedTextNotLocalized(it) },
-                    description = cmd.description?.let { LocalizedTextNotLocalized(it) },
+                    name = cmd.name,
+                    description = cmd.description,
                 )
             )
         )
@@ -352,7 +372,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
                 attributeKey = cmd.attributeKey,
-                cmd = AttributeDefUpdateCmd.Id(AttributeKey(cmd.value))
+                cmd = AttributeDefUpdateCmd.Key(cmd.value)
             )
         )
     }
@@ -363,7 +383,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
                 attributeKey = cmd.attributeKey,
-                cmd = AttributeDefUpdateCmd.Name(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = AttributeDefUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -375,7 +395,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
                 attributeKey = cmd.attributeKey,
-                cmd = AttributeDefUpdateCmd.Description(cmd.value?.let { LocalizedTextNotLocalized(it) })
+                cmd = AttributeDefUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -386,7 +406,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 entityKey = cmd.entityKey,
                 attributeKey = cmd.attributeKey,
-                cmd = AttributeDefUpdateCmd.Type(TypeKey(cmd.value))
+                cmd = AttributeDefUpdateCmd.Type(cmd.value)
             )
         )
     }
@@ -442,17 +462,45 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.CreateRelationshipDef(
                 modelKey = cmd.modelKey,
-                initializer = cmd.initializer
+                initializer = RelationshipDefInMemory(
+                    id = cmd.relationshipKey,
+                    name = cmd.name,
+                    description = cmd.description,
+                    roles = listOf(
+                        RelationshipRoleInMemory(id = cmd.roleAKey, entityId = cmd.roleAEntityKey, name = cmd.roleAName, cardinality = cmd.roleACardinality),
+                        RelationshipRoleInMemory(id = cmd.roleBKey, entityId = cmd.roleBEntityKey, name = cmd.roleBName, cardinality = cmd.roleBCardinality)
+                    ),
+                    attributes = emptyList(),
+                    hashtags = emptyList(),
+                )
             )
         )
     }
-
-    fun relationshipUpdate(cmd: ModelAction.Relationship_Update) {
+    fun relationshipUpdateKey(cmd: ModelAction.Relationship_UpdateKey) {
         dispatch(
             ModelCmd.UpdateRelationshipDef(
                 modelKey = cmd.modelKey,
                 relationshipKey = cmd.relationshipKey,
-                cmd = cmd.cmd
+                cmd = RelationshipDefUpdateCmd.Key(cmd.value)
+            )
+        )
+    }
+    fun relationshipUpdateName(cmd: ModelAction.Relationship_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateRelationshipDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                cmd = RelationshipDefUpdateCmd.Name(cmd.value)
+            )
+        )
+    }
+
+    fun relationshipUpdateDescription(cmd: ModelAction.Relationship_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateRelationshipDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                cmd = RelationshipDefUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -486,23 +534,96 @@ class ModelActionHandler(
         )
     }
 
+    fun relationshipRoleCreate(cmd: ModelAction.RelationshipRole_Create) {
+        TODO("Not yet implemented")
+    }
+
+    fun relationshipRoleUpdateKey(cmd: ModelAction.RelationshipRole_UpdateKey) {
+        TODO("Not yet implemented")
+    }
+
+    fun relationshipRoleUpdateName(cmd: ModelAction.RelationshipRole_UpdateName) {
+        TODO("Not yet implemented")
+    }
+
+    fun relationshipRoleUpdateEntity(cmd: ModelAction.RelationshipRole_UpdateEntity) {
+        TODO("Not yet implemented")
+    }
+
+    fun relationshipRoleUpdateCardinality(cmd: ModelAction.RelationshipRole_UpdateCardinality) {
+        TODO("Not yet implemented")
+    }
+
+    fun relationshipRoleDelete(cmd: ModelAction.RelationshipRole_Delete) {
+        TODO("Not yet implemented")
+    }
+
     fun relationshipAttributeCreate(cmd: ModelAction.RelationshipAttribute_Create) {
         dispatch(
             ModelCmd.CreateRelationshipAttributeDef(
                 modelKey = cmd.modelKey,
                 relationshipKey = cmd.relationshipKey,
-                attr = cmd.attr
+                attr = AttributeDefInMemory(
+                    id = cmd.attributeKey,
+                    name = cmd.name,
+                    description = cmd.description,
+                    type = cmd.type,
+                    optional = cmd.optional,
+                    hashtags = emptyList()
+                )
             )
         )
     }
 
-    fun relationshipAttributeUpdate(cmd: ModelAction.RelationshipAttribute_Update) {
+    fun relationshipAttributeUpdateName(cmd: ModelAction.RelationshipAttribute_UpdateName) {
         dispatch(
             ModelCmd.UpdateRelationshipAttributeDef(
                 modelKey = cmd.modelKey,
                 relationshipKey = cmd.relationshipKey,
                 attributeKey = cmd.attributeKey,
-                cmd = cmd.cmd
+                cmd = AttributeDefUpdateCmd.Name(cmd.value)
+            )
+        )
+    }
+
+    fun relationshipAttributeUpdateDescription(cmd: ModelAction.RelationshipAttribute_UpdateDescription) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Description(cmd.value)
+            )
+        )
+    }
+    fun relationshipAttributeUpdateId(cmd: ModelAction.RelationshipAttribute_UpdateKey) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Key(cmd.value)
+            )
+        )
+    }
+    fun relationshipAttributeUpdateType(cmd: ModelAction.RelationshipAttribute_UpdateType) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Type(cmd.value)
+            )
+        )
+    }
+
+    fun relationshipAttributeUpdateOptional(cmd: ModelAction.RelationshipAttribute_UpdateOptional) {
+        dispatch(
+            ModelCmd.UpdateRelationshipAttributeDef(
+                modelKey = cmd.modelKey,
+                relationshipKey = cmd.relationshipKey,
+                attributeKey = cmd.attributeKey,
+                cmd = AttributeDefUpdateCmd.Optional(cmd.value)
             )
         )
     }

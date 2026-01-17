@@ -208,6 +208,8 @@ function validate({formData, formFields}: {
     else if (formField.type === "Hashtag") result = validateHashtag(formField, formData[formField.key])
     else if (formField.type === "ModelVersion") result = validateVersion(formField, formData[formField.key])
     else if (formField.type === "Boolean") result = validateBoolean(formField, formData[formField.key])
+    else if (formField.type === "LocalizedText") result = validateString(formField, formData[formField.key])
+    else if (formField.type === "LocalizedMarkdown") result = validateString(formField, formData[formField.key])
     else result = invalid("Unsupported type: " + formField.type)
     validationResults.set(formField.key, result)
   }

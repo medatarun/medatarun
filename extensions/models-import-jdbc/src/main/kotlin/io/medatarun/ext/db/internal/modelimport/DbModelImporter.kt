@@ -51,13 +51,13 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         AttributeDefInMemory(
                             id = AttributeKey(it.columnName),
                             name = null,
-                            description = it.remarks?.let(::LocalizedTextNotLocalized),
+                            description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
                             type = TypeKey(it.typeName),
                             optional = it.isNullable != false,
                             hashtags = emptyList(),
                         )
                     },
-                    description = table.remarks?.let(::LocalizedTextNotLocalized),
+                    description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
                     identifierAttributeKey = table.pkNameOrFirstColumn(),
                     origin = EntityOrigin.Uri(URI(path)),
                     documentationHome = null,
@@ -71,7 +71,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
                     val roles = listOf(
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleId("${fk.fkTableName}.${fk.fkColumnName}"),
+                            id = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
                             entityId = EntityKey(fk.fkTableName),
                             name = null,
                             cardinality = if (result.isNullableOrUndefined(
@@ -81,7 +81,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                             ) RelationshipCardinality.ZeroOrOne else RelationshipCardinality.One,
                         ),
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleId("${fk.pkTableName}.${fk.pkColumnName}"),
+                            id = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
                             cardinality = RelationshipCardinality.Unknown,
                             entityId = EntityKey(fk.pkTableName),
                             name = null

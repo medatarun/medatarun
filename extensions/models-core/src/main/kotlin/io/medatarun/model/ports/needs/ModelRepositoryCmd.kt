@@ -22,12 +22,12 @@ sealed interface ModelRepositoryCmd {
 
     data class UpdateModelName(
         override val modelKey: ModelKey,
-        val name: LocalizedTextNotLocalized
+        val name: LocalizedText
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelDescription(
         override val modelKey: ModelKey,
-        val description: LocalizedTextNotLocalized?
+        val description: LocalizedMarkdown?
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateModelVersion(

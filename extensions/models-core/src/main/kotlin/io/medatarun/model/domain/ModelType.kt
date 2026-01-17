@@ -17,5 +17,5 @@ interface ModelType {
     /**
      * Display description of the type
      */
-    val description: LocalizedText?
+    val description: LocalizedMarkdown?
 }

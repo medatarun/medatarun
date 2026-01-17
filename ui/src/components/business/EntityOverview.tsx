@@ -3,10 +3,19 @@ import {ExternalUrl, Markdown, Origin} from "../../views/ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
 import {Tags} from "../core/Tag.tsx";
 import type {EntityDto} from "../../business";
+import {ActionsBar} from "./ActionsBar.tsx";
+import {useModelContext} from "./ModelContext.tsx";
 
 
 export function EntityOverview({entity}: { entity: EntityDto}) {
+  const model = useModelContext()
   return <div>
+    <div>
+      <ActionsBar location="entity" params={{
+        modelKey: model.id,
+        entityKey: entity.id
+      }}/>
+    </div>
     <div style={{
       float: "right",
       display: "float",

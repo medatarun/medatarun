@@ -1,7 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.AttributeDef
-import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.LocalizedTextBase
 import io.medatarun.model.ports.exposed.ModelQueries
 import kotlinx.serialization.json.*
 
@@ -78,7 +78,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
 
     }
 
-    private fun localizedTextToJson(value: LocalizedText?): JsonElement {
+    private fun localizedTextToJson(value: LocalizedTextBase?): JsonElement {
         return value?.let { text ->
             buildJsonObject {
                 put("values", buildJsonObject {
