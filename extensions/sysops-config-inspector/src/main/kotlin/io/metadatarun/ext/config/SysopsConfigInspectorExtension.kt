@@ -5,9 +5,9 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.metadatarun.ext.config.actions.ConfigActionProvider
 
-class ConfigExtension : MedatarunExtension {
+class SysopsConfigInspectorExtension : MedatarunExtension {
 
-    override val id = "db"
+    override val id = "sysops-config-inspector"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.register(ActionProvider::class, ConfigActionProvider())
     }

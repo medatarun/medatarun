@@ -2,7 +2,7 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.auth.AuthExtension
-import io.medatarun.ext.db.DbExtension
+import io.medatarun.ext.db.ModelsImportJdbcExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
 import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.model.ModelExtension
@@ -25,8 +25,8 @@ import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityExtension
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRolesRegistryImpl
-import io.medatarun.types.TypesExtension
-import io.metadatarun.ext.config.ConfigExtension
+import io.medatarun.types.TypeSystemExtension
+import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 import org.slf4j.LoggerFactory
 
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
@@ -37,14 +37,14 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // dependency graphs that launch them in correct order for now
 
     val extensions = listOf(
-        TypesExtension(),
+        TypeSystemExtension(),
         SecurityExtension(),
         ActionsExtension(),
         AuthExtension(),
         ModelExtension(),
-        ConfigExtension(),
+        SysopsConfigInspectorExtension(),
         ModelJsonExtension(),
-        DbExtension(),
+        ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
     val serviceRegistry =

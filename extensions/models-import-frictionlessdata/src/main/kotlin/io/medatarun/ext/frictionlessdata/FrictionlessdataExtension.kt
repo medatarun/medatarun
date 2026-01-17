@@ -6,7 +6,7 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class FrictionlessdataExtension : MedatarunExtension {
-    override val id: ExtensionId = "frictionlessdata"
+    override val id: ExtensionId = "models-import-frictionlessdata"
     override fun init(ctx: MedatarunExtensionCtx) {
        ctx.register(ModelImporter::class, FrictionlessdataModelImporter())
     }

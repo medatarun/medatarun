@@ -45,7 +45,7 @@ import java.time.Instant
 import kotlin.reflect.KClass
 
 class AuthExtension : MedatarunExtension {
-    override val id: ExtensionId = "auth"
+    override val id: ExtensionId = "platform-auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
         val rolesProvider = object : SecurityRolesProvider {

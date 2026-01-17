@@ -5,7 +5,7 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class SecurityExtension : MedatarunExtension {
-    override val id: ExtensionId = "security"
+    override val id: ExtensionId = "platform-security"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".security_rules_providers", SecurityRulesProvider::class)
         ctx.registerContributionPoint(this.id + ".security_roles_providers", SecurityRolesProvider::class)

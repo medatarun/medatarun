@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  * Extension to register the "model" base plugin to the kernel.
  */
 class ModelExtension : MedatarunExtension {
-    override val id: String = "model"
+    override val id: String = "models-core"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)

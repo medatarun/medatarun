@@ -10,9 +10,9 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import org.slf4j.LoggerFactory
 
-class DbExtension : MedatarunExtension {
+class ModelsImportJdbcExtension : MedatarunExtension {
 
-    override val id = "db"
+    override val id = "models-import-jdbc"
     override fun init(ctx: MedatarunExtensionCtx) {
         val datasourcesPath = ctx.resolveApplicationHomePath("config/datasources")
         logger.debug("datasourcesPath: {}", datasourcesPath)
@@ -29,6 +29,6 @@ class DbExtension : MedatarunExtension {
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(DbExtension::class.java)
+        private val logger = LoggerFactory.getLogger(ModelsImportJdbcExtension::class.java)
     }
 }

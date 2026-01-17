@@ -6,7 +6,7 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class ActionsExtension : MedatarunExtension {
-    override val id: String = "actions"
+    override val id: String = "platform-actions"
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
 
