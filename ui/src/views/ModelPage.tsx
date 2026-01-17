@@ -39,7 +39,7 @@ export function ModelView() {
   const displayName = model.name ?? model.id
   const navigate = useNavigate();
   const handleClickModels = () => {
-    navigate({to: "/"})
+    navigate({to: "/models"})
   }
 
   return <ViewLayoutContained title={

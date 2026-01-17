@@ -49,7 +49,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
   return <ViewLayoutContained title={
     <Breadcrumb>
       <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon/>}><Link to="/">Models</Link></BreadcrumbButton></BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon/>}><Link to="/models">Models</Link></BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
       <BreadcrumbItem>
         <BreadcrumbButton icon={<ModelIcon/>}
