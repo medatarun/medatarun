@@ -23,8 +23,6 @@ export function TypesTable({types}: { types: TypeDto[] }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("type")
-  itemActions.push(...actionRegistry.findActions("type.name"))
-  itemActions.push(...actionRegistry.findActions("type.description"))
 
   return <div>
     <div>

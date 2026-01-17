@@ -19,7 +19,6 @@ import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx"
 import {InfoRegular} from "@fluentui/react-icons";
 import {TabPanel} from "../components/core/TabPanel.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
-import {ActionsBar} from "../components/business/ActionsBar.tsx";
 import {EntityOverview} from "../components/business/EntityOverview.tsx";
 
 
@@ -63,10 +62,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
     <div style={{display: "flex", height: "100%", overflow: "hidden", flexDirection: "column"}}>
       <div>
         <ViewTitle eyebrow="Entity">{entity.name ?? entity.id}</ViewTitle>
-        <ActionsBar location="entity" params={{
-          modelKey: model.id,
-          entityKey: entity.id
-        }}/>
+
         <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
           <Tab value="info" icon={<InfoRegular/>}>Overview</Tab>
           <Tab value="attributes" icon={<AttributeIcon/>}>Attributes</Tab>
@@ -82,7 +78,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
         )}
         {selectedTab == "attributes" && (
           <TabPanel>
-            <AttributesTable attributes={entity.attributes}/>
+            <AttributesTable entityId={entity.id} attributes={entity.attributes}/>
           </TabPanel>
         )}
         {selectedTab === "relationships" && (

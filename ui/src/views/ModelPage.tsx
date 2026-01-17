@@ -25,7 +25,7 @@ import {ActionsBar} from "../components/business/ActionsBar.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
-  const { data:model } = useModel(modelId);
+  const {data: model} = useModel(modelId);
   return <div>
     {model && <ModelContext value={new Model(model)}><ModelView/></ModelContext>}
   </div>
@@ -38,19 +38,19 @@ export function ModelView() {
 
   const displayName = model.name ?? model.id
   const navigate = useNavigate();
-  const handleClickModels = () => { navigate({to:"/"})}
+  const handleClickModels = () => {
+    navigate({to: "/"})
+  }
 
   return <ViewLayoutContained title={
     <Breadcrumb>
-      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModels}>Models</BreadcrumbButton></BreadcrumbItem>
+      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>}
+                                        onClick={handleClickModels}>Models</BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
       <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
-    <ViewTitle eyebrow={<span><ModelIcon /> Model</span>}>{displayName}</ViewTitle>
-    <ActionsBar location="model" params={{
-      modelKey: model.id,
-    }} />
+    <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>{displayName}</ViewTitle>
     <TabList selectedValue={selectedTab} onTabSelect={(_, data) => setSelectedTab(data.value)}>
       <Tab icon={<InfoRegular/>} value="info">Overview</Tab>
       <Tab icon={<EntityIcon/>} value="entities">Entities</Tab>
@@ -79,6 +79,9 @@ export function ModelView() {
 export function ModelOverview() {
   const model = useModelContext().dto
   return <div>
+    <div>
+      <ActionsBar location="model.overview" params={{modelKey: model.id}} />
+    </div>
     <div style={{display: "grid", gridTemplateColumns: "min-content auto", columnGap: "1em"}}>
       <div>Identifier</div>
       <div><code>{model.id}</code></div>
@@ -100,21 +103,26 @@ export function EntitiesCardList() {
   const model = useModelContext()
   const modelKey = model.dto.id
   const entities = model.dto.entityDefs
-  return <div style={{display: "flex", columnGap: "1em", rowGap: "1em", flexWrap: "wrap"}}>
-    {
-      entities.map(entityDef => <EntityCard
-        key={entityDef.id}
-        entity={entityDef}
-        onClick={() => navigate({
-            to: "/model/$modelId/entityDef/$entityDefId",
-            params: {
-              modelId: modelKey,
-              entityDefId: entityDef.id
+  return <div>
+    <div>
+    <ActionsBar location="model.entities" params={{modelKey: model.id}} />
+    </div>
+    <div style={{display: "flex", columnGap: "1em", rowGap: "1em", flexWrap: "wrap"}}>
+      {
+        entities.map(entityDef => <EntityCard
+          key={entityDef.id}
+          entity={entityDef}
+          onClick={() => navigate({
+              to: "/model/$modelId/entityDef/$entityDefId",
+              params: {
+                modelId: modelKey,
+                entityDefId: entityDef.id
+              }
             }
-          }
-        )}/>
-      )
-    }
+          )}/>
+        )
+      }
+    </div>
   </div>
 }
 
