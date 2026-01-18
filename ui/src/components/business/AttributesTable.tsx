@@ -1,16 +1,18 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, tokens} from "@fluentui/react-components";
-import {Markdown} from "../../views/ModelPage.tsx";
 import {type AttributeDto, useActionRegistry} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 import {Tags} from "../core/Tag.tsx";
+import {Markdown} from "../core/Markdown.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
-    width: "18em", verticalAlign: "baseline", whiteSpace: "nowrap"
+    width: "20rem",
+    verticalAlign: "baseline",
+    wordBreak: "break-all"
   },
   flags: {
     paddingTop: tokens.spacingVerticalM,
@@ -20,9 +22,21 @@ const useStyles = makeStyles({
   descriptionCell: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
+    verticalAlign: "baseline",
     "& p": {
       marginTop: 0
+    },
+    "& p:last-child": {
+      marginBottom: 0
     }
+  },
+  actionCell: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    width: "3em",
+    verticalAlign: "baseline",
+    textAlign: "right"
+
   }
 })
 
@@ -34,7 +48,7 @@ export function AttributesTable({entityId, attributes}: { entityId: string, attr
   const styles = useStyles()
 
   return <div>
-    <Table >
+    <Table>
       <TableBody>{attributes.map(attribute =>
         <TableRow key={attribute.id}>
           <TableCell className={styles.titleCell}>{attribute.name ?? attribute.id}</TableCell>
@@ -51,7 +65,7 @@ export function AttributesTable({entityId, attributes}: { entityId: string, attr
             </div>}
             { attribute.hashtags.length > 0 &&  <Tags tags={attribute.hashtags}/> }
           </TableCell>
-          <TableCell style={{width: "2em"}}>
+          <TableCell className={styles.actionCell}>
             <ActionMenuButton
               itemActions={itemActions}
               actionParams={{modelKey: model.id, entityKey: entityId, attributeKey: attribute.id}}

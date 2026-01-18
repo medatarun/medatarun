@@ -1,4 +1,3 @@
-import ReactMarkdown from "react-markdown";
 import {useNavigate} from "@tanstack/react-router";
 import {type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
@@ -19,6 +18,8 @@ import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx"
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
 import {SectionTitle} from "../components/layout/SectionTitle.tsx";
+import {Markdown} from "../components/core/Markdown.tsx";
+import {MissingInformation} from "../components/core/MissingInformation.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
@@ -48,34 +49,87 @@ export function ModelView() {
       <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
-    <div style={{display: "flex", height: "100%", overflow: "hidden", flexDirection: "column"}}>
-      <div>
-        <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>{displayName} <ActionMenuButton itemActions={actions}
-                                                                                             actionParams={{modelKey: model.id}}/></ViewTitle>
-        <Divider/>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+      overflow: "hidden"
+    }}>
+      <div style={{margin: "auto", width: "80rem"}}>
+        <div style={{
+          marginTop: tokens.spacingVerticalM,
+        }}>
+          <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>
+            {displayName} {" "}
+            <ActionMenuButton
+              itemActions={actions}
+              actionParams={{modelKey: model.id}}/>
+          </ViewTitle>
+          <Divider/>
+        </div>
       </div>
       <div style={{flexGrow: 1, overflowY: "auto"}}>
-        <ModelOverview/>
-
-        <div style={{paddingTop: tokens.spacingVerticalXXXL}}>
-          <SectionTitle icon={<EntityIcon/>} actionParams={{modelKey: model.id}}
-                        location="model.entities">Entities</SectionTitle>
-          <div style={{paddingTop: tokens.spacingVerticalM}}>
-            <EntitiesCardList/>
+        <div style={{margin: "auto", maxWidth: "80rem"}}>
+          <div style={{
+            backgroundColor: tokens.colorNeutralBackground1,
+            padding: tokens.spacingVerticalM,
+            borderRadius: tokens.borderRadiusMedium,
+            marginTop: tokens.spacingVerticalM,
+            marginBottom: tokens.spacingVerticalM,
+          }}>
+            <ModelOverview/>
           </div>
-        </div>
+          <div style={{
+            backgroundColor: tokens.colorNeutralBackground1,
+            padding: tokens.spacingVerticalM,
+            borderRadius: tokens.borderRadiusMedium,
+            borderWidth: tokens.strokeWidthThin,
+            marginTop: tokens.spacingVerticalXXXL,
+            marginBottom: tokens.spacingVerticalM,
+          }}>
+            {model.description ? <Markdown value={model.description}/> :
+              <MissingInformation>No description provided.</MissingInformation>}
+          </div>
 
-        <div style={{paddingTop: tokens.spacingVerticalXXXL}}>
-          <SectionTitle icon={<RelationshipIcon/>} actionParams={{modelKey: model.id}}
-                        location="model.relationships">Relationships</SectionTitle>
-          <div style={{paddingTop: tokens.spacingVerticalM}}>
+          <SectionTitle
+            icon={<EntityIcon/>}
+            actionParams={{modelKey: model.id}}
+            location="model.entities">Entities</SectionTitle>
+
+          <div style={{
+            marginTop: 0,
+            padding: 0,
+            borderRadius: tokens.borderRadiusMedium,
+            marginBottom: tokens.spacingVerticalM,
+          }}><EntitiesCardList/>
+          </div>
+
+          <SectionTitle
+            icon={<RelationshipIcon/>}
+            actionParams={{modelKey: model.id}}
+            location="model.relationships">Relationships</SectionTitle>
+
+          <div style={{
+            marginTop: 0,
+            backgroundColor: tokens.colorNeutralBackground1,
+            padding: 0,
+            borderRadius: tokens.borderRadiusMedium,
+            marginBottom: tokens.spacingVerticalM,
+          }}>
             <RelationshipsTable relationships={model.relationshipDefs}/>
-          </div>
-        </div>
 
-        <div style={{paddingTop: tokens.spacingVerticalXXXL}}>
-          <SectionTitle icon={<TypeIcon/>} actionParams={{modelKey: model.id}} location="model.types">Types</SectionTitle>
-          <div style={{paddingTop: tokens.spacingVerticalM}}>
+          </div>
+
+          <SectionTitle icon={<TypeIcon/>} actionParams={{modelKey: model.id}}
+                        location="model.types">Types</SectionTitle>
+
+          <div style={{
+            marginTop: 0,
+            backgroundColor: tokens.colorNeutralBackground1,
+            padding: 0,
+            borderRadius: tokens.borderRadiusMedium,
+            marginBottom: tokens.spacingVerticalM,
+          }}>
             <TypesTable types={model.types}/>
           </div>
         </div>
@@ -107,7 +161,7 @@ export function ModelOverview() {
       {isDetailLevelTech && <div>Origin</div>}
       {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
     </div>
-    {model.description && <div><Markdown value={model.description}/></div>}
+
   </div>
 }
 
@@ -122,6 +176,7 @@ export function EntitiesCardList() {
       columnGap: tokens.spacingHorizontalM,
       rowGap: tokens.spacingVerticalM,
       paddingTop: tokens.spacingVerticalM,
+      justifyContent: "left",
       flexWrap: "wrap"
     }}>
       {
@@ -142,17 +197,20 @@ export function EntitiesCardList() {
   </div>
 }
 
-export function Origin({value}: { value: ElementOrigin }) {
+export function Origin({
+                         value
+                       }: {
+  value: ElementOrigin
+}) {
   if (value.type == "manual") return "Medatarun (manual)"
   return <ExternalUrl url={value.uri}/>
 }
 
-export function ExternalUrl({url}: { url: string | null }) {
+export function ExternalUrl({
+                              url
+                            }: {
+  url: string | null
+}) {
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
-}
-
-export function Markdown({value}: { value: string | null }) {
-  if (value == null) return null
-  return <ReactMarkdown>{value}</ReactMarkdown>
 }

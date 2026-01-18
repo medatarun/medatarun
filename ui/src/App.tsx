@@ -10,7 +10,7 @@ import {
 import {CommandsPage} from "./views/CommandsPage.tsx";
 import {ModelsPage} from "./views/ModelsPage.tsx";
 import {ModelPage} from "./views/ModelPage.tsx";
-import {EntityPage} from "./views/EntityPage.tsx";
+import {EntityPage} from "./views/entity/EntityPage.tsx";
 import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
 import {type ConnectionConfig, defaultConnection} from "@seij/common-services";

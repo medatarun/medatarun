@@ -1,6 +1,7 @@
 import {type Action_registryBiz, type TypeDto, useActionRegistry} from "../../business";
 import {
   Button,
+  makeStyles,
   Menu,
   MenuItem,
   MenuList,
@@ -18,13 +19,54 @@ import {useModelContext} from "./ModelContext.tsx";
 import {Icon} from "@seij/common-ui-icons";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
+import {Markdown} from "../core/Markdown.tsx";
 
+const useStyles = makeStyles({
+  titleCell: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    width: "20rem",
+    verticalAlign: "baseline",
+    wordBreak: "break-all"
+  },
+  flags: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    width: "1em", verticalAlign: "baseline"
+  },
+  descriptionCell: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    verticalAlign: "baseline",
+    "& p": {
+      marginTop: 0
+    },
+    "& p:last-child": {
+      marginBottom: 0
+    }
+  },
+  typeCodeCell: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    verticalAlign: "baseline",
+    width: "10rem",
+  },
+  actionCell: {
+    paddingTop: tokens.spacingVerticalM,
+    paddingBottom: tokens.spacingVerticalM,
+    width: "3em",
+    verticalAlign: "baseline",
+    textAlign: "right"
+
+  }
+})
 
 export function TypesTable({types}: { types: TypeDto[] }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("type")
   const { isDetailLevelTech } = useDetailLevelContext()
+  const styles = useStyles()
   return <div>
     {types.length == 0 ? <div style={{paddingTop: tokens.spacingVerticalL}}>
       <Text italic>No types in this model.</Text>
@@ -33,10 +75,15 @@ export function TypesTable({types}: { types: TypeDto[] }) {
       <TableBody>
         {
           types.map(type => <TableRow key={type.id}>
-            <TableCell style={{width: "20em"}}>{type.name ?? type.id}</TableCell>
-            { isDetailLevelTech && <TableCell><code>{type.id}</code></TableCell> }
-            <TableCell>{type.description}</TableCell>
-            <TableCell style={{width: "2em"}}>
+            <TableCell className={styles.titleCell}>{type.name ?? type.id}</TableCell>
+            <TableCell className={styles.flags}>{" "}</TableCell>
+            { isDetailLevelTech && <TableCell className={styles.typeCodeCell}><code>{type.id}</code></TableCell> }
+            <TableCell className={styles.descriptionCell}>
+              <div>
+                <Markdown value={type.description}/>
+              </div>
+            </TableCell>
+            <TableCell  className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
                 actionParams={{modelKey: model.id, typeKey: type.id}}

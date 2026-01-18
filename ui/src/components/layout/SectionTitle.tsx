@@ -17,7 +17,10 @@ export function SectionTitle({icon, location, actionParams, children}: {
     alignItems: "center",
     justifyContent: "end",
     borderBottom: "1px solid #ccc",
-    paddingBottom: tokens.spacingVerticalS
+    paddingBottom: tokens.spacingVerticalS,
+    paddingRight: tokens.spacingVerticalS,
+    marginTop: tokens.spacingVerticalXXXL,
+    marginBottom: 0,
   }}>
     <div><Text weight="semibold" style={{display: "flex"}}>{icon}</Text></div>
     <div><Text weight="semibold">{children}</Text></div>

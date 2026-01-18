@@ -13,7 +13,7 @@ const useStyles = makeStyles({
   titleBar: {
     flex: 0,
     minHeight: "3em",
-    backgroundColor: tokens.colorNeutralBackground3,
+    backgroundColor: tokens.colorNeutralBackground2,
     borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
     textAlign: "center",
     fontWeight: tokens.fontWeightSemibold,
@@ -25,8 +25,7 @@ const useStyles = makeStyles({
   },
   main: {
     flex: 1,
-    overflowY: "auto",
-    padding: "1em"
+    overflowY: "auto"
   }
 })
 
