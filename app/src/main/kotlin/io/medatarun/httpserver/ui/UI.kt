@@ -13,6 +13,16 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
     val modelQueries = runtime.services.getService<ModelQueries>()
 
+    data class ModelSummaryDto(
+        val id: String,
+        val name: String?,
+        val description: String?,
+        val error: String?,
+        val countTypes: Int,
+        val countEntities: Int,
+        val countRelationships: Int
+    )
+
     fun modelListJson(locale: Locale): String {
         val data = modelQueries.findAllModelSummaries(locale)
         return buildJsonArray {
@@ -114,7 +124,9 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             put("name", name)
             put("description", description)
             put("documentationHome", documentationHome?.toExternalForm())
-            put("hashtags", JsonArray(e.hashtags.map { JsonPrimitive(it.value) }))
+            putJsonArray("hashtags") {
+                e.hashtags.forEach { add(it.value) }
+            }
             putJsonObject("model") {
                 put("id", model.id.value)
                 put("name", model.name?.get(locale))
@@ -140,6 +152,9 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                         put("type", attr.type.value)
                         put("optional", attr.optional)
                         put("identifierAttribute", e.identifierAttributeKey == attr.id)
+                        putJsonArray("hashtags") {
+                            attr.hashtags.forEach { add(it.value) }
+                        }
                     }
                 }
             }
