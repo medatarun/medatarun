@@ -123,7 +123,6 @@ fun Routing.installUIApis(runtime: AppRuntime, actionRegistry: ActionRegistry) {
                 UI(runtime, actionRegistry).modelJson(ModelKey(modelId), detectLocale(call)),
                 ContentType.Application.Json
             )
-
         }
     }
 }

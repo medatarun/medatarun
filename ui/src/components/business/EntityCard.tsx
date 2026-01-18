@@ -1,8 +1,10 @@
 import {Card, CardHeader, Text} from "@fluentui/react-components";
 import type {EntityDto} from "../../business";
 import {Tags} from "../core/Tag.tsx";
+import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 
 export function EntityCard({entity, onClick}:{entity: EntityDto, onClick:(id: string) => void}) {
+  const { isDetailLevelTech} = useDetailLevelContext()
   return <Card style={{width: "30%"}} onClick={() => onClick(entity.id)}>
     <CardHeader style={{height: "2em"}}
                 header={<Text weight="semibold">{entity.name ?? entity.id}</Text>}></CardHeader>
@@ -10,6 +12,8 @@ export function EntityCard({entity, onClick}:{entity: EntityDto, onClick:(id: st
       {entity.description && <div>{entity.description}</div>}
     </div>
     <div><Tags tags={entity.hashtags} /></div>
+    { isDetailLevelTech &&
     <div><code>{entity.id}</code></div>
+    }
   </Card>
 }

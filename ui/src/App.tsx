@@ -10,7 +10,7 @@ import {
 import {CommandsPage} from "./views/CommandsPage.tsx";
 import {ModelsPage} from "./views/ModelsPage.tsx";
 import {ModelPage} from "./views/ModelPage.tsx";
-import {EntityPage} from "./views/EntityPage.tsx";
+import {EntityPage} from "./views/entity/EntityPage.tsx";
 import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
 import {type ConnectionConfig, defaultConnection} from "@seij/common-services";
@@ -27,6 +27,8 @@ import {
   createAuthenticationConfig
 } from "@seij/common-ui-auth";
 import {getOrDefault} from "./utils/getOrDefault.ts";
+import {DetailLevelProvider} from "./components/business/DetailLevelContext.tsx";
+import {PreferencesPage} from "./views/PreferencesPage.tsx";
 
 function DashboardRouteComponent() {
   return <DashboardPage/>
@@ -56,17 +58,21 @@ function EntityDefRouteComponent() {
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
-  return <AuthenticationCallbackView onClickHome={()=>navigate({to:"/"})} />
+  return <AuthenticationCallbackView onClickHome={() => navigate({to: "/"})}/>
 }
 
 function AuthenticationLoginComponent() {
   const navigate = useNavigate();
-  return <AuthenticationLoginView onClickHome={()=>navigate({to:"/"})} />
+  return <AuthenticationLoginView onClickHome={() => navigate({to: "/"})}/>
 }
 
 function AuthenticationLogoutComponent() {
   const navigate = useNavigate();
-  return <AuthenticationLogoutView onClickHome={()=>navigate({to:"/"})} />
+  return <AuthenticationLogoutView onClickHome={() => navigate({to: "/"})}/>
+}
+
+function PreferencesRouteComponent() {
+  return <PreferencesPage />
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
@@ -97,6 +103,12 @@ const modelRoute = createRoute({
   path: '/model/$modelId',
   component: ModelRouteComponent,
 });
+
+const preferencesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/preferences",
+  component: PreferencesRouteComponent
+})
 const entityRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/model/$modelId/entityDef/$entityDefId',
@@ -122,7 +134,7 @@ const routeTree = rootRoute.addChildren([
   authenticationLoginRoute,
   authenticationLogoutRoute,
   authenticationCallbackRoute,
-  dashboardRoute, modelsRoute, commandsRoute, modelRoute, entityRoute
+  dashboardRoute, modelsRoute, preferencesRoute, commandsRoute, modelRoute, entityRoute
 ]);
 
 const router = createRouter({
@@ -155,12 +167,14 @@ defaultConnection.reconfigure(apiConfig);
 function App() {
   return (
     <SeijUIProvider>
+      <DetailLevelProvider>
       <AuthenticationProvider {...authenticationConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router}/>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router}/>
+          <ReactQueryDevtools initialIsOpen={false}/>
+        </QueryClientProvider>
       </AuthenticationProvider>
+      </DetailLevelProvider>
     </SeijUIProvider>
   )
 }

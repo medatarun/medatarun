@@ -6,13 +6,14 @@ const useStyles = makeStyles({
   root: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
-    overflow: "hidden"
+    height: "100vh",
+    maxHeight: "100vh",
+    overflow: "hidden",
   },
   titleBar: {
     flex: 0,
     minHeight: "3em",
-    backgroundColor: tokens.colorNeutralBackground3,
+    backgroundColor: tokens.colorNeutralBackground2,
     borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
     textAlign: "center",
     fontWeight: tokens.fontWeightSemibold,
@@ -24,8 +25,7 @@ const useStyles = makeStyles({
   },
   main: {
     flex: 1,
-    overflowY: "auto",
-    padding: "1em"
+    overflowY: "auto"
   }
 })
 

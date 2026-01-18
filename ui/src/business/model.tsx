@@ -83,4 +83,7 @@ export class Model {
   }
   get id() { return this.dto.id }
 
+  findTypeName(typeId: string) {
+    return this.dto.types.find(it => it.id === typeId)?.name
+  }
 }
