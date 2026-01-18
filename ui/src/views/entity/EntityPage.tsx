@@ -108,7 +108,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
           <SectionTitle
             icon={<RelationshipIcon/>}
-            actionParams={{modelKey: model.id, entityKey: entity.id}}
+            actionParams={{modelKey: model.id, roleAEntityKey: entity.id}}
             location="entity.relationships">Relationships</SectionTitle>
 
           <SectionTable>

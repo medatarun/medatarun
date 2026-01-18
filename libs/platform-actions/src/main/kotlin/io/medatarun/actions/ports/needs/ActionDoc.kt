@@ -8,6 +8,6 @@ annotation class ActionDoc(
     val key: String,
     val title: String,
     val description: String = "",
-    val uiLocation: String,
+    val uiLocations: Array<String>,
     val securityRule: String
 )

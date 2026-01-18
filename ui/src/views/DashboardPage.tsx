@@ -8,7 +8,7 @@ import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions("entity")
+  const actions = actionRegistry.findActions("global")
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow="Dashboard">

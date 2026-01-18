@@ -22,7 +22,7 @@ export class Action_registryBiz {
 
 
   matchesLocation(location: string): boolean {
-    return this.dto.uiLocation === location
+    return this.dto.uiLocations.includes(location)
   }
 
 }

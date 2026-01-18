@@ -6,7 +6,7 @@ export interface ActionDescriptorDto {
   title: string | null,
   description: string | null,
   parameters: ActionParamDescriptorDto[],
-  uiLocation: string
+  uiLocations: string[]
 }
 
 export interface ActionParamDescriptorDto {

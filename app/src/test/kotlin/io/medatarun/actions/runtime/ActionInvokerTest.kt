@@ -378,7 +378,7 @@ class ActionInvokerTest {
             key = "alpha",
             title = "Alpha",
             description = "Test action",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class Alpha(
@@ -406,7 +406,7 @@ class ActionInvokerTest {
             key = "denied",
             title = "Denied",
             description = "Action denied by security",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_DENY
         )
         class Denied : TestAction
@@ -415,7 +415,7 @@ class ActionInvokerTest {
             key = "collections",
             title = "Collections",
             description = "Action with list and map",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithCollections(
@@ -437,7 +437,7 @@ class ActionInvokerTest {
             key = "decimal",
             title = "Decimal",
             description = "Action with BigDecimal",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithDecimal(
@@ -453,7 +453,7 @@ class ActionInvokerTest {
             key = "big_integer",
             title = "BigInteger",
             description = "Action with BigInteger",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithBigInteger(
@@ -469,7 +469,7 @@ class ActionInvokerTest {
             key = "double",
             title = "Double",
             description = "Action with Double",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithDouble(
@@ -485,7 +485,7 @@ class ActionInvokerTest {
             key = "instant",
             title = "Instant",
             description = "Action with Instant",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithInstant(
@@ -501,7 +501,7 @@ class ActionInvokerTest {
             key = "local_date",
             title = "LocalDate",
             description = "Action with LocalDate",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithLocalDate(
@@ -517,7 +517,7 @@ class ActionInvokerTest {
             key = "abbreviation",
             title = "Abbreviation",
             description = "Action with validated abbreviation",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithAbbreviation(
@@ -533,7 +533,7 @@ class ActionInvokerTest {
             key = "complex",
             title = "Complex",
             description = "Action with complex payload",
-            uiLocation = "",
+            uiLocations = "",
             securityRule = RULE_ALLOW
         )
         class WithComplex(

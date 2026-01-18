@@ -163,16 +163,16 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
 
 
-    fun actionRegistryDto(detectLocale: Locale): List<ActionDto> {
+    fun actionRegistryDto(detectLocale: Locale): List<ActionDescriptorDto> {
         return actionRegistry.findAllActions().map { cmd ->
-            ActionDto(
+            ActionDescriptorDto(
                 actionKey = cmd.key,
                 groupKey = cmd.group,
                 title = cmd.title ?: cmd.key,
                 description = cmd.description,
-                uiLocation = cmd.uiLocation,
+                uiLocations = cmd.uiLocations,
                 parameters = cmd.parameters.map { p ->
-                    ActionParamDto(
+                    ActionParamDescriptorDto(
                         name = p.name,
                         type = p.multiplatformType,
                         optional = p.optional,
@@ -188,17 +188,17 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
 
 @Serializable
-data class ActionDto(
+data class ActionDescriptorDto(
     val groupKey: String,
     val actionKey: String,
     val title: String,
     val description: String?,
-    val parameters: List<ActionParamDto>,
-    val uiLocation: String
+    val parameters: List<ActionParamDescriptorDto>,
+    val uiLocations: Set<String>
 )
 
 @Serializable
-data class ActionParamDto(
+data class ActionParamDescriptorDto(
     val name: String,
     val type: String,
     val optional: Boolean,

@@ -80,7 +80,7 @@ class ActionRegistry(
                     order = paramdoc?.order ?: index
                 )
             },
-            uiLocation = doc.uiLocation ?: "",
+            uiLocations = doc.uiLocations.toSet(),
             securityRule = securityRule
 
         )
