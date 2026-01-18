@@ -49,6 +49,21 @@ export function ModelView() {
   const handleClickModels = () => {
     navigate({to: "/models"})
   }
+  const handleClickType = (typeId: string) => {
+    navigate({to: "/model/$modelId/type/$typeId", params: {modelId: model.id, typeId: typeId}})
+  }
+  const handleClickRelationship = (relationshipId: string) => {
+    navigate({
+      to: "/model/$modelKey/relationship/$relationshipKey",
+      params: {modelKey: model.id, relationshipKey: relationshipId}
+    })
+  }
+  const handleClickEntity = (entityId: string) => {
+    navigate({
+      to: "/model/$modelId/entityDef/$entityDefId",
+      params: {modelId: model.id, entityDefId: entityId}
+    })
+  }
 
   const actions = actionRegistry.findActions("model.overview")
 
@@ -90,7 +105,7 @@ export function ModelView() {
             actionParams={{modelKey: model.id}}
             location="model.entities">Entities</SectionTitle>
 
-          <SectionCards><EntitiesCardList/></SectionCards>
+          <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards>
 
           <SectionTitle
             icon={<RelationshipIcon/>}
@@ -98,7 +113,7 @@ export function ModelView() {
             location="model.relationships">Relationships</SectionTitle>
 
           <SectionTable>
-            <RelationshipsTable relationships={model.relationshipDefs}/>
+            <RelationshipsTable onClick={handleClickRelationship}  relationships={model.relationshipDefs}/>
           </SectionTable>
 
           <SectionTitle
@@ -107,7 +122,7 @@ export function ModelView() {
             location="model.types">Types</SectionTitle>
 
           <SectionTable>
-            <TypesTable types={model.types}/>
+            <TypesTable onClick={handleClickType} types={model.types}/>
           </SectionTable>
 
         </ContainedHumanReadable>
@@ -125,9 +140,11 @@ export function ModelOverview() {
     <div>Version</div>
     <div><code>{model.version}</code></div>
     <div>Documentation</div>
-    <div>{!model.documentationHome ? <MissingInformation>Not provided.</MissingInformation> : <ExternalUrl url={model.documentationHome}/>}</div>
+    <div>{!model.documentationHome ? <MissingInformation>Not provided.</MissingInformation> :
+      <ExternalUrl url={model.documentationHome}/>}</div>
     <div>Hashtags</div>
-    <div>{model.hashtags.length === 0 ? <MissingInformation>Not tagged.</MissingInformation> : <Tags tags={model.hashtags}/>}</div>
+    <div>{model.hashtags.length === 0 ? <MissingInformation>Not tagged.</MissingInformation> :
+      <Tags tags={model.hashtags}/>}</div>
     {isDetailLevelTech && <div>Origin</div>}
     {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
   </PropertiesForm>
@@ -135,10 +152,8 @@ export function ModelOverview() {
 
 }
 
-export function EntitiesCardList() {
-  const navigate = useNavigate()
+export function EntitiesCardList({onClick}: { onClick: (entityId: string) => void }) {
   const model = useModelContext()
-  const modelKey = model.dto.id
   const entities = model.dto.entityDefs
   return <div>
     <div style={{
@@ -153,14 +168,9 @@ export function EntitiesCardList() {
         entities.map(entityDef => <EntityCard
           key={entityDef.id}
           entity={entityDef}
-          onClick={() => navigate({
-              to: "/model/$modelId/entityDef/$entityDefId",
-              params: {
-                modelId: modelKey,
-                entityDefId: entityDef.id
-              }
-            }
-          )}/>
+          onClick={() => {
+            onClick(entityDef.id)
+          }}/>
         )
       }
     </div>

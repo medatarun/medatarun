@@ -56,6 +56,13 @@ export function EntityView({entity}: { entity: EntityDto }) {
     })
   }
 
+  const handleClickRelationship = (relationshipId: string) => {
+    navigate({
+      to: "/model/$modelKey/relationship/$relationshipKey",
+      params: { modelKey: model.id, relationshipKey: relationshipId}
+    })
+  }
+
   return <ViewLayoutContained title={
     <Breadcrumb>
       <BreadcrumbItem>
@@ -112,7 +119,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
             location="entity.relationships">Relationships</SectionTitle>
 
           <SectionTable>
-            <RelationshipsTable relationships={relationshipsInvolved}/>
+            <RelationshipsTable onClick={handleClickRelationship} relationships={relationshipsInvolved}/>
           </SectionTable>
 
         </ContainedHumanReadable>

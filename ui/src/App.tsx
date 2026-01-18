@@ -30,6 +30,7 @@ import {getOrDefault} from "./utils/getOrDefault.ts";
 import {DetailLevelProvider} from "./components/business/DetailLevelContext.tsx";
 import {PreferencesPage} from "./views/PreferencesPage.tsx";
 import {AttributePage} from "./views/attribute/AttributePage.tsx";
+import {TypePage} from "./views/type/TypePage.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -60,8 +61,12 @@ function EntityRouteComponent() {
 }
 
 function EntityAttributeRouteComponent() {
-  const {modelKey, entityKey, attributeKey} = useParams({from: '/model/$modelKey/entity/$entityKey/attribute/$attributeKey'});
-  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={entityKey} attributeId={attributeKey} />
+  const {
+    modelKey,
+    entityKey,
+    attributeKey
+  } = useParams({from: '/model/$modelKey/entity/$entityKey/attribute/$attributeKey'});
+  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={entityKey} attributeId={attributeKey}/>
 }
 
 function ModelsRouteComponent() {
@@ -72,19 +77,22 @@ function ModelsRouteComponent() {
   return <ModelsPage onClickModel={handleClickModel}/>
 }
 
-
 function ModelRouteComponent() {
   const {modelId} = useParams({from: '/model/$modelId'});
   return <ModelPage modelId={modelId}/>
 }
 
 function PreferencesRouteComponent() {
-  return <PreferencesPage />
+  return <PreferencesPage/>
 }
 
 function RelationshipAttributeRouteComponent() {
-  const {modelKey, relationshipKey, attributeKey} = useParams({from: '/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey'});
-  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={relationshipKey} attributeId={attributeKey} />
+  const {
+    modelKey,
+    relationshipKey,
+    attributeKey
+  } = useParams({from: '/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey'});
+  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={relationshipKey} attributeId={attributeKey}/>
 }
 
 function RelationshipRouteComponent() {
@@ -92,7 +100,8 @@ function RelationshipRouteComponent() {
 }
 
 function TypeRouteComponent() {
-  return <Todo>Still to do / type page</Todo>
+  const {modelId, typeId} = useParams({"from": "/model/$modelId/type/$typeId"})
+  return <TypePage modelId={modelId} typeId={typeId}/>
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
@@ -137,7 +146,7 @@ const entityRoute = createRoute({
 
 const entityAttributeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path : "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
+  path: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
   component: EntityAttributeRouteComponent
 })
 
@@ -159,19 +168,19 @@ const authenticationCallbackRoute = createRoute({
 
 const relationshipRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path : "/model/$modelKey/relationship/$relationshipKey",
+  path: "/model/$modelKey/relationship/$relationshipKey",
   component: RelationshipRouteComponent
 })
 
 const relationshipAttributeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path : "/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey",
+  path: "/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey",
   component: RelationshipAttributeRouteComponent
 })
 
 const typeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path : "/model/$modelId/type/$typeId",
+  path: "/model/$modelId/type/$typeId",
   component: TypeRouteComponent
 })
 
@@ -222,12 +231,12 @@ function App() {
   return (
     <SeijUIProvider>
       <DetailLevelProvider>
-      <AuthenticationProvider {...authenticationConfig}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router}/>
-          <ReactQueryDevtools initialIsOpen={false}/>
-        </QueryClientProvider>
-      </AuthenticationProvider>
+        <AuthenticationProvider {...authenticationConfig}>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router}/>
+            <ReactQueryDevtools initialIsOpen={false}/>
+          </QueryClientProvider>
+        </AuthenticationProvider>
       </DetailLevelProvider>
     </SeijUIProvider>
   )

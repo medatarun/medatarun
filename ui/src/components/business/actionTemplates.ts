@@ -17,3 +17,9 @@ export const createActionTemplateModel = (modelId: string) => {
     modelKey: modelId
   }
 }
+export const createActionTemplateType = (modelId: string, typeId: string) => {
+  return  {
+    modelKey: modelId,
+    typeKey: typeId,
+  }
+}

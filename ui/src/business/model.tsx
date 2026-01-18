@@ -105,4 +105,7 @@ export class Model {
       ?.attributes?.find(it => it.id === attributeId)
   }
 
+  findTypeDto(typeId: string) : TypeDto | undefined{
+    return this.dto.types.find(it => it.id === typeId)
+  }
 }

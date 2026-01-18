@@ -34,7 +34,7 @@ const useStyles = makeStyles({
 
   }
 })
-export function RelationshipsTable({relationships}:{relationships:RelationshipDto[]}) {
+export function RelationshipsTable({relationships, onClick}:{relationships:RelationshipDto[], onClick:(relationshipId:string)=>void}) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("relationship")
@@ -48,9 +48,9 @@ export function RelationshipsTable({relationships}:{relationships:RelationshipDt
       <Table>
         <TableBody>{relationships
           .map(r => <TableRow key={r.id}>
-            <TableCell className={styles.titleCell}>{r.name ?? r.id}</TableCell>
-            <TableCell className={styles.flags}>{" "}</TableCell>
-            <TableCell className={styles.descriptionCell}><div><RelationshipDescription rel={r}/></div>{ isDetailLevelTech && <div><code>{r.id}</code></div> }</TableCell>
+            <TableCell className={styles.titleCell} onClick={()=>onClick(r.id)}>{r.name ?? r.id}</TableCell>
+            <TableCell className={styles.flags} onClick={()=>onClick(r.id)}>{" "}</TableCell>
+            <TableCell className={styles.descriptionCell} onClick={()=>onClick(r.id)}><div><RelationshipDescription rel={r}/></div>{ isDetailLevelTech && <div><code>{r.id}</code></div> }</TableCell>
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
