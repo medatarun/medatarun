@@ -1,4 +1,5 @@
 import type {ActionDescriptorDto, ActionParamDescriptorDto, ActionRegistryDto} from "./action_registry.dto.ts";
+import type {ActionUILocation} from "./action_registry.uilocations.ts";
 
 export class Action_registryBiz {
   public actionGroupKey: string
@@ -90,7 +91,7 @@ export class ActionRegistry {
     return buildPayloadTemplate(action)
   }
 
-  public findActions(location: string): Action_registryBiz[] {
+  public findActions(location: ActionUILocation): Action_registryBiz[] {
     return this.actionDescriptors.filter(it => it.matchesLocation(location))
   }
 

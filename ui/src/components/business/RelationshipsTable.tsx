@@ -1,6 +1,6 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import {type RelationshipDto, useActionRegistry} from "../../business";
+import {ActionUILocations, type RelationshipDto, useActionRegistry} from "../../business";
 import {useModelContext} from "./ModelContext.tsx";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
@@ -37,7 +37,7 @@ const useStyles = makeStyles({
 export function RelationshipsTable({relationships, onClick}:{relationships:RelationshipDto[], onClick:(relationshipId:string)=>void}) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
-  const itemActions = actionRegistry.findActions("relationship")
+  const itemActions = actionRegistry.findActions(ActionUILocations.relationship)
   const {isDetailLevelTech} = useDetailLevelContext()
   const styles = useStyles()
   return <div>

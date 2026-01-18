@@ -1,5 +1,5 @@
 import {ModelCard} from "../components/business/ModelCard.tsx";
-import {type ModelSummaryDto, useActionRegistry, useModelSummaries} from "../business";
+import {ActionUILocations, type ModelSummaryDto, useActionRegistry, useModelSummaries} from "../business";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ModelIcon} from "../components/business/Icons.tsx";
 import {tokens} from "@fluentui/react-components";
@@ -10,7 +10,7 @@ import {ActionMenuButton} from "../components/business/TypesTable.tsx";
 export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => void }) {
   const {data = []} = useModelSummaries()
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions("models")
+  const actions = actionRegistry.findActions(ActionUILocations.models)
 
   return <ViewLayoutContained title={
     <div>

@@ -1,5 +1,5 @@
 import {useNavigate} from "@tanstack/react-router";
-import {type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
+import {ActionUILocations, type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
 import {tokens} from "@fluentui/react-components";
@@ -50,7 +50,7 @@ export function ModelView() {
     })
   }
 
-  const actions = actionRegistry.findActions("model.overview")
+  const actions = actionRegistry.findActions(ActionUILocations.model_overview)
 
   return <ViewLayoutContained title={
     <div>
@@ -82,7 +82,7 @@ export function ModelView() {
           <SectionTitle
             icon={<EntityIcon/>}
             actionParams={{modelKey: model.id}}
-            location="model.entities">Entities</SectionTitle>
+            location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
           { model.entityDefs.length === 0 && <p><MissingInformation>No entities in this model.</MissingInformation></p>}
           { model.entityDefs.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
@@ -90,7 +90,7 @@ export function ModelView() {
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={{modelKey: model.id}}
-            location="model.relationships">Relationships</SectionTitle>
+            location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
           { model.relationshipDefs.length === 0 && <p><MissingInformation>No relationships in this model.</MissingInformation></p> }
           { model.relationshipDefs.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationshipDefs}/></SectionTable> }
@@ -98,7 +98,7 @@ export function ModelView() {
           <SectionTitle
             icon={<TypeIcon/>}
             actionParams={{modelKey: model.id}}
-            location="model.types">Data Types</SectionTitle>
+            location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
           { model.types.length === 0 && <p><MissingInformation>No data types in this model.</MissingInformation></p> }
           { model.types.length > 0 && <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable> }

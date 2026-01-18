@@ -1,5 +1,5 @@
 import {useNavigate} from "@tanstack/react-router";
-import {type EntityDto, Model, useActionRegistry, useModel} from "../../business";
+import {ActionUILocations, type EntityDto, Model, useActionRegistry, useModel} from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
@@ -36,7 +36,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
   const model = useModelContext()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions("entity")
+  const actions = actionRegistry.findActions(ActionUILocations.entity)
   const relationshipsInvolved = model.dto.relationshipDefs
     .filter(it => it.roles.some(r => r.entityId === entity.id));
 
@@ -99,7 +99,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
           <SectionTitle
             icon={<AttributeIcon/>}
             actionParams={{modelKey: model.id, entityKey: entity.id}}
-            location="entity.attributes">Attributes</SectionTitle>
+            location={ActionUILocations.entity_attributes}>Attributes</SectionTitle>
 
           <SectionTable>
             <AttributesTable entityId={entity.id} attributes={entity.attributes}
@@ -109,7 +109,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={{modelKey: model.id, roleAEntityKey: entity.id}}
-            location="entity.relationships">Relationships</SectionTitle>
+            location={ActionUILocations.entity_relationships}>Relationships</SectionTitle>
 
           <SectionTable>
             <RelationshipsTable onClick={handleClickRelationship} relationships={relationshipsInvolved}/>
