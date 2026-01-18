@@ -2,14 +2,7 @@ import {Link, useNavigate} from "@tanstack/react-router";
 import {type EntityDto, Model, useActionRegistry, useModel} from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
-import {
-  Breadcrumb,
-  BreadcrumbButton,
-  BreadcrumbDivider,
-  BreadcrumbItem,
-  Divider,
-  tokens
-} from "@fluentui/react-components";
+import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Divider} from "@fluentui/react-components";
 import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {AttributesTable} from "../../components/business/AttributesTable.tsx";
 import {RelationshipsTable} from "../../components/business/RelationshipsTable.tsx";
@@ -20,6 +13,15 @@ import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {EntityOverview} from "./EntityOverview.tsx";
 import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
+import {
+  ContainedFixed,
+  ContainedHeader,
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable
+} from "../../components/layout/Contained.tsx";
+import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
+import {SectionTable} from "../../components/layout/SecionTable.tsx";
 
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
@@ -60,84 +62,55 @@ export function EntityView({entity}: { entity: EntityDto }) {
         <BreadcrumbButton icon={<EntityIcon/>} current>{entity.name ?? entity.id}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      height: "100%",
-      overflow: "hidden"
-    }}>
-      <div style={{margin: "auto", width: "80rem"}}>
-        <div style={{
-          marginTop: tokens.spacingVerticalM,
-        }}>
-          <ViewTitle eyebrow={<span><EntityIcon/> Entity</span>}>
-            {entity.name ?? entity.id} {" "}
-            <ActionMenuButton
-              itemActions={actions}
-              actionParams={{
-                modelKey: model.id,
-                entityKey: entity.id
-              }}/>
-          </ViewTitle>
-          <Divider/>
-        </div>
-      </div>
+    <ContainedMixedScrolling>
+      <ContainedFixed>
+        <ContainedHumanReadable>
+          <ContainedHeader>
+            <ViewTitle eyebrow={<span><EntityIcon/> Entity</span>}>
+              {entity.name ?? entity.id} {" "}
+              <ActionMenuButton
+                itemActions={actions}
+                actionParams={{
+                  modelKey: model.id,
+                  entityKey: entity.id
+                }}/>
+            </ViewTitle>
+            <Divider/>
+          </ContainedHeader>
+        </ContainedHumanReadable>
+      </ContainedFixed>
 
-      <div style={{flexGrow: 1, overflowY: "auto"}}>
-        <div style={{margin: "auto", width: "80rem"}}>
-          <div style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: tokens.spacingVerticalM,
-            borderRadius: tokens.borderRadiusMedium,
-            marginTop: tokens.spacingVerticalM,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+      <ContainedScrollable>
+        <ContainedHumanReadable>
+          <SectionPaper>
             <EntityOverview entity={entity}/>
-          </div>
-          <div style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: tokens.spacingVerticalM,
-            borderRadius: tokens.borderRadiusMedium,
-            borderWidth: tokens.strokeWidthThin,
-            marginTop: tokens.spacingVerticalXXXL,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          </SectionPaper>
+          <SectionPaper topspacing="XXXL">
             {entity.description ? <Markdown value={entity.description}/> :
               <MissingInformation>No description provided.</MissingInformation>}
-          </div>
+          </SectionPaper>
 
           <SectionTitle
             icon={<AttributeIcon/>}
             actionParams={{modelKey: model.id, entityKey: entity.id}}
             location="entity.attributes">Attributes</SectionTitle>
 
-          <div style={{
-            marginTop: 0,
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: 0,
-            borderRadius: tokens.borderRadiusMedium,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          <SectionTable>
             <AttributesTable entityId={entity.id} attributes={entity.attributes}/>
-          </div>
+          </SectionTable>
+
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={{modelKey: model.id, entityKey: entity.id}}
             location="entity.relationships">Relationships</SectionTitle>
 
-          <div style={{
-            marginTop: 0,
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: 0,
-            borderRadius: tokens.borderRadiusMedium,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          <SectionTable>
             <RelationshipsTable relationships={relationshipsInvolved}/>
-          </div>
+          </SectionTable>
 
-        </div>
-      </div>
-    </div>
+        </ContainedHumanReadable>
+      </ContainedScrollable>
+    </ContainedMixedScrolling>
   </ViewLayoutContained>
 }
 

@@ -20,6 +20,16 @@ import {useDetailLevelContext} from "../components/business/DetailLevelContext.t
 import {SectionTitle} from "../components/layout/SectionTitle.tsx";
 import {Markdown} from "../components/core/Markdown.tsx";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
+import {
+  ContainedFixed,
+  ContainedHeader,
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable
+} from "../components/layout/Contained.tsx";
+import {SectionPaper} from "../components/layout/SectionPaper.tsx";
+import {SectionCards} from "../components/layout/SectionCards.tsx";
+import {SectionTable} from "../components/layout/SecionTable.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
@@ -49,92 +59,59 @@ export function ModelView() {
       <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
     </Breadcrumb>
   }>
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      height: "100%",
-      overflow: "hidden"
-    }}>
-      <div style={{margin: "auto", width: "80rem"}}>
-        <div style={{
-          marginTop: tokens.spacingVerticalM,
-        }}>
-          <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>
-            {displayName} {" "}
-            <ActionMenuButton
-              itemActions={actions}
-              actionParams={{modelKey: model.id}}/>
-          </ViewTitle>
-          <Divider/>
-        </div>
-      </div>
-      <div style={{flexGrow: 1, overflowY: "auto"}}>
-        <div style={{margin: "auto", maxWidth: "80rem"}}>
-          <div style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: tokens.spacingVerticalM,
-            borderRadius: tokens.borderRadiusMedium,
-            marginTop: tokens.spacingVerticalM,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+    <ContainedMixedScrolling>
+      <ContainedFixed>
+        <ContainedHumanReadable>
+          <ContainedHeader>
+            <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>
+              {displayName} {" "}
+              <ActionMenuButton
+                itemActions={actions}
+                actionParams={{modelKey: model.id}}/>
+            </ViewTitle>
+            <Divider/>
+          </ContainedHeader>
+        </ContainedHumanReadable>
+      </ContainedFixed>
+
+      <ContainedScrollable>
+        <ContainedHumanReadable>
+          <SectionPaper>
             <ModelOverview/>
-          </div>
-          <div style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: tokens.spacingVerticalM,
-            borderRadius: tokens.borderRadiusMedium,
-            borderWidth: tokens.strokeWidthThin,
-            marginTop: tokens.spacingVerticalXXXL,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          </SectionPaper>
+          <SectionPaper topspacing="XXXL">
             {model.description ? <Markdown value={model.description}/> :
               <MissingInformation>No description provided.</MissingInformation>}
-          </div>
+          </SectionPaper>
 
           <SectionTitle
             icon={<EntityIcon/>}
             actionParams={{modelKey: model.id}}
             location="model.entities">Entities</SectionTitle>
 
-          <div style={{
-            marginTop: 0,
-            padding: 0,
-            borderRadius: tokens.borderRadiusMedium,
-            marginBottom: tokens.spacingVerticalM,
-          }}><EntitiesCardList/>
-          </div>
+          <SectionCards><EntitiesCardList/></SectionCards>
 
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={{modelKey: model.id}}
             location="model.relationships">Relationships</SectionTitle>
 
-          <div style={{
-            marginTop: 0,
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: 0,
-            borderRadius: tokens.borderRadiusMedium,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          <SectionTable>
             <RelationshipsTable relationships={model.relationshipDefs}/>
+          </SectionTable>
 
-          </div>
+          <SectionTitle
+            icon={<TypeIcon/>}
+            actionParams={{modelKey: model.id}}
+            location="model.types">Types</SectionTitle>
 
-          <SectionTitle icon={<TypeIcon/>} actionParams={{modelKey: model.id}}
-                        location="model.types">Types</SectionTitle>
-
-          <div style={{
-            marginTop: 0,
-            backgroundColor: tokens.colorNeutralBackground1,
-            padding: 0,
-            borderRadius: tokens.borderRadiusMedium,
-            marginBottom: tokens.spacingVerticalM,
-          }}>
+          <SectionTable>
             <TypesTable types={model.types}/>
-          </div>
-        </div>
-      </div>
-    </div>
+          </SectionTable>
+
+        </ContainedHumanReadable>
+      </ContainedScrollable>
+    </ContainedMixedScrolling>
   </ViewLayoutContained>
 }
 
