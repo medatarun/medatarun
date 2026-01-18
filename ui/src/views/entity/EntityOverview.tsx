@@ -3,9 +3,11 @@ import {ExternalUrl, Origin} from "../ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
 import {Tags} from "../../components/core/Tag.tsx";
 import type {EntityDto} from "../../business";
+import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
 
 
 export function EntityOverview({entity}: { entity: EntityDto}) {
+  const {isDetailLevelTech} = useDetailLevelContext()
   return <div>
       <div style={{
         display: "grid",
@@ -14,8 +16,8 @@ export function EntityOverview({entity}: { entity: EntityDto}) {
         rowGap: tokens.spacingVerticalM,
         alignItems: "baseline"
       }}>
-          <div><Text>Entity&nbsp;code</Text></div>
-          <div><Text><code>{entity.id}</code></Text></div>
+        { isDetailLevelTech && <div><Text>Entity&nbsp;code</Text></div> }
+        { isDetailLevelTech && <div><Text><code>{entity.id}</code></Text></div> }
           <div><Text>From&nbsp;model</Text></div>
           <div><Link to="/model/$modelId" params={{modelId: entity.model.id}}>{entity.model.name ?? entity.model.id}</Link></div>
           <div><Text>Docs.&nbsp;home</Text></div>
