@@ -68,9 +68,9 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick:(typeId
   const { isDetailLevelTech } = useDetailLevelContext()
   const styles = useStyles()
   return <div>
-    {types.length == 0 ? <div style={{paddingTop: tokens.spacingVerticalL}}>
-      <Text italic>No types in this model.</Text>
-    </div> : null}
+    {types.length == 0 ? <p style={{paddingTop: tokens.spacingVerticalL}}>
+      <Text italic>No data types in this model.</Text>
+    </p> : null}
     <div style={{paddingTop:tokens.spacingVerticalM}}><Table size="small" style={{marginBottom: "1em"}}>
       <TableBody>
         {
@@ -96,14 +96,15 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick:(typeId
   </div>
 }
 
-export function ActionMenuButton({itemActions, actionParams}: {
+export function ActionMenuButton({itemActions, actionParams, label}: {
+  label?: string,
   itemActions: Action_registryBiz[],
   actionParams: Record<string, string>
 }) {
   const actionPerformer = useActionPerformer()
   return <Menu positioning={{autoSize: true}}>
     <MenuTrigger disableButtonEnhancement>
-      <Button icon={<Icon name="more_menu_vertical"/>}/>
+      <Button iconPosition="after" icon={<Icon name="more_menu_vertical"/>}>{label}</Button>
     </MenuTrigger>
     <MenuPopover>
       <MenuList>

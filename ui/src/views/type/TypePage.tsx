@@ -7,17 +7,15 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
-  Divider,
-  Text
+  Text,
+  tokens
 } from "@fluentui/react-components";
-import {AttributeIcon, ModelIcon, TypeIcon} from "../../components/business/Icons.tsx";
+import {ModelIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
-  ContainedFixed,
-  ContainedHeader,
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
@@ -67,39 +65,35 @@ function TypeView({model, type}: {
   const actionParams = createActionTemplateType(model.id, type.id)
 
 
-  return <ViewLayoutContained title={
-    <Breadcrumb>
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<ModelIcon/>}><Link to="/models">Models</Link></BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
+  return <ViewLayoutContained title={<div>
+    <div style={{marginLeft: "-22px"}}>
+    <Breadcrumb size="small">
       <BreadcrumbItem>
         <BreadcrumbButton
           icon={<ModelIcon/>}
           onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<AttributeIcon/>}
-          current>{type.name ?? type.id}</BreadcrumbButton>
-      </BreadcrumbItem>
     </Breadcrumb>
+    </div>
+    <div>
+      <ViewTitle eyebrow={"Data type"}>
+        <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
+          <div>
+        {type.name ?? type.id} {" "}
+          </div>
+          <div>
+
+        <ActionMenuButton
+          label="Actions"
+          itemActions={actions}
+          actionParams={actionParams}/>
+          </div>
+        </div>
+      </ViewTitle>
+    </div>
+  </div>
   }>
     <ContainedMixedScrolling>
-      <ContainedFixed>
-        <ContainedHumanReadable>
-          <ContainedHeader>
-            <ViewTitle eyebrow={<span><TypeIcon/> Data type</span>}>
-              {type.name ?? type.id} {" "}
-              <ActionMenuButton
-                itemActions={actions}
-                actionParams={actionParams}/>
-            </ViewTitle>
-            <Divider/>
-          </ContainedHeader>
-        </ContainedHumanReadable>
-      </ContainedFixed>
-
       <ContainedScrollable>
         <ContainedHumanReadable>
           <SectionPaper>

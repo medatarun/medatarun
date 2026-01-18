@@ -1,9 +1,9 @@
-import {Link, useNavigate} from "@tanstack/react-router";
+import {useNavigate} from "@tanstack/react-router";
 import {type EntityDto, Model, useActionRegistry, useModel} from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
-import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, Divider} from "@fluentui/react-components";
-import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
+import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
+import {AttributeIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {AttributesTable} from "../../components/business/AttributesTable.tsx";
 import {RelationshipsTable} from "../../components/business/RelationshipsTable.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
@@ -14,8 +14,6 @@ import {EntityOverview} from "./EntityOverview.tsx";
 import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
-  ContainedFixed,
-  ContainedHeader,
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
@@ -52,48 +50,42 @@ export function EntityView({entity}: { entity: EntityDto }) {
   const handleClickAttribute = (attributeId: string) => {
     navigate({
       to: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
-      params: { modelKey: model.id, entityKey: entity.id, attributeKey: attributeId}
+      params: {modelKey: model.id, entityKey: entity.id, attributeKey: attributeId}
     })
   }
 
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
       to: "/model/$modelKey/relationship/$relationshipKey",
-      params: { modelKey: model.id, relationshipKey: relationshipId}
+      params: {modelKey: model.id, relationshipKey: relationshipId}
     })
   }
 
   return <ViewLayoutContained title={
-    <Breadcrumb>
-      <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon/>}><Link to="/models">Models</Link></BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-      <BreadcrumbItem>
-        <BreadcrumbButton icon={<ModelIcon/>}
-                          onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-      <BreadcrumbItem>
-        <BreadcrumbButton icon={<EntityIcon/>} current>{entity.name ?? entity.id}</BreadcrumbButton></BreadcrumbItem>
-    </Breadcrumb>
+    <div>
+      <Breadcrumb style={{marginLeft: "-22px"}} size="small">
+        <BreadcrumbItem>
+          <BreadcrumbButton
+            icon={<ModelIcon/>}
+            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+        <BreadcrumbDivider/>
+      </Breadcrumb>
+      <ViewTitle eyebrow={"Entity"}>
+        <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
+          <div>{entity.name ?? entity.id} {" "}</div>
+          <div><ActionMenuButton
+            label="Actions"
+            itemActions={actions}
+            actionParams={{
+              modelKey: model.id,
+              entityKey: entity.id
+            }}/></div>
+        </div>
+      </ViewTitle>
+
+    </div>
   }>
     <ContainedMixedScrolling>
-      <ContainedFixed>
-        <ContainedHumanReadable>
-          <ContainedHeader>
-            <ViewTitle eyebrow={<span><EntityIcon/> Entity</span>}>
-              {entity.name ?? entity.id} {" "}
-              <ActionMenuButton
-                itemActions={actions}
-                actionParams={{
-                  modelKey: model.id,
-                  entityKey: entity.id
-                }}/>
-            </ViewTitle>
-            <Divider/>
-          </ContainedHeader>
-        </ContainedHumanReadable>
-      </ContainedFixed>
-
       <ContainedScrollable>
         <ContainedHumanReadable>
           <SectionPaper>
@@ -110,7 +102,8 @@ export function EntityView({entity}: { entity: EntityDto }) {
             location="entity.attributes">Attributes</SectionTitle>
 
           <SectionTable>
-            <AttributesTable entityId={entity.id} attributes={entity.attributes} onClickAttribute={handleClickAttribute}/>
+            <AttributesTable entityId={entity.id} attributes={entity.attributes}
+                             onClickAttribute={handleClickAttribute}/>
           </SectionTable>
 
           <SectionTitle

@@ -15,9 +15,10 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
   Divider,
-  Text
+  Text,
+  tokens
 } from "@fluentui/react-components";
-import {AttributeIcon, EntityIcon, ModelIcon} from "../../components/business/Icons.tsx";
+import {EntityIcon, ModelIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {Markdown} from "../../components/core/Markdown.tsx";
@@ -108,49 +109,49 @@ export function AttributeView({parent, parentType, attribute}: {
       : createActionTemplateModel(model.id)
 
 
-  return <ViewLayoutContained title={
-    <Breadcrumb>
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<ModelIcon/>}><Link to="/models">Models</Link></BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<ModelIcon/>}
+  return <ViewLayoutContained title={<div>
+    <div style={{marginLeft: "-22px"}}>
+      <Breadcrumb size="small">
+        <BreadcrumbItem>
+          <BreadcrumbButton
+            icon={<ModelIcon/>}
+            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+        <BreadcrumbDivider/>
+        {parentAsEntity != null &&
+          <BreadcrumbItem>
+            <BreadcrumbButton
+              icon={<EntityIcon/>}
+              onClick={handleClickEntity}>{parentAsEntity.name ?? parentAsEntity.id}</BreadcrumbButton>
+          </BreadcrumbItem>
+        }
+        {parentAsRelationship != null &&
+          <BreadcrumbItem>
+            <BreadcrumbButton
+              icon={<EntityIcon/>}
+              onClick={handleClickRelationship}>{parentAsRelationship.name ?? parentAsRelationship.id}</BreadcrumbButton>
+          </BreadcrumbItem>
+        }
 
-          onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-      {parentAsEntity != null &&
-        <BreadcrumbItem>
-          <BreadcrumbButton
-            icon={<EntityIcon/>}
-            onClick={handleClickEntity}>{parentAsEntity.name ?? parentAsEntity.id}</BreadcrumbButton>
-        </BreadcrumbItem>
-      }
-      {parentAsRelationship != null &&
-        <BreadcrumbItem>
-          <BreadcrumbButton
-            icon={<EntityIcon/>}
-            onClick={handleClickRelationship}>{parentAsRelationship.name ?? parentAsRelationship.id}</BreadcrumbButton>
-        </BreadcrumbItem>
-      }
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<AttributeIcon/>}
-          current>{attribute.name ?? attribute.id}</BreadcrumbButton>
-      </BreadcrumbItem>
-    </Breadcrumb>
+      </Breadcrumb>
+    </div>
+    <ViewTitle eyebrow={"Attribute"}>
+      <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
+        <div>{attribute.name ?? attribute.id} {" "}</div>
+        <div>
+          <ActionMenuButton
+            label="Actions"
+            itemActions={actions}
+            actionParams={actionParams}/>
+        </div>
+      </div>
+    </ViewTitle>
+  </div>
   }>
     <ContainedMixedScrolling>
       <ContainedFixed>
         <ContainedHumanReadable>
           <ContainedHeader>
-            <ViewTitle eyebrow={<span><AttributeIcon/> Attribute</span>}>
-              {attribute.name ?? attribute.id} {" "}
-              <ActionMenuButton
-                itemActions={actions}
-                actionParams={actionParams}/>
-            </ViewTitle>
+
             <Divider/>
           </ContainedHeader>
         </ContainedHumanReadable>

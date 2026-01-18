@@ -1,8 +1,31 @@
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
-import {ActionsBar} from "../components/business/ActionsBar.tsx";
+import {ViewTitle} from "../components/core/ViewTitle.tsx";
+import {tokens} from "@fluentui/react-components";
+import {ActionMenuButton} from "../components/business/TypesTable.tsx";
+import {useActionRegistry} from "../business";
+import {MissingInformation} from "../components/core/MissingInformation.tsx";
+import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
 
 export function DashboardPage() {
-  return <ViewLayoutContained title="Dashboard">
-    <ActionsBar location="global" />
+  const actionRegistry = useActionRegistry()
+  const actions = actionRegistry.findActions("entity")
+  return <ViewLayoutContained title={
+    <div>
+      <ViewTitle eyebrow="Dashboard">
+        <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
+          <div>Dashboard</div>
+          <div><ActionMenuButton
+            label="Actions"
+            itemActions={actions}
+            actionParams={{}}/></div>
+        </div>
+      </ViewTitle>
+    </div>
+  }>
+    <ContainedHumanReadable>
+      <div>
+        <MissingInformation>Currently creating the Dashboard</MissingInformation>
+      </div>
+    </ContainedHumanReadable>
   </ViewLayoutContained>
 }

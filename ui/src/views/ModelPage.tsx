@@ -2,15 +2,8 @@ import {useNavigate} from "@tanstack/react-router";
 import {type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
-import {
-  Breadcrumb,
-  BreadcrumbButton,
-  BreadcrumbDivider,
-  BreadcrumbItem,
-  Divider,
-  tokens
-} from "@fluentui/react-components";
-import {EntityIcon, ModelIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
+import {tokens} from "@fluentui/react-components";
+import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
 import {ActionMenuButton, TypesTable} from "../components/business/TypesTable.tsx";
@@ -20,13 +13,7 @@ import {useDetailLevelContext} from "../components/business/DetailLevelContext.t
 import {SectionTitle} from "../components/layout/SectionTitle.tsx";
 import {Markdown} from "../components/core/Markdown.tsx";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
-import {
-  ContainedFixed,
-  ContainedHeader,
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable
-} from "../components/layout/Contained.tsx";
+import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable} from "../components/layout/Contained.tsx";
 import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
@@ -46,9 +33,7 @@ export function ModelView() {
 
   const displayName = model.name ?? model.id
   const navigate = useNavigate();
-  const handleClickModels = () => {
-    navigate({to: "/models"})
-  }
+
   const handleClickType = (typeId: string) => {
     navigate({to: "/model/$modelId/type/$typeId", params: {modelId: model.id, typeId: typeId}})
   }
@@ -68,27 +53,21 @@ export function ModelView() {
   const actions = actionRegistry.findActions("model.overview")
 
   return <ViewLayoutContained title={
-    <Breadcrumb>
-      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>}
-                                        onClick={handleClickModels}>Models</BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-      <BreadcrumbItem><BreadcrumbButton icon={<ModelIcon/>} current>{displayName}</BreadcrumbButton></BreadcrumbItem>
-    </Breadcrumb>
+    <div>
+      <ViewTitle eyebrow={<span>Model</span>}>
+        <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
+          <div>{displayName} {" "}</div>
+          <div>
+            <ActionMenuButton
+              label="Actions"
+              itemActions={actions}
+              actionParams={{modelKey: model.id}}/>
+          </div>
+        </div>
+      </ViewTitle>
+    </div>
   }>
     <ContainedMixedScrolling>
-      <ContainedFixed>
-        <ContainedHumanReadable>
-          <ContainedHeader>
-            <ViewTitle eyebrow={<span><ModelIcon/> Model</span>}>
-              {displayName} {" "}
-              <ActionMenuButton
-                itemActions={actions}
-                actionParams={{modelKey: model.id}}/>
-            </ViewTitle>
-            <Divider/>
-          </ContainedHeader>
-        </ContainedHumanReadable>
-      </ContainedFixed>
 
       <ContainedScrollable>
         <ContainedHumanReadable>
@@ -105,25 +84,24 @@ export function ModelView() {
             actionParams={{modelKey: model.id}}
             location="model.entities">Entities</SectionTitle>
 
-          <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards>
+          { model.entityDefs.length === 0 && <p><MissingInformation>No entities in this model.</MissingInformation></p>}
+          { model.entityDefs.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
 
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={{modelKey: model.id}}
             location="model.relationships">Relationships</SectionTitle>
 
-          <SectionTable>
-            <RelationshipsTable onClick={handleClickRelationship}  relationships={model.relationshipDefs}/>
-          </SectionTable>
+          { model.relationshipDefs.length === 0 && <p><MissingInformation>No relationships in this model.</MissingInformation></p> }
+          { model.relationshipDefs.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationshipDefs}/></SectionTable> }
 
           <SectionTitle
             icon={<TypeIcon/>}
             actionParams={{modelKey: model.id}}
-            location="model.types">Types</SectionTitle>
+            location="model.types">Data Types</SectionTitle>
 
-          <SectionTable>
-            <TypesTable onClick={handleClickType} types={model.types}/>
-          </SectionTable>
+          { model.types.length === 0 && <p><MissingInformation>No data types in this model.</MissingInformation></p> }
+          { model.types.length > 0 && <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable> }
 
         </ContainedHumanReadable>
       </ContainedScrollable>

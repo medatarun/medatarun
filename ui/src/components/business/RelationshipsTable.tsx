@@ -41,9 +41,9 @@ export function RelationshipsTable({relationships, onClick}:{relationships:Relat
   const {isDetailLevelTech} = useDetailLevelContext()
   const styles = useStyles()
   return <div>
-    {relationships.length == 0 ? <div style={{paddingTop: tokens.spacingVerticalM}}>
+    {relationships.length == 0 ? <p style={{paddingTop: tokens.spacingVerticalM}}>
       <Text italic>No relationships in this model.</Text>
-    </div> : null}
+    </p> : null}
     <div>
       <Table>
         <TableBody>{relationships

@@ -12,16 +12,21 @@ const useStyles = makeStyles({
   },
   titleBar: {
     flex: 0,
-    minHeight: "3em",
+    //minHeight: "3em",
     backgroundColor: tokens.colorNeutralBackground2,
     borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-    textAlign: "center",
+    textAlign: "left",
     fontWeight: tokens.fontWeightSemibold,
-    height: "3em",
     verticalAlign: "middle",
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "start",
     alignItems: "center",
+    paddingTop: tokens.spacingVerticalM
+
+  },
+  title: {
+    width: "80rem",
+    margin: "auto",
   },
   main: {
     flex: 1,
@@ -29,12 +34,14 @@ const useStyles = makeStyles({
   }
 })
 
-export function ViewLayoutContained({title, children}: { title: ReactNode } & PropsWithChildren) {
+export function ViewLayoutContained({title, children}: { title?: ReactNode } & PropsWithChildren) {
   const styles = useStyles()
   return <div className={styles.root}>
+    {title &&
     <div className={styles.titleBar}>
-      <div>{title}</div>
+      <div className={styles.title}>{title}</div>
     </div>
+    }
     <div className={styles.main}>{children}</div>
   </div>
 }
