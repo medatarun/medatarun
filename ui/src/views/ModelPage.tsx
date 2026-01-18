@@ -30,6 +30,7 @@ import {
 import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
+import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
@@ -118,28 +119,20 @@ export function ModelView() {
 export function ModelOverview() {
   const model = useModelContext().dto
   const {isDetailLevelTech} = useDetailLevelContext()
-  return <div>
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "min-content auto",
-      columnGap: tokens.spacingVerticalM,
-      rowGap: tokens.spacingVerticalM,
-      paddingTop: tokens.spacingVerticalM,
-      alignItems: "baseline"
-    }}>
-      {isDetailLevelTech && <div>Identifier</div>}
-      {isDetailLevelTech && <div><code>{model.id}</code></div>}
-      <div>Version</div>
-      <div><code>{model.version}</code></div>
-      <div>Documentation</div>
-      <div><ExternalUrl url={model.documentationHome}/></div>
-      <div>Hashtags</div>
-      <div><Tags tags={model.hashtags}/></div>
-      {isDetailLevelTech && <div>Origin</div>}
-      {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
-    </div>
+  return <PropertiesForm>
+    {isDetailLevelTech && <div>Identifier</div>}
+    {isDetailLevelTech && <div><code>{model.id}</code></div>}
+    <div>Version</div>
+    <div><code>{model.version}</code></div>
+    <div>Documentation</div>
+    <div>{!model.documentationHome ? <MissingInformation>Not provided.</MissingInformation> : <ExternalUrl url={model.documentationHome}/>}</div>
+    <div>Hashtags</div>
+    <div>{model.hashtags.length === 0 ? <MissingInformation>Not tagged.</MissingInformation> : <Tags tags={model.hashtags}/>}</div>
+    {isDetailLevelTech && <div>Origin</div>}
+    {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
+  </PropertiesForm>
 
-  </div>
+
 }
 
 export function EntitiesCardList() {

@@ -1,6 +1,6 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import {type RelationshipDefSummaryDto, useActionRegistry} from "../../business";
+import {type RelationshipDto, useActionRegistry} from "../../business";
 import {useModelContext} from "./ModelContext.tsx";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
@@ -34,7 +34,7 @@ const useStyles = makeStyles({
 
   }
 })
-export function RelationshipsTable({relationships}:{relationships:RelationshipDefSummaryDto[]}) {
+export function RelationshipsTable({relationships}:{relationships:RelationshipDto[]}) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("relationship")

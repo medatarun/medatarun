@@ -40,20 +40,26 @@ const useStyles = makeStyles({
   }
 })
 
-export function AttributesTable({entityId, attributes}: { entityId: string, attributes: AttributeDto[] }) {
+export function AttributesTable({entityId, attributes, onClickAttribute}: {
+  entityId: string,
+  attributes: AttributeDto[],
+  onClickAttribute: (id: string) => void
+}) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const {isDetailLevelTech} = useDetailLevelContext()
   const itemActions = actionRegistry.findActions("entity.attribute")
   const styles = useStyles()
-
+  const handleClickAttribute = (id: string) => {
+    onClickAttribute(id)
+  }
   return <div>
     <Table>
       <TableBody>{attributes.map(attribute =>
         <TableRow key={attribute.id}>
-          <TableCell className={styles.titleCell}>{attribute.name ?? attribute.id}</TableCell>
-          <TableCell className={styles.flags}> {attribute.identifierAttribute ? "🔑" : ""}</TableCell>
-          <TableCell className={styles.descriptionCell}>
+          <TableCell className={styles.titleCell} onClick={()=>handleClickAttribute(attribute.id)}>{attribute.name ?? attribute.id} </TableCell>
+          <TableCell className={styles.flags} onClick={()=>handleClickAttribute(attribute.id)}> {attribute.identifierAttribute ? "🔑" : ""}</TableCell>
+          <TableCell className={styles.descriptionCell} onClick={()=>handleClickAttribute(attribute.id)}>
             <div>
               <Markdown value={attribute.description}/>
             </div>
@@ -63,7 +69,7 @@ export function AttributesTable({entityId, attributes}: { entityId: string, attr
               {" "}
               <code>{attribute.type} {attribute.optional ? "?" : ""}</code>
             </div>}
-            { attribute.hashtags.length > 0 &&  <Tags tags={attribute.hashtags}/> }
+            {attribute.hashtags.length > 0 && <Tags tags={attribute.hashtags}/>}
           </TableCell>
           <TableCell className={styles.actionCell}>
             <ActionMenuButton

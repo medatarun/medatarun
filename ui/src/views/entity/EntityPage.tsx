@@ -49,6 +49,13 @@ export function EntityView({entity}: { entity: EntityDto }) {
     })
   };
 
+  const handleClickAttribute = (attributeId: string) => {
+    navigate({
+      to: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
+      params: { modelKey: model.id, entityKey: entity.id, attributeKey: attributeId}
+    })
+  }
+
   return <ViewLayoutContained title={
     <Breadcrumb>
       <BreadcrumbItem>
@@ -96,7 +103,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
             location="entity.attributes">Attributes</SectionTitle>
 
           <SectionTable>
-            <AttributesTable entityId={entity.id} attributes={entity.attributes}/>
+            <AttributesTable entityId={entity.id} attributes={entity.attributes} onClickAttribute={handleClickAttribute}/>
           </SectionTable>
 
           <SectionTitle

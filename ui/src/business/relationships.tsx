@@ -1,14 +1,17 @@
+import type {AttributeDto} from "./model.tsx";
+
 /**
  * Relationship definition without all attributes
  */
-export interface RelationshipDefSummaryDto {
+export interface RelationshipDto {
   id: string
   name: string | null
   description: string | null
-  roles: RelationshipRoleDefDto[]
+  roles: RelationshipRoleDto[],
+  attributes: AttributeDto[]
 }
 
-export interface RelationshipRoleDefDto {
+export interface RelationshipRoleDto {
   id: string
   name: string | null
   entityId: string
