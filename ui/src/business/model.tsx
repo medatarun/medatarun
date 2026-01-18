@@ -1,4 +1,4 @@
-import type {RelationshipDefSummaryDto} from "./relationships.tsx";
+import type {RelationshipDto} from "./relationships.tsx";
 
 
 export interface ModelSummaryDto {
@@ -20,7 +20,7 @@ export interface ModelDto {
   description: string | null
   origin: ElementOrigin
   entityDefs: EntityDto[]
-  relationshipDefs: RelationshipDefSummaryDto[]
+  relationshipDefs: RelationshipDto[]
   types: TypeDto[]
 }
 
@@ -84,6 +84,28 @@ export class Model {
   get id() { return this.dto.id }
 
   findTypeName(typeId: string) {
-    return this.dto.types.find(it => it.id === typeId)?.name
+    const type = this.dto.types.find(it => it.id === typeId);
+    return type?.name ?? type?.id
+  }
+
+  findEntityDto(entityId: string) {
+    return this.dto.entityDefs.find(it => it.id === entityId)
+
+  }
+  findEntityAttributeDto(entityId: string, attributeId: string) {
+    return this.dto.entityDefs.find(it => it.id === entityId)
+      ?.attributes?.find(it => it.id === attributeId)
+  }
+  findRelationshipDto(relationshipId: string) {
+    return this.dto.relationshipDefs.find(it => it.id === relationshipId)
+
+  }
+  findRelationshipAttributeDto(relationshipId: string, attributeId: string) {
+    return this.dto.relationshipDefs.find(it => it.id === relationshipId)
+      ?.attributes?.find(it => it.id === attributeId)
+  }
+
+  findTypeDto(typeId: string) : TypeDto | undefined{
+    return this.dto.types.find(it => it.id === typeId)
   }
 }

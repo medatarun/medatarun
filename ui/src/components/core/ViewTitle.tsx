@@ -25,5 +25,6 @@ export function ViewTitle({children, eyebrow}: { eyebrow?: ReactNode } & PropsWi
     <div className={styles.mainTitle}>
       <div className={styles.mainTitleEllipsis}>{children}</div>
     </div>
+
   </div>
 }

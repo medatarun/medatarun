@@ -1,8 +1,8 @@
-import type {RelationshipDefSummaryDto, RelationshipRoleDefDto} from "../../business";
+import type {RelationshipDto, RelationshipRoleDto} from "../../business";
 import {useModelContext} from "./ModelContext.tsx";
 import {Link} from "@tanstack/react-router";
 
-export function RelationshipDescription(props: { rel: RelationshipDefSummaryDto }) {
+export function RelationshipDescription(props: { rel: RelationshipDto }) {
 
   const {rel} = props
   if (rel.roles.length !== 2) {
@@ -11,7 +11,7 @@ export function RelationshipDescription(props: { rel: RelationshipDefSummaryDto 
 
   const [r1, r2] = rel.roles
 
-  const render = (role: RelationshipRoleDefDto, other: RelationshipRoleDefDto) => {
+  const render = (role: RelationshipRoleDto, other: RelationshipRoleDto) => {
     switch (role.cardinality) {
       case "one":
         return <div><EntityLink id={role.entityId}/> can be associated with exactly one <EntityLink

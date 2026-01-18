@@ -61,24 +61,24 @@ const useStyles = makeStyles({
   }
 })
 
-export function TypesTable({types}: { types: TypeDto[] }) {
+export function TypesTable({types, onClick}: { types: TypeDto[], onClick:(typeId:string) => void }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions("type")
   const { isDetailLevelTech } = useDetailLevelContext()
   const styles = useStyles()
   return <div>
-    {types.length == 0 ? <div style={{paddingTop: tokens.spacingVerticalL}}>
-      <Text italic>No types in this model.</Text>
-    </div> : null}
+    {types.length == 0 ? <p style={{paddingTop: tokens.spacingVerticalL}}>
+      <Text italic>No data types in this model.</Text>
+    </p> : null}
     <div style={{paddingTop:tokens.spacingVerticalM}}><Table size="small" style={{marginBottom: "1em"}}>
       <TableBody>
         {
           types.map(type => <TableRow key={type.id}>
-            <TableCell className={styles.titleCell}>{type.name ?? type.id}</TableCell>
-            <TableCell className={styles.flags}>{" "}</TableCell>
-            { isDetailLevelTech && <TableCell className={styles.typeCodeCell}><code>{type.id}</code></TableCell> }
-            <TableCell className={styles.descriptionCell}>
+            <TableCell className={styles.titleCell} onClick={()=>onClick(type.id)}>{type.name ?? type.id}</TableCell>
+            <TableCell className={styles.flags} onClick={()=>onClick(type.id)}>{" "}</TableCell>
+            { isDetailLevelTech && <TableCell className={styles.typeCodeCell} onClick={()=>onClick(type.id)}><code>{type.id}</code></TableCell> }
+            <TableCell className={styles.descriptionCell} onClick={()=>onClick(type.id)}>
               <div>
                 <Markdown value={type.description}/>
               </div>
@@ -96,14 +96,15 @@ export function TypesTable({types}: { types: TypeDto[] }) {
   </div>
 }
 
-export function ActionMenuButton({itemActions, actionParams}: {
+export function ActionMenuButton({itemActions, actionParams, label}: {
+  label?: string,
   itemActions: Action_registryBiz[],
   actionParams: Record<string, string>
 }) {
   const actionPerformer = useActionPerformer()
   return <Menu positioning={{autoSize: true}}>
     <MenuTrigger disableButtonEnhancement>
-      <Button icon={<Icon name="more_menu_vertical"/>}/>
+      <Button iconPosition="after" icon={<Icon name="more_menu_vertical"/>}>{label}</Button>
     </MenuTrigger>
     <MenuPopover>
       <MenuList>
