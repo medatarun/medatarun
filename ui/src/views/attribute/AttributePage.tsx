@@ -167,7 +167,7 @@ export function AttributeView({parent, parentType, attribute}: {
           </SectionPaper>
           <SectionPaper topspacing="XXXL">
             {attribute.description ? <Markdown value={attribute.description}/> :
-              <MissingInformation>No description provided.</MissingInformation>}
+              <MissingInformation>add description</MissingInformation>}
           </SectionPaper>
 
         </ContainedHumanReadable>
@@ -192,7 +192,7 @@ export function AttributeOverview({attribute, model}: {
     </div>
 
     <div><Text>Tags</Text></div>
-    <div>{attribute.hashtags.length == 0 ? <MissingInformation>Not tagged.</MissingInformation> :
+    <div>{attribute.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={attribute.hashtags}/>}</div>
 
     <div><Text>Type</Text></div>

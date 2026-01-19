@@ -101,7 +101,7 @@ function TypeView({model, type}: {
           </SectionPaper>
           <SectionPaper topspacing="XXXL">
             {type.description ? <Markdown value={type.description}/> :
-              <MissingInformation>No description provided.</MissingInformation>}
+              <MissingInformation>add description</MissingInformation>}
           </SectionPaper>
 
         </ContainedHumanReadable>

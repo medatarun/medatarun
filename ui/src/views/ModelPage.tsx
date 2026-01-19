@@ -76,7 +76,7 @@ export function ModelView() {
           </SectionPaper>
           <SectionPaper topspacing="XXXL">
             {model.description ? <Markdown value={model.description}/> :
-              <MissingInformation>No description provided.</MissingInformation>}
+              <MissingInformation>add description</MissingInformation>}
           </SectionPaper>
 
           <SectionTitle
@@ -84,7 +84,7 @@ export function ModelView() {
             actionParams={{modelKey: model.id}}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
-          { model.entityDefs.length === 0 && <p><MissingInformation>No entities in this model.</MissingInformation></p>}
+          { model.entityDefs.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
           { model.entityDefs.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
 
           <SectionTitle
@@ -92,7 +92,7 @@ export function ModelView() {
             actionParams={{modelKey: model.id}}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
-          { model.relationshipDefs.length === 0 && <p><MissingInformation>No relationships in this model.</MissingInformation></p> }
+          { model.relationshipDefs.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
           { model.relationshipDefs.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationshipDefs}/></SectionTable> }
 
           <SectionTitle
@@ -100,7 +100,7 @@ export function ModelView() {
             actionParams={{modelKey: model.id}}
             location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
-          { model.types.length === 0 && <p><MissingInformation>No data types in this model.</MissingInformation></p> }
+          { model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p> }
           { model.types.length > 0 && <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable> }
 
         </ContainedHumanReadable>
@@ -118,10 +118,10 @@ export function ModelOverview() {
     <div>Version</div>
     <div><code>{model.version}</code></div>
     <div>Documentation</div>
-    <div>{!model.documentationHome ? <MissingInformation>Not provided.</MissingInformation> :
+    <div>{!model.documentationHome ? <MissingInformation>add external link</MissingInformation> :
       <ExternalUrl url={model.documentationHome}/>}</div>
     <div>Hashtags</div>
-    <div>{model.hashtags.length === 0 ? <MissingInformation>Not tagged.</MissingInformation> :
+    <div>{model.hashtags.length === 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={model.hashtags}/>}</div>
     {isDetailLevelTech && <div>Origin</div>}
     {isDetailLevelTech && <div><Origin value={model.origin}/></div>}

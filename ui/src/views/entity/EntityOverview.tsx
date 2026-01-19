@@ -17,10 +17,10 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
     <div><Link to="/model/$modelId" params={{modelId: entity.model.id}}>{entity.model.name ?? entity.model.id}</Link>
     </div>
     <div><Text>Docs.&nbsp;home</Text></div>
-    <div>{!entity.documentationHome ? <MissingInformation>Not provided.</MissingInformation> :
+    <div>{!entity.documentationHome ? <MissingInformation>add external link</MissingInformation> :
       <ExternalUrl url={entity.documentationHome}/>}</div>
     <div><Text>Tags</Text></div>
-    <div>{entity.hashtags.length == 0 ? <MissingInformation>Not tagged.</MissingInformation> :
+    <div>{entity.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={entity.hashtags}/>}</div>
     <div><Text>Origin</Text></div>
     <div><Origin value={entity.origin}/></div>

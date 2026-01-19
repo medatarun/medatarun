@@ -1,0 +1,61 @@
+{
+    "id": "initial_model",
+    "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.0.json",
+    "version": "0.1.0",
+    "name": "<Rename this model>",
+    "types": [
+        {
+            "id": "id",
+            "name": "UUID",
+            "description": "Uniquely identifies objets"
+        }
+    ],
+    "entities": [
+        {
+            "id": "concept",
+            "name": "Concept",
+            "identifierAttribute": "id",
+            "attributes": [
+                {
+                    "id": "id",
+                    "name": "Identifier",
+                    "type": "id"
+                }
+            ]
+        },
+        {
+            "id": "other_concept",
+            "name": "Other Concept",
+            "identifierAttribute": "id",
+            "attributes": [
+                {
+                    "id": "id",
+                    "name": "Other Concept",
+                    "type": "id"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "id": "refinement",
+            "name": "Refinement",
+            "description": "A Concept is refined by one or many Other Concepts. An Other Concept refines exactly one Concept.",
+            "roles": [
+                {
+                    "id": "role_a",
+                    "entityId": "concept",
+                    "name": "Concept to refine",
+                    "cardinality": "one"
+                },
+                {
+                    "id": "role_b",
+                    "entityId": "other_concept",
+                    "name": "Other concept refining",
+                    "cardinality": "many"
+                }
+            ],
+            "attributes": []
+        }
+    ]
+}

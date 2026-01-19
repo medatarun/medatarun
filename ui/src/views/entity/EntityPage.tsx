@@ -97,7 +97,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
           </SectionPaper>
           <SectionPaper topspacing="XXXL">
             {entity.description ? <Markdown value={entity.description}/> :
-              <MissingInformation>No description provided.</MissingInformation>}
+              <MissingInformation>add description</MissingInformation>}
           </SectionPaper>
 
           <SectionTitle

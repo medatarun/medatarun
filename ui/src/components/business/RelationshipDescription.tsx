@@ -1,8 +1,11 @@
 import type {RelationshipDto, RelationshipRoleDto} from "../../business";
 import {useModelContext} from "./ModelContext.tsx";
 import {Link} from "@tanstack/react-router";
+import {Markdown} from "../core/Markdown.tsx";
 
 export function RelationshipDescription(props: { rel: RelationshipDto }) {
+
+
 
   const {rel} = props
   if (rel.roles.length !== 2) {
@@ -29,6 +32,8 @@ export function RelationshipDescription(props: { rel: RelationshipDto }) {
         return <div><EntityLink id={role.entityId}/> can be associated with <EntityLink id={other.entityId}/>.</div>
     }
   }
+
+  if (rel.description) return <div><Markdown value={rel.description} /></div>
 
   return <div>
     <div>{render(r1, r2)}</div>

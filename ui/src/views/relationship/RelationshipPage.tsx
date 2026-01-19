@@ -125,7 +125,7 @@ export function RelationshipView({model, relationship}: {
           </SectionPaper>
           <SectionPaper topspacing="XXXL">
             {relationship.description ? <Markdown value={relationship.description}/> :
-              <MissingInformation>No description provided.</MissingInformation>}
+              <MissingInformation>add description</MissingInformation>}
           </SectionPaper>
 
 
@@ -135,7 +135,7 @@ export function RelationshipView({model, relationship}: {
             location={ActionUILocations.relationship_roles}>Roles</SectionTitle>
 
           {relationship.roles.length === 0 &&
-            <p><MissingInformation>No roles in this relationship.</MissingInformation></p>}
+            <p><MissingInformation>add roles in this relationship</MissingInformation></p>}
           {relationship.roles.length > 0 &&
             <SectionCards>
               <div style={{
@@ -185,7 +185,7 @@ export function RelationshipView({model, relationship}: {
             location={ActionUILocations.relationship_attributes}>Attributes</SectionTitle>
 
           {relationship.attributes.length === 0 &&
-            <p><MissingInformation>No attributes in this relationship.</MissingInformation></p>}
+            <p><MissingInformation>add attributes</MissingInformation></p>}
           {relationship.attributes.length > 0 &&
             <SectionTable>
               <AttributesTable
@@ -216,7 +216,7 @@ export function RelationshipOverview({relationship, model}: {
         params={{modelId: model.id}}>{model.nameOrId}</Link>
     </div>
     <div><Text>Tags</Text></div>
-    <div>{relationship.hashtags.length == 0 ? <MissingInformation>Not tagged.</MissingInformation> :
+    <div>{relationship.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={relationship.hashtags}/>}</div>
   </PropertiesForm>
 }
