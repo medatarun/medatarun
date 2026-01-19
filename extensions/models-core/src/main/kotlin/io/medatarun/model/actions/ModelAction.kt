@@ -22,16 +22,29 @@ sealed interface ModelAction {
     )
     data class Import(
         @ActionParamDoc(
-            "URL to import from",
-            """
-            Provide an URL `https://...` to import from a remote location. 
-            
-            Provide a filesystem path `/path/to/file` to import from a local file of your installation.
-            
-            Provide a `datasource:<datasource_name>` to import from a database. Available datasources are listed in configuration tools.     
-            """
+            name = "URL to import from",
+            description = """
+                        Provide an URL `https://...` to import from a remote location. 
+                        
+                        Provide a filesystem path `/path/to/file` to import from a local file of your installation.
+                        
+                        Provide a `datasource:<datasource_name>` to import from a database. Available datasources are listed in configuration tools.     
+                        """,
+            order = 1
         )
-        val from: String
+        val from: String,
+        @ActionParamDoc(
+            name = "Model key after import",
+            description = """Key of the model once imported. If not specified, the model key will be auto generated.""",
+            order = 2
+        )
+        val modelKey: ModelKey?,
+        @ActionParamDoc(
+            name = "Model name after import",
+            description = """Name of the model once imported. If not specified, the name will be auto generated.""",
+            order = 3
+        )
+        val modelName: String?,
     ) : ModelAction
 
     // ------------------------------------------------------------------------

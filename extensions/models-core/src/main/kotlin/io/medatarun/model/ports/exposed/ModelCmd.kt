@@ -25,7 +25,10 @@ sealed interface ModelCmd {
         val repositoryRef: RepositoryRef = RepositoryRef.Auto
     ) : ModelCmd
 
-    data class ImportModel(val model: Model, val repositoryRef: RepositoryRef = RepositoryRef.Auto) : ModelCmd
+    data class ImportModel(
+        val model: Model,
+        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+    ) : ModelCmd
 
     data class UpdateModelName(
         override val modelKey: ModelKey,

@@ -53,19 +53,26 @@ class AppCLIHelp(val reg: AppCLIActionRegistry) {
 
 
 
-        logger.info("")
-        logger.info("Group  : $actionGroupKey")
-        logger.info("Command: $actionKey")
-        logger.info("")
-        action.title?.let { logger.info("  " + it) }
-        logger.info("")
-        action.description?.let { logger.info("  " + it) }
-        logger.info("")
-        val renderedParameters = action.parameters.joinToString("\n") { param ->
-            "  --${param.key}=<${param.multiplatformType}>"
 
+        logger.info("NAME")
+        logger.info("$actionGroupKey/$actionKey ${if (action.title != null) " - ${action.title}" else ""}".prependIndent("  "))
+        logger.info("")
+        logger.info("SYNOPSIS")
+        val renderedParameters = action.parameters.joinToString("\n") { param ->
+            "--${param.key}=<${param.multiplatformType}> " + (if (param.optional) "(optional)" else "")
         }
-        logger.info(renderedParameters)
+        logger.info(renderedParameters.prependIndent("  "))
+        logger.info("")
+        logger.info("DESCRIPTION")
+        action.description?.let { logger.info(it.prependIndent("  ")) }
+        logger.info("")
+        action.parameters.forEach { param ->
+            logger.info(("--${param.key}=<${param.multiplatformType}> " + (if (param.optional) "(optional)" else "")).prependIndent("  "))
+            if (param.description!=null) logger.info(param.description.prependIndent("    "))
+            logger.info("")
+        }
+
+
 
 
     }

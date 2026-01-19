@@ -1,6 +1,7 @@
 package io.medatarun.ext.frictionlessdata
 
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ResourceLocator
 
@@ -13,8 +14,8 @@ class FrictionlessdataModelImporter: ModelImporter {
         return converter.isCompatible(path, resourceLocator)
     }
 
-    override fun toModel(path: String, resourceLocator: ResourceLocator): Model {
-        return converter.readString(path, resourceLocator)
+    override fun toModel(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): Model {
+        return converter.readString(path, resourceLocator, modelKey, modelName)
     }
 
 

@@ -1,5 +1,6 @@
 package io.medatarun.ext.frictionlessdata
 
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.EntityDefInMemory
@@ -14,25 +15,32 @@ class FrictionlessConverter {
 
     fun isCompatible(path: String, resourceLocator: ResourceLocator): Boolean {
         try {
-            readString(path, resourceLocator)
+            readString(path, resourceLocator, null, null)
             return true
         } catch (e: Exception) {
             return false
         }
     }
 
-    fun readString(path: String, resourceLocator: ResourceLocator): Model {
+    fun readString(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): Model {
         val types = FrictionlessTypes().all
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
         val uri = resourceLocator.resolveUri(path)
-        if (something.schema != null && something.datapackage != null) {
-            return readAsMixedTableSchema(uri, types, something.datapackage, something.schema)
+        val model = if (something.schema != null && something.datapackage != null) {
+            readAsMixedTableSchema(uri, types, something.datapackage, something.schema)
         } else if (something.datapackage != null) {
-            return readAsDataPackage(uri, types, something.datapackage, resourceLocator)
+             readAsDataPackage(uri, types, something.datapackage, resourceLocator)
+        } else {
+            throw FrictionlessConverterUnsupportedFileFormatException(path)
         }
 
-        throw FrictionlessConverterUnsupportedFileFormatException(path)
+        val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.id
+        val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
+        return model.copy(
+            id = finalKey,
+            name = finalName
+        )
     }
 
     private fun readSomething(location: ResourceLocator): ReadResult {
@@ -55,7 +63,7 @@ class FrictionlessConverter {
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
-    ): Model {
+    ): ModelInMemory {
         val model = ModelInMemory(
             id = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },

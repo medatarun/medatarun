@@ -10,6 +10,7 @@ import io.medatarun.model.infra.RelationshipDefInMemory
 import io.medatarun.model.infra.RelationshipRoleInMemory
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.ModelExporter
+import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ResourceLocator
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -147,9 +148,17 @@ class ModelActionHandler(
 ) {
     fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
 
-    fun modelImport(rc: ModelAction.Import) {
-        ModelImportAction(actionCtx.extensionRegistry, modelCmds, resourceLocator)
-            .process(rc)
+    fun modelImport(cmd: ModelAction.Import) {
+        val contribs = actionCtx.extensionRegistry.findContributionsFlat(ModelImporter::class)
+        val resourceLocator = resourceLocator.withPath(cmd.from)
+        val contrib = contribs.firstOrNull { contrib ->
+            contrib.accept(cmd.from, resourceLocator)
+        }
+        if (contrib == null) {
+            throw ModelImportActionNotFoundException(cmd.from)
+        }
+        val model = contrib.toModel(cmd.from, resourceLocator, cmd.modelKey, cmd.modelName)
+        modelCmds.dispatch(ModelCmd.ImportModel(model))
     }
 
     fun modelInspectHuman(): String = ModelInspectAction(modelQueries, modelHumanPrinter).process()
