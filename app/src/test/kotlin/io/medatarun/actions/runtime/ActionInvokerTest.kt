@@ -146,6 +146,34 @@ class ActionInvokerTest {
     }
 
     @Test
+    fun `value class parameters are converted when required`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("abcd"))
+        }
+
+        runtime.invoke("abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithAbbreviation)
+        val abbreviation = cmd as TestAction.WithAbbreviation
+        assertEquals(Abbreviation("abcd"), abbreviation.value)
+    }
+
+    @Test
+    fun `value class parameters are optional when missing`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        val abbreviation = cmd as TestAction.WithOptionalAbbreviation
+        assertEquals(null, abbreviation.value)
+    }
+
+    @Test
     fun `double parameters are converted from string`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
@@ -399,7 +427,7 @@ class ActionInvokerTest {
                 description = "Optional note",
                 order = 3
             )
-            val note: String? = null
+            val note: String?
         ) : TestAction
 
         @ActionDoc(
@@ -530,6 +558,22 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
+            key = "optional_abbreviation",
+            title = "Optional abbreviation",
+            description = "Action with optional abbreviation",
+            uiLocations = [""],
+            securityRule = RULE_ALLOW
+        )
+        class WithOptionalAbbreviation(
+            @ActionParamDoc(
+                name = "value",
+                description = "Optional abbreviation value",
+                order = 1
+            )
+            val value: Abbreviation?
+        ) : TestAction
+
+        @ActionDoc(
             key = "complex",
             title = "Complex",
             description = "Action with complex payload",
@@ -551,7 +595,7 @@ class ActionInvokerTest {
         val amount: BigDecimal,
         val tags: List<String>,
         val meta: Map<String, Int>,
-        val note: String? = null
+        val note: String?
     )
 
     private object ComplexPayloadTypeDescriptor : TypeDescriptor<ComplexPayload> {

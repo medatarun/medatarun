@@ -120,6 +120,7 @@ class ActionInvoker(
             actionClass = actionClass,
             actionProviderInstance = actionProviderInstance,
             actionPayload = actionPayload,
+            actionDescriptor = actionDescriptor
         )
 
         // This will throw exceptions if invalid parameters exists (missing, with errors, etc.)

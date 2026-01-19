@@ -15,7 +15,8 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
     fun buildConstructorArgs(
         actionClass: KClass<out Any>,
         actionProviderInstance: ActionProvider<Any>,
-        actionPayload: JsonObject
+        actionPayload: JsonObject,
+        actionDescriptor: ActionCmdDescriptor
     ): ActionParamBindings {
         val callArgs = mutableMapOf<KParameter, ActionParamBindingState>()
 
@@ -35,9 +36,14 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
                         HttpStatusCode.InternalServerError,
                         "Parameter [${parameter}] has no name"
                     )
+                    val paramDescriptor = actionDescriptor.findParamByName(paramSerialName)
+                        ?: throw ActionInvocationException(
+                            HttpStatusCode.InternalServerError,
+                            "No action parameter descriptor found for [$paramSerialName]"
+                        )
 
                     if (!actionPayload.containsKey(paramSerialName)) {
-                        if (!parameter.isOptional) {
+                        if (!paramDescriptor.optional) {
                             callArgs[parameter] = ActionParamBindingState.Missing(HttpStatusCode.BadRequest)
                         } else {
                             callArgs[parameter] = ActionParamBindingState.Ok(null)
