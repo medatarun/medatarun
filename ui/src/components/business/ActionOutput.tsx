@@ -25,6 +25,8 @@ const useStyles = makeStyles({
     borderRadius: tokens.borderRadiusMedium,
     border: `${tokens.strokeWidthThick} solid ${tokens.colorNeutralStroke3}`,
     whiteSpace: "pre-wrap",
+    overflow: "auto",
+    maxHeight: "20em"
   }
 })
 export function ActionOutputBox({resp}:{resp:ActionResp|null|undefined}) {
