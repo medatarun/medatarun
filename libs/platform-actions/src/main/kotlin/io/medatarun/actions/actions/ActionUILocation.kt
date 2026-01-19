@@ -16,5 +16,7 @@ object ActionUILocation {
     const val relationship="relationship"
     const val relationship_attribute="relationship.attribute"
     const val relationship_attributes="relationship.attributes"
+    const val relationship_role="relationship.role"
+    const val relationship_roles="relationship.roles"
     const val type="type"
 }

@@ -14,6 +14,8 @@ export const ActionUILocations = {
   relationship: "relationship",
   relationship_attribute: "relationship.attribute",
   relationship_attributes: "relationship.attributes",
+  relationship_roles: "relationship.roles",
+  relationship_role: "relationship.role",
   type: "type",
 } as const
 

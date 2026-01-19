@@ -95,6 +95,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             put("id", relationship.id.value)
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
+            put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
@@ -105,6 +106,19 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                     }
                 }
             }
+            putJsonArray("attributes") { relationship.attributes.forEach { attr ->
+                addJsonObject {
+                    put("id", attr.id.value)
+                    put("name", attr.name?.get(locale))
+                    put("description", attr.description?.get(locale))
+                    put("type", attr.type.value)
+                    put("optional", attr.optional)
+                    put("identifierAttribute", false)
+                    putJsonArray("hashtags") {
+                        attr.hashtags.forEach { add(it.value) }
+                    }
+                }
+            } }
         }
         return relationshipJson
     }

@@ -1,5 +1,5 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, tokens} from "@fluentui/react-components";
-import {ActionUILocations, type AttributeDto, useActionRegistry} from "../../business";
+import {type ActionUILocation, type AttributeDto, useActionRegistry} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
@@ -40,15 +40,16 @@ const useStyles = makeStyles({
   }
 })
 
-export function AttributesTable({entityId, attributes, onClickAttribute}: {
-  entityId: string,
+export function AttributesTable({attributes,actionUILocation, onClickAttribute, actionParamsFactory}: {
   attributes: AttributeDto[],
+  actionParamsFactory: (attributeId:string) => Record<string, string>,
+  actionUILocation: ActionUILocation,
   onClickAttribute: (id: string) => void
 }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const {isDetailLevelTech} = useDetailLevelContext()
-  const itemActions = actionRegistry.findActions(ActionUILocations.entity_attribute)
+  const itemActions = actionRegistry.findActions(actionUILocation)
   const styles = useStyles()
   const handleClickAttribute = (id: string) => {
     onClickAttribute(id)
@@ -57,7 +58,7 @@ export function AttributesTable({entityId, attributes, onClickAttribute}: {
     <Table>
       <TableBody>{attributes.map(attribute =>
         <TableRow key={attribute.id}>
-          <TableCell className={styles.titleCell} onClick={()=>handleClickAttribute(attribute.id)}>{attribute.name ?? attribute.id} </TableCell>
+          <TableCell className={styles.titleCell} onClick={()=>handleClickAttribute(attribute.id)}>{attribute.optional ? "○" : "●" } {attribute.name ?? attribute.id} </TableCell>
           <TableCell className={styles.flags} onClick={()=>handleClickAttribute(attribute.id)}> {attribute.identifierAttribute ? "🔑" : ""}</TableCell>
           <TableCell className={styles.descriptionCell} onClick={()=>handleClickAttribute(attribute.id)}>
             <div>
@@ -74,7 +75,7 @@ export function AttributesTable({entityId, attributes, onClickAttribute}: {
           <TableCell className={styles.actionCell}>
             <ActionMenuButton
               itemActions={itemActions}
-              actionParams={{modelKey: model.id, entityKey: entityId, attributeKey: attribute.id}}
+              actionParams={actionParamsFactory(attribute.id)}
             />
           </TableCell>
         </TableRow>)}</TableBody>

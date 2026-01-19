@@ -14,7 +14,7 @@ import {EntityPage} from "./views/entity/EntityPage.tsx";
 import {Layout2} from "./components/layout/layout.tsx";
 import {DashboardPage} from "./views/DashboardPage.tsx";
 import {type ConnectionConfig, defaultConnection} from "@seij/common-services";
-import {SeijUIProvider, Todo} from "@seij/common-ui";
+import {SeijUIProvider} from "@seij/common-ui";
 import {queryClient} from "./services/queryClient.ts";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
@@ -31,6 +31,7 @@ import {DetailLevelProvider} from "./components/business/DetailLevelContext.tsx"
 import {PreferencesPage} from "./views/PreferencesPage.tsx";
 import {AttributePage} from "./views/attribute/AttributePage.tsx";
 import {TypePage} from "./views/type/TypePage.tsx";
+import {RelationshipPage} from "./views/relationship/RelationshipPage.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -92,11 +93,12 @@ function RelationshipAttributeRouteComponent() {
     relationshipKey,
     attributeKey
   } = useParams({from: '/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey'});
-  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={relationshipKey} attributeId={attributeKey}/>
+  return <AttributePage modelId={modelKey} parentType={"relationship"} parentId={relationshipKey} attributeId={attributeKey}/>
 }
 
 function RelationshipRouteComponent() {
-  return <Todo>Still to do / relationship page</Todo>
+  const {modelKey, relationshipKey} = useParams({"from": "/model/$modelKey/relationship/$relationshipKey"})
+  return <RelationshipPage modelId={modelKey} relationshipId={relationshipKey} />
 }
 
 function TypeRouteComponent() {
