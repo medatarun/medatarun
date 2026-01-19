@@ -87,7 +87,7 @@ class ModelJsonRepository(
     }
 
     fun persistModel(model: Model) {
-        val json = modelJsonConverter.toJson(model)
+        val json = modelJsonConverter.toJsonString(model)
         val path = repositoryPath.resolve(model.id.value + ".json")
         path.writeText(json)
         discoveredModels[model.id] = path

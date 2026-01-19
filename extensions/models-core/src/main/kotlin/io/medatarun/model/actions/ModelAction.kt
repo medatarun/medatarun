@@ -57,6 +57,31 @@ sealed interface ModelAction {
     )
     class Inspect_Json : ModelAction
 
+    @ActionDoc(
+        key="model_list",
+        title = "Models list",
+        description = "Returns a summary list of the models",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    class Model_List: ModelAction
+
+    @ActionDoc(
+        key="model_export",
+        title = "Model export",
+        description = "Returns an exporter view of the model",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Model_Export(
+        @ActionParamDoc(
+            order = 1,
+            name = "Model key",
+            description = "Key of the model to export"
+        )
+        val modelKey: ModelKey,
+    ) : ModelAction
+
     // ------------------------------------------------------------------------
     // Model
     // ------------------------------------------------------------------------
