@@ -3,6 +3,7 @@ package io.medatarun.ext.db.internal.modelimport
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.model.DbConnectionNotFoundException
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.needs.ModelImporter
@@ -27,18 +28,20 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
 
     override fun toModel(
         path: String,
-        resourceLocator: ResourceLocator
+        resourceLocator: ResourceLocator,
+        modelKey: ModelKey?,
+        modelName: String?
     ): Model {
         val connectionName = path.split(":").last()
         val connection = dbConnectionRegistry.findByNameOptional(connectionName)
             ?: throw DbConnectionNotFoundException(connectionName)
         val result: IntrospectResult = introspect.introspect(connection)
         val date = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime()
-        val modelId = connection.name + "-" + UUID.randomUUID().toString()
-        val modelName = "${connection.name} (import $date)"
+        val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
+        val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val model = ModelInMemory(
-            id = ModelKey(modelId),
-            name = LocalizedTextNotLocalized(modelName),
+            id = ModelKey(modelKeyOrGenerated),
+            name = LocalizedTextNotLocalized(modelNameOrGenerated),
             version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),

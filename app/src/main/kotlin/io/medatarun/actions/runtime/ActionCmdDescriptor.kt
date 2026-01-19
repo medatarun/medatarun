@@ -45,4 +45,8 @@ data class ActionCmdDescriptor(
      * Name of security rule tied to this action
      */
     val securityRule: String
-)
+) {
+    fun findParamByName(name: String): ActionCmdParamDescriptor? {
+        return parameters.firstOrNull { it.name == name }
+    }
+}

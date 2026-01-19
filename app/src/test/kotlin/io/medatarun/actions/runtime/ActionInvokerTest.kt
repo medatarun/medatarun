@@ -146,6 +146,34 @@ class ActionInvokerTest {
     }
 
     @Test
+    fun `value class parameters are converted when required`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("abcd"))
+        }
+
+        runtime.invoke("abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithAbbreviation)
+        val abbreviation = cmd as TestAction.WithAbbreviation
+        assertEquals(Abbreviation("abcd"), abbreviation.value)
+    }
+
+    @Test
+    fun `value class parameters are optional when missing`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        val abbreviation = cmd as TestAction.WithOptionalAbbreviation
+        assertEquals(null, abbreviation.value)
+    }
+
+    @Test
     fun `double parameters are converted from string`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
@@ -378,7 +406,7 @@ class ActionInvokerTest {
             key = "alpha",
             title = "Alpha",
             description = "Test action",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class Alpha(
@@ -399,14 +427,14 @@ class ActionInvokerTest {
                 description = "Optional note",
                 order = 3
             )
-            val note: String? = null
+            val note: String?
         ) : TestAction
 
         @ActionDoc(
             key = "denied",
             title = "Denied",
             description = "Action denied by security",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_DENY
         )
         class Denied : TestAction
@@ -415,7 +443,7 @@ class ActionInvokerTest {
             key = "collections",
             title = "Collections",
             description = "Action with list and map",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithCollections(
@@ -437,7 +465,7 @@ class ActionInvokerTest {
             key = "decimal",
             title = "Decimal",
             description = "Action with BigDecimal",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithDecimal(
@@ -453,7 +481,7 @@ class ActionInvokerTest {
             key = "big_integer",
             title = "BigInteger",
             description = "Action with BigInteger",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithBigInteger(
@@ -469,7 +497,7 @@ class ActionInvokerTest {
             key = "double",
             title = "Double",
             description = "Action with Double",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithDouble(
@@ -485,7 +513,7 @@ class ActionInvokerTest {
             key = "instant",
             title = "Instant",
             description = "Action with Instant",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithInstant(
@@ -501,7 +529,7 @@ class ActionInvokerTest {
             key = "local_date",
             title = "LocalDate",
             description = "Action with LocalDate",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithLocalDate(
@@ -517,7 +545,7 @@ class ActionInvokerTest {
             key = "abbreviation",
             title = "Abbreviation",
             description = "Action with validated abbreviation",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithAbbreviation(
@@ -530,10 +558,26 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
+            key = "optional_abbreviation",
+            title = "Optional abbreviation",
+            description = "Action with optional abbreviation",
+            uiLocations = [""],
+            securityRule = RULE_ALLOW
+        )
+        class WithOptionalAbbreviation(
+            @ActionParamDoc(
+                name = "value",
+                description = "Optional abbreviation value",
+                order = 1
+            )
+            val value: Abbreviation?
+        ) : TestAction
+
+        @ActionDoc(
             key = "complex",
             title = "Complex",
             description = "Action with complex payload",
-            uiLocations = "",
+            uiLocations = [""],
             securityRule = RULE_ALLOW
         )
         class WithComplex(
@@ -551,7 +595,7 @@ class ActionInvokerTest {
         val amount: BigDecimal,
         val tags: List<String>,
         val meta: Map<String, Int>,
-        val note: String? = null
+        val note: String?
     )
 
     private object ComplexPayloadTypeDescriptor : TypeDescriptor<ComplexPayload> {

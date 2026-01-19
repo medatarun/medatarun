@@ -38,6 +38,8 @@ class ModelCmdsImpl(
     }
 
     private fun importModel(cmd: ModelCmd.ImportModel) {
+        val existing = storage.findModelByIdOptional(cmd.model.id)
+        if (existing != null) throw ModelDuplicateIdException(cmd.model.id)
         storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
 
