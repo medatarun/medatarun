@@ -101,21 +101,28 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
   return (
     <Dialog open={true}>
-      <DialogSurface>
+      <DialogSurface >
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
-            <div style={{display: "flex", flexDirection: "column", rowGap: tokens.spacingVerticalM, columnGap: tokens.spacingVerticalM, marginBottom: tokens.spacingVerticalM}}>
-            {action.description && <div>{action.description}</div>}
-            {formFields.map(field => (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              rowGap: tokens.spacingVerticalM,
+              columnGap: tokens.spacingVerticalM,
+              marginBottom: tokens.spacingVerticalM,
 
-              <FormFieldInput field={field} value={formData[field.key]}
-                              validationResult={validationResults.get(field.key)}
-                              onChange={handleChangeFormFieldInput}/>))}
+            }}>
+              {action.description && <div>{action.description}</div>}
+              {formFields.map(field => (
 
-            {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
-            {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
-          </div>
+                <FormFieldInput field={field} value={formData[field.key]}
+                                validationResult={validationResults.get(field.key)}
+                                onChange={handleChangeFormFieldInput}/>))}
+
+              {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
+              {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
+            </div>
           </DialogContent>
         </DialogBody>
         <DialogActions>

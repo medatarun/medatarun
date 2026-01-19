@@ -81,9 +81,9 @@ sealed interface ModelAction {
 
     @ActionDoc(
         key="model_export",
-        title = "Model export",
+        title = "Export model",
         description = "Returns an exporter view of the model",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Export(
