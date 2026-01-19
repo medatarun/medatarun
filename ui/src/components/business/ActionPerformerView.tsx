@@ -12,7 +12,8 @@ import {
   InfoLabel,
   Input,
   type LabelProps,
-  MessageBar
+  MessageBar,
+  tokens
 } from "@fluentui/react-components";
 
 import {useState} from "react";
@@ -104,13 +105,17 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
+            <div style={{display: "flex", flexDirection: "column", rowGap: tokens.spacingVerticalM, columnGap: tokens.spacingVerticalM, marginBottom: tokens.spacingVerticalM}}>
             {action.description && <div>{action.description}</div>}
             {formFields.map(field => (
+
               <FormFieldInput field={field} value={formData[field.key]}
                               validationResult={validationResults.get(field.key)}
                               onChange={handleChangeFormFieldInput}/>))}
+
             {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
             {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
+          </div>
           </DialogContent>
         </DialogBody>
         <DialogActions>
@@ -222,6 +227,7 @@ function validate({formData, formFields}: {
 function validateKey(field: FormFieldType, formDatum: any) {
   const valid = validateString(field, formDatum)
   if (!valid.valid) return valid
+  if (valid.valid && (formDatum === null || formDatum === undefined)) return valid
   if (formDatum.length > 255) return invalid("Too long")
   if (formDatum.length < 1) return invalid("Too short")
   return valid
