@@ -1,10 +1,10 @@
-import {Action_registryBiz, useActionRegistry} from "../../business";
+import {Action_registryBiz, type ActionUILocation, useActionRegistry} from "../../business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";
 
 type ActionBarProps = {
-  location: string,
+  location: ActionUILocation,
   params?: Record<string, string>,
   variant?: ComponentProps<typeof ButtonBar>["variant"]
 }

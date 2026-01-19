@@ -1,4 +1,4 @@
-import {type Action_registryBiz, type TypeDto, useActionRegistry} from "../../business";
+import {type Action_registryBiz, ActionUILocations, type TypeDto, useActionRegistry} from "../../business";
 import {
   Button,
   makeStyles,
@@ -61,29 +61,30 @@ const useStyles = makeStyles({
   }
 })
 
-export function TypesTable({types, onClick}: { types: TypeDto[], onClick:(typeId:string) => void }) {
+export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeId: string) => void }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
-  const itemActions = actionRegistry.findActions("type")
-  const { isDetailLevelTech } = useDetailLevelContext()
+  const itemActions = actionRegistry.findActions(ActionUILocations.type)
+  const {isDetailLevelTech} = useDetailLevelContext()
   const styles = useStyles()
   return <div>
     {types.length == 0 ? <p style={{paddingTop: tokens.spacingVerticalL}}>
       <Text italic>No data types in this model.</Text>
     </p> : null}
-    <div style={{paddingTop:tokens.spacingVerticalM}}><Table size="small" style={{marginBottom: "1em"}}>
+    <div style={{paddingTop: tokens.spacingVerticalM}}><Table size="small" style={{marginBottom: "1em"}}>
       <TableBody>
         {
           types.map(type => <TableRow key={type.id}>
-            <TableCell className={styles.titleCell} onClick={()=>onClick(type.id)}>{type.name ?? type.id}</TableCell>
-            <TableCell className={styles.flags} onClick={()=>onClick(type.id)}>{" "}</TableCell>
-            { isDetailLevelTech && <TableCell className={styles.typeCodeCell} onClick={()=>onClick(type.id)}><code>{type.id}</code></TableCell> }
-            <TableCell className={styles.descriptionCell} onClick={()=>onClick(type.id)}>
+            <TableCell className={styles.titleCell} onClick={() => onClick(type.id)}>{type.name ?? type.id}</TableCell>
+            <TableCell className={styles.flags} onClick={() => onClick(type.id)}>{" "}</TableCell>
+            {isDetailLevelTech && <TableCell className={styles.typeCodeCell}
+                                             onClick={() => onClick(type.id)}><code>{type.id}</code></TableCell>}
+            <TableCell className={styles.descriptionCell} onClick={() => onClick(type.id)}>
               <div>
                 <Markdown value={type.description}/>
               </div>
             </TableCell>
-            <TableCell  className={styles.actionCell}>
+            <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
                 actionParams={{modelKey: model.id, typeKey: type.id}}
@@ -102,6 +103,7 @@ export function ActionMenuButton({itemActions, actionParams, label}: {
   actionParams: Record<string, string>
 }) {
   const actionPerformer = useActionPerformer()
+  if (itemActions.length === 0) return null
   return <Menu positioning={{autoSize: true}}>
     <MenuTrigger disableButtonEnhancement>
       <Button iconPosition="after" icon={<Icon name="more_menu_vertical"/>}>{label}</Button>

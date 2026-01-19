@@ -24,10 +24,8 @@ export function Layout2() {
       .then(dto => {
         const ar = new ActionRegistry(dto)
         setActions(ar)
-        console.log("------ actions", ar)
       })
       .catch(err => {
-        console.log("pouet pouet ")
         setError(err)
         console.log(err)
       })

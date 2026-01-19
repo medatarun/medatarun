@@ -12,7 +12,7 @@ sealed interface BatchAction {
         key="batch_run",
         title = "Batch commands",
         description = "Process a list of commands all at once",
-        uiLocation = "global",
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN,
     )
     class BatchRun(

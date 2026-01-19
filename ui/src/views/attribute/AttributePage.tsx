@@ -1,5 +1,6 @@
 import {Link, useNavigate} from "@tanstack/react-router";
 import {
+  ActionUILocations,
   type AttributeDto,
   type EntityDto,
   Model,
@@ -78,7 +79,7 @@ export function AttributeView({parent, parentType, attribute}: {
   const model = useModelContext()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions(parentType == "entity" ? "entity.attribute" : "relationship.attribute")
+  const actions = actionRegistry.findActions(parentType == "entity" ? ActionUILocations.entity_attribute : ActionUILocations.relationship_attribute)
 
   const handleClickModel = () => {
     navigate({

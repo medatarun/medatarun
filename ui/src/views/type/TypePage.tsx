@@ -1,5 +1,5 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {Model, type TypeDto, useActionRegistry, useModel} from "../../business";
+import {ActionUILocations, Model, type TypeDto, useActionRegistry, useModel} from "../../business";
 import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {
@@ -53,7 +53,7 @@ function TypeView({model, type}: {
 }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions("type")
+  const actions = actionRegistry.findActions(ActionUILocations.type)
 
   const handleClickModel = () => {
     navigate({

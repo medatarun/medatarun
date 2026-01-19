@@ -17,7 +17,7 @@ sealed interface ModelAction {
         key = "import",
         title = "Import model",
         description = "Import a new model. Detection is made based on the content of the file to detect original format. See installed plugins for supported formats.",
-        uiLocation = ActionUILocation.models,
+        uiLocations = [ActionUILocation.models],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Import(
@@ -42,7 +42,7 @@ sealed interface ModelAction {
         key = "inspect_models_text",
         title = "Inspect models",
         description = "Produces a tree view of registered models, entities, and attributes.",
-        uiLocation = ActionUILocation.general,
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN
 
     )
@@ -52,7 +52,7 @@ sealed interface ModelAction {
         key = "inspect_models_json",
         title = "Inspect models (JSON)",
         description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
-        uiLocation = ActionUILocation.general,
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     class Inspect_Json : ModelAction
@@ -65,7 +65,7 @@ sealed interface ModelAction {
         key = "model_create",
         title = "Create model",
         description = "Initializes a new model with the provided identifier, display name, optional description, and version.",
-        uiLocation = ActionUILocation.models,
+        uiLocations = [ActionUILocation.models],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Create(
@@ -98,7 +98,7 @@ sealed interface ModelAction {
         key = "model_copy",
         title = "Copy model",
         description = "Make a copy of a model, giving him a new name. The copied model lifecycle will be independant",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Copy(
@@ -120,7 +120,7 @@ sealed interface ModelAction {
         key = "model_update_key",
         title = "Update model key",
         description = "Changes model key",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateKey(val modelKey: ModelKey, val value: LocalizedText) : ModelAction
@@ -129,7 +129,7 @@ sealed interface ModelAction {
         key = "model_update_name",
         title = "Update model name",
         description = "Changes model name",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateName(val modelKey: ModelKey, val value: LocalizedText) : ModelAction
@@ -138,7 +138,7 @@ sealed interface ModelAction {
         key = "model_update_description",
         title = "Update model description",
         description = "Changes model description",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateDescription(val modelKey: ModelKey, val value: LocalizedMarkdown?) : ModelAction
@@ -148,7 +148,7 @@ sealed interface ModelAction {
         key = "model_update_version",
         title = "Update model version",
         description = "Changes model version",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateVersion(val modelKey: ModelKey, val value: ModelVersion) : ModelAction
@@ -157,7 +157,7 @@ sealed interface ModelAction {
         key = "model_add_tag",
         title = "Add tag to model",
         description = "Adds a tag to a model",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_AddTag(val modelKey: ModelKey, val tag: Hashtag) : ModelAction
@@ -166,7 +166,7 @@ sealed interface ModelAction {
         key = "model_delete_tag",
         title = "Delete tag from model",
         description = "Deletes a tag from a model.",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_DeleteTag(val modelKey: ModelKey, val tag: Hashtag) : ModelAction
@@ -175,7 +175,7 @@ sealed interface ModelAction {
         key = "model_delete",
         title = "Delete model definition",
         description = "Removes a model and all of its entities from the runtime.",
-        uiLocation = ActionUILocation.model_overview,
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Delete(val modelKey: ModelKey) : ModelAction
@@ -188,7 +188,7 @@ sealed interface ModelAction {
         key = "type_create",
         title = "Create type",
         description = "Create type definition in an existing model, optionally supplying user-facing name and description.",
-        uiLocation = ActionUILocation.model_types,
+        uiLocations = [ActionUILocation.model_types],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_Create(
@@ -224,7 +224,7 @@ sealed interface ModelAction {
         key = "type_update_name",
         title = "Update type name",
         description = "Updates a type name",
-        uiLocation = ActionUILocation.type,
+        uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateName(val modelKey: ModelKey, val typeKey: TypeKey, val name: LocalizedText?) : ModelAction
@@ -233,7 +233,7 @@ sealed interface ModelAction {
         key = "type_update_description",
         title = "Update type description",
         description = "Updates a type description",
-        uiLocation = ActionUILocation.type,
+        uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateDescription(val modelKey: ModelKey, val typeKey: TypeKey, val description: LocalizedMarkdown?) :
@@ -243,7 +243,7 @@ sealed interface ModelAction {
         key = "type_delete",
         title = "Delete type",
         description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes.",
-        uiLocation = ActionUILocation.type,
+        uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_Delete(val modelKey: ModelKey, val typeKey: TypeKey) : ModelAction
@@ -256,7 +256,7 @@ sealed interface ModelAction {
         key = "entity_create",
         title = "Create model entity",
         description = "Adds an entity to an existing model, optionally supplying user-facing name and description.",
-        uiLocation = ActionUILocation.model_entities,
+        uiLocations = [ActionUILocation.model_entities],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_Create(
@@ -274,7 +274,7 @@ sealed interface ModelAction {
         key = "entity_update_key",
         title = "Update entity key",
         description = "Changes entity key.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateId(
@@ -288,7 +288,7 @@ sealed interface ModelAction {
         key = "entity_update_title",
         title = "Update entity title",
         description = "Changes the display title of an entity.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateName(
@@ -301,7 +301,7 @@ sealed interface ModelAction {
         key = "entity_update_description",
         title = "Update entity description",
         description = "Changes the description of an entity.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateDescription(
@@ -314,7 +314,7 @@ sealed interface ModelAction {
         key = "entity_add_tag",
         title = "Add entity tag",
         description = "Add a tag to an entity.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_AddTag(
@@ -328,7 +328,7 @@ sealed interface ModelAction {
         key = "entity_delete_tag",
         title = "Delete entity tag",
         description = "Changes the description of an entity.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_DeleteTag(
@@ -342,7 +342,7 @@ sealed interface ModelAction {
         key = "entity_delete",
         title = "Delete model entity",
         description = "Removes an entity and all its attributes from the given model.",
-        uiLocation = ActionUILocation.entity,
+        uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_Delete(
@@ -359,7 +359,7 @@ sealed interface ModelAction {
         key = "entity_attribute_create",
         title = "Create entity attribute",
         description = "Declares an attribute on an entity with its type, optional flag, and optional metadata.",
-        uiLocation = ActionUILocation.entity_attributes,
+        uiLocations = [ActionUILocation.entity_attributes],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_Create(
@@ -377,7 +377,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_id",
         title = "Update entity attribute id",
         description = "Changes identifier of an entity attribute.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateId(
@@ -391,7 +391,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_name",
         title = "Update entity attribute name",
         description = "Changes the display title of an entity attribute.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateName(
@@ -406,7 +406,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_description",
         title = "Update entity attribute description",
         description = "Changes the description of an entity attribute.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateDescription(
@@ -421,7 +421,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_type",
         title = "Update entity attribute type",
         description = "Changes the declared type of an entity attribute.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateType(
@@ -436,7 +436,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_optional",
         title = "Update entity attribute optionality",
         description = "Changes whether an entity attribute is optional.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateOptional(
@@ -450,7 +450,7 @@ sealed interface ModelAction {
         key = "entity_attribute_add_tag",
         title = "Add tag to entity attribute",
         description = "Add tag to entity attribute",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_AddTag(
@@ -464,7 +464,7 @@ sealed interface ModelAction {
         key = "entity_attribute_delete_tag",
         title = "Delete tag from entity attribute",
         description = "Delete tag from entity attribute",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_DeleteTag(
@@ -478,7 +478,7 @@ sealed interface ModelAction {
         key = "entity_attribute_delete",
         title = "Delete entity attribute",
         description = "Removes an attribute from an entity within a model.",
-        uiLocation = ActionUILocation.entity_attribute,
+        uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_Delete(
@@ -496,7 +496,7 @@ sealed interface ModelAction {
         key = "relationship_create",
         title = "Create relationship",
         description = "Create a new relationship between entities within a model.",
-        uiLocation = ActionUILocation.model_relationships,
+        uiLocations = [ActionUILocation.model_relationships, ActionUILocation.entity_relationships],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_Create(
@@ -518,7 +518,7 @@ sealed interface ModelAction {
         key="relationship_update_key",
         title="Update relationship key",
         description = "Changes the key of the relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateKey(
@@ -531,7 +531,7 @@ sealed interface ModelAction {
         key="relationship_update_name",
         title="Update relationship name",
         description = "Changes the name of the relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateName(
@@ -544,7 +544,7 @@ sealed interface ModelAction {
         key="relationship_update_description",
         title="Update relationship description",
         description = "Changes the description of the relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateDescription(
@@ -557,7 +557,7 @@ sealed interface ModelAction {
         key="relationship_role_create",
         title="Create relationship role",
         description = "Creates a new relationship role in relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Create(
@@ -574,7 +574,7 @@ sealed interface ModelAction {
         key="relationship_role_update_key",
         title="Update relationship role key",
         description = "Changes the key of the relationship role",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateKey(
@@ -588,7 +588,7 @@ sealed interface ModelAction {
         key="relationship_role_update_entity",
         title="Update relationship role entity",
         description = "Changes the entity that the relationship role represents",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateEntity(
@@ -602,7 +602,7 @@ sealed interface ModelAction {
         key="relationship_role_update_name",
         title="Update relationship role name",
         description = "Changes the name of the relationship role.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateName(
@@ -616,7 +616,7 @@ sealed interface ModelAction {
         key="relationship_role_update_cardinality",
         title="Update relationship role cardinality",
         description = "Changes the cardinality of the role within the relationship.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateCardinality(
@@ -630,7 +630,7 @@ sealed interface ModelAction {
         key="relationship_role_delete",
         title="Delete relationship role",
         description = "Deletes relationship role. There must be at least two roles in a relationship left, otherwise this will fail.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Delete(
@@ -643,7 +643,7 @@ sealed interface ModelAction {
         key = "relationship_add_tag",
         title = "Add tag to relationship",
         description = "Add tag to relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_AddTag(
@@ -656,7 +656,7 @@ sealed interface ModelAction {
         key = "relationship_delete_tag",
         title = "Delete relationship tag",
         description = "Delete tag from relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_DeleteTag(
@@ -669,7 +669,7 @@ sealed interface ModelAction {
         key = "relationship_delete",
         title = "Delete relationship",
         description = "Delete this relationship",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_Delete(
@@ -682,7 +682,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_create",
         title = "Create relationship attribute",
         description = "Creates a new relationship attribute",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attributes],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_Create(
@@ -699,7 +699,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_key",
         title = "Update relationship attribute key",
         description = "Changes key of a relationship attribute.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateKey(
@@ -713,7 +713,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_name",
         title = "Update relationship attribute name",
         description = "Changes the display title of a relationship attribute.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateName(
@@ -727,7 +727,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_description",
         title = "Update relationship attribute description",
         description = "Changes the description of a relationship attribute.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateDescription(
@@ -741,7 +741,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_type",
         title = "Update relationship attribute type",
         description = "Changes the declared type of a relationship attribute.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateType(
@@ -755,7 +755,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_optional",
         title = "Update relationship attribute optionality",
         description = "Changes whether a relationship attribute is optional.",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateOptional(
@@ -769,7 +769,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_add_tag",
         title = "Add tag to relationship attribute",
         description = "Add a new tag to relationship attribute",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_AddTag(
@@ -783,7 +783,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_delete_tag",
         title = "Delete tag from relationship attribute",
         description = "Delete tag from relationship attribute",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_DeleteTag(
@@ -797,7 +797,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_delete",
         title = "Delete relationship attribute",
         description = "Delete relationship attribute",
-        uiLocation = ActionUILocation.relationship,
+        uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_Delete(

@@ -2,13 +2,13 @@ import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx"
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {tokens} from "@fluentui/react-components";
 import {ActionMenuButton} from "../components/business/TypesTable.tsx";
-import {useActionRegistry} from "../business";
+import {ActionUILocations, useActionRegistry} from "../business";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
 import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions("entity")
+  const actions = actionRegistry.findActions(ActionUILocations.global)
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow="Dashboard">

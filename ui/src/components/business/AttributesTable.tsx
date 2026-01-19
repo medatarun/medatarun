@@ -1,5 +1,5 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, tokens} from "@fluentui/react-components";
-import {type AttributeDto, useActionRegistry} from "../../business";
+import {ActionUILocations, type AttributeDto, useActionRegistry} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
@@ -48,7 +48,7 @@ export function AttributesTable({entityId, attributes, onClickAttribute}: {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const {isDetailLevelTech} = useDetailLevelContext()
-  const itemActions = actionRegistry.findActions("entity.attribute")
+  const itemActions = actionRegistry.findActions(ActionUILocations.entity_attribute)
   const styles = useStyles()
   const handleClickAttribute = (id: string) => {
     onClickAttribute(id)

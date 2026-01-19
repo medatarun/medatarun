@@ -1,6 +1,7 @@
 package io.metadatarun.ext.config.actions
 
 
+import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.security.SecurityRuleNames
 
@@ -9,7 +10,7 @@ sealed interface ConfigAction {
         key="ai_agents_instructions",
         title = "AI Agents Instructions",
         description = "Each AI Agent should read that first. Returns a usage guide for AI Agents. Use it for your AGENTS.md files if your agent doesn't support instructions in MCP.",
-        uiLocation = "global",
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.PUBLIC
     )
     class AIAgentsInstructions : ConfigAction
@@ -18,7 +19,7 @@ sealed interface ConfigAction {
         key="inspect_config_text",
         title = "Inspect config",
         description = "Returns a human-readable list of the configuration, including extension contributions and contribution points, what provides what to whom.",
-        uiLocation = "global",
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN
     )
     class Inspect : ConfigAction
@@ -27,7 +28,7 @@ sealed interface ConfigAction {
         key="inspect_config_json",
         title = "Inspect config Json",
         description = "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom.",
-        uiLocation = "global",
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN
     )
     class InspectJson : ConfigAction
