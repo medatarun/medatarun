@@ -84,3 +84,5 @@ class KeyEmptyException :
 
 class KeyTooLongException(maxsize: Int) :
     MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)
+
+class ModelExportNoPluginFoundException(): MedatarunException("No model exporters found in extensions")

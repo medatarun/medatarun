@@ -3,14 +3,19 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.RelationshipDefInMemory
 import io.medatarun.model.infra.RelationshipRoleInMemory
 import io.medatarun.model.ports.exposed.*
+import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.platform.kernel.ResourceLocator
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import org.slf4j.LoggerFactory
 import java.net.URI
+import java.util.*
 
 class ModelActionProvider(private val resourceLocator: ResourceLocator) : ActionProvider<ModelAction> {
 
@@ -29,8 +34,9 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
         val modelCmds = actionCtx.getService<ModelCmds>()
         val modelQueries = actionCtx.getService<ModelQueries>()
         val modelHumanPrinter = actionCtx.getService<ModelHumanPrinter>()
+        val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries, modelHumanPrinter, resourceLocator)
+        val handler = ModelActionHandler(modelCmds, modelQueries, modelHumanPrinter, resourceLocator, locale, actionCtx)
 
         logger.info(cmd.toString())
 
@@ -41,9 +47,12 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelAction.Import -> handler.modelImport(actionCtx, cmd)
+            is ModelAction.Import -> handler.modelImport(cmd)
             is ModelAction.Inspect_Human -> handler.modelInspectHuman()
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
+
+            is ModelAction.Model_List -> handler.modelList(cmd)
+            is ModelAction.Model_Export -> handler.modelExport(cmd)
 
             is ModelAction.Model_Create -> handler.modelCreate(cmd)
             is ModelAction.Model_Copy -> handler.modelCopy(cmd)
@@ -132,11 +141,13 @@ class ModelActionHandler(
     private val modelCmds: ModelCmds,
     private val modelQueries: ModelQueries,
     private val modelHumanPrinter: ModelHumanPrinter,
-    private val resourceLocator: ResourceLocator
+    private val resourceLocator: ResourceLocator,
+    private val locale: Locale,
+    private val actionCtx: ActionCtx
 ) {
     fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
 
-    fun modelImport(actionCtx: ActionCtx, rc: ModelAction.Import) {
+    fun modelImport(rc: ModelAction.Import) {
         ModelImportAction(actionCtx.extensionRegistry, modelCmds, resourceLocator)
             .process(rc)
     }
@@ -658,5 +669,27 @@ class ModelActionHandler(
                 hashtag = cmd.tag
             )
         )
+    }
+
+    @Serializable
+    data class ModelListItemDto(
+        val id: String,
+        val name: String?
+    )
+    fun modelList(cmd: ModelAction.Model_List): List<ModelListItemDto> {
+        val summaries = modelQueries.findAllModelSummaries(locale)
+        return summaries.map {
+            ModelListItemDto(
+                id = it.id.value,
+                name = it.name
+            )
+        }
+    }
+    fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
+        val exporters = actionCtx.extensionRegistry.findContributionsFlat(ModelExporter::class)
+        val model = modelQueries.findModelById(cmd.modelKey)
+        val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
+        return exporter.exportJson(model)
+
     }
 }

@@ -80,7 +80,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         }
     }
 
-    fun toJson(model: Model): String {
+    fun toModelJson(model: Model): ModelJson {
         val modelJson = ModelJson(
             id = model.id.value,
             schema = ModelJsonSchemas.current(),
@@ -128,7 +128,17 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             documentationHome = model.documentationHome?.toExternalForm(),
             hashtags = model.hashtags.map { it.value }
         )
+        return modelJson
+    }
+
+    fun toJsonString(model: Model): String {
+        val modelJson = toModelJson(model)
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
+    }
+
+    fun toJsonObject(model: Model): JsonObject {
+        val modelJson = toModelJson(model)
+        return this.json.encodeToJsonElement(ModelJson.serializer(), modelJson).jsonObject
     }
 
     fun toEntityOriginStr(origin: EntityOrigin): String? {
@@ -139,6 +149,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         }
         return originStr
     }
+
     fun toModelOriginStr(origin: ModelOrigin): String? {
         val originStr = when (origin) {
             null -> null
@@ -154,9 +165,9 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         val model = ModelInMemory(
             id = ModelKey(modelJson.id),
             version = ModelVersion(modelJson.version),
-            origin = when(modelJson.origin) {
+            origin = when (modelJson.origin) {
                 null -> ModelOrigin.Manual
-                    else -> ModelOrigin.Uri(URI(modelJson.origin))
+                else -> ModelOrigin.Uri(URI(modelJson.origin))
             },
             name = modelJson.name,
             description = modelJson.description,
@@ -252,7 +263,7 @@ class ModelEntityJson(
     val attributes: List<ModelAttributeJson>,
     val documentationHome: String? = null,
 
-)
+    )
 
 @Serializable
 class ModelAttributeJson(
@@ -297,5 +308,5 @@ class ModelJson(
     val relationships: List<RelationshipJson> = emptyList(),
     val documentationHome: String? = null,
 
-)
+    )
 

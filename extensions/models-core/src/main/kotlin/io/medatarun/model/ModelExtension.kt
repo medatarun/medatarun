@@ -4,6 +4,7 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.domain.*
 import io.medatarun.model.internal.KeyValidation
+import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.platform.kernel.MedatarunExtension
@@ -20,6 +21,7 @@ class ModelExtension : MedatarunExtension {
     override fun init(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
+        ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
