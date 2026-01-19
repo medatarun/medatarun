@@ -204,4 +204,14 @@ class RelationshipCardinalityDescriptor : TypeDescriptor<RelationshipCardinality
     }
 
     override val description: String = ""
+    override val jsonConverter: TypeJsonConverter<RelationshipCardinality> = object : TypeJsonConverter<RelationshipCardinality> {
+        override fun deserialize(json: JsonElement): RelationshipCardinality {
+            when(json) {
+                is JsonPrimitive -> return RelationshipCardinality.valueOfCode(json.content)
+                else -> throw TypeJsonConverterBadFormatException("Expecting a String")
+            }
+        }
+
+    }
+
 }

@@ -207,9 +207,12 @@ function validate({formData, formFields}: {
     else if (formField.type === "ModelKey") result = validateKey(formField, formData[formField.key])
     else if (formField.type === "Hashtag") result = validateHashtag(formField, formData[formField.key])
     else if (formField.type === "ModelVersion") result = validateVersion(formField, formData[formField.key])
-    else if (formField.type === "Boolean") result = validateBoolean(formField, formData[formField.key])
+    //else if (formField.type === "Boolean") result = validateBoolean(formField, formData[formField.key])
+    else if (formField.type === "Boolean") result = valid
     else if (formField.type === "LocalizedText") result = validateString(formField, formData[formField.key])
     else if (formField.type === "LocalizedMarkdown") result = validateString(formField, formData[formField.key])
+    else if (formField.type === "RelationshipRoleKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "RelationshipCardinality") result = validateString(formField, formData[formField.key])
     else result = invalid("Unsupported type: " + formField.type)
     validationResults.set(formField.key, result)
   }
@@ -224,6 +227,7 @@ function validateKey(field: FormFieldType, formDatum: any) {
   return valid
 }
 
+/*
 function validateBoolean(field: FormFieldType, formDatum: any) {
   if (formDatum === null || formDatum === undefined) {
     if (field.optional) return valid
@@ -232,7 +236,7 @@ function validateBoolean(field: FormFieldType, formDatum: any) {
   if (typeof formDatum !== "boolean") return invalid("Must be a boolean")
   else return valid
 }
-
+*/
 function validateString(field: FormFieldType, formDatum: any) {
   if (formDatum === null || formDatum === undefined) {
     if (field.optional) return valid

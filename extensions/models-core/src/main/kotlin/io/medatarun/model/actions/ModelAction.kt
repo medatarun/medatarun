@@ -557,7 +557,7 @@ sealed interface ModelAction {
         key="relationship_role_create",
         title="Create relationship role",
         description = "Creates a new relationship role in relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_roles],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Create(
@@ -574,7 +574,7 @@ sealed interface ModelAction {
         key="relationship_role_update_key",
         title="Update relationship role key",
         description = "Changes the key of the relationship role",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateKey(
@@ -588,7 +588,7 @@ sealed interface ModelAction {
         key="relationship_role_update_entity",
         title="Update relationship role entity",
         description = "Changes the entity that the relationship role represents",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateEntity(
@@ -602,7 +602,7 @@ sealed interface ModelAction {
         key="relationship_role_update_name",
         title="Update relationship role name",
         description = "Changes the name of the relationship role.",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateName(
@@ -616,7 +616,7 @@ sealed interface ModelAction {
         key="relationship_role_update_cardinality",
         title="Update relationship role cardinality",
         description = "Changes the cardinality of the role within the relationship.",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateCardinality(
@@ -630,7 +630,7 @@ sealed interface ModelAction {
         key="relationship_role_delete",
         title="Delete relationship role",
         description = "Deletes relationship role. There must be at least two roles in a relationship left, otherwise this will fail.",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Delete(

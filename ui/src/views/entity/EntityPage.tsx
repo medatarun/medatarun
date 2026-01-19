@@ -20,6 +20,10 @@ import {
 } from "../../components/layout/Contained.tsx";
 import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
 import {SectionTable} from "../../components/layout/SecionTable.tsx";
+import {
+  createActionTemplateEntityAttribute,
+  createActionTemplateEntityForRelationships
+} from "../../components/business/actionTemplates.ts";
 
 
 export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
@@ -102,17 +106,22 @@ export function EntityView({entity}: { entity: EntityDto }) {
             location={ActionUILocations.entity_attributes}>Attributes</SectionTitle>
 
           <SectionTable>
-            <AttributesTable entityId={entity.id} attributes={entity.attributes}
-                             onClickAttribute={handleClickAttribute}/>
+            <AttributesTable
+              attributes={entity.attributes}
+              actionUILocation={ActionUILocations.entity_attribute}
+              actionParamsFactory={(attributeId:string)=>createActionTemplateEntityAttribute(model.id, entity.id, attributeId)}
+              onClickAttribute={handleClickAttribute}/>
           </SectionTable>
 
           <SectionTitle
             icon={<RelationshipIcon/>}
-            actionParams={{modelKey: model.id, roleAEntityKey: entity.id}}
+            actionParams={createActionTemplateEntityForRelationships(model.id, entity.id)}
             location={ActionUILocations.entity_relationships}>Relationships</SectionTitle>
 
           <SectionTable>
-            <RelationshipsTable onClick={handleClickRelationship} relationships={relationshipsInvolved}/>
+            <RelationshipsTable
+              onClick={handleClickRelationship}
+              relationships={relationshipsInvolved}/>
           </SectionTable>
 
         </ContainedHumanReadable>

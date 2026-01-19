@@ -19,7 +19,7 @@ import {
   Text,
   tokens
 } from "@fluentui/react-components";
-import {EntityIcon, ModelIcon} from "../../components/business/Icons.tsx";
+import {EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {Markdown} from "../../components/core/Markdown.tsx";
@@ -40,6 +40,8 @@ import {
 import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {Tags} from "../../components/core/Tag.tsx";
+import {ErrorBox} from "@seij/common-ui";
+import {toProblem} from "@seij/common-types";
 
 
 export function AttributePage({modelId, parentType, parentId, attributeId}: {
@@ -51,7 +53,7 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
 
   const {data: modelDto} = useModel(modelId)
 
-  if (!modelDto) return null
+  if (!modelDto) return <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)} />
   const model = new Model(modelDto)
 
   const entity = parentType === "entity" ? model.findEntityDto(parentId) : undefined
@@ -63,8 +65,8 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
     : relationship ? model.findRelationshipAttributeDto(relationship.id, attributeId)
       : undefined
 
-  if (!parent) return null
-  if (!attribute) return null
+  if (!parent) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]` )} />
+  if (!attribute) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]` )} />
 
   return <ModelContext value={model}>
     <AttributeView attribute={attribute} parent={parent} parentType={parentType}/>
@@ -128,14 +130,14 @@ export function AttributeView({parent, parentType, attribute}: {
         {parentAsRelationship != null &&
           <BreadcrumbItem>
             <BreadcrumbButton
-              icon={<EntityIcon/>}
+              icon={<RelationshipIcon/>}
               onClick={handleClickRelationship}>{parentAsRelationship.name ?? parentAsRelationship.id}</BreadcrumbButton>
           </BreadcrumbItem>
         }
 
       </Breadcrumb>
     </div>
-    <ViewTitle eyebrow={"Attribute"}>
+    <ViewTitle eyebrow={parentType === "entity" ? "Attribute of entity" : "Attribute of relationship"}>
       <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
         <div>{attribute.name ?? attribute.id} {" "}</div>
         <div>
