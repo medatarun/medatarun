@@ -40,7 +40,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val model = ModelInMemory(
-            id = ModelKey(modelKeyOrGenerated),
+            key = ModelKey(modelKeyOrGenerated),
             name = LocalizedTextNotLocalized(modelNameOrGenerated),
             version = ModelVersion("0.0.1"),
             description = null,
@@ -48,11 +48,11 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             types = result.types().map { ModelTypeInMemory(TypeKey(it), null, null) },
             entityDefs = result.tables.map { table ->
                 EntityDefInMemory(
-                    id = EntityKey(table.tableName),
+                    key = EntityKey(table.tableName),
                     name = null,
                     attributes = table.columns.map {
                         AttributeDefInMemory(
-                            id = AttributeKey(it.columnName),
+                            key = AttributeKey(it.columnName),
                             name = null,
                             description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
                             type = TypeKey(it.typeName),
@@ -91,7 +91,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         ),
                     )
                     RelationshipDefInMemory(
-                        id = RelationshipKey(idStr),
+                        key = RelationshipKey(idStr),
                         name = null,
                         description = null,
                         attributes = emptyList(),

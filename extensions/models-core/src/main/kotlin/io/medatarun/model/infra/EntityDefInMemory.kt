@@ -7,7 +7,7 @@ import java.net.URL
  * Default implementation of EntityDef
  */
 data class EntityDefInMemory(
-    override val id: EntityKey,
+    override val key: EntityKey,
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
     override val description: LocalizedMarkdown?,
@@ -17,7 +17,7 @@ data class EntityDefInMemory(
     override val hashtags: List<Hashtag>,
 ) : EntityDef {
 
-    private val map = attributes.associateBy { it.id }
+    private val map = attributes.associateBy { it.key }
 
     override fun countAttributeDefs(): Int {
         return attributes.size
@@ -34,7 +34,7 @@ data class EntityDefInMemory(
     companion object {
         fun of(other: EntityDef): EntityDefInMemory {
             return EntityDefInMemory(
-                id = other.id,
+                key = other.key,
                 name = other.name,
                 description = other.description,
                 attributes = other.attributes.map(AttributeDefInMemory::of),
@@ -62,7 +62,7 @@ data class EntityDefInMemory(
 
             fun build(): EntityDefInMemory {
                 return EntityDefInMemory(
-                    id = id,
+                    key = id,
                     name = name,
                     attributes = attributes,
                     description = description,

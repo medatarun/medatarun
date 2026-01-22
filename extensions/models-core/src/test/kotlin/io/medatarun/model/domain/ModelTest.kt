@@ -612,12 +612,12 @@ class ModelTest {
         )
 
         val reloaded = env.query.findModelById(env.modelKey).findEntityDef(entityId)
-        assertEquals(entityId, reloaded.id)
+        assertEquals(entityId, reloaded.key)
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(1, reloaded.attributes.size)
         val attrId = reloaded.attributes[0]
-        assertEquals(AttributeKey("id"), attrId.id)
+        assertEquals(AttributeKey("id"), attrId.key)
         assertEquals("Identifier", attrId.name?.name)
         assertEquals("Identifier description", attrId.description?.name)
     }
@@ -643,7 +643,7 @@ class ModelTest {
         )
 
         val reloaded = env.query.findModelById(env.modelKey).findEntityDef(entityId)
-        assertEquals(entityId, reloaded.id)
+        assertEquals(entityId, reloaded.key)
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(1, reloaded.attributes.size)
@@ -670,7 +670,7 @@ class ModelTest {
         )
 
         val reloaded = env.query.findModelById(env.modelKey).findEntityDef(entityId)
-        assertEquals(entityId, reloaded.id)
+        assertEquals(entityId, reloaded.key)
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
     }
@@ -1141,7 +1141,7 @@ class ModelTest {
             name = LocalizedTextNotLocalized("Business Key"),
             description = LocalizedMarkdownNotLocalized("Unique business key"),
         )
-        assertEquals(AttributeKey("businesskey"), reloaded.id)
+        assertEquals(AttributeKey("businesskey"), reloaded.key)
         assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
         assertEquals(LocalizedMarkdownNotLocalized("Unique business key"), reloaded.description)
         assertEquals(TypeKey("String"), reloaded.type)
@@ -1287,7 +1287,7 @@ class ModelTest {
             AttributeDefUpdateCmd.Key(AttributeKey("nextname")),
             AttributeKey("nextname"),
         )
-        assertEquals(AttributeKey("nextname"), reloaded.id)
+        assertEquals(AttributeKey("nextname"), reloaded.key)
     }
 
     @Test
@@ -1311,7 +1311,7 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(name = null)
         val nextValue = LocalizedTextNotLocalized("New name")
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Name(nextValue))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Name(nextValue))
         assertEquals(nextValue, reloaded.name)
     }
 
@@ -1320,7 +1320,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(name = LocalizedTextNotLocalized("Name"))
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Name(null))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Name(null))
         assertNull(reloaded.name)
     }
 
@@ -1331,7 +1331,7 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Description(nextValue))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Description(nextValue))
         assertEquals(nextValue, reloaded.description)
     }
 
@@ -1340,7 +1340,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(description = LocalizedMarkdownNotLocalized("New description"))
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Description(null))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Description(null))
         assertNull(reloaded.description)
     }
 
@@ -1358,7 +1358,7 @@ class ModelTest {
 
         val attr = env.createAttributeDef(type = TypeKey("String"))
 
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Type(typeMarkdownId))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Type(typeMarkdownId))
         assertEquals(typeMarkdownId, reloaded.type)
     }
 
@@ -1372,7 +1372,7 @@ class ModelTest {
                 ModelCmd.UpdateEntityDefAttributeDef(
                     env.sampleModelKey,
                     env.sampleEntityKey,
-                    attr.id,
+                    attr.key,
                     AttributeDefUpdateCmd.Type(TypeKey("String2"))
                 )
             )
@@ -1385,7 +1385,7 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(optional = true)
         val nextValue = false
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Optional(nextValue))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Optional(nextValue))
         assertEquals(nextValue, reloaded.optional)
     }
 
@@ -1395,7 +1395,7 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(optional = false)
         val nextValue = true
-        val reloaded = env.updateAttributeDef(attr.id, AttributeDefUpdateCmd.Optional(nextValue))
+        val reloaded = env.updateAttributeDef(attr.key, AttributeDefUpdateCmd.Optional(nextValue))
         assertEquals(nextValue, reloaded.optional)
     }
 
@@ -1456,7 +1456,7 @@ class ModelTest {
         ) {
             name = null
             description = null
-            types = mutableListOf(ModelTypeInMemory(id = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
             addEntityDef(
                 id = EntityKey("Contact"),
                 // Error is here
@@ -1464,7 +1464,7 @@ class ModelTest {
             ) {
                 addAttribute(
                     AttributeDefInMemory(
-                        id = AttributeKey("id"),
+                        key = AttributeKey("id"),
                         type = TypeKey("String"),
                         name = null,
                         description = null,

@@ -17,14 +17,14 @@ class ModelValidationTest {
             id = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
-            types = mutableListOf(ModelTypeInMemory(id = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
             addEntityDef(
                 id = EntityKey("Contact"),
                 identifierAttributeKey = AttributeKey("unknown"),
                 {
                     addAttribute(
                         AttributeDefInMemory(
-                            id = AttributeKey("id"),
+                            key = AttributeKey("id"),
                             type = TypeKey("String"),
                             name = null,
                             description = null,
@@ -50,14 +50,14 @@ class ModelValidationTest {
         ) {
             name = null
             description = null
-            types = mutableListOf(ModelTypeInMemory(id = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
             addEntityDef(
                 id = EntityKey("Contact"),
                 identifierAttributeKey = AttributeKey("id"),
             ) {
                 addAttribute(
                     AttributeDefInMemory(
-                        id = AttributeKey("id"),
+                        key = AttributeKey("id"),
                         type = TypeKey("Int"),
                         name = null,
                         description = null,

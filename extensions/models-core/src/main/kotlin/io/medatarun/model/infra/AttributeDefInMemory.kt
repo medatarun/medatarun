@@ -6,7 +6,7 @@ import io.medatarun.model.domain.*
  * Default implementation of AttributeDef
  */
 data class AttributeDefInMemory(
-    override val id: AttributeKey,
+    override val key: AttributeKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val type: TypeKey,
@@ -16,7 +16,7 @@ data class AttributeDefInMemory(
     companion object {
         fun of(other: AttributeDef): AttributeDefInMemory {
             return AttributeDefInMemory(
-                id = other.id,
+                key = other.key,
                 name = other.name,
                 description = other.description,
                 type = other.type,

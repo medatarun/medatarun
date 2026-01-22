@@ -9,10 +9,10 @@ interface RelationshipDef {
 
 
     /**
-     * Unique identifier of the relationship within the model.
+     * Unique key of the relationship within the model.
      * Used for referencing from other definitions or instances.
      */
-    val id: RelationshipKey
+    val key: RelationshipKey
 
     /**
      * Human-readable name, optionally localized.
@@ -65,11 +65,11 @@ interface RelationshipDef {
 
 
     fun findAttributeDefOptional(attributeKey: AttributeKey): AttributeDef? =
-        attributes.firstOrNull { it.id == attributeKey }
+        attributes.firstOrNull { it.key == attributeKey }
 
     fun findAttributeDef(attributeKey: AttributeKey): AttributeDef =
         findAttributeDefOptional(attributeKey) ?: throw RelationshipAttributeDefNotFoundException(
-            this.id,
+            this.key,
             attributeKey
         )
 

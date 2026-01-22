@@ -22,18 +22,18 @@ internal class ModelJsonConverterTest {
     @Test
     fun surface_test() {
         val modelRead = instance.fromJson(sampleModelJson)
-        assertEquals(modelRead.id, ModelKey("example"))
+        assertEquals(modelRead.key, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entityDefs.size, 2)
 
 
         val contactEntity = modelRead.entityDefs[0]
-        assertEquals(contactEntity.id, EntityKey("contact"))
+        assertEquals(contactEntity.key, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
         assertEquals(AttributeKey("name"), contactEntity.identifierAttributeKey)
 
         val companyEntity = modelRead.entityDefs[1]
-        assertEquals(companyEntity.id, EntityKey("company"))
+        assertEquals(companyEntity.key, EntityKey("company"))
         assertEquals(AttributeKey("name"), companyEntity.identifierAttributeKey)
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
@@ -42,21 +42,21 @@ internal class ModelJsonConverterTest {
         assertEquals(companyEntity.countAttributeDefs(), 3)
 
         val companyName = companyEntity.getAttributeDef(AttributeKey("name"))
-        assertEquals(companyName.id, AttributeKey("name"))
+        assertEquals(companyName.key, AttributeKey("name"))
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
         assertEquals(companyName.type, TypeKey("String"))
 
         val companyProfileUrl = companyEntity.getAttributeDef(AttributeKey("profile_url"))
-        assertEquals(companyProfileUrl.id, AttributeKey("profile_url"))
+        assertEquals(companyProfileUrl.key, AttributeKey("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
         assertEquals(companyProfileUrl.type, TypeKey("String"))
 
         val companyInfos = companyEntity.getAttributeDef(AttributeKey("informations"))
-        assertEquals(companyInfos.id, AttributeKey("informations"))
+        assertEquals(companyInfos.key, AttributeKey("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
         assertEquals(
             companyInfos.description?.name,

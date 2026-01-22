@@ -483,7 +483,7 @@ class ModelActionHandler(
             ModelCmd.CreateRelationshipDef(
                 modelKey = cmd.modelKey,
                 initializer = RelationshipDefInMemory(
-                    id = cmd.relationshipKey,
+                    key = cmd.relationshipKey,
                     name = cmd.name,
                     description = cmd.description,
                     roles = listOf(
@@ -584,7 +584,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 relationshipKey = cmd.relationshipKey,
                 attr = AttributeDefInMemory(
-                    id = cmd.attributeKey,
+                    key = cmd.attributeKey,
                     name = cmd.name,
                     description = cmd.description,
                     type = cmd.type,

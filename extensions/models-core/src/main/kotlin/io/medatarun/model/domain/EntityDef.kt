@@ -7,9 +7,9 @@ import java.net.URL
  */
 interface EntityDef {
     /**
-     * Unique identifier of this EntityDef in the [Model]
+     * Unique key of this EntityDef in the [Model]
      */
-    val id: EntityKey
+    val key: EntityKey
 
     /**
      * Display name
@@ -58,7 +58,7 @@ interface EntityDef {
     /**
      * Get attribute by its id. Throws [EntityAttributeDefNotFoundException] otherwise.
      */
-    fun getAttributeDef(id: AttributeKey): AttributeDef = getAttributeDefOptional(id) ?: throw EntityAttributeDefNotFoundException(entityId = this.id , id)
+    fun getAttributeDef(id: AttributeKey): AttributeDef = getAttributeDefOptional(id) ?: throw EntityAttributeDefNotFoundException(entityId = this.key , id)
 
     /**
      * @return true if this entity contains this attribute

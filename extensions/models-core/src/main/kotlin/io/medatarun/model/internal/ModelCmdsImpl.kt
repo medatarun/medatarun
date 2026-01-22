@@ -15,7 +15,7 @@ class ModelCmdsImpl(
 
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
-            id = cmd.modelKey,
+            key = cmd.modelKey,
             name = cmd.name,
             description = cmd.description,
             version = cmd.version,
@@ -33,13 +33,13 @@ class ModelCmdsImpl(
         val model = storage.findModelByIdOptional(cmd.modelKey) ?: throw ModelNotFoundException(cmd.modelKey)
         val existing = storage.findModelByIdOptional(cmd.modelNewKey)
         if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
-        val next = ModelInMemory.of(model).copy(id = cmd.modelNewKey)
+        val next = ModelInMemory.of(model).copy(key = cmd.modelNewKey)
         storage.dispatch(ModelRepositoryCmd.CreateModel(next), cmd.repositoryRef)
     }
 
     private fun importModel(cmd: ModelCmd.ImportModel) {
-        val existing = storage.findModelByIdOptional(cmd.model.id)
-        if (existing != null) throw ModelDuplicateIdException(cmd.model.id)
+        val existing = storage.findModelByIdOptional(cmd.model.key)
+        if (existing != null) throw ModelDuplicateIdException(cmd.model.key)
         storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
 
@@ -106,7 +106,7 @@ class ModelCmdsImpl(
         val model = storage.findModelById(c.modelKey)
         model.findEntityDef(c.entityKey)
         if (c.cmd is EntityDefUpdateCmd.Id) {
-            if (model.entityDefs.any { it.id == c.cmd.value && it.id != c.entityKey }) {
+            if (model.entityDefs.any { it.key == c.cmd.value && it.key != c.entityKey }) {
                 throw UpdateEntityDefIdDuplicateIdException(c.entityKey)
             }
         }
@@ -134,7 +134,7 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepositoryCmd.CreateEntityDef(
                 c.modelKey, EntityDefInMemory(
-                    id = c.entityDefInitializer.entityKey,
+                    key = c.entityDefInitializer.entityKey,
                     name = c.entityDefInitializer.name,
                     description = c.entityDefInitializer.description,
                     identifierAttributeKey = c.entityDefInitializer.identityAttribute.attributeKey,
@@ -143,7 +143,7 @@ class ModelCmdsImpl(
                     hashtags = emptyList(),
                     attributes = listOf(
                         AttributeDefInMemory(
-                            id = c.entityDefInitializer.identityAttribute.attributeKey,
+                            key = c.entityDefInitializer.identityAttribute.attributeKey,
                             name = c.entityDefInitializer.identityAttribute.name,
                             description = c.entityDefInitializer.identityAttribute.description,
                             type = c.entityDefInitializer.identityAttribute.type,
@@ -172,7 +172,7 @@ class ModelCmdsImpl(
                 modelKey = c.modelKey,
                 entityKey = c.entityKey,
                 attributeDef = AttributeDefInMemory(
-                    id = c.attributeDefInitializer.attributeKey,
+                    key = c.attributeDefInitializer.attributeKey,
                     name = c.attributeDefInitializer.name,
                     description = c.attributeDefInitializer.description,
                     type = c.attributeDefInitializer.type,
@@ -206,7 +206,7 @@ class ModelCmdsImpl(
 
         if (c.cmd is AttributeDefUpdateCmd.Key) {
             // We can not have two attributes with the same id
-            if (entity.attributes.any { it.id == c.cmd.value && it.id != c.attributeKey }) {
+            if (entity.attributes.any { it.key == c.cmd.value && it.key != c.attributeKey }) {
                 throw UpdateAttributeDefDuplicateIdException(c.entityKey, c.attributeKey)
             }
             // If user wants to rename the Entity's identity attribute, we must rename in entity
@@ -405,9 +405,9 @@ class ModelCmdsImpl(
 
     private fun createRelationshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
         val exists = findModelById(cmd.modelKey).findRelationshipDef(cmd.relationshipKey)
-            .findAttributeDefOptional(cmd.attr.id)
+            .findAttributeDefOptional(cmd.attr.key)
         if (exists != null) {
-            throw RelationshipDuplicateAttributeException(cmd.modelKey, cmd.relationshipKey, cmd.attr.id)
+            throw RelationshipDuplicateAttributeException(cmd.modelKey, cmd.relationshipKey, cmd.attr.key)
         }
         findModelById(cmd.modelKey).ensureTypeExists(cmd.attr.type)
         storage.dispatch(
@@ -421,8 +421,8 @@ class ModelCmdsImpl(
 
 
     private fun createRelationshipDef(cmd: ModelCmd.CreateRelationshipDef) {
-        if (findModelById(cmd.modelKey).findRelationshipDefOptional(cmd.initializer.id) != null)
-            throw RelationshipDuplicateIdException(cmd.modelKey, cmd.initializer.id)
+        if (findModelById(cmd.modelKey).findRelationshipDefOptional(cmd.initializer.key) != null)
+            throw RelationshipDuplicateIdException(cmd.modelKey, cmd.initializer.key)
         val duplicateRoleIds =
             cmd.initializer.roles.groupBy { it.id }.mapValues { it.value.size }.filter { it.value > 1 }
         if (duplicateRoleIds.isNotEmpty()) {

@@ -18,7 +18,7 @@ class ModelValidationImpl : ModelValidation {
         model.entityDefs.forEach { e ->
             e.attributes.forEach { attr ->
                 if (model.findTypeOptional(attr.type) == null) {
-                    errors.add(ModelValidationErrorTypeNotFound(model.id, e.id, attr.id, attr.type))
+                    errors.add(ModelValidationErrorTypeNotFound(model.key, e.key, attr.key, attr.type))
                 }
             }
         }
@@ -33,7 +33,7 @@ class ModelValidationImpl : ModelValidation {
 
         model.entityDefs.forEach { e ->
             if (e.getAttributeDefOptional(e.identifierAttributeKey) == null) {
-                errors.add(ModelValidationErrorInvalidIdentityAttribute(model.id, e.id, e.entityIdAttributeDefId()))
+                errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.entityIdAttributeDefId()))
             }
         }
         return errors

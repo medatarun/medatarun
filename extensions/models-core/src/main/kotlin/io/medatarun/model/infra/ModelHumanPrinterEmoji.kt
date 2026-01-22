@@ -9,7 +9,7 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
 
     override fun print(model: Model): String {
         val buf = StringBuffer()
-        buf.appendLine("🌐 ${model.id.value}")
+        buf.appendLine("🌐 ${model.key.value}")
         val modelName = model.name
         if (modelName != null) {
             buf.appendLine(tabs(1) + modelName.name)
@@ -22,10 +22,10 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
             buf.appendLine(tabs(1) + "🎫 Types")
         }
         model.types.forEach { type ->
-            buf.appendLine(tabs(2) + type.id.value)
+            buf.appendLine(tabs(2) + type.key.value)
         }
         model.entityDefs.forEach { entity ->
-            buf.appendLine(tabs(1) + "📦 ${entity.id.value}")
+            buf.appendLine(tabs(1) + "📦 ${entity.key.value}")
             val entityName = entity.name?.name
             if (entityName != null) {
                 buf.appendLine(tabs(2) + entityName)
@@ -35,10 +35,10 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
                 buf.appendLine(tabs(2) + entityDescription)
             }
             entity.attributes.forEach { attribute ->
-                val id = attribute.id.value
+                val id = attribute.key.value
                 val type = attribute.type.value
                 val optional = if (attribute.optional) "?" else ""
-                val pk = if (entity.identifierAttributeKey == attribute.id) "🔑" else ""
+                val pk = if (entity.identifierAttributeKey == attribute.key) "🔑" else ""
                 buf.appendLine(tabs(2) + "-  $id: $type$optional $pk")
                 val name = attribute.name
                 if (name != null) {

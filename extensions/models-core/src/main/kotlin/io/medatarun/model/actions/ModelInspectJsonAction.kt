@@ -13,14 +13,14 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                 modelQueries.findAllModelIds().forEach { modelId ->
                     val model = modelQueries.findModelById(modelId)
                     add(buildJsonObject {
-                        put("id", model.id.value)
+                        put("id", model.key.value)
                         put("version", model.version.value)
                         put("name", localizedTextToJson(model.name))
                         put("description", localizedTextToJson(model.description))
                         put("types", buildJsonArray {
                             model.types.forEach { type ->
                                 add(buildJsonObject {
-                                    put("id", type.id.value)
+                                    put("id", type.key.value)
                                     put("name", localizedTextToJson(type.name))
                                     put("description", localizedTextToJson(type.description))
                                 })
@@ -29,7 +29,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                         put("entities", buildJsonArray {
                             model.entityDefs.forEach { entity ->
                                 add(buildJsonObject {
-                                    put("id", entity.id.value)
+                                    put("id", entity.key.value)
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
                                     put("identifierAttribute", entity.identifierAttributeKey.value)
@@ -40,7 +40,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                         put("relationships", buildJsonArray {
                             model.relationshipDefs.forEach { relationship ->
                                 addJsonObject {
-                                    put("id", relationship.id.value)
+                                    put("id", relationship.key.value)
                                     put("name", localizedTextToJson(relationship.name))
                                     put("description", localizedTextToJson(relationship.description))
                                     put("attributes", toAttributesJson(relationship.attributes))
@@ -68,7 +68,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
 
         attributes.forEach { attribute ->
             add(buildJsonObject {
-                put("id", attribute.id.value)
+                put("id", attribute.key.value)
                 put("name", localizedTextToJson(attribute.name))
                 put("description", localizedTextToJson(attribute.description))
                 put("type", attribute.type.value)

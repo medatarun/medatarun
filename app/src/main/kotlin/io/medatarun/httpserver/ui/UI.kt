@@ -44,7 +44,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         val model = modelQueries.findModelById(modelKey)
 
         return buildJsonObject {
-            put("id", model.id.value)
+            put("id", model.key.value)
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
             put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
@@ -78,7 +78,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("types") {
                 model.types.forEach { t ->
                     addJsonObject {
-                        put("id", t.id.value)
+                        put("id", t.key.value)
                         put("name", t.name?.get(locale))
                         put("description", t.description?.get(locale))
                     }
@@ -92,7 +92,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale
     ): JsonObject {
         val relationshipJson = buildJsonObject {
-            put("id", relationship.id.value)
+            put("id", relationship.key.value)
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
             put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
@@ -108,7 +108,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             }
             putJsonArray("attributes") { relationship.attributes.forEach { attr ->
                 addJsonObject {
-                    put("id", attr.id.value)
+                    put("id", attr.key.value)
                     put("name", attr.name?.get(locale))
                     put("description", attr.description?.get(locale))
                     put("type", attr.type.value)
@@ -128,7 +128,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale,
         model: Model
     ): JsonObject {
-        val id = e.id.value
+        val id = e.key.value
         val name = e.name?.get(locale)
         val description = e.description?.get(locale)
         val origin = e.origin
@@ -142,7 +142,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                 e.hashtags.forEach { add(it.value) }
             }
             putJsonObject("model") {
-                put("id", model.id.value)
+                put("id", model.key.value)
                 put("name", model.name?.get(locale))
             }
             put(
@@ -160,12 +160,12 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("attributes") {
                 e.attributes.forEach { attr ->
                     addJsonObject {
-                        put("id", attr.id.value)
+                        put("id", attr.key.value)
                         put("name", attr.name?.get(locale))
                         put("description", attr.description?.get(locale))
                         put("type", attr.type.value)
                         put("optional", attr.optional)
-                        put("identifierAttribute", e.identifierAttributeKey == attr.id)
+                        put("identifierAttribute", e.identifierAttributeKey == attr.key)
                         putJsonArray("hashtags") {
                             attr.hashtags.forEach { add(it.value) }
                         }

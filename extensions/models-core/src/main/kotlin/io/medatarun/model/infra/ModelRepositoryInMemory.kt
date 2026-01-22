@@ -29,7 +29,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     }
 
     private fun createModel(model: Model) {
-        models[model.id] = ModelInMemory.of(model)
+        models[model.key] = ModelInMemory.of(model)
     }
 
     private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
@@ -56,7 +56,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
      * Very dangerous to use, mostly for tests
      */
     fun push(model: ModelInMemory) {
-        this.models[model.id] = model
+        this.models[model.key] = model
     }
 }
 

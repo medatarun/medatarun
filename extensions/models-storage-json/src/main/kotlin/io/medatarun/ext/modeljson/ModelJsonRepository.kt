@@ -37,7 +37,7 @@ class ModelJsonRepository(
         paths.forEach { path ->
             try {
                 val model = modelJsonConverter.fromJson(path.readText())
-                discoveredModels[model.id] = path.toAbsolutePath()
+                discoveredModels[model.key] = path.toAbsolutePath()
             } catch (e: SerializationException) {
                 logger.error("File ${path.toAbsolutePath()} is not a valid Medatarun model, skipped. Cause: {}", e.message)
             }
@@ -88,9 +88,9 @@ class ModelJsonRepository(
 
     fun persistModel(model: Model) {
         val json = modelJsonConverter.toJsonString(model)
-        val path = repositoryPath.resolve(model.id.value + ".json")
+        val path = repositoryPath.resolve(model.key.value + ".json")
         path.writeText(json)
-        discoveredModels[model.id] = path
+        discoveredModels[model.key] = path
     }
 
     companion object {

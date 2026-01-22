@@ -14,14 +14,14 @@ class ModelInMemoryTest {
     @Test
     fun `model contains person and company entities`() {
         val model = createModel()
-        val entityIds = model.entityDefs.map { it.id }.toSet()
+        val entityIds = model.entityDefs.map { it.key }.toSet()
         assertEquals(setOf(EntityKey("person"), EntityKey("company")), entityIds)
 
-        val person = model.entityDefs.first { it.id == EntityKey("person") }
+        val person = model.entityDefs.first { it.key == EntityKey("person") }
         assertEquals(5, person.countAttributeDefs())
         assertEquals(TypeKey("Markdown"), person.getAttributeDef(AttributeKey("infos")).type)
 
-        val company = model.entityDefs.first { it.id == EntityKey("company") }
+        val company = model.entityDefs.first { it.key == EntityKey("company") }
         assertTrue(company.getAttributeDef(AttributeKey("location")).optional)
         assertTrue(company.getAttributeDef(AttributeKey("website")).optional)
     }
@@ -38,42 +38,42 @@ class ModelInMemoryTest {
             name = LocalizedTextNotLocalized("Person")
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeKey("id"),
+                    key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("firstName"),
+                    key = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("lastName"),
+                    key = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("phoneNumber"),
+                    key = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("infos"),
+                    key = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
-                    type = typeMarkdown.id,
+                    type = typeMarkdown.key,
                     optional = false,
                     hashtags = emptyList()
                 )
@@ -87,34 +87,34 @@ class ModelInMemoryTest {
             name = LocalizedTextNotLocalized("Company")
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeKey("id"),
+                    key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("name"),
+                    key = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = false,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("location"),
+                    key = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = true,
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
-                    id = AttributeKey("website"),
+                    key = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
-                    type = typeString.id,
+                    type = typeString.key,
                     optional = true,
                     hashtags = emptyList()
                 )
@@ -123,7 +123,7 @@ class ModelInMemoryTest {
         }
 
         return ModelInMemory(
-            id = ModelKey("test-model"),
+            key = ModelKey("test-model"),
             name = LocalizedTextNotLocalized("Test Model"),
             description = null,
             version = ModelVersion("1.0.0"),

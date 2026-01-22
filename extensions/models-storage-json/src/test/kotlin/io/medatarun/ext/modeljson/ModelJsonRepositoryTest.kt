@@ -15,7 +15,7 @@ class ModelJsonRepositoryTest {
         val repositoryPath = fs.modelsDirectory()
         val repo: ModelJsonRepository = ModelJsonRepository(repositoryPath, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
-        val sampleModel2 = sampleModel.copy(id = ModelKey(sampleModel.id.value + "-2"))
+        val sampleModel2 = sampleModel.copy(key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {
             repo.persistModel(sampleModel)
         }
@@ -52,13 +52,13 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findModelById found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(env.sampleModel.id))
+        assertNull(env.repo.findModelByIdOptional(env.sampleModel.key))
         env.importSample()
         env.importSample2()
-        val m = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel.id))
-        assertEquals(env.sampleModel.id, m.id)
-        val m2 = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel2.id))
-        assertEquals(env.sampleModel2.id, m2.id)
+        val m = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel.key))
+        assertEquals(env.sampleModel.key, m.key)
+        val m2 = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel2.key))
+        assertEquals(env.sampleModel2.key, m2.key)
     }
 
     // ------------------------------------------------------------------------
@@ -70,9 +70,9 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
         assertTrue(path1.exists())
-        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertTrue(path2.exists())
     }
 
@@ -90,7 +90,7 @@ class ModelJsonRepositoryTest {
         env.importSample()
         val ids = env.repo.findAllModelIds()
         assertEquals(1, ids.size)
-        assertTrue(ids.contains(env.sampleModel.id))
+        assertTrue(ids.contains(env.sampleModel.key))
     }
 
     @Test
@@ -100,8 +100,8 @@ class ModelJsonRepositoryTest {
         env.importSample2()
         val ids = env.repo.findAllModelIds()
         assertEquals(2, ids.size)
-        assertTrue(ids.contains(env.sampleModel.id))
-        assertTrue(ids.contains(env.sampleModel2.id))
+        assertTrue(ids.contains(env.sampleModel.key))
+        assertTrue(ids.contains(env.sampleModel2.key))
     }
 
 
@@ -143,12 +143,12 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
-        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
-        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.key))
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertFalse(path1.exists())
         assertTrue(path2.exists())
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.id))
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.key))
         assertFalse(path2.exists())
 
 

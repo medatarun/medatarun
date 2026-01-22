@@ -10,9 +10,9 @@ import java.net.URL
 interface Model {
 
     /**
-     * Unique identifier of the model accros all models managed by the current application instance
+     * Unique key of the model accros all models managed by the current application instance
      */
-    val id: ModelKey
+    val key: ModelKey
     /**
      * Display name of the model
      */
@@ -56,28 +56,28 @@ interface Model {
      */
     val hashtags: List<Hashtag>
 
-    fun findTypeOptional(typeId: TypeKey): ModelType? = types.firstOrNull { it.id == typeId }
-    fun findType(typeId: TypeKey): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.id, typeId)
+    fun findTypeOptional(typeId: TypeKey): ModelType? = types.firstOrNull { it.key == typeId }
+    fun findType(typeId: TypeKey): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.key, typeId)
     fun ensureTypeExists(typeId: TypeKey): ModelType = findType(typeId)
 
     /**
      * Returns entity definition by its id or null
      */
-    fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.id == id }
+    fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
     /**
      * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
-    fun findEntityDef(id: EntityKey): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.id, id)
+    fun findEntityDef(id: EntityKey): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.key, id)
 
     /**
      * Returns relationship definition by its id
      */
-    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? = relationshipDefs.firstOrNull { it.id == id }
+    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? = relationshipDefs.firstOrNull { it.key == id }
 
     /**
      * Returns relationship definition by its id or throw [RelationshipDefNotFoundException]
      */
-    fun findRelationshipDef(id: RelationshipKey): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.id, id)
+    fun findRelationshipDef(id: RelationshipKey): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.key, id)
 
     /**
      * Syntax sugar to check if a relationship exists

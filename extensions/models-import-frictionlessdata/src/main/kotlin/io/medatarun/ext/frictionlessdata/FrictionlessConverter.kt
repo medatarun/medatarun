@@ -35,10 +35,10 @@ class FrictionlessConverter {
             throw FrictionlessConverterUnsupportedFileFormatException(path)
         }
 
-        val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.id
+        val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.key
         val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
         return model.copy(
-            id = finalKey,
+            key = finalKey,
             name = finalName
         )
     }
@@ -65,7 +65,7 @@ class FrictionlessConverter {
         resourceLocator: ResourceLocator
     ): ModelInMemory {
         val model = ModelInMemory(
-            id = ModelKey(datapackage.name ?: "unknown"),
+            key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = try {
@@ -106,7 +106,7 @@ class FrictionlessConverter {
 
 
         val model = ModelInMemory(
-            id = ModelKey(datapackage.name ?: "unknown"),
+            key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
@@ -142,12 +142,12 @@ class FrictionlessConverter {
         hashtags: List<Hashtag>
     ): EntityDefInMemory {
         val entity = EntityDefInMemory(
-            id = EntityKey(entityId),
+            key = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
             attributes = schema.fields.map { field ->
                 AttributeDefInMemory(
-                    id = AttributeKey(field.name),
+                    key = AttributeKey(field.name),
                     name = field.title?.let(::LocalizedTextNotLocalized),
                     description = field.description?.let(::LocalizedMarkdownNotLocalized),
                     type = TypeKey(field.type),

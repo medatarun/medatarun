@@ -6,9 +6,9 @@ package io.medatarun.model.domain
  */
 interface ModelType {
     /**
-     * Unique type identifier in the model
+     * Unique type key in the model, unique in the model
      */
-    val id: TypeKey
+    val key: TypeKey
 
     /**
      * Display name of the type

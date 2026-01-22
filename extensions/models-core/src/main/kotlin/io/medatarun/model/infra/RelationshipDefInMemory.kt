@@ -3,7 +3,7 @@ package io.medatarun.model.infra
 import io.medatarun.model.domain.*
 
 data class RelationshipDefInMemory(
-    override val id: RelationshipKey,
+    override val key: RelationshipKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val roles: List<RelationshipRoleInMemory>,
@@ -13,7 +13,7 @@ data class RelationshipDefInMemory(
     companion object {
         fun of(other: RelationshipDef): RelationshipDefInMemory {
             return RelationshipDefInMemory(
-            id = other.id,
+            key = other.key,
                 name = other.name,
                 description = other.description,
                 roles = other.roles.map(RelationshipRoleInMemory::of),

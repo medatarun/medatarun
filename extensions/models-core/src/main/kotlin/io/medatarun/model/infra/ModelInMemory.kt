@@ -7,7 +7,7 @@ import java.net.URL
  * Default implementation of Model
  */
 data class ModelInMemory(
-    override val id: ModelKey,
+    override val key: ModelKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
@@ -22,7 +22,7 @@ data class ModelInMemory(
     companion object {
         fun of(other: Model): ModelInMemory {
             return ModelInMemory(
-                id = other.id,
+                key = other.key,
                 name = other.name,
                 description = other.description,
                 version = other.version,
@@ -49,7 +49,7 @@ data class ModelInMemory(
         ) {
             fun build(): ModelInMemory {
                 return ModelInMemory(
-                    id = id,
+                    key = id,
                     name = name,
                     description = description,
                     version = version,

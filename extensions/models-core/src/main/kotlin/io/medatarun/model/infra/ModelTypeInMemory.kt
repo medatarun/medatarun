@@ -9,7 +9,7 @@ import io.medatarun.model.domain.TypeKey
  * Default implementation of ModelType
  */
 data class ModelTypeInMemory(
-    override val id: TypeKey,
+    override val key: TypeKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
 ) : ModelType {
@@ -18,7 +18,7 @@ data class ModelTypeInMemory(
             return ModelTypeInMemory(TypeKey(id), null, null)
         }
         fun of(other: ModelType): ModelTypeInMemory {
-            return ModelTypeInMemory(id = other.id, name = other.name, description = other.description)
+            return ModelTypeInMemory(key = other.key, name = other.name, description = other.description)
         }
     }
 }

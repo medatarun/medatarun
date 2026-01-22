@@ -5,9 +5,9 @@ package io.medatarun.model.domain
  */
 interface AttributeDef {
     /**
-     * Unique identifier of the attribute in its [EntityDef]
+     * Unique key of the attribute in its [EntityDef]
      */
-    val id: AttributeKey
+    val key: AttributeKey
 
     /**
      * Display name of the attribute

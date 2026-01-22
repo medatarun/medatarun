@@ -82,7 +82,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     fun toModelJson(model: Model): ModelJson {
         val modelJson = ModelJson(
-            id = model.id.value,
+            id = model.key.value,
             schema = ModelJsonSchemas.current(),
             version = model.version.value,
             name = model.name,
@@ -90,14 +90,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             origin = toModelOriginStr(model.origin),
             types = model.types.map { type ->
                 ModelTypeJson(
-                    id = type.id.value,
+                    id = type.key.value,
                     name = type.name,
                     description = type.description,
                 )
             },
             relationships = model.relationshipDefs.map { rel ->
                 RelationshipJson(
-                    id = rel.id.value,
+                    id = rel.key.value,
                     name = rel.name,
                     description = rel.description,
                     roles = rel.roles.map { role ->
@@ -115,7 +115,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             entities = model.entityDefs.map { entity ->
                 ModelEntityJson(
-                    id = entity.id.value,
+                    id = entity.key.value,
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeKey.value,
@@ -163,7 +163,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
-            id = ModelKey(modelJson.id),
+            key = ModelKey(modelJson.id),
             version = ModelVersion(modelJson.version),
             origin = when (modelJson.origin) {
                 null -> ModelOrigin.Manual
@@ -173,14 +173,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             description = modelJson.description,
             types = modelJson.types.map { typeJson ->
                 ModelTypeInMemory(
-                    id = TypeKey(typeJson.id),
+                    key = TypeKey(typeJson.id),
                     name = typeJson.name,
                     description = typeJson.description
                 )
             },
             entityDefs = modelJson.entities.map { entityJson ->
                 EntityDefInMemory(
-                    id = EntityKey(entityJson.id),
+                    key = EntityKey(entityJson.id),
                     name = entityJson.name,
                     description = entityJson.description,
                     identifierAttributeKey = AttributeKey(entityJson.identifierAttribute),
@@ -195,7 +195,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
-                    id = RelationshipKey(relationJson.id),
+                    key = RelationshipKey(relationJson.id),
                     name = relationJson.name,
                     description = relationJson.description,
                     roles = relationJson.roles.map { roleJson ->
@@ -220,7 +220,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         private fun toAttributeJsonList(attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
             return attrs.map { it ->
                 ModelAttributeJson(
-                    id = it.id.value,
+                    id = it.key.value,
                     name = it.name,
                     description = it.description,
                     type = it.type.value,
@@ -233,7 +233,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         private fun toAttributeList(attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
             return attrs.map { attributeJson ->
                 AttributeDefInMemory(
-                    id = AttributeKey(attributeJson.id),
+                    key = AttributeKey(attributeJson.id),
                     name = attributeJson.name,
                     description = attributeJson.description,
                     optional = attributeJson.optional,
