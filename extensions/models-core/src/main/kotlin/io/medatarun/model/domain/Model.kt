@@ -10,17 +10,25 @@ import java.net.URL
 interface Model {
 
     /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: ModelId
+
+    /**
      * Unique key of the model accros all models managed by the current application instance
      */
     val key: ModelKey
+
     /**
      * Display name of the model
      */
     val name: LocalizedText?
+
     /**
      * Display description of the model
      */
     val description: LocalizedMarkdown?
+
     /**
      * Version of the model
      */
@@ -64,20 +72,24 @@ interface Model {
      * Returns entity definition by its id or null
      */
     fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
+
     /**
      * Returns entity definition by its id or throw [EntityDefNotFoundException]
      */
-    fun findEntityDef(id: EntityKey): EntityDef = findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.key, id)
+    fun findEntityDef(id: EntityKey): EntityDef =
+        findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.key, id)
 
     /**
      * Returns relationship definition by its id
      */
-    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? = relationshipDefs.firstOrNull { it.key == id }
+    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? =
+        relationshipDefs.firstOrNull { it.key == id }
 
     /**
      * Returns relationship definition by its id or throw [RelationshipDefNotFoundException]
      */
-    fun findRelationshipDef(id: RelationshipKey): RelationshipDef = findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.key, id)
+    fun findRelationshipDef(id: RelationshipKey): RelationshipDef =
+        findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.key, id)
 
     /**
      * Syntax sugar to check if a relationship exists

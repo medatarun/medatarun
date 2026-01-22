@@ -1,10 +1,7 @@
 package io.medatarun.model.infra
 
 import io.medatarun.lang.exceptions.MedatarunException
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.Hashtag
-import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
 import io.medatarun.model.ports.exposed.EntityDefUpdateCmd
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
@@ -39,6 +36,7 @@ class ModelInMemoryReducer {
 
             is ModelRepositoryCmd.CreateType -> model.copy(
                 types = model.types + ModelTypeInMemory(
+                    id = TypeId.generate(),
                     key = cmd.initializer.id,
                     name = cmd.initializer.name,
                     description = cmd.initializer.description
@@ -190,25 +188,25 @@ private fun updateRelationship(
     is RelationshipDefUpdateCmd.Name -> rel.copy(name = input.value)
     is RelationshipDefUpdateCmd.Description -> rel.copy(description = input.value)
     is RelationshipDefUpdateCmd.RoleKey -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
-            id = cmd.cmd.value
+        if (role.key != cmd.cmd.relationshipRoleKey) role else role.copy(
+            key = cmd.cmd.value
         )
     })
 
     is RelationshipDefUpdateCmd.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+        if (role.key != cmd.cmd.relationshipRoleKey) role else role.copy(
             entityId = cmd.cmd.value
         )
     })
 
     is RelationshipDefUpdateCmd.RoleName -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+        if (role.key != cmd.cmd.relationshipRoleKey) role else role.copy(
             name = cmd.cmd.value
         )
     })
 
     is RelationshipDefUpdateCmd.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+        if (role.key != cmd.cmd.relationshipRoleKey) role else role.copy(
             cardinality = cmd.cmd.value
         )
     })

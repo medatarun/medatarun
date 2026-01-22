@@ -82,7 +82,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     fun toModelJson(model: Model): ModelJson {
         val modelJson = ModelJson(
-            id = model.key.value,
+            id = model.id.value.toString(),
+            key = model.key.value,
             schema = ModelJsonSchemas.current(),
             version = model.version.value,
             name = model.name,
@@ -90,19 +91,22 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             origin = toModelOriginStr(model.origin),
             types = model.types.map { type ->
                 ModelTypeJson(
-                    id = type.key.value,
+                    id = type.id.value.toString(),
+                    key = type.key.value,
                     name = type.name,
                     description = type.description,
                 )
             },
             relationships = model.relationshipDefs.map { rel ->
                 RelationshipJson(
-                    id = rel.key.value,
+                    id = rel.id.value.toString(),
+                    key = rel.key.value,
                     name = rel.name,
                     description = rel.description,
                     roles = rel.roles.map { role ->
                         RelationshipRoleJson(
-                            id = role.id.value,
+                            id = role.id.value.toString(),
+                            key = role.key.value,
                             entityId = role.entityId.value,
                             name = role.name,
                             cardinality = role.cardinality.code
@@ -115,7 +119,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             entities = model.entityDefs.map { entity ->
                 ModelEntityJson(
-                    id = entity.key.value,
+                    id = entity.id.value.toString(),
+                    key = entity.key.value,
                     name = entity.name,
                     description = entity.description,
                     identifierAttribute = entity.identifierAttributeKey.value,
@@ -163,7 +168,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val model = ModelInMemory(
-            key = ModelKey(modelJson.id),
+            id = modelJson.id?.let { ModelId.valueOfString(it) } ?: ModelId.generate(),
+            key = ModelKey(modelJson.key),
             version = ModelVersion(modelJson.version),
             origin = when (modelJson.origin) {
                 null -> ModelOrigin.Manual
@@ -173,14 +179,16 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             description = modelJson.description,
             types = modelJson.types.map { typeJson ->
                 ModelTypeInMemory(
-                    key = TypeKey(typeJson.id),
+                    id = typeJson.id?.let { TypeId.valueOfString(it) } ?: TypeId.generate(),
+                    key = TypeKey(typeJson.key),
                     name = typeJson.name,
                     description = typeJson.description
                 )
             },
             entityDefs = modelJson.entities.map { entityJson ->
                 EntityDefInMemory(
-                    key = EntityKey(entityJson.id),
+                    id = entityJson.id?.let { EntityId.valueOfString(it) } ?: EntityId.generate(),
+                    key = EntityKey(entityJson.key),
                     name = entityJson.name,
                     description = entityJson.description,
                     identifierAttributeKey = AttributeKey(entityJson.identifierAttribute),
@@ -195,12 +203,14 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
-                    key = RelationshipKey(relationJson.id),
+                    id = relationJson.id?.let { RelationshipId.valueOfString(it) } ?: RelationshipId.generate(),
+                    key = RelationshipKey(relationJson.key),
                     name = relationJson.name,
                     description = relationJson.description,
                     roles = relationJson.roles.map { roleJson ->
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleKey(roleJson.id),
+                            id = roleJson.id?.let { RelationshipRoleId.valueOfString(it) } ?: RelationshipRoleId.generate(),
+                            key = RelationshipRoleKey(roleJson.key),
                             name = roleJson.name,
                             entityId = EntityKey(roleJson.entityId),
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
@@ -220,7 +230,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         private fun toAttributeJsonList(attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
             return attrs.map { it ->
                 ModelAttributeJson(
-                    id = it.key.value,
+                    id = it.id.value.toString(),
+                    key = it.key.value,
                     name = it.name,
                     description = it.description,
                     type = it.type.value,
@@ -233,7 +244,8 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
         private fun toAttributeList(attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
             return attrs.map { attributeJson ->
                 AttributeDefInMemory(
-                    key = AttributeKey(attributeJson.id),
+                    id = attributeJson.id?.let { AttributeId.valueOfString(it) } ?: AttributeId.generate(),
+                    key = AttributeKey(attributeJson.key),
                     name = attributeJson.name,
                     description = attributeJson.description,
                     optional = attributeJson.optional,
@@ -247,14 +259,18 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
 
 @Serializable
 class ModelTypeJson(
-    val id: String,
+    /** Note that for imports, this may be null */
+    val id: String? = null,
+    val key: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
 )
 
 @Serializable
 class ModelEntityJson(
-    val id: String,
+    /** Note that for imports, this may be null */
+    val id: String? = null,
+    val key: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val identifierAttribute: @Contextual String,
@@ -267,7 +283,9 @@ class ModelEntityJson(
 
 @Serializable
 class ModelAttributeJson(
-    val id: String,
+    /** Note that for imports, this may be null */
+    val id: String? = null,
+    val key: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val type: String,
@@ -277,7 +295,9 @@ class ModelAttributeJson(
 
 @Serializable
 class RelationshipRoleJson(
-    val id: String,
+    /** Note that for imports, this may be null */
+    val id: String? = null,
+    val key: String,
     val entityId: String,
     val name: @Contextual LocalizedText? = null,
     val cardinality: String
@@ -285,7 +305,9 @@ class RelationshipRoleJson(
 
 @Serializable
 class RelationshipJson(
-    val id: String,
+    /** Note that for imports, this may be null */
+    val id: String? = null,
+    val key: String,
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val roles: List<RelationshipRoleJson>,
@@ -295,7 +317,9 @@ class RelationshipJson(
 
 @Serializable
 class ModelJson(
-    val id: String,
+    /** Note that for imports, id may be null or missing.*/
+    val id: String? = null,
+    val key: String,
     @SerialName($$"$schema")
     val schema: String,
     val version: String,

@@ -99,7 +99,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
-                        put("id", role.id.value)
+                        put("id", role.key.value)
                         put("name", role.name?.get(locale))
                         put("entityId", role.entityId.value)
                         put("cardinality", role.cardinality.code)

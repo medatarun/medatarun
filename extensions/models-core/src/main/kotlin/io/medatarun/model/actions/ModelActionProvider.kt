@@ -3,8 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.model.domain.ModelExportNoPluginFoundException
-import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.RelationshipDefInMemory
 import io.medatarun.model.infra.RelationshipRoleInMemory
@@ -483,12 +482,13 @@ class ModelActionHandler(
             ModelCmd.CreateRelationshipDef(
                 modelKey = cmd.modelKey,
                 initializer = RelationshipDefInMemory(
+                    id= RelationshipId.generate(),
                     key = cmd.relationshipKey,
                     name = cmd.name,
                     description = cmd.description,
                     roles = listOf(
-                        RelationshipRoleInMemory(id = cmd.roleAKey, entityId = cmd.roleAEntityKey, name = cmd.roleAName, cardinality = cmd.roleACardinality),
-                        RelationshipRoleInMemory(id = cmd.roleBKey, entityId = cmd.roleBEntityKey, name = cmd.roleBName, cardinality = cmd.roleBCardinality)
+                        RelationshipRoleInMemory(id= RelationshipRoleId.generate(), key = cmd.roleAKey, entityId = cmd.roleAEntityKey, name = cmd.roleAName, cardinality = cmd.roleACardinality),
+                        RelationshipRoleInMemory(id= RelationshipRoleId.generate(), key = cmd.roleBKey, entityId = cmd.roleBEntityKey, name = cmd.roleBName, cardinality = cmd.roleBCardinality)
                     ),
                     attributes = emptyList(),
                     hashtags = emptyList(),
@@ -584,6 +584,7 @@ class ModelActionHandler(
                 modelKey = cmd.modelKey,
                 relationshipKey = cmd.relationshipKey,
                 attr = AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = cmd.attributeKey,
                     name = cmd.name,
                     description = cmd.description,

@@ -6,8 +6,10 @@ package io.medatarun.model.domain
  * not what should happen. There is no lifecycle or business logic here.
  */
 interface RelationshipDef {
-
-
+    /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: RelationshipId
     /**
      * Unique key of the relationship within the model.
      * Used for referencing from other definitions or instances.
@@ -87,11 +89,15 @@ interface RelationshipDef {
  */
 interface RelationshipRole {
     /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: RelationshipRoleId
+    /**
      * Unique identifier of the role within the relationship.
      *
      * Used for referencing from other definitions or instances.
      */
-    val id: RelationshipRoleKey
+    val key: RelationshipRoleKey
 
     /**
      * Reference to the participating entity (defined in [EntityDef]).

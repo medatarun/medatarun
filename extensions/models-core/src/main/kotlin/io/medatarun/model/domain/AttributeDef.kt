@@ -5,6 +5,11 @@ package io.medatarun.model.domain
  */
 interface AttributeDef {
     /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: AttributeId
+
+    /**
      * Unique key of the attribute in its [EntityDef]
      */
     val key: AttributeKey

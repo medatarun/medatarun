@@ -7,6 +7,7 @@ import java.net.URL
  * Default implementation of EntityDef
  */
 data class EntityDefInMemory(
+    override val id: EntityId,
     override val key: EntityKey,
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
@@ -34,6 +35,7 @@ data class EntityDefInMemory(
     companion object {
         fun of(other: EntityDef): EntityDefInMemory {
             return EntityDefInMemory(
+                id = other.id,
                 key = other.key,
                 name = other.name,
                 description = other.description,
@@ -46,7 +48,8 @@ data class EntityDefInMemory(
         }
 
         class Builder(
-            val id: EntityKey,
+            val id: EntityId = EntityId.generate(),
+            val key: EntityKey,
             var name: LocalizedText? = null,
             var attributes: MutableList<AttributeDefInMemory> = mutableListOf(),
             var description: LocalizedMarkdown? = null,
@@ -62,7 +65,8 @@ data class EntityDefInMemory(
 
             fun build(): EntityDefInMemory {
                 return EntityDefInMemory(
-                    key = id,
+                    id = id,
+                    key = key,
                     name = name,
                     attributes = attributes,
                     description = description,
@@ -75,11 +79,11 @@ data class EntityDefInMemory(
         }
 
         fun builder(
-            id: EntityKey,
+            key: EntityKey,
             identifierAttributeKey: AttributeKey,
             block: Builder.() -> Unit = {}
         ): EntityDefInMemory {
-            return Builder(id = id, identifierAttributeKey = identifierAttributeKey).also(block).build()
+            return Builder(key = key, identifierAttributeKey = identifierAttributeKey).also(block).build()
         }
     }
 }

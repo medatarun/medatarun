@@ -13,7 +13,8 @@ class ModelJsonRepositoryTest {
     internal inner class TestEnv {
         val fs = ModelJsonFilesystemFixture()
         val repositoryPath = fs.modelsDirectory()
-        val repo: ModelJsonRepository = ModelJsonRepository(repositoryPath, converter)
+        val files = ModelsJsonStorageFiles(repositoryPath)
+        val repo: ModelJsonRepository = ModelJsonRepository(files, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
         val sampleModel2 = sampleModel.copy(key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {

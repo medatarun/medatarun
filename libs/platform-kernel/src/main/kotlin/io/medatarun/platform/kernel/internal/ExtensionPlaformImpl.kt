@@ -9,9 +9,8 @@ class ExtensionPlaformImpl(
     extensions: List<MedatarunExtension>,
     config: MedatarunConfig
 ) : ExtensionPlatform {
-    override val extensionRegistry: ExtensionRegistry = ExtensionRegistryImpl(
-        extensions,
-        config
-    )
-        .also { it.init() }
+
+    override val extensionRegistry: ExtensionRegistry = ExtensionRegistryImpl(extensions, config).also { it.init() }
+
+
 }

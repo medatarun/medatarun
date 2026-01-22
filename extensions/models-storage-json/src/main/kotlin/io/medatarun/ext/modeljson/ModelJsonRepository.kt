@@ -10,15 +10,13 @@ import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.model.ports.needs.ModelRepositoryCmd
 import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.needs.ModelRepositoryId
-import kotlinx.serialization.SerializationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.deleteIfExists
 
 
 class ModelJsonRepository(
-    private val repositoryPath: Path,
+    private val files: ModelsJsonStorageFiles,
     private val modelJsonConverter: ModelJsonConverter
 ) : ModelRepository {
 
@@ -27,31 +25,15 @@ class ModelJsonRepository(
      */
     private val repositoryId = REPOSITORY_ID
 
-    private val discoveredModels = mutableMapOf<ModelKey, Path>()
-
-    init {
-        if (!repositoryPath.isDirectory())
-            throw ModelJsonRepositoryException("Model repository [$repositoryPath] doesn't exist or is not a repository")
-
-        val paths = repositoryPath.listDirectoryEntries("*.json").filter { it.isRegularFile() }
-        paths.forEach { path ->
-            try {
-                val model = modelJsonConverter.fromJson(path.readText())
-                discoveredModels[model.key] = path.toAbsolutePath()
-            } catch (e: SerializationException) {
-                logger.error("File ${path.toAbsolutePath()} is not a valid Medatarun model, skipped. Cause: {}", e.message)
-            }
-
-        }
-    }
+    private val discoveredModels = files.getAllModelFiles().toMutableMap()
 
     override fun matchesId(id: ModelRepositoryId): Boolean {
         return id == repositoryId
     }
 
     override fun findModelByIdOptional(id: ModelKey): ModelInMemory? {
-        val modelPath = discoveredModels[id] ?: return null
-        return modelJsonConverter.fromJson(modelPath.readText())
+        discoveredModels[id] ?: return null
+        return modelJsonConverter.fromJson(files.load(id))
     }
 
     override fun findAllModelIds(): List<ModelKey> {
@@ -88,8 +70,7 @@ class ModelJsonRepository(
 
     fun persistModel(model: Model) {
         val json = modelJsonConverter.toJsonString(model)
-        val path = repositoryPath.resolve(model.key.value + ".json")
-        path.writeText(json)
+        val path = files.save(model.key.value, json)
         discoveredModels[model.key] = path
     }
 

@@ -6,6 +6,11 @@ package io.medatarun.model.domain
  */
 interface ModelType {
     /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: TypeId
+
+    /**
      * Unique type key in the model, unique in the model
      */
     val key: TypeKey
@@ -14,6 +19,7 @@ interface ModelType {
      * Display name of the type
      */
     val name: LocalizedText?
+
     /**
      * Display description of the type
      */

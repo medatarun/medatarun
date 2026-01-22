@@ -47,7 +47,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     putJsonArray("roles") {
                                         relationship.roles.forEach { role ->
                                             addJsonObject {
-                                                put("id", role.id.value)
+                                                put("id", role.key.value)
                                                 put("name", localizedTextToJson(role.name))
                                                 put("entityId", role.entityId.value)
                                                 put("cardinality", role.cardinality.code)

@@ -40,18 +40,21 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val model = ModelInMemory(
+            id = ModelId.generate(),
             key = ModelKey(modelKeyOrGenerated),
             name = LocalizedTextNotLocalized(modelNameOrGenerated),
             version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
-            types = result.types().map { ModelTypeInMemory(TypeKey(it), null, null) },
+            types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) },
             entityDefs = result.tables.map { table ->
                 EntityDefInMemory(
+                    id = EntityId.generate(),
                     key = EntityKey(table.tableName),
                     name = null,
                     attributes = table.columns.map {
                         AttributeDefInMemory(
+                            id = AttributeId.generate(),
                             key = AttributeKey(it.columnName),
                             name = null,
                             description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
@@ -74,7 +77,8 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
                     val roles = listOf(
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
+                            id = RelationshipRoleId.generate(),
+                            key = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
                             entityId = EntityKey(fk.fkTableName),
                             name = null,
                             cardinality = if (result.isNullableOrUndefined(
@@ -84,13 +88,15 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                             ) RelationshipCardinality.ZeroOrOne else RelationshipCardinality.One,
                         ),
                         RelationshipRoleInMemory(
-                            id = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
+                            id = RelationshipRoleId.generate(),
+                            key = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
                             cardinality = RelationshipCardinality.Unknown,
                             entityId = EntityKey(fk.pkTableName),
                             name = null
                         ),
                     )
                     RelationshipDefInMemory(
+                        id = RelationshipId.generate(),
                         key = RelationshipKey(idStr),
                         name = null,
                         description = null,

@@ -23,7 +23,7 @@ class FrictionlessConverter {
     }
 
     fun readString(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): Model {
-        val types = FrictionlessTypes().all
+        val types = FrictionlessTypes().generateAll()
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
         val uri = resourceLocator.resolveUri(path)
@@ -65,6 +65,7 @@ class FrictionlessConverter {
         resourceLocator: ResourceLocator
     ): ModelInMemory {
         val model = ModelInMemory(
+            id = ModelId.generate(),
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
@@ -106,6 +107,7 @@ class FrictionlessConverter {
 
 
         val model = ModelInMemory(
+            id = ModelId.generate(),
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
@@ -142,11 +144,13 @@ class FrictionlessConverter {
         hashtags: List<Hashtag>
     ): EntityDefInMemory {
         val entity = EntityDefInMemory(
+            id = EntityId.generate(),
             key = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
             attributes = schema.fields.map { field ->
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey(field.name),
                     name = field.title?.let(::LocalizedTextNotLocalized),
                     description = field.description?.let(::LocalizedMarkdownNotLocalized),

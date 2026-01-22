@@ -7,6 +7,7 @@ import java.net.URL
  * Default implementation of Model
  */
 data class ModelInMemory(
+    override val id: ModelId,
     override val key: ModelKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
@@ -22,6 +23,7 @@ data class ModelInMemory(
     companion object {
         fun of(other: Model): ModelInMemory {
             return ModelInMemory(
+                id = other.id,
                 key = other.key,
                 name = other.name,
                 description = other.description,
@@ -36,7 +38,8 @@ data class ModelInMemory(
         }
 
         class Builder(
-            val id: ModelKey,
+            var id: ModelId = ModelId.generate(),
+            val key: ModelKey,
             var name: LocalizedText? = null,
             var description: LocalizedMarkdown? = null,
             val version: ModelVersion,
@@ -49,7 +52,8 @@ data class ModelInMemory(
         ) {
             fun build(): ModelInMemory {
                 return ModelInMemory(
-                    key = id,
+                    id = id,
+                    key = key,
                     name = name,
                     description = description,
                     version = version,
@@ -63,18 +67,18 @@ data class ModelInMemory(
             }
 
             fun addEntityDef(
-                id: EntityKey,
+                key: EntityKey,
                 identifierAttributeKey: AttributeKey,
                 block: EntityDefInMemory.Companion.Builder.() -> Unit = {}
             ): EntityDefInMemory {
-                val e = EntityDefInMemory.builder(id, identifierAttributeKey, block)
+                val e = EntityDefInMemory.builder(key, identifierAttributeKey, block)
                 entityDefs.add(e)
                 return e
             }
         }
 
-        fun builder(id: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
-            return Builder(id = id, version = version).apply(block).build()
+        fun builder(key: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
+            return Builder(key = key, version = version).apply(block).build()
         }
 
     }

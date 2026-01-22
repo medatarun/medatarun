@@ -14,16 +14,17 @@ class ModelValidationTest {
     @Test
     fun `model with bad entity identifier`() {
         val model = ModelInMemory.builder(
-            id = ModelKey("test"),
+            key = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
-            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(id = TypeId.generate(), key = TypeKey("String"), name = null, description = null))
             addEntityDef(
-                id = EntityKey("Contact"),
+                key = EntityKey("Contact"),
                 identifierAttributeKey = AttributeKey("unknown"),
                 {
                     addAttribute(
                         AttributeDefInMemory(
+                            id = AttributeId.generate(),
                             key = AttributeKey("id"),
                             type = TypeKey("String"),
                             name = null,
@@ -45,18 +46,19 @@ class ModelValidationTest {
     @Test
     fun `model with bad attribute type`() {
         val model = ModelInMemory.builder(
-            id = ModelKey("test"),
+            key = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
             name = null
             description = null
-            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(id = TypeId.generate(), key = TypeKey("String"), name = null, description = null))
             addEntityDef(
-                id = EntityKey("Contact"),
+                key = EntityKey("Contact"),
                 identifierAttributeKey = AttributeKey("id"),
             ) {
                 addAttribute(
                     AttributeDefInMemory(
+                        id = AttributeId.generate(),
                         key = AttributeKey("id"),
                         type = TypeKey("Int"),
                         name = null,

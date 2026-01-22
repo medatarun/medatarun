@@ -7,6 +7,10 @@ import java.net.URL
  */
 interface EntityDef {
     /**
+     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     */
+    val id: EntityId
+    /**
      * Unique key of this EntityDef in the [Model]
      */
     val key: EntityKey

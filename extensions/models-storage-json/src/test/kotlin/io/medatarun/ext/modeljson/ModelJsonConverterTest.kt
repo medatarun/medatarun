@@ -90,13 +90,18 @@ internal class ModelJsonConverterTest {
 
     fun createJsonForOriginTest(origin: JsonElement? = null): JsonObject {
         return buildJsonObject {
-            put("id", "exemple")
+            put("id", ModelId.generate().value.toString())
+            put("key", "exemple")
             put("version", "1.0.0")
-            put($$"$schema", ModelJsonSchemas.initial)
-            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            put($$"$schema", ModelJsonSchemas.v_1_0)
+            putJsonArray("types") { addJsonObject {
+                put("id", TypeId.generate().value.toString())
+                put("key", "string") }
+            }
             putJsonArray("entities") {
                 addJsonObject {
-                    put("id", "contact")
+                    put("id", EntityId.generate().value.toString())
+                    put("key", "contact")
                     put("name", "Contact")
                     put("identifierAttribute", "id")
                     when (origin) {
@@ -106,7 +111,8 @@ internal class ModelJsonConverterTest {
                     }
                     putJsonArray("attributes") {
                         addJsonObject {
-                            put("id", "id")
+                            put("id", AttributeId.generate().value.toString())
+                            put("key", "id")
                             put("name", "Identifier")
                             put("type", "String")
                         }
@@ -144,20 +150,26 @@ internal class ModelJsonConverterTest {
 
     fun createJsonForDocumentationHomeTest(modelDocHome: JsonElement?, entityDocHome: JsonElement?): JsonObject {
         return buildJsonObject {
-            put("id", "exemple")
+            put("id", ModelId.generate().value.toString())
+            put("key", "exemple")
             put("version", "1.0.0")
-            put($$"$schema", ModelJsonSchemas.initial)
+            put($$"$schema", ModelJsonSchemas.v_1_0)
             if (modelDocHome != null) put("documentationHome", modelDocHome)
-            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            putJsonArray("types") { addJsonObject {
+                put("id", TypeId.generate().value.toString())
+                put("key", "string") }
+            }
             putJsonArray("entities") {
                 addJsonObject {
-                    put("id", "contact")
+                    put("id", EntityId.generate().value.toString())
+                    put("key", "contact")
                     put("name", "Contact")
                     put("identifierAttribute", "id")
                     if (entityDocHome != null) put("documentationHome", entityDocHome)
                     putJsonArray("attributes") {
                         addJsonObject {
-                            put("id", "id")
+                            put("id", AttributeId.generate().value.toString())
+                            put("key", "id")
                             put("name", "Identifier")
                             put("type", "String")
                         }
@@ -207,20 +219,26 @@ internal class ModelJsonConverterTest {
 
     fun createJsonForHashtagsTest(modelHashtags: JsonElement?, entityHashtags: JsonElement?): JsonObject {
         return buildJsonObject {
-            put("id", "exemple")
+            put("id", ModelId.generate().value.toString())
+            put("key", "exemple")
             put("version", "1.0.0")
-            put($$"$schema", ModelJsonSchemas.initial)
+            put($$"$schema", ModelJsonSchemas.v_1_0)
             if (modelHashtags != null) put("hashtags", modelHashtags)
-            putJsonArray("types") { addJsonObject { put("id", "string") } }
+            putJsonArray("types") { addJsonObject {
+                put("id", TypeId.generate().value.toString())
+                put("key", "string") }
+            }
             putJsonArray("entities") {
                 addJsonObject {
-                    put("id", "contact")
+                    put("id", EntityId.generate().value.toString())
+                    put("key", "contact")
                     put("name", "Contact")
                     put("identifierAttribute", "id")
                     if (entityHashtags != null) put("hashtags", entityHashtags)
                     putJsonArray("attributes") {
                         addJsonObject {
-                            put("id", "id")
+                            put("id", AttributeId.generate().value.toString())
+                            put("key", "id")
                             put("name", "Identifier")
                             put("type", "String")
                         }

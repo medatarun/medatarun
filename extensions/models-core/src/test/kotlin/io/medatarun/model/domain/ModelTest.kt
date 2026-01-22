@@ -1451,19 +1451,20 @@ class ModelTest {
         val query = runtime.queries
         val modelKey = ModelKey("test")
         val invalidModel = ModelInMemory.builder(
-            id = modelKey,
+            key = modelKey,
             version = ModelVersion("0.0.1"),
         ) {
             name = null
             description = null
-            types = mutableListOf(ModelTypeInMemory(key = TypeKey("String"), name = null, description = null))
+            types = mutableListOf(ModelTypeInMemory(id = TypeId.generate(), key = TypeKey("String"), name = null, description = null))
             addEntityDef(
-                id = EntityKey("Contact"),
+                key = EntityKey("Contact"),
                 // Error is here
                 identifierAttributeKey = AttributeKey("unknown"),
             ) {
                 addAttribute(
                     AttributeDefInMemory(
+                        id = AttributeId.generate(),
                         key = AttributeKey("id"),
                         type = TypeKey("String"),
                         name = null,

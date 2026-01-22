@@ -32,12 +32,13 @@ class ModelInMemoryTest {
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
 
         val personEntity = EntityDefInMemory.builder(
-            id = EntityKey("person"),
+            key = EntityKey("person"),
             identifierAttributeKey = AttributeKey("id"),
         ) {
             name = LocalizedTextNotLocalized("Person")
             addAttribute(
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
@@ -46,6 +47,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
@@ -54,6 +56,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
@@ -62,6 +65,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
@@ -70,6 +74,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
@@ -81,12 +86,13 @@ class ModelInMemoryTest {
         }
 
         val companyEntity = EntityDefInMemory.builder(
-            id = EntityKey("company"),
+            key = EntityKey("company"),
             identifierAttributeKey = AttributeKey("id"),
         ) {
             name = LocalizedTextNotLocalized("Company")
             addAttribute(
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
@@ -95,6 +101,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
@@ -103,6 +110,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
@@ -111,6 +119,7 @@ class ModelInMemoryTest {
                     hashtags = emptyList()
                 ),
                 AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
@@ -123,6 +132,7 @@ class ModelInMemoryTest {
         }
 
         return ModelInMemory(
+            id = ModelId.generate(),
             key = ModelKey("test-model"),
             name = LocalizedTextNotLocalized("Test Model"),
             description = null,

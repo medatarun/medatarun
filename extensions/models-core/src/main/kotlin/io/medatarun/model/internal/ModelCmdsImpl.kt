@@ -15,6 +15,7 @@ class ModelCmdsImpl(
 
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
+            id = ModelId.generate(),
             key = cmd.modelKey,
             name = cmd.name,
             description = cmd.description,
@@ -134,6 +135,7 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepositoryCmd.CreateEntityDef(
                 c.modelKey, EntityDefInMemory(
+                    id= EntityId.generate(),
                     key = c.entityDefInitializer.entityKey,
                     name = c.entityDefInitializer.name,
                     description = c.entityDefInitializer.description,
@@ -143,6 +145,7 @@ class ModelCmdsImpl(
                     hashtags = emptyList(),
                     attributes = listOf(
                         AttributeDefInMemory(
+                            id = AttributeId.generate(),
                             key = c.entityDefInitializer.identityAttribute.attributeKey,
                             name = c.entityDefInitializer.identityAttribute.name,
                             description = c.entityDefInitializer.identityAttribute.description,
@@ -172,6 +175,7 @@ class ModelCmdsImpl(
                 modelKey = c.modelKey,
                 entityKey = c.entityKey,
                 attributeDef = AttributeDefInMemory(
+                    id = AttributeId.generate(),
                     key = c.attributeDefInitializer.attributeKey,
                     name = c.attributeDefInitializer.name,
                     description = c.attributeDefInitializer.description,
@@ -424,7 +428,7 @@ class ModelCmdsImpl(
         if (findModelById(cmd.modelKey).findRelationshipDefOptional(cmd.initializer.key) != null)
             throw RelationshipDuplicateIdException(cmd.modelKey, cmd.initializer.key)
         val duplicateRoleIds =
-            cmd.initializer.roles.groupBy { it.id }.mapValues { it.value.size }.filter { it.value > 1 }
+            cmd.initializer.roles.groupBy { it.key }.mapValues { it.value.size }.filter { it.value > 1 }
         if (duplicateRoleIds.isNotEmpty()) {
             throw RelationshipDuplicateRoleIdException(duplicateRoleIds.keys)
         }
