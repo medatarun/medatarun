@@ -15,11 +15,12 @@ class ModelJsonExtension : MedatarunExtension {
         val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
         val configRepoPath = ctx.resolveExtensionStoragePath()
         val files = ModelsJsonStorageFiles(configRepoPath)
-        val converter = ModelJsonConverter(configPrettyPrint == "true")
+        val prettyPrint = configPrettyPrint == "true"
+        val converter = ModelJsonConverter(prettyPrint)
         val repo = ModelJsonRepository(
             files, converter
         )
-        val migrations = ModelsStorageJsonMigrations(files)
+        val migrations = ModelsStorageJsonMigrations(files, prettyPrint)
 
         ctx.register(ModelRepository::class, repo)
         ctx.register(ModelExporter::class, ModelExporterJson(converter))

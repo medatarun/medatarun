@@ -48,8 +48,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
-    val serviceRegistry =
-        MedatarunServiceRegistryImpl(extensions, config)
+    val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
     val extensionPlatform = ExtensionPlaformImpl(extensions, config)
 
     // 🤔 🤔 🤔
@@ -100,19 +99,13 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // End of 🤔 🤔 🤔 🤯
 
     fun build(): AppRuntime {
-
+        // Launches a startup sequence. Usually useful to do some stuff like data migrations
+        this.platformRuntime.start()
         return AppRuntimeImpl(
             config,
             extensionPlatform.extensionRegistry,
             serviceRegistry
         )
-    }
-
-    /**
-     * Launches a startup sequence. Usually useful to do some stuff like data migrations
-     */
-    fun startup() {
-        this.platformRuntime.start()
     }
 
     class AppRuntimeImpl(

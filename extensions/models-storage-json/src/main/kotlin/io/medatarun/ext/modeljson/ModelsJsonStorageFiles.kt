@@ -29,7 +29,7 @@ class ModelsJsonStorageFiles(
     }
 
     fun load(key: ModelKey): String {
-        val path = repositoryPath.resolve("$key.json")
+        val path = repositoryPath.resolve("${key.value}.json")
         return path.readText()
     }
 }
