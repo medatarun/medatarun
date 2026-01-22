@@ -1,7 +1,8 @@
 package io.medatarun.ext.modeljson
 
-import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_DEFAULT
-import io.medatarun.ext.modeljson.ModelJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_KEY
+import io.medatarun.ext.modeljson.internal.*
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_DEFAULT
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepositoryConfig.Companion.CONFIG_PRETTY_PRINT_KEY
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.platform.kernel.MedatarunExtension
@@ -14,10 +15,10 @@ class ModelJsonExtension : MedatarunExtension {
 
         val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
         val configRepoPath = ctx.resolveExtensionStoragePath()
-        val files = ModelsJsonStorageFiles(configRepoPath)
+        val files = ModelsStorageJsonFiles(configRepoPath)
         val prettyPrint = configPrettyPrint == "true"
         val converter = ModelJsonConverter(prettyPrint)
-        val repo = ModelJsonRepository(
+        val repo = ModelsStorageJsonRepository(
             files, converter
         )
         val migrations = ModelsStorageJsonMigrations(files, prettyPrint)

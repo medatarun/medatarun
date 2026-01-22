@@ -1,7 +1,6 @@
-package io.medatarun.ext.modeljson
+package io.medatarun.ext.modeljson.internal
 
 
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.ModelInMemory
@@ -15,8 +14,8 @@ import org.slf4j.LoggerFactory
 import kotlin.io.path.deleteIfExists
 
 
-class ModelJsonRepository(
-    private val files: ModelsJsonStorageFiles,
+internal class ModelsStorageJsonRepository(
+    private val files: ModelsStorageJsonFiles,
     private val modelJsonConverter: ModelJsonConverter
 ) : ModelRepository {
 
@@ -76,11 +75,7 @@ class ModelJsonRepository(
 
     companion object {
         val REPOSITORY_ID = ModelRepositoryId("json")
-        val logger: Logger = LoggerFactory.getLogger(ModelJsonRepository::class.java)
+        val logger: Logger = LoggerFactory.getLogger(ModelsStorageJsonRepository::class.java)
     }
 
 }
-
-class ModelJsonRepositoryException(message: String) : MedatarunException(message)
-class ModelJsonRepositoryModelNotFoundException(modelKey: ModelKey) :
-    MedatarunException("Model with id ${modelKey.value} not found in Json repository")

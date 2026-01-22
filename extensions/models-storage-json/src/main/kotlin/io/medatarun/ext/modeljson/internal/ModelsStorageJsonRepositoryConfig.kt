@@ -1,6 +1,6 @@
-package io.medatarun.ext.modeljson
+package io.medatarun.ext.modeljson.internal
 
-data class ModelJsonRepositoryConfig(
+internal data class ModelsStorageJsonRepositoryConfig(
     val prettyPrint: Boolean
 ) {
     companion object {

@@ -1,5 +1,8 @@
 package io.medatarun.ext.modeljson
 
+import io.medatarun.ext.modeljson.internal.ModelJsonConverter
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepository
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepositoryCmd
 import io.medatarun.model.ports.needs.ModelRepositoryId
@@ -13,8 +16,8 @@ class ModelJsonRepositoryTest {
     internal inner class TestEnv {
         val fs = ModelJsonFilesystemFixture()
         val repositoryPath = fs.modelsDirectory()
-        val files = ModelsJsonStorageFiles(repositoryPath)
-        val repo: ModelJsonRepository = ModelJsonRepository(files, converter)
+        val files = ModelsStorageJsonFiles(repositoryPath)
+        val repo: ModelsStorageJsonRepository = ModelsStorageJsonRepository(files, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
         val sampleModel2 = sampleModel.copy(key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {
@@ -34,7 +37,7 @@ class ModelJsonRepositoryTest {
     fun testMatches() {
         val env = TestEnv()
         assertFalse(env.repo.matchesId(ModelRepositoryId("abc")))
-        assertTrue(env.repo.matchesId(ModelJsonRepository.REPOSITORY_ID))
+        assertTrue(env.repo.matchesId(ModelsStorageJsonRepository.REPOSITORY_ID))
     }
 
     // ------------------------------------------------------------------------

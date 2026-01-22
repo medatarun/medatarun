@@ -1,11 +1,11 @@
-package io.medatarun.ext.modeljson
+package io.medatarun.ext.modeljson.internal
 
 import io.medatarun.ext.modeljson.migrations.Migration_1_1
 import io.medatarun.platform.kernel.PlatformStartedCtx
 import io.medatarun.platform.kernel.PlatformStartedListener
 import kotlinx.serialization.json.Json
 
-class ModelsStorageJsonMigrations(val files: ModelsJsonStorageFiles, val prettyPrint: Boolean) :
+internal class ModelsStorageJsonMigrations(private val files: ModelsStorageJsonFiles, val prettyPrint: Boolean) :
     PlatformStartedListener {
 
     private val json = Json { prettyPrint = this@ModelsStorageJsonMigrations.prettyPrint }

@@ -1,10 +1,10 @@
-package io.medatarun.ext.modeljson
+package io.medatarun.ext.modeljson.internal
 
 import io.medatarun.model.domain.ModelKey
 import java.nio.file.Path
 import kotlin.io.path.*
 
-class ModelsJsonStorageFiles(
+internal class ModelsStorageJsonFiles(
     private val repositoryPath: Path
 ) {
     fun getAllModelFiles(): Map<ModelKey, Path> {

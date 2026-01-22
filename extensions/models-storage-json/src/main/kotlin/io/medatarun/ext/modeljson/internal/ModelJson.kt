@@ -1,5 +1,6 @@
-package io.medatarun.ext.modeljson
+package io.medatarun.ext.modeljson.internal
 
+import io.medatarun.ext.modeljson.ModelJsonSchemas
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import kotlinx.serialization.*
@@ -13,7 +14,7 @@ import org.intellij.lang.annotations.Language
 import java.net.URI
 
 
-inline fun <reified T> valueClassSerializer(
+internal inline fun <reified T> valueClassSerializer(
     crossinline wrap: (String) -> T,
     crossinline unwrap: (T) -> String
 ): KSerializer<T> =
@@ -28,7 +29,7 @@ inline fun <reified T> valueClassSerializer(
             wrap(decoder.decodeString())
     }
 
-class LocalizedTextSerializer : KSerializer<LocalizedText> {
+internal class LocalizedTextSerializer : KSerializer<LocalizedText> {
     override val descriptor = JsonElement.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: LocalizedText) {
@@ -48,7 +49,7 @@ class LocalizedTextSerializer : KSerializer<LocalizedText> {
     }
 }
 
-class LocalizedMarkdownSerializer : KSerializer<LocalizedMarkdown> {
+internal class LocalizedMarkdownSerializer : KSerializer<LocalizedMarkdown> {
     override val descriptor = JsonElement.serializer().descriptor
 
     override fun serialize(encoder: Encoder, value: LocalizedMarkdown) {
@@ -68,7 +69,7 @@ class LocalizedMarkdownSerializer : KSerializer<LocalizedMarkdown> {
     }
 }
 
-class ModelJsonConverter(private val prettyPrint: Boolean) {
+internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     val json = Json {
         prettyPrint = this@ModelJsonConverter.prettyPrint
         serializersModule = SerializersModule {
@@ -258,7 +259,7 @@ class ModelJsonConverter(private val prettyPrint: Boolean) {
 }
 
 @Serializable
-class ModelTypeJson(
+internal class ModelTypeJson(
     /** Note that for imports, this may be null */
     val id: String? = null,
     val key: String,
@@ -267,7 +268,7 @@ class ModelTypeJson(
 )
 
 @Serializable
-class ModelEntityJson(
+internal class ModelEntityJson(
     /** Note that for imports, this may be null */
     val id: String? = null,
     val key: String,
@@ -282,7 +283,7 @@ class ModelEntityJson(
     )
 
 @Serializable
-class ModelAttributeJson(
+internal class ModelAttributeJson(
     /** Note that for imports, this may be null */
     val id: String? = null,
     val key: String,
@@ -294,7 +295,7 @@ class ModelAttributeJson(
 )
 
 @Serializable
-class RelationshipRoleJson(
+internal class RelationshipRoleJson(
     /** Note that for imports, this may be null */
     val id: String? = null,
     val key: String,
@@ -304,7 +305,7 @@ class RelationshipRoleJson(
 )
 
 @Serializable
-class RelationshipJson(
+internal class RelationshipJson(
     /** Note that for imports, this may be null */
     val id: String? = null,
     val key: String,
@@ -316,7 +317,7 @@ class RelationshipJson(
 )
 
 @Serializable
-class ModelJson(
+internal class ModelJson(
     /** Note that for imports, id may be null or missing.*/
     val id: String? = null,
     val key: String,

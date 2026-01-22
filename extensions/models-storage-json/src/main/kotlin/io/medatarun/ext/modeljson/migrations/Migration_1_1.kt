@@ -1,13 +1,13 @@
 package io.medatarun.ext.modeljson.migrations
 
-import io.medatarun.ext.modeljson.ModelJsonRepositoryException
 import io.medatarun.ext.modeljson.ModelJsonSchemas
-import io.medatarun.ext.modeljson.ModelsJsonStorageFiles
+import io.medatarun.ext.modeljson.internal.ModelJsonRepositoryException
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
 import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 
 @Suppress("ClassName")
-class Migration_1_1(val files: ModelsJsonStorageFiles, val json : Json) {
+internal class Migration_1_1(private val files: ModelsStorageJsonFiles, private val json : Json) {
     fun start() {
         files.getAllModelFiles().forEach { f ->
             val jsonObject = Json.parseToJsonElement(files.load(f.key)).jsonObject
