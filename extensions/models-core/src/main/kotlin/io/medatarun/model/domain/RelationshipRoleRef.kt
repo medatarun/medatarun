@@ -1,7 +1,4 @@
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipRoleId
-import io.medatarun.model.domain.RelationshipRoleKey
+package io.medatarun.model.domain
 
 sealed interface RelationshipRoleRef {
 
@@ -10,8 +7,8 @@ sealed interface RelationshipRoleRef {
     ) : RelationshipRoleRef
 
     data class ByKey(
-        val modelKey: ModelKey,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val model: ModelKey,
+        val relationship: RelationshipKey,
+        val role: RelationshipRoleKey,
     ) : RelationshipRoleRef
 }

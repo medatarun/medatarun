@@ -1,4 +1,4 @@
-package io.medatarun.lang.io.medatarun.lang.config
+package io.medatarun.lang.config
 
 /**
  * Simple interface to mark accross the code all declaration

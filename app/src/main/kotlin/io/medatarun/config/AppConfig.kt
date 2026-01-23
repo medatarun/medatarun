@@ -1,6 +1,7 @@
 package io.medatarun.config
 
-import io.medatarun.lang.io.medatarun.lang.config.ConfigPropertyDescription
+
+import io.medatarun.lang.config.ConfigPropertyDescription
 import io.medatarun.runtime.internal.AppRuntimeConfig
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory
 import java.net.URI

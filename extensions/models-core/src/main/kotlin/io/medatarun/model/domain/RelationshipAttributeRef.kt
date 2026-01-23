@@ -1,7 +1,4 @@
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.RelationshipKey
+package io.medatarun.model.domain
 
 sealed interface RelationshipAttributeRef {
 
@@ -10,8 +7,8 @@ sealed interface RelationshipAttributeRef {
     ) : RelationshipAttributeRef
 
     data class ByKey(
-        val modelKey: ModelKey,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey
+        val model: ModelKey,
+        val relationship: RelationshipKey,
+        val attribute: AttributeKey
     ) : RelationshipAttributeRef
 }

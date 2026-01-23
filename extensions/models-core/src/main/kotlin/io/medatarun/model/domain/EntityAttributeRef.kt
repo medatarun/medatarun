@@ -1,7 +1,4 @@
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.ModelKey
+package io.medatarun.model.domain
 
 sealed interface EntityAttributeRef {
 
@@ -10,8 +7,8 @@ sealed interface EntityAttributeRef {
     ) : EntityAttributeRef
 
     data class ByKey(
-        val modelKey: ModelKey,
-        val entityKey: EntityKey,
-        val attributeKey: AttributeKey
+        val model: ModelKey,
+        val entity: EntityKey,
+        val attribute: AttributeKey
     ) : EntityAttributeRef
 }

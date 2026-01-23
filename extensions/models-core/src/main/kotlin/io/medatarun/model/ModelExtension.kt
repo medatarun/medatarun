@@ -22,15 +22,21 @@ class ModelExtension : MedatarunExtension {
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
+        ctx.register(TypeDescriptor::class, EntityRefDescriptor())
+        ctx.register(TypeDescriptor::class, EntityAttributeRefDescriptor())
         ctx.register(TypeDescriptor::class, HashtagDescriptor())
         ctx.register(TypeDescriptor::class, LocalizedMarkdownDescriptor())
         ctx.register(TypeDescriptor::class, LocalizedTextDescriptor())
         ctx.register(TypeDescriptor::class, ModelKeyDescriptor())
+        ctx.register(TypeDescriptor::class, ModelRefDescriptor())
         ctx.register(TypeDescriptor::class, ModelVersionDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipAttributeRefDescriptor())
         ctx.register(TypeDescriptor::class, RelationshipCardinalityDescriptor())
         ctx.register(TypeDescriptor::class, RelationshipKeyDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipRefDescriptor())
         ctx.register(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
         ctx.register(TypeDescriptor::class, TypeKeyDescriptor())
+        ctx.register(TypeDescriptor::class, TypeRefDescriptor())
     }
 
 }
