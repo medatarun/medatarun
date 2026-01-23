@@ -10,8 +10,8 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
     fun process(): String {
         val root = buildJsonObject {
             put("models", buildJsonArray {
-                modelQueries.findAllModelKeys().forEach { modelId ->
-                    val model = modelQueries.findModelByKey(modelId)
+                modelQueries.findAllModelIds().forEach { modelId ->
+                    val model = modelQueries.findModelById(modelId)
                     add(buildJsonObject {
                         put("id", model.key.value)
                         put("version", model.version.value)

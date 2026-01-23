@@ -143,7 +143,7 @@ class ModelTest {
             )
         )
         val modelKeyWrong = ModelKey("m2")
-        assertFailsWith(ModelNotFoundException::class) {
+        assertFailsWith(ModelNotFoundByKeyException::class) {
             cmd.dispatch(
                 ModelCmd.UpdateModelName(
                     modelKeyWrong,
@@ -151,7 +151,7 @@ class ModelTest {
                 )
             )
         }
-        assertFailsWith(ModelNotFoundException::class) {
+        assertFailsWith(ModelNotFoundByKeyException::class) {
             cmd.dispatch(
                 ModelCmd.UpdateModelDescription(
                     modelKeyWrong,
@@ -159,7 +159,7 @@ class ModelTest {
                 )
             )
         }
-        assertFailsWith(ModelNotFoundException::class) {
+        assertFailsWith(ModelNotFoundByKeyException::class) {
             cmd.dispatch(
                 ModelCmd.UpdateModelVersion(
                     modelKeyWrong,
@@ -270,7 +270,7 @@ class ModelTest {
                 repositoryRef = repo2.repositoryId.ref()
             )
         )
-        assertThrows<ModelNotFoundException> {
+        assertThrows<ModelNotFoundByKeyException> {
             cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-delete-repo-3")))
         }
     }
@@ -322,7 +322,7 @@ class ModelTest {
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-delete-repo-1")))
         assertNull(repo1.findModelByKeyOptional(ModelKey("m-to-delete-repo-1")))
-        assertFailsWith<ModelNotFoundException> {
+        assertFailsWith<ModelNotFoundByKeyException> {
             query.findModelByKey(ModelKey("m-to-delete-repo-1"))
         }
         assertNotNull(query.findModelByKey(ModelKey("m-to-preserve-repo-1")))
@@ -404,7 +404,7 @@ class ModelTest {
     @Test
     fun `create type on unknown model throw ModelNotFoundException`() {
         val env = TestEnvTypes()
-        assertThrows<ModelNotFoundException> {
+        assertThrows<ModelNotFoundByKeyException> {
             env.cmd.dispatch(
                 ModelCmd.CreateType(
                     ModelKey("unknown"),
@@ -484,7 +484,7 @@ class ModelTest {
     fun `update type with model not found`() {
         val env = TestEnvTypes()
         env.cmd.dispatch(ModelCmd.CreateType(env.modelKey, ModelTypeInitializer(TypeKey("String"), null, null)))
-        assertThrows<ModelNotFoundException> {
+        assertThrows<ModelNotFoundByKeyException> {
             env.cmd.dispatch(
                 ModelCmd.UpdateType(
                     ModelKey("unknown"),
@@ -514,7 +514,7 @@ class ModelTest {
     fun `delete type model not found`() {
         val env = TestEnvTypes()
         env.cmd.dispatch(ModelCmd.CreateType(env.modelKey, ModelTypeInitializer(TypeKey("String"), null, null)))
-        assertThrows<ModelNotFoundException> {
+        assertThrows<ModelNotFoundByKeyException> {
             env.cmd.dispatch(ModelCmd.DeleteType(ModelKey("unknown"), TypeKey("String")))
         }
     }
@@ -797,7 +797,7 @@ class ModelTest {
         val env = TestEnvEntityUpdate()
         val wrongModelKey = ModelKey("unknown-model")
 
-        assertFailsWith<ModelNotFoundException> {
+        assertFailsWith<ModelNotFoundByKeyException> {
             env.cmd.dispatch(
                 ModelCmd.UpdateEntityDef(
                     wrongModelKey,
@@ -1212,7 +1212,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         env.createAttributeDef()
-        assertFailsWith<ModelNotFoundException> {
+        assertFailsWith<ModelNotFoundByKeyException> {
             env.cmd.dispatch(
                 ModelCmd.UpdateEntityDefAttributeDef(
                     modelKey = ModelKey("unknown"),
@@ -1497,7 +1497,7 @@ class ModelTest {
         assertThrows<ModelInvalidException> { env.query.findModelByKey(env.modelKey) }
 
         // Find all model ids shall not validate models, just give their ids
-        assertDoesNotThrow { env.query.findAllModelKeys() }
+        assertDoesNotThrow { env.query.findAllModelIds() }
 
         // Creating or trying to modify something in invalid model shall throw error
         assertThrows<ModelInvalidException> {

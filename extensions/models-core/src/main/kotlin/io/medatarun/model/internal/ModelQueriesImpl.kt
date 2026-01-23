@@ -1,9 +1,6 @@
 package io.medatarun.model.internal
 
-import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
-import io.medatarun.model.domain.ModelSummary
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
@@ -14,17 +11,18 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
 
 
-    override fun findAllModelKeys(): List<ModelKey> {
-        return storage.findAllModelKeys()
+    override fun findAllModelIds(): List<ModelId> {
+        return storage.findAllModelIds()
     }
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        return storage.findAllModelKeys().map { id ->
+        return storage.findAllModelIds().map { id ->
             try {
-                val model = storage.findModelByKey(id)
+                val model = storage.findModelById(id)
                 ModelSummary(
-                    id = id,
+                    id = model.id,
+                    key = model.key,
                     name = model.name?.get(locale),
                     description = model.description?.get(locale),
                     error = null,
@@ -35,6 +33,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
+                    key= ModelKey(UUID.randomUUID().toString()),
                     name = null,
                     description = null,
                     error = e.message,
@@ -43,14 +42,17 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             }
         }.sortedWith(
             Comparator.comparing(
-                { it.name ?: it.id.value },
+                { it.name ?: it.key.value },
                 Comparator.nullsLast(textComparator)
             )
         )
     }
 
     override fun findModelByKey(modelKey: ModelKey): Model {
-        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
+        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
+    }
+    override fun findModelById(modelId: ModelId): Model {
+        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
     }
 
     private class TextComparator(val locale: Locale) : Comparator<String> {

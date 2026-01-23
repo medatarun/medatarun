@@ -2,6 +2,7 @@ package io.medatarun.ext.modeljson.internal
 
 
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
@@ -35,8 +36,22 @@ internal class ModelsStorageJsonRepository(
         return modelJsonConverter.fromJson(files.load(key))
     }
 
+    override fun findModelByIdOptional(id: ModelId): Model? {
+        // VERY TIME CONSUMING
+        return discoveredModels.keys
+            .map { modelJsonConverter.fromJson(files.load(it)) }
+            .firstOrNull { it.id == id }
+    }
+
     override fun findAllModelKeys(): List<ModelKey> {
         return discoveredModels.keys.toList()
+    }
+
+    override fun findAllModelIds(): List<ModelId> {
+        return discoveredModels.map {
+            // VERY TIME CONSUMING
+            modelJsonConverter.fromJson(files.load(it.key)).id
+        }
     }
 
     private fun createModel(model: Model) {

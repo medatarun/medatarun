@@ -684,17 +684,20 @@ class ModelActionHandler(
     @Serializable
     data class ModelListItemDto(
         val id: String,
+        val key: String,
         val name: String?
     )
     fun modelList(cmd: ModelAction.Model_List): List<ModelListItemDto> {
         val summaries = modelQueries.findAllModelSummaries(locale)
         return summaries.map {
             ModelListItemDto(
-                id = it.id.value,
+                id = it.id.value.toString(),
+                key = it.key.value,
                 name = it.name
             )
         }
     }
+
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = actionCtx.extensionRegistry.findContributionsFlat(ModelExporter::class)
         val model = modelQueries.findModelByKey(cmd.modelKey)

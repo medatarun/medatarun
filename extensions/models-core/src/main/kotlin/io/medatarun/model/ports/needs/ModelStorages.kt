@@ -1,6 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 
 /**
@@ -19,9 +20,13 @@ interface ModelStorages {
 
     // Queries
 
-    fun findAllModelKeys(): List<ModelKey>
+    fun findAllModelIds(): List<ModelId>
     fun findModelByKey(key: ModelKey): Model
     fun findModelByKeyOptional(modelKey: ModelKey): Model?
+
+    fun findModelById(modelId: ModelId): Model
+    fun findModelByIdOptional(modelId: ModelId): Model?
+
     fun existsModelByKey(modelKey: ModelKey): Boolean
 
 

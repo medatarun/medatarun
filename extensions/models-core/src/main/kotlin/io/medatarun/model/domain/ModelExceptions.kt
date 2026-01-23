@@ -3,7 +3,10 @@ package io.medatarun.model.domain
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 
-class ModelNotFoundException(id: ModelKey) :
+class ModelNotFoundByKeyException(key: ModelKey) :
+    MedatarunException("Model with key [${key.value}] was not found")
+
+class ModelNotFoundByIdException(id: ModelId) :
     MedatarunException("Model with id [${id.value}] was not found")
 
 class ModelDuplicateIdException(id: ModelKey) :
@@ -57,8 +60,8 @@ class TypeNotFoundException(modelKey: ModelKey, typeId: TypeKey) :
 class DeleteAttributeIdentifierException(modelKey: ModelKey, entityId: EntityKey, attributeId: AttributeKey) :
     MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelKey.value}] because it is used as the entity's identifier")
 
-class ModelInvalidException(modelKey: ModelKey, errors: List<ModelValidationError>) :
-    MedatarunException("Model with id [${modelKey.value}] could not be validated. " + errors.joinToString(". ") { it.message })
+class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
+    MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message })
 
 class RelationshipDefNotFoundException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
     MedatarunException("Relationship with id [${relationshipKey.value}] not found in model [${modelKey.value}]")

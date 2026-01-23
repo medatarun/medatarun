@@ -94,7 +94,7 @@ internal class ModelJsonConverterTest {
             put("id", ModelId.generate().value.toString())
             put("key", "exemple")
             put("version", "1.0.0")
-            put($$"$schema", ModelJsonSchemas.v_1_0)
+            put($$"$schema", ModelJsonSchemas.v_1_1)
             putJsonArray("types") { addJsonObject {
                 put("id", TypeId.generate().value.toString())
                 put("key", "string") }

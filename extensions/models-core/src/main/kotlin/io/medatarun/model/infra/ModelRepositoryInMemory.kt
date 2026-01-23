@@ -29,6 +29,14 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return models.values.firstOrNull {it.key == key }
     }
 
+    override fun findAllModelIds(): List<ModelId> {
+        return models.keys.toList()
+    }
+
+    override fun findModelByIdOptional(id: ModelId): Model? {
+        return models[id]
+    }
+
     private fun createModel(model: Model) {
         models[model.id] = ModelInMemory.of(model)
     }

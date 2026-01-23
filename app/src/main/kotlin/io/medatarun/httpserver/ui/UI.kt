@@ -28,7 +28,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         return buildJsonArray {
             data.forEach { m ->
                 addJsonObject {
-                    put("id", m.id.value)
+                    put("id", m.key.value)
                     put("name", m.name)
                     put("description", m.description)
                     put("error", m.error)

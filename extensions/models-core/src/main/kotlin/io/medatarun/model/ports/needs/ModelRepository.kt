@@ -1,6 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 
 /**
@@ -29,7 +30,9 @@ interface ModelRepository {
      */
     fun matchesId(id: ModelRepositoryId): Boolean
     fun findAllModelKeys(): List<ModelKey>
+    fun findAllModelIds(): List<ModelId>
     fun findModelByKeyOptional(key: ModelKey): Model?
+    fun findModelByIdOptional(id: ModelId): Model?
 
     // Commands
 

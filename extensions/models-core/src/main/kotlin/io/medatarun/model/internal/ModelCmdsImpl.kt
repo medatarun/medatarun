@@ -31,7 +31,7 @@ class ModelCmdsImpl(
     }
 
     private fun copyModel(cmd: ModelCmd.CopyModel) {
-        val model = storage.findModelByKeyOptional(cmd.modelKey) ?: throw ModelNotFoundException(cmd.modelKey)
+        val model = storage.findModelByKeyOptional(cmd.modelKey) ?: throw ModelNotFoundByKeyException(cmd.modelKey)
         val existing = storage.findModelByKeyOptional(cmd.modelNewKey)
         if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
         val next = ModelInMemory.of(model).copy(key = cmd.modelNewKey)
@@ -78,21 +78,21 @@ class ModelCmdsImpl(
 
     private fun createType(c: ModelCmd.CreateType) {
         // Can not create a type if another has the same type
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
         val existing = model.findTypeOptional(c.initializer.id)
         if (existing != null) throw TypeCreateDuplicateException(c.modelKey, c.initializer.id)
         storage.dispatch(ModelRepositoryCmd.CreateType(c.modelKey, c.initializer))
     }
 
     private fun updateType(c: ModelCmd.UpdateType) {
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
         model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
         storage.dispatch(ModelRepositoryCmd.UpdateType(c.modelKey, c.typeId, c.cmd))
     }
 
     private fun deleteType(c: ModelCmd.DeleteType) {
         // Can not delete type used in any entity
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
         val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == c.typeId } }
         if (used) throw ModelTypeDeleteUsedException(c.typeId)
         model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
@@ -436,11 +436,11 @@ class ModelCmdsImpl(
     }
 
     fun ensureModelExists(modelKey: ModelKey) {
-        if (!storage.existsModelByKey(modelKey)) throw ModelNotFoundException(modelKey)
+        if (!storage.existsModelByKey(modelKey)) throw ModelNotFoundByKeyException(modelKey)
     }
 
     fun findModelById(modelKey: ModelKey): Model {
-        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
+        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
 }

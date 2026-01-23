@@ -1,7 +1,8 @@
 package io.medatarun.model.domain
 
 data class ModelSummary(
-    val id: ModelKey,
+    val id: ModelId,
+    val key: ModelKey,
     val name: String?,
     val description: String?,
     val error: String?,

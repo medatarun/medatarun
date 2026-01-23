@@ -219,7 +219,7 @@ sealed interface ModelCmd {
 /**
  * Describes a command that can be run on an existing model.
  *
- * A [modelKey] must be provided and the command will not perform and throw a [io.medatarun.model.domain.ModelNotFoundException]
+ * A [modelKey] must be provided and the command will not perform and throw a [io.medatarun.model.domain.ModelNotFoundByKeyException]
  * if the model doesn't exist.
  */
 sealed interface ModelCmdOnModel : ModelCmd {
