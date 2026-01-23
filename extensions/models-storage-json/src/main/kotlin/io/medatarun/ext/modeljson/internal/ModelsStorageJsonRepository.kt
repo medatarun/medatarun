@@ -30,12 +30,12 @@ internal class ModelsStorageJsonRepository(
         return id == repositoryId
     }
 
-    override fun findModelByIdOptional(id: ModelKey): ModelInMemory? {
-        discoveredModels[id] ?: return null
-        return modelJsonConverter.fromJson(files.load(id))
+    override fun findModelByKeyOptional(key: ModelKey): ModelInMemory? {
+        discoveredModels[key] ?: return null
+        return modelJsonConverter.fromJson(files.load(key))
     }
 
-    override fun findAllModelIds(): List<ModelKey> {
+    override fun findAllModelKeys(): List<ModelKey> {
         return discoveredModels.keys.toList()
     }
 
@@ -44,7 +44,7 @@ internal class ModelsStorageJsonRepository(
     }
 
     private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = findModelByIdOptional(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
+        val model = findModelByKeyOptional(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
         val next = block(model)
         persistModel(next)
     }

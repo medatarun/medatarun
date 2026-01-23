@@ -19,7 +19,7 @@ class ModelStoragesComposite(
 
     override fun existsModelById(modelKey: ModelKey): Boolean {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(modelKey)
+            val found = repository.findModelByKeyOptional(modelKey)
             if (found != null) return true
         }
         return false
@@ -27,7 +27,7 @@ class ModelStoragesComposite(
 
     override fun findModelByIdOptional(modelKey: ModelKey): Model? {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(modelKey)
+            val found = repository.findModelByKeyOptional(modelKey)
             if (found != null) {
                 when (val validation = modelValidation.validate(found)) {
                     is ModelValidationState.Ok -> return found
@@ -44,7 +44,7 @@ class ModelStoragesComposite(
     }
 
     override fun findAllModelIds(): List<ModelKey> {
-        return repositories.flatMap { it.findAllModelIds() }
+        return repositories.flatMap { it.findAllModelKeys() }
     }
 
 
@@ -59,7 +59,7 @@ class ModelStoragesComposite(
 
     private fun findRepoWithModel(id: ModelKey): ModelRepository {
         for (repository in repositories) {
-            val found = repository.findModelByIdOptional(id)
+            val found = repository.findModelByKeyOptional(id)
             if (found != null) return repository
         }
         throw ModelStoragesCompositeRepositoryNotFoundInModelException(id)

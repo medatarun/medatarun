@@ -2,6 +2,7 @@ package io.medatarun.model.infra
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.model.ports.needs.ModelRepositoryCmd
@@ -14,31 +15,33 @@ import io.medatarun.model.ports.needs.ModelRepositoryId
 class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     val repositoryId = ModelRepositoryId(identifier)
 
-    val models = mutableMapOf<ModelKey, ModelInMemory>()
+    val models = mutableMapOf<ModelId, ModelInMemory>()
 
     override fun matchesId(id: ModelRepositoryId): Boolean {
         return id == repositoryId
     }
 
-    override fun findAllModelIds(): List<ModelKey> {
-        return models.keys.toList()
+    override fun findAllModelKeys(): List<ModelKey> {
+        return models.values.map { it.key }.toList()
     }
 
-    override fun findModelByIdOptional(id: ModelKey): Model? {
-        return models[id]
+    override fun findModelByKeyOptional(key: ModelKey): ModelInMemory? {
+        return models.values.firstOrNull {it.key == key }
     }
 
     private fun createModel(model: Model) {
-        models[model.key] = ModelInMemory.of(model)
+        models[model.id] = ModelInMemory.of(model)
     }
 
     private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = models[modelKey] ?: throw ModelRepositoryInMemoryExceptions(modelKey)
-        models[modelKey] = block(model)
+
+        val model = findModelByKeyOptional(modelKey) ?: throw ModelRepositoryInMemoryExceptions(modelKey)
+        models[model.id] = block(model)
     }
 
     private fun deleteModel(modelKey: ModelKey) {
-        models.remove(modelKey)
+        val toDelete = findModelByKeyOptional(modelKey) ?: throw ModelRepositoryInMemoryExceptions(modelKey)
+        models.remove(toDelete.id)
     }
 
 
@@ -56,7 +59,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
      * Very dangerous to use, mostly for tests
      */
     fun push(model: ModelInMemory) {
-        this.models[model.key] = model
+        this.models[model.id] = model
     }
 }
 

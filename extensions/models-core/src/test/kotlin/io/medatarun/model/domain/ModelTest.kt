@@ -57,7 +57,7 @@ class ModelTest {
                 )
             )
         }
-        assertNotNull(repo1.findModelByIdOptional(modelKey))
+        assertNotNull(repo1.findModelByKeyOptional(modelKey))
     }
 
     @Test
@@ -80,8 +80,8 @@ class ModelTest {
         )
         assertDoesNotThrow { query.findModelById(modelKey) }
 
-        assertNull(repo1.findModelByIdOptional(modelKey))
-        assertNotNull(repo2.findModelByIdOptional(modelKey))
+        assertNull(repo1.findModelByKeyOptional(modelKey))
+        assertNotNull(repo2.findModelByKeyOptional(modelKey))
 
     }
 
@@ -321,7 +321,7 @@ class ModelTest {
         )
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-delete-repo-1")))
-        assertNull(repo1.findModelByIdOptional(ModelKey("m-to-delete-repo-1")))
+        assertNull(repo1.findModelByKeyOptional(ModelKey("m-to-delete-repo-1")))
         assertFailsWith<ModelNotFoundException> {
             query.findModelById(ModelKey("m-to-delete-repo-1"))
         }
@@ -330,16 +330,16 @@ class ModelTest {
         assertNotNull(query.findModelById(ModelKey("m-to-preserve-repo-2")))
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-delete-repo-2")))
-        assertNull(repo1.findModelByIdOptional(ModelKey("m-to-delete-repo-2")))
+        assertNull(repo1.findModelByKeyOptional(ModelKey("m-to-delete-repo-2")))
         assertNotNull(query.findModelById(ModelKey("m-to-preserve-repo-1")))
         assertNotNull(query.findModelById(ModelKey("m-to-preserve-repo-2")))
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-preserve-repo-1")))
-        assertNull(repo2.findModelByIdOptional(ModelKey("m-to-delete-repo-2")))
+        assertNull(repo2.findModelByKeyOptional(ModelKey("m-to-delete-repo-2")))
         assertNotNull(query.findModelById(ModelKey("m-to-preserve-repo-2")))
 
         cmd.dispatch(ModelCmd.DeleteModel(ModelKey("m-to-preserve-repo-2")))
-        assertNull(repo2.findModelByIdOptional(ModelKey("m-to-delete-repo-2")))
+        assertNull(repo2.findModelByKeyOptional(ModelKey("m-to-delete-repo-2")))
 
     }
 

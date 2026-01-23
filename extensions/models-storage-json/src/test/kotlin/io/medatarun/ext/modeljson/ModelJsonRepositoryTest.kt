@@ -47,21 +47,21 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findModelById not found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
+        assertNull(env.repo.findModelByKeyOptional(ModelKey("unknwon")))
         env.importSample()
-        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
+        assertNull(env.repo.findModelByKeyOptional(ModelKey("unknwon")))
         env.importSample()
     }
 
     @Test
     fun `findModelById found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(env.sampleModel.key))
+        assertNull(env.repo.findModelByKeyOptional(env.sampleModel.key))
         env.importSample()
         env.importSample2()
-        val m = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel.key))
+        val m = assertNotNull(env.repo.findModelByKeyOptional(env.sampleModel.key))
         assertEquals(env.sampleModel.key, m.key)
-        val m2 = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel2.key))
+        val m2 = assertNotNull(env.repo.findModelByKeyOptional(env.sampleModel2.key))
         assertEquals(env.sampleModel2.key, m2.key)
     }
 
@@ -83,7 +83,7 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findAllModelIds empty`() {
         val env = TestEnv()
-        val ids = env.repo.findAllModelIds()
+        val ids = env.repo.findAllModelKeys()
         assertTrue(ids.isEmpty())
 
     }
@@ -92,7 +92,7 @@ class ModelJsonRepositoryTest {
     fun `findAllModelIds one model`() {
         val env = TestEnv()
         env.importSample()
-        val ids = env.repo.findAllModelIds()
+        val ids = env.repo.findAllModelKeys()
         assertEquals(1, ids.size)
         assertTrue(ids.contains(env.sampleModel.key))
     }
@@ -102,7 +102,7 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.importSample()
         env.importSample2()
-        val ids = env.repo.findAllModelIds()
+        val ids = env.repo.findAllModelKeys()
         assertEquals(2, ids.size)
         assertTrue(ids.contains(env.sampleModel.key))
         assertTrue(ids.contains(env.sampleModel2.key))
