@@ -10,3 +10,4 @@
 - add comments on methods or code when the method or content is not obvious. 
 - Comments shall not repeat code but explain what the code or method does and choices had been made and why.
 - Logs are produced using slf4j
+- In tests we prefer using Kotlin test assertions

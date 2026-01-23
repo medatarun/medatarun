@@ -1,12 +1,10 @@
 package io.medatarun.model.adapters.descriptors
 
+import io.medatarun.model.adapters.json.RelationshipCardinalityTypeJsonConverter
 import io.medatarun.model.domain.RelationshipCardinality
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter
-import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonEquiv
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
 import kotlin.reflect.KClass
 
 class RelationshipCardinalityDescriptor : TypeDescriptor<RelationshipCardinality> {
@@ -18,15 +16,6 @@ class RelationshipCardinalityDescriptor : TypeDescriptor<RelationshipCardinality
     }
 
     override val description: String = ""
-    override val jsonConverter: TypeJsonConverter<RelationshipCardinality> = object :
-        TypeJsonConverter<RelationshipCardinality> {
-        override fun deserialize(json: JsonElement): RelationshipCardinality {
-            when(json) {
-                is JsonPrimitive -> return RelationshipCardinality.Companion.valueOfCode(json.content)
-                else -> throw TypeJsonConverterBadFormatException("Expecting a String")
-            }
-        }
-
-    }
+    override val jsonConverter: TypeJsonConverter<RelationshipCardinality> = RelationshipCardinalityTypeJsonConverter()
 
 }
