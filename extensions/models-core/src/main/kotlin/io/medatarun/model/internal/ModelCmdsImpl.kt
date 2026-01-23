@@ -31,15 +31,15 @@ class ModelCmdsImpl(
     }
 
     private fun copyModel(cmd: ModelCmd.CopyModel) {
-        val model = storage.findModelByIdOptional(cmd.modelKey) ?: throw ModelNotFoundException(cmd.modelKey)
-        val existing = storage.findModelByIdOptional(cmd.modelNewKey)
+        val model = storage.findModelByKeyOptional(cmd.modelKey) ?: throw ModelNotFoundException(cmd.modelKey)
+        val existing = storage.findModelByKeyOptional(cmd.modelNewKey)
         if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
         val next = ModelInMemory.of(model).copy(key = cmd.modelNewKey)
         storage.dispatch(ModelRepositoryCmd.CreateModel(next), cmd.repositoryRef)
     }
 
     private fun importModel(cmd: ModelCmd.ImportModel) {
-        val existing = storage.findModelByIdOptional(cmd.model.key)
+        val existing = storage.findModelByKeyOptional(cmd.model.key)
         if (existing != null) throw ModelDuplicateIdException(cmd.model.key)
         storage.dispatch(ModelRepositoryCmd.CreateModel(cmd.model), cmd.repositoryRef)
     }
@@ -78,21 +78,21 @@ class ModelCmdsImpl(
 
     private fun createType(c: ModelCmd.CreateType) {
         // Can not create a type if another has the same type
-        val model = storage.findModelByIdOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
         val existing = model.findTypeOptional(c.initializer.id)
         if (existing != null) throw TypeCreateDuplicateException(c.modelKey, c.initializer.id)
         storage.dispatch(ModelRepositoryCmd.CreateType(c.modelKey, c.initializer))
     }
 
     private fun updateType(c: ModelCmd.UpdateType) {
-        val model = storage.findModelByIdOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
         model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
         storage.dispatch(ModelRepositoryCmd.UpdateType(c.modelKey, c.typeId, c.cmd))
     }
 
     private fun deleteType(c: ModelCmd.DeleteType) {
         // Can not delete type used in any entity
-        val model = storage.findModelByIdOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
+        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundException(c.modelKey)
         val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == c.typeId } }
         if (used) throw ModelTypeDeleteUsedException(c.typeId)
         model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
@@ -104,7 +104,7 @@ class ModelCmdsImpl(
 
     private fun updateEntityDef(c: ModelCmd.UpdateEntityDef) {
         ensureModelExists(c.modelKey)
-        val model = storage.findModelById(c.modelKey)
+        val model = storage.findModelByKey(c.modelKey)
         model.findEntityDef(c.entityKey)
         if (c.cmd is EntityDefUpdateCmd.Id) {
             if (model.entityDefs.any { it.key == c.cmd.value && it.key != c.entityKey }) {
@@ -116,14 +116,14 @@ class ModelCmdsImpl(
 
     private fun updateEntityDefHashtagAdd(cmd: ModelCmd.UpdateEntityDefHashtagAdd) {
         ensureModelExists(cmd.modelKey)
-        val model = storage.findModelById(cmd.modelKey)
+        val model = storage.findModelByKey(cmd.modelKey)
         model.findEntityDef(cmd.entityKey)
         storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagAdd(cmd.modelKey, cmd.entityKey, cmd.hashtag))
     }
 
     private fun updateEntityDefHashtagDelete(cmd: ModelCmd.UpdateEntityDefHashtagDelete) {
         ensureModelExists(cmd.modelKey)
-        val model = storage.findModelById(cmd.modelKey)
+        val model = storage.findModelByKey(cmd.modelKey)
         model.findEntityDef(cmd.entityKey)
         storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagDelete(cmd.modelKey, cmd.entityKey, cmd.hashtag))
     }
@@ -436,11 +436,11 @@ class ModelCmdsImpl(
     }
 
     fun ensureModelExists(modelKey: ModelKey) {
-        if (!storage.existsModelById(modelKey)) throw ModelNotFoundException(modelKey)
+        if (!storage.existsModelByKey(modelKey)) throw ModelNotFoundException(modelKey)
     }
 
     fun findModelById(modelKey: ModelKey): Model {
-        return storage.findModelByIdOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
+        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
     }
 
 }

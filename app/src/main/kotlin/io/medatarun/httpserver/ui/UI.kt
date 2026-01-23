@@ -41,7 +41,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
     }
 
     fun modelJson(modelKey: ModelKey, locale: Locale): String {
-        val model = modelQueries.findModelById(modelKey)
+        val model = modelQueries.findModelByKey(modelKey)
 
         return buildJsonObject {
             put("id", model.key.value)

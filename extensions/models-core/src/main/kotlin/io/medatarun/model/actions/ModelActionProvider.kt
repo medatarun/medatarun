@@ -697,7 +697,7 @@ class ModelActionHandler(
     }
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = actionCtx.extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModelById(cmd.modelKey)
+        val model = modelQueries.findModelByKey(cmd.modelKey)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 

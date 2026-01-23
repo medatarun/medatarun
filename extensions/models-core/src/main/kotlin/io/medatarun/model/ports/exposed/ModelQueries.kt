@@ -10,11 +10,11 @@ interface ModelQueries {
     /**
      * Find a model by its id or throw [io.medatarun.model.domain.ModelNotFoundException]
      */
-    fun findModelById(modelKey: ModelKey): Model
+    fun findModelByKey(modelKey: ModelKey): Model
 
     /**
      * Returns complete list of all known model ids in this application instance
      */
-    fun findAllModelIds(): List<ModelKey>
+    fun findAllModelKeys(): List<ModelKey>
     fun findAllModelSummaries(locale: Locale): List<ModelSummary>
 }

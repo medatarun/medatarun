@@ -19,10 +19,10 @@ interface ModelStorages {
 
     // Queries
 
-    fun findAllModelIds(): List<ModelKey>
-    fun findModelById(id: ModelKey): Model
-    fun findModelByIdOptional(modelKey: ModelKey): Model?
-    fun existsModelById(modelKey: ModelKey): Boolean
+    fun findAllModelKeys(): List<ModelKey>
+    fun findModelByKey(key: ModelKey): Model
+    fun findModelByKeyOptional(modelKey: ModelKey): Model?
+    fun existsModelByKey(modelKey: ModelKey): Boolean
 
 
     // Commands

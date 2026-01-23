@@ -7,9 +7,9 @@ class ModelInspectAction(val modelQueries: ModelQueries, val modelHumanPrinter: 
     fun process(): String {
 
         val buf = StringBuilder()
-        val modelId = modelQueries.findAllModelIds()
+        val modelId = modelQueries.findAllModelKeys()
         modelId.forEach { modelId ->
-            val model = modelQueries.findModelById(modelId)
+            val model = modelQueries.findModelByKey(modelId)
             buf.append(modelHumanPrinter.print(model))
 
         }

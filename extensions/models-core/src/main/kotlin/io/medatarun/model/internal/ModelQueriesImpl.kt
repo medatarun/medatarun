@@ -14,15 +14,15 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
 
 
-    override fun findAllModelIds(): List<ModelKey> {
-        return storage.findAllModelIds()
+    override fun findAllModelKeys(): List<ModelKey> {
+        return storage.findAllModelKeys()
     }
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        return storage.findAllModelIds().map { id ->
+        return storage.findAllModelKeys().map { id ->
             try {
-                val model = storage.findModelById(id)
+                val model = storage.findModelByKey(id)
                 ModelSummary(
                     id = id,
                     name = model.name?.get(locale),
@@ -49,8 +49,8 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         )
     }
 
-    override fun findModelById(modelKey: ModelKey): Model {
-        return storage.findModelByIdOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
+    override fun findModelByKey(modelKey: ModelKey): Model {
+        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
     }
 
     private class TextComparator(val locale: Locale) : Comparator<String> {
