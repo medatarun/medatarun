@@ -1,6 +1,5 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.json
 
-import io.medatarun.model.adapters.RefTypeJsonConverters.decodeRef
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.TypeId
 import io.medatarun.model.domain.TypeKey
@@ -11,7 +10,7 @@ import java.util.*
 
 class TypeRefTypeJsonConverter : TypeJsonConverter<TypeRef> {
     override fun deserialize(json: JsonElement): TypeRef {
-        return decodeRef(
+        return RefTypeJsonConverters.decodeRef(
             json,
             whenId = { id ->
                 TypeRef.ById(TypeId(UUID.fromString(id)))

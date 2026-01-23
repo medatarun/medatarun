@@ -1,5 +1,6 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.descriptors
 
+import io.medatarun.model.adapters.json.EntityAttributeRefTypeJsonConverter
 import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter

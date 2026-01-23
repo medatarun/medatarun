@@ -2,7 +2,7 @@ package io.medatarun.model
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.model.actions.ModelActionProvider
-import io.medatarun.model.adapters.*
+import io.medatarun.model.adapters.descriptors.*
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository

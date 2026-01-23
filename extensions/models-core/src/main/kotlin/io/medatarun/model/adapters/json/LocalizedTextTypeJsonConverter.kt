@@ -1,4 +1,4 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.json
 
 import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.LocalizedTextMap
@@ -23,7 +23,7 @@ class LocalizedTextTypeJsonConverter : TypeJsonConverter<LocalizedText> {
             is JsonPrimitive -> {
                 if (json.isString) {
                     val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
-                    return LocalizedTextNotLocalized(content)
+                    LocalizedTextNotLocalized(content)
                 } else {
                     throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
                 }

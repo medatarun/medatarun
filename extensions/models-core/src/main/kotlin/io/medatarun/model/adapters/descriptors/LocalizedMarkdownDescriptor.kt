@@ -1,5 +1,6 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.descriptors
 
+import io.medatarun.model.adapters.json.LocalizedMarkdownTypeJsonConverter
 import io.medatarun.model.domain.LOCALIZED_MARKDOWN_DESCRIPTION
 import io.medatarun.model.domain.LocalizedMarkdown
 import io.medatarun.types.TypeDescriptor

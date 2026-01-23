@@ -1,7 +1,9 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.json
 
+import io.medatarun.model.adapters.*
 import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.*
+import java.net.URLDecoder
 
 object RefTypeJsonConverters {
     fun <R> expectingString(json: JsonElement, block: (value: String) -> R): R {
@@ -66,5 +68,5 @@ object RefTypeJsonConverters {
     }
 
     private fun formUrlDecode(value: String): String =
-        java.net.URLDecoder.decode(value, Charsets.UTF_8)
+        URLDecoder.decode(value, Charsets.UTF_8)
 }

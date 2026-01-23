@@ -1,4 +1,4 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.json
 
 import io.medatarun.model.domain.LocalizedMarkdown
 import io.medatarun.model.domain.LocalizedMarkdownMap

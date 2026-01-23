@@ -1,6 +1,5 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.json
 
-import io.medatarun.model.adapters.RefTypeJsonConverters.decodeRef
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipKey
@@ -11,7 +10,7 @@ import java.util.*
 
 class RelationshipRefTypeJsonConverter : TypeJsonConverter<RelationshipRef> {
     override fun deserialize(json: JsonElement): RelationshipRef {
-        return decodeRef(
+        return RefTypeJsonConverters.decodeRef(
             json,
             whenId = { id ->
                 RelationshipRef.ById(RelationshipId(UUID.fromString(id)))

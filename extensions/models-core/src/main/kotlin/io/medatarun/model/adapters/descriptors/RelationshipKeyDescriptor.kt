@@ -1,4 +1,4 @@
-package io.medatarun.model.adapters
+package io.medatarun.model.adapters.descriptors
 
 import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.internal.KeyValidation
