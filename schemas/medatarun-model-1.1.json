@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.0.json",
+  "$id": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.1.json",
   "title": "Medatarun Model JSON",
   "description": "JSON document produced and consumed by ModelJsonConverter (extensions/modeljson).",
   "type": "object",
@@ -8,11 +8,15 @@
     "$schema": {
       "type": "string",
       "description": "Location of this schema definition.",
-      "const": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.0.json"
+      "const": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.1.json"
     },
     "id": {
       "type": "string",
       "description": "Unique model identifier."
+    },
+    "key": {
+      "type": "string",
+      "description": "Unique model key."
     },
     "version": {
       "type": "string",
@@ -113,6 +117,10 @@
         "id": {
           "type": "string"
         },
+        "key": {
+          "type": "string",
+          "description": "Unique type key."
+        },
         "name": {
           "$ref": "#/$defs/localizedTextOrNull"
         },
@@ -130,6 +138,10 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique attribute key."
         },
         "name": {
           "$ref": "#/$defs/localizedTextOrNull"
@@ -156,6 +168,10 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique entity key."
         },
         "name": {
           "$ref": "#/$defs/localizedTextOrNull"
@@ -210,6 +226,10 @@
         "id": {
           "type": "string"
         },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship role key."
+        },
         "entityId": {
           "type": "string"
         },
@@ -237,6 +257,10 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship key."
         },
         "name": {
           "$ref": "#/$defs/localizedTextOrNull"
