@@ -83,7 +83,7 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findAllModelIds empty`() {
         val env = TestEnv()
-        val ids = env.repo.findAllModelKeys()
+        val ids = env.repo.findAllModelIds()
         assertTrue(ids.isEmpty())
 
     }
@@ -92,9 +92,9 @@ class ModelJsonRepositoryTest {
     fun `findAllModelIds one model`() {
         val env = TestEnv()
         env.importSample()
-        val ids = env.repo.findAllModelKeys()
+        val ids = env.repo.findAllModelIds()
         assertEquals(1, ids.size)
-        assertTrue(ids.contains(env.sampleModel.key))
+        assertTrue(ids.contains(env.sampleModel.id))
     }
 
     @Test
@@ -102,45 +102,13 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.importSample()
         env.importSample2()
-        val ids = env.repo.findAllModelKeys()
+        val ids = env.repo.findAllModelIds()
         assertEquals(2, ids.size)
-        assertTrue(ids.contains(env.sampleModel.key))
-        assertTrue(ids.contains(env.sampleModel2.key))
+        assertTrue(ids.contains(env.sampleModel.id))
+        assertTrue(ids.contains(env.sampleModel2.id))
     }
 
 
-    @Test
-    fun `update name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update version`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update model documentation home`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update model origin`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update model hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update model hashtag delete`() {
-        TODO("Not yet implemented")
-    }
 
     @Test
     fun `delete then no file left`() {
@@ -156,123 +124,6 @@ class ModelJsonRepositoryTest {
         assertFalse(path2.exists())
 
 
-    }
-    // ------------------------------------------------------------------------
-    // Types
-    // ------------------------------------------------------------------------
-
-
-    @Test
-    fun `create type`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update type name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update type description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete type`() {
-        TODO("Not yet implemented")
-    }
-    // ------------------------------------------------------------------------
-    // Entities
-    // ------------------------------------------------------------------------
-
-
-    @Test
-    fun `update entity def id`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def identifier attribute`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity def documentation home attribute`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity origin`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete entity def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity hashtag delete`() {
-        TODO("Not yet implemented")
-    }
-    // ------------------------------------------------------------------------
-    // Attributes
-    // ------------------------------------------------------------------------
-
-    @Test
-    fun `create attribute def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def id`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def type`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def optional`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete attribute def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update attribute hashtag delete`() {
-        TODO("Not yet implemented")
     }
 }
 
