@@ -43,9 +43,6 @@ internal class ModelsStorageJsonRepository(
             .firstOrNull { it.id == id }
     }
 
-    override fun findAllModelKeys(): List<ModelKey> {
-        return discoveredModels.keys.toList()
-    }
 
     override fun findAllModelIds(): List<ModelId> {
         return discoveredModels.map {

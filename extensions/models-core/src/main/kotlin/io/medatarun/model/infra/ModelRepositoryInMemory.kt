@@ -21,10 +21,6 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return id == repositoryId
     }
 
-    override fun findAllModelKeys(): List<ModelKey> {
-        return models.values.map { it.key }.toList()
-    }
-
     override fun findModelByKeyOptional(key: ModelKey): ModelInMemory? {
         return models.values.firstOrNull {it.key == key }
     }

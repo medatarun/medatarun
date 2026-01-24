@@ -29,7 +29,7 @@ interface ModelRepository {
      * we get a clear answer if we should go with it or not (when creating models for example).
      */
     fun matchesId(id: ModelRepositoryId): Boolean
-    fun findAllModelKeys(): List<ModelKey>
+
     fun findAllModelIds(): List<ModelId>
     fun findModelByKeyOptional(key: ModelKey): Model?
     fun findModelByIdOptional(id: ModelId): Model?
