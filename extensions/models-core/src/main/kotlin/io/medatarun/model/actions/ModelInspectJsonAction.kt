@@ -1,7 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.domain.AttributeDef
-import io.medatarun.model.domain.LocalizedTextBase
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import kotlinx.serialization.json.*
 
@@ -28,12 +27,16 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                         })
                         put("entities", buildJsonArray {
                             model.entityDefs.forEach { entity ->
+                                val identifierAttribute = model.findEntityAttribute(
+                                    EntityRef.ById(entity.id),
+                                    EntityAttributeRef.ById(entity.identifierAttributeId)
+                                )
                                 add(buildJsonObject {
                                     put("id", entity.key.value)
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
-                                    put("identifierAttribute", entity.identifierAttributeKey.value)
-                                    put("attributes", toAttributesJson(entity.attributes))
+                                    put("identifierAttribute", identifierAttribute.key.value)
+                                    put("attributes", toAttributesJson(model, entity.attributes))
                                 })
                             }
                         })
@@ -43,7 +46,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     put("id", relationship.key.value)
                                     put("name", localizedTextToJson(relationship.name))
                                     put("description", localizedTextToJson(relationship.description))
-                                    put("attributes", toAttributesJson(relationship.attributes))
+                                    put("attributes", toAttributesJson(model, relationship.attributes))
                                     putJsonArray("roles") {
                                         relationship.roles.forEach { role ->
                                             addJsonObject {
@@ -64,14 +67,15 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         return jsonPretty.encodeToString(root)
     }
 
-    private fun toAttributesJson(attributes: List<AttributeDef>): JsonArray = buildJsonArray {
+    private fun toAttributesJson(model: Model, attributes: List<AttributeDef>): JsonArray = buildJsonArray {
 
         attributes.forEach { attribute ->
+            val type = model.findType(TypeRef.ById(attribute.typeId))
             add(buildJsonObject {
                 put("id", attribute.key.value)
                 put("name", localizedTextToJson(attribute.name))
                 put("description", localizedTextToJson(attribute.description))
-                put("type", attribute.type.value)
+                put("type", type.key.value)
                 put("optional", attribute.optional)
             })
         }

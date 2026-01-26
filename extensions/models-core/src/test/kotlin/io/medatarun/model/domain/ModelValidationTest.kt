@@ -2,12 +2,10 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.infra.ModelInMemory
-import io.medatarun.model.infra.ModelInMemoryEntityIdentifierPointsToUnknownAttributeException
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.internal.ModelValidationImpl
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ModelValidationTest {
@@ -15,14 +13,14 @@ class ModelValidationTest {
 
     @Test
     fun `model with bad entity identifier`() {
-        assertThrows<ModelInMemoryEntityIdentifierPointsToUnknownAttributeException> {
-            ModelInMemory.builder(
+            val model = ModelInMemory.builder(
                 key = ModelKey("test"),
                 version = ModelVersion("0.0.1"),
             ) {
+                val typeStringId = TypeId.generate()
                 types = mutableListOf(
                     ModelTypeInMemory(
-                        id = TypeId.generate(),
+                        id = typeStringId,
                         key = TypeKey("String"),
                         name = null,
                         description = null
@@ -38,7 +36,7 @@ class ModelValidationTest {
                         AttributeDefInMemory(
                             id = goodAttributeId,
                             key = AttributeKey("id"),
-                            type = TypeKey("String"),
+                            typeId = typeStringId,
                             name = null,
                             description = null,
                             optional = false,
@@ -47,14 +45,18 @@ class ModelValidationTest {
                     )
                 }
             }
-        }
-
+        val result = validation.validate(model)
+        assertIs<ModelValidationState.Error>(result)
+        kotlin.test.assertEquals(1, result.errors.size)
+        assertIs<ModelValidationErrorInvalidIdentityAttribute>(result.errors.first())
 
     }
 
     @Test
     fun `model with bad attribute type`() {
         val identifierAttribute = AttributeId.generate()
+        val typeIdString = TypeId.generate()
+        val typeIdInvalid = TypeId.generate()
         val model = ModelInMemory.builder(
             key = ModelKey("test"),
             version = ModelVersion("0.0.1"),
@@ -63,7 +65,7 @@ class ModelValidationTest {
             description = null
             types = mutableListOf(
                 ModelTypeInMemory(
-                    id = TypeId.generate(),
+                    id = typeIdString,
                     key = TypeKey("String"),
                     name = null,
                     description = null
@@ -77,7 +79,7 @@ class ModelValidationTest {
                     AttributeDefInMemory(
                         id = identifierAttribute,
                         key = AttributeKey("id"),
-                        type = TypeKey("Int"),
+                        typeId = typeIdInvalid,
                         name = null,
                         description = null,
                         optional = false,
@@ -91,7 +93,6 @@ class ModelValidationTest {
         assertIs<ModelValidationState.Error>(result)
         assertEquals(1, result.errors.size)
         assertIs<ModelValidationErrorTypeNotFound>(result.errors.first())
-
     }
 
 }

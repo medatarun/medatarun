@@ -222,7 +222,7 @@ class ModelCmdsImpl(
         val model = findModel(cmd.modelRef)
         val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
 
-        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == type.key } }
+        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.typeId == type.id } }
         if (used) throw ModelTypeDeleteUsedException(type.key)
 
         storage.dispatch(ModelRepoCmd.DeleteType(model.id, type.id))
@@ -274,7 +274,7 @@ class ModelCmdsImpl(
             key = c.entityDefInitializer.identityAttribute.attributeKey,
             name = c.entityDefInitializer.identityAttribute.name,
             description = c.entityDefInitializer.identityAttribute.description,
-            type = type.key,
+            typeId = type.id,
             optional = false, // because it's identity, can never be optional
             hashtags = emptyList()
         )
@@ -323,7 +323,7 @@ class ModelCmdsImpl(
                     key = c.attributeInitializer.attributeKey,
                     name = c.attributeInitializer.name,
                     description = c.attributeInitializer.description,
-                    type = type.key,
+                    typeId = type.id,
                     optional = c.attributeInitializer.optional,
                     hashtags = emptyList()
                 )
@@ -335,7 +335,7 @@ class ModelCmdsImpl(
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
         val attr = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
-        if (entity.identifierAttributeKey == attr.key)
+        if (entity.identifierAttributeId == attr.id)
             throw DeleteAttributeIdentifierException(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.DeleteEntityAttribute(
@@ -572,7 +572,7 @@ class ModelCmdsImpl(
                     key = cmd.attr.attributeKey,
                     name = cmd.attr.name,
                     description = cmd.attr.description,
-                    type = type.key,
+                    typeId = type.id,
                     optional = cmd.attr.optional,
                     hashtags = emptyList()
                 ),

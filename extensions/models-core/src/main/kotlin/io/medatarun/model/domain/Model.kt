@@ -74,10 +74,18 @@ interface Model {
     }
 
     fun findType(typeKey: TypeKey): ModelType =
-        findTypeOptional(typeKey) ?: throw TypeNotFoundByKeyException(this.key, typeKey)
+        findTypeOptional(typeKey) ?: throw TypeNotFoundException(ModelRef.ById(this.id), TypeRef.ByKey(typeKey))
+
+    fun findType(typeId: TypeId): ModelType =
+        findTypeOptional(typeId) ?: throw TypeNotFoundException(ModelRef.ById(this.id), TypeRef.ById(typeId))
+
+    fun findType(typeRef: TypeRef): ModelType =
+        when(typeRef) {
+            is TypeRef.ById -> findType(typeRef.id)
+            is TypeRef.ByKey -> findType(typeRef.key)
+        }
 
 
-    fun ensureTypeExists(typeId: TypeKey): ModelType = findType(typeId)
 
     /**
      * Returns entity definition by its id or null
@@ -109,6 +117,12 @@ interface Model {
         is EntityAttributeRef.ById -> findEntityAttributeOptional(entityRef, attrRef.id)
         is EntityAttributeRef.ByKey -> findEntityAttributeOptional(entityRef, attrRef.key)
     }
+    fun findEntityAttribute(
+        entityRef: EntityRef,
+        attrRef: EntityAttributeRef
+    ): AttributeDef = findEntityAttributeOptional(entityRef, attrRef)
+        ?: throw EntityAttributeNotFoundException(ModelRef.ById(this.id), entityRef, attrRef)
+
     /**
      * Returns relationship definition by its id
      */

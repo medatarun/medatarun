@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
-import java.util.*
 import kotlin.test.*
 
 class ModelTest {
@@ -1192,10 +1191,11 @@ class ModelTest {
             name = LocalizedTextNotLocalized("Business Key"),
             description = LocalizedMarkdownNotLocalized("Unique business key"),
         )
+        val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         assertEquals(AttributeKey("businesskey"), reloaded.key)
         assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
         assertEquals(LocalizedMarkdownNotLocalized("Unique business key"), reloaded.description)
-        assertEquals(TypeKey("String"), reloaded.type)
+        assertEquals(type.id, reloaded.typeId)
         assertEquals(false, reloaded.optional)
     }
 
@@ -1227,15 +1227,16 @@ class ModelTest {
     fun `create attribute with type boolean then type found`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
+        val typeKey = TypeKey("Boolean")
         env.cmd.dispatch(
             ModelCmd.CreateType(
                 env.sampleModelRef,
-                ModelTypeInitializer(TypeKey("Boolean"), null, null)
+                ModelTypeInitializer(typeKey, null, null)
             )
         )
-
+        val type = env.query.findType(env.sampleModelRef, TypeRef.ByKey(typeKey))
         val reloaded = env.createAttributeDef(type = typeRef("Boolean"))
-        assertEquals(TypeKey("Boolean"), reloaded.type)
+        assertEquals(type.id, reloaded.typeId)
     }
 
 
@@ -1346,7 +1347,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
         val e = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        val attrId = e.identifierAttributeKey
+        val attrId = e.identifierAttributeId
         val newKey = AttributeKey("id_next")
         // Be careful to specify "reloadId" because the attribute's id changed
         env.updateAttributeDef(
@@ -1355,7 +1356,7 @@ class ModelTest {
             reloadId = entityAttributeRef(newKey)
         )
         val reloadedEntity = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        assertEquals(newKey, reloadedEntity.identifierAttributeKey)
+        assertEquals(attrId, reloadedEntity.identifierAttributeId)
 
 
     }
@@ -1404,19 +1405,20 @@ class ModelTest {
     fun `update attribute type is persisted`() {
         val env = TestEnvAttribute()
         env.addSampleEntityDef()
-        val typeMarkdownId = TypeKey("Markdown")
+        val typeMarkdownKey = TypeKey("Markdown")
         env.cmd.dispatch(
             ModelCmd.CreateType(
                 env.sampleModelRef,
-                ModelTypeInitializer(id = typeMarkdownId, name = null, description = null)
+                ModelTypeInitializer(id = typeMarkdownKey, name = null, description = null)
             )
         )
+        val typeMarkdownId =env.query.findType(env.sampleModelRef, typeRef(typeMarkdownKey)).id
         val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         val attr = env.createAttributeDef(type = typeRef(type.id))
 
-        val reloaded =
-            env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Type(typeRef(typeMarkdownId)))
-        assertEquals(typeMarkdownId, reloaded.type)
+
+        val reloaded = env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Type(typeRef(typeMarkdownKey)))
+        assertEquals(typeMarkdownId, reloaded.typeId)
     }
 
     @Test
@@ -1528,6 +1530,8 @@ class ModelTest {
         private val modelKey = ModelKey("test")
         val modelRef = modelRefKey(modelKey)
 
+        val typeStringId = TypeId.generate()
+
         fun createInvalidModel() {
             val invalidModel = ModelInMemory.builder(
                 key = modelKey,
@@ -1537,7 +1541,7 @@ class ModelTest {
                 description = null
                 types = mutableListOf(
                     ModelTypeInMemory(
-                        id = TypeId.generate(),
+                        id = typeStringId,
                         key = TypeKey("String"),
                         name = null,
                         description = null
@@ -1546,13 +1550,13 @@ class ModelTest {
                 addEntityDef(
                     key = EntityKey("Contact"),
                     // Error is here
-                    identifierAttributeId = AttributeId(UUID.randomUUID()),
+                    identifierAttributeId = AttributeId.generate(),
                 ) {
                     addAttribute(
                         AttributeDefInMemory(
                             id = AttributeId.generate(),
                             key = AttributeKey("id"),
-                            type = TypeKey("String"),
+                            typeId = typeStringId,
                             name = null,
                             description = null,
                             optional = false,
@@ -1576,12 +1580,23 @@ class ModelTest {
         // to correct them)
 
         val env = TestEnvInvalidModel()
+        env.createInvalidModel()
 
-        // Creaintg a model that has error shall fail
-        assertThrows<ModelInMemoryEntityIdentifierPointsToUnknownAttributeException> {
-            env.createInvalidModel()
+        // Getting a model that has error shall fail with invalid exception
+        assertThrows<ModelInvalidException> { env.query.findModel(env.modelRef) }
+
+        // Find all model ids shall not validate models, just give their ids
+        assertDoesNotThrow { env.query.findAllModelIds() }
+
+        // Creating or trying to modify something in invalid model shall throw error
+        assertThrows<ModelInvalidException> {
+            env.cmd.dispatch(
+                ModelCmd.CreateType(
+                    env.modelRef,
+                    ModelTypeInitializer(TypeKey("Markdown"), null, null)
+                )
+            )
         }
-
 
     }
 

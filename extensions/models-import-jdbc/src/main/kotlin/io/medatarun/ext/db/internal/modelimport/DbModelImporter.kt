@@ -4,6 +4,7 @@ import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.model.DbConnectionNotFoundException
 import io.medatarun.ext.db.model.DbImportCouldNotFindAttributeFromPrimaryKeyException
+import io.medatarun.ext.db.model.DbImportTypeNotFoundException
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
@@ -40,6 +41,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val date = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime()
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
+        val types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) }
         val model = ModelInMemory(
             id = ModelId.generate(),
             key = ModelKey(modelKeyOrGenerated),
@@ -47,15 +49,20 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
-            types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) },
+            types = types,
             entityDefs = result.tables.map { table ->
+
                 val attributeFromColumns = table.columns.map {
+
+                    val type = types.firstOrNull { type -> type.key ==  TypeKey(it.typeName) }
+                        ?: throw DbImportTypeNotFoundException(table.tableName, it.typeName)
+
                     AttributeDefInMemory(
                         id = AttributeId.generate(),
                         key = AttributeKey(it.columnName),
                         name = null,
                         description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
-                        type = TypeKey(it.typeName),
+                        typeId = type.id,
                         optional = it.isNullable != false,
                         hashtags = emptyList(),
                     )

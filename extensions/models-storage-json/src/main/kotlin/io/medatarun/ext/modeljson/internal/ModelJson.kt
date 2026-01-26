@@ -113,20 +113,24 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                             cardinality = role.cardinality.code
                         )
                     },
-                    attributes = toAttributeJsonList(rel.attributes),
+                    attributes = toAttributeJsonList(model, rel.attributes),
                     hashtags = rel.hashtags.map { it.value }
 
                 )
             },
             entities = model.entityDefs.map { entity ->
+                val attributesJson = toAttributeJsonList(model, entity.attributes)
+                val attributeKey = entity.attributes
+                    .firstOrNull { attribute -> entity.identifierAttributeId == attribute.id }
+                    ?.key ?: throw ModelJsonWriterEntityIdentifierAttributeNotFoundInAttributes(entity.id, entity.identifierAttributeId)
                 ModelEntityJson(
                     id = entity.id.value.toString(),
                     key = entity.key.value,
                     name = entity.name,
                     description = entity.description,
-                    identifierAttribute = entity.identifierAttributeKey.value,
+                    identifierAttribute = attributeKey.value,
                     origin = toEntityOriginStr(entity.origin),
-                    attributes = toAttributeJsonList(entity.attributes),
+                    attributes = attributesJson,
                     documentationHome = entity.documentationHome?.toExternalForm(),
                     hashtags = entity.hashtags.map { it.value }
                 )
@@ -168,6 +172,14 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     fun fromJson(@Language("json") jsonString: String): ModelInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
+        val types = modelJson.types.map { typeJson ->
+            ModelTypeInMemory(
+                id = typeJson.id?.let { TypeId.valueOfString(it) } ?: TypeId.generate(),
+                key = TypeKey(typeJson.key),
+                name = typeJson.name,
+                description = typeJson.description
+            )
+        }
         val model = ModelInMemory(
             id = modelJson.id?.let { ModelId.valueOfString(it) } ?: ModelId.generate(),
             key = ModelKey(modelJson.key),
@@ -178,15 +190,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             name = modelJson.name,
             description = modelJson.description,
-            types = modelJson.types.map { typeJson ->
-                ModelTypeInMemory(
-                    id = typeJson.id?.let { TypeId.valueOfString(it) } ?: TypeId.generate(),
-                    key = TypeKey(typeJson.key),
-                    name = typeJson.name,
-                    description = typeJson.description
-                )
-            },
-            entityDefs = modelJson.entities.map { entityJson -> toEntity(entityJson)
+            types = types,
+            entityDefs = modelJson.entities.map { entityJson -> toEntity(types, entityJson)
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
@@ -203,7 +208,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
                     },
-                    attributes = toAttributeList(relationJson.attributes),
+                    attributes = toAttributeList(types, relationJson.attributes),
                     hashtags = relationJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             },
@@ -213,8 +218,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         return model
     }
 
-    private fun toEntity(entityJson: ModelEntityJson): EntityDefInMemory {
-        val attributes = toAttributeList(entityJson.attributes)
+    private fun toEntity(types: List<ModelType>, entityJson: ModelEntityJson): EntityDefInMemory {
+        val attributes = toAttributeList(types, entityJson.attributes)
         val identifierAttribute = attributes
             .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute)}
             ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
@@ -235,29 +240,34 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     }
 
     companion object {
-        private fun toAttributeJsonList(attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
+        private fun toAttributeJsonList(model: Model, attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
             return attrs.map { it ->
                 ModelAttributeJson(
                     id = it.id.value.toString(),
                     key = it.key.value,
                     name = it.name,
                     description = it.description,
-                    type = it.type.value,
+                    type = model.findType(TypeRef.ById(it.typeId)).key.value,
                     optional = it.optional,
                     hashtags = it.hashtags.map { it.value }
                 )
             }
         }
 
-        private fun toAttributeList(attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
+        private fun toAttributeList(types: List<ModelType>, attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
+
             return attrs.map { attributeJson ->
+
+                val type = types.firstOrNull { t -> t.key == TypeKey(attributeJson.type) }
+                    ?: throw ModelJsonEntityAttributeTypeNotFoundException(attributeJson.key, attributeJson.type)
+
                 AttributeDefInMemory(
                     id = attributeJson.id?.let { AttributeId.valueOfString(it) } ?: AttributeId.generate(),
                     key = AttributeKey(attributeJson.key),
                     name = attributeJson.name,
                     description = attributeJson.description,
                     optional = attributeJson.optional,
-                    type = TypeKey(attributeJson.type),
+                    typeId = type.id,
                     hashtags = attributeJson.hashtags?.map { Hashtag(it) } ?: emptyList()
                 )
             }

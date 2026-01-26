@@ -20,9 +20,7 @@ data class EntityDefInMemory(
 
     private val map = attributes.associateBy { it.key }
 
-    override val identifierAttributeKey: AttributeKey = attributes
-        .firstOrNull { it.id == identifierAttributeId }?.key
-        ?: throw ModelInMemoryEntityIdentifierPointsToUnknownAttributeException(this.id)
+
 
     fun countAttributeDefs(): Int {
         return attributes.size

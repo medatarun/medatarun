@@ -4,6 +4,7 @@ import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 import java.net.URI
+import java.util.*
 import kotlin.test.*
 
 internal class ModelJsonConverterTest {
@@ -19,6 +20,14 @@ internal class ModelJsonConverterTest {
      */
     @Test
     fun surface_test() {
+
+
+        // Copied from Json
+        val typeIdString = TypeId(UUID.fromString("019be5cd-2ce6-7c51-b4ec-43aa4517b56b"))
+        val typeIdMarkdown = TypeId(UUID.fromString("019be5cd-499b-7663-ac33-e28c419a5bba"))
+        val contactNameAttributeId = AttributeId(UUID.fromString("019be5cd-e3e3-715a-9de9-4aa368a2401c"))
+        val companyNameAttributeId = AttributeId(UUID.fromString("019be5cf-142c-737d-a1c2-3434cdb13912"))
+
         val modelRead = instance.fromJson(sampleModelJson)
         assertEquals(modelRead.key, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
@@ -28,11 +37,11 @@ internal class ModelJsonConverterTest {
         val contactEntity = modelRead.entityDefs[0]
         assertEquals(contactEntity.key, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
-        assertEquals(AttributeKey("name"), contactEntity.identifierAttributeKey)
+        assertEquals(contactNameAttributeId, contactEntity.identifierAttributeId)
 
         val companyEntity = modelRead.entityDefs[1]
         assertEquals(companyEntity.key, EntityKey("company"))
-        assertEquals(AttributeKey("name"), companyEntity.identifierAttributeKey)
+        assertEquals(companyNameAttributeId, companyEntity.identifierAttributeId)
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
@@ -45,7 +54,7 @@ internal class ModelJsonConverterTest {
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
-        assertEquals(companyName.type, TypeKey("String"))
+        assertEquals(companyName.typeId, typeIdString)
 
         val companyProfileUrl = companyEntity.getAttributeDefOptional(AttributeKey("profile_url"))
         assertNotNull(companyProfileUrl)
@@ -53,7 +62,7 @@ internal class ModelJsonConverterTest {
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
-        assertEquals(companyProfileUrl.type, TypeKey("String"))
+        assertEquals(companyProfileUrl.typeId, typeIdString)
 
         val companyInfos = companyEntity.getAttributeDefOptional(AttributeKey("informations"))
         assertNotNull(companyInfos)
@@ -64,7 +73,7 @@ internal class ModelJsonConverterTest {
             "La description est au format Markdown et doit provenir de leur site internet !"
         )
         assertEquals(companyInfos.optional, true)
-        assertEquals(companyInfos.type, TypeKey("Markdown"))
+        assertEquals(companyInfos.typeId, typeIdMarkdown)
     }
 
     /**
@@ -97,7 +106,7 @@ internal class ModelJsonConverterTest {
             put($$"$schema", ModelJsonSchemas.v_1_1)
             putJsonArray("types") { addJsonObject {
                 put("id", TypeId.generate().value.toString())
-                put("key", "string") }
+                put("key", "String") }
             }
             putJsonArray("entities") {
                 addJsonObject {
@@ -158,7 +167,7 @@ internal class ModelJsonConverterTest {
             if (modelDocHome != null) put("documentationHome", modelDocHome)
             putJsonArray("types") { addJsonObject {
                 put("id", TypeId.generate().value.toString())
-                put("key", "string") }
+                put("key", "String") }
             }
             putJsonArray("entities") {
                 addJsonObject {
@@ -241,7 +250,7 @@ internal class ModelJsonConverterTest {
                             put("id", AttributeId.generate().value.toString())
                             put("key", "id")
                             put("name", "Identifier")
-                            put("type", "String")
+                            put("type", "string")
                         }
                     }
                 }

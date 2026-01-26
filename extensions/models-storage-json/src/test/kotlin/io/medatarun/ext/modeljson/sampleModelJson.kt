@@ -24,6 +24,10 @@ internal val sampleModelJson = $$"""{
     {
       "id": "019be5cd-499b-7663-ac33-e28c419a5bba",
       "key": "Markdown"
+    },
+    {
+      "id": "019bfbc0-835a-718d-82c9-a4dc99478634",
+      "key": "LocalDate"
     }
   ],
   "entities": [

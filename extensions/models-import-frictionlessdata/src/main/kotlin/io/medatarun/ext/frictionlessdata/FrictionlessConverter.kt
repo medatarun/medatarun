@@ -87,6 +87,7 @@ class FrictionlessConverter {
                     documentationHome = subresource.datapackage?.homepage ?: resource.homepage,
                     schema = subresource.schema,
                     hashtags = (subresource.datapackage?.keywords ?: datapackage.keywords).map { Hashtag(it) },
+                    types = types
                 )
             },
             relationshipDefs = emptyList(),
@@ -122,7 +123,8 @@ class FrictionlessConverter {
                     entityDescription = datapackage.description,
                     documentationHome = datapackage.homepage,
                     schema = schema,
-                    hashtags = datapackage.keywords.map { Hashtag(it) }
+                    hashtags = datapackage.keywords.map { Hashtag(it) },
+                    types = types
                 )
             ),
             relationshipDefs = emptyList(),
@@ -141,7 +143,8 @@ class FrictionlessConverter {
         entityDescription: String?,
         documentationHome: String?,
         schema: TableSchema,
-        hashtags: List<Hashtag>
+        hashtags: List<Hashtag>,
+        types: List<ModelTypeInMemory>,
     ): EntityDefInMemory {
 
         val pk = schema.primaryKey?.values?.joinToString("__")
@@ -154,7 +157,8 @@ class FrictionlessConverter {
                 key = AttributeKey(field.name),
                 name = field.title?.let(::LocalizedTextNotLocalized),
                 description = field.description?.let(::LocalizedMarkdownNotLocalized),
-                type = TypeKey(field.type),
+                typeId = types.firstOrNull { it.key == TypeKey(field.type) }?.id
+                    ?: throw FrictionlessConverterTypeNotFound(field.name, field.type),
                 optional = field.isOptional(),
                 hashtags = emptyList()
             )

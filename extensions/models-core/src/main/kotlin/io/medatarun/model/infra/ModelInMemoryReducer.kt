@@ -167,7 +167,7 @@ class ModelInMemoryReducer {
         is ModelRepoCmdAttributeUpdate.Description -> attribute.copy(description = input.value)
         is ModelRepoCmdAttributeUpdate.Type -> {
             val type = findType(model, input.value)
-            attribute.copy(type = type.key)
+            attribute.copy(typeId = type.id)
         }
         is ModelRepoCmdAttributeUpdate.Optional -> attribute.copy(optional = input.value)
     }
@@ -183,7 +183,7 @@ class ModelInMemoryReducer {
         is ModelRepoCmdAttributeUpdate.Optional -> attribute.copy(optional = input.value)
         is ModelRepoCmdAttributeUpdate.Type -> {
             val type = findType(model, input.value)
-            attribute.copy(type = type.key)
+            attribute.copy(typeId = type.id)
         }
     }
     private fun findType(model: ModelInMemory, typeId:TypeId): ModelType {

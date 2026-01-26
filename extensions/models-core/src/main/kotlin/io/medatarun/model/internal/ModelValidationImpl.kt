@@ -17,8 +17,8 @@ class ModelValidationImpl : ModelValidation {
         // each attribute must have a known type
         model.entityDefs.forEach { e ->
             e.attributes.forEach { attr ->
-                if (model.findTypeOptional(attr.type) == null) {
-                    errors.add(ModelValidationErrorTypeNotFound(model.key, e.key, attr.key, attr.type))
+                if (model.findTypeOptional(attr.typeId) == null) {
+                    errors.add(ModelValidationErrorTypeNotFound(model.key, e.key, attr.key, attr.typeId))
                 }
             }
         }
@@ -32,7 +32,7 @@ class ModelValidationImpl : ModelValidation {
         val errors = mutableListOf<ModelValidationError>()
 
         model.entityDefs.forEach { e ->
-            if (e.getAttributeDefOptional(e.identifierAttributeKey) == null) {
+            if (e.attributes.none { it.id == e.identifierAttributeId }) {
                 errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.entityIdAttributeDefId()))
             }
         }

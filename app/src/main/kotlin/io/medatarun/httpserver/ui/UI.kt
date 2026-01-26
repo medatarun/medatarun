@@ -28,7 +28,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         return buildJsonArray {
             data.forEach { m ->
                 addJsonObject {
-                    put("id", m.key.value)
+                    put("id", m.id.value.toString())
+                    put("key", m.key.value)
                     put("name", m.name)
                     put("description", m.description)
                     put("error", m.error)
@@ -44,7 +45,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         val model = modelQueries.findModelByKey(modelKey)
 
         return buildJsonObject {
-            put("id", model.key.value)
+            put("id", model.id.value.toString())
+            put("key", model.key.value)
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
             put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
@@ -78,7 +80,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("types") {
                 model.types.forEach { t ->
                     addJsonObject {
-                        put("id", t.key.value)
+                        put("id", t.id.value.toString())
+                        put("key", t.key.value)
                         put("name", t.name?.get(locale))
                         put("description", t.description?.get(locale))
                     }
@@ -92,14 +95,16 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale
     ): JsonObject {
         val relationshipJson = buildJsonObject {
-            put("id", relationship.key.value)
+            put("id", relationship.id.value.toString())
+            put("key", relationship.key.value)
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
             put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
-                        put("id", role.key.value)
+                        put("id", role.id.value.toString())
+                        put("key", role.key.value)
                         put("name", role.name?.get(locale))
                         put("entityId", role.entityKey.value)
                         put("cardinality", role.cardinality.code)
@@ -108,10 +113,11 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             }
             putJsonArray("attributes") { relationship.attributes.forEach { attr ->
                 addJsonObject {
-                    put("id", attr.key.value)
+                    put("id", attr.id.value.toString())
+                    put("key", attr.key.value)
                     put("name", attr.name?.get(locale))
                     put("description", attr.description?.get(locale))
-                    put("type", attr.type.value)
+                    put("type", attr.typeId.value.toString())
                     put("optional", attr.optional)
                     put("identifierAttribute", false)
                     putJsonArray("hashtags") {
@@ -128,13 +134,13 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale,
         model: Model
     ): JsonObject {
-        val id = e.key.value
         val name = e.name?.get(locale)
         val description = e.description?.get(locale)
         val origin = e.origin
         val documentationHome = e.documentationHome
         return buildJsonObject {
-            put("id", id)
+            put("id", e.id.value.toString())
+            put("key", e.key.value)
             put("name", name)
             put("description", description)
             put("documentationHome", documentationHome?.toExternalForm())
@@ -160,12 +166,13 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("attributes") {
                 e.attributes.forEach { attr ->
                     addJsonObject {
-                        put("id", attr.key.value)
+                        put("id", attr.id.value.toString())
+                        put("key", attr.key.value)
                         put("name", attr.name?.get(locale))
                         put("description", attr.description?.get(locale))
-                        put("type", attr.type.value)
+                        put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
-                        put("identifierAttribute", e.identifierAttributeKey == attr.key)
+                        put("identifierAttribute", e.identifierAttributeId == attr.id)
                         putJsonArray("hashtags") {
                             attr.hashtags.forEach { add(it.value) }
                         }

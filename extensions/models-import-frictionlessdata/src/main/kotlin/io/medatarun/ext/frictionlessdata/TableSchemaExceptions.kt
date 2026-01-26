@@ -9,3 +9,4 @@ class TableSchemaStringOrStringArrayException: MedatarunException("string or arr
 class FrictionlessConverterUnsupportedFileFormatException(name: String): MedatarunException("File format isn't supported. Could not guess how to read it with Frictionless tools. $name")
 class StringOrTableSchemaDecodeException: MedatarunException("Can not decode jsonObject, could not find a string or a Json representing a table schema")
 class FrictionlessConverterEntityIdentifierNotFound(entityName:String, pk:String): MedatarunException("Could not find a way to determine entity [$entityName] identifier. Either schema references a wrong primary, or uses composite primary keys, or schema has no fields. Primary key was resolved as [$pk]")
+class FrictionlessConverterTypeNotFound(entityName:String, type:String): MedatarunException("Could not find matching type $entityName for $type")

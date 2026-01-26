@@ -36,9 +36,9 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
             }
             entity.attributes.forEach { attribute ->
                 val id = attribute.key.value
-                val type = attribute.type.value
+                val type = model.findType(attribute.typeId).key.value
                 val optional = if (attribute.optional) "?" else ""
-                val pk = if (entity.identifierAttributeKey == attribute.key) "🔑" else ""
+                val pk = if (entity.identifierAttributeId == attribute.id) "🔑" else ""
                 buf.appendLine(tabs(2) + "-  $id: $type$optional $pk")
                 val name = attribute.name
                 if (name != null) {

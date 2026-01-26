@@ -10,18 +10,19 @@ data class AttributeDefInMemory(
     override val key: AttributeKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
-    override val type: TypeKey,
+    override val typeId: TypeId,
     override val optional: Boolean,
     override val hashtags: List<Hashtag>
 ) : AttributeDef {
     companion object {
+
         fun of(other: AttributeDef): AttributeDefInMemory {
             return AttributeDefInMemory(
                 id = other.id,
                 key = other.key,
                 name = other.name,
                 description = other.description,
-                type = other.type,
+                typeId = other.typeId,
                 optional = other.optional,
                 hashtags = other.hashtags,
             )

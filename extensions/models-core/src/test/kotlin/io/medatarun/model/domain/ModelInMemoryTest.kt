@@ -15,6 +15,9 @@ class ModelInMemoryTest {
     @Test
     fun `model contains person and company entities`() {
         val model = createModel()
+
+        val markdownType = model.findType(TypeKey("Markdown"))
+
         val entityIds = model.entityDefs.map { it.key }.toSet()
         assertEquals(setOf(EntityKey("person"), EntityKey("company")), entityIds)
 
@@ -26,7 +29,7 @@ class ModelInMemoryTest {
             EntityAttributeRef.ByKey(AttributeKey("infos"))
         )
         assertNotNull(attrInfos)
-        assertEquals(TypeKey("Markdown"), attrInfos.type)
+        assertEquals(markdownType.id, attrInfos.typeId)
 
         val attrLocation = model.findEntityAttributeOptional(
             EntityRef.ByKey(EntityKey("company")),
@@ -61,7 +64,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -70,7 +73,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -79,7 +82,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -88,7 +91,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -97,7 +100,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
-                    type = typeMarkdown.key,
+                    typeId = typeMarkdown.id,
                     optional = false,
                     hashtags = emptyList()
                 )
@@ -115,7 +118,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -124,7 +127,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
@@ -133,7 +136,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = true,
                     hashtags = emptyList()
                 ),
@@ -142,7 +145,7 @@ class ModelInMemoryTest {
                     key = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
-                    type = typeString.key,
+                    typeId = typeString.id,
                     optional = true,
                     hashtags = emptyList()
                 )
