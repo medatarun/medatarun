@@ -20,6 +20,7 @@ import {Icon} from "@seij/common-ui-icons";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 import {Markdown} from "../core/Markdown.tsx";
+import {createActionTemplateType} from "./actionTemplates.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -87,7 +88,7 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeI
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
-                actionParams={{modelKey: model.id, typeKey: type.id}}
+                actionParams={createActionTemplateType(model.id, type.id)}
               />
             </TableCell>
           </TableRow>)

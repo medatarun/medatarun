@@ -18,6 +18,7 @@ import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
+import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
@@ -61,7 +62,7 @@ export function ModelView() {
             <ActionMenuButton
               label="Actions"
               itemActions={actions}
-              actionParams={{modelKey: model.id}}/>
+              actionParams={createActionTemplateModel(model.id)}/>
           </div>
         </div>
       </ViewTitle>
@@ -81,7 +82,7 @@ export function ModelView() {
 
           <SectionTitle
             icon={<EntityIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
           { model.entityDefs.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
@@ -89,7 +90,7 @@ export function ModelView() {
 
           <SectionTitle
             icon={<RelationshipIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
           { model.relationshipDefs.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
@@ -97,7 +98,7 @@ export function ModelView() {
 
           <SectionTitle
             icon={<TypeIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
           { model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p> }

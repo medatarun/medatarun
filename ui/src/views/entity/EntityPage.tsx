@@ -21,6 +21,7 @@ import {
 import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
 import {SectionTable} from "../../components/layout/SecionTable.tsx";
 import {
+  createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
 } from "../../components/business/actionTemplates.ts";
@@ -80,10 +81,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}
-            actionParams={{
-              modelKey: model.id,
-              entityKey: entity.id
-            }}/></div>
+            actionParams={createActionTemplateEntity(model.id, entity.id)}/></div>
         </div>
       </ViewTitle>
 
@@ -102,7 +100,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
           <SectionTitle
             icon={<AttributeIcon/>}
-            actionParams={{modelKey: model.id, entityKey: entity.id}}
+            actionParams={createActionTemplateEntity(model.id, entity.id)}
             location={ActionUILocations.entity_attributes}>Attributes</SectionTitle>
 
           <SectionTable>

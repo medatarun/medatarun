@@ -10,7 +10,8 @@ import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
 import {
   createActionTemplateRelationship,
-  createActionTemplateRelationshipAttribute
+  createActionTemplateRelationshipAttribute,
+  createActionTemplateRelationshipRole
 } from "../../components/business/actionTemplates.ts";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {
@@ -161,11 +162,7 @@ export function RelationshipView({model, relationship}: {
                       action={
                         <ActionMenuButton
                           itemActions={actionRegistry.findActions(ActionUILocations.relationship_role)}
-                          actionParams={{
-                            modelKey: model.id,
-                            relationshipKey: relationship.id,
-                            relationshipRoleKey: role.id
-                          }}/>
+                          actionParams={createActionTemplateRelationshipRole(model.id, relationship.id, role.id)}/>
                       }
 
                     />

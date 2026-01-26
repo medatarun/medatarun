@@ -53,7 +53,7 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
 
   const {data: modelDto} = useModel(modelId)
 
-  if (!modelDto) return <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)} />
+  if (!modelDto) return <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)}/>
   const model = new Model(modelDto)
 
   const entity = parentType === "entity" ? model.findEntityDto(parentId) : undefined
@@ -65,8 +65,10 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
     : relationship ? model.findRelationshipAttributeDto(relationship.id, attributeId)
       : undefined
 
-  if (!parent) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]` )} />
-  if (!attribute) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]` )} />
+  if (!parent) return <ErrorBox
+    error={toProblem(`Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]`)}/>
+  if (!attribute) return <ErrorBox
+    error={toProblem(`Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]`)}/>
 
   return <ModelContext value={model}>
     <AttributeView attribute={attribute} parent={parent} parentType={parentType}/>
@@ -107,8 +109,10 @@ export function AttributeView({parent, parentType, attribute}: {
   const parentAsEntity: EntityDto | null = parentType === "entity" ? (parent as EntityDto) : null
   const parentAsRelationship: RelationshipDto | null = parentType === "relationship" ? (parent as RelationshipDto) : null
 
-  const actionParams = parentAsEntity !== null ? createActionTemplateEntityAttribute(model.id, parentAsEntity.id, attribute.id)
-    : parentAsRelationship !== null ? createActionTemplateRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id)
+  const actionParams = parentAsEntity !== null
+    ? createActionTemplateEntityAttribute(model.id, parentAsEntity.id, attribute.id)
+    : parentAsRelationship !== null
+      ? createActionTemplateRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id)
       : createActionTemplateModel(model.id)
 
 

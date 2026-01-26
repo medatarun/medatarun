@@ -6,6 +6,7 @@ import {ActionMenuButton} from "../components/business/TypesTable.tsx";
 import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ActionUILocations, useActionRegistry} from "../business";
+import {createActionTemplateGeneral} from "../components/business/actionTemplates.ts";
 
 export function PreferencesPage() {
   const {isDetailLevelTech, toggle} = useDetailLevelContext()
@@ -20,7 +21,7 @@ export function PreferencesPage() {
             <div><ActionMenuButton
               label="Actions"
               itemActions={actions}
-              actionParams={{}}/></div>
+              actionParams={createActionTemplateGeneral()}/></div>
           </div>
         </ViewTitle>
       </div>

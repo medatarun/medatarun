@@ -4,6 +4,7 @@ import {ActionUILocations, type RelationshipDto, useActionRegistry} from "../../
 import {useModelContext} from "./ModelContext.tsx";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
+import {createActionTemplateRelationship} from "./actionTemplates.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -54,7 +55,7 @@ export function RelationshipsTable({relationships, onClick}:{relationships:Relat
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
-                actionParams={{modelKey: model.id, relationshipKey: r.id}}
+                actionParams={createActionTemplateRelationship(model.id, r.id)}
               />
             </TableCell>
           </TableRow>)}</TableBody>
