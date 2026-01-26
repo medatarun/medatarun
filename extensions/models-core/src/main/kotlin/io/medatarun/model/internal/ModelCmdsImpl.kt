@@ -13,6 +13,47 @@ class ModelCmdsImpl(
     val auditor: ModelAuditor
 ) : ModelCmds {
 
+    override fun dispatch(cmd: ModelCmd) {
+        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelKey)
+        when (cmd) {
+            is ModelCmd.CreateModel -> createModel(cmd)
+            is ModelCmd.CopyModel -> copyModel(cmd)
+            is ModelCmd.ImportModel -> importModel(cmd)
+            is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
+            is ModelCmd.UpdateModelName -> updateModelName(cmd)
+            is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
+            is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
+            is ModelCmd.UpdateModelHashtagAdd -> updateModelHashtagAdd(cmd)
+            is ModelCmd.UpdateModelHashtagDelete -> updateModelHashtagDelete(cmd)
+            is ModelCmd.DeleteModel -> deleteModel(cmd)
+            is ModelCmd.CreateType -> createType(cmd)
+            is ModelCmd.UpdateType -> updateType(cmd)
+            is ModelCmd.DeleteType -> deleteType(cmd)
+            is ModelCmd.CreateEntityDef -> createEntityDef(cmd)
+            is ModelCmd.UpdateEntityDef -> updateEntityDef(cmd)
+            is ModelCmd.UpdateEntityDefHashtagAdd -> updateEntityDefHashtagAdd(cmd)
+            is ModelCmd.UpdateEntityDefHashtagDelete -> updateEntityDefHashtagDelete(cmd)
+            is ModelCmd.DeleteEntityDef -> deleteEntityDef(cmd)
+            is ModelCmd.CreateEntityDefAttributeDef -> createEntityDefAttributeDef(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDefHashtagAdd -> updateEntityDefAttributeDefHashtagAdd(cmd)
+            is ModelCmd.UpdateEntityDefAttributeDefHashtagDelete -> updateEntityDefAttributeDefHashtagDelete(cmd)
+            is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)
+            is ModelCmd.CreateRelationshipDef -> createRelationshipDef(cmd)
+            is ModelCmd.CreateRelationshipAttributeDef -> createRelationshipAttributeDef(cmd)
+            is ModelCmd.UpdateRelationshipDef -> updateRelationshipDef(cmd)
+            is ModelCmd.UpdateRelationshipDefHashtagAdd -> updateRelationshipDefHashtagAdd(cmd)
+            is ModelCmd.UpdateRelationshipDefHashtagDelete -> updateRelationshipDefHashtagDelete(cmd)
+            is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
+            is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
+            is ModelCmd.UpdateRelationshipAttributeDefHashtagAdd -> updateRelationshipAttributeDefHashtagAdd(cmd)
+            is ModelCmd.UpdateRelationshipAttributeDefHashtagDelete -> updateRelationshipAttributeDefHashtagDelete(cmd)
+            is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
+
+        }
+        return auditor.onCmdProcessed(cmd)
+    }
+
     private fun findModelById(id: ModelId): Model {
         return storage.findModelByIdOptional(id) ?: throw ModelNotFoundByIdException(id)
     }
@@ -293,46 +334,6 @@ class ModelCmdsImpl(
     // Relationships
     // ------------------------------------------------------------------------
 
-    override fun dispatch(cmd: ModelCmd) {
-        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelKey)
-        when (cmd) {
-            is ModelCmd.CreateModel -> createModel(cmd)
-            is ModelCmd.CopyModel -> copyModel(cmd)
-            is ModelCmd.ImportModel -> importModel(cmd)
-            is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
-            is ModelCmd.UpdateModelName -> updateModelName(cmd)
-            is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
-            is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
-            is ModelCmd.UpdateModelHashtagAdd -> updateModelHashtagAdd(cmd)
-            is ModelCmd.UpdateModelHashtagDelete -> updateModelHashtagDelete(cmd)
-            is ModelCmd.DeleteModel -> deleteModel(cmd)
-            is ModelCmd.CreateType -> createType(cmd)
-            is ModelCmd.UpdateType -> updateType(cmd)
-            is ModelCmd.DeleteType -> deleteType(cmd)
-            is ModelCmd.CreateEntityDef -> createEntityDef(cmd)
-            is ModelCmd.UpdateEntityDef -> updateEntityDef(cmd)
-            is ModelCmd.UpdateEntityDefHashtagAdd -> updateEntityDefHashtagAdd(cmd)
-            is ModelCmd.UpdateEntityDefHashtagDelete -> updateEntityDefHashtagDelete(cmd)
-            is ModelCmd.DeleteEntityDef -> deleteEntityDef(cmd)
-            is ModelCmd.CreateEntityDefAttributeDef -> createEntityDefAttributeDef(cmd)
-            is ModelCmd.UpdateEntityDefAttributeDef -> updateEntityDefAttributeDef(cmd)
-            is ModelCmd.UpdateEntityDefAttributeDefHashtagAdd -> updateEntityDefAttributeDefHashtagAdd(cmd)
-            is ModelCmd.UpdateEntityDefAttributeDefHashtagDelete -> updateEntityDefAttributeDefHashtagDelete(cmd)
-            is ModelCmd.DeleteEntityDefAttributeDef -> deleteEntityDefAttributeDef(cmd)
-            is ModelCmd.CreateRelationshipDef -> createRelationshipDef(cmd)
-            is ModelCmd.CreateRelationshipAttributeDef -> createRelationshipAttributeDef(cmd)
-            is ModelCmd.UpdateRelationshipDef -> updateRelationshipDef(cmd)
-            is ModelCmd.UpdateRelationshipDefHashtagAdd -> updateRelationshipDefHashtagAdd(cmd)
-            is ModelCmd.UpdateRelationshipDefHashtagDelete -> updateRelationshipDefHashtagDelete(cmd)
-            is ModelCmd.DeleteRelationshipDef -> deleteRelationshipDef(cmd)
-            is ModelCmd.UpdateRelationshipAttributeDef -> updateRelationshipAttributeDef(cmd)
-            is ModelCmd.UpdateRelationshipAttributeDefHashtagAdd -> updateRelationshipAttributeDefHashtagAdd(cmd)
-            is ModelCmd.UpdateRelationshipAttributeDefHashtagDelete -> updateRelationshipAttributeDefHashtagDelete(cmd)
-            is ModelCmd.DeleteRelationshipAttributeDef -> deleteRelationshipAttributeDef(cmd)
-
-        }
-        return auditor.onCmdProcessed(cmd)
-    }
 
     private fun deleteRelationshipAttributeDef(cmd: ModelCmd.DeleteRelationshipAttributeDef) {
         val model = findModelByKey(cmd.modelKey)
