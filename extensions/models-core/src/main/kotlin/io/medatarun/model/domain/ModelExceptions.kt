@@ -120,3 +120,5 @@ class KeyTooLongException(maxsize: Int) :
     MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)
 
 class ModelExportNoPluginFoundException(): MedatarunException("No model exporters found in extensions")
+class CopyModelIdConversionFailedException(name: String, oldId: String):
+        MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
