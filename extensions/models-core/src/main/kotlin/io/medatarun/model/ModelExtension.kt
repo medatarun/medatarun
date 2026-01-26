@@ -35,6 +35,7 @@ class ModelExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, RelationshipKeyDescriptor())
         ctx.register(TypeDescriptor::class, RelationshipRefDescriptor())
         ctx.register(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
+        ctx.register(TypeDescriptor::class, RelationshipRoleRefDescriptor())
         ctx.register(TypeDescriptor::class, TypeKeyDescriptor())
         ctx.register(TypeDescriptor::class, TypeRefDescriptor())
     }
