@@ -3,6 +3,7 @@ import type {RelationshipDto} from "./relationships.tsx";
 
 export interface ModelSummaryDto {
   id: string,
+  key: string,
   name: string | null,
   description: string | null,
   error: string | null,
@@ -13,6 +14,7 @@ export interface ModelSummaryDto {
 
 export interface ModelDto {
   id: string
+  key: string
   name: string | null
   version: string
   documentationHome: string | null
@@ -26,6 +28,7 @@ export interface ModelDto {
 
 export interface TypeDto {
   id: string
+  key: string
   name: string | null
   description: string | null
 }
@@ -39,25 +42,27 @@ export interface ElementOrigin {
 
 export interface EntityDto {
   id: string
+  key: string
   name: string | null
   description: string | null
-  origin: EntityDefOriginDto
   documentationHome: string | null
   hashtags: string[]
-  attributes: AttributeDto[]
   model: {
     id: string
     name: string | null
   }
+  origin: EntityDefOriginDto
+  attributes: AttributeDto[]
 }
 
 export interface AttributeDto {
   id: string
+  key: string
+  name: string | null
+  description: string | null
   type: string
   optional: boolean
   identifierAttribute: boolean
-  name: string | null
-  description: string | null
   hashtags: string[]
 }
 
@@ -78,14 +83,14 @@ export class Model {
     return e?.name ?? null
   }
 
-  get nameOrId (){
-    return this.dto.name ?? this.dto.id
+  get nameOrKey (){
+    return this.dto.name ?? this.dto.key
   }
   get id() { return this.dto.id }
 
   findTypeName(typeId: string) {
     const type = this.dto.types.find(it => it.id === typeId);
-    return type?.name ?? type?.id
+    return type?.name ?? type?.key ?? type?.id
   }
 
   findEntityDto(entityId: string) {

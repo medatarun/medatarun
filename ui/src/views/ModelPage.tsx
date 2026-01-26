@@ -39,14 +39,14 @@ export function ModelView() {
   }
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: relationshipId}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: relationshipId}
     })
   }
   const handleClickEntity = (entityId: string) => {
     navigate({
-      to: "/model/$modelId/entityDef/$entityDefId",
-      params: {modelId: model.id, entityDefId: entityId}
+      to: "/model/$modelId/entity/$entityId",
+      params: {modelId: model.id, entityId: entityId}
     })
   }
 

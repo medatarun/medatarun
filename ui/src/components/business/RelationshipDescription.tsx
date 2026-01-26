@@ -45,11 +45,11 @@ function EntityLink(props: { id: string }) {
   const model = useModelContext()
   const name = model.findEntityName(props.id)
   if (name !== null) {
-    return <Link to="/model/$modelId/entityDef/$entityDefId" params={{modelId: model.dto.id, entityDefId: props.id}}>
+    return <Link to="/model/$modelId/entity/$entityId" params={{modelId: model.dto.id, entityId: props.id}}>
       {name}
     </Link>
   } else {
-    return <code><Link to="/model/$modelId/entityDef/$entityDefId" params={{modelId: model.dto.id, entityDefId: props.id}}>
+    return <code><Link to="/model/$modelId/entity/$entityId" params={{modelId: model.dto.id, entityId: props.id}}>
       {props.id}
     </Link></code>
   }

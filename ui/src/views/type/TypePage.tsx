@@ -71,7 +71,7 @@ function TypeView({model, type}: {
       <BreadcrumbItem>
         <BreadcrumbButton
           icon={<ModelIcon/>}
-          onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+          onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
       <BreadcrumbDivider/>
     </Breadcrumb>
     </div>
@@ -122,7 +122,7 @@ export function TypeOverview({type, model}: {
     <div>
       <Link
         to="/model/$modelId"
-        params={{modelId: model.id}}>{model.nameOrId}</Link>
+        params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
 
   </PropertiesForm>

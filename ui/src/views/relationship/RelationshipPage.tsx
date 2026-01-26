@@ -81,8 +81,8 @@ export function RelationshipView({model, relationship}: {
 
   const handleClickAttribute = (attributeId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey",
-      params: {modelKey: model.id, relationshipKey: relationship.id, attributeKey: attributeId}
+      to: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
+      params: {modelId: model.id, relationshipId: relationship.id, attributeId: attributeId}
     })
   }
 
@@ -95,7 +95,7 @@ export function RelationshipView({model, relationship}: {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
       </Breadcrumb>
     </div>
@@ -213,7 +213,7 @@ export function RelationshipOverview({relationship, model}: {
     <div>
       <Link
         to="/model/$modelId"
-        params={{modelId: model.id}}>{model.nameOrId}</Link>
+        params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
     <div><Text>Tags</Text></div>
     <div>{relationship.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :

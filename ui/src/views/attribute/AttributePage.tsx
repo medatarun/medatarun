@@ -92,15 +92,15 @@ export function AttributeView({parent, parentType, attribute}: {
 
   const handleClickEntity = () => {
     navigate({
-      to: "/model/$modelId/entityDef/$entityDefId",
-      params: {modelId: model.id, entityDefId: parent.id}
+      to: "/model/$modelId/entity/$entityId",
+      params: {modelId: model.id, entityId: parent.id}
     })
   };
 
   const handleClickRelationship = () => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: parent.id}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: parent.id}
     })
   };
 
@@ -118,7 +118,7 @@ export function AttributeView({parent, parentType, attribute}: {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
         {parentAsEntity != null &&
           <BreadcrumbItem>
@@ -188,7 +188,7 @@ export function AttributeOverview({attribute, model}: {
     <div>
       <Link
         to="/model/$modelId"
-        params={{modelId: model.id}}>{model.nameOrId}</Link>
+        params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
 
     <div><Text>Tags</Text></div>

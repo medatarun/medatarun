@@ -13,16 +13,6 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
 
     val modelQueries = runtime.services.getService<ModelQueries>()
 
-    data class ModelSummaryDto(
-        val id: String,
-        val name: String?,
-        val description: String?,
-        val error: String?,
-        val countTypes: Int,
-        val countEntities: Int,
-        val countRelationships: Int
-    )
-
     fun modelListJson(locale: Locale): String {
         val data = modelQueries.findAllModelSummaries(locale)
         return buildJsonArray {
@@ -47,9 +37,11 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         return buildJsonObject {
             put("id", model.id.value.toString())
             put("key", model.key.value)
+            put("name", model.name?.get(locale))
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
             put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
+            put("description", model.description?.get(locale))
             val origin = model.origin
             put(
                 "origin", when {
@@ -63,8 +55,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                     }
                 }
             )
-            put("name", model.name?.get(locale))
-            put("description", model.description?.get(locale))
+
+
             putJsonArray("entityDefs") {
                 model.entityDefs.forEach { e ->
                     add(entityDefJson(e, locale, model))

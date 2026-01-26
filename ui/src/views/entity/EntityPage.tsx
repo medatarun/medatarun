@@ -26,11 +26,11 @@ import {
 } from "../../components/business/actionTemplates.ts";
 
 
-export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
+export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
 
   const {data: model} = useModel(modelId)
 
-  const entity = model?.entityDefs?.find(it => it.id === entityDefId)
+  const entity = model?.entityDefs?.find(it => it.id === entityId)
   if (!model) return null
   if (!entity) return null
   return <ModelContext value={new Model(model)}><EntityView entity={entity}/></ModelContext>
@@ -53,15 +53,15 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
   const handleClickAttribute = (attributeId: string) => {
     navigate({
-      to: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
-      params: {modelKey: model.id, entityKey: entity.id, attributeKey: attributeId}
+      to: "/model/$modelId/entity/$entityId/attribute/$attributeId",
+      params: {modelId: model.id, entityId: entity.id, attributeId: attributeId}
     })
   }
 
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: relationshipId}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: relationshipId}
     })
   }
 
@@ -71,7 +71,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
       </Breadcrumb>
       <ViewTitle eyebrow={"Entity"}>
