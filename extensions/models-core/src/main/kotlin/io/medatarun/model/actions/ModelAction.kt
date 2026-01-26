@@ -853,7 +853,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val relationshipKey: RelationshipKey,
         val relationshipRoleKey: RelationshipRoleKey,
-        val value: EntityKey,
+        val value: EntityRef,
     ) : ModelAction
 
     @ActionDoc(
