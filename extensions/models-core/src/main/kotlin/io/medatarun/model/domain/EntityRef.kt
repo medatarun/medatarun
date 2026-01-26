@@ -7,7 +7,6 @@ sealed interface EntityRef {
     ) : EntityRef
 
     data class ByKey(
-        val model: ModelKey,
-        val entity: EntityKey,
+        val key: EntityKey,
     ) : EntityRef
 }

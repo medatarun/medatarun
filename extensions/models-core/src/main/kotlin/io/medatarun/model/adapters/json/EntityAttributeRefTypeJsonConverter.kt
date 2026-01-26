@@ -1,6 +1,8 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.domain.*
+import io.medatarun.model.domain.AttributeId
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.types.TypeJsonConverter
 import kotlinx.serialization.json.JsonElement
 import java.util.*
@@ -12,13 +14,7 @@ class EntityAttributeRefTypeJsonConverter : TypeJsonConverter<EntityAttributeRef
             whenId = { id ->
                 EntityAttributeRef.ById(AttributeId(UUID.fromString(id)))
             },
-            whenKey = { keyParts ->
-                EntityAttributeRef.ByKey(
-                    model = ModelKey(keyParts.required("model")),
-                    entity = EntityKey(keyParts.required("entity")),
-                    attribute = AttributeKey(keyParts.required("attribute")),
-                )
-            }
+            whenKey = { key -> EntityAttributeRef.ByKey(AttributeKey(key)) }
         )
     }
 }

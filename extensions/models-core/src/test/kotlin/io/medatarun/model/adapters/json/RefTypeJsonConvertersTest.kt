@@ -1,10 +1,12 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.adapters.*
+import io.medatarun.model.adapters.TypeJsonInvalidRefException
+import io.medatarun.model.adapters.TypeJsonInvalidRefSchemeException
+import io.medatarun.model.adapters.TypeJsonJsonObjectExpectedException
+import io.medatarun.model.adapters.TypeJsonJsonStringExpectedException
 import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.ModelKey
 import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.*
 import java.util.*
@@ -46,20 +48,17 @@ class RefTypeJsonConvertersTest {
         assertEquals(EntityRef.ById(EntityId(id)), idRef)
 
         // "key:" path should map to EntityRef.ByKey and keep raw values for model/entity.
-        val keyRef = decodeEntityRef(JsonPrimitive("key:model=my-model&entity=my-entity"))
+        val keyRef = decodeEntityRef(JsonPrimitive("key:my-entity"))
         val expectedKeyRef = EntityRef.ByKey(
-            model = ModelKey("my-model"),
-            entity = EntityKey("my-entity"),
+            EntityKey("my-entity"),
         )
         assertEquals(expectedKeyRef, keyRef)
 
         // Percent-encoded values must be decoded before building keys.
-        val encodedKeyRef = decodeEntityRef(JsonPrimitive("key:model=my%20model&entity=ent%2F1"))
-        val expectedEncodedKeyRef = EntityRef.ByKey(
-            model = ModelKey("my model"),
-            entity = EntityKey("ent/1"),
-        )
+        val encodedKeyRef = decodeEntityRef(JsonPrimitive("key:ent%2F1"))
+        val expectedEncodedKeyRef = EntityRef.ByKey(EntityKey("ent/1"))
         assertEquals(expectedEncodedKeyRef, encodedKeyRef)
+
     }
 
     @Test
@@ -100,38 +99,7 @@ class RefTypeJsonConvertersTest {
         }
     }
 
-    @Test
-    fun `decodeRef should reject invalid key query segments`() {
-        assertFailsWith<TypeJsonInvalidRefQuerySegmentException> {
-            decodeEntityRef(JsonPrimitive("key:model=a&&entity=b"))
-        }
 
-        assertFailsWith<TypeJsonInvalidRefQuerySegmentException> {
-            decodeEntityRef(JsonPrimitive("key:=a&entity=b"))
-        }
-
-        assertFailsWith<TypeJsonInvalidRefQuerySegmentException> {
-            decodeEntityRef(JsonPrimitive("key:model=a&entity"))
-        }
-    }
-
-    @Test
-    fun `decodeRef should reject duplicate key query params`() {
-        assertFailsWith<TypeJsonInvalidRefDuplicateQueryParamException> {
-            decodeEntityRef(JsonPrimitive("key:model=a&model=b&entity=c"))
-        }
-    }
-
-    @Test
-    fun `decodeRef should surface missing required key parts`() {
-        assertFailsWith<TypeJsonInvalidRefMissingKeyException> {
-            decodeEntityRef(JsonPrimitive("key:model=a"))
-        }
-
-        assertFailsWith<TypeJsonInvalidRefMissingKeyException> {
-            decodeEntityRef(JsonPrimitive("key:entity=b"))
-        }
-    }
 
     private fun decodeEntityRef(json: JsonElement): EntityRef {
         // Mirror EntityRefTypeJsonConverter's usage of RefTypeJsonConverters.decodeRef.
@@ -140,12 +108,7 @@ class RefTypeJsonConvertersTest {
             whenId = { id ->
                 EntityRef.ById(EntityId(UUID.fromString(id)))
             },
-            whenKey = { keyParts ->
-                EntityRef.ByKey(
-                    model = ModelKey(keyParts.required("model")),
-                    entity = EntityKey(keyParts.required("entity")),
-                )
-            }
+            whenKey = { keyParts -> EntityRef.ByKey(key = EntityKey(keyParts)) }
         )
     }
 }

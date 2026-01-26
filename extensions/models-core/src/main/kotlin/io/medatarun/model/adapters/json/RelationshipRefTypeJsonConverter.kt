@@ -1,6 +1,5 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.domain.RelationshipRef
@@ -15,11 +14,8 @@ class RelationshipRefTypeJsonConverter : TypeJsonConverter<RelationshipRef> {
             whenId = { id ->
                 RelationshipRef.ById(RelationshipId(UUID.fromString(id)))
             },
-            whenKey = { keyParts ->
-                RelationshipRef.ByKey(
-                    model = ModelKey(keyParts.required("model")),
-                    relationship = RelationshipKey(keyParts.required("relationship")),
-                )
+            whenKey = { key ->
+                RelationshipRef.ByKey(RelationshipKey(key))
             }
         )
     }

@@ -15,8 +15,7 @@ class RelationshipRefDescriptor : TypeDescriptor<RelationshipRef> {
         return when (value) {
             is RelationshipRef.ById -> value
             is RelationshipRef.ByKey -> {
-                value.model.validated()
-                value.relationship.validated()
+                value.key.validated()
                 value
             }
         }

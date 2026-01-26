@@ -14,10 +14,8 @@ class ModelRefTypeJsonConverter : TypeJsonConverter<ModelRef> {
             whenId = { id ->
                 ModelRef.ById(ModelId(UUID.fromString(id)))
             },
-            whenKey = { keyParts ->
-                ModelRef.ByKey(
-                    key = ModelKey(keyParts.required("model")),
-                )
+            whenKey = { key ->
+                ModelRef.ByKey(ModelKey(key))
             }
         )
     }

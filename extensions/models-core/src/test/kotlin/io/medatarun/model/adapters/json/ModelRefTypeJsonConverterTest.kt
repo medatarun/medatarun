@@ -21,15 +21,13 @@ class ModelRefTypeJsonConverterTest {
         assertEquals(ModelRef.ById(ModelId(id)), idRef)
 
         // Contract: key requires model part only.
-        val keyRef = converter.deserialize(JsonPrimitive("key:model=m1"))
-        val expectedKeyRef = ModelRef.ByKey(
-            key = ModelKey("m1"),
-        )
+        val keyRef = converter.deserialize(JsonPrimitive("key:m1"))
+        val expectedKeyRef = ModelRef.ByKey(ModelKey("m1"))
         assertEquals(expectedKeyRef, keyRef)
     }
 
     @Test
-    fun `deserialize should reject missing key parts`() {
+    fun `deserialize should reject missing key`() {
         assertFailsWith<TypeJsonInvalidRefException> {
             converter.deserialize(JsonPrimitive("key:"))
         }

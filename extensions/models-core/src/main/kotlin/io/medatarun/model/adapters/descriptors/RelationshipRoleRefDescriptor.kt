@@ -15,9 +15,7 @@ class RelationshipRoleRefDescriptor : TypeDescriptor<RelationshipRoleRef> {
         return when (value) {
             is RelationshipRoleRef.ById -> value
             is RelationshipRoleRef.ByKey -> {
-                value.model.validated()
-                value.relationship.validated()
-                value.role.validated()
+                value.key.validated()
                 value
             }
         }

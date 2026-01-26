@@ -13,9 +13,7 @@ class RelationshipAttributeRefDescriptor : TypeDescriptor<RelationshipAttributeR
         return when (value) {
             is RelationshipAttributeRef.ById -> value
             is RelationshipAttributeRef.ByKey -> {
-                value.model.validated()
-                value.relationship.validated()
-                value.attribute.validated()
+                value.key.validated()
                 value
             }
         }

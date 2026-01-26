@@ -258,7 +258,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
-                typeId = cmd.typeKey,
+                typeRef = cmd.typeRef,
                 cmd = ModelTypeUpdateCmd.Name(cmd.name)
             )
         )
@@ -268,7 +268,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
-                typeId = cmd.typeKey,
+                typeRef = cmd.typeRef,
                 cmd = ModelTypeUpdateCmd.Description(cmd.description)
             )
         )
@@ -278,7 +278,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.DeleteType(
                 modelRef = cmd.modelRef,
-                typeId = cmd.typeKey,
+                typeRef = cmd.typeRef,
             )
         )
     }

@@ -7,8 +7,6 @@ sealed interface EntityAttributeRef {
     ) : EntityAttributeRef
 
     data class ByKey(
-        val model: ModelKey,
-        val entity: EntityKey,
-        val attribute: AttributeKey
+        val key: AttributeKey
     ) : EntityAttributeRef
 }

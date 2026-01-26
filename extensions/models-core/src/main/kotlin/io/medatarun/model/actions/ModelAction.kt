@@ -350,7 +350,11 @@ sealed interface ModelAction {
         uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Type_UpdateName(val modelRef: ModelRef, val typeKey: TypeKey, val name: LocalizedText?) : ModelAction
+    data class Type_UpdateName(
+        val modelRef: ModelRef,
+        val typeRef: TypeRef,
+        val name: LocalizedText?
+    ) : ModelAction
 
     @ActionDoc(
         key = "type_update_description",
@@ -361,7 +365,7 @@ sealed interface ModelAction {
     )
     data class Type_UpdateDescription(
         val modelRef: ModelRef,
-        val typeKey: TypeKey,
+        val typeRef: TypeRef,
         val description: LocalizedMarkdown?
     ) :
         ModelAction
@@ -373,7 +377,10 @@ sealed interface ModelAction {
         uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Type_Delete(val modelRef: ModelRef, val typeKey: TypeKey) : ModelAction
+    data class Type_Delete(
+        val modelRef: ModelRef,
+        val typeRef: TypeRef
+    ) : ModelAction
 
     // ------------------------------------------------------------------------
     // Entities

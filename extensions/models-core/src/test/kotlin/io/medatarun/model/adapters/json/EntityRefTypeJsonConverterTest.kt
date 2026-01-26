@@ -1,10 +1,9 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.adapters.TypeJsonInvalidRefMissingKeyException
+import io.medatarun.model.adapters.TypeJsonInvalidRefException
 import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.ModelKey
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.*
 import kotlin.test.Test
@@ -22,18 +21,15 @@ class EntityRefTypeJsonConverterTest {
         assertEquals(EntityRef.ById(EntityId(id)), idRef)
 
         // Contract: key requires model and entity parts.
-        val keyRef = converter.deserialize(JsonPrimitive("key:model=m1&entity=e1"))
-        val expectedKeyRef = EntityRef.ByKey(
-            model = ModelKey("m1"),
-            entity = EntityKey("e1"),
-        )
+        val keyRef = converter.deserialize(JsonPrimitive("key:e1"))
+        val expectedKeyRef = EntityRef.ByKey(EntityKey("e1"))
         assertEquals(expectedKeyRef, keyRef)
     }
 
     @Test
-    fun `deserialize should reject missing key parts`() {
-        assertFailsWith<TypeJsonInvalidRefMissingKeyException> {
-            converter.deserialize(JsonPrimitive("key:model=m1"))
+    fun `deserialize should reject missing key`() {
+        assertFailsWith<TypeJsonInvalidRefException> {
+            converter.deserialize(JsonPrimitive("key:"))
         }
     }
 }

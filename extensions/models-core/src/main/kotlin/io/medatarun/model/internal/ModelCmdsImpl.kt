@@ -150,17 +150,19 @@ class ModelCmdsImpl(
 
     private fun updateType(cmd: ModelCmd.UpdateType) {
         val model = findModelByRef(cmd.modelRef)
-        model.findTypeOptional(cmd.typeId) ?: throw TypeNotFoundException(model.key, cmd.typeId)
-        storage.dispatch(ModelRepositoryCmd.UpdateType(model.id, cmd.typeId, cmd.cmd))
+        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+        storage.dispatch(ModelRepositoryCmd.UpdateType(model.id, type.id, cmd.cmd))
     }
 
     private fun deleteType(cmd: ModelCmd.DeleteType) {
-        // Can not delete type used in any entity
+        // Cannot delete type used in any entity
         val model = findModelByRef(cmd.modelRef)
-        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == cmd.typeId } }
-        if (used) throw ModelTypeDeleteUsedException(cmd.typeId)
-        model.findTypeOptional(cmd.typeId) ?: throw TypeNotFoundException(model.key, cmd.typeId)
-        storage.dispatch(ModelRepositoryCmd.DeleteType(model.id, cmd.typeId))
+        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+
+        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == type.key } }
+        if (used) throw ModelTypeDeleteUsedException(type.key)
+
+        storage.dispatch(ModelRepositoryCmd.DeleteType(model.id, type.id))
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Entities
@@ -233,7 +235,11 @@ class ModelCmdsImpl(
             c.entityKey,
             c.attributeDefInitializer.attributeKey
         )
-        model.ensureTypeExists(c.attributeDefInitializer.type)
+
+        // Makes sure the type reference exists, even if now, the type is referenced by key only
+        val typeRef = TypeRef.ByKey(c.attributeDefInitializer.type)
+        model.findTypeOptional(typeRef) ?: throw TypeNotFoundException(c.modelRef, typeRef)
+
         storage.dispatch(
             ModelRepositoryCmd.CreateEntityDefAttributeDef(
                 modelId = model.id,
@@ -291,7 +297,8 @@ class ModelCmdsImpl(
             }
         } else if (cmd.cmd is AttributeDefUpdateCmd.Type) {
             // Attribute type shall exist when updating types
-            model.ensureTypeExists(cmd.cmd.value)
+            val typeRef = TypeRef.ByKey(cmd.cmd.value)
+            model.findTypeOptional(typeRef) ?: throw TypeNotFoundException(cmd.modelRef, typeRef)
         }
 
         // Apply changes on attribute
@@ -481,9 +488,7 @@ class ModelCmdsImpl(
         }
         if (!exists) throw ModelNotFoundException(modelRef)
     }
-    fun ensureModelExists(modelKey: ModelKey) {
-        if (!storage.existsModelByKey(modelKey)) throw ModelNotFoundByKeyException(modelKey)
-    }
+
 
 
 }

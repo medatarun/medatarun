@@ -1,7 +1,9 @@
 package io.medatarun.model.adapters.json
 
-import io.medatarun.model.adapters.TypeJsonInvalidRefMissingKeyException
-import io.medatarun.model.domain.*
+import io.medatarun.model.adapters.TypeJsonInvalidRefException
+import io.medatarun.model.domain.RelationshipRoleId
+import io.medatarun.model.domain.RelationshipRoleKey
+import io.medatarun.model.domain.RelationshipRoleRef
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.*
 import kotlin.test.Test
@@ -19,19 +21,15 @@ class RelationshipRoleRefTypeJsonConverterTest {
         assertEquals(RelationshipRoleRef.ById(RelationshipRoleId(id)), idRef)
 
         // Contract: key requires model, relationship and role parts.
-        val keyRef = converter.deserialize(JsonPrimitive("key:model=m1&relationship=r1&role=ro1"))
-        val expectedKeyRef = RelationshipRoleRef.ByKey(
-            model = ModelKey("m1"),
-            relationship = RelationshipKey("r1"),
-            role = RelationshipRoleKey("ro1"),
-        )
+        val keyRef = converter.deserialize(JsonPrimitive("key:ro1"))
+        val expectedKeyRef = RelationshipRoleRef.ByKey(RelationshipRoleKey("ro1"))
         assertEquals(expectedKeyRef, keyRef)
     }
 
     @Test
-    fun `deserialize should reject missing key parts`() {
-        assertFailsWith<TypeJsonInvalidRefMissingKeyException> {
-            converter.deserialize(JsonPrimitive("key:model=m1&relationship=r1"))
+    fun `deserialize should reject missing key`() {
+        assertFailsWith<TypeJsonInvalidRefException> {
+            converter.deserialize(JsonPrimitive("key:"))
         }
     }
 }

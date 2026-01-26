@@ -65,13 +65,13 @@ sealed interface ModelRepositoryCmd {
 
     data class UpdateType(
         override val modelId: ModelId,
-        val typeId: TypeKey,
+        val typeId: TypeId,
         val cmd: ModelTypeUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteType(
         override val modelId: ModelId,
-        val typeId: TypeKey
+        val typeId: TypeId
     ) : ModelRepositoryCmdOnModel
 
     // ------------------------------------------------------------------------

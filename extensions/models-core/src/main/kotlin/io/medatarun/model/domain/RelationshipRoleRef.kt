@@ -7,8 +7,6 @@ sealed interface RelationshipRoleRef {
     ) : RelationshipRoleRef
 
     data class ByKey(
-        val model: ModelKey,
-        val relationship: RelationshipKey,
-        val role: RelationshipRoleKey,
+        val key: RelationshipRoleKey,
     ) : RelationshipRoleRef
 }

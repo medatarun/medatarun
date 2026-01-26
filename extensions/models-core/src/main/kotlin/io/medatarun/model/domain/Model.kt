@@ -64,8 +64,17 @@ interface Model {
      */
     val hashtags: List<Hashtag>
 
-    fun findTypeOptional(typeId: TypeKey): ModelType? = types.firstOrNull { it.key == typeId }
-    fun findType(typeId: TypeKey): ModelType = findTypeOptional(typeId) ?: throw TypeNotFoundException(this.key, typeId)
+    fun findTypeOptional(typeKey: TypeKey): ModelType? = types.firstOrNull { it.key == typeKey }
+    fun findTypeOptional(typeId: TypeId): ModelType? = types.firstOrNull { it.id == typeId }
+    fun findTypeOptional(typeRef: TypeRef): ModelType? {
+        return when (typeRef) {
+            is TypeRef.ById -> findTypeOptional(typeRef.id)
+            is TypeRef.ByKey -> findTypeOptional(typeRef.key)
+        }
+    }
+
+    fun findType(typeKey: TypeKey): ModelType = findTypeOptional(typeKey) ?: throw TypeNotFoundByKeyException(this.key, typeKey)
+
     fun ensureTypeExists(typeId: TypeKey): ModelType = findType(typeId)
 
     /**

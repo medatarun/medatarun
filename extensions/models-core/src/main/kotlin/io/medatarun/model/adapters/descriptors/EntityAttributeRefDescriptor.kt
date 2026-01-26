@@ -15,9 +15,7 @@ class EntityAttributeRefDescriptor : TypeDescriptor<EntityAttributeRef> {
        return when (value) {
            is EntityAttributeRef.ById -> value
            is EntityAttributeRef.ByKey -> {
-               value.model.validated()
-               value.entity.validated()
-               value.attribute.validated()
+               value.key.validated()
                value
            }
        }

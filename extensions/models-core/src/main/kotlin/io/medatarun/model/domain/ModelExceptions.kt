@@ -57,8 +57,14 @@ class ModelTypeDeleteUsedException(typeId: TypeKey) :
 class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] already exists with the same id in model [${modelKey.value}]")
 
-class TypeNotFoundException(modelKey: ModelKey, typeId: TypeKey) :
+class TypeNotFoundException(modelRef: ModelRef, typeRef: TypeRef) :
+    MedatarunException("Type with id [${typeRef.asString()}] not found in model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+
+class TypeNotFoundByIdException(modelKey: ModelKey, typeId: TypeId) :
     MedatarunException("Type with id [${typeId.value}] not found in model [${modelKey.value}]")
+
+class TypeNotFoundByKeyException(modelKey: ModelKey, typeKey: TypeKey) :
+    MedatarunException("Type with id [${typeKey.value}] not found in model [${modelKey.value}]")
 
 class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityKey, attributeId: AttributeKey) :
     MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelId.value}] because it is used as the entity's identifier")

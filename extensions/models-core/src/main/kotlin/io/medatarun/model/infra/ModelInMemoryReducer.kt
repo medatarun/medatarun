@@ -44,13 +44,13 @@ class ModelInMemoryReducer {
             )
 
             is ModelRepositoryCmd.UpdateType -> model.copy(types = model.types.map { type ->
-                if (type.key != cmd.typeId) type else when (cmd.cmd) {
+                if (type.id != cmd.typeId) type else when (cmd.cmd) {
                     is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.cmd.value)
                     is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.cmd.value)
                 }
             })
 
-            is ModelRepositoryCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.key != cmd.typeId) type else null })
+            is ModelRepositoryCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.id != cmd.typeId) type else null })
 
             is ModelRepositoryCmd.CreateEntityDef -> model.copy(entityDefs = model.entityDefs + EntityDefInMemory.of(cmd.entityDef))
             is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityKey) { previous ->
