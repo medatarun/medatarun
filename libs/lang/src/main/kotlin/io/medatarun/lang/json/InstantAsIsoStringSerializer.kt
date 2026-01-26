@@ -1,4 +1,4 @@
-package io.medatarun.json
+package io.medatarun.lang.json
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
