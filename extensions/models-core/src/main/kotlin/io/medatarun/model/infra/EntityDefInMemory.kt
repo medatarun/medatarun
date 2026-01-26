@@ -12,13 +12,17 @@ data class EntityDefInMemory(
     override val name: LocalizedText?,
     override val attributes: List<AttributeDefInMemory>,
     override val description: LocalizedMarkdown?,
-    override val identifierAttributeKey: AttributeKey,
+    override val identifierAttributeId: AttributeId,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
 ) : EntityDef {
 
     private val map = attributes.associateBy { it.key }
+
+    override val identifierAttributeKey: AttributeKey = attributes
+        .firstOrNull { it.id == identifierAttributeId }?.key
+        ?: throw ModelInMemoryEntityIdentifierPointsToUnknownAttributeException(this.id)
 
     fun countAttributeDefs(): Int {
         return attributes.size
@@ -39,7 +43,7 @@ data class EntityDefInMemory(
                 name = other.name,
                 description = other.description,
                 attributes = other.attributes.map(AttributeDefInMemory::of),
-                identifierAttributeKey = other.identifierAttributeKey,
+                identifierAttributeId = other.identifierAttributeId,
                 origin = other.origin,
                 documentationHome = other.documentationHome,
                 hashtags = other.hashtags
@@ -52,7 +56,7 @@ data class EntityDefInMemory(
             var name: LocalizedText? = null,
             var attributes: MutableList<AttributeDefInMemory> = mutableListOf(),
             var description: LocalizedMarkdown? = null,
-            var identifierAttributeKey: AttributeKey,
+            var identifierAttributeId: AttributeId,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
             var hashtags: MutableList<Hashtag> = mutableListOf(),
@@ -69,7 +73,7 @@ data class EntityDefInMemory(
                     name = name,
                     attributes = attributes,
                     description = description,
-                    identifierAttributeKey = identifierAttributeKey,
+                    identifierAttributeId = identifierAttributeId,
                     origin = origin,
                     documentationHome = documentationHome,
                     hashtags = hashtags
@@ -79,10 +83,10 @@ data class EntityDefInMemory(
 
         fun builder(
             key: EntityKey,
-            identifierAttributeKey: AttributeKey,
+            identifierAttributeId: AttributeId,
             block: Builder.() -> Unit = {}
         ): EntityDefInMemory {
-            return Builder(key = key, identifierAttributeKey = identifierAttributeKey).also(block).build()
+            return Builder(key = key, identifierAttributeId = identifierAttributeId).also(block).build()
         }
     }
 }

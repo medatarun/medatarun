@@ -186,21 +186,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = typeJson.description
                 )
             },
-            entityDefs = modelJson.entities.map { entityJson ->
-                EntityDefInMemory(
-                    id = entityJson.id?.let { EntityId.valueOfString(it) } ?: EntityId.generate(),
-                    key = EntityKey(entityJson.key),
-                    name = entityJson.name,
-                    description = entityJson.description,
-                    identifierAttributeKey = AttributeKey(entityJson.identifierAttribute),
-                    origin = when (entityJson.origin) {
-                        null -> EntityOrigin.Manual
-                        else -> EntityOrigin.Uri(URI(entityJson.origin))
-                    },
-                    attributes = toAttributeList(entityJson.attributes),
-                    documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
-                    hashtags = entityJson.hashtags?.map { Hashtag(it) } ?: emptyList()
-                )
+            entityDefs = modelJson.entities.map { entityJson -> toEntity(entityJson)
             },
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
@@ -225,6 +211,27 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             hashtags = modelJson.hashtags?.map { Hashtag(it) } ?: emptyList()
         )
         return model
+    }
+
+    private fun toEntity(entityJson: ModelEntityJson): EntityDefInMemory {
+        val attributes = toAttributeList(entityJson.attributes)
+        val identifierAttribute = attributes
+            .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute)}
+            ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
+        return EntityDefInMemory(
+            id = entityJson.id?.let { EntityId.valueOfString(it) } ?: EntityId.generate(),
+            key = EntityKey(entityJson.key),
+            name = entityJson.name,
+            description = entityJson.description,
+            identifierAttributeId = identifierAttribute.id,
+            origin = when (entityJson.origin) {
+                null -> EntityOrigin.Manual
+                else -> EntityOrigin.Uri(URI(entityJson.origin))
+            },
+            attributes = attributes,
+            documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
+            hashtags = entityJson.hashtags?.map { Hashtag(it) } ?: emptyList()
+        )
     }
 
     companion object {

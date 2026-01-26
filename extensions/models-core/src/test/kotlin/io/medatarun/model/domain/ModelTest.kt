@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
+import java.util.*
 import kotlin.test.*
 
 class ModelTest {
@@ -1385,7 +1386,8 @@ class ModelTest {
         env.addSampleEntityDef()
         val attr = env.createAttributeDef(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
-        val reloaded = env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Description(nextValue))
+        val reloaded =
+            env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Description(nextValue))
         assertEquals(nextValue, reloaded.description)
     }
 
@@ -1412,7 +1414,8 @@ class ModelTest {
         val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         val attr = env.createAttributeDef(type = typeRef(type.id))
 
-        val reloaded = env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Type(typeRef(typeMarkdownId)))
+        val reloaded =
+            env.updateAttributeDef(entityAttributeRef(attr.key), AttributeDefUpdateCmd.Type(typeRef(typeMarkdownId)))
         assertEquals(typeMarkdownId, reloaded.type)
     }
 
@@ -1469,9 +1472,27 @@ class ModelTest {
             )
         )
 
-        assertNotNull(env.query.findEntityAttributeOptional(env.sampleModelRef, env.sampleEntityRef, entityAttributeRef("bk")))
-        assertNull(env.query.findEntityAttributeOptional(env.sampleModelRef, env.sampleEntityRef, entityAttributeRef("firstname")))
-        assertNotNull(env.query.findEntityAttributeOptional(env.sampleModelRef, env.sampleEntityRef, entityAttributeRef("lastname")))
+        assertNotNull(
+            env.query.findEntityAttributeOptional(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                entityAttributeRef("bk")
+            )
+        )
+        assertNull(
+            env.query.findEntityAttributeOptional(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                entityAttributeRef("firstname")
+            )
+        )
+        assertNotNull(
+            env.query.findEntityAttributeOptional(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                entityAttributeRef("lastname")
+            )
+        )
 
 
     }
@@ -1506,41 +1527,41 @@ class ModelTest {
         val query = runtime.queries
         private val modelKey = ModelKey("test")
         val modelRef = modelRefKey(modelKey)
-        val invalidModel = ModelInMemory.builder(
-            key = modelKey,
-            version = ModelVersion("0.0.1"),
-        ) {
-            name = null
-            description = null
-            types = mutableListOf(
-                ModelTypeInMemory(
-                    id = TypeId.generate(),
-                    key = TypeKey("String"),
-                    name = null,
-                    description = null
-                )
-            )
-            addEntityDef(
-                key = EntityKey("Contact"),
-                // Error is here
-                identifierAttributeKey = AttributeKey("unknown"),
+
+        fun createInvalidModel() {
+            val invalidModel = ModelInMemory.builder(
+                key = modelKey,
+                version = ModelVersion("0.0.1"),
             ) {
-                addAttribute(
-                    AttributeDefInMemory(
-                        id = AttributeId.generate(),
-                        key = AttributeKey("id"),
-                        type = TypeKey("String"),
+                name = null
+                description = null
+                types = mutableListOf(
+                    ModelTypeInMemory(
+                        id = TypeId.generate(),
+                        key = TypeKey("String"),
                         name = null,
-                        description = null,
-                        optional = false,
-                        hashtags = emptyList()
+                        description = null
                     )
                 )
+                addEntityDef(
+                    key = EntityKey("Contact"),
+                    // Error is here
+                    identifierAttributeId = AttributeId(UUID.randomUUID()),
+                ) {
+                    addAttribute(
+                        AttributeDefInMemory(
+                            id = AttributeId.generate(),
+                            key = AttributeKey("id"),
+                            type = TypeKey("String"),
+                            name = null,
+                            description = null,
+                            optional = false,
+                            hashtags = emptyList()
+                        )
+                    )
+                }
+
             }
-
-        }
-
-        init {
             runtime.repositories.first().push(invalidModel)
         }
     }
@@ -1556,20 +1577,9 @@ class ModelTest {
 
         val env = TestEnvInvalidModel()
 
-        // Getting a model that has error shall fail with invalid exception
-        assertThrows<ModelInvalidException> { env.query.findModel(env.modelRef) }
-
-        // Find all model ids shall not validate models, just give their ids
-        assertDoesNotThrow { env.query.findAllModelIds() }
-
-        // Creating or trying to modify something in invalid model shall throw error
-        assertThrows<ModelInvalidException> {
-            env.cmd.dispatch(
-                ModelCmd.CreateType(
-                    env.modelRef,
-                    ModelTypeInitializer(TypeKey("Markdown"), null, null)
-                )
-            )
+        // Creaintg a model that has error shall fail
+        assertThrows<ModelInMemoryEntityIdentifierPointsToUnknownAttributeException> {
+            env.createInvalidModel()
         }
 
 

@@ -30,10 +30,12 @@ interface EntityDef {
      */
     val attributes: List<AttributeDef>
 
+    @Deprecated("Use identifierAttributeId instead.", ReplaceWith("identifierAttributeId"))
+    val identifierAttributeKey: AttributeKey
     /**
      * Tells which attribute acts as entities' identifier
      */
-    val identifierAttributeKey: AttributeKey
+    val identifierAttributeId: AttributeId
 
     /**
      * Tells where the definition comes from

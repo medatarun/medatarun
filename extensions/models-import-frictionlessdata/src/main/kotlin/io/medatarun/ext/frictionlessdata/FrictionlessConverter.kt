@@ -143,30 +143,36 @@ class FrictionlessConverter {
         schema: TableSchema,
         hashtags: List<Hashtag>
     ): EntityDefInMemory {
+
+        val pk = schema.primaryKey?.values?.joinToString("__")
+            ?: schema.fields.firstOrNull()?.name
+            ?: "empty"
+
+        val attributes = schema.fields.map { field ->
+            AttributeDefInMemory(
+                id = AttributeId.generate(),
+                key = AttributeKey(field.name),
+                name = field.title?.let(::LocalizedTextNotLocalized),
+                description = field.description?.let(::LocalizedMarkdownNotLocalized),
+                type = TypeKey(field.type),
+                optional = field.isOptional(),
+                hashtags = emptyList()
+            )
+        }
+
+        val identifierAttribute = attributes.firstOrNull { it.key.value == pk }
+        if (identifierAttribute == null) throw FrictionlessConverterEntityIdentifierNotFound(entityId, pk)
+
         val entity = EntityDefInMemory(
             id = EntityId.generate(),
             key = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
-            attributes = schema.fields.map { field ->
-                AttributeDefInMemory(
-                    id = AttributeId.generate(),
-                    key = AttributeKey(field.name),
-                    name = field.title?.let(::LocalizedTextNotLocalized),
-                    description = field.description?.let(::LocalizedMarkdownNotLocalized),
-                    type = TypeKey(field.type),
-                    optional = field.isOptional(),
-                    hashtags = emptyList()
-                )
-            },
+            attributes = attributes,
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
             hashtags = hashtags,
-            identifierAttributeKey = AttributeKey(
-                schema.primaryKey?.values?.joinToString(";")
-                    ?: schema.fields.firstOrNull()?.name
-                    ?: "unknown"
-            ), // TODO
+            identifierAttributeId = identifierAttribute.id
         )
         return entity
     }

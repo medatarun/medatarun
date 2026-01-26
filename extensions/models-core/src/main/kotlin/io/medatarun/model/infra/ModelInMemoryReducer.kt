@@ -58,7 +58,7 @@ class ModelInMemoryReducer {
                         val entityRef = EntityRef.ById(cmd.entityId)
                         val attr = model.findEntityAttributeOptional(entityRef, cmd.cmd.value)
                             ?: throw EntityAttributeNotFoundException(ModelRef.ById(model.id), entityRef, EntityAttributeRef.ById(cmd.cmd.value))
-                        previous.copy(identifierAttributeKey = attr.key)
+                        previous.copy(identifierAttributeId = attr.id)
                     }
                     is ModelRepoCmdEntityUpdate.DocumentationHome -> previous.copy(documentationHome = c.value)
                 }

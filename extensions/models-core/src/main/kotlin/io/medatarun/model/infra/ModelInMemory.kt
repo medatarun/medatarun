@@ -68,10 +68,10 @@ data class ModelInMemory(
 
             fun addEntityDef(
                 key: EntityKey,
-                identifierAttributeKey: AttributeKey,
+                identifierAttributeId: AttributeId,
                 block: EntityDefInMemory.Companion.Builder.() -> Unit = {}
             ): EntityDefInMemory {
-                val e = EntityDefInMemory.builder(key, identifierAttributeKey, block)
+                val e = EntityDefInMemory.builder(key, identifierAttributeId, block)
                 entityDefs.add(e)
                 return e
             }

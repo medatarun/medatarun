@@ -3,6 +3,7 @@ package io.medatarun.ext.db.internal.modelimport
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.model.DbConnectionNotFoundException
+import io.medatarun.ext.db.model.DbImportCouldNotFindAttributeFromPrimaryKeyException
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
@@ -48,23 +49,28 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             origin = ModelOrigin.Uri(URI(path)),
             types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) },
             entityDefs = result.tables.map { table ->
+                val attributeFromColumns = table.columns.map {
+                    AttributeDefInMemory(
+                        id = AttributeId.generate(),
+                        key = AttributeKey(it.columnName),
+                        name = null,
+                        description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
+                        type = TypeKey(it.typeName),
+                        optional = it.isNullable != false,
+                        hashtags = emptyList(),
+                    )
+                }
+                val pkAttributeKey = table.pkNameOrFirstColumn()
+                val pkAttribute = attributeFromColumns.firstOrNull { it.key == pkAttributeKey }
+                    ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
+
                 EntityDefInMemory(
                     id = EntityId.generate(),
                     key = EntityKey(table.tableName),
                     name = null,
-                    attributes = table.columns.map {
-                        AttributeDefInMemory(
-                            id = AttributeId.generate(),
-                            key = AttributeKey(it.columnName),
-                            name = null,
-                            description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
-                            type = TypeKey(it.typeName),
-                            optional = it.isNullable != false,
-                            hashtags = emptyList(),
-                        )
-                    },
+                    attributes = attributeFromColumns,
                     description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
-                    identifierAttributeKey = table.pkNameOrFirstColumn(),
+                    identifierAttributeId = pkAttribute.id,
                     origin = EntityOrigin.Uri(URI(path)),
                     documentationHome = null,
                     hashtags = emptyList()

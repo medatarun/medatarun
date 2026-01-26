@@ -269,6 +269,16 @@ class ModelCmdsImpl(
     private fun createEntity(c: ModelCmd.CreateEntity) {
         val model = findModel(c.modelRef)
         val type = findType(c.modelRef, c.entityDefInitializer.identityAttribute.type)
+        val identityAttribute = AttributeDefInMemory(
+            id = AttributeId.generate(),
+            key = c.entityDefInitializer.identityAttribute.attributeKey,
+            name = c.entityDefInitializer.identityAttribute.name,
+            description = c.entityDefInitializer.identityAttribute.description,
+            type = type.key,
+            optional = false, // because it's identity, can never be optional
+            hashtags = emptyList()
+        )
+        val attributes = listOf(identityAttribute)
         storage.dispatch(
             ModelRepoCmd.CreateEntity(
                 model.id,
@@ -277,21 +287,11 @@ class ModelCmdsImpl(
                     key = c.entityDefInitializer.entityKey,
                     name = c.entityDefInitializer.name,
                     description = c.entityDefInitializer.description,
-                    identifierAttributeKey = c.entityDefInitializer.identityAttribute.attributeKey,
+                    identifierAttributeId = identityAttribute.id,
                     origin = EntityOrigin.Manual,
                     documentationHome = c.entityDefInitializer.documentationHome,
                     hashtags = emptyList(),
-                    attributes = listOf(
-                        AttributeDefInMemory(
-                            id = AttributeId.generate(),
-                            key = c.entityDefInitializer.identityAttribute.attributeKey,
-                            name = c.entityDefInitializer.identityAttribute.name,
-                            description = c.entityDefInitializer.identityAttribute.description,
-                            type = type.key,
-                            optional = false, // because it's identity, can never be optional
-                            hashtags = emptyList()
-                        )
-                    )
+                    attributes = attributes
                 )
             )
         )

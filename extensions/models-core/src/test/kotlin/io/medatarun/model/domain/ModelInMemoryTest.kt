@@ -49,15 +49,15 @@ class ModelInMemoryTest {
 
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
-
+        val personIdentifierAttributeId=  AttributeId.generate()
         val personEntity = EntityDefInMemory.builder(
             key = EntityKey("person"),
-            identifierAttributeKey = AttributeKey("id"),
+            identifierAttributeId = personIdentifierAttributeId,
         ) {
             name = LocalizedTextNotLocalized("Person")
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeId.generate(),
+                    id = personIdentifierAttributeId,
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
@@ -103,15 +103,15 @@ class ModelInMemoryTest {
                 )
             )
         }
-
+        val companyIdentifierAttributeId =  AttributeId.generate()
         val companyEntity = EntityDefInMemory.builder(
             key = EntityKey("company"),
-            identifierAttributeKey = AttributeKey("id"),
+            identifierAttributeId = companyIdentifierAttributeId,
         ) {
             name = LocalizedTextNotLocalized("Company")
             addAttribute(
                 AttributeDefInMemory(
-                    id = AttributeId.generate(),
+                    id = companyIdentifierAttributeId,
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
