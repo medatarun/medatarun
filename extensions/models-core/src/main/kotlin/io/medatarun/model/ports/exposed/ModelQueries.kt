@@ -1,9 +1,6 @@
 package io.medatarun.model.ports.exposed
 
-import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelSummary
+import io.medatarun.model.domain.*
 import java.util.*
 
 interface ModelQueries {
@@ -13,6 +10,7 @@ interface ModelQueries {
      */
     fun findModelByKey(modelKey: ModelKey): Model
     fun findModelById(modelId: ModelId): Model
+    fun findModelByRef(modelRef: ModelRef): Model
 
     /**
      * Returns complete list of all known model ids in this application instance

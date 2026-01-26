@@ -4,10 +4,13 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 
 class ModelNotFoundByKeyException(key: ModelKey) :
-    MedatarunException("Model with key [${key.value}] was not found", StatusCode.BAD_REQUEST)
+    MedatarunException("Model with key [${key.value}] was not found", StatusCode.NOT_FOUND)
 
 class ModelNotFoundByIdException(id: ModelId) :
-    MedatarunException("Model with id [${id.value}] was not found", StatusCode.BAD_REQUEST)
+    MedatarunException("Model with id [${id.value}] was not found", StatusCode.NOT_FOUND)
+
+class ModelNotFoundException(ref: ModelRef) :
+    MedatarunException("Model with ref [${ref.asString()}] was not found", StatusCode.NOT_FOUND)
 
 class ModelDuplicateIdException(id: ModelKey) :
     MedatarunException("Model with id [${id.value}] already exists")
@@ -57,8 +60,8 @@ class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
 class TypeNotFoundException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] not found in model [${modelKey.value}]")
 
-class DeleteAttributeIdentifierException(modelKey: ModelKey, entityId: EntityKey, attributeId: AttributeKey) :
-    MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelKey.value}] because it is used as the entity's identifier")
+class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityKey, attributeId: AttributeKey) :
+    MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelId.value}] because it is used as the entity's identifier")
 
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
     MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message })
@@ -66,18 +69,18 @@ class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>
 class RelationshipDefNotFoundException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
     MedatarunException("Relationship with id [${relationshipKey.value}] not found in model [${modelKey.value}]")
 
-class RelationshipDuplicateIdException(modelKey: ModelKey, relationshipKey: RelationshipKey) :
-    MedatarunException("Another relationship in model [${modelKey.value}] already has identifier [${relationshipKey.value}].")
+class RelationshipDuplicateIdException(modelId: ModelId, relationshipKey: RelationshipKey) :
+    MedatarunException("Another relationship in model [${modelId.value}] already has identifier [${relationshipKey.value}].")
 
 class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleKey>) :
     MedatarunException("A relationship can not have the same role ids. Duplicate roles ids: [${roles.joinToString(", ")}]")
 
 class RelationshipDuplicateAttributeException(
-    modelKey: ModelKey,
+    modelId: ModelId,
     relationshipKey: RelationshipKey,
     attributeId: AttributeKey
 ) :
-    MedatarunException("In model [${modelKey.value}], relationship [${relationshipKey.value}] already has another attribute with id [${attributeId.value}]")
+    MedatarunException("In model [${modelId.asString()}], relationship [${relationshipKey.value}] already has another attribute with id [${attributeId.value}]")
 
 class KeyInvalidFormatException :
     MedatarunException("Invalid key format", StatusCode.BAD_REQUEST)

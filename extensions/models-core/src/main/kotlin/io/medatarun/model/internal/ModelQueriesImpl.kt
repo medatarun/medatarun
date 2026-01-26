@@ -55,6 +55,13 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
     }
 
+    override fun findModelByRef(modelRef: ModelRef): Model {
+        return when(modelRef) {
+            is ModelRef.ById -> findModelById(modelRef.id)
+            is ModelRef.ByKey -> findModelByKey(modelRef.key)
+        }
+    }
+
     private class TextComparator(val locale: Locale) : Comparator<String> {
         private val collator = Collator.getInstance(locale)
         private val comparator = Comparator.nullsLast(

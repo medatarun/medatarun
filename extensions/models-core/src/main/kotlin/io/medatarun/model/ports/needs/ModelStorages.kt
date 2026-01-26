@@ -28,6 +28,7 @@ interface ModelStorages {
     fun findModelByIdOptional(modelId: ModelId): Model?
 
     fun existsModelByKey(modelKey: ModelKey): Boolean
+    fun existsModelById(modelId: ModelId): Boolean
 
 
     // Commands

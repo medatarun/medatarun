@@ -15,7 +15,7 @@ class ModelRefDescriptor : TypeDescriptor<ModelRef> {
         return when (value) {
             is ModelRef.ById -> value
             is ModelRef.ByKey -> {
-                value.model.validated()
+                value.key.validated()
                 value
             }
         }

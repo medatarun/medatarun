@@ -23,7 +23,7 @@ class ModelRefTypeJsonConverterTest {
         // Contract: key requires model part only.
         val keyRef = converter.deserialize(JsonPrimitive("key:model=m1"))
         val expectedKeyRef = ModelRef.ByKey(
-            model = ModelKey("m1"),
+            key = ModelKey("m1"),
         )
         assertEquals(expectedKeyRef, keyRef)
     }

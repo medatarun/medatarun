@@ -25,6 +25,14 @@ class ModelStoragesComposite(
         return false
     }
 
+    override fun existsModelById(modelId: ModelId): Boolean {
+        for (repository in repositories) {
+            val found = repository.findModelByIdOptional(modelId)
+            if (found != null) return true
+        }
+        return false
+    }
+
     override fun findModelByKeyOptional(modelKey: ModelKey): Model? {
         for (repository in repositories) {
             val found = repository.findModelByKeyOptional(modelKey)

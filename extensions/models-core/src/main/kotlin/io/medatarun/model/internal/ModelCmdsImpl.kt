@@ -14,7 +14,7 @@ class ModelCmdsImpl(
 ) : ModelCmds {
 
     override fun dispatch(cmd: ModelCmd) {
-        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelKey)
+        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelRef)
         when (cmd) {
             is ModelCmd.CreateModel -> createModel(cmd)
             is ModelCmd.CopyModel -> copyModel(cmd)
@@ -62,6 +62,13 @@ class ModelCmdsImpl(
         return storage.findModelByKeyOptional(key) ?: throw ModelNotFoundByKeyException(key)
     }
 
+    private fun findModelByRef(ref: ModelRef): Model {
+        return when(ref) {
+            is ModelRef.ByKey -> findModelByKey(ref.key)
+            is ModelRef.ById -> findModelById(ref.id)
+        }
+    }
+
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
             id = ModelId.generate(),
@@ -80,7 +87,7 @@ class ModelCmdsImpl(
     }
 
     private fun copyModel(cmd: ModelCmd.CopyModel) {
-        val model = storage.findModelByKeyOptional(cmd.modelKey) ?: throw ModelNotFoundByKeyException(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         val existing = storage.findModelByKeyOptional(cmd.modelNewKey)
         if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
         val next = ModelInMemory.of(model).copy(key = cmd.modelNewKey)
@@ -95,37 +102,37 @@ class ModelCmdsImpl(
 
 
     private fun deleteModel(cmd: ModelCmd.DeleteModel) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.DeleteModel(model.id))
     }
 
     private fun updateModelName(cmd: ModelCmd.UpdateModelName) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelName(model.id, cmd.name))
     }
 
     private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelDescription(model.id, cmd.description))
     }
 
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelVersion(model.id, cmd.version))
     }
 
     private fun updateDocumentationHome(cmd: ModelCmd.UpdateModelDocumentationHome) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelDocumentationHome(model.id, cmd.url))
     }
 
     private fun updateModelHashtagAdd(cmd: ModelCmd.UpdateModelHashtagAdd) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelHashtagAdd(model.id, cmd.hashtag))
     }
 
     private fun updateModelHashtagDelete(cmd: ModelCmd.UpdateModelHashtagDelete) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         storage.dispatch(ModelRepositoryCmd.UpdateModelHashtagDelete(model.id, cmd.hashtag))
     }
 
@@ -133,62 +140,58 @@ class ModelCmdsImpl(
     // Types
     // -----------------------------------------------------------------------------------------------------------------
 
-    private fun createType(c: ModelCmd.CreateType) {
+    private fun createType(cmd: ModelCmd.CreateType) {
         // Cannot create a type if another type already has the same key in the model
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
-        val existing = model.findTypeOptional(c.initializer.id)
-        if (existing != null) throw TypeCreateDuplicateException(c.modelKey, c.initializer.id)
-        storage.dispatch(ModelRepositoryCmd.CreateType(model.id, c.initializer))
+        val model = findModelByRef(cmd.modelRef)
+        val existing = model.findTypeOptional(cmd.initializer.id)
+        if (existing != null) throw TypeCreateDuplicateException(model.key, cmd.initializer.id)
+        storage.dispatch(ModelRepositoryCmd.CreateType(model.id, cmd.initializer))
     }
 
-    private fun updateType(c: ModelCmd.UpdateType) {
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
-        model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
-        storage.dispatch(ModelRepositoryCmd.UpdateType(model.id, c.typeId, c.cmd))
+    private fun updateType(cmd: ModelCmd.UpdateType) {
+        val model = findModelByRef(cmd.modelRef)
+        model.findTypeOptional(cmd.typeId) ?: throw TypeNotFoundException(model.key, cmd.typeId)
+        storage.dispatch(ModelRepositoryCmd.UpdateType(model.id, cmd.typeId, cmd.cmd))
     }
 
-    private fun deleteType(c: ModelCmd.DeleteType) {
+    private fun deleteType(cmd: ModelCmd.DeleteType) {
         // Can not delete type used in any entity
-        val model = storage.findModelByKeyOptional(c.modelKey) ?: throw ModelNotFoundByKeyException(c.modelKey)
-        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == c.typeId } }
-        if (used) throw ModelTypeDeleteUsedException(c.typeId)
-        model.findTypeOptional(c.typeId) ?: throw TypeNotFoundException(c.modelKey, c.typeId)
-        storage.dispatch(ModelRepositoryCmd.DeleteType(model.id, c.typeId))
+        val model = findModelByRef(cmd.modelRef)
+        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.type == cmd.typeId } }
+        if (used) throw ModelTypeDeleteUsedException(cmd.typeId)
+        model.findTypeOptional(cmd.typeId) ?: throw TypeNotFoundException(model.key, cmd.typeId)
+        storage.dispatch(ModelRepositoryCmd.DeleteType(model.id, cmd.typeId))
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Entities
     // -----------------------------------------------------------------------------------------------------------------
 
-    private fun updateEntityDef(c: ModelCmd.UpdateEntityDef) {
-        ensureModelExists(c.modelKey)
-        val model = storage.findModelByKey(c.modelKey)
-        model.findEntityDef(c.entityKey)
-        if (c.cmd is EntityDefUpdateCmd.Id) {
-            if (model.entityDefs.any { it.key == c.cmd.value && it.key != c.entityKey }) {
-                throw UpdateEntityDefIdDuplicateIdException(c.entityKey)
+    private fun updateEntityDef(cmd: ModelCmd.UpdateEntityDef) {
+        val model = findModelByRef(cmd.modelRef)
+        model.findEntityDef(cmd.entityKey)
+        if (cmd.cmd is EntityDefUpdateCmd.Id) {
+            if (model.entityDefs.any { it.key == cmd.cmd.value && it.key != cmd.entityKey }) {
+                throw UpdateEntityDefIdDuplicateIdException(cmd.entityKey)
             }
         }
-        storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(model.id, c.entityKey, c.cmd))
+        storage.dispatch(ModelRepositoryCmd.UpdateEntityDef(model.id, cmd.entityKey, cmd.cmd))
     }
 
     private fun updateEntityDefHashtagAdd(cmd: ModelCmd.UpdateEntityDefHashtagAdd) {
-        ensureModelExists(cmd.modelKey)
-        val model = storage.findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.findEntityDef(cmd.entityKey)
         storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagAdd(model.id, cmd.entityKey, cmd.hashtag))
     }
 
     private fun updateEntityDefHashtagDelete(cmd: ModelCmd.UpdateEntityDefHashtagDelete) {
-        ensureModelExists(cmd.modelKey)
-        val model = storage.findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.findEntityDef(cmd.entityKey)
         storage.dispatch(ModelRepositoryCmd.UpdateEntityDefHashtagDelete(model.id, cmd.entityKey, cmd.hashtag))
     }
 
 
     private fun createEntityDef(c: ModelCmd.CreateEntityDef) {
-
-        val model = findModelByKey(c.modelKey)
+        val model = findModelByRef(c.modelRef)
         model.ensureTypeExists(c.entityDefInitializer.identityAttribute.type)
         storage.dispatch(
             ModelRepositoryCmd.CreateEntityDef(
@@ -219,17 +222,17 @@ class ModelCmdsImpl(
     }
 
     private fun deleteEntityDef(c: ModelCmd.DeleteEntityDef) {
-        val model = findModelByKey(c.modelKey)
+        val model = findModelByRef(c.modelRef)
         storage.dispatch(ModelRepositoryCmd.DeleteEntityDef(model.id, c.entityKey))
     }
 
     private fun createEntityDefAttributeDef(c: ModelCmd.CreateEntityDefAttributeDef) {
-        val e = findModelByKey(c.modelKey).findEntityDef(c.entityKey)
+        val model = findModelByRef(c.modelRef)
+        val e = model.findEntityDef(c.entityKey)
         if (e.hasAttributeDef(c.attributeDefInitializer.attributeKey)) throw CreateAttributeDefDuplicateIdException(
             c.entityKey,
             c.attributeDefInitializer.attributeKey
         )
-        val model = findModelByKey(c.modelKey)
         model.ensureTypeExists(c.attributeDefInitializer.type)
         storage.dispatch(
             ModelRepositoryCmd.CreateEntityDefAttributeDef(
@@ -248,84 +251,84 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun deleteEntityDefAttributeDef(c: ModelCmd.DeleteEntityDefAttributeDef) {
-        val model = findModelByKey(c.modelKey)
-        val entity = model.findEntityDef(c.entityKey)
-        if (entity.identifierAttributeKey == c.attributeKey)
-            throw DeleteAttributeIdentifierException(c.modelKey, c.entityKey, c.attributeKey)
+    private fun deleteEntityDefAttributeDef(cmd: ModelCmd.DeleteEntityDefAttributeDef) {
+        val model = findModelByRef(cmd.modelRef)
+        val entity = model.findEntityDef(cmd.entityKey)
+        if (entity.identifierAttributeKey == cmd.attributeKey)
+            throw DeleteAttributeIdentifierException(model.id, cmd.entityKey, cmd.attributeKey)
         storage.dispatch(
             ModelRepositoryCmd.DeleteEntityDefAttributeDef(
                 modelId = model.id,
-                entityKey = c.entityKey,
-                attributeKey = c.attributeKey
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey
             )
         )
     }
 
-    private fun updateEntityDefAttributeDef(c: ModelCmd.UpdateEntityDefAttributeDef) {
-        val model = findModelByKey(c.modelKey)
-        val entity = model.findEntityDef(c.entityKey)
-        entity.ensureAttributeDefExists(c.attributeKey)
+    private fun updateEntityDefAttributeDef(cmd: ModelCmd.UpdateEntityDefAttributeDef) {
+        val model = findModelByRef(cmd.modelRef)
+        val entity = model.findEntityDef(cmd.entityKey)
+        entity.ensureAttributeDefExists(cmd.attributeKey)
 
         // TODO how do we ensure transactions here ?
 
 
-        if (c.cmd is AttributeDefUpdateCmd.Key) {
+        if (cmd.cmd is AttributeDefUpdateCmd.Key) {
             // We can not have two attributes with the same id
-            if (entity.attributes.any { it.key == c.cmd.value && it.key != c.attributeKey }) {
-                throw UpdateAttributeDefDuplicateIdException(c.entityKey, c.attributeKey)
+            if (entity.attributes.any { it.key == cmd.cmd.value && it.key != cmd.attributeKey }) {
+                throw UpdateAttributeDefDuplicateIdException(cmd.entityKey, cmd.attributeKey)
             }
             // If user wants to rename the Entity's identity attribute, we must rename in entity
             // as well as the attribute's id, then apply changes on entity
-            if (entity.identifierAttributeKey == c.attributeKey) {
+            if (entity.identifierAttributeKey == cmd.attributeKey) {
                 storage.dispatch(
                     ModelRepositoryCmd.UpdateEntityDef(
                         modelId = model.id,
-                        entityKey = c.entityKey,
-                        cmd = EntityDefUpdateCmd.IdentifierAttribute(c.cmd.value)
+                        entityKey = cmd.entityKey,
+                        cmd = EntityDefUpdateCmd.IdentifierAttribute(cmd.cmd.value)
                     )
                 )
             }
-        } else if (c.cmd is AttributeDefUpdateCmd.Type) {
+        } else if (cmd.cmd is AttributeDefUpdateCmd.Type) {
             // Attribute type shall exist when updating types
-            findModelByKey(c.modelKey).ensureTypeExists(c.cmd.value)
+            model.ensureTypeExists(cmd.cmd.value)
         }
 
         // Apply changes on attribute
         storage.dispatch(
             ModelRepositoryCmd.UpdateEntityDefAttributeDef(
                 modelId = model.id,
-                entityKey = c.entityKey,
-                attributeKey = c.attributeKey,
-                cmd = c.cmd
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                cmd = cmd.cmd
             )
         )
     }
 
-    private fun updateEntityDefAttributeDefHashtagAdd(c: ModelCmd.UpdateEntityDefAttributeDefHashtagAdd) {
-        val model = findModelByKey(c.modelKey)
-        val entity = model.findEntityDef(c.entityKey)
-        entity.ensureAttributeDefExists(c.attributeKey)
+    private fun updateEntityDefAttributeDefHashtagAdd(cmd: ModelCmd.UpdateEntityDefAttributeDefHashtagAdd) {
+        val model = findModelByRef(cmd.modelRef)
+        val entity = model.findEntityDef(cmd.entityKey)
+        entity.ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagAdd(
                 modelId = model.id,
-                entityKey = c.entityKey,
-                attributeKey = c.attributeKey,
-                hashtag = c.hashtag
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.hashtag
             )
         )
     }
 
-    private fun updateEntityDefAttributeDefHashtagDelete(c: ModelCmd.UpdateEntityDefAttributeDefHashtagDelete) {
-        val model = findModelByKey(c.modelKey)
-        val entity = model.findEntityDef(c.entityKey)
-        entity.ensureAttributeDefExists(c.attributeKey)
+    private fun updateEntityDefAttributeDefHashtagDelete(cmd: ModelCmd.UpdateEntityDefAttributeDefHashtagDelete) {
+        val model = findModelByRef(cmd.modelRef)
+        val entity = model.findEntityDef(cmd.entityKey)
+        entity.ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagDelete(
                 modelId = model.id,
-                entityKey = c.entityKey,
-                attributeKey = c.attributeKey,
-                hashtag = c.hashtag
+                entityKey = cmd.entityKey,
+                attributeKey = cmd.attributeKey,
+                hashtag = cmd.hashtag
             )
         )
     }
@@ -336,7 +339,7 @@ class ModelCmdsImpl(
 
 
     private fun deleteRelationshipAttributeDef(cmd: ModelCmd.DeleteRelationshipAttributeDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.findRelationshipDef(cmd.relationshipKey)
             .ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
@@ -349,7 +352,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipAttributeDef(cmd: ModelCmd.UpdateRelationshipAttributeDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
             .ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
@@ -363,7 +366,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipAttributeDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipAttributeDefHashtagAdd) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
             .ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
@@ -377,7 +380,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipAttributeDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipAttributeDefHashtagDelete) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
             .ensureAttributeDefExists(cmd.attributeKey)
         storage.dispatch(
@@ -391,7 +394,7 @@ class ModelCmdsImpl(
     }
 
     private fun deleteRelationshipDef(cmd: ModelCmd.DeleteRelationshipDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.DeleteRelationshipDef(
@@ -402,7 +405,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDef(cmd: ModelCmd.UpdateRelationshipDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDef(
@@ -414,7 +417,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipDefHashtagAdd) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDefHashtagAdd(
@@ -426,7 +429,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateRelationshipDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipDefHashtagDelete) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         model.ensureRelationshipExists(cmd.relationshipKey)
         storage.dispatch(
             ModelRepositoryCmd.UpdateRelationshipDefHashtagDelete(
@@ -438,11 +441,11 @@ class ModelCmdsImpl(
     }
 
     private fun createRelationshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttributeDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         val exists = model.findRelationshipDef(cmd.relationshipKey)
             .findAttributeDefOptional(cmd.attr.key)
         if (exists != null) {
-            throw RelationshipDuplicateAttributeException(cmd.modelKey, cmd.relationshipKey, cmd.attr.key)
+            throw RelationshipDuplicateAttributeException(model.id, cmd.relationshipKey, cmd.attr.key)
         }
         model.ensureTypeExists(cmd.attr.type)
         storage.dispatch(
@@ -456,9 +459,9 @@ class ModelCmdsImpl(
 
 
     private fun createRelationshipDef(cmd: ModelCmd.CreateRelationshipDef) {
-        val model = findModelByKey(cmd.modelKey)
+        val model = findModelByRef(cmd.modelRef)
         if (model.findRelationshipDefOptional(cmd.initializer.key) != null)
-            throw RelationshipDuplicateIdException(cmd.modelKey, cmd.initializer.key)
+            throw RelationshipDuplicateIdException(model.id, cmd.initializer.key)
         val duplicateRoleIds =
             cmd.initializer.roles.groupBy { it.key }.mapValues { it.value.size }.filter { it.value > 1 }
         if (duplicateRoleIds.isNotEmpty()) {
@@ -471,7 +474,13 @@ class ModelCmdsImpl(
             )
         )
     }
-
+    fun ensureModelExists(modelRef: ModelRef) {
+        val exists = when(modelRef) {
+            is ModelRef.ByKey -> storage.existsModelByKey(modelRef.key)
+            is ModelRef.ById -> storage.existsModelById(modelRef.id)
+        }
+        if (!exists) throw ModelNotFoundException(modelRef)
+    }
     fun ensureModelExists(modelKey: ModelKey) {
         if (!storage.existsModelByKey(modelKey)) throw ModelNotFoundByKeyException(modelKey)
     }

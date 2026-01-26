@@ -16,7 +16,7 @@ class ModelRefTypeJsonConverter : TypeJsonConverter<ModelRef> {
             },
             whenKey = { keyParts ->
                 ModelRef.ByKey(
-                    model = ModelKey(keyParts.required("model")),
+                    key = ModelKey(keyParts.required("model")),
                 )
             }
         )
