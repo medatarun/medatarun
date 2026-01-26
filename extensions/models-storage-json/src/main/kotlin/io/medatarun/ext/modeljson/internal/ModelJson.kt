@@ -108,7 +108,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                         RelationshipRoleJson(
                             id = role.id.value.toString(),
                             key = role.key.value,
-                            entityId = model.findEntity(role.entityId).id.value.toString(),
+                            entityId = model.findEntity(role.entityId).key.value,
                             name = role.name,
                             cardinality = role.cardinality.code
                         )

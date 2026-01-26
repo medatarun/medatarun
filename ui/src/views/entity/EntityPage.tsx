@@ -77,7 +77,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
       </Breadcrumb>
       <ViewTitle eyebrow={"Entity"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{entity.name ?? entity.id} {" "}</div>
+          <div>{entity.name ?? entity.key ?? entity.id} {" "}</div>
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}

@@ -79,7 +79,7 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeI
             <TableCell className={styles.titleCell} onClick={() => onClick(type.id)}>{type.name ?? type.id}</TableCell>
             <TableCell className={styles.flags} onClick={() => onClick(type.id)}>{" "}</TableCell>
             {isDetailLevelTech && <TableCell className={styles.typeCodeCell}
-                                             onClick={() => onClick(type.id)}><code>{type.id}</code></TableCell>}
+                                             onClick={() => onClick(type.id)}><code>{type.key}</code></TableCell>}
             <TableCell className={styles.descriptionCell} onClick={() => onClick(type.id)}>
               <div>
                 <Markdown value={type.description}/>

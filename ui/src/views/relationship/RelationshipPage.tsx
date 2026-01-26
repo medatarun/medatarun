@@ -104,7 +104,7 @@ export function RelationshipView({model, relationship}: {
       <ViewTitle eyebrow={"Relationship"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
           <div>
-            {relationship.name ?? relationship.id} {" "}
+            {relationship.name ?? relationship.key ?? relationship.id} {" "}
           </div>
           <div>
 
@@ -154,7 +154,7 @@ export function RelationshipView({model, relationship}: {
                       header={
                         <div>
                           <div>
-                            <Text weight="semibold">{model.findEntityName(role.entityId)}</Text>
+                            <Text weight="semibold">{model.findEntityNameOrKey(role.entityId)}</Text>
                           </div>
                           <Text>{roleCardinalityLabel(role.cardinality)}</Text>
                         </div>
@@ -167,8 +167,8 @@ export function RelationshipView({model, relationship}: {
 
                     />
                     <div>{role.name}</div>
-                    {isDetailLevelTech && <div><code>{relationship.id}</code></div>}
-                    {isDetailLevelTech && <div>🔗 <code>{role.entityId}</code></div>}
+                    {isDetailLevelTech && <div><code>{role.key}</code></div>}
+                    {isDetailLevelTech && <div>🔗 <code>{model.findEntityKey(role.entityId)}</code></div>}
 
                   </Card>
                 )}
@@ -205,7 +205,7 @@ export function RelationshipOverview({relationship, model}: {
   const {isDetailLevelTech} = useDetailLevelContext()
   return <PropertiesForm>
     {isDetailLevelTech && <div><Text>Relationship&nbsp;key</Text></div>}
-    {isDetailLevelTech && <div><Text><code>{relationship.id}</code></Text></div>}
+    {isDetailLevelTech && <div><Text><code>{relationship.key}</code></Text></div>}
     <div><Text>From&nbsp;model</Text></div>
     <div>
       <Link
@@ -215,6 +215,8 @@ export function RelationshipOverview({relationship, model}: {
     <div><Text>Tags</Text></div>
     <div>{relationship.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={relationship.hashtags}/>}</div>
+    {isDetailLevelTech && <div><Text>Relationship&nbsp;id</Text></div>}
+    {isDetailLevelTech && <div><Text><code>{relationship.id}</code></Text></div>}
   </PropertiesForm>
 }
 

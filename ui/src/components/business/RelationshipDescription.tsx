@@ -43,7 +43,7 @@ export function RelationshipDescription(props: { rel: RelationshipDto }) {
 
 function EntityLink(props: { id: string }) {
   const model = useModelContext()
-  const name = model.findEntityName(props.id)
+  const name = model.findEntityNameOrKey(props.id)
   if (name !== null) {
     return <Link to="/model/$modelId/entity/$entityId" params={{modelId: model.dto.id, entityId: props.id}}>
       {name}

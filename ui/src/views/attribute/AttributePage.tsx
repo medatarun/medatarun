@@ -203,7 +203,7 @@ export function AttributeOverview({attribute, model}: {
     <div>
       <Link
         to="/model/$modelId/type/$typeId"
-        params={{modelId: model.id, typeId: attribute.type}}>{model.findTypeName(attribute.type)}</Link>
+        params={{modelId: model.id, typeId: attribute.type}}>{model.findTypeNameOrKey(attribute.type)}</Link>
       {" "}
       <Text>{attribute.optional ? "optional" : "required"}</Text>
       {" "}

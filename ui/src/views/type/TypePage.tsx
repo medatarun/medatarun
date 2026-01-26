@@ -116,14 +116,16 @@ export function TypeOverview({type, model}: {
 }) {
   const {isDetailLevelTech} = useDetailLevelContext()
   return <PropertiesForm>
-    {isDetailLevelTech && <div><Text>Type&nbsp;code</Text></div>}
-    {isDetailLevelTech && <div><Text><code>{type.id}</code></Text></div>}
+    {isDetailLevelTech && <div><Text>Type&nbsp;key</Text></div>}
+    {isDetailLevelTech && <div><Text><code>{type.key}</code></Text></div>}
     <div><Text>From&nbsp;model</Text></div>
     <div>
       <Link
         to="/model/$modelId"
         params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
+    {isDetailLevelTech && <div><Text>Type&nbsp;Id</Text></div>}
+    {isDetailLevelTech && <div><Text><code>{type.id}</code></Text></div>}
 
   </PropertiesForm>
 }

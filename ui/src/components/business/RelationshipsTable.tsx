@@ -49,9 +49,9 @@ export function RelationshipsTable({relationships, onClick}:{relationships:Relat
       <Table>
         <TableBody>{relationships
           .map(r => <TableRow key={r.id}>
-            <TableCell className={styles.titleCell} onClick={()=>onClick(r.id)}>{r.name ?? r.id}</TableCell>
+            <TableCell className={styles.titleCell} onClick={()=>onClick(r.id)}>{r.name ?? r.key ?? r.id}</TableCell>
             <TableCell className={styles.flags} onClick={()=>onClick(r.id)}>{" "}</TableCell>
-            <TableCell className={styles.descriptionCell} onClick={()=>onClick(r.id)}><div><RelationshipDescription rel={r}/></div>{ isDetailLevelTech && <div><code>{r.id}</code></div> }</TableCell>
+            <TableCell className={styles.descriptionCell} onClick={()=>onClick(r.id)}><div><RelationshipDescription rel={r}/></div>{ isDetailLevelTech && <div><code>{r.key}</code></div> }</TableCell>
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}

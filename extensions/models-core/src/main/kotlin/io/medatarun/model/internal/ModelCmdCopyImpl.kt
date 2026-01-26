@@ -20,6 +20,7 @@ class ModelCmdCopyImpl {
     fun copy(model: Model, modelNewKey: ModelKey): Model {
         val typeIds = IdConv("type") { TypeId.generate() }
         val entityIds = IdConv("entity") { EntityId.generate() }
+        val attributeIds = IdConv("attribute") { AttributeId.generate() }
 
         // Respect the order otherwise id conversion will fail!
 
@@ -27,14 +28,16 @@ class ModelCmdCopyImpl {
             ModelTypeInMemory.of(type).copy(id = typeIds.generate(type.id))
         }
         val newEntities = model.entityDefs.map { entity ->
+            val entityAttributes = entity.attributes.map { attr ->
+                AttributeDefInMemory.of(attr).copy(
+                    id = attributeIds.generate(attr.id),
+                    typeId = typeIds.convert(attr.typeId),
+                )
+            }
             EntityDefInMemory.of(entity).copy(
                 id = entityIds.generate(entity.id),
-                attributes = entity.attributes.map { attr ->
-                    AttributeDefInMemory.of(attr).copy(
-                        id = AttributeId.generate(),
-                        typeId = typeIds.convert(attr.typeId),
-                    )
-                }
+                identifierAttributeId = attributeIds.convert(entity.identifierAttributeId),
+                attributes = entityAttributes
             )
         }
         val newRelationships = model.relationshipDefs.map { rel ->
