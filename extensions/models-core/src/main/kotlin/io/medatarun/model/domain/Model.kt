@@ -80,11 +80,10 @@ interface Model {
         findTypeOptional(typeId) ?: throw TypeNotFoundException(ModelRef.ById(this.id), TypeRef.ById(typeId))
 
     fun findType(typeRef: TypeRef): ModelType =
-        when(typeRef) {
+        when (typeRef) {
             is TypeRef.ById -> findType(typeRef.id)
             is TypeRef.ByKey -> findType(typeRef.key)
         }
-
 
 
     /**
@@ -96,6 +95,15 @@ interface Model {
         is EntityRef.ById -> findEntityOptional(ref.id)
         is EntityRef.ByKey -> findEntityOptional(ref.key)
     }
+
+    fun findEntity(key: EntityKey): EntityDef = findEntityOptional(key)
+        ?: throw EntityNotFoundException(ModelRef.ById(this.id), EntityRef.ByKey(key))
+
+    fun findEntity(id: EntityId): EntityDef = findEntityOptional(id)
+        ?: throw EntityNotFoundException(ModelRef.ById(this.id), EntityRef.ById(id))
+
+    fun findEntity(ref: EntityRef): EntityDef = findEntityOptional(ref)
+        ?: throw EntityNotFoundException(ModelRef.ById(this.id), ref)
 
 
     fun findEntityAttributeOptional(
@@ -117,6 +125,7 @@ interface Model {
         is EntityAttributeRef.ById -> findEntityAttributeOptional(entityRef, attrRef.id)
         is EntityAttributeRef.ByKey -> findEntityAttributeOptional(entityRef, attrRef.key)
     }
+
     fun findEntityAttribute(
         entityRef: EntityRef,
         attrRef: EntityAttributeRef

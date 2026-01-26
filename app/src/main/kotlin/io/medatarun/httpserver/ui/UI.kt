@@ -106,7 +106,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                         put("id", role.id.value.toString())
                         put("key", role.key.value)
                         put("name", role.name?.get(locale))
-                        put("entityId", role.entityKey.value)
+                        put("entityId", role.entityId.value.toString())
                         put("cardinality", role.cardinality.code)
                     }
                 }

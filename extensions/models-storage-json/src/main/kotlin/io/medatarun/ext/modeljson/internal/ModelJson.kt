@@ -108,7 +108,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                         RelationshipRoleJson(
                             id = role.id.value.toString(),
                             key = role.key.value,
-                            entityId = role.entityKey.value,
+                            entityId = model.findEntity(role.entityId).id.value.toString(),
                             name = role.name,
                             cardinality = role.cardinality.code
                         )
@@ -180,6 +180,12 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                 description = typeJson.description
             )
         }
+        val entities = modelJson.entities.map { entityJson -> toEntity(types, entityJson) }
+
+        fun findEntity(relationJsonKey: String, roleJsonKey: String, entityKey: EntityKey) = entities
+            .firstOrNull { it.key == entityKey }
+            ?: throw ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey, roleJsonKey, entityKey.value)
+
         val model = ModelInMemory(
             id = modelJson.id?.let { ModelId.valueOfString(it) } ?: ModelId.generate(),
             key = ModelKey(modelJson.key),
@@ -191,8 +197,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             name = modelJson.name,
             description = modelJson.description,
             types = types,
-            entityDefs = modelJson.entities.map { entityJson -> toEntity(types, entityJson)
-            },
+            entityDefs = entities,
             relationshipDefs = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
                     id = relationJson.id?.let { RelationshipId.valueOfString(it) } ?: RelationshipId.generate(),
@@ -204,7 +209,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                             id = roleJson.id?.let { RelationshipRoleId.valueOfString(it) } ?: RelationshipRoleId.generate(),
                             key = RelationshipRoleKey(roleJson.key),
                             name = roleJson.name,
-                            entityKey = EntityKey(roleJson.entityId),
+                            entityId = findEntity(relationJson.key, roleJson.key, EntityKey(roleJson.entityId)).id,
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
                     },

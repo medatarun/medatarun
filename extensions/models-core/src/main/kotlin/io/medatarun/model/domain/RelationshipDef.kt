@@ -95,7 +95,7 @@ interface RelationshipRole {
      * Note that you can use the same entityId in multiple roles of the same
      * relationship to create self-references.
      */
-    val entityKey: EntityKey
+    val entityId: EntityId
 
     /**
      * Name of the role: expresses the function of the entity within the relationship

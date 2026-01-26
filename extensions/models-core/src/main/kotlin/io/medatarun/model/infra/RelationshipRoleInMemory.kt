@@ -5,7 +5,7 @@ import io.medatarun.model.domain.*
 data class RelationshipRoleInMemory(
     override val id: RelationshipRoleId,
     override val key: RelationshipRoleKey,
-    override val entityKey: EntityKey,
+    override val entityId: EntityId,
     override val name: LocalizedText?,
     override val cardinality: RelationshipCardinality
 ) : RelationshipRole {
@@ -14,7 +14,7 @@ data class RelationshipRoleInMemory(
             return RelationshipRoleInMemory(
                 id = other.id,
                 key = other.key,
-                entityKey = other.entityKey,
+                entityId = other.entityId,
                 name = other.name,
                 cardinality = other.cardinality
 

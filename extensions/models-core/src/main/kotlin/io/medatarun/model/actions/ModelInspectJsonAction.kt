@@ -52,7 +52,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                             addJsonObject {
                                                 put("id", role.key.value)
                                                 put("name", localizedTextToJson(role.name))
-                                                put("entityId", role.entityKey.value)
+                                                put("entityId", model.findEntity(role.entityId).id.value.toString())
                                                 put("cardinality", role.cardinality.code)
                                             }
                                         }

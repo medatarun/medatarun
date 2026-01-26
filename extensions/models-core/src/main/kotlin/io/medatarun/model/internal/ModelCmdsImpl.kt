@@ -607,7 +607,7 @@ class ModelCmdsImpl(
                         RelationshipRoleInMemory(
                             id = RelationshipRoleId.generate(),
                             key = it.key,
-                            entityKey = entity.key,
+                            entityId = entity.id,
                             name = it.name,
                             cardinality = it.cardinality
                         )

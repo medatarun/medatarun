@@ -211,7 +211,7 @@ private fun updateRelationship(
         if (role.id != cmd.cmd.relationshipRoleId) role else {
             val entity = model.findEntityOptional(cmd.cmd.value) ?: throw EntityNotFoundException(ModelRef.ById(model.id), EntityRef.ById(cmd.cmd.value))
             role.copy(
-                entityKey = entity.key
+                entityId = entity.id
             )
         }
     })
