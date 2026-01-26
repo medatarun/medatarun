@@ -4,10 +4,7 @@ import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 import java.net.URI
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 internal class ModelJsonConverterTest {
 
@@ -42,21 +39,24 @@ internal class ModelJsonConverterTest {
 
         assertEquals(companyEntity.countAttributeDefs(), 3)
 
-        val companyName = companyEntity.getAttributeDef(AttributeKey("name"))
+        val companyName = companyEntity.getAttributeDefOptional(AttributeKey("name"))
+        assertNotNull(companyName)
         assertEquals(companyName.key, AttributeKey("name"))
         assertEquals(companyName.name?.name, "Name")
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
         assertEquals(companyName.type, TypeKey("String"))
 
-        val companyProfileUrl = companyEntity.getAttributeDef(AttributeKey("profile_url"))
+        val companyProfileUrl = companyEntity.getAttributeDefOptional(AttributeKey("profile_url"))
+        assertNotNull(companyProfileUrl)
         assertEquals(companyProfileUrl.key, AttributeKey("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
         assertEquals(companyProfileUrl.description?.name, "Website URL")
         assertEquals(companyProfileUrl.optional, true)
         assertEquals(companyProfileUrl.type, TypeKey("String"))
 
-        val companyInfos = companyEntity.getAttributeDef(AttributeKey("informations"))
+        val companyInfos = companyEntity.getAttributeDefOptional(AttributeKey("informations"))
+        assertNotNull(companyInfos)
         assertEquals(companyInfos.key, AttributeKey("informations"))
         assertEquals(companyInfos.name?.name, "Informations")
         assertEquals(
@@ -127,14 +127,14 @@ internal class ModelJsonConverterTest {
     fun `entity origin undefined then manual`() {
         val json = createJsonForOriginTest(null)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDefOptional(EntityKey("contact"))?.origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityOptional(EntityKey("contact"))?.origin)
     }
 
     @Test
     fun `entity origin null then manual`() {
         val json = createJsonForOriginTest(JsonNull)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDefOptional(EntityKey("contact"))?.origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityOptional(EntityKey("contact"))?.origin)
     }
 
     @Test
@@ -142,10 +142,10 @@ internal class ModelJsonConverterTest {
         val url = "https://www.example.local/schema.json"
         val json = createJsonForOriginTest(JsonPrimitive(url))
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDefOptional(EntityKey("contact"))?.origin)
+        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityOptional(EntityKey("contact"))?.origin)
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
-        val originRead = modelRead.findEntityDefOptional(EntityKey("contact"))?.origin
+        val originRead = modelRead.findEntityOptional(EntityKey("contact"))?.origin
         assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
     }
 

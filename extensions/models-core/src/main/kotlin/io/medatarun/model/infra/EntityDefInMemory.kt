@@ -20,7 +20,7 @@ data class EntityDefInMemory(
 
     private val map = attributes.associateBy { it.key }
 
-    override fun countAttributeDefs(): Int {
+    fun countAttributeDefs(): Int {
         return attributes.size
     }
 
@@ -29,7 +29,6 @@ data class EntityDefInMemory(
     }
 
 
-    override fun hasAttributeDef(id: AttributeKey): Boolean = map.containsKey(id)
 
 
     companion object {

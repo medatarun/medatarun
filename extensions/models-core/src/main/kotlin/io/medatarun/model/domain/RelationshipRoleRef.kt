@@ -1,12 +1,16 @@
 package io.medatarun.model.domain
 
 sealed interface RelationshipRoleRef {
-
+    fun asString(): String
     data class ById(
         val id: RelationshipRoleId
-    ) : RelationshipRoleRef
+    ) : RelationshipRoleRef {
+        override fun asString() = "id:"+id.value.toString()
+    }
 
     data class ByKey(
         val key: RelationshipRoleKey,
-    ) : RelationshipRoleRef
+    ) : RelationshipRoleRef {
+        override fun asString() = "key:"+key.value
+    }
 }

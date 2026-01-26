@@ -84,30 +84,30 @@ sealed interface ModelCmd {
     // Entity
     // ------------------------------------------------------------------------
 
-    data class CreateEntityDef(
+    data class CreateEntity(
         override val modelRef: ModelRef,
         val entityDefInitializer: EntityDefInitializer
     ) : ModelCmdOnModel
 
-    data class UpdateEntityDef(
+    data class UpdateEntity(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val cmd: EntityDefUpdateCmd
     ) : ModelCmdOnModel
 
-    data class UpdateEntityDefHashtagAdd(
+    data class UpdateEntityHashtagAdd(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    data class UpdateEntityDefHashtagDelete(
+    data class UpdateEntityHashtagDelete(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    data class DeleteEntityDef(
+    data class DeleteEntity(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
     ) : ModelCmdOnModel
@@ -116,36 +116,36 @@ sealed interface ModelCmd {
     // Entity attributes
     // ------------------------------------------------------------------------
 
-    class CreateEntityDefAttributeDef(
+    class CreateEntityAttribute(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeDefInitializer: AttributeDefInitializer
+        val attributeInitializer: AttributeDefInitializer
     ) : ModelCmdOnModel
 
-    class DeleteEntityDefAttributeDef(
+    class DeleteEntityAttribute(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey
+        val attributeRef: EntityAttributeRef,
     ) : ModelCmdOnModel
 
-    class UpdateEntityDefAttributeDef(
+    class UpdateEntityAttribute(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val cmd: AttributeDefUpdateCmd
     ) : ModelCmdOnModel
 
-    data class UpdateEntityDefAttributeDefHashtagAdd(
+    data class UpdateEntityAttributeHashtagAdd(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    data class UpdateEntityDefAttributeDefHashtagDelete(
+    data class UpdateEntityAttributeHashtagDelete(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
@@ -153,66 +153,66 @@ sealed interface ModelCmd {
     // Relationships
     // ------------------------------------------------------------------------
 
-    class CreateRelationshipDef(
+    class CreateRelationship(
         override val modelRef: ModelRef,
         val initializer: RelationshipInitializer
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipDef(
+    class UpdateRelationship(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val cmd: RelationshipDefUpdateCmd
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipDefHashtagAdd(
+    class UpdateRelationshipHashtagAdd(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipDefHashtagDelete(
+    class UpdateRelationshipHashtagDelete(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    class DeleteRelationshipDef(
+    class DeleteRelationship(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey
+        val relationshipRef: RelationshipRef
     ) : ModelCmdOnModel
 
 
-    class CreateRelationshipAttributeDef(
+    class CreateRelationshipAttribute(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attr: AttributeDef
+        val relationshipRef: RelationshipRef,
+        val attr: AttributeDefInitializer
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipAttributeDef(
+    class UpdateRelationshipAttribute(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val cmd: AttributeDefUpdateCmd
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipAttributeDefHashtagAdd(
+    class UpdateRelationshipAttributeHashtagAdd(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipAttributeDefHashtagDelete(
+    class UpdateRelationshipAttributeHashtagDelete(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
-    class DeleteRelationshipAttributeDef(
+    class DeleteRelationshipAttribute(
         override val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
     ) : ModelCmdOnModel
 
 

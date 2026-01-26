@@ -6,6 +6,7 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ModelInMemoryTest {
@@ -19,11 +20,29 @@ class ModelInMemoryTest {
 
         val person = model.entityDefs.first { it.key == EntityKey("person") }
         assertEquals(5, person.countAttributeDefs())
-        assertEquals(TypeKey("Markdown"), person.getAttributeDef(AttributeKey("infos")).type)
 
-        val company = model.entityDefs.first { it.key == EntityKey("company") }
-        assertTrue(company.getAttributeDef(AttributeKey("location")).optional)
-        assertTrue(company.getAttributeDef(AttributeKey("website")).optional)
+        val attrInfos = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("person")),
+            EntityAttributeRef.ByKey(AttributeKey("infos"))
+        )
+        assertNotNull(attrInfos)
+        assertEquals(TypeKey("Markdown"), attrInfos.type)
+
+        val attrLocation = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("company")),
+            EntityAttributeRef.ByKey(AttributeKey("location"))
+        )
+
+        assertNotNull(attrLocation)
+        assertTrue(attrLocation.optional)
+
+        val attrWebsite = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("company")),
+            EntityAttributeRef.ByKey(AttributeKey("website"))
+        )
+
+        assertNotNull(attrWebsite)
+        assertTrue(attrWebsite.optional)
     }
 
     private fun createModel(): ModelInMemory {

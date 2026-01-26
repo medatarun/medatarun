@@ -79,7 +79,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         RelationshipRoleInMemory(
                             id = RelationshipRoleId.generate(),
                             key = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
-                            entityId = EntityKey(fk.fkTableName),
+                            entityKey = EntityKey(fk.fkTableName),
                             name = null,
                             cardinality = if (result.isNullableOrUndefined(
                                     fk.fkTableName,
@@ -91,7 +91,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                             id = RelationshipRoleId.generate(),
                             key = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
                             cardinality = RelationshipCardinality.Unknown,
-                            entityId = EntityKey(fk.pkTableName),
+                            entityKey = EntityKey(fk.pkTableName),
                             name = null
                         ),
                     )

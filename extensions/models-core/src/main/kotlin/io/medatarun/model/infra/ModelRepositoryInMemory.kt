@@ -4,9 +4,10 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelRef
+import io.medatarun.model.ports.needs.ModelRepoCmd
+import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
 import io.medatarun.model.ports.needs.ModelRepository
-import io.medatarun.model.ports.needs.ModelRepositoryCmd
-import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.needs.ModelRepositoryId
 
 /**
@@ -33,6 +34,15 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return models[id]
     }
 
+    fun findModelOptional(ref: ModelRef): ModelInMemory? {
+        return models.values.firstOrNull {
+            when(ref) {
+                is ModelRef.ByKey -> it.key == ref.key
+                is ModelRef.ById -> it.id == ref.id
+            }
+        }
+    }
+
     private fun createModel(model: Model) {
         models[model.id] = ModelInMemory.of(model)
     }
@@ -49,11 +59,11 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     }
 
 
-    override fun dispatch(cmd: ModelRepositoryCmd) {
+    override fun dispatch(cmd: ModelRepoCmd) {
         when(cmd) {
-            is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepoCmd.CreateModel -> createModel(cmd.model)
+            is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelRepoCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
 
     }

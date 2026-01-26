@@ -428,7 +428,7 @@ sealed interface ModelAction {
             description = "Type of the attribute that will be created that acts as the entity's identifier.",
             order = 60
         )
-        val identityAttributeType: TypeKey,
+        val identityAttributeType: TypeRef,
         @ActionParamDoc(
             name = "Identity attribute name",
             description = "Display name of the attribute that will be created that acts as the entity's identifier.",
@@ -624,7 +624,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeKey: AttributeKey,
-        val type: TypeKey,
+        val type: TypeRef,
         val optional: Boolean = false,
         val name: LocalizedText? = null,
         val description: LocalizedMarkdown? = null
@@ -632,16 +632,16 @@ sealed interface ModelAction {
 
 
     @ActionDoc(
-        key = "entity_attribute_update_id",
-        title = "Update entity attribute id",
-        description = "Changes identifier of an entity attribute.",
+        key = "entity_attribute_update_key",
+        title = "Update entity attribute key",
+        description = "Changes the key of an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateId(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val value: AttributeKey
     ) : ModelAction
 
@@ -655,7 +655,7 @@ sealed interface ModelAction {
     data class EntityAttribute_UpdateName(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val value: LocalizedText?
     ) : ModelAction
 
@@ -670,7 +670,7 @@ sealed interface ModelAction {
     data class EntityAttribute_UpdateDescription(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val value: LocalizedMarkdown?
     ) : ModelAction
 
@@ -685,8 +685,8 @@ sealed interface ModelAction {
     data class EntityAttribute_UpdateType(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
-        val value: TypeKey
+        val attributeRef: EntityAttributeRef,
+        val value: TypeRef
     ) : ModelAction
 
 
@@ -700,7 +700,7 @@ sealed interface ModelAction {
     data class EntityAttribute_UpdateOptional(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val value: Boolean
     ) : ModelAction
 
@@ -714,7 +714,7 @@ sealed interface ModelAction {
     data class EntityAttribute_AddTag(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -728,7 +728,7 @@ sealed interface ModelAction {
     data class EntityAttribute_DeleteTag(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
+        val attributeRef: EntityAttributeRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -742,7 +742,7 @@ sealed interface ModelAction {
     data class EntityAttribute_Delete(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey
+        val attributeRef: EntityAttributeRef,
     ) : ModelAction
 
 
@@ -781,7 +781,7 @@ sealed interface ModelAction {
     )
     data class Relationship_UpdateKey(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val value: RelationshipKey,
     ) : ModelAction
 
@@ -794,7 +794,7 @@ sealed interface ModelAction {
     )
     data class Relationship_UpdateName(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val value: LocalizedText?,
     ) : ModelAction
 
@@ -807,7 +807,7 @@ sealed interface ModelAction {
     )
     data class Relationship_UpdateDescription(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val value: LocalizedMarkdown?,
     ) : ModelAction
 
@@ -820,7 +820,7 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_Create(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val relationshipRoleKey: RelationshipRoleKey,
         val roleKey: RelationshipRoleKey,
         val roleEntityRef: EntityRef,
@@ -837,8 +837,8 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_UpdateKey(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
         val value: RelationshipRoleKey,
     ) : ModelAction
 
@@ -851,8 +851,8 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_UpdateEntity(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
         val value: EntityRef,
     ) : ModelAction
 
@@ -865,8 +865,8 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_UpdateName(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
         val value: LocalizedText?,
     ) : ModelAction
 
@@ -879,8 +879,8 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_UpdateCardinality(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
         val value: RelationshipCardinality,
     ) : ModelAction
 
@@ -893,8 +893,8 @@ sealed interface ModelAction {
     )
     data class RelationshipRole_Delete(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val relationshipRoleKey: RelationshipRoleKey,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
     ) : ModelAction
 
     @ActionDoc(
@@ -906,7 +906,7 @@ sealed interface ModelAction {
     )
     data class Relationship_AddTag(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -919,7 +919,7 @@ sealed interface ModelAction {
     )
     data class Relationship_DeleteTag(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -932,7 +932,7 @@ sealed interface ModelAction {
     )
     data class Relationship_Delete(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey
+        val relationshipRef: RelationshipRef,
     ) : ModelAction
 
 
@@ -945,9 +945,9 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_Create(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
+        val relationshipRef: RelationshipRef,
         val attributeKey: AttributeKey,
-        val type: TypeKey,
+        val type: TypeRef,
         val optional: Boolean,
         val name: LocalizedText?,
         val description: LocalizedMarkdown?,
@@ -962,8 +962,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_UpdateKey(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val value: AttributeKey
     ) : ModelAction
 
@@ -976,8 +976,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_UpdateName(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val value: LocalizedText?
     ) : ModelAction
 
@@ -990,8 +990,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_UpdateDescription(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val value: LocalizedMarkdown?
     ) : ModelAction
 
@@ -1004,9 +1004,9 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_UpdateType(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
-        val value: TypeKey
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val value: TypeRef
     ) : ModelAction
 
     @ActionDoc(
@@ -1018,8 +1018,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_UpdateOptional(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val value: Boolean
     ) : ModelAction
 
@@ -1032,8 +1032,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_AddTag(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -1046,8 +1046,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_DeleteTag(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
         val tag: Hashtag
     ) : ModelAction
 
@@ -1060,8 +1060,8 @@ sealed interface ModelAction {
     )
     data class RelationshipAttribute_Delete(
         val modelRef: ModelRef,
-        val relationshipKey: RelationshipKey,
-        val attributeKey: AttributeKey
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
     ) : ModelAction
 
 

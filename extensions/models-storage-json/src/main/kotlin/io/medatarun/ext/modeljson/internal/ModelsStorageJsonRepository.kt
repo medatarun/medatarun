@@ -6,9 +6,9 @@ import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
+import io.medatarun.model.ports.needs.ModelRepoCmd
+import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
 import io.medatarun.model.ports.needs.ModelRepository
-import io.medatarun.model.ports.needs.ModelRepositoryCmd
-import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -70,11 +70,11 @@ internal class ModelsStorageJsonRepository(
     }
 
 
-    override fun dispatch(cmd: ModelRepositoryCmd) {
+    override fun dispatch(cmd: ModelRepoCmd) {
         when (cmd) {
-            is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model ->
+            is ModelRepoCmd.CreateModel -> createModel(cmd.model)
+            is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelRepoCmdOnModel -> updateModel(cmd.modelId) { model ->
                 ModelInMemoryReducer().dispatch(model, cmd)
             }
         }

@@ -33,6 +33,6 @@ interface ModelStorages {
 
     // Commands
 
-    fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef = RepositoryRef.Auto)
+    fun dispatch(cmd: ModelRepoCmd, repositoryRef: RepositoryRef = RepositoryRef.Auto)
 
 }

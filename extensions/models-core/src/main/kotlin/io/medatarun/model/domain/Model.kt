@@ -73,36 +73,95 @@ interface Model {
         }
     }
 
-    fun findType(typeKey: TypeKey): ModelType = findTypeOptional(typeKey) ?: throw TypeNotFoundByKeyException(this.key, typeKey)
+    fun findType(typeKey: TypeKey): ModelType =
+        findTypeOptional(typeKey) ?: throw TypeNotFoundByKeyException(this.key, typeKey)
+
 
     fun ensureTypeExists(typeId: TypeKey): ModelType = findType(typeId)
 
     /**
      * Returns entity definition by its id or null
      */
-    fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
-    fun findEntityDefOptional(id: EntityId): EntityDef? = entityDefs.firstOrNull { it.id == id }
-    fun findEntityDefOptional(ref: EntityRef): EntityDef? = when(ref) {
-        is EntityRef.ById -> findEntityDefOptional(ref.id)
-        is EntityRef.ByKey -> findEntityDefOptional(ref.key)
+    fun findEntityOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
+    fun findEntityOptional(id: EntityId): EntityDef? = entityDefs.firstOrNull { it.id == id }
+    fun findEntityOptional(ref: EntityRef): EntityDef? = when (ref) {
+        is EntityRef.ById -> findEntityOptional(ref.id)
+        is EntityRef.ByKey -> findEntityOptional(ref.key)
     }
 
+
+    fun findEntityAttributeOptional(
+        entityRef: EntityRef,
+        attrKey: AttributeKey,
+    ): AttributeDef? =
+        findEntityOptional(entityRef)?.attributes?.firstOrNull { it.key == attrKey }
+
+    fun findEntityAttributeOptional(
+        entityRef: EntityRef,
+        attrId: AttributeId,
+    ): AttributeDef? =
+        findEntityOptional(entityRef)?.attributes?.firstOrNull { it.id == attrId }
+
+    fun findEntityAttributeOptional(
+        entityRef: EntityRef,
+        attrRef: EntityAttributeRef
+    ): AttributeDef? = when (attrRef) {
+        is EntityAttributeRef.ById -> findEntityAttributeOptional(entityRef, attrRef.id)
+        is EntityAttributeRef.ByKey -> findEntityAttributeOptional(entityRef, attrRef.key)
+    }
     /**
      * Returns relationship definition by its id
      */
-    fun findRelationshipDefOptional(id: RelationshipKey): RelationshipDef? =
-        relationshipDefs.firstOrNull { it.key == id }
+    fun findRelationshipOptional(key: RelationshipKey): RelationshipDef? =
+        relationshipDefs.firstOrNull { it.key == key }
 
-    /**
-     * Returns relationship definition by its id or throw [RelationshipDefNotFoundException]
-     */
-    fun findRelationshipDef(id: RelationshipKey): RelationshipDef =
-        findRelationshipDefOptional(id) ?: throw RelationshipDefNotFoundException(this@Model.key, id)
+    fun findRelationshipOptional(id: RelationshipId): RelationshipDef? =
+        relationshipDefs.firstOrNull { it.id == id }
 
-    /**
-     * Syntax sugar to check if a relationship exists
-     */
-    fun ensureRelationshipExists(relationshipKey: RelationshipKey) = findRelationshipDef(relationshipKey)
+    fun findRelationshipOptional(ref: RelationshipRef): RelationshipDef? = when (ref) {
+        is RelationshipRef.ById -> findRelationshipOptional(ref.id)
+        is RelationshipRef.ByKey -> findRelationshipOptional(ref.key)
+    }
+
+    fun findRelationshipRoleOptional(
+        relationshipRef: RelationshipRef,
+        roleKey: RelationshipRoleKey
+    ): RelationshipRole? =
+        findRelationshipOptional(relationshipRef)?.roles?.firstOrNull { it.key == roleKey }
+
+    fun findRelationshipRoleOptional(
+        relationshipRef: RelationshipRef,
+        roleId: RelationshipRoleId
+    ): RelationshipRole? =
+        findRelationshipOptional(relationshipRef)?.roles?.firstOrNull { it.id == roleId }
+
+    fun findRelationshipRoleOptional(
+        relationshipRef: RelationshipRef,
+        roleRef: RelationshipRoleRef
+    ): RelationshipRole? = when (roleRef) {
+        is RelationshipRoleRef.ById -> findRelationshipRoleOptional(relationshipRef, roleRef.id)
+        is RelationshipRoleRef.ByKey -> findRelationshipRoleOptional(relationshipRef, roleRef.key)
+    }
+
+    fun findRelationshipAttributeOptional(
+        relationshipRef: RelationshipRef,
+        attrKey: AttributeKey,
+    ): AttributeDef? =
+        findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.key == attrKey }
+
+    fun findRelationshipAttributeOptional(
+        relationshipRef: RelationshipRef,
+        attrId: AttributeId,
+    ): AttributeDef? =
+        findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.id == attrId }
+
+    fun findRelationshipAttributeOptional(
+        relationshipRef: RelationshipRef,
+        attrRef: RelationshipAttributeRef
+    ): AttributeDef? = when (attrRef) {
+        is RelationshipAttributeRef.ById -> findRelationshipAttributeOptional(relationshipRef, attrRef.id)
+        is RelationshipAttributeRef.ByKey -> findRelationshipAttributeOptional(relationshipRef, attrRef.key)
+    }
 
 }
 

@@ -9,8 +9,6 @@ import java.util.*
 
 class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
-
-
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
     }
@@ -33,7 +31,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
-                    key= ModelKey(UUID.randomUUID().toString()),
+                    key = ModelKey(UUID.randomUUID().toString()),
                     name = null,
                     description = null,
                     error = e.message,
@@ -52,21 +50,54 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         modelRef: ModelRef,
         entityRef: EntityRef
     ): EntityDef {
-        val model = findModelByRef(modelRef)
-        return model.findEntityDefOptional(entityRef) ?: throw EntityDefNotFoundException(modelRef, entityRef)
+        val model = findModel(modelRef)
+        return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+    }
+
+    override fun findEntityAttributeOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): AttributeDef? {
+        val model = findModel(modelRef)
+        return model.findEntityAttributeOptional(entityRef, attributeRef)
+    }
+
+    override fun findEntityAttribute(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): AttributeDef {
+        return findEntityAttributeOptional(modelRef, entityRef, attributeRef)
+            ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attributeRef)
+    }
+
+    override fun findType(
+        modelRef: ModelRef,
+        typeRef: TypeRef
+    ): ModelType {
+        return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
     override fun findModelByKey(modelKey: ModelKey): Model {
         return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
     }
+
     override fun findModelById(modelId: ModelId): Model {
         return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
     }
 
-    override fun findModelByRef(modelRef: ModelRef): Model {
-        return when(modelRef) {
+    override fun findModel(modelRef: ModelRef): Model {
+        return when (modelRef) {
             is ModelRef.ById -> findModelById(modelRef.id)
             is ModelRef.ByKey -> findModelByKey(modelRef.key)
+        }
+    }
+
+    override fun findModelOptional(modelRef: ModelRef): Model? {
+        return when (modelRef) {
+            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
         }
     }
 

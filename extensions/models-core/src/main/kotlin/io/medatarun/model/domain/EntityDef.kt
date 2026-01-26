@@ -49,40 +49,21 @@ interface EntityDef {
      */
     val hashtags: List<Hashtag>
 
-    /**
-     * Count attributes
-     */
-    fun countAttributeDefs(): Int
 
     /**
      * Get attribute by its id if found
      */
     fun getAttributeDefOptional(id: AttributeKey): AttributeDef?
 
-    /**
-     * Get attribute by its id. Throws [EntityAttributeDefNotFoundException] otherwise.
-     */
-    fun getAttributeDef(id: AttributeKey): AttributeDef = getAttributeDefOptional(id) ?: throw EntityAttributeDefNotFoundException(entityId = this.key , id)
-
-    /**
-     * @return true if this entity contains this attribute
-     */
-    fun hasAttributeDef(id: AttributeKey): Boolean
-
-    /**
-     * Ensures that an attribute exists or throws [EntityAttributeDefNotFoundException] otherwise.
-     * This is syntax sugar around [getAttributeDef]
-     */
-    fun ensureAttributeDefExists(id: AttributeKey) {
-        // Ensures attribute definition exist, syntax sugar
-        getAttributeDef(id)
-    }
 
     /**
      * Returns the attribute name that serves as entity unique identifier
      * amongst other entities in the same [EntityDef].
      */
     fun entityIdAttributeDefId() = AttributeKey("id")
+
+
+    // TESTS ----------------
 
 
 

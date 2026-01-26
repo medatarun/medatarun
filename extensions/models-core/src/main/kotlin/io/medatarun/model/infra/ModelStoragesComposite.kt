@@ -74,8 +74,8 @@ class ModelStoragesComposite(
     }
 
 
-    override fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef) {
-        if (cmd is ModelRepositoryCmdOnModel) {
+    override fun dispatch(cmd: ModelRepoCmd, repositoryRef: RepositoryRef) {
+        if (cmd is ModelRepoCmdOnModel) {
             val repo = findRepoWithModel(cmd.modelId)
             repo.dispatch(cmd)
         } else {

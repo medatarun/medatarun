@@ -4,7 +4,7 @@ import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepository
 import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse
 import kotlin.io.path.exists
@@ -72,8 +72,8 @@ class ModelJsonRepositoryTest {
     @Test
     fun `create then path is correct`() {
         val env = TestEnv()
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel2))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
         assertTrue(path1.exists())
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
@@ -113,14 +113,14 @@ class ModelJsonRepositoryTest {
     @Test
     fun `delete then no file left`() {
         val env = TestEnv()
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel2))
+        env.repo.dispatch(ModelRepoCmd.DeleteModel(env.sampleModel.id))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertFalse(path1.exists())
         assertTrue(path2.exists())
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.id))
+        env.repo.dispatch(ModelRepoCmd.DeleteModel(env.sampleModel2.id))
         assertFalse(path2.exists())
 
 

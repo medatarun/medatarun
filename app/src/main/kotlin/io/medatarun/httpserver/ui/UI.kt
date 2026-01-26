@@ -101,7 +101,7 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                     addJsonObject {
                         put("id", role.key.value)
                         put("name", role.name?.get(locale))
-                        put("entityId", role.entityId.value)
+                        put("entityId", role.entityKey.value)
                         put("cardinality", role.cardinality.code)
                     }
                 }

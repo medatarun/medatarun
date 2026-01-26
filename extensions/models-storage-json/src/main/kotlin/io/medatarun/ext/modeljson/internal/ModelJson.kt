@@ -108,7 +108,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                         RelationshipRoleJson(
                             id = role.id.value.toString(),
                             key = role.key.value,
-                            entityId = role.entityId.value,
+                            entityId = role.entityKey.value,
                             name = role.name,
                             cardinality = role.cardinality.code
                         )
@@ -213,7 +213,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                             id = roleJson.id?.let { RelationshipRoleId.valueOfString(it) } ?: RelationshipRoleId.generate(),
                             key = RelationshipRoleKey(roleJson.key),
                             name = roleJson.name,
-                            entityId = EntityKey(roleJson.entityId),
+                            entityKey = EntityKey(roleJson.entityId),
                             cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
                         )
                     },

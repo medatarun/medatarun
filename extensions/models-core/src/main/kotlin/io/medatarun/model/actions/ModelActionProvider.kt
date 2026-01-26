@@ -3,10 +3,8 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
-import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.infra.AttributeDefInMemory
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
@@ -287,7 +285,7 @@ class ModelActionHandler(
 
     fun entityCreate(cmd: ModelAction.Entity_Create) {
         dispatch(
-            ModelCmd.CreateEntityDef(
+            ModelCmd.CreateEntity(
                 modelRef = cmd.modelRef,
                 entityDefInitializer = EntityDefInitializer(
                     entityKey = cmd.entityKey,
@@ -307,7 +305,7 @@ class ModelActionHandler(
 
     fun entityUpdateId(cmd: ModelAction.Entity_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateEntityDef(
+            ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 cmd = EntityDefUpdateCmd.Key(cmd.value)
@@ -317,7 +315,7 @@ class ModelActionHandler(
 
     fun entityUpdateName(cmd: ModelAction.Entity_UpdateName) {
         dispatch(
-            ModelCmd.UpdateEntityDef(
+            ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 cmd = EntityDefUpdateCmd.Name(cmd.value)
@@ -327,7 +325,7 @@ class ModelActionHandler(
 
     fun entityUpdateDescription(cmd: ModelAction.Entity_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateEntityDef(
+            ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 cmd = EntityDefUpdateCmd.Description(cmd.value)
@@ -337,7 +335,7 @@ class ModelActionHandler(
 
     fun entityAddTag(cmd: ModelAction.Entity_AddTag) {
         dispatch(
-            ModelCmd.UpdateEntityDefHashtagAdd(
+            ModelCmd.UpdateEntityHashtagAdd(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 hashtag = cmd.tag
@@ -347,7 +345,7 @@ class ModelActionHandler(
 
     fun entityDeleteTag(cmd: ModelAction.Entity_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateEntityDefHashtagDelete(
+            ModelCmd.UpdateEntityHashtagDelete(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 hashtag = cmd.tag
@@ -357,7 +355,7 @@ class ModelActionHandler(
 
     fun entityDelete(cmd: ModelAction.Entity_Delete) {
         dispatch(
-            ModelCmd.DeleteEntityDef(
+            ModelCmd.DeleteEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef
             )
@@ -370,10 +368,10 @@ class ModelActionHandler(
 
     fun entityAttributeCreate(cmd: ModelAction.EntityAttribute_Create) {
         dispatch(
-            ModelCmd.CreateEntityDefAttributeDef(
+            ModelCmd.CreateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeDefInitializer = AttributeDefInitializer(
+                attributeInitializer = AttributeDefInitializer(
                     attributeKey = cmd.attributeKey,
                     type = cmd.type,
                     optional = cmd.optional,
@@ -386,10 +384,10 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateId(cmd: ModelAction.EntityAttribute_UpdateId) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDef(
+            ModelCmd.UpdateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Key(cmd.value)
             )
         )
@@ -397,10 +395,10 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateName(cmd: ModelAction.EntityAttribute_UpdateName) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDef(
+            ModelCmd.UpdateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Name(cmd.value)
             )
         )
@@ -409,10 +407,10 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateDescription(cmd: ModelAction.EntityAttribute_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDef(
+            ModelCmd.UpdateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Description(cmd.value)
             )
         )
@@ -420,10 +418,10 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateType(cmd: ModelAction.EntityAttribute_UpdateType) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDef(
+            ModelCmd.UpdateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Type(cmd.value)
             )
         )
@@ -431,10 +429,10 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateOptional(cmd: ModelAction.EntityAttribute_UpdateOptional) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDef(
+            ModelCmd.UpdateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Optional(cmd.value)
             )
         )
@@ -443,10 +441,10 @@ class ModelActionHandler(
 
     fun entityAttributeAddTag(cmd: ModelAction.EntityAttribute_AddTag) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDefHashtagAdd(
+            ModelCmd.UpdateEntityAttributeHashtagAdd(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 hashtag = cmd.tag
             )
         )
@@ -454,10 +452,10 @@ class ModelActionHandler(
 
     fun entityAttributeDeleteTag(cmd: ModelAction.EntityAttribute_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateEntityDefAttributeDefHashtagDelete(
+            ModelCmd.UpdateEntityAttributeHashtagDelete(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey,
+                attributeRef = cmd.attributeRef,
                 hashtag = cmd.tag
             )
         )
@@ -465,10 +463,10 @@ class ModelActionHandler(
 
     fun entityAttributeDelete(cmd: ModelAction.EntityAttribute_Delete) {
         dispatch(
-            ModelCmd.DeleteEntityDefAttributeDef(
+            ModelCmd.DeleteEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeKey = cmd.attributeKey
+                attributeRef = cmd.attributeRef,
             )
         )
     }
@@ -478,7 +476,7 @@ class ModelActionHandler(
 
     fun relationshipCreate(cmd: ModelAction.Relationship_Create) {
         dispatch(
-            ModelCmd.CreateRelationshipDef(
+            ModelCmd.CreateRelationship(
                 modelRef = cmd.modelRef,
                 initializer = RelationshipInitializer(
                     key = cmd.relationshipKey,
@@ -505,9 +503,9 @@ class ModelActionHandler(
 
     fun relationshipUpdateKey(cmd: ModelAction.Relationship_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateRelationshipDef(
+            ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
+                relationshipRef = cmd.relationshipRef,
                 cmd = RelationshipDefUpdateCmd.Key(cmd.value)
             )
         )
@@ -515,9 +513,9 @@ class ModelActionHandler(
 
     fun relationshipUpdateName(cmd: ModelAction.Relationship_UpdateName) {
         dispatch(
-            ModelCmd.UpdateRelationshipDef(
+            ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
+                relationshipRef = cmd.relationshipRef,
                 cmd = RelationshipDefUpdateCmd.Name(cmd.value)
             )
         )
@@ -525,9 +523,9 @@ class ModelActionHandler(
 
     fun relationshipUpdateDescription(cmd: ModelAction.Relationship_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateRelationshipDef(
+            ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
+                relationshipRef = cmd.relationshipRef,
                 cmd = RelationshipDefUpdateCmd.Description(cmd.value)
             )
         )
@@ -535,9 +533,9 @@ class ModelActionHandler(
 
     fun relationshipAddTag(cmd: ModelAction.Relationship_AddTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipDefHashtagAdd(
+            ModelCmd.UpdateRelationshipHashtagAdd(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
+                relationshipRef = cmd.relationshipRef,
                 hashtag = cmd.tag
             )
         )
@@ -545,9 +543,9 @@ class ModelActionHandler(
 
     fun relationshipDeleteTag(cmd: ModelAction.Relationship_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipDefHashtagDelete(
+            ModelCmd.UpdateRelationshipHashtagDelete(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
+                relationshipRef = cmd.relationshipRef,
                 hashtag = cmd.tag
             )
         )
@@ -555,9 +553,9 @@ class ModelActionHandler(
 
     fun relationshipDelete(cmd: ModelAction.Relationship_Delete) {
         dispatch(
-            ModelCmd.DeleteRelationshipDef(
+            ModelCmd.DeleteRelationship(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey
+                relationshipRef = cmd.relationshipRef,
             )
         )
     }
@@ -588,17 +586,15 @@ class ModelActionHandler(
 
     fun relationshipAttributeCreate(cmd: ModelAction.RelationshipAttribute_Create) {
         dispatch(
-            ModelCmd.CreateRelationshipAttributeDef(
+            ModelCmd.CreateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attr = AttributeDefInMemory(
-                    id = AttributeId.generate(),
-                    key = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attr = AttributeDefInitializer(
+                    attributeKey = cmd.attributeKey,
                     name = cmd.name,
                     description = cmd.description,
                     type = cmd.type,
                     optional = cmd.optional,
-                    hashtags = emptyList()
                 )
             )
         )
@@ -606,10 +602,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateName(cmd: ModelAction.RelationshipAttribute_UpdateName) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDef(
+            ModelCmd.UpdateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Name(cmd.value)
             )
         )
@@ -617,10 +613,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateDescription(cmd: ModelAction.RelationshipAttribute_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDef(
+            ModelCmd.UpdateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Description(cmd.value)
             )
         )
@@ -628,10 +624,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateId(cmd: ModelAction.RelationshipAttribute_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDef(
+            ModelCmd.UpdateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Key(cmd.value)
             )
         )
@@ -639,10 +635,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateType(cmd: ModelAction.RelationshipAttribute_UpdateType) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDef(
+            ModelCmd.UpdateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Type(cmd.value)
             )
         )
@@ -650,10 +646,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateOptional(cmd: ModelAction.RelationshipAttribute_UpdateOptional) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDef(
+            ModelCmd.UpdateRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 cmd = AttributeDefUpdateCmd.Optional(cmd.value)
             )
         )
@@ -661,20 +657,20 @@ class ModelActionHandler(
 
     fun relationshipAttributeDelete(cmd: ModelAction.RelationshipAttribute_Delete) {
         dispatch(
-            ModelCmd.DeleteRelationshipAttributeDef(
+            ModelCmd.DeleteRelationshipAttribute(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
             )
         )
     }
 
     fun relationshipAttributeAddTag(cmd: ModelAction.RelationshipAttribute_AddTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDefHashtagAdd(
+            ModelCmd.UpdateRelationshipAttributeHashtagAdd(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 hashtag = cmd.tag
             )
         )
@@ -682,10 +678,10 @@ class ModelActionHandler(
 
     fun relationshipAttributeDeleteTag(cmd: ModelAction.RelationshipAttribute_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeDefHashtagDelete(
+            ModelCmd.UpdateRelationshipAttributeHashtagDelete(
                 modelRef = cmd.modelRef,
-                relationshipKey = cmd.relationshipKey,
-                attributeKey = cmd.attributeKey,
+                relationshipRef = cmd.relationshipRef,
+                attributeRef = cmd.attributeRef,
                 hashtag = cmd.tag
             )
         )
@@ -711,7 +707,7 @@ class ModelActionHandler(
 
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = actionCtx.extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModelByRef(cmd.modelRef)
+        val model = modelQueries.findModel(cmd.modelRef)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 

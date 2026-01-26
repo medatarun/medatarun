@@ -6,8 +6,8 @@ sealed interface RelationshipDefUpdateCmd {
     class Key(val value: RelationshipKey) : RelationshipDefUpdateCmd
     class Name(val value: LocalizedText?) : RelationshipDefUpdateCmd
     class Description(val value: LocalizedMarkdown?) : RelationshipDefUpdateCmd
-    class RoleKey(val relationshipRoleKey: RelationshipRoleKey, val value: RelationshipRoleKey) : RelationshipDefUpdateCmd
-    class RoleName(val relationshipRoleKey: RelationshipRoleKey, val value: LocalizedText?) : RelationshipDefUpdateCmd
-    class RoleEntity(val relationshipRoleKey: RelationshipRoleKey, val value: EntityKey) : RelationshipDefUpdateCmd
-    class RoleCardinality(val relationshipRoleKey: RelationshipRoleKey, val value: RelationshipCardinality) : RelationshipDefUpdateCmd
+    class RoleKey(val relationshipRoleRef: RelationshipRoleRef, val value: RelationshipRoleKey) : RelationshipDefUpdateCmd
+    class RoleName(val relationshipRoleRef: RelationshipRoleRef, val value: LocalizedText?) : RelationshipDefUpdateCmd
+    class RoleEntity(val relationshipRoleRef: RelationshipRoleRef, val value: EntityRef) : RelationshipDefUpdateCmd
+    class RoleCardinality(val relationshipRoleRef: RelationshipRoleRef, val value: RelationshipCardinality) : RelationshipDefUpdateCmd
 }

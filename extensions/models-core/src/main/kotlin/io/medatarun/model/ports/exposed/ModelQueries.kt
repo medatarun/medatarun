@@ -10,7 +10,8 @@ interface ModelQueries {
      */
     fun findModelByKey(modelKey: ModelKey): Model
     fun findModelById(modelId: ModelId): Model
-    fun findModelByRef(modelRef: ModelRef): Model
+    fun findModel(modelRef: ModelRef): Model
+    fun findModelOptional(modelRef: ModelRef): Model?
 
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): EntityDef
 
@@ -19,4 +20,7 @@ interface ModelQueries {
      */
     fun findAllModelIds(): List<ModelId>
     fun findAllModelSummaries(locale: Locale): List<ModelSummary>
+    fun findEntityAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): AttributeDef
+    fun findEntityAttributeOptional(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): AttributeDef?
+    fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
 }
