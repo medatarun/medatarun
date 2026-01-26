@@ -4,10 +4,10 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 
 class ModelNotFoundByKeyException(key: ModelKey) :
-    MedatarunException("Model with key [${key.value}] was not found")
+    MedatarunException("Model with key [${key.value}] was not found", StatusCode.BAD_REQUEST)
 
 class ModelNotFoundByIdException(id: ModelId) :
-    MedatarunException("Model with id [${id.value}] was not found")
+    MedatarunException("Model with id [${id.value}] was not found", StatusCode.BAD_REQUEST)
 
 class ModelDuplicateIdException(id: ModelKey) :
     MedatarunException("Model with id [${id.value}] already exists")

@@ -31,7 +31,9 @@ interface ModelRepository {
     fun matchesId(id: ModelRepositoryId): Boolean
 
     fun findAllModelIds(): List<ModelId>
+
     fun findModelByKeyOptional(key: ModelKey): Model?
+
     fun findModelByIdOptional(id: ModelId): Model?
 
     // Commands

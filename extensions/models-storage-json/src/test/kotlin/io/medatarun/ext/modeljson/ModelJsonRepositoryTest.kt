@@ -115,12 +115,12 @@ class ModelJsonRepositoryTest {
         val env = TestEnv()
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
         env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.key))
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
         val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
         val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertFalse(path1.exists())
         assertTrue(path2.exists())
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.key))
+        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.id))
         assertFalse(path2.exists())
 
 

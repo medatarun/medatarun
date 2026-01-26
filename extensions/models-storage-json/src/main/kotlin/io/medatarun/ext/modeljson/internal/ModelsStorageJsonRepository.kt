@@ -36,7 +36,7 @@ internal class ModelsStorageJsonRepository(
         return modelJsonConverter.fromJson(files.load(key))
     }
 
-    override fun findModelByIdOptional(id: ModelId): Model? {
+    override fun findModelByIdOptional(id: ModelId): ModelInMemory? {
         // VERY TIME CONSUMING
         return discoveredModels.keys
             .map { modelJsonConverter.fromJson(files.load(it)) }
@@ -55,16 +55,17 @@ internal class ModelsStorageJsonRepository(
         persistModel(model)
     }
 
-    private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = findModelByKeyOptional(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
+    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
+        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         val next = block(model)
         persistModel(next)
     }
 
-    private fun deleteModel(modelKey: ModelKey) {
-        val path = discoveredModels.remove(modelKey) ?: throw ModelJsonRepositoryModelNotFoundException(modelKey)
+    private fun deleteModel(modelId: ModelId) {
+        val model = findModelByIdOptional(modelId) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
+        val path = discoveredModels.remove(model.key) ?: throw ModelJsonRepositoryModelNotFoundException(modelId)
         if (!path.deleteIfExists()) {
-            throw ModelJsonRepositoryException("Failed to delete model file for ${modelKey.value} at $path")
+            throw ModelJsonRepositoryException("Failed to delete model file for ${modelId.value} at $path")
         }
     }
 
@@ -72,8 +73,8 @@ internal class ModelsStorageJsonRepository(
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when (cmd) {
             is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelKey)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelKey) { model ->
+            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model ->
                 ModelInMemoryReducer().dispatch(model, cmd)
             }
         }

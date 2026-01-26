@@ -68,19 +68,19 @@ class ModelStoragesComposite(
 
     override fun dispatch(cmd: ModelRepositoryCmd, repositoryRef: RepositoryRef) {
         if (cmd is ModelRepositoryCmdOnModel) {
-            val repo = findRepoWithModel(cmd.modelKey)
+            val repo = findRepoWithModel(cmd.modelId)
             repo.dispatch(cmd)
         } else {
             selectRepository(repositoryRef).dispatch(cmd)
         }
     }
 
-    private fun findRepoWithModel(key: ModelKey): ModelRepository {
+    private fun findRepoWithModel(key: ModelId): ModelRepository {
         for (repository in repositories) {
-            val found = repository.findModelByKeyOptional(key)
+            val found = repository.findModelByIdOptional(key)
             if (found != null) return repository
         }
-        throw ModelStoragesCompositeRepositoryNotFoundInModelException(key.value)
+        throw ModelStoragesCompositeRepositoryNotFoundInModelException(key.asString())
     }
 
     fun selectRepository(ref: RepositoryRef): ModelRepository {

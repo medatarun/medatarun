@@ -29,7 +29,7 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return models.keys.toList()
     }
 
-    override fun findModelByIdOptional(id: ModelId): Model? {
+    override fun findModelByIdOptional(id: ModelId): ModelInMemory? {
         return models[id]
     }
 
@@ -37,14 +37,14 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         models[model.id] = ModelInMemory.of(model)
     }
 
-    private fun updateModel(modelKey: ModelKey, block: (model: ModelInMemory) -> ModelInMemory) {
+    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
 
-        val model = findModelByKeyOptional(modelKey) ?: throw ModelRepositoryInMemoryExceptions(modelKey)
+        val model = findModelByIdOptional(modelId) ?: throw ModelRepositoryInMemoryExceptions(modelId)
         models[model.id] = block(model)
     }
 
-    private fun deleteModel(modelKey: ModelKey) {
-        val toDelete = findModelByKeyOptional(modelKey) ?: throw ModelRepositoryInMemoryExceptions(modelKey)
+    private fun deleteModel(modelId: ModelId) {
+        val toDelete = findModelByIdOptional(modelId) ?: throw ModelRepositoryInMemoryExceptions(modelId)
         models.remove(toDelete.id)
     }
 
@@ -52,8 +52,8 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     override fun dispatch(cmd: ModelRepositoryCmd) {
         when(cmd) {
             is ModelRepositoryCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelKey)
-            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelKey) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
+            is ModelRepositoryCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelRepositoryCmdOnModel -> updateModel(cmd.modelId) { model -> ModelInMemoryReducer().dispatch(model, cmd) }
         }
 
     }
@@ -67,5 +67,5 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
     }
 }
 
-class ModelRepositoryInMemoryExceptions(modelKey: ModelKey) :
-    MedatarunException("Model not found in repository ${modelKey.value}")
+class ModelRepositoryInMemoryExceptions(modelId: ModelId) :
+    MedatarunException("Model not found in repository ${modelId.value}")
