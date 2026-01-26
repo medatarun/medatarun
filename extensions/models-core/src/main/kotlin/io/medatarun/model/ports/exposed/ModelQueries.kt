@@ -12,6 +12,8 @@ interface ModelQueries {
     fun findModelById(modelId: ModelId): Model
     fun findModelByRef(modelRef: ModelRef): Model
 
+    fun findEntity(modelRef: ModelRef, entityRef: EntityRef): EntityDef
+
     /**
      * Returns complete list of all known model ids in this application instance
      */

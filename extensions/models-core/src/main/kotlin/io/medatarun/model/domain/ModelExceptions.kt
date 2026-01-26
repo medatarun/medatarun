@@ -30,8 +30,8 @@ class ModelVersionPreReleaseLeadingZeroException :
         StatusCode.BAD_REQUEST
     )
 
-class EntityDefNotFoundException(modelKey: ModelKey, entityId: EntityKey) :
-    MedatarunException("Entity with id [${entityId.value}] not found in model [${modelKey.value}]")
+class EntityDefNotFoundException(modelRef: ModelRef, entityRef: EntityRef) :
+    MedatarunException("Entity with ref [${entityRef.asString()}] not found in model [${modelRef.asString()}]")
 
 class EntityAttributeDefNotFoundException(entityId: EntityKey, attributeId: AttributeKey) :
     MedatarunException("Attribute with id [${attributeId.value}] not found in entity [${entityId.value}]")
@@ -42,8 +42,8 @@ class RelationshipAttributeDefNotFoundException(relationshipKey: RelationshipKey
 class LocalizedTextMapEmptyException :
     MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")
 
-class UpdateAttributeDefDuplicateIdException(entityKey: EntityKey, attributeKey: AttributeKey) :
-    MedatarunException("Another attribute [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
+class UpdateAttributeDefDuplicateIdException(entityRef: EntityRef, attributeKey: AttributeKey) :
+    MedatarunException("Another attribute [${attributeKey.value}] already exists with the same id in entity [${entityRef.asString()}]")
 
 class UpdateEntityDefIdDuplicateIdException(entityKey: EntityKey) :
     MedatarunException("Another entity [${entityKey.value}] already exists in the same model")
@@ -66,8 +66,8 @@ class TypeNotFoundByIdException(modelKey: ModelKey, typeId: TypeId) :
 class TypeNotFoundByKeyException(modelKey: ModelKey, typeKey: TypeKey) :
     MedatarunException("Type with id [${typeKey.value}] not found in model [${modelKey.value}]")
 
-class DeleteAttributeIdentifierException(modelId: ModelId, entityId: EntityKey, attributeId: AttributeKey) :
-    MedatarunException("Can not delete attribute $attributeId in entity [${entityId.value}] of model [${modelId.value}] because it is used as the entity's identifier")
+class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef, attributeKey: AttributeKey) :
+    MedatarunException("Can not delete attribute $attributeKey in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
 
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
     MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message })

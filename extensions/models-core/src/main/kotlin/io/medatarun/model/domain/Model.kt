@@ -81,12 +81,11 @@ interface Model {
      * Returns entity definition by its id or null
      */
     fun findEntityDefOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
-
-    /**
-     * Returns entity definition by its id or throw [EntityDefNotFoundException]
-     */
-    fun findEntityDef(id: EntityKey): EntityDef =
-        findEntityDefOptional(id) ?: throw EntityDefNotFoundException(this@Model.key, id)
+    fun findEntityDefOptional(id: EntityId): EntityDef? = entityDefs.firstOrNull { it.id == id }
+    fun findEntityDefOptional(ref: EntityRef): EntityDef? = when(ref) {
+        is EntityRef.ById -> findEntityDefOptional(ref.id)
+        is EntityRef.ByKey -> findEntityDefOptional(ref.key)
+    }
 
     /**
      * Returns relationship definition by its id

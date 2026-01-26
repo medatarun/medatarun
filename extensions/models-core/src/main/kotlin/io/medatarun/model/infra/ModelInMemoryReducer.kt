@@ -53,9 +53,9 @@ class ModelInMemoryReducer {
             is ModelRepositoryCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.id != cmd.typeId) type else null })
 
             is ModelRepositoryCmd.CreateEntityDef -> model.copy(entityDefs = model.entityDefs + EntityDefInMemory.of(cmd.entityDef))
-            is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityKey) { previous ->
+            is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityId) { previous ->
                 when (val c = cmd.cmd) {
-                    is EntityDefUpdateCmd.Id -> previous.copy(key = c.value)
+                    is EntityDefUpdateCmd.Key -> previous.copy(key = c.value)
                     is EntityDefUpdateCmd.Name -> previous.copy(name = c.value)
                     is EntityDefUpdateCmd.Description -> previous.copy(description = c.value)
                     is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeKey = c.value)
@@ -64,38 +64,38 @@ class ModelInMemoryReducer {
             }
 
             is ModelRepositoryCmd.UpdateEntityDefHashtagAdd ->
-                modifyingEntityDef(model, cmd.entityKey) { previous ->
+                modifyingEntityDef(model, cmd.entityId) { previous ->
                     previous.copy(hashtags = hashtagAdd(previous.hashtags, cmd.hashtag))
                 }
 
             is ModelRepositoryCmd.UpdateEntityDefHashtagDelete ->
-                modifyingEntityDef(model, cmd.entityKey) { previous ->
+                modifyingEntityDef(model, cmd.entityId) { previous ->
                     previous.copy(hashtags = hashtagDelete(previous.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.DeleteEntityDef -> modifyingEntityDef(model, cmd.entityKey) { null }
+            is ModelRepositoryCmd.DeleteEntityDef -> modifyingEntityDef(model, cmd.entityId) { null }
 
-            is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityKey) {
+            is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityId) {
                 it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))
             }
 
             is ModelRepositoryCmd.UpdateEntityDefAttributeDef ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
+                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeKey) { a ->
                     updateEntityAttribute(a, cmd)
                 }
 
             is ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagAdd ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
+                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeKey) { a ->
                     a.copy(hashtags = hashtagAdd(a.hashtags, cmd.hashtag))
                 }
 
             is ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagDelete ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
+                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeKey) { a ->
                     a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
                 }
 
             is ModelRepositoryCmd.DeleteEntityDefAttributeDef ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { null }
+                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeKey) { null }
 
             is ModelRepositoryCmd.CreateRelationshipDef -> model.copy(
                 relationshipDefs = model.relationshipDefs + RelationshipDefInMemory.of(cmd.initializer)
@@ -215,13 +215,13 @@ private fun updateRelationship(
 
 private fun modifyingEntityDefAttributeDef(
     model: ModelInMemory,
-    e: EntityKey,
+    entityId: EntityId,
     attributeKey: AttributeKey,
     block: (AttributeDefInMemory) -> AttributeDefInMemory?
 ): ModelInMemory {
     return model.copy(
         entityDefs = model.entityDefs.map { entityDef ->
-            if (entityDef.key != e) entityDef else entityDef.copy(
+            if (entityDef.id != entityId) entityDef else entityDef.copy(
                 attributes = entityDef.attributes.mapNotNull { attr ->
                     if (attr.key != attributeKey) attr else block(attr)
                 }
@@ -248,12 +248,12 @@ private fun modifyingRelationshipDefAttributeDef(
 
 private fun modifyingEntityDef(
     model: ModelInMemory,
-    e: EntityKey,
+    entityId: EntityId,
     block: (EntityDefInMemory) -> EntityDefInMemory?
 ): ModelInMemory {
     return model.copy(
         entityDefs = model.entityDefs.mapNotNull { entityDef ->
-            if (entityDef.key != e) entityDef else block(entityDef)
+            if (entityDef.id != entityId) entityDef else block(entityDef)
         })
 }
 

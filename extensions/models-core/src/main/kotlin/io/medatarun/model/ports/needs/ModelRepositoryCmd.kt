@@ -85,25 +85,25 @@ sealed interface ModelRepositoryCmd {
 
     data class UpdateEntityDef(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val cmd: EntityDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefHashtagAdd(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefHashtagDelete(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class DeleteEntityDef(
         override val modelId: ModelId,
-        val entityKey: EntityKey
+        val entityId: EntityId
     ) : ModelRepositoryCmdOnModel
 
     // ------------------------------------------------------------------------
@@ -112,33 +112,33 @@ sealed interface ModelRepositoryCmd {
 
     class CreateEntityDefAttributeDef(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val attributeDef: AttributeDef
     ) : ModelRepositoryCmdOnModel
 
     class DeleteEntityDefAttributeDef(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val attributeKey: AttributeKey
     ) : ModelRepositoryCmdOnModel
 
     class UpdateEntityDefAttributeDef(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val attributeKey: AttributeKey,
         val cmd: AttributeDefUpdateCmd
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefAttributeDefHashtagAdd(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel
 
     data class UpdateEntityDefAttributeDefHashtagDelete(
         override val modelId: ModelId,
-        val entityKey: EntityKey,
+        val entityId: EntityId,
         val attributeKey: AttributeKey,
         val hashtag: Hashtag
     ) : ModelRepositoryCmdOnModel

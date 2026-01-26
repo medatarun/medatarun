@@ -2,11 +2,21 @@ package io.medatarun.model.domain
 
 sealed interface EntityRef {
 
+    fun asString():String
+
     data class ById(
         val id: EntityId
-    ) : EntityRef
+    ) : EntityRef {
+        override fun asString(): String {
+            return "id:"+id.value
+        }
+    }
 
     data class ByKey(
         val key: EntityKey,
-    ) : EntityRef
+    ) : EntityRef {
+        override fun asString(): String {
+            return "key:"+key.value
+        }
+    }
 }

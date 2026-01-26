@@ -339,8 +339,7 @@ sealed interface ModelAction {
             order = 50
         )
         val description: LocalizedMarkdown?
-    ) :
-        ModelAction
+    ) : ModelAction
 
 
     @ActionDoc(
@@ -394,13 +393,53 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_Create(
+        @ActionParamDoc(
+            name = "Model reference",
+            description = "Reference of the model to which the new entity will be added.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Unique key of entity in the model.",
+            order = 20
+        )
         val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Display name of entity.",
+            order = 30
+        )
         val name: LocalizedText? = null,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Entity's description",
+            order = 40
+        )
         val description: LocalizedMarkdown? = null,
+        @ActionParamDoc(
+            name = "Identity attribute key",
+            description = "Key of the attribute that will be created that acts as the entity's identifier.",
+            order = 50
+        )
         val identityAttributeKey: AttributeKey,
+        @ActionParamDoc(
+            name = "Identity attribute type",
+            description = "Type of the attribute that will be created that acts as the entity's identifier.",
+            order = 60
+        )
         val identityAttributeType: TypeKey,
+        @ActionParamDoc(
+            name = "Identity attribute name",
+            description = "Display name of the attribute that will be created that acts as the entity's identifier.",
+            order = 70
+        )
         val identityAttributeName: LocalizedText? = null,
+        @ActionParamDoc(
+            name = "External documentation",
+            description = "Link to an external documentation.",
+            order = 80
+        )
         val documentationHome: String? = null
     ) : ModelAction
 
@@ -411,9 +450,24 @@ sealed interface ModelAction {
         uiLocations = [ActionUILocation.entity],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Entity_UpdateId(
+    data class Entity_UpdateKey(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to update is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to update.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "New key value. The key shall not be used for another entity",
+            order = 30
+        )
         val value: EntityKey
     ) : ModelAction
 
@@ -426,8 +480,23 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateName(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to update is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to update.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "New display name.",
+            order = 30
+        )
         val value: LocalizedText?
     ) : ModelAction
 
@@ -439,8 +508,23 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateDescription(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to update is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to update.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "New description.",
+            order = 30
+        )
         val value: LocalizedMarkdown?
     ) : ModelAction
 
@@ -452,8 +536,23 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_AddTag(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to update is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to update.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Tag",
+            description = "Tag to add to entity.",
+            order = 30
+        )
         val tag: Hashtag
     ) : ModelAction
 
@@ -466,8 +565,23 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_DeleteTag(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to update is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to update.",
+            order = 20
+        )
+        val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Tag",
+            description = "Tag to delete.",
+            order = 30
+        )
         val tag: Hashtag
     ) : ModelAction
 
@@ -480,8 +594,18 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_Delete(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity to delete is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
-        val entityKey: EntityKey
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity to delete.",
+            order = 20
+        )
+        val entityRef: EntityRef,
     ) : ModelAction
 
 
@@ -498,7 +622,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_Create(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val type: TypeKey,
         val optional: Boolean = false,
@@ -516,7 +640,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_UpdateId(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val value: AttributeKey
     ) : ModelAction
@@ -530,7 +654,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_UpdateName(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val value: LocalizedText?
     ) : ModelAction
@@ -545,7 +669,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_UpdateDescription(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val value: LocalizedMarkdown?
     ) : ModelAction
@@ -560,7 +684,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_UpdateType(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val value: TypeKey
     ) : ModelAction
@@ -575,7 +699,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_UpdateOptional(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val value: Boolean
     ) : ModelAction
@@ -589,7 +713,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_AddTag(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val tag: Hashtag
     ) : ModelAction
@@ -603,7 +727,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_DeleteTag(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey,
         val tag: Hashtag
     ) : ModelAction
@@ -617,7 +741,7 @@ sealed interface ModelAction {
     )
     data class EntityAttribute_Delete(
         val modelRef: ModelRef,
-        val entityKey: EntityKey,
+        val entityRef: EntityRef,
         val attributeKey: AttributeKey
     ) : ModelAction
 
@@ -639,11 +763,11 @@ sealed interface ModelAction {
         val name: LocalizedText?,
         val description: LocalizedMarkdown?,
         val roleAKey: RelationshipRoleKey,
-        val roleAEntityKey: EntityKey,
+        val roleAEntityRef: EntityRef,
         val roleAName: LocalizedText?,
         val roleACardinality: RelationshipCardinality,
         val roleBKey: RelationshipRoleKey,
-        val roleBEntityKey: EntityKey,
+        val roleBEntityRef: EntityRef,
         val roleBName: LocalizedText?,
         val roleBCardinality: RelationshipCardinality,
     ) : ModelAction
@@ -699,7 +823,7 @@ sealed interface ModelAction {
         val relationshipKey: RelationshipKey,
         val relationshipRoleKey: RelationshipRoleKey,
         val roleKey: RelationshipRoleKey,
-        val roleEntityKey: EntityKey,
+        val roleEntityRef: EntityRef,
         val roleName: LocalizedText?,
         val roleCardinality: RelationshipCardinality,
     ) : ModelAction

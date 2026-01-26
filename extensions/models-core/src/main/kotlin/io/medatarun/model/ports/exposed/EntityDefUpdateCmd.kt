@@ -7,7 +7,7 @@ import io.medatarun.model.domain.LocalizedText
 import java.net.URL
 
 sealed class EntityDefUpdateCmd {
-    data class Id(val value: EntityKey) : EntityDefUpdateCmd()
+    data class Key(val value: EntityKey) : EntityDefUpdateCmd()
     data class Name(val value: LocalizedText?) : EntityDefUpdateCmd()
     data class Description(val value: LocalizedMarkdown?) : EntityDefUpdateCmd()
     data class IdentifierAttribute(val value: AttributeKey) : EntityDefUpdateCmd()

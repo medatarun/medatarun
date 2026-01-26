@@ -48,6 +48,14 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         )
     }
 
+    override fun findEntity(
+        modelRef: ModelRef,
+        entityRef: EntityRef
+    ): EntityDef {
+        val model = findModelByRef(modelRef)
+        return model.findEntityDefOptional(entityRef) ?: throw EntityDefNotFoundException(modelRef, entityRef)
+    }
+
     override fun findModelByKey(modelKey: ModelKey): Model {
         return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
     }

@@ -127,14 +127,14 @@ internal class ModelJsonConverterTest {
     fun `entity origin undefined then manual`() {
         val json = createJsonForOriginTest(null)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityKey("contact")).origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityDefOptional(EntityKey("contact"))?.origin)
     }
 
     @Test
     fun `entity origin null then manual`() {
         val json = createJsonForOriginTest(JsonNull)
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Manual, model.findEntityDef(EntityKey("contact")).origin)
+        assertEquals(EntityOrigin.Manual, model.findEntityDefOptional(EntityKey("contact"))?.origin)
     }
 
     @Test
@@ -142,10 +142,10 @@ internal class ModelJsonConverterTest {
         val url = "https://www.example.local/schema.json"
         val json = createJsonForOriginTest(JsonPrimitive(url))
         val model = instance.fromJson(json.toString())
-        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDef(EntityKey("contact")).origin)
+        assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityDefOptional(EntityKey("contact"))?.origin)
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
-        val originRead = modelRead.findEntityDef(EntityKey("contact")).origin
+        val originRead = modelRead.findEntityDefOptional(EntityKey("contact"))?.origin
         assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
     }
 
