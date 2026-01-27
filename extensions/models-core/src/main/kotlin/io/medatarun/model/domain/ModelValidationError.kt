@@ -12,5 +12,5 @@ class ModelValidationErrorTypeNotFound(
 class ModelValidationErrorInvalidIdentityAttribute(
     modelKey: ModelKey,
     entityKey: EntityKey,
-    entityIdAttributeKey: AttributeKey
+    entityIdAttributeKey: AttributeId
 ) : ModelValidationError("Invalid identifier attribute [${entityIdAttributeKey.value}] for [${modelKey.value}.${entityKey.value}]")

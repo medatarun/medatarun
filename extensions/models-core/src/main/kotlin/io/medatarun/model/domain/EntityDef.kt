@@ -51,15 +51,6 @@ interface EntityDef {
      */
     val hashtags: List<Hashtag>
 
-    /**
-     * Get attribute by its id if found
-     */
-    fun getAttributeDefOptional(id: AttributeKey): AttributeDef?
 
-    /**
-     * Returns the attribute name that serves as entity unique identifier
-     * amongst other entities in the same [EntityDef].
-     */
-    fun entityIdAttributeDefId() = AttributeKey("id")
 
 }

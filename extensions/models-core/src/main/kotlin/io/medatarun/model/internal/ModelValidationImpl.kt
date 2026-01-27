@@ -33,7 +33,7 @@ class ModelValidationImpl : ModelValidation {
 
         model.entityDefs.forEach { e ->
             if (e.attributes.none { it.id == e.identifierAttributeId }) {
-                errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.entityIdAttributeDefId()))
+                errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.identifierAttributeId))
             }
         }
         return errors

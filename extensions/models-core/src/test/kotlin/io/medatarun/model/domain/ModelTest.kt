@@ -1513,7 +1513,7 @@ class ModelTest {
                 ModelCmd.DeleteEntityAttribute(
                     env.sampleModelRef,
                     env.sampleEntityRef,
-                    EntityAttributeRef.ByKey(reloaded.entityIdAttributeDefId())
+                    EntityAttributeRef.ById(reloaded.identifierAttributeId)
                 )
             )
         }

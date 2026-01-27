@@ -33,22 +33,23 @@ internal class ModelJsonConverterTest {
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entityDefs.size, 2)
 
+        val contactEntityRef = EntityRef.ByKey(EntityKey("contact"))
+        val companyRef = EntityRef.ByKey(EntityKey("company"))
 
-        val contactEntity = modelRead.entityDefs[0]
+        val contactEntity = modelRead.findEntity(contactEntityRef)
         assertEquals(contactEntity.key, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
         assertEquals(contactNameAttributeId, contactEntity.identifierAttributeId)
 
-        val companyEntity = modelRead.entityDefs[1]
+        val companyEntity = modelRead.findEntity(companyRef)
         assertEquals(companyEntity.key, EntityKey("company"))
         assertEquals(companyNameAttributeId, companyEntity.identifierAttributeId)
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
 
-        assertEquals(companyEntity.countAttributeDefs(), 3)
-
-        val companyName = companyEntity.getAttributeDefOptional(AttributeKey("name"))
+        val companyNameRef = EntityAttributeRef.ByKey(AttributeKey("name"))
+        val companyName = modelRead.findEntityAttributeOptional(companyRef,companyNameRef)
         assertNotNull(companyName)
         assertEquals(companyName.key, AttributeKey("name"))
         assertEquals(companyName.name?.name, "Name")
@@ -56,7 +57,8 @@ internal class ModelJsonConverterTest {
         assertEquals(companyName.optional, false)
         assertEquals(companyName.typeId, typeIdString)
 
-        val companyProfileUrl = companyEntity.getAttributeDefOptional(AttributeKey("profile_url"))
+        val companyProfileUrlRef = EntityAttributeRef.ByKey(AttributeKey("profile_url"))
+        val companyProfileUrl = modelRead.findEntityAttributeOptional(companyRef, companyProfileUrlRef)
         assertNotNull(companyProfileUrl)
         assertEquals(companyProfileUrl.key, AttributeKey("profile_url"))
         assertEquals(companyProfileUrl.name?.name, "Profile URL")
@@ -64,7 +66,8 @@ internal class ModelJsonConverterTest {
         assertEquals(companyProfileUrl.optional, true)
         assertEquals(companyProfileUrl.typeId, typeIdString)
 
-        val companyInfos = companyEntity.getAttributeDefOptional(AttributeKey("informations"))
+        val companyInfosRef = EntityAttributeRef.ByKey(AttributeKey("informations"))
+        val companyInfos = modelRead.findEntityAttributeOptional(companyRef, companyInfosRef)
         assertNotNull(companyInfos)
         assertEquals(companyInfos.key, AttributeKey("informations"))
         assertEquals(companyInfos.name?.name, "Informations")

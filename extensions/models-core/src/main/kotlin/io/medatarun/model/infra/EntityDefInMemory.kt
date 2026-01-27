@@ -26,12 +26,6 @@ data class EntityDefInMemory(
         return attributes.size
     }
 
-    override fun getAttributeDefOptional(id: AttributeKey): AttributeDef? {
-        return map[id]
-    }
-
-
-
 
     companion object {
         fun of(other: EntityDef): EntityDefInMemory {
