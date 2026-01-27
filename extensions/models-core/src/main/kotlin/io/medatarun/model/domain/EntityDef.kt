@@ -51,6 +51,7 @@ interface EntityDef {
      */
     val hashtags: List<Hashtag>
 
+    val ref get() = EntityRef.ById(id)
 
 
 }

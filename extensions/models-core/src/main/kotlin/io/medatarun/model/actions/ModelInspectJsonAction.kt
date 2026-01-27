@@ -36,7 +36,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     put("name", localizedTextToJson(entity.name))
                                     put("description", localizedTextToJson(entity.description))
                                     put("identifierAttribute", identifierAttribute.key.value)
-                                    put("attributes", toAttributesJson(model, entity.attributes))
+                                    put("attributes", toAttributesJson(model, entity.ref))
                                 })
                             }
                         })
@@ -46,7 +46,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     put("id", relationship.key.value)
                                     put("name", localizedTextToJson(relationship.name))
                                     put("description", localizedTextToJson(relationship.description))
-                                    put("attributes", toAttributesJson(model, relationship.attributes))
+                                    put("attributes", toAttributesJson(model, relationship.ref))
                                     putJsonArray("roles") {
                                         relationship.roles.forEach { role ->
                                             addJsonObject {
@@ -67,19 +67,32 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         return jsonPretty.encodeToString(root)
     }
 
-    private fun toAttributesJson(model: Model, attributes: List<AttributeDef>): JsonArray = buildJsonArray {
+    private fun toAttributesJson(model: Model, entityRef: EntityRef): JsonArray {
+        val attributes = model.findEntityAttributes(entityRef)
+        return toAttributesJson(attributes, model)
+    }
+    private fun toAttributesJson(model: Model, relationshipRef: RelationshipRef): JsonArray {
+        val attributes = model.findRelationshipAttributes(relationshipRef)
+        return toAttributesJson(attributes, model)
+    }
 
-        attributes.forEach { attribute ->
-            val type = model.findType(TypeRef.ById(attribute.typeId))
-            add(buildJsonObject {
-                put("id", attribute.key.value)
-                put("name", localizedTextToJson(attribute.name))
-                put("description", localizedTextToJson(attribute.description))
-                put("type", type.key.value)
-                put("optional", attribute.optional)
-            })
+    private fun toAttributesJson(
+        attributes: List<AttributeDef>,
+        model: Model
+    ): JsonArray {
+        return buildJsonArray {
+            attributes.forEach { attribute ->
+                val type = model.findType(TypeRef.ById(attribute.typeId))
+                add(buildJsonObject {
+                    put("id", attribute.key.value)
+                    put("name", localizedTextToJson(attribute.name))
+                    put("description", localizedTextToJson(attribute.description))
+                    put("type", type.key.value)
+                    put("optional", attribute.optional)
+                })
+            }
+
         }
-
     }
 
     private fun localizedTextToJson(value: LocalizedTextBase?): JsonElement {

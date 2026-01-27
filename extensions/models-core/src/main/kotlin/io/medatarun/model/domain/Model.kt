@@ -146,6 +146,9 @@ interface Model {
         is RelationshipRef.ByKey -> findRelationshipOptional(ref.key)
     }
 
+    fun findRelationship(ref: RelationshipRef) = findRelationshipOptional(ref)
+        ?: throw RelationshipNotFoundException(ModelRef.ById(this.id), ref)
+
     fun findRelationshipRoleOptional(
         relationshipRef: RelationshipRef,
         roleKey: RelationshipRoleKey
@@ -184,6 +187,13 @@ interface Model {
     ): AttributeDef? = when (attrRef) {
         is RelationshipAttributeRef.ById -> findRelationshipAttributeOptional(relationshipRef, attrRef.id)
         is RelationshipAttributeRef.ByKey -> findRelationshipAttributeOptional(relationshipRef, attrRef.key)
+    }
+
+    fun findEntityAttributes(ref: EntityRef): List<AttributeDef> {
+        return findEntity(ref).attributes
+    }
+    fun findRelationshipAttributes(ref: RelationshipRef): List<AttributeDef> {
+        return findRelationship(ref).attributes
     }
 
 }

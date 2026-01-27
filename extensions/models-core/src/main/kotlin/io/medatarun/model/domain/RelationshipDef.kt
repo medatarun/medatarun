@@ -66,6 +66,7 @@ interface RelationshipDef {
      */
     val hashtags: List<Hashtag>
 
+    val ref get() = RelationshipRef.ById(id)
 }
 
 /**
@@ -116,5 +117,6 @@ interface RelationshipRole {
     val cardinality: RelationshipCardinality
 
 
+    val ref get() = RelationshipRoleRef.ById(id)
 }
 

@@ -156,7 +156,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                 }
             )
             putJsonArray("attributes") {
-                e.attributes.forEach { attr ->
+                val attributes = model.findEntityAttributes(e.ref)
+                attributes.forEach { attr ->
                     addJsonObject {
                         put("id", attr.id.value.toString())
                         put("key", attr.key.value)
