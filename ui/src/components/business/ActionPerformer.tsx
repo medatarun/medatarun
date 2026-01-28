@@ -1,9 +1,13 @@
 import {type ActionPayload, ActionRegistry, type ActionResp, executeAction} from "../../business";
 import {queryClient} from "../../services/queryClient.ts";
 
-export type ActionPerformerRequestParams = Record<string, unknown>;
+export type ActionPerformerRequestParam = {
+  readonly: boolean,
+  value: unknown
+};
+export type ActionPerformerRequestParams = Record<string, ActionPerformerRequestParam>;
 export type ActionPerformerFormData = Record<string, unknown>;
-export type ActionRequest = {
+export type ActionPerformerRequest = {
   actionGroupKey: string;
   actionKey: string
   params: ActionPerformerRequestParams;
@@ -11,10 +15,10 @@ export type ActionRequest = {
 
 export type ActionPerformerState =
   | { kind: 'idle' }
-  | { kind: 'pendingUser'; request: ActionRequest }
-  | { kind: 'running'; request: ActionRequest }
-  | { kind: 'done'; request: ActionRequest }
-  | { kind: 'error'; request: ActionRequest; error: unknown };
+  | { kind: 'pendingUser'; request: ActionPerformerRequest }
+  | { kind: 'running'; request: ActionPerformerRequest }
+  | { kind: 'done'; request: ActionPerformerRequest }
+  | { kind: 'error'; request: ActionPerformerRequest; error: unknown };
 
 type Listener = (s: ActionPerformerState) => void;
 
@@ -44,7 +48,7 @@ export class ActionPerformer {
     return this.state;
   }
 
-  performAction(request: ActionRequest) {
+  performAction(request: ActionPerformerRequest) {
     if (this.state.kind !== 'idle') {
       throw new Error('Une action est déjà en cours')
     }

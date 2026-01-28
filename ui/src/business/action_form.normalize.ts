@@ -1,7 +1,6 @@
 import type {FormDataType} from "./action_form.types.ts";
 import {ActionDescriptor, ActionDescriptorParam, type ActionRegistry} from "./action_registry.biz.tsx";
 import type {ActionPayload} from "./action_perform.api.ts";
-import type {ActionPerformerRequestParams} from "../components/business/ActionPerformer.tsx";
 import {isNil} from "lodash-es";
 
 export function formDataNormalize(actionGroupKey: string, actionKey: string, formData: FormDataType, actionRegistry: ActionRegistry): ActionPayload {
@@ -11,7 +10,7 @@ export function formDataNormalize(actionGroupKey: string, actionKey: string, for
 }
 
 
-function formDataToPayload(action: ActionDescriptor, formData: ActionPerformerRequestParams): ActionPayload {
+function formDataToPayload(action: ActionDescriptor, formData: FormDataType): ActionPayload {
   const payload: ActionPayload = {}
   for (const parameter of action.parameters) {
     const name = parameter.name

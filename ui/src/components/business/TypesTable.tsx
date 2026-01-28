@@ -21,6 +21,7 @@ import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 import {Markdown} from "../core/Markdown.tsx";
 import {createActionTemplateType} from "./actionTemplates.ts";
+import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -112,7 +113,7 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeI
 export function ActionMenuButton({itemActions, actionParams, label}: {
   label?: string,
   itemActions: ActionDescriptor[],
-  actionParams: Record<string, string>
+  actionParams: ActionPerformerRequestParams
 }) {
   const actionPerformer = useActionPerformer()
   if (itemActions.length === 0) return null

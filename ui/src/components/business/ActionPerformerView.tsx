@@ -26,12 +26,12 @@ import {
   useActionRegistry,
   validateForm
 } from "../../business";
-import type {ActionPerformerState} from "./ActionPerformer.tsx";
+import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
 import {Button} from "@seij/common-ui";
 import {formDataNormalize} from "../../business/action_form.normalize.ts";
-import {isPlainObject} from "lodash-es";
+import {isNil, isPlainObject} from "lodash-es";
 
 
 export function ActionPerformerView() {
@@ -46,9 +46,11 @@ export function ActionPerformerView() {
   const action = actionRegistry.findActionOptional(request.actionGroupKey, request.actionKey)
   if (!action) return null
 
-  const defaultFormData: FormDataType = {
-    ...state.request.params
+  const defaultFormData: FormDataType = { }
+  for (const actionParam of action.parameters) {
+    defaultFormData[actionParam.name] = state.request.params[actionParam.name]?.value ?? null
   }
+
   const formFields = createFormFields(action, state.request.params);
 
   return <ActionPerformerViewLoaded
@@ -105,7 +107,7 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
     }
   }, [state.kind, actionResp, finishAction]);
 
-  const focusedFieldKey = formFields.find(it => !it.prefilled)?.key
+  const focusedFieldKey = formFields.find(it => it.visible && !it.readonly)?.key
 
   useEffect(() => {
     firstInputRef?.current?.focus()
@@ -126,9 +128,10 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
             }}>
               {action.description && <div>{action.description}</div>}
-              {formFields.map((field) => (
+              {formFields.filter(it => it.visible).map((field) => (
 
                 <FormFieldInput
+                  key={field.key}
                   inputRef={field.key === focusedFieldKey ? firstInputRef : undefined}
                   field={field}
                   value={formData[field.key]}
@@ -192,13 +195,13 @@ function FormFieldInput({field, value, validationResult, inputRef, onChange}: {
     required={!field.optional}>
     <Input
       ref={inputRef}
-      disabled={field.prefilled}
+      disabled={field.readonly}
       value={valueNormalized}
       onChange={(_, data) => onChange(field, data.value)}/>
   </Field></div>
 }
 
-function createFormFields(action: ActionDescriptor, prefill: Record<string, unknown>) {
+function createFormFields(action: ActionDescriptor, prefill: ActionPerformerRequestParams) {
   const formFields: FormFieldType[] = []
   action.parameters.forEach(param => {
     const prefilledValue = prefill[param.name]
@@ -209,7 +212,8 @@ function createFormFields(action: ActionDescriptor, prefill: Record<string, unkn
       optional: param.optional,
       type: param.type,
       order: param.order,
-      prefilled: (prefilledValue !== null && prefilledValue !== undefined)
+      readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
+      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly
     }
     formFields.push(field)
   })

@@ -2,10 +2,11 @@ import {ActionDescriptor, type ActionUILocation, useActionRegistry} from "../../
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";
+import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
 
 type ActionBarProps = {
   location: ActionUILocation,
-  params?: Record<string, string>,
+  params?: ActionPerformerRequestParams,
   variant?: ComponentProps<typeof ButtonBar>["variant"]
 }
 
@@ -22,7 +23,7 @@ export const ActionsBar = ({location, params = {}, variant}: ActionBarProps) => 
 export const ActionButton = ({action, params}: {
   location: string,
   action: ActionDescriptor,
-  params: Record<string, string>
+  params: ActionPerformerRequestParams
 }) => {
 
   const {performAction, state} = useActionPerformer();

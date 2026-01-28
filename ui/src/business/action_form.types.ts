@@ -6,5 +6,6 @@ export type FormFieldType = {
   optional: boolean,
   type: string
   order: number
-  prefilled: boolean
+  readonly: boolean
+  visible: boolean
 }

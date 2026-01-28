@@ -52,7 +52,6 @@ export function ModelView() {
   }
 
   const actions = actionRegistry.findActions(ActionUILocations.model_overview)
-
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow={<span>Model</span>}>
@@ -85,24 +84,26 @@ export function ModelView() {
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
-          { model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
-          { model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
+          {model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
+          {model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards>}
 
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
-          { model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
-          { model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationships}/></SectionTable> }
+          {model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p>}
+          {model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship}
+                                                                               relationships={model.relationships}/></SectionTable>}
 
           <SectionTitle
             icon={<TypeIcon/>}
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
-          { model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p> }
-          { model.types.length > 0 && <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable> }
+          {model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p>}
+          {model.types.length > 0 &&
+            <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable>}
 
         </ContainedHumanReadable>
       </ContainedScrollable>
