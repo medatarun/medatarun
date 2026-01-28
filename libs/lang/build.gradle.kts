@@ -8,5 +8,6 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinxSerialization)
+    implementation(libs.uuidCreator)
     testImplementation(kotlin("test"))
 }
