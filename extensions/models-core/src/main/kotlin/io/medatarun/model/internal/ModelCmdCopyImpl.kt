@@ -41,7 +41,7 @@ class ModelCmdCopyImpl {
             )
         }
         val newRelationships = model.relationships.map { rel ->
-            RelationshipDefInMemory.of(rel).copy(
+            RelationshipInMemory.of(rel).copy(
                 id = rel.id,
                 attributes = rel.attributes.map { attr ->
                     AttributeInMemory.of(attr).copy(

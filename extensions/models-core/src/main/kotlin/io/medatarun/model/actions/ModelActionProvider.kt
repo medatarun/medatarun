@@ -506,7 +506,7 @@ class ModelActionHandler(
             ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipDefUpdateCmd.Key(cmd.value)
+                cmd = RelationshipUpdateCmd.Key(cmd.value)
             )
         )
     }
@@ -516,7 +516,7 @@ class ModelActionHandler(
             ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipDefUpdateCmd.Name(cmd.value)
+                cmd = RelationshipUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -526,7 +526,7 @@ class ModelActionHandler(
             ModelCmd.UpdateRelationship(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipDefUpdateCmd.Description(cmd.value)
+                cmd = RelationshipUpdateCmd.Description(cmd.value)
             )
         )
     }

@@ -36,11 +36,11 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateEntityAttributeHashtagAdd -> updateEntityAttributeHashtagAdd(cmd)
             is ModelCmd.UpdateEntityAttributeHashtagDelete -> updateEntityAttributeHashtagDelete(cmd)
             is ModelCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd)
-            is ModelCmd.CreateRelationship -> createRelationshipDef(cmd)
+            is ModelCmd.CreateRelationship -> createRelationship(cmd)
             is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
             is ModelCmd.UpdateRelationship -> updateRelationship(cmd)
-            is ModelCmd.UpdateRelationshipHashtagAdd -> updateRelationshipDefHashtagAdd(cmd)
-            is ModelCmd.UpdateRelationshipHashtagDelete -> updateRelationshipDefHashtagDelete(cmd)
+            is ModelCmd.UpdateRelationshipHashtagAdd -> updateRelationshipHashtagAdd(cmd)
+            is ModelCmd.UpdateRelationshipHashtagDelete -> updateRelationshipHashtagDelete(cmd)
             is ModelCmd.DeleteRelationship -> deleteRelationship(cmd)
             is ModelCmd.UpdateRelationshipAttribute -> updateRelationshipAttribute(cmd)
             is ModelCmd.UpdateRelationshipAttributeHashtagAdd -> updateRelationshipAttributeHashtagAdd(cmd)
@@ -101,7 +101,7 @@ class ModelCmdsImpl(
         return attr
     }
 
-    private fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): RelationshipDef {
+    private fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship {
         val model = findModel(modelRef)
         return model.findRelationshipOptional(relationshipRef)
             ?: throw RelationshipNotFoundException(modelRef, relationshipRef)
@@ -505,25 +505,25 @@ class ModelCmdsImpl(
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         val part = when (cmd.cmd) {
-            is RelationshipDefUpdateCmd.Key -> ModelRepoCmdRelationshipDefUpdate.Key(cmd.cmd.value)
-            is RelationshipDefUpdateCmd.Name -> ModelRepoCmdRelationshipDefUpdate.Name(cmd.cmd.value)
-            is RelationshipDefUpdateCmd.Description -> ModelRepoCmdRelationshipDefUpdate.Description(cmd.cmd.value)
-            is RelationshipDefUpdateCmd.RoleCardinality -> ModelRepoCmdRelationshipDefUpdate.RoleCardinality(
+            is RelationshipUpdateCmd.Key -> ModelRepoCmdRelationshipUpdate.Key(cmd.cmd.value)
+            is RelationshipUpdateCmd.Name -> ModelRepoCmdRelationshipUpdate.Name(cmd.cmd.value)
+            is RelationshipUpdateCmd.Description -> ModelRepoCmdRelationshipUpdate.Description(cmd.cmd.value)
+            is RelationshipUpdateCmd.RoleCardinality -> ModelRepoCmdRelationshipUpdate.RoleCardinality(
                 findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.cmd.relationshipRoleRef).id,
                 cmd.cmd.value
             )
 
-            is RelationshipDefUpdateCmd.RoleEntity -> ModelRepoCmdRelationshipDefUpdate.RoleEntity(
+            is RelationshipUpdateCmd.RoleEntity -> ModelRepoCmdRelationshipUpdate.RoleEntity(
                 findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.cmd.relationshipRoleRef).id,
                 findEntity(cmd.modelRef, cmd.cmd.value).id
             )
 
-            is RelationshipDefUpdateCmd.RoleKey -> ModelRepoCmdRelationshipDefUpdate.RoleKey(
+            is RelationshipUpdateCmd.RoleKey -> ModelRepoCmdRelationshipUpdate.RoleKey(
                 findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.cmd.relationshipRoleRef).id,
                 cmd.cmd.value
             )
 
-            is RelationshipDefUpdateCmd.RoleName -> ModelRepoCmdRelationshipDefUpdate.RoleName(
+            is RelationshipUpdateCmd.RoleName -> ModelRepoCmdRelationshipUpdate.RoleName(
                 findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.cmd.relationshipRoleRef).id,
                 cmd.cmd.value
             )
@@ -537,7 +537,7 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun updateRelationshipDefHashtagAdd(cmd: ModelCmd.UpdateRelationshipHashtagAdd) {
+    private fun updateRelationshipHashtagAdd(cmd: ModelCmd.UpdateRelationshipHashtagAdd) {
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         storage.dispatch(
@@ -549,7 +549,7 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun updateRelationshipDefHashtagDelete(cmd: ModelCmd.UpdateRelationshipHashtagDelete) {
+    private fun updateRelationshipHashtagDelete(cmd: ModelCmd.UpdateRelationshipHashtagDelete) {
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         storage.dispatch(
@@ -591,7 +591,7 @@ class ModelCmdsImpl(
     }
 
 
-    private fun createRelationshipDef(cmd: ModelCmd.CreateRelationship) {
+    private fun createRelationship(cmd: ModelCmd.CreateRelationship) {
         val model = findModel(cmd.modelRef)
         if (model.findRelationshipOptional(cmd.initializer.key) != null)
             throw RelationshipDuplicateIdException(model.id, cmd.initializer.key)
@@ -603,7 +603,7 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateRelationship(
                 modelId = model.id,
-                initializer = RelationshipDefInMemory(
+                initializer = RelationshipInMemory(
                     id = RelationshipId.generate(),
                     name = cmd.initializer.name,
                     description = cmd.initializer.description,

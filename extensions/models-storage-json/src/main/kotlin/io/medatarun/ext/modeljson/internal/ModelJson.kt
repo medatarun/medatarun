@@ -199,7 +199,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             types = types,
             entities = entities,
             relationships = modelJson.relationships.map { relationJson ->
-                return@map RelationshipDefInMemory(
+                return@map RelationshipInMemory(
                     id = relationJson.id?.let { RelationshipId.valueOfString(it) } ?: RelationshipId.generate(),
                     key = RelationshipKey(relationJson.key),
                     name = relationJson.name,

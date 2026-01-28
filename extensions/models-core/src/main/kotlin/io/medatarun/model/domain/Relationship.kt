@@ -1,11 +1,11 @@
 package io.medatarun.model.domain
 
 /**
- * A [RelationshipDef] describes the conceptual structure of a link between entities.
+ * A [Relationship] describes the conceptual structure of a link between entities.
  * It belongs to the *structural* layer of the metamodel: it defines what exists,
  * not what should happen. There is no lifecycle or business logic here.
  */
-interface RelationshipDef {
+interface Relationship {
     /**
      * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
      */

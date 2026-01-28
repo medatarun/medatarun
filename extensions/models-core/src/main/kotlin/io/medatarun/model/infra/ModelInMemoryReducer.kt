@@ -99,21 +99,21 @@ class ModelInMemoryReducer {
                 modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { null }
 
             is ModelRepoCmd.CreateRelationship -> model.copy(
-                relationships = model.relationships + RelationshipDefInMemory.of(cmd.initializer)
+                relationships = model.relationships + RelationshipInMemory.of(cmd.initializer)
             )
 
             is ModelRepoCmd.UpdateRelationship ->
-                modifyingRelationshipDef(model, cmd.relationshipId) { rel ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
                     updateRelationship(model, rel, cmd)
                 }
 
             is ModelRepoCmd.UpdateRelationshipHashtagAdd ->
-                modifyingRelationshipDef(model, cmd.relationshipId) { rel ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
                     rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.UpdateRelationshipHashtagDelete ->
-                modifyingRelationshipDef(model, cmd.relationshipId) { rel ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
                     rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
                 }
 
@@ -195,19 +195,19 @@ class ModelInMemoryReducer {
 
 private fun updateRelationship(
     model: ModelInMemory,
-    rel: RelationshipDefInMemory,
+    rel: RelationshipInMemory,
     cmd: ModelRepoCmd.UpdateRelationship,
-): RelationshipDefInMemory = when (val input = cmd.cmd) {
-    is ModelRepoCmdRelationshipDefUpdate.Key -> rel.copy(key = input.value)
-    is ModelRepoCmdRelationshipDefUpdate.Name -> rel.copy(name = input.value)
-    is ModelRepoCmdRelationshipDefUpdate.Description -> rel.copy(description = input.value)
-    is ModelRepoCmdRelationshipDefUpdate.RoleKey -> rel.copy(roles = rel.roles.map { role ->
+): RelationshipInMemory = when (val input = cmd.cmd) {
+    is ModelRepoCmdRelationshipUpdate.Key -> rel.copy(key = input.value)
+    is ModelRepoCmdRelationshipUpdate.Name -> rel.copy(name = input.value)
+    is ModelRepoCmdRelationshipUpdate.Description -> rel.copy(description = input.value)
+    is ModelRepoCmdRelationshipUpdate.RoleKey -> rel.copy(roles = rel.roles.map { role ->
         if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
             key = cmd.cmd.value
         )
     })
 
-    is ModelRepoCmdRelationshipDefUpdate.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
+    is ModelRepoCmdRelationshipUpdate.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
         if (role.id != cmd.cmd.relationshipRoleId) role else {
             val entity = model.findEntityOptional(cmd.cmd.value) ?: throw EntityNotFoundException(ModelRef.ById(model.id), EntityRef.ById(cmd.cmd.value))
             role.copy(
@@ -216,13 +216,13 @@ private fun updateRelationship(
         }
     })
 
-    is ModelRepoCmdRelationshipDefUpdate.RoleName -> rel.copy(roles = rel.roles.map { role ->
+    is ModelRepoCmdRelationshipUpdate.RoleName -> rel.copy(roles = rel.roles.map { role ->
         if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
             name = cmd.cmd.value
         )
     })
 
-    is ModelRepoCmdRelationshipDefUpdate.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
+    is ModelRepoCmdRelationshipUpdate.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
         if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
             cardinality = cmd.cmd.value
         )
@@ -274,10 +274,10 @@ private fun modifyingEntity(
         })
 }
 
-private fun modifyingRelationshipDef(
+private fun modifyingRelationship(
     model: ModelInMemory,
     relationshipId: RelationshipId,
-    block: (RelationshipDefInMemory) -> RelationshipDefInMemory?
+    block: (RelationshipInMemory) -> RelationshipInMemory?
 ): ModelInMemory {
     return model.copy(
         relationships = model.relationships.mapNotNull { rel ->

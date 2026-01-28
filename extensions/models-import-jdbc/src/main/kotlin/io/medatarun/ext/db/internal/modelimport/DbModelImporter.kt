@@ -106,7 +106,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         name = null
                     ),
                 )
-                RelationshipDefInMemory(
+                RelationshipInMemory(
                     id = RelationshipId.generate(),
                     key = RelationshipKey(idStr),
                     name = null,

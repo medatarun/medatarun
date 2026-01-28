@@ -15,7 +15,7 @@ data class ModelInMemory(
     override val origin: ModelOrigin,
     override val types: List<ModelTypeInMemory>,
     override val entities: List<EntityInMemory>,
-    override val relationships: List<RelationshipDefInMemory>,
+    override val relationships: List<RelationshipInMemory>,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
 ) : Model {
@@ -31,7 +31,7 @@ data class ModelInMemory(
                 origin = other.origin,
                 types = other.types.map(ModelTypeInMemory::of),
                 entities = other.entities.map(EntityInMemory::of),
-                relationships = other.relationships.map(RelationshipDefInMemory::of),
+                relationships = other.relationships.map(RelationshipInMemory::of),
                 documentationHome = other.documentationHome,
                 hashtags = other.hashtags
             )
@@ -46,7 +46,7 @@ data class ModelInMemory(
             var origin: ModelOrigin = ModelOrigin.Manual,
             var types: MutableList<ModelTypeInMemory> = mutableListOf(),
             var entities: MutableList<EntityInMemory> = mutableListOf(),
-            var relationships: MutableList<RelationshipDefInMemory> = mutableListOf(),
+            var relationships: MutableList<RelationshipInMemory> = mutableListOf(),
             var documentationHome: URL? = null,
             var hashtags: MutableList<Hashtag> = mutableListOf(),
         ) {

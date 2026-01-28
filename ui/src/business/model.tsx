@@ -22,7 +22,7 @@ export interface ModelDto {
   description: string | null
   origin: ElementOrigin
   entities: EntityDto[]
-  relationshipDefs: RelationshipDto[]
+  relationship: RelationshipDto[]
   types: TypeDto[]
 }
 
@@ -118,12 +118,12 @@ export class Model {
   }
 
   findRelationshipDto(relationshipId: string) {
-    return this.dto.relationshipDefs.find(it => it.id === relationshipId)
+    return this.dto.relationship.find(it => it.id === relationshipId)
 
   }
 
   findRelationshipAttributeDto(relationshipId: string, attributeId: string) {
-    return this.dto.relationshipDefs.find(it => it.id === relationshipId)
+    return this.dto.relationship.find(it => it.id === relationshipId)
       ?.attributes?.find(it => it.id === attributeId)
   }
 

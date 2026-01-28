@@ -161,7 +161,7 @@ sealed interface ModelCmd {
     class UpdateRelationship(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val cmd: RelationshipDefUpdateCmd
+        val cmd: RelationshipUpdateCmd
     ) : ModelCmdOnModel
 
     class UpdateRelationshipHashtagAdd(

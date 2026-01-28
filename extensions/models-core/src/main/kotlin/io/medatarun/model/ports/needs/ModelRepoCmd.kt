@@ -151,13 +151,13 @@ sealed interface ModelRepoCmd {
 
     class CreateRelationship(
         override val modelId: ModelId,
-        val initializer: RelationshipDef
+        val initializer: Relationship
     ) : ModelRepoCmdOnModel
 
     class UpdateRelationship(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
-        val cmd: ModelRepoCmdRelationshipDefUpdate
+        val cmd: ModelRepoCmdRelationshipUpdate
     ) : ModelRepoCmdOnModel
 
     data class UpdateRelationshipHashtagAdd(

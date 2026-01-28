@@ -52,7 +52,7 @@ interface Model {
     /**
      * Relationship definitions in this model
      */
-    val relationships: List<RelationshipDef>
+    val relationships: List<Relationship>
 
     /**
      * Documentation home
@@ -135,13 +135,13 @@ interface Model {
     /**
      * Returns relationship definition by its id
      */
-    fun findRelationshipOptional(key: RelationshipKey): RelationshipDef? =
+    fun findRelationshipOptional(key: RelationshipKey): Relationship? =
         relationships.firstOrNull { it.key == key }
 
-    fun findRelationshipOptional(id: RelationshipId): RelationshipDef? =
+    fun findRelationshipOptional(id: RelationshipId): Relationship? =
         relationships.firstOrNull { it.id == id }
 
-    fun findRelationshipOptional(ref: RelationshipRef): RelationshipDef? = when (ref) {
+    fun findRelationshipOptional(ref: RelationshipRef): Relationship? = when (ref) {
         is RelationshipRef.ById -> findRelationshipOptional(ref.id)
         is RelationshipRef.ByKey -> findRelationshipOptional(ref.key)
     }
