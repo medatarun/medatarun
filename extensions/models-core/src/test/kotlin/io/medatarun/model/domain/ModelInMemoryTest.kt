@@ -1,6 +1,6 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
@@ -22,7 +22,7 @@ class ModelInMemoryTest {
         assertEquals(setOf(EntityKey("person"), EntityKey("company")), entityIds)
 
         val person = model.entityDefs.first { it.key == EntityKey("person") }
-        assertEquals(5, person.countAttributeDefs())
+        assertEquals(5, person.countAttributes())
 
         val attrInfos = model.findEntityAttributeOptional(
             EntityRef.ByKey(EntityKey("person")),
@@ -59,7 +59,7 @@ class ModelInMemoryTest {
         ) {
             name = LocalizedTextNotLocalized("Person")
             addAttribute(
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = personIdentifierAttributeId,
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -68,7 +68,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
@@ -77,7 +77,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
@@ -86,7 +86,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
@@ -95,7 +95,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
@@ -113,7 +113,7 @@ class ModelInMemoryTest {
         ) {
             name = LocalizedTextNotLocalized("Company")
             addAttribute(
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = companyIdentifierAttributeId,
                     key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
@@ -122,7 +122,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
@@ -131,7 +131,7 @@ class ModelInMemoryTest {
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
@@ -140,7 +140,7 @@ class ModelInMemoryTest {
                     optional = true,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),

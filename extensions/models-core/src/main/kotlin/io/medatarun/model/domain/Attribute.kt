@@ -3,7 +3,7 @@ package io.medatarun.model.domain
 /**
  * Attribute definition for an [EntityDef]
  */
-interface AttributeDef {
+interface Attribute {
     /**
      * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
      */

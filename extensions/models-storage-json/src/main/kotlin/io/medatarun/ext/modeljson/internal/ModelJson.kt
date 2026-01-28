@@ -245,7 +245,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     }
 
     companion object {
-        private fun toAttributeJsonList(model: Model, attrs: Collection<AttributeDef>): List<ModelAttributeJson> {
+        private fun toAttributeJsonList(model: Model, attrs: Collection<Attribute>): List<ModelAttributeJson> {
             return attrs.map { it ->
                 ModelAttributeJson(
                     id = it.id.value.toString(),
@@ -259,14 +259,14 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             }
         }
 
-        private fun toAttributeList(types: List<ModelType>, attrs: Collection<ModelAttributeJson>): List<AttributeDefInMemory> {
+        private fun toAttributeList(types: List<ModelType>, attrs: Collection<ModelAttributeJson>): List<AttributeInMemory> {
 
             return attrs.map { attributeJson ->
 
                 val type = types.firstOrNull { t -> t.key == TypeKey(attributeJson.type) }
                     ?: throw ModelJsonEntityAttributeTypeNotFoundException(attributeJson.key, attributeJson.type)
 
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = attributeJson.id?.let { AttributeId.valueOfString(it) } ?: AttributeId.generate(),
                     key = AttributeKey(attributeJson.key),
                     name = attributeJson.name,

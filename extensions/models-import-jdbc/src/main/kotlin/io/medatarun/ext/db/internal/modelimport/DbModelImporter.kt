@@ -50,7 +50,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                 val type = types.firstOrNull { type -> type.key == TypeKey(it.typeName) }
                     ?: throw DbImportTypeNotFoundException(table.tableName, it.typeName)
 
-                AttributeDefInMemory(
+                AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey(it.columnName),
                     name = null,

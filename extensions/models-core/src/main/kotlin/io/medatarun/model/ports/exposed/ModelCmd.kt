@@ -119,7 +119,7 @@ sealed interface ModelCmd {
     class CreateEntityAttribute(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val attributeInitializer: AttributeDefInitializer
+        val attributeInitializer: AttributeInitializer
     ) : ModelCmdOnModel
 
     class DeleteEntityAttribute(
@@ -132,7 +132,7 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val cmd: AttributeDefUpdateCmd
+        val cmd: AttributeUpdateCmd
     ) : ModelCmdOnModel
 
     data class UpdateEntityAttributeHashtagAdd(
@@ -185,14 +185,14 @@ sealed interface ModelCmd {
     class CreateRelationshipAttribute(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val attr: AttributeDefInitializer
+        val attr: AttributeInitializer
     ) : ModelCmdOnModel
 
     class UpdateRelationshipAttribute(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val cmd: AttributeDefUpdateCmd
+        val cmd: AttributeUpdateCmd
     ) : ModelCmdOnModel
 
     class UpdateRelationshipAttributeHashtagAdd(

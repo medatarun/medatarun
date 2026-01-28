@@ -58,7 +58,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         modelRef: ModelRef,
         entityRef: EntityRef,
         attributeRef: EntityAttributeRef
-    ): AttributeDef? {
+    ): Attribute? {
         val model = findModel(modelRef)
         return model.findEntityAttributeOptional(entityRef, attributeRef)
     }
@@ -67,7 +67,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         modelRef: ModelRef,
         entityRef: EntityRef,
         attributeRef: EntityAttributeRef
-    ): AttributeDef {
+    ): Attribute {
         return findEntityAttributeOptional(modelRef, entityRef, attributeRef)
             ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attributeRef)
     }

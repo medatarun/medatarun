@@ -10,7 +10,7 @@ data class EntityDefInMemory(
     override val id: EntityId,
     override val key: EntityKey,
     override val name: LocalizedText?,
-    override val attributes: List<AttributeDefInMemory>,
+    override val attributes: List<AttributeInMemory>,
     override val description: LocalizedMarkdown?,
     override val identifierAttributeId: AttributeId,
     override val origin: EntityOrigin,
@@ -22,7 +22,7 @@ data class EntityDefInMemory(
 
 
 
-    fun countAttributeDefs(): Int {
+    fun countAttributes(): Int {
         return attributes.size
     }
 
@@ -34,7 +34,7 @@ data class EntityDefInMemory(
                 key = other.key,
                 name = other.name,
                 description = other.description,
-                attributes = other.attributes.map(AttributeDefInMemory::of),
+                attributes = other.attributes.map(AttributeInMemory::of),
                 identifierAttributeId = other.identifierAttributeId,
                 origin = other.origin,
                 documentationHome = other.documentationHome,
@@ -46,7 +46,7 @@ data class EntityDefInMemory(
             val id: EntityId = EntityId.generate(),
             val key: EntityKey,
             var name: LocalizedText? = null,
-            var attributes: MutableList<AttributeDefInMemory> = mutableListOf(),
+            var attributes: MutableList<AttributeInMemory> = mutableListOf(),
             var description: LocalizedMarkdown? = null,
             var identifierAttributeId: AttributeId,
             var origin: EntityOrigin = EntityOrigin.Manual,
@@ -54,7 +54,7 @@ data class EntityDefInMemory(
             var hashtags: MutableList<Hashtag> = mutableListOf(),
         ) {
 
-            fun addAttribute(vararg attributes: AttributeDefInMemory) {
+            fun addAttribute(vararg attributes: AttributeInMemory) {
                 this.attributes.addAll(attributes)
             }
 

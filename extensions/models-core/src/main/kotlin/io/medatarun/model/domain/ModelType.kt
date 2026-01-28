@@ -2,7 +2,7 @@ package io.medatarun.model.domain
 
 
 /**
- * Defines one of the types known by the model, that can be used as [AttributeDef]
+ * Defines one of the types known by the model, that can be used as [Attribute]
  */
 interface ModelType {
     /**

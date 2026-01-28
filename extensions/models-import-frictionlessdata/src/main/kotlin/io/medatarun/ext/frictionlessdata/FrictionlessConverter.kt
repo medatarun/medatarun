@@ -2,7 +2,7 @@ package io.medatarun.ext.frictionlessdata
 
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityDefInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
@@ -152,7 +152,7 @@ class FrictionlessConverter {
             ?: "empty"
 
         val attributes = schema.fields.map { field ->
-            AttributeDefInMemory(
+            AttributeInMemory(
                 id = AttributeId.generate(),
                 key = AttributeKey(field.name),
                 name = field.title?.let(::LocalizedTextNotLocalized),

@@ -8,7 +8,7 @@ data class RelationshipDefInMemory(
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
     override val roles: List<RelationshipRoleInMemory>,
-    override val attributes: List<AttributeDefInMemory>,
+    override val attributes: List<AttributeInMemory>,
     override val hashtags: List<Hashtag>
 ) : RelationshipDef {
     companion object {
@@ -19,7 +19,7 @@ data class RelationshipDefInMemory(
                 name = other.name,
                 description = other.description,
                 roles = other.roles.map(RelationshipRoleInMemory::of),
-                attributes = other.attributes.map(AttributeDefInMemory::of),
+                attributes = other.attributes.map(AttributeInMemory::of),
                 hashtags = other.hashtags
 
             )

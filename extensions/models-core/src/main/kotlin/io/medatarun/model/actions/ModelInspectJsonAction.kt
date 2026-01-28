@@ -77,7 +77,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
     }
 
     private fun toAttributesJson(
-        attributes: List<AttributeDef>,
+        attributes: List<Attribute>,
         model: Model
     ): JsonArray {
         return buildJsonArray {

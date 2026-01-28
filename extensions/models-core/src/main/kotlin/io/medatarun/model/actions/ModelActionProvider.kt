@@ -292,7 +292,7 @@ class ModelActionHandler(
                     name = cmd.name,
                     description = cmd.description,
                     documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
-                    identityAttribute = AttributeDefIdentityInitializer(
+                    identityAttribute = AttributeIdentityInitializer(
                         attributeKey = cmd.identityAttributeKey,
                         type = cmd.identityAttributeType,
                         name = cmd.name,
@@ -371,7 +371,7 @@ class ModelActionHandler(
             ModelCmd.CreateEntityAttribute(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                attributeInitializer = AttributeDefInitializer(
+                attributeInitializer = AttributeInitializer(
                     attributeKey = cmd.attributeKey,
                     type = cmd.type,
                     optional = cmd.optional,
@@ -388,7 +388,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Key(cmd.value)
+                cmd = AttributeUpdateCmd.Key(cmd.value)
             )
         )
     }
@@ -399,7 +399,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Name(cmd.value)
+                cmd = AttributeUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -411,7 +411,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Description(cmd.value)
+                cmd = AttributeUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -422,7 +422,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Type(cmd.value)
+                cmd = AttributeUpdateCmd.Type(cmd.value)
             )
         )
     }
@@ -433,7 +433,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Optional(cmd.value)
+                cmd = AttributeUpdateCmd.Optional(cmd.value)
             )
         )
     }
@@ -589,7 +589,7 @@ class ModelActionHandler(
             ModelCmd.CreateRelationshipAttribute(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                attr = AttributeDefInitializer(
+                attr = AttributeInitializer(
                     attributeKey = cmd.attributeKey,
                     name = cmd.name,
                     description = cmd.description,
@@ -606,7 +606,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Name(cmd.value)
+                cmd = AttributeUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -617,7 +617,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Description(cmd.value)
+                cmd = AttributeUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -628,7 +628,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Key(cmd.value)
+                cmd = AttributeUpdateCmd.Key(cmd.value)
             )
         )
     }
@@ -639,7 +639,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Type(cmd.value)
+                cmd = AttributeUpdateCmd.Type(cmd.value)
             )
         )
     }
@@ -650,7 +650,7 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeDefUpdateCmd.Optional(cmd.value)
+                cmd = AttributeUpdateCmd.Optional(cmd.value)
             )
         )
     }

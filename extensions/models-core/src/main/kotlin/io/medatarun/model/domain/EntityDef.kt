@@ -29,7 +29,7 @@ interface EntityDef {
     /**
      * Attributes contained in this EntityDef
      */
-    val attributes: List<AttributeDef>
+    val attributes: List<Attribute>
 
     /**
      * Tells which attribute acts as entities' identifier

@@ -69,7 +69,7 @@ class UpdateAttributeDuplicateKeyException(entityRef: EntityRef, attributeRef: E
 class UpdateEntityDefIdDuplicateIdException(entityKey: EntityKey) :
     MedatarunException("Another entity [${entityKey.value}] already exists in the same model")
 
-class CreateAttributeDefDuplicateIdException(entityKey: EntityKey, attributeKey: AttributeKey) :
+class CreateAttributeDuplicateIdException(entityKey: EntityKey, attributeKey: AttributeKey) :
     MedatarunException("Another attribute [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
 
 class ModelTypeDeleteUsedException(typeId: TypeKey) :

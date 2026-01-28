@@ -37,7 +37,7 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateEntityAttributeHashtagDelete -> updateEntityAttributeHashtagDelete(cmd)
             is ModelCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd)
             is ModelCmd.CreateRelationship -> createRelationshipDef(cmd)
-            is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttributeDef(cmd)
+            is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
             is ModelCmd.UpdateRelationship -> updateRelationship(cmd)
             is ModelCmd.UpdateRelationshipHashtagAdd -> updateRelationshipDefHashtagAdd(cmd)
             is ModelCmd.UpdateRelationshipHashtagDelete -> updateRelationshipDefHashtagDelete(cmd)
@@ -84,7 +84,7 @@ class ModelCmdsImpl(
         modelRef: ModelRef,
         entityRef: EntityRef,
         attrRef: EntityAttributeRef
-    ): AttributeDef {
+    ): Attribute {
         val model = findModel(modelRef)
         val attr = model.findEntityAttributeOptional(entityRef, attrRef)
             ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attrRef)
@@ -95,7 +95,7 @@ class ModelCmdsImpl(
         modelRef: ModelRef,
         entityRef: EntityRef,
         attrRef: EntityAttributeRef
-    ): AttributeDef? {
+    ): Attribute? {
         val model = findModel(modelRef)
         val attr = model.findEntityAttributeOptional(entityRef, attrRef)
         return attr
@@ -124,7 +124,7 @@ class ModelCmdsImpl(
         modelRef: ModelRef,
         relationshipRef: RelationshipRef,
         attrRef: RelationshipAttributeRef
-    ): AttributeDef {
+    ): Attribute {
         val model = findModel(modelRef)
         val attr = model.findRelationshipAttributeOptional(relationshipRef, attrRef)
             ?: throw RelationshipAttributeNotFoundException(modelRef, relationshipRef, attrRef)
@@ -270,7 +270,7 @@ class ModelCmdsImpl(
     private fun createEntity(c: ModelCmd.CreateEntity) {
         val model = findModel(c.modelRef)
         val type = findType(c.modelRef, c.entityDefInitializer.identityAttribute.type)
-        val identityAttribute = AttributeDefInMemory(
+        val identityAttribute = AttributeInMemory(
             id = AttributeId.generate(),
             key = c.entityDefInitializer.identityAttribute.attributeKey,
             name = c.entityDefInitializer.identityAttribute.name,
@@ -313,7 +313,7 @@ class ModelCmdsImpl(
             EntityAttributeRef.ByKey(c.attributeInitializer.attributeKey)
         )
         if (duplicate != null)
-            throw CreateAttributeDefDuplicateIdException(entity.key, c.attributeInitializer.attributeKey)
+            throw CreateAttributeDuplicateIdException(entity.key, c.attributeInitializer.attributeKey)
 
         // Makes sure the type reference exists, even if now, the type is referenced by a key only
         val typeRef = c.attributeInitializer.type
@@ -323,7 +323,7 @@ class ModelCmdsImpl(
             ModelRepoCmd.CreateEntityAttribute(
                 modelId = model.id,
                 entityId = entity.id,
-                attributeDef = AttributeDefInMemory(
+                attribute = AttributeInMemory(
                     id = AttributeId.generate(),
                     key = c.attributeInitializer.attributeKey,
                     name = c.attributeInitializer.name,
@@ -361,10 +361,10 @@ class ModelCmdsImpl(
 
 
         val part: ModelRepoCmdAttributeUpdate = when (cmd.cmd) {
-            is AttributeDefUpdateCmd.Name -> ModelRepoCmdAttributeUpdate.Name(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Description -> ModelRepoCmdAttributeUpdate.Description(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Optional -> ModelRepoCmdAttributeUpdate.Optional(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Key -> {
+            is AttributeUpdateCmd.Name -> ModelRepoCmdAttributeUpdate.Name(cmd.cmd.value)
+            is AttributeUpdateCmd.Description -> ModelRepoCmdAttributeUpdate.Description(cmd.cmd.value)
+            is AttributeUpdateCmd.Optional -> ModelRepoCmdAttributeUpdate.Optional(cmd.cmd.value)
+            is AttributeUpdateCmd.Key -> {
                 // We cannot have two attributes with the same key
                 if (entity.attributes.any { it.key == cmd.cmd.value && it.key != attribute.key }) {
                     throw UpdateAttributeDuplicateKeyException(cmd.entityRef, cmd.attributeRef, cmd.cmd.value)
@@ -372,7 +372,7 @@ class ModelCmdsImpl(
                 ModelRepoCmdAttributeUpdate.Key(cmd.cmd.value)
             }
 
-            is AttributeDefUpdateCmd.Type -> {
+            is AttributeUpdateCmd.Type -> {
                 // Attribute type shall exist when updating types
                 val typeRef = cmd.cmd.value
                 val type = findType(cmd.modelRef, typeRef)
@@ -443,11 +443,11 @@ class ModelCmdsImpl(
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         val part: ModelRepoCmdAttributeUpdate = when (cmd.cmd) {
-            is AttributeDefUpdateCmd.Name -> ModelRepoCmdAttributeUpdate.Name(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Description -> ModelRepoCmdAttributeUpdate.Description(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Key -> ModelRepoCmdAttributeUpdate.Key(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Optional -> ModelRepoCmdAttributeUpdate.Optional(cmd.cmd.value)
-            is AttributeDefUpdateCmd.Type -> {
+            is AttributeUpdateCmd.Name -> ModelRepoCmdAttributeUpdate.Name(cmd.cmd.value)
+            is AttributeUpdateCmd.Description -> ModelRepoCmdAttributeUpdate.Description(cmd.cmd.value)
+            is AttributeUpdateCmd.Key -> ModelRepoCmdAttributeUpdate.Key(cmd.cmd.value)
+            is AttributeUpdateCmd.Optional -> ModelRepoCmdAttributeUpdate.Optional(cmd.cmd.value)
+            is AttributeUpdateCmd.Type -> {
                 val type = findType(cmd.modelRef, cmd.cmd.value)
                 ModelRepoCmdAttributeUpdate.Type(type.id)
             }
@@ -561,7 +561,7 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun createRelationshipAttributeDef(cmd: ModelCmd.CreateRelationshipAttribute) {
+    private fun createRelationshipAttribute(cmd: ModelCmd.CreateRelationshipAttribute) {
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         val exists = model.findRelationshipAttributeOptional(cmd.relationshipRef, cmd.attr.attributeKey)
@@ -576,7 +576,7 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateRelationshipAttribute(
                 modelId = model.id,
-                attr = AttributeDefInMemory(
+                attr = AttributeInMemory(
                     id = AttributeId.generate(),
                     key = cmd.attr.attributeKey,
                     name = cmd.attr.name,

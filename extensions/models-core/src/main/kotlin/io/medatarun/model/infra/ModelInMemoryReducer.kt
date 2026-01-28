@@ -77,26 +77,26 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.DeleteEntity -> modifyingEntityDef(model, cmd.entityId) { null }
 
             is ModelRepoCmd.CreateEntityAttribute -> modifyingEntityDef(model, cmd.entityId) {
-                it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))
+                it.copy(attributes = it.attributes + AttributeInMemory.of(cmd.attribute))
             }
 
             is ModelRepoCmd.UpdateEntityAttribute ->
-                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeId) { a ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     updateEntityAttribute(model, a, cmd)
                 }
 
             is ModelRepoCmd.UpdateEntityAttributeHashtagAdd ->
-                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeId) { a ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     a.copy(hashtags = hashtagAdd(a.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.UpdateEntityAttributeHashtagDelete ->
-                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeId) { a ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.DeleteEntityAttribute ->
-                modifyingEntityDefAttributeDef(model, cmd.entityId, cmd.attributeId) { null }
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { null }
 
             is ModelRepoCmd.CreateRelationship -> model.copy(
                 relationshipDefs = model.relationshipDefs + RelationshipDefInMemory.of(cmd.initializer)
@@ -130,25 +130,25 @@ class ModelInMemoryReducer {
             )
 
             is ModelRepoCmd.UpdateRelationshipAttribute ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     updateRelationshipAttribute(model, attr, cmd)
                 }
 
 
             is ModelRepoCmd.UpdateRelationshipAttributeHashtagAdd ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     attr.copy(hashtags = hashtagAdd(attr.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.UpdateRelationshipAttributeHashtagDelete ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     attr.copy(hashtags = hashtagDelete(attr.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.CreateRelationshipAttribute -> model.copy(
                 relationshipDefs = model.relationshipDefs.map { rel ->
                     if (rel.id != cmd.relationshipId) rel else rel.copy(
-                        attributes = rel.attributes + AttributeDefInMemory.of(cmd.attr)
+                        attributes = rel.attributes + AttributeInMemory.of(cmd.attr)
                     )
                 }
             )
@@ -159,9 +159,9 @@ class ModelInMemoryReducer {
 
     private fun updateEntityAttribute(
         model: ModelInMemory,
-        attribute: AttributeDefInMemory,
+        attribute: AttributeInMemory,
         cmd: ModelRepoCmd.UpdateEntityAttribute
-    ): AttributeDefInMemory? = when (val input = cmd.cmd) {
+    ): AttributeInMemory? = when (val input = cmd.cmd) {
         is ModelRepoCmdAttributeUpdate.Key -> attribute.copy(key = input.value)
         is ModelRepoCmdAttributeUpdate.Name -> attribute.copy(name = input.value)
         is ModelRepoCmdAttributeUpdate.Description -> attribute.copy(description = input.value)
@@ -174,9 +174,9 @@ class ModelInMemoryReducer {
 
     private fun updateRelationshipAttribute(
         model: ModelInMemory,
-        attribute: AttributeDefInMemory,
+        attribute: AttributeInMemory,
         cmd: ModelRepoCmd.UpdateRelationshipAttribute,
-    ): AttributeDefInMemory = when (val input = cmd.cmd) {
+    ): AttributeInMemory = when (val input = cmd.cmd) {
         is ModelRepoCmdAttributeUpdate.Key -> attribute.copy(key = input.value)
         is ModelRepoCmdAttributeUpdate.Name -> attribute.copy(name = input.value)
         is ModelRepoCmdAttributeUpdate.Description -> attribute.copy(description = input.value)
@@ -230,11 +230,11 @@ private fun updateRelationship(
 }
 
 
-private fun modifyingEntityDefAttributeDef(
+private fun modifyingEntityAttribute(
     model: ModelInMemory,
     entityId: EntityId,
     attributeId: AttributeId,
-    block: (AttributeDefInMemory) -> AttributeDefInMemory?
+    block: (AttributeInMemory) -> AttributeInMemory?
 ): ModelInMemory {
     return model.copy(
         entityDefs = model.entityDefs.map { entityDef ->
@@ -246,11 +246,11 @@ private fun modifyingEntityDefAttributeDef(
         })
 }
 
-private fun modifyingRelationshipDefAttributeDef(
+private fun modifyingRelationshipAttribute(
     model: ModelInMemory,
     relationshipId: RelationshipId,
     attributeId: AttributeId,
-    block: (AttributeDefInMemory) -> AttributeDefInMemory?
+    block: (AttributeInMemory) -> AttributeInMemory?
 ): ModelInMemory {
     return model.copy(
         relationshipDefs = model.relationshipDefs.map { relDef ->

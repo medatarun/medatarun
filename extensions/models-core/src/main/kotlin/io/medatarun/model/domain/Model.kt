@@ -3,7 +3,7 @@ package io.medatarun.model.domain
 import java.net.URL
 
 /**
- * A model contains multiple [EntityDef] that contains [AttributeDef].
+ * A model contains multiple [EntityDef] that contains [Attribute].
  *
  * Think of it as a Domain Model in DDD in a bounded context
  */
@@ -109,19 +109,19 @@ interface Model {
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
         attrKey: AttributeKey,
-    ): AttributeDef? =
+    ): Attribute? =
         findEntityOptional(entityRef)?.attributes?.firstOrNull { it.key == attrKey }
 
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
         attrId: AttributeId,
-    ): AttributeDef? =
+    ): Attribute? =
         findEntityOptional(entityRef)?.attributes?.firstOrNull { it.id == attrId }
 
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
         attrRef: EntityAttributeRef
-    ): AttributeDef? = when (attrRef) {
+    ): Attribute? = when (attrRef) {
         is EntityAttributeRef.ById -> findEntityAttributeOptional(entityRef, attrRef.id)
         is EntityAttributeRef.ByKey -> findEntityAttributeOptional(entityRef, attrRef.key)
     }
@@ -129,7 +129,7 @@ interface Model {
     fun findEntityAttribute(
         entityRef: EntityRef,
         attrRef: EntityAttributeRef
-    ): AttributeDef = findEntityAttributeOptional(entityRef, attrRef)
+    ): Attribute = findEntityAttributeOptional(entityRef, attrRef)
         ?: throw EntityAttributeNotFoundException(ModelRef.ById(this.id), entityRef, attrRef)
 
     /**
@@ -172,27 +172,27 @@ interface Model {
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
         attrKey: AttributeKey,
-    ): AttributeDef? =
+    ): Attribute? =
         findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.key == attrKey }
 
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
         attrId: AttributeId,
-    ): AttributeDef? =
+    ): Attribute? =
         findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.id == attrId }
 
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
         attrRef: RelationshipAttributeRef
-    ): AttributeDef? = when (attrRef) {
+    ): Attribute? = when (attrRef) {
         is RelationshipAttributeRef.ById -> findRelationshipAttributeOptional(relationshipRef, attrRef.id)
         is RelationshipAttributeRef.ByKey -> findRelationshipAttributeOptional(relationshipRef, attrRef.key)
     }
 
-    fun findEntityAttributes(ref: EntityRef): List<AttributeDef> {
+    fun findEntityAttributes(ref: EntityRef): List<Attribute> {
         return findEntity(ref).attributes
     }
-    fun findRelationshipAttributes(ref: RelationshipRef): List<AttributeDef> {
+    fun findRelationshipAttributes(ref: RelationshipRef): List<Attribute> {
         return findRelationship(ref).attributes
     }
 

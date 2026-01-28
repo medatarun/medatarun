@@ -1,6 +1,6 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.infra.AttributeDefInMemory
+import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.internal.ModelValidationImpl
@@ -33,7 +33,7 @@ class ModelValidationTest {
                     identifierAttributeId = badAttributeId
                 ) {
                     addAttribute(
-                        AttributeDefInMemory(
+                        AttributeInMemory(
                             id = goodAttributeId,
                             key = AttributeKey("id"),
                             typeId = typeStringId,
@@ -76,7 +76,7 @@ class ModelValidationTest {
                 identifierAttributeId = identifierAttribute,
             ) {
                 addAttribute(
-                    AttributeDefInMemory(
+                    AttributeInMemory(
                         id = identifierAttribute,
                         key = AttributeKey("id"),
                         typeId = typeIdInvalid,

@@ -59,7 +59,7 @@ interface RelationshipDef {
      * - The 'CarHasWheel' relationship links 'Car' and 'Wheel'
      *   but has no attributes of its own → it remains a simple link.
      */
-    val attributes: List<AttributeDef>
+    val attributes: List<Attribute>
 
     /**
      * Tags added to relationship for classification

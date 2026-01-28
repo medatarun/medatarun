@@ -29,7 +29,7 @@ class ModelCmdCopyImpl {
         }
         val newEntities = model.entityDefs.map { entity ->
             val entityAttributes = entity.attributes.map { attr ->
-                AttributeDefInMemory.of(attr).copy(
+                AttributeInMemory.of(attr).copy(
                     id = attributeIds.generate(attr.id),
                     typeId = typeIds.convert(attr.typeId),
                 )
@@ -44,7 +44,7 @@ class ModelCmdCopyImpl {
             RelationshipDefInMemory.of(rel).copy(
                 id = rel.id,
                 attributes = rel.attributes.map { attr ->
-                    AttributeDefInMemory.of(attr).copy(
+                    AttributeInMemory.of(attr).copy(
                         id = AttributeId.generate(),
                         typeId = typeIds.convert(attr.typeId),
                     )
