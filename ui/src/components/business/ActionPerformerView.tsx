@@ -16,7 +16,7 @@ import {
   tokens
 } from "@fluentui/react-components";
 
-import {useEffect, useState} from "react";
+import {type Ref, useEffect, useRef, useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
 import {
   ActionDescriptor,
@@ -69,6 +69,7 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
   const {confirmAction, cancelAction, finishAction} = useActionPerformer();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null)
   const [formData, setFormData] = useState<FormDataType>(defaultFormData)
+  const firstInputRef = useRef<HTMLInputElement>(null)
 
   const displayExecute = state.kind == "pendingUser" || state.kind == "error"
   const displayCancel = state.kind == "pendingUser" || state.kind == "running" || state.kind == "error"
@@ -104,6 +105,11 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
     }
   }, [state.kind, actionResp, finishAction]);
 
+  const focusedFieldKey = formFields.find(it => !it.prefilled)?.key
+
+  useEffect(() => {
+    firstInputRef?.current?.focus()
+  }, [focusedFieldKey, firstInputRef.current])
 
   return (
     <Dialog open={true}>
@@ -120,11 +126,14 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
             }}>
               {action.description && <div>{action.description}</div>}
-              {formFields.map(field => (
+              {formFields.map((field) => (
 
-                <FormFieldInput field={field} value={formData[field.key]}
-                                validationResult={validationResults.get(field.key)}
-                                onChange={handleChangeFormFieldInput}/>))}
+                <FormFieldInput
+                  inputRef={field.key === focusedFieldKey ? firstInputRef : undefined}
+                  field={field}
+                  value={formData[field.key]}
+                  validationResult={validationResults.get(field.key)}
+                  onChange={handleChangeFormFieldInput}/>))}
 
               {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
               {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
@@ -153,11 +162,12 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
 }
 
-function FormFieldInput({field, value, validationResult, onChange}: {
+function FormFieldInput({field, value, validationResult, inputRef, onChange}: {
   field: FormFieldType,
   value: unknown,
   validationResult: ValidationResult | undefined,
-  onChange: (field: FormFieldType, value: unknown) => void
+  onChange: (field: FormFieldType, value: unknown) => void,
+  inputRef?: Ref<HTMLInputElement>
 }) {
   const valueNormalized = (value === null || value === undefined) ? "" : "" + value
   const validationState: FieldProps["validationState"] =
@@ -181,6 +191,7 @@ function FormFieldInput({field, value, validationResult, onChange}: {
     validationMessage={validationResult?.error}
     required={!field.optional}>
     <Input
+      ref={inputRef}
       disabled={field.prefilled}
       value={valueNormalized}
       onChange={(_, data) => onChange(field, data.value)}/>
