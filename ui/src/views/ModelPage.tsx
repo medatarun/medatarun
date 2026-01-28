@@ -93,8 +93,8 @@ export function ModelView() {
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
-          { model.relationship.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
-          { model.relationship.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationship}/></SectionTable> }
+          { model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
+          { model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationships}/></SectionTable> }
 
           <SectionTitle
             icon={<TypeIcon/>}

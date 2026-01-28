@@ -42,7 +42,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.entity)
-  const relationshipsInvolved = model.dto.relationship
+  const relationshipsInvolved = model.dto.relationships
     .filter(it => it.roles.some(r => r.entityId === entity.id));
 
   const handleClickModel = () => {
