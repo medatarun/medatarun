@@ -20,6 +20,7 @@ import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcProviderConfig
 import io.medatarun.auth.ports.needs.OidcStorage
+import io.medatarun.lang.uuid.UuidUtils
 import kotlinx.serialization.json.*
 import java.net.URI
 import java.net.URLEncoder
@@ -190,7 +191,7 @@ class OidcServiceImpl(
 
         val nonce = req.nonce
 
-        val authorizeCtxCode = UUID.randomUUID().toString()
+        val authorizeCtxCode = UuidUtils.generateV4String()
 
         val createdAt = clock.now()
         val expiresAt = createdAt.plusSeconds(authCtxDurationSeconds)
@@ -232,7 +233,7 @@ class OidcServiceImpl(
     override fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String {
         val authorizeCtx = oidcAuthCodeStorage.findAuthCtx(authCtxCode)
 
-        val code = UUID.randomUUID().toString()
+        val code = UuidUtils.generateV4String()
 
         val now = clock.now()
 

@@ -1,6 +1,7 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
@@ -188,7 +189,7 @@ class ActionParamJsonValueConverter(
     }
 
     private fun convertUuid(raw: JsonElement): ConversionResult {
-        return runCatching { UUID.fromString(raw.jsonPrimitive.content) }
+        return runCatching { UuidUtils.fromString(raw.jsonPrimitive.content) }
             .fold(
                 onSuccess = { ConversionResult.Value(it) },
                 onFailure = { ConversionResult.Error("Parameter expecting UUID cannot parse value '$raw'") }

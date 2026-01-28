@@ -12,7 +12,6 @@ import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.auth.ports.needs.AuthClock
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.*
 
 class ActorServiceImpl(
     private val actorStorage: ActorStorage,
@@ -69,7 +68,7 @@ class ActorServiceImpl(
         disabled: Instant?
     ): Actor {
         ensureRolesExist(roles)
-        val id = ActorId(UUID.randomUUID())
+        val id = ActorId.generate()
         actorStorage.insert(
             id = id,
             issuer = issuer,

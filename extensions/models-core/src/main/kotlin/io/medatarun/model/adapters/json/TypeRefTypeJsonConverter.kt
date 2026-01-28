@@ -5,13 +5,12 @@ import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef
 import io.medatarun.types.TypeJsonConverter
 import kotlinx.serialization.json.JsonElement
-import java.util.*
 
 class TypeRefTypeJsonConverter : TypeJsonConverter<TypeRef> {
     override fun deserialize(json: JsonElement): TypeRef {
         return RefTypeJsonConverters.decodeRef(
             json,
-            whenId = { id -> TypeRef.ById(TypeId(UUID.fromString(id))) },
+            whenId = { id -> TypeRef.ById(TypeId.fromString(id)) },
             whenKey = { key -> TypeRef.ByKey(TypeKey(key)) }
         )
     }

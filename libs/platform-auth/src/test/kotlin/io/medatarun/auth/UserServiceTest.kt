@@ -8,9 +8,9 @@ import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
+import io.medatarun.lang.uuid.UuidUtils
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -18,7 +18,7 @@ class UserServiceTest {
 
     val johnUsername = Username("john.doe")
     val johnFullname = Fullname("John Doe")
-    val johnPassword = PasswordClear("john.doe." + UUID.randomUUID().toString())
+    val johnPassword = PasswordClear("john.doe." + UuidUtils.generateV4String())
 
 
     private fun createJohn(env: AuthEnvTest) {
@@ -40,7 +40,7 @@ class UserServiceTest {
         assertThrows<UserAlreadyExistsException> {
             env.userService.createEmbeddedUser(
                 johnUsername, Fullname("Other"),
-                PasswordClear("other.name." + UUID.randomUUID()), false
+                PasswordClear("other.name." + UuidUtils.generateV4String()), false
             )
         }
     }
@@ -163,7 +163,7 @@ class UserServiceTest {
         assertThrows<UserAlreadyExistsException> {
             env.userService.createEmbeddedUser(
                 johnUsername, Fullname("Another User"),
-                PasswordClear("test." + UUID.randomUUID()), false
+                PasswordClear("test." + UuidUtils.generateV4String()), false
             )
         }
     }

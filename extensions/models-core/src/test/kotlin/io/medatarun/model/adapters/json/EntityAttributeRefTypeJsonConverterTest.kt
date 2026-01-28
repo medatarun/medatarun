@@ -1,11 +1,11 @@
 package io.medatarun.model.adapters.json
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.adapters.TypeJsonInvalidRefException
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityAttributeRef
 import kotlinx.serialization.json.JsonPrimitive
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -16,7 +16,7 @@ class EntityAttributeRefTypeJsonConverterTest {
 
     @Test
     fun `deserialize should accept id and key formats`() {
-        val id = UUID.fromString("11111111-2222-3333-4444-555555555555")
+        val id = UuidUtils.fromString("11111111-2222-3333-4444-555555555555")
         val idRef = converter.deserialize(JsonPrimitive("id:$id"))
         assertEquals(EntityAttributeRef.ById(AttributeId(id)), idRef)
 

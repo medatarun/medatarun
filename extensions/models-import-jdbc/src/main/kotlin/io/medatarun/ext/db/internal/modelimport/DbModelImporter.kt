@@ -7,6 +7,7 @@ import io.medatarun.ext.db.model.DbImportCouldNotFindAttributeFromPrimaryKeyExce
 import io.medatarun.ext.db.model.DbImportCouldNotFindEntityForRelationship
 import io.medatarun.ext.db.model.DbImportTypeNotFoundException
 import io.medatarun.lang.strings.trimToNull
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.needs.ModelImporter
@@ -14,7 +15,6 @@ import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
-import java.util.*
 
 class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
     ModelImporter {
@@ -40,7 +40,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             ?: throw DbConnectionNotFoundException(connectionName)
         val result: IntrospectResult = introspect.introspect(connection)
         val date = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime()
-        val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
+        val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UuidUtils.generateV4String())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) }
         val entities = result.tables.map { table ->

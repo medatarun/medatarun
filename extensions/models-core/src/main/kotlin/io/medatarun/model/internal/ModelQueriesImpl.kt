@@ -31,7 +31,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
-                    key = ModelKey(UUID.randomUUID().toString()),
+                    key = ModelKey.generateRandom(),
                     name = null,
                     description = null,
                     error = e.message,

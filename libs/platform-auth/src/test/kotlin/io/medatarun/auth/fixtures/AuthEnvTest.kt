@@ -29,9 +29,9 @@ import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
+import io.medatarun.lang.uuid.UuidUtils
 import java.nio.file.Files
 import java.sql.Connection
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -68,7 +68,7 @@ class AuthEnvTest(
 
     val adminUsername: Username = Username("admin")
     val adminFullname: Fullname = Fullname("Admin")
-    val adminPassword: PasswordClear = PasswordClear("admin." + UUID.randomUUID().toString())
+    val adminPassword: PasswordClear = PasswordClear("admin." + UuidUtils.generateV4String())
     val dbConnectionFactory: DbConnectionFactoryImpl
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
@@ -92,7 +92,7 @@ class AuthEnvTest(
         // of any instance of this class. Using UUIDs to name in memory databases or else
         // SQLite will reuse existing bases across tests.
         this.dbConnectionFactory =
-            DbConnectionFactoryImpl("file:test_${UUID.randomUUID()}?mode=memory&cache=shared")
+            DbConnectionFactoryImpl("file:test_${UuidUtils.generateV4String()}?mode=memory&cache=shared")
         dbConnectionKeeper = dbConnectionFactory.getConnection()
 
         // Fake clock that always give the same point in time. Used to tests instant.now()

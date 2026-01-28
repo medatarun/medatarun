@@ -1,11 +1,11 @@
 package io.medatarun.model.adapters.json
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.adapters.TypeJsonInvalidRefException
 import io.medatarun.model.domain.TypeId
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef
 import kotlinx.serialization.json.JsonPrimitive
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -16,7 +16,7 @@ class TypeRefTypeJsonConverterTest {
 
     @Test
     fun `deserialize should accept id and key formats`() {
-        val id = UUID.fromString("77777777-8888-9999-0000-111111111111")
+        val id = UuidUtils.fromString("77777777-8888-9999-0000-111111111111")
         val idRef = converter.deserialize(JsonPrimitive("id:$id"))
         assertEquals(TypeRef.ById(TypeId(id)), idRef)
 

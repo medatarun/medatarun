@@ -5,7 +5,6 @@ import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
-import java.util.*
 
 class UserServiceImpl(
     private val userStorage: UserStorage,
@@ -28,7 +27,7 @@ class UserServiceImpl(
         if (bootstrapState.secret != secret) throw BootstrapSecretBadSecretException()
 
         val user = createEmbeddedUserInternal(
-            id = UserId(UUID.randomUUID()),
+            id = UserId.generate(),
             login = login,
             fullname = fullname,
             clearPassword = password,
@@ -42,7 +41,7 @@ class UserServiceImpl(
     }
 
     override fun createEmbeddedUser(login: Username, fullname: Fullname, clearPassword: PasswordClear, admin: Boolean): User {
-        val user = createEmbeddedUserInternal(UserId(UUID.randomUUID()), login, fullname, clearPassword, admin, false)
+        val user = createEmbeddedUserInternal(UserId.generate(), login, fullname, clearPassword, admin, false)
         userEvents.fire(UserEventCreated(user))
         return user
     }

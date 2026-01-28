@@ -2,6 +2,7 @@ package io.medatarun.auth.internal.jwk
 
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry
+import io.medatarun.lang.uuid.UuidUtils
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -87,7 +88,7 @@ class JwtInternalInternalSigninKeyRegistryImpl(private val keystorePath: Path): 
             val gen = KeyPairGenerator.getInstance(ENCRYPTION_ALGORITHM)
             gen.initialize(2048)
             val pair = gen.generateKeyPair()
-            val kid = UUID.randomUUID().toString()
+            val kid = UuidUtils.generateV4String()
             val material = JwtKeyMaterial(pair.private as RSAPrivateKey, pair.public as RSAPublicKey, kid)
             return material
         }

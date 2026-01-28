@@ -21,6 +21,7 @@ microprofileConfig = "3.1"
 slf4j = "2.0.17"
 smallryeConfig = "3.15.0"
 sqlite="3.45.1.0"
+uuidCreator="6.1.1"
 
 [libraries]
 auth0JavaJwt = { module = "com.auth0:java-jwt", version.ref = "auth0JavaJwt" }
@@ -53,6 +54,7 @@ mcpKotlinServer = { module = "io.modelcontextprotocol:kotlin-sdk-server", versio
 microprofileConfigApi = { module = "org.eclipse.microprofile.config:microprofile-config-api", version.ref = "microprofileConfig" }
 smallryeConfig = { module = "io.smallrye.config:smallrye-config", version.ref = "smallryeConfig" }
 sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
+uuidCreator = { module = "com.github.f4b6a3:uuid-creator", version.ref = "uuidCreator" }
 
 # Libraries can be bundled together for easier import
 [bundles]

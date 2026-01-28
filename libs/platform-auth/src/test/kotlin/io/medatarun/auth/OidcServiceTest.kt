@@ -23,6 +23,7 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_AUTHORIZE_
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.auth.ports.needs.OidcProviderConfig
+import io.medatarun.lang.uuid.UuidUtils
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -549,7 +550,7 @@ class OidcServiceTest {
              */
             val fixedNow = env.authClock.now()
             val actor = createUserActor()
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
             val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
 
@@ -605,7 +606,7 @@ class OidcServiceTest {
              * How: Create an auth context with null state and verify the redirect only contains code.
              */
             val subject = createUserSubject()
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
             val request = buildAuthorizeRequest(state = null, codeChallenge = codeChallenge)
 
@@ -630,7 +631,7 @@ class OidcServiceTest {
              * How: After createCode, assert that the auth context cannot be found anymore.
              */
             val subject = createUserSubject()
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
             val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
 
@@ -654,7 +655,7 @@ class OidcServiceTest {
              * Why: Authorization codes must only be created from a valid authorization context.
              * How: Call createCode with a non-existent context id and expect a storage error.
              */
-            val subject = "missing-subject-" + UUID.randomUUID()
+            val subject = "missing-subject-" + UuidUtils.generateV4String()
 
             assertFailsWith<NoSuchElementException> {
                 env.oidcService.oidcAuthorizeCreateCode("missing-auth-ctx", subject)
@@ -672,7 +673,7 @@ class OidcServiceTest {
              * Why: OIDC token endpoint must only accept the authorization_code grant in our server.
              * How: Send a valid code with an unsupported grant_type and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val response = env.oidcService.oidcToken(
@@ -717,7 +718,7 @@ class OidcServiceTest {
              * Why: OIDC requires codes to be short-lived and unusable after expiration.
              * How: Move the clock past expiration and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
             val originalNow = env.authClock.staticNow
             env.authClock.staticNow = env.authClock.staticNow.plusSeconds(60 * 60)
@@ -747,7 +748,7 @@ class OidcServiceTest {
              * Why: OIDC ties authorization codes to a client to prevent token theft.
              * How: Use a valid code but send a different client_id and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val response = env.oidcService.oidcToken(
@@ -771,7 +772,7 @@ class OidcServiceTest {
              * Why: OIDC binds the code to the redirect_uri to prevent code injection.
              * How: Use a valid code but send a different redirect_uri and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val response = env.oidcService.oidcToken(
@@ -795,7 +796,7 @@ class OidcServiceTest {
              * Why: PKCE prevents authorization code interception attacks.
              * How: Use a valid code but provide an incorrect code_verifier and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val response = env.oidcService.oidcToken(
@@ -804,7 +805,7 @@ class OidcServiceTest {
                     code = fixture.code,
                     redirectUri = fixture.redirectUri,
                     clientId = fixture.clientId,
-                    codeVerifier = "wrong-" + UUID.randomUUID()
+                    codeVerifier = "wrong-" + UuidUtils.generateV4String()
                 )
             )
 
@@ -819,8 +820,8 @@ class OidcServiceTest {
              * Why: OIDC token issuance requires a valid subject to populate claims.
              * How: Create a code for a non-existent subject and expect ActorNotFoundException on token exchange.
              */
-            val subject = "missing-subject-" + UUID.randomUUID()
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val subject = "missing-subject-" + UuidUtils.generateV4String()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
             val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
 
@@ -855,7 +856,7 @@ class OidcServiceTest {
              * Why: Clients rely on token_type, expires_in, and access_token for subsequent API calls.
              * How: Exchange a valid code and verify response fields match the server configuration.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val response = env.oidcService.oidcToken(
@@ -884,7 +885,7 @@ class OidcServiceTest {
              * How: Create a code with null nonce and verify the ID token has no nonce claim.
              */
             val actor = createUserActor()
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val request = buildAuthorizeRequest(
                 nonce = null,
                 state = null,
@@ -924,7 +925,7 @@ class OidcServiceTest {
              * Why: OIDC requires codes to be single-use to prevent replay attacks.
              * How: Exchange a valid code once, then reuse it and expect invalid_grant.
              */
-            val codeVerifier = "verifier-" + UUID.randomUUID()
+            val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
 
             val first = env.oidcService.oidcToken(
@@ -1016,9 +1017,9 @@ class OidcServiceTest {
     }
 
     private fun createUserActor(): Actor {
-        val username = Username("oidc-user-" + UUID.randomUUID())
+        val username = Username("oidc-user-" + UuidUtils.generateV4String())
         val fullname = Fullname("Oidc User")
-        val password = PasswordClear("oidc-pass-" + UUID.randomUUID())
+        val password = PasswordClear("oidc-pass-" + UuidUtils.generateV4String())
         env.userService.createEmbeddedUser(username, fullname, password, false)
         val actor = env.actorService.findByIssuerAndSubjectOptional(env.jwtConfig.issuer, username.value)
         assertNotNull(actor)

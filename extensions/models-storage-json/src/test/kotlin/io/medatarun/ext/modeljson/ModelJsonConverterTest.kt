@@ -4,7 +4,6 @@ import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 import java.net.URI
-import java.util.*
 import kotlin.test.*
 
 internal class ModelJsonConverterTest {
@@ -23,10 +22,10 @@ internal class ModelJsonConverterTest {
 
 
         // Copied from Json
-        val typeIdString = TypeId(UUID.fromString("019be5cd-2ce6-7c51-b4ec-43aa4517b56b"))
-        val typeIdMarkdown = TypeId(UUID.fromString("019be5cd-499b-7663-ac33-e28c419a5bba"))
-        val contactNameAttributeId = AttributeId(UUID.fromString("019be5cd-e3e3-715a-9de9-4aa368a2401c"))
-        val companyNameAttributeId = AttributeId(UUID.fromString("019be5cf-142c-737d-a1c2-3434cdb13912"))
+        val typeIdString = TypeId.fromString("019be5cd-2ce6-7c51-b4ec-43aa4517b56b")
+        val typeIdMarkdown = TypeId.fromString("019be5cd-499b-7663-ac33-e28c419a5bba")
+        val contactNameAttributeId = AttributeId.fromString("019be5cd-e3e3-715a-9de9-4aa368a2401c")
+        val companyNameAttributeId = AttributeId.fromString("019be5cf-142c-737d-a1c2-3434cdb13912")
 
         val modelRead = instance.fromJson(sampleModelJson)
         assertEquals(modelRead.key, ModelKey("example"))
