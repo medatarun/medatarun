@@ -16,7 +16,7 @@ import {
   tokens
 } from "@fluentui/react-components";
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
 import {
   ActionDescriptor,
@@ -31,6 +31,7 @@ import ReactMarkdown from "react-markdown";
 import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
 import {Button} from "@seij/common-ui";
 import {formDataNormalize} from "../../business/action_form.normalize.ts";
+import {isPlainObject} from "lodash-es";
 
 
 export function ActionPerformerView() {
@@ -94,6 +95,14 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
   const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
     setFormData({...formData, [field.key]: value})
   }
+
+  useEffect(() => {
+    const isDone = state.kind === "done"
+    const display = hasResultToDisplay(actionResp)
+    if (isDone && !display) {
+      finishAction()
+    }
+  }, [state.kind, actionResp, finishAction]);
 
 
   return (
@@ -198,4 +207,20 @@ function createFormFields(action: ActionDescriptor, prefill: Record<string, unkn
 
 function sortFields(fields: FormFieldType[]): FormFieldType[] {
   return [...fields].sort((a, b) => a.order - b.order)
+}
+
+
+function hasResultToDisplay(actionResp: ActionResp | null): boolean {
+  if (actionResp === null) return false
+  if (actionResp.contentType === "text") return true
+  if (actionResp.contentType === "json") {
+    const json = actionResp.json as Record<string, unknown>
+    if (isPlainObject(json)) {
+      if (Object.keys(json).length === 0) return true
+      if (Object.keys(json).length > 1) return true
+      return json["status"] !== "ok";
+    }
+    return true
+  }
+  return true
 }
