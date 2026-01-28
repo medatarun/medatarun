@@ -1,6 +1,5 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.platform.kernel.ResourceLocator
 import org.junit.jupiter.api.Test
 import java.net.URI
@@ -72,8 +71,8 @@ class TableSchemaTest {
         val resource = "/budget.json"
         val rl = TestResourceLocatorURL(URI("classpath:$resource"))
         val model = conv.readString(resource, rl, null, null)
-        println(ModelHumanPrinterEmoji().print(model))
-        TODO("Complete tests on tableSchema")
+        // println(ModelHumanPrinterEmoji().print(model))
+        // TODO("Complete tests on tableSchema")
     }
 
     @Test
@@ -81,8 +80,8 @@ class TableSchemaTest {
         val resource = URI("https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
         val model = conv.readString(resource.toString(), locator, null, null)
-        println(ModelHumanPrinterEmoji().print(model))
-        TODO("Complete tests on DataPackage")
+        // println(ModelHumanPrinterEmoji().print(model))
+        // TODO("Complete tests on DataPackage")
     }
 
     @Test
@@ -91,7 +90,7 @@ class TableSchemaTest {
             URI("https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
         val model = conv.readString(resource.toString(), locator, null, null)
-        println(ModelHumanPrinterEmoji().print(model))
-        TODO("Complete tests on DataPackage")
+        // println(ModelHumanPrinterEmoji().print(model))
+        // TODO("Complete tests on DataPackage")
     }
 }

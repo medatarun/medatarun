@@ -27,8 +27,8 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      - name: Build distribution zip
-        run: ./gradlew :app:distZip
+      - name: Build distribution
+        run: ./gradlew build
 
       - name: Create GitHub Release
         env:
