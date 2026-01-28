@@ -231,19 +231,34 @@ class ActionParamJsonValueConverter(
         kclass: KClass<*>,
         raw: JsonElement
     ): ConversionResult {
+
+        // Gets the value class constructor and its only parameter
         val ctor = kclass.primaryConstructor
             ?: throw ActionInvocationException(
                 HttpStatusCode.InternalServerError,
                 "No constructor for value class ${kclass.simpleName}"
             )
-
         val innerParam = ctor.parameters.single()
-        return when (val inner = convert(raw, innerParam.type)) {
-            is ConversionResult.Value ->
-                ConversionResult.Value(ctor.call(inner.value))
 
-            is ConversionResult.Error -> inner
+        // The general rule is: you never create a value class with "null" inside.
+        // when JSON is a null, then the value will be null whatever
+        // when the conversion of the param is null, then the value will be null whatever
+        // otherwise we accept the converted value and use it as the "value class" first and only parameter
+        return if (raw == JsonNull) {
+            ConversionResult.Value(null)
+        } else {
+            val inner = convert(raw, innerParam.type)
+            when (inner) {
+                is ConversionResult.Value -> if (inner.value == null) {
+                    ConversionResult.Value(null)
+                } else {
+                    ConversionResult.Value(ctor.call(inner.value))
+                }
+
+                is ConversionResult.Error -> inner
+            }
         }
+
     }
 
     private fun convertDataClass(

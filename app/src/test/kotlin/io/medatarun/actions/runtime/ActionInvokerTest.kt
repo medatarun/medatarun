@@ -10,11 +10,7 @@ import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import org.junit.jupiter.api.Assertions.*
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -22,6 +18,9 @@ import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KClass
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class ActionInvokerTest {
 
@@ -146,7 +145,7 @@ class ActionInvokerTest {
     }
 
     @Test
-    fun `value class parameters are converted when required`() {
+    fun `value class required parameters are converted when specified`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
             put("value", JsonPrimitive("abcd"))
@@ -161,7 +160,29 @@ class ActionInvokerTest {
     }
 
     @Test
-    fun `value class parameters are optional when missing`() {
+    fun `value class required parameters are rejected when missing`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+
+        }
+        assertThrows<ActionInvocationException> {
+            runtime.invoke("abbreviation", payload)
+        }
+    }
+
+    @Test
+    fun `value class required parameters are rejected when null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
+        assertThrows<ActionInvocationException> {
+            runtime.invoke("abbreviation", payload)
+        }
+    }
+
+    @Test
+    fun `value class optional parameters are converted to null when missing`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject { }
 
@@ -171,6 +192,36 @@ class ActionInvokerTest {
         assertTrue(cmd is TestAction.WithOptionalAbbreviation)
         val abbreviation = cmd as TestAction.WithOptionalAbbreviation
         assertEquals(null, abbreviation.value)
+    }
+
+    @Test
+    fun `value class optional parameters are converted to null when null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        val abbreviation = cmd as TestAction.WithOptionalAbbreviation
+        assertEquals(null, abbreviation.value)
+    }
+
+    @Test
+    fun `value class optional parameters are converted when specified`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("abcd"))
+        }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        val abbreviation = cmd as TestAction.WithOptionalAbbreviation
+        assertEquals(Abbreviation("abcd"), abbreviation.value)
     }
 
     @Test
