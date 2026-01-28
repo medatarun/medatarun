@@ -9,7 +9,6 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.intellij.lang.annotations.Language
 import java.time.Instant
-import java.util.*
 
 class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
 
@@ -174,7 +173,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     private fun readActor(rs: java.sql.ResultSet): Actor {
         val rolesJson = rs.getString("roles_json")
         return Actor(
-            id = ActorId(UUID.fromString(rs.getString("id"))),
+            id = ActorId.fromString(rs.getString("id")),
             issuer = rs.getString("issuer"),
             subject = rs.getString("subject"),
             fullname = rs.getString("full_name"),

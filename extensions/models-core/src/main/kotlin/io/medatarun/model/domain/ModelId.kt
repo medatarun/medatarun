@@ -1,5 +1,6 @@
 package io.medatarun.model.domain
 
+import io.medatarun.lang.uuid.UuidUtils
 import java.util.*
 
 @JvmInline
@@ -9,10 +10,10 @@ value class ModelId(val value: UUID) {
 
     companion object {
         fun generate(): ModelId {
-            return ModelId(UUID.randomUUID())
+            return ModelId(UuidUtils.generateV7())
         }
-        fun valueOfString(value: String): ModelId {
-            return ModelId(UUID.fromString(value))
+        fun fromString(value: String): ModelId {
+            return ModelId(UuidUtils.fromString(value))
         }
     }
 }

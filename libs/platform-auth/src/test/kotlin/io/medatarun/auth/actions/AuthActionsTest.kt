@@ -9,12 +9,12 @@ import io.medatarun.auth.fixtures.AuthActionEnvTest
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
+import io.medatarun.lang.uuid.UuidUtils
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -401,7 +401,7 @@ class AuthActionsTest {
         assertEquals(env.env.adminUsername.value, adminActor.subject)
         assertEquals(env.env.adminFullname.value, adminActor.fullname)
         assertEquals(env.env.oidcService.oidcIssuer(), adminActor.issuer)
-        assertDoesNotThrow { UUID.fromString(adminActor.id) }
+        assertDoesNotThrow { UuidUtils.fromString(adminActor.id) }
         assertEquals(env.env.authClock.staticNow, adminActor.createdAt)
         assertEquals(env.env.authClock.staticNow, adminActor.lastSeenAt)
 

@@ -15,7 +15,6 @@ import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.model.domain.ModelId
 import io.medatarun.runtime.AppRuntime
 import java.net.URI
-import java.util.*
 
 /**
  * Install Status pages and SPA fallback. It means
@@ -121,7 +120,7 @@ fun Routing.installUIApis(runtime: AppRuntime, actionRegistry: ActionRegistry) {
         get("/ui/api/models/{modelId}") {
             val modelId = call.parameters["modelId"] ?: throw NotFoundException()
             call.respondText(
-                UI(runtime, actionRegistry).modelJson(ModelId(UUID.fromString(modelId)), detectLocale(call)),
+                UI(runtime, actionRegistry).modelJson(ModelId.fromString(modelId), detectLocale(call)),
                 ContentType.Application.Json
             )
         }

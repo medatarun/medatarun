@@ -1,5 +1,6 @@
 package io.medatarun.model.adapters.json
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.adapters.TypeJsonInvalidRefException
 import io.medatarun.model.adapters.TypeJsonInvalidRefSchemeException
 import io.medatarun.model.adapters.TypeJsonJsonObjectExpectedException
@@ -9,7 +10,6 @@ import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityRef
 import io.medatarun.types.TypeJsonConverterIllegalNullException
 import kotlinx.serialization.json.*
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -42,7 +42,7 @@ class RefTypeJsonConvertersTest {
 
     @Test
     fun `decodeRef should accept id and key references`() {
-        val id = UUID.fromString("11111111-2222-3333-4444-555555555555")
+        val id = UuidUtils.fromString("11111111-2222-3333-4444-555555555555")
         // "id:" path should map to EntityRef.ById and keep the UUID unchanged.
         val idRef = decodeEntityRef(JsonPrimitive("id:$id"))
         assertEquals(EntityRef.ById(EntityId(id)), idRef)
@@ -106,7 +106,7 @@ class RefTypeJsonConvertersTest {
         return RefTypeJsonConverters.decodeRef(
             json,
             whenId = { id ->
-                EntityRef.ById(EntityId(UUID.fromString(id)))
+                EntityRef.ById(EntityId.fromString(id))
             },
             whenKey = { keyParts -> EntityRef.ByKey(key = EntityKey(keyParts)) }
         )

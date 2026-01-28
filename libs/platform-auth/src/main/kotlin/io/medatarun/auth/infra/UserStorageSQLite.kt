@@ -4,7 +4,6 @@ import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import org.intellij.lang.annotations.Language
 import java.time.Instant
-import java.util.*
 
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
@@ -53,7 +52,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 if (!rs.next()) return null
 
                 User(
-                    id = UserId(UUID.fromString(rs.getString("id"))),
+                    id = UserId.fromString(rs.getString("id")),
                     username = Username(rs.getString("login")),
                     fullname = Fullname(rs.getString("full_name")),
                     passwordHash = PasswordHash(rs.getString("password_hash")),

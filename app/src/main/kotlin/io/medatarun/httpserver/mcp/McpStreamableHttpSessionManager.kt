@@ -1,7 +1,7 @@
 package io.medatarun.httpserver.mcp
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.modelcontextprotocol.kotlin.sdk.server.Server
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -16,7 +16,7 @@ internal class McpStreamableHttpSessionManager {
      * Creates a session for a new MCP Communication channel
      */
     suspend fun createSession(mcpServerFactory:()->Server): McpStreamableHttpSession {
-        val sessionId = UUID.randomUUID().toString()
+        val sessionId = UuidUtils.generateV4String()
         val transport = McpStreamableHttpTransport(sessionId)
         val server = mcpServerFactory()
         server.connect(transport)

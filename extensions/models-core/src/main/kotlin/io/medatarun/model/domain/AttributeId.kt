@@ -1,16 +1,17 @@
 package io.medatarun.model.domain
 
+import io.medatarun.lang.uuid.UuidUtils
 import java.util.*
 
 @JvmInline
 value class AttributeId(val value: UUID) {
     companion object {
         fun generate(): AttributeId {
-            return AttributeId(UUID.randomUUID())
+            return AttributeId(UuidUtils.generateV7())
         }
 
-        fun valueOfString(value: String): AttributeId {
-            return AttributeId(UUID.fromString(value))
+        fun fromString(value: String): AttributeId {
+            return AttributeId(UuidUtils.fromString(value))
         }
     }
 }

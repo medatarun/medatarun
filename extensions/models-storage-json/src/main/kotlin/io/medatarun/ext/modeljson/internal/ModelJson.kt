@@ -174,7 +174,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val types = modelJson.types.map { typeJson ->
             ModelTypeInMemory(
-                id = typeJson.id?.let { TypeId.valueOfString(it) } ?: TypeId.generate(),
+                id = typeJson.id?.let { TypeId.fromString(it) } ?: TypeId.generate(),
                 key = TypeKey(typeJson.key),
                 name = typeJson.name,
                 description = typeJson.description
@@ -187,7 +187,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             ?: throw ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey, roleJsonKey, entityKey.value)
 
         val model = ModelInMemory(
-            id = modelJson.id?.let { ModelId.valueOfString(it) } ?: ModelId.generate(),
+            id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
             key = ModelKey(modelJson.key),
             version = ModelVersion(modelJson.version),
             origin = when (modelJson.origin) {
@@ -200,13 +200,13 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             entities = entities,
             relationships = modelJson.relationships.map { relationJson ->
                 return@map RelationshipInMemory(
-                    id = relationJson.id?.let { RelationshipId.valueOfString(it) } ?: RelationshipId.generate(),
+                    id = relationJson.id?.let { RelationshipId.fromString(it) } ?: RelationshipId.generate(),
                     key = RelationshipKey(relationJson.key),
                     name = relationJson.name,
                     description = relationJson.description,
                     roles = relationJson.roles.map { roleJson ->
                         RelationshipRoleInMemory(
-                            id = roleJson.id?.let { RelationshipRoleId.valueOfString(it) } ?: RelationshipRoleId.generate(),
+                            id = roleJson.id?.let { RelationshipRoleId.fromString(it) } ?: RelationshipRoleId.generate(),
                             key = RelationshipRoleKey(roleJson.key),
                             name = roleJson.name,
                             entityId = findEntity(relationJson.key, roleJson.key, EntityKey(roleJson.entityId)).id,
@@ -229,7 +229,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute)}
             ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
         return EntityInMemory(
-            id = entityJson.id?.let { EntityId.valueOfString(it) } ?: EntityId.generate(),
+            id = entityJson.id?.let { EntityId.fromString(it) } ?: EntityId.generate(),
             key = EntityKey(entityJson.key),
             name = entityJson.name,
             description = entityJson.description,
@@ -267,7 +267,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     ?: throw ModelJsonEntityAttributeTypeNotFoundException(attributeJson.key, attributeJson.type)
 
                 AttributeInMemory(
-                    id = attributeJson.id?.let { AttributeId.valueOfString(it) } ?: AttributeId.generate(),
+                    id = attributeJson.id?.let { AttributeId.fromString(it) } ?: AttributeId.generate(),
                     key = AttributeKey(attributeJson.key),
                     name = attributeJson.name,
                     description = attributeJson.description,
