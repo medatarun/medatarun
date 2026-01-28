@@ -4,7 +4,8 @@ export type ActionResp =
   | { contentType: "text", text: string }
   | { contentType: "json", json: unknown }
 
-export async function executeAction(actionGroup: string, actionName: string, payload: unknown): Promise<ActionResp> {
+export type ActionPayload = Record<string, unknown>
+export async function executeAction(actionGroup: string, actionName: string, payload: ActionPayload): Promise<ActionResp> {
   const headers = api().createHeaders()
   return fetch("/api/" + actionGroup + "/" + actionName, {
     method: "POST",
@@ -14,7 +15,7 @@ export async function executeAction(actionGroup: string, actionName: string, pay
     .then(async res => {
       const isError = res.status >= 400
       if (isError) {
-        throw Error(await res.text())
+        throw new Error(await res.text())
       } else {
         // Json response
         const type = res.headers.get("content-type") || "";

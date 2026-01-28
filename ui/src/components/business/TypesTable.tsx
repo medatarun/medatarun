@@ -1,4 +1,4 @@
-import {type Action_registryBiz, ActionUILocations, type TypeDto, useActionRegistry} from "../../business";
+import {type ActionDescriptor, ActionUILocations, type TypeDto, useActionRegistry} from "../../business";
 import {
   Button,
   makeStyles,
@@ -111,7 +111,7 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeI
 
 export function ActionMenuButton({itemActions, actionParams, label}: {
   label?: string,
-  itemActions: Action_registryBiz[],
+  itemActions: ActionDescriptor[],
   actionParams: Record<string, string>
 }) {
   const actionPerformer = useActionPerformer()
