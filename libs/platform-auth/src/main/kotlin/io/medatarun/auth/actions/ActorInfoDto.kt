@@ -1,6 +1,6 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.json.InstantAsIsoStringSerializer
+import io.medatarun.lang.json.InstantAsIsoStringSerializer
 import kotlinx.serialization.Serializable
 import java.time.Instant
 

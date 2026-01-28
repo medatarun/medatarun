@@ -5,6 +5,7 @@ import {ModelIcon} from "../components/business/Icons.tsx";
 import {tokens} from "@fluentui/react-components";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {ActionMenuButton} from "../components/business/TypesTable.tsx";
+import {createActionTemplateGeneral} from "../components/business/actionTemplates.ts";
 
 
 export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => void }) {
@@ -20,7 +21,7 @@ export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => 
           <div>
             <ActionMenuButton label="Actions"
                               itemActions={actions}
-                              actionParams={{}}/>
+                              actionParams={createActionTemplateGeneral()}/>
           </div>
         </div>
       </ViewTitle>

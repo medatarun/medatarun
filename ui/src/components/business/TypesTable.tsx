@@ -20,6 +20,7 @@ import {Icon} from "@seij/common-ui-icons";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 import {Markdown} from "../core/Markdown.tsx";
+import {createActionTemplateType} from "./actionTemplates.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -75,21 +76,32 @@ export function TypesTable({types, onClick}: { types: TypeDto[], onClick: (typeI
       <TableBody>
         {
           types.map(type => <TableRow key={type.id}>
-            <TableCell className={styles.titleCell} onClick={() => onClick(type.id)}>{type.name ?? type.id}</TableCell>
-            <TableCell className={styles.flags} onClick={() => onClick(type.id)}>{" "}</TableCell>
-            {isDetailLevelTech && <TableCell className={styles.typeCodeCell}
-                                             onClick={() => onClick(type.id)}><code>{type.id}</code></TableCell>}
+            <TableCell className={styles.titleCell} onClick={() => onClick(type.id)}>
+              {model.findTypeNameOrKey(type.id)}
+            </TableCell>
+
+            <TableCell
+              className={styles.flags}
+              onClick={() => onClick(type.id)}>{" "}</TableCell>
+
+            {isDetailLevelTech &&
+              <TableCell
+                className={styles.typeCodeCell}
+                onClick={() => onClick(type.id)}><code>{type.key}</code></TableCell>
+            }
             <TableCell className={styles.descriptionCell} onClick={() => onClick(type.id)}>
               <div>
                 <Markdown value={type.description}/>
               </div>
             </TableCell>
+
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
                 itemActions={itemActions}
-                actionParams={{modelKey: model.id, typeKey: type.id}}
+                actionParams={createActionTemplateType(model.id, type.id)}
               />
             </TableCell>
+
           </TableRow>)
         }
       </TableBody>

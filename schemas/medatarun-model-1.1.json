@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.1.json",
+  "title": "Medatarun Model JSON",
+  "description": "JSON document produced and consumed by ModelJsonConverter (extensions/modeljson).",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Location of this schema definition.",
+      "const": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.1.json"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique model identifier."
+    },
+    "key": {
+      "type": "string",
+      "description": "Unique model key."
+    },
+    "version": {
+      "type": "string",
+      "description": "Model version identifier."
+    },
+    "name": {
+      "$ref": "#/$defs/localizedTextOrNull"
+    },
+    "description": {
+      "$ref": "#/$defs/localizedTextOrNull"
+    },
+    "origin": {
+      "description": "URI to the source of the model. Omit or set null when the model is defined manually.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/modelType"
+      },
+      "description": "Available attribute types."
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entity"
+      },
+      "description": "Entities defined in the model."
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      },
+      "description": "Relationships between entities.",
+      "default": []
+    },
+    "documentationHome": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri",
+      "description": "Optional URL to the model documentation."
+    },
+    "hashtags": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags associated with the model.",
+      "default": []
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "types",
+    "entities"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "localizedText": {
+      "description": "Localized text either as a single string or a language-keyed map.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "localizedTextOrNull": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/localizedText"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "modelType": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique type key."
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "attribute": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique attribute key."
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "type": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique entity key."
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "identifierAttribute": {
+          "type": "string"
+        },
+        "origin": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "documentationHome": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "hashtags": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "id",
+        "identifierAttribute",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "relationshipRole": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship role key."
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "cardinality": {
+          "type": "string",
+          "enum": [
+            "zeroOrOne",
+            "many",
+            "one"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "entityId",
+        "cardinality"
+      ],
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string",
+          "description": "Unique relationship key."
+        },
+        "name": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedTextOrNull"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationshipRole"
+          }
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "roles",
+        "attributes"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -19,6 +19,9 @@ const useStyles = makeStyles({
     paddingBottom: tokens.spacingVerticalM,
     width: "1em", verticalAlign: "baseline"
   },
+  typeCell: {
+    width: "10em", verticalAlign: "baseline"
+  },
   descriptionCell: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
@@ -40,9 +43,9 @@ const useStyles = makeStyles({
   }
 })
 
-export function AttributesTable({attributes,actionUILocation, onClickAttribute, actionParamsFactory}: {
+export function AttributesTable({attributes, actionUILocation, onClickAttribute, actionParamsFactory}: {
   attributes: AttributeDto[],
-  actionParamsFactory: (attributeId:string) => Record<string, string>,
+  actionParamsFactory: (attributeId: string) => Record<string, string>,
   actionUILocation: ActionUILocation,
   onClickAttribute: (id: string) => void
 }) {
@@ -58,20 +61,32 @@ export function AttributesTable({attributes,actionUILocation, onClickAttribute, 
     <Table>
       <TableBody>{attributes.map(attribute =>
         <TableRow key={attribute.id}>
-          <TableCell className={styles.titleCell} onClick={()=>handleClickAttribute(attribute.id)}>{attribute.optional ? "○" : "●" } {attribute.name ?? attribute.id} </TableCell>
-          <TableCell className={styles.flags} onClick={()=>handleClickAttribute(attribute.id)}> {attribute.identifierAttribute ? "🔑" : ""}</TableCell>
-          <TableCell className={styles.descriptionCell} onClick={()=>handleClickAttribute(attribute.id)}>
+
+          <TableCell
+            className={styles.titleCell}
+            onClick={() => handleClickAttribute(attribute.id)}>{attribute.optional ? "○" : "●"} {attribute.name ?? attribute.key ?? attribute.id} {isDetailLevelTech &&
+            <span>{" "}(<code>{attribute.key}</code>)</span>}</TableCell>
+
+          <TableCell
+            className={styles.flags}
+            onClick={() => handleClickAttribute(attribute.id)}> {attribute.identifierAttribute ? "🔑" : ""}</TableCell>
+
+          <TableCell
+            className={styles.typeCell}
+            onClick={() => handleClickAttribute(attribute.id)}>
+            {model.findTypeNameOrKey(attribute.type)}
+            {isDetailLevelTech && <span>{" "}(<code>{model.findTypeKey(attribute.type)}</code>)</span>}
+          </TableCell>
+
+          <TableCell
+            className={styles.descriptionCell}
+            onClick={() => handleClickAttribute(attribute.id)}>
             <div>
               <Markdown value={attribute.description}/>
             </div>
-            <div>{model.findTypeName(attribute.type)}</div>
-            {isDetailLevelTech && <div>
-              <code>{attribute.id}</code>
-              {" "}
-              <code>{attribute.type} {attribute.optional ? "?" : ""}</code>
-            </div>}
             {attribute.hashtags.length > 0 && <Tags tags={attribute.hashtags}/>}
           </TableCell>
+
           <TableCell className={styles.actionCell}>
             <ActionMenuButton
               itemActions={itemActions}

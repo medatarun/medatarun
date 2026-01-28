@@ -213,10 +213,15 @@ function validate({formData, formFields}: {
     if (formField.type === "String") result = validateString(formField, formData[formField.key])
     else if (formField.type === "List<ActionWithPayload>") result = validateString(formField, formData[formField.key])
     else if (formField.type === "AttributeKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "AttributeRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "EntityKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "EntityRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "RelationshipKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "RelationshipRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "TypeKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "TypeRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "ModelKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "ModelRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "Hashtag") result = validateHashtag(formField, formData[formField.key])
     else if (formField.type === "ModelVersion") result = validateVersion(formField, formData[formField.key])
     //else if (formField.type === "Boolean") result = validateBoolean(formField, formData[formField.key])
@@ -232,6 +237,15 @@ function validate({formData, formFields}: {
 }
 
 function validateKey(field: FormFieldType, formDatum: any) {
+  const valid = validateString(field, formDatum)
+  if (!valid.valid) return valid
+  if (valid.valid && (formDatum === null || formDatum === undefined || formDatum === "")) return valid
+  if (formDatum.length > 255) return invalid("Too long")
+  if (formDatum.length < 1) return invalid("Too short")
+  return valid
+}
+
+function validateRef(field: FormFieldType, formDatum: any) {
   const valid = validateString(field, formDatum)
   if (!valid.valid) return valid
   if (valid.valid && (formDatum === null || formDatum === undefined || formDatum === "")) return valid

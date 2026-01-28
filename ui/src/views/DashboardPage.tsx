@@ -5,6 +5,7 @@ import {ActionMenuButton} from "../components/business/TypesTable.tsx";
 import {ActionUILocations, useActionRegistry} from "../business";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
 import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
+import {createActionTemplateGeneral} from "../components/business/actionTemplates.ts";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry()
@@ -17,7 +18,7 @@ export function DashboardPage() {
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}
-            actionParams={{}}/></div>
+            actionParams={createActionTemplateGeneral()}/></div>
         </div>
       </ViewTitle>
     </div>

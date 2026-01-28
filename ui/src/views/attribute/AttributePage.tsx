@@ -53,7 +53,7 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
 
   const {data: modelDto} = useModel(modelId)
 
-  if (!modelDto) return <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)} />
+  if (!modelDto) return <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)}/>
   const model = new Model(modelDto)
 
   const entity = parentType === "entity" ? model.findEntityDto(parentId) : undefined
@@ -65,8 +65,10 @@ export function AttributePage({modelId, parentType, parentId, attributeId}: {
     : relationship ? model.findRelationshipAttributeDto(relationship.id, attributeId)
       : undefined
 
-  if (!parent) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]` )} />
-  if (!attribute) return <ErrorBox error={toProblem(`Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]` )} />
+  if (!parent) return <ErrorBox
+    error={toProblem(`Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]`)}/>
+  if (!attribute) return <ErrorBox
+    error={toProblem(`Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]`)}/>
 
   return <ModelContext value={model}>
     <AttributeView attribute={attribute} parent={parent} parentType={parentType}/>
@@ -92,23 +94,25 @@ export function AttributeView({parent, parentType, attribute}: {
 
   const handleClickEntity = () => {
     navigate({
-      to: "/model/$modelId/entityDef/$entityDefId",
-      params: {modelId: model.id, entityDefId: parent.id}
+      to: "/model/$modelId/entity/$entityId",
+      params: {modelId: model.id, entityId: parent.id}
     })
   };
 
   const handleClickRelationship = () => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: parent.id}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: parent.id}
     })
   };
 
   const parentAsEntity: EntityDto | null = parentType === "entity" ? (parent as EntityDto) : null
   const parentAsRelationship: RelationshipDto | null = parentType === "relationship" ? (parent as RelationshipDto) : null
 
-  const actionParams = parentAsEntity !== null ? createActionTemplateEntityAttribute(model.id, parentAsEntity.id, attribute.id)
-    : parentAsRelationship !== null ? createActionTemplateRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id)
+  const actionParams = parentAsEntity !== null
+    ? createActionTemplateEntityAttribute(model.id, parentAsEntity.id, attribute.id)
+    : parentAsRelationship !== null
+      ? createActionTemplateRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id)
       : createActionTemplateModel(model.id)
 
 
@@ -118,7 +122,7 @@ export function AttributeView({parent, parentType, attribute}: {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
         {parentAsEntity != null &&
           <BreadcrumbItem>
@@ -188,7 +192,7 @@ export function AttributeOverview({attribute, model}: {
     <div>
       <Link
         to="/model/$modelId"
-        params={{modelId: model.id}}>{model.nameOrId}</Link>
+        params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
 
     <div><Text>Tags</Text></div>
@@ -199,7 +203,7 @@ export function AttributeOverview({attribute, model}: {
     <div>
       <Link
         to="/model/$modelId/type/$typeId"
-        params={{modelId: model.id, typeId: attribute.type}}>{model.findTypeName(attribute.type)}</Link>
+        params={{modelId: model.id, typeId: attribute.type}}>{model.findTypeNameOrKey(attribute.type)}</Link>
       {" "}
       <Text>{attribute.optional ? "optional" : "required"}</Text>
       {" "}

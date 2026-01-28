@@ -3,6 +3,9 @@ package io.medatarun.ext.db.internal.modelimport
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
 import io.medatarun.ext.db.internal.drivers.DbDriverManager
 import io.medatarun.ext.db.model.DbConnectionNotFoundException
+import io.medatarun.ext.db.model.DbImportCouldNotFindAttributeFromPrimaryKeyException
+import io.medatarun.ext.db.model.DbImportCouldNotFindEntityForRelationship
+import io.medatarun.ext.db.model.DbImportTypeNotFoundException
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
@@ -39,67 +42,91 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val date = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime()
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UUID.randomUUID().toString())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
+        val types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) }
+        val entities = result.tables.map { table ->
+
+            val attributeFromColumns = table.columns.map {
+
+                val type = types.firstOrNull { type -> type.key == TypeKey(it.typeName) }
+                    ?: throw DbImportTypeNotFoundException(table.tableName, it.typeName)
+
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey(it.columnName),
+                    name = null,
+                    description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
+                    typeId = type.id,
+                    optional = it.isNullable != false,
+                    hashtags = emptyList(),
+                )
+            }
+            val pkAttributeKey = table.pkNameOrFirstColumn()
+            val pkAttribute = attributeFromColumns.firstOrNull { it.key == pkAttributeKey }
+                ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
+
+            EntityInMemory(
+                id = EntityId.generate(),
+                key = EntityKey(table.tableName),
+                name = null,
+                attributes = attributeFromColumns,
+                description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
+                identifierAttributeId = pkAttribute.id,
+                origin = EntityOrigin.Uri(URI(path)),
+                documentationHome = null,
+                hashtags = emptyList()
+
+            )
+        }
+
+        fun findEntityByTableName(tableName: String) = entities
+            .firstOrNull { it.key == EntityKey(tableName) }
+            ?: throw DbImportCouldNotFindEntityForRelationship(tableName)
+
+        val relationships = result.tables.map { table ->
+            table.foreignKeys.map { fk ->
+                val idStr =
+                    fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
+                val roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = RelationshipRoleId.generate(),
+                        key = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
+                        entityId = findEntityByTableName(fk.fkTableName).id,
+                        name = null,
+                        cardinality = if (result.isNullableOrUndefined(
+                                fk.fkTableName,
+                                fk.fkColumnName
+                            )
+                        ) RelationshipCardinality.ZeroOrOne else RelationshipCardinality.One,
+                    ),
+                    RelationshipRoleInMemory(
+                        id = RelationshipRoleId.generate(),
+                        key = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
+                        cardinality = RelationshipCardinality.Unknown,
+                        entityId = findEntityByTableName(fk.pkTableName).id,
+                        name = null
+                    ),
+                )
+                RelationshipInMemory(
+                    id = RelationshipId.generate(),
+                    key = RelationshipKey(idStr),
+                    name = null,
+                    description = null,
+                    attributes = emptyList(),
+                    roles = roles,
+                    hashtags = emptyList(),
+                )
+            }
+        }
         val model = ModelInMemory(
-            id = ModelKey(modelKeyOrGenerated),
+            id = ModelId.generate(),
+            key = ModelKey(modelKeyOrGenerated),
             name = LocalizedTextNotLocalized(modelNameOrGenerated),
             version = ModelVersion("0.0.1"),
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
-            types = result.types().map { ModelTypeInMemory(TypeKey(it), null, null) },
-            entityDefs = result.tables.map { table ->
-                EntityDefInMemory(
-                    id = EntityKey(table.tableName),
-                    name = null,
-                    attributes = table.columns.map {
-                        AttributeDefInMemory(
-                            id = AttributeKey(it.columnName),
-                            name = null,
-                            description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
-                            type = TypeKey(it.typeName),
-                            optional = it.isNullable != false,
-                            hashtags = emptyList(),
-                        )
-                    },
-                    description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
-                    identifierAttributeKey = table.pkNameOrFirstColumn(),
-                    origin = EntityOrigin.Uri(URI(path)),
-                    documentationHome = null,
-                    hashtags = emptyList()
-
-                )
-            },
-            relationshipDefs = result.tables.map { table ->
-                table.foreignKeys.map { fk ->
-                    val idStr =
-                        fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
-                    val roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = RelationshipRoleKey("${fk.fkTableName}.${fk.fkColumnName}"),
-                            entityId = EntityKey(fk.fkTableName),
-                            name = null,
-                            cardinality = if (result.isNullableOrUndefined(
-                                    fk.fkTableName,
-                                    fk.fkColumnName
-                                )
-                            ) RelationshipCardinality.ZeroOrOne else RelationshipCardinality.One,
-                        ),
-                        RelationshipRoleInMemory(
-                            id = RelationshipRoleKey("${fk.pkTableName}.${fk.pkColumnName}"),
-                            cardinality = RelationshipCardinality.Unknown,
-                            entityId = EntityKey(fk.pkTableName),
-                            name = null
-                        ),
-                    )
-                    RelationshipDefInMemory(
-                        id = RelationshipKey(idStr),
-                        name = null,
-                        description = null,
-                        attributes = emptyList(),
-                        roles = roles,
-                        hashtags = emptyList(),
-                    )
-                }
-            }.flatten(),
+            types = types,
+            entities = entities,
+            relationships = relationships.flatten(),
             documentationHome = null,
             hashtags = emptyList(),
         )

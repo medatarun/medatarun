@@ -17,7 +17,7 @@ export function ModelCard({model, onClick}: { model: ModelSummaryDto, onClick: (
       {model.error && <div style={{color: "red"}}>{model.error}</div>}
 
     </div>
-    { isDetailLevelTech && <div><code>{model.id}</code></div>}
+    { isDetailLevelTech && <div><code>{model.key}</code></div>}
     <div><TagGroup size="extra-small">
       <Tag size="extra-small" appearance="outline" icon={<EntityIcon/>}>{model.countEntities}</Tag>
       <Tag size="extra-small" appearance="outline" icon={<RelationshipIcon/>}>{model.countRelationships}</Tag>

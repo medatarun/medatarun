@@ -5,6 +5,7 @@ import type {AttributeDto} from "./model.tsx";
  */
 export interface RelationshipDto {
   id: string
+  key: string
   name: string | null
   description: string | null
   hashtags: string[],
@@ -14,6 +15,7 @@ export interface RelationshipDto {
 
 export interface RelationshipRoleDto {
   id: string
+  key: string
   name: string | null
   entityId: string
   cardinality: "zeroOrOne" | "many" | "one" | "unknown"

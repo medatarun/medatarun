@@ -1,6 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 
 /**
@@ -28,8 +29,12 @@ interface ModelRepository {
      * we get a clear answer if we should go with it or not (when creating models for example).
      */
     fun matchesId(id: ModelRepositoryId): Boolean
-    fun findAllModelIds(): List<ModelKey>
-    fun findModelByIdOptional(id: ModelKey): Model?
+
+    fun findAllModelIds(): List<ModelId>
+
+    fun findModelByKeyOptional(key: ModelKey): Model?
+
+    fun findModelByIdOptional(id: ModelId): Model?
 
     // Commands
 
@@ -37,6 +42,6 @@ interface ModelRepository {
      * Process this command. See [io.medatarun.model.ports. in.ModelRepositoryCmd] to have the list of all available commands to implement
      * to have a compatible repository.
      */
-    fun dispatch(cmd: ModelRepositoryCmd)
+    fun dispatch(cmd: ModelRepoCmd)
 
 }

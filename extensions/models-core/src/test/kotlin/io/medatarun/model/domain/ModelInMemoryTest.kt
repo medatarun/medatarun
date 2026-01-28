@@ -1,11 +1,12 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
+import io.medatarun.model.infra.AttributeInMemory
+import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ModelInMemoryTest {
@@ -14,107 +15,137 @@ class ModelInMemoryTest {
     @Test
     fun `model contains person and company entities`() {
         val model = createModel()
-        val entityIds = model.entityDefs.map { it.id }.toSet()
+
+        val markdownType = model.findType(TypeKey("Markdown"))
+
+        val entityIds = model.entities.map { it.key }.toSet()
         assertEquals(setOf(EntityKey("person"), EntityKey("company")), entityIds)
 
-        val person = model.entityDefs.first { it.id == EntityKey("person") }
-        assertEquals(5, person.countAttributeDefs())
-        assertEquals(TypeKey("Markdown"), person.getAttributeDef(AttributeKey("infos")).type)
+        val person = model.entities.first { it.key == EntityKey("person") }
+        assertEquals(5, person.countAttributes())
 
-        val company = model.entityDefs.first { it.id == EntityKey("company") }
-        assertTrue(company.getAttributeDef(AttributeKey("location")).optional)
-        assertTrue(company.getAttributeDef(AttributeKey("website")).optional)
+        val attrInfos = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("person")),
+            EntityAttributeRef.ByKey(AttributeKey("infos"))
+        )
+        assertNotNull(attrInfos)
+        assertEquals(markdownType.id, attrInfos.typeId)
+
+        val attrLocation = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("company")),
+            EntityAttributeRef.ByKey(AttributeKey("location"))
+        )
+
+        assertNotNull(attrLocation)
+        assertTrue(attrLocation.optional)
+
+        val attrWebsite = model.findEntityAttributeOptional(
+            EntityRef.ByKey(EntityKey("company")),
+            EntityAttributeRef.ByKey(AttributeKey("website"))
+        )
+
+        assertNotNull(attrWebsite)
+        assertTrue(attrWebsite.optional)
     }
 
     private fun createModel(): ModelInMemory {
 
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
-
-        val personEntity = EntityDefInMemory.builder(
-            id = EntityKey("person"),
-            identifierAttributeKey = AttributeKey("id"),
+        val personIdentifierAttributeId=  AttributeId.generate()
+        val personEntity = EntityInMemory.builder(
+            key = EntityKey("person"),
+            identifierAttributeId = personIdentifierAttributeId,
         ) {
             name = LocalizedTextNotLocalized("Person")
             addAttribute(
-                AttributeDefInMemory(
-                    id = AttributeKey("id"),
+                AttributeInMemory(
+                    id = personIdentifierAttributeId,
+                    key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("firstName"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("firstName"),
                     name = LocalizedTextNotLocalized("First Name"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("lastName"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("lastName"),
                     name = LocalizedTextNotLocalized("Last Name"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("phoneNumber"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("phoneNumber"),
                     name = LocalizedTextNotLocalized("Phone Number"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("infos"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("infos"),
                     name = LocalizedTextNotLocalized("Infos"),
                     description = null,
-                    type = typeMarkdown.id,
+                    typeId = typeMarkdown.id,
                     optional = false,
                     hashtags = emptyList()
                 )
             )
         }
-
-        val companyEntity = EntityDefInMemory.builder(
-            id = EntityKey("company"),
-            identifierAttributeKey = AttributeKey("id"),
+        val companyIdentifierAttributeId =  AttributeId.generate()
+        val companyEntity = EntityInMemory.builder(
+            key = EntityKey("company"),
+            identifierAttributeId = companyIdentifierAttributeId,
         ) {
             name = LocalizedTextNotLocalized("Company")
             addAttribute(
-                AttributeDefInMemory(
-                    id = AttributeKey("id"),
+                AttributeInMemory(
+                    id = companyIdentifierAttributeId,
+                    key = AttributeKey("id"),
                     name = LocalizedTextNotLocalized("Identifier"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("name"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("name"),
                     name = LocalizedTextNotLocalized("Name"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = false,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("location"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("location"),
                     name = LocalizedTextNotLocalized("Location"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = true,
                     hashtags = emptyList()
                 ),
-                AttributeDefInMemory(
-                    id = AttributeKey("website"),
+                AttributeInMemory(
+                    id = AttributeId.generate(),
+                    key = AttributeKey("website"),
                     name = LocalizedTextNotLocalized("Website"),
                     description = null,
-                    type = typeString.id,
+                    typeId = typeString.id,
                     optional = true,
                     hashtags = emptyList()
                 )
@@ -123,13 +154,14 @@ class ModelInMemoryTest {
         }
 
         return ModelInMemory(
-            id = ModelKey("test-model"),
+            id = ModelId.generate(),
+            key = ModelKey("test-model"),
             name = LocalizedTextNotLocalized("Test Model"),
             description = null,
             version = ModelVersion("1.0.0"),
             types = listOf(typeString, typeMarkdown),
-            entityDefs = listOf(personEntity, companyEntity),
-            relationshipDefs = emptyList(), // TODO tests on model in memory relationships
+            entities = listOf(personEntity, companyEntity),
+            relationships = emptyList(), // TODO tests on model in memory relationships
             documentationHome = null,
             origin = ModelOrigin.Manual,
             hashtags = emptyList()

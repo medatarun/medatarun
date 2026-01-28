@@ -57,17 +57,17 @@ function DashboardRouteComponent() {
 }
 
 function EntityRouteComponent() {
-  const {modelId, entityDefId} = useParams({from: '/model/$modelId/entityDef/$entityDefId'});
-  return <EntityPage modelId={modelId} entityDefId={entityDefId}/>
+  const {modelId, entityId} = useParams({from: '/model/$modelId/entity/$entityId'});
+  return <EntityPage modelId={modelId} entityId={entityId}/>
 }
 
 function EntityAttributeRouteComponent() {
   const {
-    modelKey,
-    entityKey,
-    attributeKey
-  } = useParams({from: '/model/$modelKey/entity/$entityKey/attribute/$attributeKey'});
-  return <AttributePage modelId={modelKey} parentType={"entity"} parentId={entityKey} attributeId={attributeKey}/>
+    modelId,
+    entityId,
+    attributeId
+  } = useParams({from: '/model/$modelId/entity/$entityId/attribute/$attributeId'});
+  return <AttributePage modelId={modelId} parentType={"entity"} parentId={entityId} attributeId={attributeId}/>
 }
 
 function ModelsRouteComponent() {
@@ -89,16 +89,16 @@ function PreferencesRouteComponent() {
 
 function RelationshipAttributeRouteComponent() {
   const {
-    modelKey,
-    relationshipKey,
-    attributeKey
-  } = useParams({from: '/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey'});
-  return <AttributePage modelId={modelKey} parentType={"relationship"} parentId={relationshipKey} attributeId={attributeKey}/>
+    modelId,
+    relationshipId,
+    attributeId
+  } = useParams({from: '/model/$modelId/relationship/$relationshipId/attribute/$attributeId'});
+  return <AttributePage modelId={modelId} parentType={"relationship"} parentId={relationshipId} attributeId={attributeId}/>
 }
 
 function RelationshipRouteComponent() {
-  const {modelKey, relationshipKey} = useParams({"from": "/model/$modelKey/relationship/$relationshipKey"})
-  return <RelationshipPage modelId={modelKey} relationshipId={relationshipKey} />
+  const {modelId, relationshipId} = useParams({"from": "/model/$modelId/relationship/$relationshipId"})
+  return <RelationshipPage modelId={modelId} relationshipId={relationshipId} />
 }
 
 function TypeRouteComponent() {
@@ -142,13 +142,13 @@ const preferencesRoute = createRoute({
 })
 const entityRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/model/$modelId/entityDef/$entityDefId',
+  path: '/model/$modelId/entity/$entityId',
   component: EntityRouteComponent
 })
 
 const entityAttributeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
+  path: "/model/$modelId/entity/$entityId/attribute/$attributeId",
   component: EntityAttributeRouteComponent
 })
 
@@ -170,13 +170,13 @@ const authenticationCallbackRoute = createRoute({
 
 const relationshipRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/model/$modelKey/relationship/$relationshipKey",
+  path: "/model/$modelId/relationship/$relationshipId",
   component: RelationshipRouteComponent
 })
 
 const relationshipAttributeRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey",
+  path: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
   component: RelationshipAttributeRouteComponent
 })
 

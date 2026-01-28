@@ -19,6 +19,7 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunServiceRegistry
+import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
 import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
 import io.medatarun.runtime.AppRuntime
@@ -47,9 +48,8 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
-    val serviceRegistry =
-        MedatarunServiceRegistryImpl(extensions, config)
-    val platform = ExtensionPlaformImpl(extensions, config)
+    val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
+    val extensionPlatform = ExtensionPlaformImpl(extensions, config)
 
     // 🤔 🤔 🤔
     // Little dirty here
@@ -79,13 +79,14 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
             logger.info("onCmdProcessed: $cmd")
         }
     }
-    val repositories = platform.extensionRegistry.findContributionsFlat(ModelRepository::class)
+    val repositories = extensionPlatform.extensionRegistry.findContributionsFlat(ModelRepository::class)
     val validation = ModelValidationImpl()
     val storage = ModelStoragesComposite(repositories, validation)
     val modelQueriesImpl = ModelQueriesImpl(storage)
     val modelCmdsImpl = ModelCmdsImpl(storage, auditor)
     val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
-    val securityRolesRegistry = SecurityRolesRegistryImpl(platform.extensionRegistry)
+    val securityRolesRegistry = SecurityRolesRegistryImpl(extensionPlatform.extensionRegistry)
+    val platformRuntime = PlatformRuntime(extensionPlatform, serviceRegistry)
 
     // especially that:
     init {
@@ -98,10 +99,11 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
     // End of 🤔 🤔 🤔 🤯
 
     fun build(): AppRuntime {
-
+        // Launches a startup sequence. Usually useful to do some stuff like data migrations
+        this.platformRuntime.start()
         return AppRuntimeImpl(
             config,
-            platform.extensionRegistry,
+            extensionPlatform.extensionRegistry,
             serviceRegistry
         )
     }

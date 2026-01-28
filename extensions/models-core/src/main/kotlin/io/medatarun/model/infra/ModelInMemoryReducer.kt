@@ -1,155 +1,154 @@
 package io.medatarun.model.infra
 
 import io.medatarun.lang.exceptions.MedatarunException
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.Hashtag
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.ports.exposed.AttributeDefUpdateCmd
-import io.medatarun.model.ports.exposed.EntityDefUpdateCmd
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
-import io.medatarun.model.ports.exposed.RelationshipDefUpdateCmd
-import io.medatarun.model.ports.needs.ModelRepositoryCmd
-import io.medatarun.model.ports.needs.ModelRepositoryCmdOnModel
+import io.medatarun.model.ports.needs.*
 
 class ModelInMemoryReducer {
-    fun dispatch(model: ModelInMemory, cmd: ModelRepositoryCmdOnModel): ModelInMemory {
+    fun dispatch(model: ModelInMemory, cmd: ModelRepoCmdOnModel): ModelInMemory {
         return when (cmd) {
 
 
-            is ModelRepositoryCmd.UpdateModelDescription -> model.copy(description = cmd.description)
-            is ModelRepositoryCmd.UpdateModelName -> model.copy(name = cmd.name)
-            is ModelRepositoryCmd.UpdateModelVersion -> model.copy(version = cmd.version)
-            is ModelRepositoryCmd.UpdateModelDocumentationHome -> model.copy(documentationHome = cmd.url)
-            is ModelRepositoryCmd.UpdateModelHashtagAdd -> model.copy(
+            is ModelRepoCmd.UpdateModelDescription -> model.copy(description = cmd.description)
+            is ModelRepoCmd.UpdateModelName -> model.copy(name = cmd.name)
+            is ModelRepoCmd.UpdateModelVersion -> model.copy(version = cmd.version)
+            is ModelRepoCmd.UpdateModelDocumentationHome -> model.copy(documentationHome = cmd.url)
+            is ModelRepoCmd.UpdateModelHashtagAdd -> model.copy(
                 hashtags = hashtagAdd(
                     model.hashtags,
                     cmd.hashtag
                 )
             )
 
-            is ModelRepositoryCmd.UpdateModelHashtagDelete -> model.copy(
+            is ModelRepoCmd.UpdateModelHashtagDelete -> model.copy(
                 hashtags = hashtagDelete(
                     model.hashtags,
                     cmd.hashtag
                 )
             )
 
-            is ModelRepositoryCmd.DeleteModel -> throw ModelInMemoryReducerCommandNotSupportedException(cmd)
+            is ModelRepoCmd.DeleteModel -> throw ModelInMemoryReducerCommandNotSupportedException(cmd)
 
-            is ModelRepositoryCmd.CreateType -> model.copy(
+            is ModelRepoCmd.CreateType -> model.copy(
                 types = model.types + ModelTypeInMemory(
-                    id = cmd.initializer.id,
+                    id = TypeId.generate(),
+                    key = cmd.initializer.id,
                     name = cmd.initializer.name,
                     description = cmd.initializer.description
                 )
             )
 
-            is ModelRepositoryCmd.UpdateType -> model.copy(types = model.types.map { type ->
+            is ModelRepoCmd.UpdateType -> model.copy(types = model.types.map { type ->
                 if (type.id != cmd.typeId) type else when (cmd.cmd) {
                     is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.cmd.value)
                     is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.cmd.value)
                 }
             })
 
-            is ModelRepositoryCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.id != cmd.typeId) type else null })
+            is ModelRepoCmd.DeleteType -> model.copy(types = model.types.mapNotNull { type -> if (type.id != cmd.typeId) type else null })
 
-            is ModelRepositoryCmd.CreateEntityDef -> model.copy(entityDefs = model.entityDefs + EntityDefInMemory.of(cmd.entityDef))
-            is ModelRepositoryCmd.UpdateEntityDef -> modifyingEntityDef(model, cmd.entityKey) { previous ->
+            is ModelRepoCmd.CreateEntity -> model.copy(entities = model.entities + EntityInMemory.of(cmd.entity))
+            is ModelRepoCmd.UpdateEntity -> modifyingEntity(model, cmd.entityId) { previous ->
                 when (val c = cmd.cmd) {
-                    is EntityDefUpdateCmd.Id -> previous.copy(id = c.value)
-                    is EntityDefUpdateCmd.Name -> previous.copy(name = c.value)
-                    is EntityDefUpdateCmd.Description -> previous.copy(description = c.value)
-                    is EntityDefUpdateCmd.IdentifierAttribute -> previous.copy(identifierAttributeKey = c.value)
-                    is EntityDefUpdateCmd.DocumentationHome -> previous.copy(documentationHome = c.value)
+                    is ModelRepoCmdEntityUpdate.Key -> previous.copy(key = c.value)
+                    is ModelRepoCmdEntityUpdate.Name -> previous.copy(name = c.value)
+                    is ModelRepoCmdEntityUpdate.Description -> previous.copy(description = c.value)
+                    is ModelRepoCmdEntityUpdate.IdentifierAttribute -> {
+                        val entityRef = EntityRef.ById(cmd.entityId)
+                        val attr = model.findEntityAttributeOptional(entityRef, cmd.cmd.value)
+                            ?: throw EntityAttributeNotFoundException(ModelRef.ById(model.id), entityRef, EntityAttributeRef.ById(cmd.cmd.value))
+                        previous.copy(identifierAttributeId = attr.id)
+                    }
+                    is ModelRepoCmdEntityUpdate.DocumentationHome -> previous.copy(documentationHome = c.value)
                 }
             }
 
-            is ModelRepositoryCmd.UpdateEntityDefHashtagAdd ->
-                modifyingEntityDef(model, cmd.entityKey) { previous ->
+            is ModelRepoCmd.UpdateEntityHashtagAdd ->
+                modifyingEntity(model, cmd.entityId) { previous ->
                     previous.copy(hashtags = hashtagAdd(previous.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.UpdateEntityDefHashtagDelete ->
-                modifyingEntityDef(model, cmd.entityKey) { previous ->
+            is ModelRepoCmd.UpdateEntityHashtagDelete ->
+                modifyingEntity(model, cmd.entityId) { previous ->
                     previous.copy(hashtags = hashtagDelete(previous.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.DeleteEntityDef -> modifyingEntityDef(model, cmd.entityKey) { null }
+            is ModelRepoCmd.DeleteEntity -> modifyingEntity(model, cmd.entityId) { null }
 
-            is ModelRepositoryCmd.CreateEntityDefAttributeDef -> modifyingEntityDef(model, cmd.entityKey) {
-                it.copy(attributes = it.attributes + AttributeDefInMemory.of(cmd.attributeDef))
+            is ModelRepoCmd.CreateEntityAttribute -> modifyingEntity(model, cmd.entityId) {
+                it.copy(attributes = it.attributes + AttributeInMemory.of(cmd.attribute))
             }
 
-            is ModelRepositoryCmd.UpdateEntityDefAttributeDef ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
-                    updateEntityAttribute(a, cmd)
+            is ModelRepoCmd.UpdateEntityAttribute ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
+                    updateEntityAttribute(model, a, cmd)
                 }
 
-            is ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagAdd ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
+            is ModelRepoCmd.UpdateEntityAttributeHashtagAdd ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     a.copy(hashtags = hashtagAdd(a.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.UpdateEntityDefAttributeDefHashtagDelete ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { a ->
+            is ModelRepoCmd.UpdateEntityAttributeHashtagDelete ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.DeleteEntityDefAttributeDef ->
-                modifyingEntityDefAttributeDef(model, cmd.entityKey, cmd.attributeKey) { null }
+            is ModelRepoCmd.DeleteEntityAttribute ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { null }
 
-            is ModelRepositoryCmd.CreateRelationshipDef -> model.copy(
-                relationshipDefs = model.relationshipDefs + RelationshipDefInMemory.of(cmd.initializer)
+            is ModelRepoCmd.CreateRelationship -> model.copy(
+                relationships = model.relationships + RelationshipInMemory.of(cmd.initializer)
             )
 
-            is ModelRepositoryCmd.UpdateRelationshipDef ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
-                    updateRelationship(rel, cmd)
+            is ModelRepoCmd.UpdateRelationship ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
+                    updateRelationship(model, rel, cmd)
                 }
 
-            is ModelRepositoryCmd.UpdateRelationshipDefHashtagAdd ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
+            is ModelRepoCmd.UpdateRelationshipHashtagAdd ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
                     rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.UpdateRelationshipDefHashtagDelete ->
-                modifyingRelationshipDef(model, cmd.relationshipKey) { rel ->
+            is ModelRepoCmd.UpdateRelationshipHashtagDelete ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
                     rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
                 }
 
 
-            is ModelRepositoryCmd.DeleteRelationshipDef -> model.copy(
-                relationshipDefs = model.relationshipDefs.filter { it.id != cmd.relationshipKey }
+            is ModelRepoCmd.DeleteRelationship -> model.copy(
+                relationships = model.relationships.filter { it.id != cmd.relationshipId  }
             )
 
-            is ModelRepositoryCmd.DeleteRelationshipAttributeDef -> model.copy(
-                relationshipDefs = model.relationshipDefs.map { rel ->
-                    if (rel.id != cmd.relationshipKey) rel else rel.copy(
-                        attributes = rel.attributes.filter { attr -> attr.id != cmd.attributeKey })
+            is ModelRepoCmd.DeleteRelationshipAttribute -> model.copy(
+                relationships = model.relationships.map { rel ->
+                    if (rel.id != cmd.relationshipId) rel else rel.copy(
+                        attributes = rel.attributes.filter { attr -> attr.id != cmd.attributeId })
                 }
             )
 
-            is ModelRepositoryCmd.UpdateRelationshipAttributeDef ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipKey, cmd.attributeKey) { attr ->
-                    updateRelationshipAttribute(attr, cmd)
+            is ModelRepoCmd.UpdateRelationshipAttribute ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                    updateRelationshipAttribute(model, attr, cmd)
                 }
 
 
-            is ModelRepositoryCmd.UpdateRelationshipAttributeDefHashtagAdd ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipKey, cmd.attributeKey) { attr ->
+            is ModelRepoCmd.UpdateRelationshipAttributeHashtagAdd ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     attr.copy(hashtags = hashtagAdd(attr.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.UpdateRelationshipAttributeDefHashtagDelete ->
-                modifyingRelationshipDefAttributeDef(model, cmd.relationshipKey, cmd.attributeKey) { attr ->
+            is ModelRepoCmd.UpdateRelationshipAttributeHashtagDelete ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     attr.copy(hashtags = hashtagDelete(attr.hashtags, cmd.hashtag))
                 }
 
-            is ModelRepositoryCmd.CreateRelationshipAttributeDef -> model.copy(
-                relationshipDefs = model.relationshipDefs.map { rel ->
-                    if (rel.id != cmd.relationshipKey) rel else rel.copy(
-                        attributes = rel.attributes + AttributeDefInMemory.of(cmd.attr)
+            is ModelRepoCmd.CreateRelationshipAttribute -> model.copy(
+                relationships = model.relationships.map { rel ->
+                    if (rel.id != cmd.relationshipId) rel else rel.copy(
+                        attributes = rel.attributes + AttributeInMemory.of(cmd.attr)
                     )
                 }
             )
@@ -158,115 +157,131 @@ class ModelInMemoryReducer {
     }
 
 
+    private fun updateEntityAttribute(
+        model: ModelInMemory,
+        attribute: AttributeInMemory,
+        cmd: ModelRepoCmd.UpdateEntityAttribute
+    ): AttributeInMemory? = when (val input = cmd.cmd) {
+        is ModelRepoCmdAttributeUpdate.Key -> attribute.copy(key = input.value)
+        is ModelRepoCmdAttributeUpdate.Name -> attribute.copy(name = input.value)
+        is ModelRepoCmdAttributeUpdate.Description -> attribute.copy(description = input.value)
+        is ModelRepoCmdAttributeUpdate.Type -> {
+            val type = findType(model, input.value)
+            attribute.copy(typeId = type.id)
+        }
+        is ModelRepoCmdAttributeUpdate.Optional -> attribute.copy(optional = input.value)
+    }
+
+    private fun updateRelationshipAttribute(
+        model: ModelInMemory,
+        attribute: AttributeInMemory,
+        cmd: ModelRepoCmd.UpdateRelationshipAttribute,
+    ): AttributeInMemory = when (val input = cmd.cmd) {
+        is ModelRepoCmdAttributeUpdate.Key -> attribute.copy(key = input.value)
+        is ModelRepoCmdAttributeUpdate.Name -> attribute.copy(name = input.value)
+        is ModelRepoCmdAttributeUpdate.Description -> attribute.copy(description = input.value)
+        is ModelRepoCmdAttributeUpdate.Optional -> attribute.copy(optional = input.value)
+        is ModelRepoCmdAttributeUpdate.Type -> {
+            val type = findType(model, input.value)
+            attribute.copy(typeId = type.id)
+        }
+    }
+    private fun findType(model: ModelInMemory, typeId:TypeId): ModelType {
+        return model.findTypeOptional(typeId) ?: throw TypeNotFoundException(ModelRef.ById(model.id), TypeRef.ById(typeId))
+    }
 }
 
-private fun updateEntityAttribute(
-    attribute: AttributeDefInMemory,
-    cmd: ModelRepositoryCmd.UpdateEntityDefAttributeDef
-): AttributeDefInMemory? = when (val input = cmd.cmd) {
-    is AttributeDefUpdateCmd.Key -> attribute.copy(id = input.value)
-    is AttributeDefUpdateCmd.Name -> attribute.copy(name = input.value)
-    is AttributeDefUpdateCmd.Description -> attribute.copy(description = input.value)
-    is AttributeDefUpdateCmd.Type -> attribute.copy(type = input.value)
-    is AttributeDefUpdateCmd.Optional -> attribute.copy(optional = input.value)
-}
 
-private fun updateRelationshipAttribute(
-    attribute: AttributeDefInMemory,
-    cmd: ModelRepositoryCmd.UpdateRelationshipAttributeDef,
-): AttributeDefInMemory = when (val input = cmd.cmd) {
-    is AttributeDefUpdateCmd.Key -> attribute.copy(id = input.value)
-    is AttributeDefUpdateCmd.Name -> attribute.copy(name = input.value)
-    is AttributeDefUpdateCmd.Description -> attribute.copy(description = input.value)
-    is AttributeDefUpdateCmd.Optional -> attribute.copy(optional = input.value)
-    is AttributeDefUpdateCmd.Type -> attribute.copy(type = input.value)
-}
 
 private fun updateRelationship(
-    rel: RelationshipDefInMemory,
-    cmd: ModelRepositoryCmd.UpdateRelationshipDef,
-): RelationshipDefInMemory = when (val input = cmd.cmd) {
-    is RelationshipDefUpdateCmd.Key -> rel.copy(id = input.value)
-    is RelationshipDefUpdateCmd.Name -> rel.copy(name = input.value)
-    is RelationshipDefUpdateCmd.Description -> rel.copy(description = input.value)
-    is RelationshipDefUpdateCmd.RoleKey -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
-            id = cmd.cmd.value
+    model: ModelInMemory,
+    rel: RelationshipInMemory,
+    cmd: ModelRepoCmd.UpdateRelationship,
+): RelationshipInMemory = when (val input = cmd.cmd) {
+    is ModelRepoCmdRelationshipUpdate.Key -> rel.copy(key = input.value)
+    is ModelRepoCmdRelationshipUpdate.Name -> rel.copy(name = input.value)
+    is ModelRepoCmdRelationshipUpdate.Description -> rel.copy(description = input.value)
+    is ModelRepoCmdRelationshipUpdate.RoleKey -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
+            key = cmd.cmd.value
         )
     })
 
-    is RelationshipDefUpdateCmd.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
-            entityId = cmd.cmd.value
-        )
+    is ModelRepoCmdRelationshipUpdate.RoleEntity -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleId) role else {
+            val entity = model.findEntityOptional(cmd.cmd.value) ?: throw EntityNotFoundException(ModelRef.ById(model.id), EntityRef.ById(cmd.cmd.value))
+            role.copy(
+                entityId = entity.id
+            )
+        }
     })
 
-    is RelationshipDefUpdateCmd.RoleName -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+    is ModelRepoCmdRelationshipUpdate.RoleName -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
             name = cmd.cmd.value
         )
     })
 
-    is RelationshipDefUpdateCmd.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
-        if (role.id != cmd.cmd.relationshipRoleKey) role else role.copy(
+    is ModelRepoCmdRelationshipUpdate.RoleCardinality -> rel.copy(roles = rel.roles.map { role ->
+        if (role.id != cmd.cmd.relationshipRoleId) role else role.copy(
             cardinality = cmd.cmd.value
         )
     })
 }
 
 
-private fun modifyingEntityDefAttributeDef(
+private fun modifyingEntityAttribute(
     model: ModelInMemory,
-    e: EntityKey,
-    attributeKey: AttributeKey,
-    block: (AttributeDefInMemory) -> AttributeDefInMemory?
+    entityId: EntityId,
+    attributeId: AttributeId,
+    block: (AttributeInMemory) -> AttributeInMemory?
 ): ModelInMemory {
     return model.copy(
-        entityDefs = model.entityDefs.map { entityDef ->
-            if (entityDef.id != e) entityDef else entityDef.copy(
-                attributes = entityDef.attributes.mapNotNull { attr ->
-                    if (attr.id != attributeKey) attr else block(attr)
+        entities = model.entities.map { entity ->
+            if (entity.id != entityId) entity else entity.copy(
+                attributes = entity.attributes.mapNotNull { attr ->
+                    if (attr.id != attributeId) attr else block(attr)
                 }
             )
         })
 }
 
-private fun modifyingRelationshipDefAttributeDef(
+private fun modifyingRelationshipAttribute(
     model: ModelInMemory,
-    r: RelationshipKey,
-    attributeKey: AttributeKey,
-    block: (AttributeDefInMemory) -> AttributeDefInMemory?
+    relationshipId: RelationshipId,
+    attributeId: AttributeId,
+    block: (AttributeInMemory) -> AttributeInMemory?
 ): ModelInMemory {
     return model.copy(
-        relationshipDefs = model.relationshipDefs.map { relDef ->
-            if (relDef.id != r) relDef else relDef.copy(
+        relationships = model.relationships.map { relDef ->
+            if (relDef.id != relationshipId) relDef else relDef.copy(
                 attributes = relDef.attributes.mapNotNull { attr ->
-                    if (attr.id != attributeKey) attr else block(attr)
+                    if (attr.id != attributeId) attr else block(attr)
                 }
             )
         })
 }
 
 
-private fun modifyingEntityDef(
+private fun modifyingEntity(
     model: ModelInMemory,
-    e: EntityKey,
-    block: (EntityDefInMemory) -> EntityDefInMemory?
+    entityId: EntityId,
+    block: (EntityInMemory) -> EntityInMemory?
 ): ModelInMemory {
     return model.copy(
-        entityDefs = model.entityDefs.mapNotNull { entityDef ->
-            if (entityDef.id != e) entityDef else block(entityDef)
+        entities = model.entities.mapNotNull { entity ->
+            if (entity.id != entityId) entity else block(entity)
         })
 }
 
-private fun modifyingRelationshipDef(
+private fun modifyingRelationship(
     model: ModelInMemory,
-    e: RelationshipKey,
-    block: (RelationshipDefInMemory) -> RelationshipDefInMemory?
+    relationshipId: RelationshipId,
+    block: (RelationshipInMemory) -> RelationshipInMemory?
 ): ModelInMemory {
     return model.copy(
-        relationshipDefs = model.relationshipDefs.mapNotNull { rel ->
-            if (rel.id != e) rel else block(rel)
+        relationships = model.relationships.mapNotNull { rel ->
+            if (rel.id != relationshipId) rel else block(rel)
         })
 }
 
@@ -278,5 +293,5 @@ private fun hashtagDelete(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag>
     return hashtags.filter { it != next }
 }
 
-class ModelInMemoryReducerCommandNotSupportedException(cmd: ModelRepositoryCmd) :
+class ModelInMemoryReducerCommandNotSupportedException(cmd: ModelRepoCmd) :
     MedatarunException("Command not supported in Memory reducer : $cmd")

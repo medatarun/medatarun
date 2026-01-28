@@ -1,9 +1,6 @@
 package io.medatarun.model.internal
 
-import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
-import io.medatarun.model.domain.ModelSummary
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
@@ -12,9 +9,7 @@ import java.util.*
 
 class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
-
-
-    override fun findAllModelIds(): List<ModelKey> {
+    override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
     }
 
@@ -24,17 +19,19 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             try {
                 val model = storage.findModelById(id)
                 ModelSummary(
-                    id = id,
+                    id = model.id,
+                    key = model.key,
                     name = model.name?.get(locale),
                     description = model.description?.get(locale),
                     error = null,
                     countTypes = model.types.size,
-                    countEntities = model.entityDefs.size,
-                    countRelationships = model.relationshipDefs.size
+                    countEntities = model.entities.size,
+                    countRelationships = model.relationships.size
                 )
             } catch (e: Exception) {
                 ModelSummary(
                     id = id,
+                    key = ModelKey(UUID.randomUUID().toString()),
                     name = null,
                     description = null,
                     error = e.message,
@@ -43,14 +40,65 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             }
         }.sortedWith(
             Comparator.comparing(
-                { it.name ?: it.id.value },
+                { it.name ?: it.key.value },
                 Comparator.nullsLast(textComparator)
             )
         )
     }
 
-    override fun findModelById(modelKey: ModelKey): Model {
-        return storage.findModelByIdOptional(modelKey) ?: throw ModelNotFoundException(modelKey)
+    override fun findEntity(
+        modelRef: ModelRef,
+        entityRef: EntityRef
+    ): Entity {
+        val model = findModel(modelRef)
+        return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+    }
+
+    override fun findEntityAttributeOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): Attribute? {
+        val model = findModel(modelRef)
+        return model.findEntityAttributeOptional(entityRef, attributeRef)
+    }
+
+    override fun findEntityAttribute(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): Attribute {
+        return findEntityAttributeOptional(modelRef, entityRef, attributeRef)
+            ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attributeRef)
+    }
+
+    override fun findType(
+        modelRef: ModelRef,
+        typeRef: TypeRef
+    ): ModelType {
+        return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+    }
+
+    override fun findModelByKey(modelKey: ModelKey): Model {
+        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
+    }
+
+    override fun findModelById(modelId: ModelId): Model {
+        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
+    }
+
+    override fun findModel(modelRef: ModelRef): Model {
+        return when (modelRef) {
+            is ModelRef.ById -> findModelById(modelRef.id)
+            is ModelRef.ByKey -> findModelByKey(modelRef.key)
+        }
+    }
+
+    override fun findModelOptional(modelRef: ModelRef): Model? {
+        return when (modelRef) {
+            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
+        }
     }
 
     private class TextComparator(val locale: Locale) : Comparator<String> {

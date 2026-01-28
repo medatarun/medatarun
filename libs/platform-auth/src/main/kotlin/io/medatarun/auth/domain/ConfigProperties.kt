@@ -1,6 +1,7 @@
 package io.medatarun.auth.domain
 
-import io.medatarun.lang.io.medatarun.lang.config.ConfigPropertyDescription
+import io.medatarun.lang.config.ConfigPropertyDescription
+
 
 enum class ConfigProperties(
     override val key: String,

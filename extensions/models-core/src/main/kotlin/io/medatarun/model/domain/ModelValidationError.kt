@@ -6,11 +6,11 @@ class ModelValidationErrorTypeNotFound(
     modelKey: ModelKey,
     entityKey: EntityKey,
     attributeId: AttributeKey,
-    typeId: TypeKey
+    typeId: TypeId
 ) : ModelValidationError("Unknown type [${typeId.value}] for attribute [${modelKey.value}.${entityKey.value}.${attributeId.value}]")
 
 class ModelValidationErrorInvalidIdentityAttribute(
     modelKey: ModelKey,
     entityKey: EntityKey,
-    entityIdAttributeKey: AttributeKey
+    entityIdAttributeKey: AttributeId
 ) : ModelValidationError("Invalid identifier attribute [${entityIdAttributeKey.value}] for [${modelKey.value}.${entityKey.value}]")

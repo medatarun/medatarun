@@ -10,7 +10,8 @@ import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
 import {
   createActionTemplateRelationship,
-  createActionTemplateRelationshipAttribute
+  createActionTemplateRelationshipAttribute,
+  createActionTemplateRelationshipRole
 } from "../../components/business/actionTemplates.ts";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {
@@ -81,8 +82,8 @@ export function RelationshipView({model, relationship}: {
 
   const handleClickAttribute = (attributeId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey/attribute/$attributeKey",
-      params: {modelKey: model.id, relationshipKey: relationship.id, attributeKey: attributeId}
+      to: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
+      params: {modelId: model.id, relationshipId: relationship.id, attributeId: attributeId}
     })
   }
 
@@ -95,7 +96,7 @@ export function RelationshipView({model, relationship}: {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
       </Breadcrumb>
     </div>
@@ -103,7 +104,7 @@ export function RelationshipView({model, relationship}: {
       <ViewTitle eyebrow={"Relationship"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
           <div>
-            {relationship.name ?? relationship.id} {" "}
+            {relationship.name ?? relationship.key ?? relationship.id} {" "}
           </div>
           <div>
 
@@ -153,7 +154,7 @@ export function RelationshipView({model, relationship}: {
                       header={
                         <div>
                           <div>
-                            <Text weight="semibold">{model.findEntityName(role.entityId)}</Text>
+                            <Text weight="semibold">{model.findEntityNameOrKey(role.entityId)}</Text>
                           </div>
                           <Text>{roleCardinalityLabel(role.cardinality)}</Text>
                         </div>
@@ -161,17 +162,13 @@ export function RelationshipView({model, relationship}: {
                       action={
                         <ActionMenuButton
                           itemActions={actionRegistry.findActions(ActionUILocations.relationship_role)}
-                          actionParams={{
-                            modelKey: model.id,
-                            relationshipKey: relationship.id,
-                            relationshipRoleKey: role.id
-                          }}/>
+                          actionParams={createActionTemplateRelationshipRole(model.id, relationship.id, role.id)}/>
                       }
 
                     />
                     <div>{role.name}</div>
-                    {isDetailLevelTech && <div><code>{relationship.id}</code></div>}
-                    {isDetailLevelTech && <div>🔗 <code>{role.entityId}</code></div>}
+                    {isDetailLevelTech && <div><code>{role.key}</code></div>}
+                    {isDetailLevelTech && <div>🔗 <code>{model.findEntityKey(role.entityId)}</code></div>}
 
                   </Card>
                 )}
@@ -208,16 +205,18 @@ export function RelationshipOverview({relationship, model}: {
   const {isDetailLevelTech} = useDetailLevelContext()
   return <PropertiesForm>
     {isDetailLevelTech && <div><Text>Relationship&nbsp;key</Text></div>}
-    {isDetailLevelTech && <div><Text><code>{relationship.id}</code></Text></div>}
+    {isDetailLevelTech && <div><Text><code>{relationship.key}</code></Text></div>}
     <div><Text>From&nbsp;model</Text></div>
     <div>
       <Link
         to="/model/$modelId"
-        params={{modelId: model.id}}>{model.nameOrId}</Link>
+        params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
     <div><Text>Tags</Text></div>
     <div>{relationship.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={relationship.hashtags}/>}</div>
+    {isDetailLevelTech && <div><Text>Relationship&nbsp;id</Text></div>}
+    {isDetailLevelTech && <div><Text><code>{relationship.id}</code></Text></div>}
   </PropertiesForm>
 }
 

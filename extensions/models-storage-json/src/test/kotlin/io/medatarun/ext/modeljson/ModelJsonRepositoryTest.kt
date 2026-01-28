@@ -1,7 +1,10 @@
 package io.medatarun.ext.modeljson
 
+import io.medatarun.ext.modeljson.internal.ModelJsonConverter
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepository
 import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.ports.needs.ModelRepositoryCmd
+import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import org.junit.jupiter.api.Assertions.assertFalse
 import kotlin.io.path.exists
@@ -13,9 +16,10 @@ class ModelJsonRepositoryTest {
     internal inner class TestEnv {
         val fs = ModelJsonFilesystemFixture()
         val repositoryPath = fs.modelsDirectory()
-        val repo: ModelJsonRepository = ModelJsonRepository(repositoryPath, converter)
+        val files = ModelsStorageJsonFiles(repositoryPath)
+        val repo: ModelsStorageJsonRepository = ModelsStorageJsonRepository(files, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
-        val sampleModel2 = sampleModel.copy(id = ModelKey(sampleModel.id.value + "-2"))
+        val sampleModel2 = sampleModel.copy(key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {
             repo.persistModel(sampleModel)
         }
@@ -33,7 +37,7 @@ class ModelJsonRepositoryTest {
     fun testMatches() {
         val env = TestEnv()
         assertFalse(env.repo.matchesId(ModelRepositoryId("abc")))
-        assertTrue(env.repo.matchesId(ModelJsonRepository.REPOSITORY_ID))
+        assertTrue(env.repo.matchesId(ModelsStorageJsonRepository.REPOSITORY_ID))
     }
 
     // ------------------------------------------------------------------------
@@ -43,22 +47,22 @@ class ModelJsonRepositoryTest {
     @Test
     fun `findModelById not found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
+        assertNull(env.repo.findModelByKeyOptional(ModelKey("unknwon")))
         env.importSample()
-        assertNull(env.repo.findModelByIdOptional(ModelKey("unknwon")))
+        assertNull(env.repo.findModelByKeyOptional(ModelKey("unknwon")))
         env.importSample()
     }
 
     @Test
     fun `findModelById found`() {
         val env = TestEnv()
-        assertNull(env.repo.findModelByIdOptional(env.sampleModel.id))
+        assertNull(env.repo.findModelByKeyOptional(env.sampleModel.key))
         env.importSample()
         env.importSample2()
-        val m = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel.id))
-        assertEquals(env.sampleModel.id, m.id)
-        val m2 = assertNotNull(env.repo.findModelByIdOptional(env.sampleModel2.id))
-        assertEquals(env.sampleModel2.id, m2.id)
+        val m = assertNotNull(env.repo.findModelByKeyOptional(env.sampleModel.key))
+        assertEquals(env.sampleModel.key, m.key)
+        val m2 = assertNotNull(env.repo.findModelByKeyOptional(env.sampleModel2.key))
+        assertEquals(env.sampleModel2.key, m2.key)
     }
 
     // ------------------------------------------------------------------------
@@ -68,11 +72,11 @@ class ModelJsonRepositoryTest {
     @Test
     fun `create then path is correct`() {
         val env = TestEnv()
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel2))
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
         assertTrue(path1.exists())
-        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertTrue(path2.exists())
     }
 
@@ -105,170 +109,21 @@ class ModelJsonRepositoryTest {
     }
 
 
-    @Test
-    fun `update name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update version`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update model documentation home`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update model origin`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update model hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update model hashtag delete`() {
-        TODO("Not yet implemented")
-    }
 
     @Test
     fun `delete then no file left`() {
         val env = TestEnv()
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel))
-        env.repo.dispatch(ModelRepositoryCmd.CreateModel(env.sampleModel2))
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel.id))
-        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.id.value + ".json")
-        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.id.value + ".json")
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel))
+        env.repo.dispatch(ModelRepoCmd.CreateModel(env.sampleModel2))
+        env.repo.dispatch(ModelRepoCmd.DeleteModel(env.sampleModel.id))
+        val path1 = env.fs.modelsDirectory().resolve(env.sampleModel.key.value + ".json")
+        val path2 = env.fs.modelsDirectory().resolve(env.sampleModel2.key.value + ".json")
         assertFalse(path1.exists())
         assertTrue(path2.exists())
-        env.repo.dispatch(ModelRepositoryCmd.DeleteModel(env.sampleModel2.id))
+        env.repo.dispatch(ModelRepoCmd.DeleteModel(env.sampleModel2.id))
         assertFalse(path2.exists())
 
 
-    }
-    // ------------------------------------------------------------------------
-    // Types
-    // ------------------------------------------------------------------------
-
-
-    @Test
-    fun `create type`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update type name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update type description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete type`() {
-        TODO("Not yet implemented")
-    }
-    // ------------------------------------------------------------------------
-    // Entities
-    // ------------------------------------------------------------------------
-
-
-    @Test
-    fun `update entity def id`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity def identifier attribute`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity def documentation home attribute`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity origin`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete entity def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update entity hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update entity hashtag delete`() {
-        TODO("Not yet implemented")
-    }
-    // ------------------------------------------------------------------------
-    // Attributes
-    // ------------------------------------------------------------------------
-
-    @Test
-    fun `create attribute def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def id`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def name`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def description`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def type`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute def optional`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `delete attribute def`() {
-        TODO("Not yet implemented")
-    }
-
-    @Test
-    fun `update attribute hashtag add`() {
-        TODO("Not yet implemented")
-    }
-    @Test
-    fun `update attribute hashtag delete`() {
-        TODO("Not yet implemented")
     }
 }
 

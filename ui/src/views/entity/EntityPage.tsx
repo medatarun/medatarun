@@ -21,16 +21,17 @@ import {
 import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
 import {SectionTable} from "../../components/layout/SecionTable.tsx";
 import {
+  createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
 } from "../../components/business/actionTemplates.ts";
 
 
-export function EntityPage({modelId, entityDefId}: { modelId: string, entityDefId: string }) {
+export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
 
   const {data: model} = useModel(modelId)
 
-  const entity = model?.entityDefs?.find(it => it.id === entityDefId)
+  const entity = model?.entities?.find(it => it.id === entityId)
   if (!model) return null
   if (!entity) return null
   return <ModelContext value={new Model(model)}><EntityView entity={entity}/></ModelContext>
@@ -41,7 +42,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.entity)
-  const relationshipsInvolved = model.dto.relationshipDefs
+  const relationshipsInvolved = model.dto.relationships
     .filter(it => it.roles.some(r => r.entityId === entity.id));
 
   const handleClickModel = () => {
@@ -53,15 +54,15 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
   const handleClickAttribute = (attributeId: string) => {
     navigate({
-      to: "/model/$modelKey/entity/$entityKey/attribute/$attributeKey",
-      params: {modelKey: model.id, entityKey: entity.id, attributeKey: attributeId}
+      to: "/model/$modelId/entity/$entityId/attribute/$attributeId",
+      params: {modelId: model.id, entityId: entity.id, attributeId: attributeId}
     })
   }
 
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: relationshipId}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: relationshipId}
     })
   }
 
@@ -71,19 +72,16 @@ export function EntityView({entity}: { entity: EntityDto }) {
         <BreadcrumbItem>
           <BreadcrumbButton
             icon={<ModelIcon/>}
-            onClick={handleClickModel}>{model.nameOrId}</BreadcrumbButton></BreadcrumbItem>
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
         <BreadcrumbDivider/>
       </Breadcrumb>
       <ViewTitle eyebrow={"Entity"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{entity.name ?? entity.id} {" "}</div>
+          <div>{entity.name ?? entity.key ?? entity.id} {" "}</div>
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}
-            actionParams={{
-              modelKey: model.id,
-              entityKey: entity.id
-            }}/></div>
+            actionParams={createActionTemplateEntity(model.id, entity.id)}/></div>
         </div>
       </ViewTitle>
 
@@ -102,7 +100,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
 
           <SectionTitle
             icon={<AttributeIcon/>}
-            actionParams={{modelKey: model.id, entityKey: entity.id}}
+            actionParams={createActionTemplateEntity(model.id, entity.id)}
             location={ActionUILocations.entity_attributes}>Attributes</SectionTitle>
 
           <SectionTable>

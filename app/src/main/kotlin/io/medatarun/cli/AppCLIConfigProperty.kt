@@ -1,6 +1,7 @@
 package io.medatarun.cli
 
-import io.medatarun.lang.io.medatarun.lang.config.ConfigPropertyDescription
+import io.medatarun.lang.config.ConfigPropertyDescription
+
 
 enum class AppCLIConfigProperty(
     override val key: String,

@@ -18,6 +18,7 @@ import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
+import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
@@ -39,14 +40,14 @@ export function ModelView() {
   }
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
-      to: "/model/$modelKey/relationship/$relationshipKey",
-      params: {modelKey: model.id, relationshipKey: relationshipId}
+      to: "/model/$modelId/relationship/$relationshipId",
+      params: {modelId: model.id, relationshipId: relationshipId}
     })
   }
   const handleClickEntity = (entityId: string) => {
     navigate({
-      to: "/model/$modelId/entityDef/$entityDefId",
-      params: {modelId: model.id, entityDefId: entityId}
+      to: "/model/$modelId/entity/$entityId",
+      params: {modelId: model.id, entityId: entityId}
     })
   }
 
@@ -61,7 +62,7 @@ export function ModelView() {
             <ActionMenuButton
               label="Actions"
               itemActions={actions}
-              actionParams={{modelKey: model.id}}/>
+              actionParams={createActionTemplateModel(model.id)}/>
           </div>
         </div>
       </ViewTitle>
@@ -81,23 +82,23 @@ export function ModelView() {
 
           <SectionTitle
             icon={<EntityIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
-          { model.entityDefs.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
-          { model.entityDefs.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
+          { model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
+          { model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
 
           <SectionTitle
             icon={<RelationshipIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
-          { model.relationshipDefs.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
-          { model.relationshipDefs.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationshipDefs}/></SectionTable> }
+          { model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
+          { model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationships}/></SectionTable> }
 
           <SectionTitle
             icon={<TypeIcon/>}
-            actionParams={{modelKey: model.id}}
+            actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
           { model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p> }
@@ -132,7 +133,7 @@ export function ModelOverview() {
 
 export function EntitiesCardList({onClick}: { onClick: (entityId: string) => void }) {
   const model = useModelContext()
-  const entities = model.dto.entityDefs
+  const entities = model.dto.entities
   return <div>
     <div style={{
       display: "flex",
@@ -143,11 +144,11 @@ export function EntitiesCardList({onClick}: { onClick: (entityId: string) => voi
       flexWrap: "wrap"
     }}>
       {
-        entities.map(entityDef => <EntityCard
-          key={entityDef.id}
-          entity={entityDef}
+        entities.map(entity => <EntityCard
+          key={entity.id}
+          entity={entity}
           onClick={() => {
-            onClick(entityDef.id)
+            onClick(entity.id)
           }}/>
         )
       }

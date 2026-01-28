@@ -2,8 +2,8 @@ package io.medatarun.ext.frictionlessdata
 
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.AttributeDefInMemory
-import io.medatarun.model.infra.EntityDefInMemory
+import io.medatarun.model.infra.AttributeInMemory
+import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.platform.kernel.ResourceLocator
@@ -23,7 +23,7 @@ class FrictionlessConverter {
     }
 
     fun readString(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): Model {
-        val types = FrictionlessTypes().all
+        val types = FrictionlessTypes().generateAll()
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
         val uri = resourceLocator.resolveUri(path)
@@ -35,10 +35,10 @@ class FrictionlessConverter {
             throw FrictionlessConverterUnsupportedFileFormatException(path)
         }
 
-        val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.id
+        val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.key
         val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
         return model.copy(
-            id = finalKey,
+            key = finalKey,
             name = finalName
         )
     }
@@ -65,7 +65,8 @@ class FrictionlessConverter {
         resourceLocator: ResourceLocator
     ): ModelInMemory {
         val model = ModelInMemory(
-            id = ModelKey(datapackage.name ?: "unknown"),
+            id = ModelId.generate(),
+            key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = try {
@@ -75,7 +76,7 @@ class FrictionlessConverter {
             },
             origin = ModelOrigin.Uri(uri),
             types = types,
-            entityDefs = datapackage.resources.mapNotNull { resource ->
+            entities = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
                 val subresource = getSchemaFromResource(schemaOrString, resourceLocator)
                 if (subresource.schema == null) null else toEntity(
@@ -86,9 +87,10 @@ class FrictionlessConverter {
                     documentationHome = subresource.datapackage?.homepage ?: resource.homepage,
                     schema = subresource.schema,
                     hashtags = (subresource.datapackage?.keywords ?: datapackage.keywords).map { Hashtag(it) },
+                    types = types
                 )
             },
-            relationshipDefs = emptyList(),
+            relationships = emptyList(),
             hashtags = datapackage.keywords.map { Hashtag(it) },
             documentationHome = toURLSafe(datapackage.homepage)
         )
@@ -106,13 +108,14 @@ class FrictionlessConverter {
 
 
         val model = ModelInMemory(
-            id = ModelKey(datapackage.name ?: "unknown"),
+            id = ModelId.generate(),
+            key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
             version = ModelVersion(datapackage.version ?: "0.0.0"),
             types = types,
             origin = ModelOrigin.Uri(uri),
-            entityDefs = listOf(
+            entities = listOf(
                 toEntity(
                     uri = uri,
                     entityId = datapackage.name ?: "unknown",
@@ -120,10 +123,11 @@ class FrictionlessConverter {
                     entityDescription = datapackage.description,
                     documentationHome = datapackage.homepage,
                     schema = schema,
-                    hashtags = datapackage.keywords.map { Hashtag(it) }
+                    hashtags = datapackage.keywords.map { Hashtag(it) },
+                    types = types
                 )
             ),
-            relationshipDefs = emptyList(),
+            relationships = emptyList(),
             documentationHome = toURLSafe(datapackage.homepage),
             hashtags = datapackage.keywords.map { Hashtag(it) },
         )
@@ -139,30 +143,40 @@ class FrictionlessConverter {
         entityDescription: String?,
         documentationHome: String?,
         schema: TableSchema,
-        hashtags: List<Hashtag>
-    ): EntityDefInMemory {
-        val entity = EntityDefInMemory(
-            id = EntityKey(entityId),
+        hashtags: List<Hashtag>,
+        types: List<ModelTypeInMemory>,
+    ): EntityInMemory {
+
+        val pk = schema.primaryKey?.values?.joinToString("__")
+            ?: schema.fields.firstOrNull()?.name
+            ?: "empty"
+
+        val attributes = schema.fields.map { field ->
+            AttributeInMemory(
+                id = AttributeId.generate(),
+                key = AttributeKey(field.name),
+                name = field.title?.let(::LocalizedTextNotLocalized),
+                description = field.description?.let(::LocalizedMarkdownNotLocalized),
+                typeId = types.firstOrNull { it.key == TypeKey(field.type) }?.id
+                    ?: throw FrictionlessConverterTypeNotFound(field.name, field.type),
+                optional = field.isOptional(),
+                hashtags = emptyList()
+            )
+        }
+
+        val identifierAttribute = attributes.firstOrNull { it.key.value == pk }
+        if (identifierAttribute == null) throw FrictionlessConverterEntityIdentifierNotFound(entityId, pk)
+
+        val entity = EntityInMemory(
+            id = EntityId.generate(),
+            key = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
-            attributes = schema.fields.map { field ->
-                AttributeDefInMemory(
-                    id = AttributeKey(field.name),
-                    name = field.title?.let(::LocalizedTextNotLocalized),
-                    description = field.description?.let(::LocalizedMarkdownNotLocalized),
-                    type = TypeKey(field.type),
-                    optional = field.isOptional(),
-                    hashtags = emptyList()
-                )
-            },
+            attributes = attributes,
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
             hashtags = hashtags,
-            identifierAttributeKey = AttributeKey(
-                schema.primaryKey?.values?.joinToString(";")
-                    ?: schema.fields.firstOrNull()?.name
-                    ?: "unknown"
-            ), // TODO
+            identifierAttributeId = identifierAttribute.id
         )
         return entity
     }
