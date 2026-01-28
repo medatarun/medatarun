@@ -91,7 +91,7 @@ interface RelationshipRole {
     val key: RelationshipRoleKey
 
     /**
-     * Reference to the participating entity (defined in [EntityDef]).
+     * Reference to the participating entity (defined in [Entity]).
      *
      * Note that you can use the same entityId in multiple roles of the same
      * relationship to create self-references.

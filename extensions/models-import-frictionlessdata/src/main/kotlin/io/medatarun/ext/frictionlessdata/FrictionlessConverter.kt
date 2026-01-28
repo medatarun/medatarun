@@ -3,7 +3,7 @@ package io.medatarun.ext.frictionlessdata
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.EntityDefInMemory
+import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.platform.kernel.ResourceLocator
@@ -76,7 +76,7 @@ class FrictionlessConverter {
             },
             origin = ModelOrigin.Uri(uri),
             types = types,
-            entityDefs = datapackage.resources.mapNotNull { resource ->
+            entities = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
                 val subresource = getSchemaFromResource(schemaOrString, resourceLocator)
                 if (subresource.schema == null) null else toEntity(
@@ -90,7 +90,7 @@ class FrictionlessConverter {
                     types = types
                 )
             },
-            relationshipDefs = emptyList(),
+            relationships = emptyList(),
             hashtags = datapackage.keywords.map { Hashtag(it) },
             documentationHome = toURLSafe(datapackage.homepage)
         )
@@ -115,7 +115,7 @@ class FrictionlessConverter {
             version = ModelVersion(datapackage.version ?: "0.0.0"),
             types = types,
             origin = ModelOrigin.Uri(uri),
-            entityDefs = listOf(
+            entities = listOf(
                 toEntity(
                     uri = uri,
                     entityId = datapackage.name ?: "unknown",
@@ -127,7 +127,7 @@ class FrictionlessConverter {
                     types = types
                 )
             ),
-            relationshipDefs = emptyList(),
+            relationships = emptyList(),
             documentationHome = toURLSafe(datapackage.homepage),
             hashtags = datapackage.keywords.map { Hashtag(it) },
         )
@@ -145,7 +145,7 @@ class FrictionlessConverter {
         schema: TableSchema,
         hashtags: List<Hashtag>,
         types: List<ModelTypeInMemory>,
-    ): EntityDefInMemory {
+    ): EntityInMemory {
 
         val pk = schema.primaryKey?.values?.joinToString("__")
             ?: schema.fields.firstOrNull()?.name
@@ -167,7 +167,7 @@ class FrictionlessConverter {
         val identifierAttribute = attributes.firstOrNull { it.key.value == pk }
         if (identifierAttribute == null) throw FrictionlessConverterEntityIdentifierNotFound(entityId, pk)
 
-        val entity = EntityDefInMemory(
+        val entity = EntityInMemory(
             id = EntityId.generate(),
             key = EntityKey(entityId),
             name = entityName?.let(::LocalizedTextNotLocalized),

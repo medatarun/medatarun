@@ -28,7 +28,7 @@ class ModelValidationTest {
                 )
                 val goodAttributeId = AttributeId.generate()
                 val badAttributeId = AttributeId.generate()
-                addEntityDef(
+                addEntity(
                     key = EntityKey("Contact"),
                     identifierAttributeId = badAttributeId
                 ) {
@@ -71,7 +71,7 @@ class ModelValidationTest {
                     description = null
                 )
             )
-            addEntityDef(
+            addEntity(
                 key = EntityKey("Contact"),
                 identifierAttributeId = identifierAttribute,
             ) {

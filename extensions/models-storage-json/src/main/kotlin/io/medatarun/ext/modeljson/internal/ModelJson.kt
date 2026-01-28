@@ -98,7 +98,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = type.description,
                 )
             },
-            relationships = model.relationshipDefs.map { rel ->
+            relationships = model.relationships.map { rel ->
                 RelationshipJson(
                     id = rel.id.value.toString(),
                     key = rel.key.value,
@@ -118,7 +118,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
 
                 )
             },
-            entities = model.entityDefs.map { entity ->
+            entities = model.entities.map { entity ->
                 val attributesJson = toAttributeJsonList(model, entity.attributes)
                 val attributeKey = entity.attributes
                     .firstOrNull { attribute -> entity.identifierAttributeId == attribute.id }
@@ -197,8 +197,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             name = modelJson.name,
             description = modelJson.description,
             types = types,
-            entityDefs = entities,
-            relationshipDefs = modelJson.relationships.map { relationJson ->
+            entities = entities,
+            relationships = modelJson.relationships.map { relationJson ->
                 return@map RelationshipDefInMemory(
                     id = relationJson.id?.let { RelationshipId.valueOfString(it) } ?: RelationshipId.generate(),
                     key = RelationshipKey(relationJson.key),
@@ -223,12 +223,12 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         return model
     }
 
-    private fun toEntity(types: List<ModelType>, entityJson: ModelEntityJson): EntityDefInMemory {
+    private fun toEntity(types: List<ModelType>, entityJson: ModelEntityJson): EntityInMemory {
         val attributes = toAttributeList(types, entityJson.attributes)
         val identifierAttribute = attributes
             .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute)}
             ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
-        return EntityDefInMemory(
+        return EntityInMemory(
             id = entityJson.id?.let { EntityId.valueOfString(it) } ?: EntityId.generate(),
             key = EntityKey(entityJson.key),
             name = entityJson.name,

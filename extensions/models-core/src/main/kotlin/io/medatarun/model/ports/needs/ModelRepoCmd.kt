@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.EntityDefInMemory
+import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
 import java.net.URL
@@ -81,7 +81,7 @@ sealed interface ModelRepoCmd {
 
     data class CreateEntity(
         override val modelId: ModelId,
-        val entityDef: EntityDefInMemory
+        val entity: EntityInMemory
     ) : ModelRepoCmdOnModel
 
     data class UpdateEntity(

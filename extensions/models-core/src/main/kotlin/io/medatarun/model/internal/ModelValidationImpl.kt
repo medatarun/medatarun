@@ -15,7 +15,7 @@ class ModelValidationImpl : ModelValidation {
     private fun ensureEachAttributeHasKnownType(model: Model): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
         // each attribute must have a known type
-        model.entityDefs.forEach { e ->
+        model.entities.forEach { e ->
             e.attributes.forEach { attr ->
                 if (model.findTypeOptional(attr.typeId) == null) {
                     errors.add(ModelValidationErrorTypeNotFound(model.key, e.key, attr.key, attr.typeId))
@@ -31,7 +31,7 @@ class ModelValidationImpl : ModelValidation {
     private fun ensureIdentityAttributeExists(model: Model): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
 
-        model.entityDefs.forEach { e ->
+        model.entities.forEach { e ->
             if (e.attributes.none { it.id == e.identifierAttributeId }) {
                 errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.identifierAttributeId))
             }

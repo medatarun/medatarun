@@ -4,9 +4,9 @@ import io.medatarun.model.domain.*
 import java.net.URL
 
 /**
- * Default implementation of EntityDef
+ * Default implementation of [Entity]
  */
-data class EntityDefInMemory(
+data class EntityInMemory(
     override val id: EntityId,
     override val key: EntityKey,
     override val name: LocalizedText?,
@@ -16,7 +16,7 @@ data class EntityDefInMemory(
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
-) : EntityDef {
+) : Entity {
 
     private val map = attributes.associateBy { it.key }
 
@@ -28,8 +28,8 @@ data class EntityDefInMemory(
 
 
     companion object {
-        fun of(other: EntityDef): EntityDefInMemory {
-            return EntityDefInMemory(
+        fun of(other: Entity): EntityInMemory {
+            return EntityInMemory(
                 id = other.id,
                 key = other.key,
                 name = other.name,
@@ -58,8 +58,8 @@ data class EntityDefInMemory(
                 this.attributes.addAll(attributes)
             }
 
-            fun build(): EntityDefInMemory {
-                return EntityDefInMemory(
+            fun build(): EntityInMemory {
+                return EntityInMemory(
                     id = id,
                     key = key,
                     name = name,
@@ -77,7 +77,7 @@ data class EntityDefInMemory(
             key: EntityKey,
             identifierAttributeId: AttributeId,
             block: Builder.() -> Unit = {}
-        ): EntityDefInMemory {
+        ): EntityInMemory {
             return Builder(key = key, identifierAttributeId = identifierAttributeId).also(block).build()
         }
     }

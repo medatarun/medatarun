@@ -86,13 +86,13 @@ sealed interface ModelCmd {
 
     data class CreateEntity(
         override val modelRef: ModelRef,
-        val entityDefInitializer: EntityDefInitializer
+        val entityInitializer: EntityInitializer
     ) : ModelCmdOnModel
 
     data class UpdateEntity(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val cmd: EntityDefUpdateCmd
+        val cmd: EntityUpdateCmd
     ) : ModelCmdOnModel
 
     data class UpdateEntityHashtagAdd(

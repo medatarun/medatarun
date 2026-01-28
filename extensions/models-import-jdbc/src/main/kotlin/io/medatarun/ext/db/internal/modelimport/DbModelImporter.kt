@@ -64,7 +64,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             val pkAttribute = attributeFromColumns.firstOrNull { it.key == pkAttributeKey }
                 ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
 
-            EntityDefInMemory(
+            EntityInMemory(
                 id = EntityId.generate(),
                 key = EntityKey(table.tableName),
                 name = null,
@@ -125,8 +125,8 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             description = null,
             origin = ModelOrigin.Uri(URI(path)),
             types = types,
-            entityDefs = entities,
-            relationshipDefs = relationships.flatten(),
+            entities = entities,
+            relationships = relationships.flatten(),
             documentationHome = null,
             hashtags = emptyList(),
         )

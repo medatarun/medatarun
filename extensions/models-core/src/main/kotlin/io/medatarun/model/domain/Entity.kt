@@ -5,14 +5,14 @@ import java.net.URL
 /**
  * Definition of an Entity.
  */
-interface EntityDef {
+interface Entity {
     /**
      * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
      */
     val id: EntityId
 
     /**
-     * Unique key of this EntityDef in the [Model]
+     * Unique key of this [Entity] in the [Model]
      */
     val key: EntityKey
 
@@ -27,7 +27,7 @@ interface EntityDef {
     val description: LocalizedMarkdown?
 
     /**
-     * Attributes contained in this EntityDef
+     * Attributes contained in this [Entity]
      */
     val attributes: List<Attribute>
 

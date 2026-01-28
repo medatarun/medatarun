@@ -569,7 +569,7 @@ class ModelTest {
         val entityRef = EntityRef.ByKey(entityKey)
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer(
+                env.modelRef, EntityInitializer(
                     entityKey = entityKey, name = null, description = null,
                     documentationHome = null,
                     identityAttribute = AttributeIdentityInitializer(
@@ -629,7 +629,7 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey = entityId,
                     identityAttribute = AttributeIdentityInitializer(
                         attributeKey = AttributeKey("id"),
@@ -665,7 +665,7 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey = entityKey,
                     identityAttribute = AttributeIdentityInitializer.build(
                         attributeKey = AttributeKey("id"),
@@ -693,7 +693,7 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey = entityKey,
                     identityAttribute = AttributeIdentityInitializer.build(
                         attributeKey = AttributeKey("String"),
@@ -720,7 +720,7 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey = entityKey,
                     identityAttribute = AttributeIdentityInitializer.build(
                         attributeKey = AttributeKey("id"),
@@ -744,7 +744,7 @@ class ModelTest {
         val entityRef = EntityRef.ByKey(entityKey)
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey, AttributeIdentityInitializer.build(
                         AttributeKey("id"),
                         typeRef("String")
@@ -763,7 +763,7 @@ class ModelTest {
         val url = URI("http://localhost:8080").toURL()
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer.build(
+                env.modelRef, EntityInitializer.build(
                     entityKey, AttributeIdentityInitializer.build(
                         AttributeKey("id"),
                         typeRef("String")
@@ -800,7 +800,7 @@ class ModelTest {
             cmd.dispatch(
                 ModelCmd.CreateEntity(
                     modelRef,
-                    EntityDefInitializer(
+                    EntityInitializer(
                         entityKey = primaryEntityKey,
                         name = LocalizedTextNotLocalized("Entity primary"),
                         description = LocalizedMarkdownNotLocalized("Entity primary description"),
@@ -817,7 +817,7 @@ class ModelTest {
             cmd.dispatch(
                 ModelCmd.CreateEntity(
                     modelRef,
-                    EntityDefInitializer(
+                    EntityInitializer(
                         secondaryEntityKey,
                         LocalizedTextNotLocalized("Entity secondary"),
                         LocalizedMarkdownNotLocalized("Entity secondary description"),
@@ -844,14 +844,14 @@ class ModelTest {
                 ModelCmd.UpdateEntity(
                     wrongModelKey,
                     env.primaryEntityRef,
-                    EntityDefUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
+                    EntityUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
                 )
             )
         }
     }
 
     @Test
-    fun `update entity with wrong entity id throws EntityDefNotFoundException`() {
+    fun `update entity with wrong entity id throws EntityNotFoundException`() {
         val env = TestEnvEntityUpdate()
         val wrongEntityId = EntityKey("unknown-entity")
         val wrongEntityRef = EntityRef.ByKey(wrongEntityId)
@@ -861,7 +861,7 @@ class ModelTest {
                 ModelCmd.UpdateEntity(
                     env.modelRef,
                     wrongEntityRef,
-                    EntityDefUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
+                    EntityUpdateCmd.Name(LocalizedTextNotLocalized("Updated name"))
                 )
             )
         }
@@ -872,12 +872,12 @@ class ModelTest {
         val env = TestEnvEntityUpdate()
         val duplicateId = env.secondaryEntityKey
 
-        assertFailsWith<UpdateEntityDefIdDuplicateIdException> {
+        assertFailsWith<EntityUpdateIdDuplicateIdException> {
             env.cmd.dispatch(
                 ModelCmd.UpdateEntity(
                     env.modelRef,
                     env.primaryEntityRef,
-                    EntityDefUpdateCmd.Key(duplicateId)
+                    EntityUpdateCmd.Key(duplicateId)
                 )
             )
         }
@@ -892,7 +892,7 @@ class ModelTest {
             ModelCmd.UpdateEntity(
                 env.modelRef,
                 env.primaryEntityRef,
-                EntityDefUpdateCmd.Key(newId)
+                EntityUpdateCmd.Key(newId)
             )
         )
 
@@ -910,7 +910,7 @@ class ModelTest {
             ModelCmd.UpdateEntity(
                 env.modelRef,
                 env.primaryEntityRef,
-                EntityDefUpdateCmd.Name(newName)
+                EntityUpdateCmd.Name(newName)
             )
         )
 
@@ -926,7 +926,7 @@ class ModelTest {
             ModelCmd.UpdateEntity(
                 env.modelRef,
                 env.primaryEntityRef,
-                EntityDefUpdateCmd.Name(null)
+                EntityUpdateCmd.Name(null)
             )
         )
 
@@ -943,7 +943,7 @@ class ModelTest {
             ModelCmd.UpdateEntity(
                 env.modelRef,
                 env.primaryEntityRef,
-                EntityDefUpdateCmd.Description(newDescription)
+                EntityUpdateCmd.Description(newDescription)
             )
         )
 
@@ -959,7 +959,7 @@ class ModelTest {
             ModelCmd.UpdateEntity(
                 env.modelRef,
                 env.primaryEntityRef,
-                EntityDefUpdateCmd.Description(null)
+                EntityUpdateCmd.Description(null)
             )
         )
 
@@ -972,7 +972,7 @@ class ModelTest {
         val env = TestEnvEntityUpdate()
         val url = URI("http://localhost").toURL()
         env.cmd.dispatch(
-            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityDefUpdateCmd.DocumentationHome(url))
+            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityUpdateCmd.DocumentationHome(url))
         )
         val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
         assertEquals(url, reloaded.documentationHome)
@@ -983,10 +983,10 @@ class ModelTest {
         val env = TestEnvEntityUpdate()
         val url = URI("http://localhost").toURL()
         env.cmd.dispatch(
-            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityDefUpdateCmd.DocumentationHome(url))
+            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityUpdateCmd.DocumentationHome(url))
         )
         env.cmd.dispatch(
-            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityDefUpdateCmd.DocumentationHome(null))
+            ModelCmd.UpdateEntity(env.modelRef, env.primaryEntityRef, EntityUpdateCmd.DocumentationHome(null))
         )
         val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
         assertNull(reloaded.documentationHome)
@@ -1001,7 +1001,7 @@ class ModelTest {
 
         env.cmd.dispatch(
             ModelCmd.CreateEntity(
-                env.modelRef, EntityDefInitializer(
+                env.modelRef, EntityInitializer(
                     entityKey = entityId,
                     name = LocalizedTextNotLocalized("To delete"),
                     description = null,
@@ -1054,7 +1054,7 @@ class ModelTest {
         cmd.dispatch(ModelCmd.CreateType(modelRef2, ModelTypeInitializer(TypeKey("String"), null, null)))
         cmd.dispatch(
             ModelCmd.CreateEntity(
-                modelRef1, EntityDefInitializer(
+                modelRef1, EntityInitializer(
                     entityKey = entityKey, name = LocalizedTextNotLocalized("Entity"), description = null,
                     documentationHome = null,
                     identityAttribute = AttributeIdentityInitializer(
@@ -1068,7 +1068,7 @@ class ModelTest {
         )
         cmd.dispatch(
             ModelCmd.CreateEntity(
-                modelRef2, EntityDefInitializer(
+                modelRef2, EntityInitializer(
                     entityKey = entityKey, name = LocalizedTextNotLocalized("Entity"), description = null,
                     documentationHome = null,
                     identityAttribute = AttributeIdentityInitializer(
@@ -1115,11 +1115,11 @@ class ModelTest {
             cmd.dispatch(ModelCmd.CreateType(sampleModelRef, ModelTypeInitializer(TypeKey("String"), null, null)))
         }
 
-        fun addSampleEntityDef() {
+        fun addSampleEntity() {
             cmd.dispatch(
                 ModelCmd.CreateEntity(
                     sampleModelRef,
-                    EntityDefInitializer(
+                    EntityInitializer(
                         entityKey = sampleEntityKey, name = null, description = null,
                         documentationHome = null,
                         identityAttribute = AttributeIdentityInitializer(
@@ -1183,7 +1183,7 @@ class ModelTest {
     @Test
     fun `create attribute then id name and description shall persist`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val reloaded = env.createAttribute(
             attributeKey = AttributeKey("businesskey"),
             type = typeRef("String"),
@@ -1202,7 +1202,7 @@ class ModelTest {
     @Test
     fun `create attribute with null name then name shall be null`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val reloaded = env.createAttribute(name = null)
         assertNull(reloaded.name)
     }
@@ -1210,7 +1210,7 @@ class ModelTest {
     @Test
     fun `create attribute with null description then description shall be null`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val reloaded = env.createAttribute(description = null)
         assertNull(reloaded.description)
     }
@@ -1218,7 +1218,7 @@ class ModelTest {
     @Test
     fun `create attribute with optional true description then optional is true`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val reloaded = env.createAttribute(optional = true)
         assertTrue(reloaded.optional)
     }
@@ -1226,7 +1226,7 @@ class ModelTest {
     @Test
     fun `create attribute with type boolean then type found`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val typeKey = TypeKey("Boolean")
         env.cmd.dispatch(
             ModelCmd.CreateType(
@@ -1243,7 +1243,7 @@ class ModelTest {
     @Test
     fun `create attribute with duplicate id then error`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("lastname"))
         assertFailsWith<CreateAttributeDuplicateIdException> {
             env.createAttribute(attributeKey = AttributeKey("lastname"))
@@ -1253,7 +1253,7 @@ class ModelTest {
     @Test
     fun `create attribute unknown type then error`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         assertFailsWith<TypeNotFoundException> {
             env.createAttribute(attributeKey = AttributeKey("lastname"), type = typeRef("UnknownType"))
         }
@@ -1262,7 +1262,7 @@ class ModelTest {
     @Test
     fun `update attribute with wrong model id throws ModelNotFoundException`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<ModelNotFoundException> {
             env.cmd.dispatch(
@@ -1280,7 +1280,7 @@ class ModelTest {
     @Test
     fun `update attribute with wrong entity id throws ModelEntityNotFoundException`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<EntityNotFoundException> {
             env.cmd.dispatch(
@@ -1298,7 +1298,7 @@ class ModelTest {
     @Test
     fun `update attribute with wrong attribute id throws ModelEntityNotFoundException`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<EntityAttributeNotFoundException> {
             env.cmd.dispatch(
@@ -1316,7 +1316,7 @@ class ModelTest {
     @Test
     fun `update attribute id with duplicate id throws exception`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("lastname"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))
         assertFailsWith<UpdateAttributeDuplicateKeyException> {
@@ -1331,7 +1331,7 @@ class ModelTest {
     @Test
     fun `update attribute id with correct id works`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute(AttributeKey("lastname"))
         env.createAttribute(AttributeKey("firstname"))
         val reloaded = env.updateAttribute(
@@ -1345,7 +1345,7 @@ class ModelTest {
     @Test
     fun `update attribute key does not loose entity identifier attribute`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val e = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
         val attrId = e.identifierAttributeId
         val newKey = AttributeKey("id_next")
@@ -1364,7 +1364,7 @@ class ModelTest {
     @Test
     fun `update attribute name is persisted`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(name = null)
         val nextValue = LocalizedTextNotLocalized("New name")
         val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Name(nextValue))
@@ -1374,7 +1374,7 @@ class ModelTest {
     @Test
     fun `update attribute name to null stays null`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(name = LocalizedTextNotLocalized("Name"))
         val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Name(null))
         assertNull(reloaded.name)
@@ -1384,7 +1384,7 @@ class ModelTest {
     @Test
     fun `update attribute description is persisted`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
         val reloaded =
@@ -1395,7 +1395,7 @@ class ModelTest {
     @Test
     fun `update attribute description to null stays null`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(description = LocalizedMarkdownNotLocalized("New description"))
         val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Description(null))
         assertNull(reloaded.description)
@@ -1404,7 +1404,7 @@ class ModelTest {
     @Test
     fun `update attribute type is persisted`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val typeMarkdownKey = TypeKey("Markdown")
         env.cmd.dispatch(
             ModelCmd.CreateType(
@@ -1424,7 +1424,7 @@ class ModelTest {
     @Test
     fun `update attribute unknown type then error`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         val attr = env.createAttribute(type = typeRef(type.id))
         assertThrows<TypeNotFoundException> {
@@ -1442,7 +1442,7 @@ class ModelTest {
     @Test
     fun `update attribute optional true to false is persisted`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(optional = true)
         val nextValue = false
         val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Optional(nextValue))
@@ -1452,7 +1452,7 @@ class ModelTest {
     @Test
     fun `update attribute optional false to true is persisted`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         val attr = env.createAttribute(optional = false)
         val nextValue = true
         val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Optional(nextValue))
@@ -1462,7 +1462,7 @@ class ModelTest {
     @Test
     fun `delete entity attribute in model then attribute removed`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("bk"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))
         env.createAttribute(attributeKey = AttributeKey("lastname"))
@@ -1502,7 +1502,7 @@ class ModelTest {
     @Test
     fun `delete entity attribute used as identifier throws error`() {
         val env = TestEnvAttribute()
-        env.addSampleEntityDef()
+        env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("bk"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))
         env.createAttribute(attributeKey = AttributeKey("lastname"))
@@ -1547,7 +1547,7 @@ class ModelTest {
                         description = null
                     )
                 )
-                addEntityDef(
+                addEntity(
                     key = EntityKey("Contact"),
                     // Error is here
                     identifierAttributeId = AttributeId.generate(),

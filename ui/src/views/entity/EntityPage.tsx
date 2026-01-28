@@ -31,7 +31,7 @@ export function EntityPage({modelId, entityId}: { modelId: string, entityId: str
 
   const {data: model} = useModel(modelId)
 
-  const entity = model?.entityDefs?.find(it => it.id === entityId)
+  const entity = model?.entities?.find(it => it.id === entityId)
   if (!model) return null
   if (!entity) return null
   return <ModelContext value={new Model(model)}><EntityView entity={entity}/></ModelContext>

@@ -3,7 +3,7 @@ package io.medatarun.model.domain
 import java.net.URL
 
 /**
- * A model contains multiple [EntityDef] that contains [Attribute].
+ * A model contains multiple [Entity] that contains [Attribute].
  *
  * Think of it as a Domain Model in DDD in a bounded context
  */
@@ -47,12 +47,12 @@ interface Model {
     /**
      * Entity definitions in this model
      */
-    val entityDefs: List<EntityDef>
+    val entities: List<Entity>
 
     /**
      * Relationship definitions in this model
      */
-    val relationshipDefs: List<RelationshipDef>
+    val relationships: List<RelationshipDef>
 
     /**
      * Documentation home
@@ -89,20 +89,20 @@ interface Model {
     /**
      * Returns entity definition by its id or null
      */
-    fun findEntityOptional(id: EntityKey): EntityDef? = entityDefs.firstOrNull { it.key == id }
-    fun findEntityOptional(id: EntityId): EntityDef? = entityDefs.firstOrNull { it.id == id }
-    fun findEntityOptional(ref: EntityRef): EntityDef? = when (ref) {
+    fun findEntityOptional(id: EntityKey): Entity? = entities.firstOrNull { it.key == id }
+    fun findEntityOptional(id: EntityId): Entity? = entities.firstOrNull { it.id == id }
+    fun findEntityOptional(ref: EntityRef): Entity? = when (ref) {
         is EntityRef.ById -> findEntityOptional(ref.id)
         is EntityRef.ByKey -> findEntityOptional(ref.key)
     }
 
-    fun findEntity(key: EntityKey): EntityDef = findEntityOptional(key)
+    fun findEntity(key: EntityKey): Entity = findEntityOptional(key)
         ?: throw EntityNotFoundException(ModelRef.ById(this.id), EntityRef.ByKey(key))
 
-    fun findEntity(id: EntityId): EntityDef = findEntityOptional(id)
+    fun findEntity(id: EntityId): Entity = findEntityOptional(id)
         ?: throw EntityNotFoundException(ModelRef.ById(this.id), EntityRef.ById(id))
 
-    fun findEntity(ref: EntityRef): EntityDef = findEntityOptional(ref)
+    fun findEntity(ref: EntityRef): Entity = findEntityOptional(ref)
         ?: throw EntityNotFoundException(ModelRef.ById(this.id), ref)
 
 
@@ -136,10 +136,10 @@ interface Model {
      * Returns relationship definition by its id
      */
     fun findRelationshipOptional(key: RelationshipKey): RelationshipDef? =
-        relationshipDefs.firstOrNull { it.key == key }
+        relationships.firstOrNull { it.key == key }
 
     fun findRelationshipOptional(id: RelationshipId): RelationshipDef? =
-        relationshipDefs.firstOrNull { it.id == id }
+        relationships.firstOrNull { it.id == id }
 
     fun findRelationshipOptional(ref: RelationshipRef): RelationshipDef? = when (ref) {
         is RelationshipRef.ById -> findRelationshipOptional(ref.id)

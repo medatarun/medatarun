@@ -1,7 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.EntityDefInMemory
+import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import kotlin.test.Test
@@ -18,10 +18,10 @@ class ModelInMemoryTest {
 
         val markdownType = model.findType(TypeKey("Markdown"))
 
-        val entityIds = model.entityDefs.map { it.key }.toSet()
+        val entityIds = model.entities.map { it.key }.toSet()
         assertEquals(setOf(EntityKey("person"), EntityKey("company")), entityIds)
 
-        val person = model.entityDefs.first { it.key == EntityKey("person") }
+        val person = model.entities.first { it.key == EntityKey("person") }
         assertEquals(5, person.countAttributes())
 
         val attrInfos = model.findEntityAttributeOptional(
@@ -53,7 +53,7 @@ class ModelInMemoryTest {
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
         val personIdentifierAttributeId=  AttributeId.generate()
-        val personEntity = EntityDefInMemory.builder(
+        val personEntity = EntityInMemory.builder(
             key = EntityKey("person"),
             identifierAttributeId = personIdentifierAttributeId,
         ) {
@@ -107,7 +107,7 @@ class ModelInMemoryTest {
             )
         }
         val companyIdentifierAttributeId =  AttributeId.generate()
-        val companyEntity = EntityDefInMemory.builder(
+        val companyEntity = EntityInMemory.builder(
             key = EntityKey("company"),
             identifierAttributeId = companyIdentifierAttributeId,
         ) {
@@ -160,8 +160,8 @@ class ModelInMemoryTest {
             description = null,
             version = ModelVersion("1.0.0"),
             types = listOf(typeString, typeMarkdown),
-            entityDefs = listOf(personEntity, companyEntity),
-            relationshipDefs = emptyList(), // TODO tests on model in memory relationships
+            entities = listOf(personEntity, companyEntity),
+            relationships = emptyList(), // TODO tests on model in memory relationships
             documentationHome = null,
             origin = ModelOrigin.Manual,
             hashtags = emptyList()

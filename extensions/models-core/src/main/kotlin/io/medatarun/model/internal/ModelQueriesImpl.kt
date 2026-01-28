@@ -25,8 +25,8 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
                     description = model.description?.get(locale),
                     error = null,
                     countTypes = model.types.size,
-                    countEntities = model.entityDefs.size,
-                    countRelationships = model.relationshipDefs.size
+                    countEntities = model.entities.size,
+                    countRelationships = model.relationships.size
                 )
             } catch (e: Exception) {
                 ModelSummary(
@@ -49,7 +49,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
     override fun findEntity(
         modelRef: ModelRef,
         entityRef: EntityRef
-    ): EntityDef {
+    ): Entity {
         val model = findModel(modelRef)
         return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
     }

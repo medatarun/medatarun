@@ -1,7 +1,7 @@
 package io.medatarun.model.domain
 
 /**
- * Attribute definition for an [EntityDef]
+ * Attribute definition for an [Entity]
  */
 interface Attribute {
     /**
@@ -10,7 +10,7 @@ interface Attribute {
     val id: AttributeId
 
     /**
-     * Unique key of the attribute in its [EntityDef]
+     * Unique key of the attribute in its [Entity]
      */
     val key: AttributeKey
 

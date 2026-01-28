@@ -31,7 +31,7 @@ internal class ModelJsonConverterTest {
         val modelRead = instance.fromJson(sampleModelJson)
         assertEquals(modelRead.key, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
-        assertEquals(modelRead.entityDefs.size, 2)
+        assertEquals(modelRead.entities.size, 2)
 
         val contactEntityRef = EntityRef.ByKey(EntityKey("contact"))
         val companyRef = EntityRef.ByKey(EntityKey("company"))
@@ -197,11 +197,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForDocumentationHomeTest(null, null)
         val model = instance.fromJson(json.toString())
         assertEquals(null, model.documentationHome)
-        assertEquals(null, model.entityDefs.first().documentationHome)
+        assertEquals(null, model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
         assertEquals(null, modelRead.documentationHome)
-        assertEquals(null, modelRead.entityDefs.first().documentationHome)
+        assertEquals(null, modelRead.entities.first().documentationHome)
     }
 
     @Test
@@ -209,11 +209,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForDocumentationHomeTest(JsonNull, JsonNull)
         val model = instance.fromJson(json.toString())
         assertEquals(null, model.documentationHome)
-        assertEquals(null, model.entityDefs.first().documentationHome)
+        assertEquals(null, model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
         assertEquals(null, modelRead.documentationHome)
-        assertEquals(null, modelRead.entityDefs.first().documentationHome)
+        assertEquals(null, modelRead.entities.first().documentationHome)
     }
 
     @Test
@@ -223,11 +223,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForDocumentationHomeTest(JsonPrimitive(modelDocHome), JsonPrimitive(entityDocHome))
         val model = instance.fromJson(json.toString())
         assertEquals(URI(modelDocHome).toURL(), model.documentationHome)
-        assertEquals(URI(entityDocHome).toURL(), model.entityDefs.first().documentationHome)
+        assertEquals(URI(entityDocHome).toURL(), model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten.toString())
         assertEquals(URI(modelDocHome).toURL(), modelRead.documentationHome)
-        assertEquals(URI(entityDocHome).toURL(), modelRead.entityDefs.first().documentationHome)
+        assertEquals(URI(entityDocHome).toURL(), modelRead.entities.first().documentationHome)
     }
 
     fun createJsonForHashtagsTest(modelHashtags: JsonElement?, entityHashtags: JsonElement?): JsonObject {
@@ -267,11 +267,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForHashtagsTest(null, null)
         val model = instance.fromJson(json.toString())
         assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        assertTrue(model.entities.first().hashtags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
         assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+        assertTrue(modelRead.entities.first().hashtags.isEmpty())
     }
 
     @Test
@@ -279,11 +279,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForHashtagsTest(JsonNull, JsonNull)
         val model = instance.fromJson(json.toString())
         assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        assertTrue(model.entities.first().hashtags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
         assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+        assertTrue(modelRead.entities.first().hashtags.isEmpty())
     }
 
     @Test
@@ -291,11 +291,11 @@ internal class ModelJsonConverterTest {
         val json = createJsonForHashtagsTest(buildJsonArray {}, buildJsonArray { })
         val model = instance.fromJson(json.toString())
         assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entityDefs.first().hashtags.isEmpty())
+        assertTrue(model.entities.first().hashtags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
         assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entityDefs.first().hashtags.isEmpty())
+        assertTrue(modelRead.entities.first().hashtags.isEmpty())
     }
 
     @Test
@@ -311,16 +311,16 @@ internal class ModelJsonConverterTest {
 
         assertContains(model.hashtags, Hashtag("tag1"))
         assertContains(model.hashtags, Hashtag("tag2"))
-        assertContains(model.entityDefs.first().hashtags, Hashtag("tag3"))
-        assertContains(model.entityDefs.first().hashtags, Hashtag("tag4"))
+        assertContains(model.entities.first().hashtags, Hashtag("tag3"))
+        assertContains(model.entities.first().hashtags, Hashtag("tag4"))
 
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
 
         assertContains(modelRead.hashtags, Hashtag("tag1"))
         assertContains(modelRead.hashtags, Hashtag("tag2"))
-        assertContains(modelRead.entityDefs.first().hashtags, Hashtag("tag3"))
-        assertContains(modelRead.entityDefs.first().hashtags, Hashtag("tag4"))
+        assertContains(modelRead.entities.first().hashtags, Hashtag("tag3"))
+        assertContains(modelRead.entities.first().hashtags, Hashtag("tag4"))
     }
 
     fun normalizeJson(str: String): String {

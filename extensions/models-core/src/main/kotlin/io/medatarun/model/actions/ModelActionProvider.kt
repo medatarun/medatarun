@@ -287,7 +287,7 @@ class ModelActionHandler(
         dispatch(
             ModelCmd.CreateEntity(
                 modelRef = cmd.modelRef,
-                entityDefInitializer = EntityDefInitializer(
+                entityInitializer = EntityInitializer(
                     entityKey = cmd.entityKey,
                     name = cmd.name,
                     description = cmd.description,
@@ -308,7 +308,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityDefUpdateCmd.Key(cmd.value)
+                cmd = EntityUpdateCmd.Key(cmd.value)
             )
         )
     }
@@ -318,7 +318,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityDefUpdateCmd.Name(cmd.value)
+                cmd = EntityUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -328,7 +328,7 @@ class ModelActionHandler(
             ModelCmd.UpdateEntity(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityDefUpdateCmd.Description(cmd.value)
+                cmd = EntityUpdateCmd.Description(cmd.value)
             )
         )
     }

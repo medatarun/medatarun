@@ -57,13 +57,13 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             )
 
 
-            putJsonArray("entityDefs") {
-                model.entityDefs.forEach { e ->
-                    add(entityDefJson(e, locale, model))
+            putJsonArray("entities") {
+                model.entities.forEach { e ->
+                    add(entityJson(e, locale, model))
                 }
             }
             putJsonArray("relationshipDefs", {
-                model.relationshipDefs.forEach { relationship ->
+                model.relationships.forEach { relationship ->
                     val relationshipJson = toRelationshipJson(relationship, locale)
                     add(relationshipJson)
                 }
@@ -121,8 +121,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         return relationshipJson
     }
 
-    private fun entityDefJson(
-        e: EntityDef,
+    private fun entityJson(
+        e: Entity,
         locale: Locale,
         model: Model
     ): JsonObject {

@@ -73,7 +73,7 @@ class ModelCmdsImpl(
         return type
     }
 
-    private fun findEntity(modelRef: ModelRef, entityRef: EntityRef): EntityDef {
+    private fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity {
         val model = findModel(modelRef)
         val entity = model.findEntityOptional(entityRef)
             ?: throw EntityNotFoundException(modelRef, entityRef)
@@ -141,8 +141,8 @@ class ModelCmdsImpl(
             version = cmd.version,
             origin = ModelOrigin.Manual,
             types = emptyList(),
-            entityDefs = emptyList(),
-            relationshipDefs = emptyList(),
+            entities = emptyList(),
+            relationships = emptyList(),
             documentationHome = null,
             hashtags = emptyList(),
         )
@@ -223,7 +223,7 @@ class ModelCmdsImpl(
         val model = findModel(cmd.modelRef)
         val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
 
-        val used = model.entityDefs.any { entityDef -> entityDef.attributes.any { attr -> attr.typeId == type.id } }
+        val used = model.entities.any { entity -> entity.attributes.any { attr -> attr.typeId == type.id } }
         if (used) throw ModelTypeDeleteUsedException(type.key)
 
         storage.dispatch(ModelRepoCmd.DeleteType(model.id, type.id))
@@ -236,17 +236,17 @@ class ModelCmdsImpl(
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
         val part = when (cmd.cmd) {
-            is EntityDefUpdateCmd.Key -> {
-                if (model.entityDefs.any { it.key == cmd.cmd.value && it.key != entity.key }) {
-                    throw UpdateEntityDefIdDuplicateIdException(entity.key)
+            is EntityUpdateCmd.Key -> {
+                if (model.entities.any { it.key == cmd.cmd.value && it.key != entity.key }) {
+                    throw EntityUpdateIdDuplicateIdException(entity.key)
                 }
                 ModelRepoCmdEntityUpdate.Key(cmd.cmd.value)
             }
 
-            is EntityDefUpdateCmd.Description -> ModelRepoCmdEntityUpdate.Description(cmd.cmd.value)
-            is EntityDefUpdateCmd.Name -> ModelRepoCmdEntityUpdate.Name(cmd.cmd.value)
-            is EntityDefUpdateCmd.DocumentationHome -> ModelRepoCmdEntityUpdate.DocumentationHome(cmd.cmd.value)
-            is EntityDefUpdateCmd.IdentifierAttribute -> {
+            is EntityUpdateCmd.Description -> ModelRepoCmdEntityUpdate.Description(cmd.cmd.value)
+            is EntityUpdateCmd.Name -> ModelRepoCmdEntityUpdate.Name(cmd.cmd.value)
+            is EntityUpdateCmd.DocumentationHome -> ModelRepoCmdEntityUpdate.DocumentationHome(cmd.cmd.value)
+            is EntityUpdateCmd.IdentifierAttribute -> {
                 val attrId = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.cmd.value).id
                 ModelRepoCmdEntityUpdate.IdentifierAttribute(attrId)
             }
@@ -269,12 +269,12 @@ class ModelCmdsImpl(
 
     private fun createEntity(c: ModelCmd.CreateEntity) {
         val model = findModel(c.modelRef)
-        val type = findType(c.modelRef, c.entityDefInitializer.identityAttribute.type)
+        val type = findType(c.modelRef, c.entityInitializer.identityAttribute.type)
         val identityAttribute = AttributeInMemory(
             id = AttributeId.generate(),
-            key = c.entityDefInitializer.identityAttribute.attributeKey,
-            name = c.entityDefInitializer.identityAttribute.name,
-            description = c.entityDefInitializer.identityAttribute.description,
+            key = c.entityInitializer.identityAttribute.attributeKey,
+            name = c.entityInitializer.identityAttribute.name,
+            description = c.entityInitializer.identityAttribute.description,
             typeId = type.id,
             optional = false, // because it's identity, can never be optional
             hashtags = emptyList()
@@ -283,14 +283,14 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateEntity(
                 model.id,
-                EntityDefInMemory(
+                EntityInMemory(
                     id = EntityId.generate(),
-                    key = c.entityDefInitializer.entityKey,
-                    name = c.entityDefInitializer.name,
-                    description = c.entityDefInitializer.description,
+                    key = c.entityInitializer.entityKey,
+                    name = c.entityInitializer.name,
+                    description = c.entityInitializer.description,
                     identifierAttributeId = identityAttribute.id,
                     origin = EntityOrigin.Manual,
-                    documentationHome = c.entityDefInitializer.documentationHome,
+                    documentationHome = c.entityInitializer.documentationHome,
                     hashtags = emptyList(),
                     attributes = attributes
                 )

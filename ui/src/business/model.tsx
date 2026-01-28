@@ -21,7 +21,7 @@ export interface ModelDto {
   hashtags: string[]
   description: string | null
   origin: ElementOrigin
-  entityDefs: EntityDto[]
+  entities: EntityDto[]
   relationshipDefs: RelationshipDto[]
   types: TypeDto[]
 }
@@ -51,7 +51,7 @@ export interface EntityDto {
     id: string
     name: string | null
   }
-  origin: EntityDefOriginDto
+  origin: EntityOriginDto
   attributes: AttributeDto[]
 }
 
@@ -66,7 +66,7 @@ export interface AttributeDto {
   hashtags: string[]
 }
 
-interface EntityDefOriginDto {
+interface EntityOriginDto {
   type: "manual" | "uri",
   uri: string | null
 }
@@ -80,12 +80,12 @@ export class Model {
   }
 
   findEntityNameOrKey(id: string): string | null {
-    const e = this.dto.entityDefs.find(it => it.id === id)
+    const e = this.dto.entities.find(it => it.id === id)
     return e?.name ?? e?.key ?? null
   }
 
   findEntityKey(id: string): string | null {
-    const e = this.dto.entityDefs.find(it => it.id === id)
+    const e = this.dto.entities.find(it => it.id === id)
     return e?.key ?? null
   }
 
@@ -108,12 +108,12 @@ export class Model {
   }
 
   findEntityDto(entityId: string) {
-    return this.dto.entityDefs.find(it => it.id === entityId)
+    return this.dto.entities.find(it => it.id === entityId)
 
   }
 
   findEntityAttributeDto(entityId: string, attributeId: string) {
-    return this.dto.entityDefs.find(it => it.id === entityId)
+    return this.dto.entities.find(it => it.id === entityId)
       ?.attributes?.find(it => it.id === attributeId)
   }
 

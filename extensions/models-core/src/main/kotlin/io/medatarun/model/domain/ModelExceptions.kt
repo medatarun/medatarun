@@ -66,7 +66,7 @@ class LocalizedTextMapEmptyException :
 class UpdateAttributeDuplicateKeyException(entityRef: EntityRef, attributeRef: EntityAttributeRef, newKey: AttributeKey) :
     MedatarunException("Can not change attribute [${attributeRef.asString()}] key to [${newKey.value}] because it is already used for another attribute in entity [${entityRef.asString()}]")
 
-class UpdateEntityDefIdDuplicateIdException(entityKey: EntityKey) :
+class EntityUpdateIdDuplicateIdException(entityKey: EntityKey) :
     MedatarunException("Another entity [${entityKey.value}] already exists in the same model")
 
 class CreateAttributeDuplicateIdException(entityKey: EntityKey, attributeKey: AttributeKey) :

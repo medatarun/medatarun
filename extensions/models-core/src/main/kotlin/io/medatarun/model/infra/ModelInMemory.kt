@@ -14,8 +14,8 @@ data class ModelInMemory(
     override val version: ModelVersion,
     override val origin: ModelOrigin,
     override val types: List<ModelTypeInMemory>,
-    override val entityDefs: List<EntityDefInMemory>,
-    override val relationshipDefs: List<RelationshipDefInMemory>,
+    override val entities: List<EntityInMemory>,
+    override val relationships: List<RelationshipDefInMemory>,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
 ) : Model {
@@ -30,8 +30,8 @@ data class ModelInMemory(
                 version = other.version,
                 origin = other.origin,
                 types = other.types.map(ModelTypeInMemory::of),
-                entityDefs = other.entityDefs.map(EntityDefInMemory::of),
-                relationshipDefs = other.relationshipDefs.map(RelationshipDefInMemory::of),
+                entities = other.entities.map(EntityInMemory::of),
+                relationships = other.relationships.map(RelationshipDefInMemory::of),
                 documentationHome = other.documentationHome,
                 hashtags = other.hashtags
             )
@@ -45,8 +45,8 @@ data class ModelInMemory(
             val version: ModelVersion,
             var origin: ModelOrigin = ModelOrigin.Manual,
             var types: MutableList<ModelTypeInMemory> = mutableListOf(),
-            var entityDefs: MutableList<EntityDefInMemory> = mutableListOf(),
-            var relationshipDefs: MutableList<RelationshipDefInMemory> = mutableListOf(),
+            var entities: MutableList<EntityInMemory> = mutableListOf(),
+            var relationships: MutableList<RelationshipDefInMemory> = mutableListOf(),
             var documentationHome: URL? = null,
             var hashtags: MutableList<Hashtag> = mutableListOf(),
         ) {
@@ -59,20 +59,20 @@ data class ModelInMemory(
                     version = version,
                     origin = origin,
                     types = types,
-                    entityDefs = entityDefs,
-                    relationshipDefs = relationshipDefs,
+                    entities = entities,
+                    relationships = relationships,
                     documentationHome = documentationHome,
                     hashtags = hashtags,
                 )
             }
 
-            fun addEntityDef(
+            fun addEntity(
                 key: EntityKey,
                 identifierAttributeId: AttributeId,
-                block: EntityDefInMemory.Companion.Builder.() -> Unit = {}
-            ): EntityDefInMemory {
-                val e = EntityDefInMemory.builder(key, identifierAttributeId, block)
-                entityDefs.add(e)
+                block: EntityInMemory.Companion.Builder.() -> Unit = {}
+            ): EntityInMemory {
+                val e = EntityInMemory.builder(key, identifierAttributeId, block)
+                entities.add(e)
                 return e
             }
         }

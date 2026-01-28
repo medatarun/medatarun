@@ -13,7 +13,7 @@ interface ModelQueries {
     fun findModel(modelRef: ModelRef): Model
     fun findModelOptional(modelRef: ModelRef): Model?
 
-    fun findEntity(modelRef: ModelRef, entityRef: EntityRef): EntityDef
+    fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
 
     /**
      * Returns complete list of all known model ids in this application instance

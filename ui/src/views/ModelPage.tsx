@@ -85,8 +85,8 @@ export function ModelView() {
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
-          { model.entityDefs.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
-          { model.entityDefs.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
+          { model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
+          { model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
 
           <SectionTitle
             icon={<RelationshipIcon/>}
@@ -133,7 +133,7 @@ export function ModelOverview() {
 
 export function EntitiesCardList({onClick}: { onClick: (entityId: string) => void }) {
   const model = useModelContext()
-  const entities = model.dto.entityDefs
+  const entities = model.dto.entities
   return <div>
     <div style={{
       display: "flex",
@@ -144,11 +144,11 @@ export function EntitiesCardList({onClick}: { onClick: (entityId: string) => voi
       flexWrap: "wrap"
     }}>
       {
-        entities.map(entityDef => <EntityCard
-          key={entityDef.id}
-          entity={entityDef}
+        entities.map(entity => <EntityCard
+          key={entity.id}
+          entity={entity}
           onClick={() => {
-            onClick(entityDef.id)
+            onClick(entity.id)
           }}/>
         )
       }

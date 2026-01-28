@@ -24,7 +24,7 @@ class ModelHumanPrinterEmoji: ModelHumanPrinter {
         model.types.forEach { type ->
             buf.appendLine(tabs(2) + type.key.value)
         }
-        model.entityDefs.forEach { entity ->
+        model.entities.forEach { entity ->
             buf.appendLine(tabs(1) + "📦 ${entity.key.value}")
             val entityName = entity.name?.name
             if (entityName != null) {

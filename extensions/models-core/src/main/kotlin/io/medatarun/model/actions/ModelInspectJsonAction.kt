@@ -26,7 +26,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                             }
                         })
                         put("entities", buildJsonArray {
-                            model.entityDefs.forEach { entity ->
+                            model.entities.forEach { entity ->
                                 val identifierAttribute = model.findEntityAttribute(
                                     EntityRef.ById(entity.id),
                                     EntityAttributeRef.ById(entity.identifierAttributeId)
@@ -41,7 +41,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                             }
                         })
                         put("relationships", buildJsonArray {
-                            model.relationshipDefs.forEach { relationship ->
+                            model.relationships.forEach { relationship ->
                                 addJsonObject {
                                     put("id", relationship.key.value)
                                     put("name", localizedTextToJson(relationship.name))
