@@ -84,9 +84,6 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
         } else {
           onCommit()
         }
-
-
-
       }
       if (e.key === "Escape") {
         e.preventDefault();

@@ -16,7 +16,10 @@ const useStyles = makeStyles({
     "&:hover [data-edit-icon]": {
       opacity: 0.5,
       pointerEvents: "auto",
-      verticalAlign: "middle"
+      verticalAlign: "middle",
+      position: "absolute",
+      top: 0,
+      right: tokens.spacingHorizontalM
     }
   },
   editIcon: {
@@ -57,7 +60,7 @@ export interface InlineEditSingleLineLayoutProps {
   /**
    * Editor to display in EditMode
    */
-  editor: (intents: { commit: () => void, cancel: () => void, pending:boolean}) => ReactElement;
+  editor: (intents: { commit: () => void, cancel: () => void, pending: boolean }) => ReactElement;
   /**
    * Called before the editor mode is switched to "on" (prepare data)
    * If the promise rejects, we will display an error before the editor
@@ -175,7 +178,7 @@ export const InlineEditSingleLineLayout = (
       </div>
     );
 
-  const Editor = editor({commit:handleEditOK, cancel:handleEditCancel, pending:pending})
+  const Editor = editor({commit: handleEditOK, cancel: handleEditCancel, pending: pending})
 
   return (
     <div>
