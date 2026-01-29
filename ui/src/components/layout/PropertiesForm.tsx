@@ -7,12 +7,12 @@ const useStyles = makeStyles({
     gridTemplateColumns: "min-content auto",
     columnGap: tokens.spacingVerticalM,
     rowGap: tokens.spacingVerticalS,
-    "& div": {
+    "& > div": {
       boxSizing: "border-box",
       minHeight: "2.3em",
       height: "2.3em",
       lineHeight: "2.1em",
-      "& label": {
+      "& > div > label": {
         minHeight: "2.3em",
         height: "2.3em",
         lineHeight: "2.1em",

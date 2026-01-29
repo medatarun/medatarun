@@ -5,6 +5,8 @@ import {
   Model,
   useActionRegistry,
   useModel,
+  useModelAddTag,
+  useModelDeleteTag,
   useModelUpdateDescription,
   useModelUpdateDocumentationHome,
   useModelUpdateKey,
@@ -31,6 +33,7 @@ import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
 import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
 import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "../components/core/InlineEditTags.tsx";
 
 
 export function ModelPage({modelId}: { modelId: string }) {
@@ -150,6 +153,8 @@ export function ModelOverview() {
   const modelUpdateVersion = useModelUpdateVersion()
   const modelUpdateKey = useModelUpdateKey()
   const modelUpdateDocumentationHome = useModelUpdateDocumentationHome()
+  const modelUpdateAddTag = useModelAddTag()
+  const modelUpdateDeleteTag = useModelDeleteTag()
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({modelId: model.id, value: value})
@@ -159,6 +164,14 @@ export function ModelOverview() {
   }
   const handleChangeDocumentationHome = (value: string) => {
     return modelUpdateDocumentationHome.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeTags = async (value: string[]) => {
+    for (const tag of model.hashtags) {
+      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: tag})
+    }
+    for (const tag of value) {
+      if (!model.hashtags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: tag})
+    }
   }
   return <PropertiesForm>
     {isDetailLevelTech && <div><InfoLabel>Model Key</InfoLabel></div>}
@@ -178,6 +191,7 @@ export function ModelOverview() {
         <code>{model.version}</code>
       </InlineEditSingleLine>
     </div>
+
     <div>External&nbsp;link</div>
     <div>
       <InlineEditSingleLine
@@ -188,9 +202,17 @@ export function ModelOverview() {
         : <ExternalUrl url={model.documentationHome}/>}
       </InlineEditSingleLine>
     </div>
+
     <div>Hashtags</div>
-    <div>{model.hashtags.length === 0 ? <MissingInformation>add tags</MissingInformation> :
-      <Tags tags={model.hashtags}/>}</div>
+    <div>
+      <InlineEditTags value={model.hashtags} onChange={handleChangeTags}>
+        {
+          model.hashtags.length === 0
+            ? <MissingInformation>add tags</MissingInformation>
+            : <Tags tags={model.hashtags}/>
+        }
+      </InlineEditTags>
+    </div>
     {isDetailLevelTech && <div>Origin</div>}
     {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
     {isDetailLevelTech && <div>Identifier</div>}

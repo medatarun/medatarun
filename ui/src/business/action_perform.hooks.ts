@@ -56,6 +56,28 @@ export const useModelUpdateVersion = () => {
     onSuccess: () => queryClient.invalidateQueries()
   })
 }
+export const useModelAddTag = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, tag: string }) =>
+      executeAction("model", "model_add_tag", {
+        modelRef: "id:" + props.modelId,
+        tag: props.tag
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+export const useModelDeleteTag = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, tag: string }) =>
+      executeAction("model", "model_delete_tag", {
+        modelRef: "id:" + props.modelId,
+        tag: props.tag
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
 
 export const useTypeUpdateDescription = () => {
   const queryClient = useQueryClient()
