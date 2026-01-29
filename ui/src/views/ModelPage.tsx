@@ -6,11 +6,14 @@ import {
   useActionRegistry,
   useModel,
   useModelUpdateDescription,
-  useModelUpdateName
+  useModelUpdateDocumentationHome,
+  useModelUpdateKey,
+  useModelUpdateName,
+  useModelUpdateVersion
 } from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
-import {tokens} from "@fluentui/react-components";
+import {InfoLabel, tokens} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
@@ -46,6 +49,7 @@ export function ModelView() {
   const modelUpdateDescription = useModelUpdateDescription()
   const modelUpdateName = useModelUpdateName()
 
+
   const displayName = model.name ?? model.id
 
   const handleClickType = (typeId: string) => {
@@ -66,16 +70,21 @@ export function ModelView() {
 
   const actions = actionRegistry.findActions(ActionUILocations.model_overview)
 
-  const handleChangeName = (value:string) => {
+  const handleChangeName = (value: string) => {
     return modelUpdateName.mutateAsync({modelId: model.id, value: value})
   }
+
 
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow={<span>Model</span>}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
           <div style={{width: "100%"}}>
-            <InlineEditSingleLine value={model.name ?? ""} placeholder={displayName} onChange={handleChangeName}>{displayName} {" "}</InlineEditSingleLine>
+            <InlineEditSingleLine
+              value={model.name ?? ""}
+              onChange={handleChangeName}>
+              {displayName} {" "}
+            </InlineEditSingleLine>
           </div>
           <div>
             <ActionMenuButton
@@ -98,7 +107,7 @@ export function ModelView() {
             <InlineEditDescription
               value={model.description}
               placeholder={"add description"}
-              onChange = {v => modelUpdateDescription.mutateAsync({modelId: model.id, value: v})}
+              onChange={v => modelUpdateDescription.mutateAsync({modelId: model.id, value: v})}
             />
           </SectionPaper>
 
@@ -135,21 +144,57 @@ export function ModelView() {
 }
 
 export function ModelOverview() {
+
   const model = useModelContext().dto
   const {isDetailLevelTech} = useDetailLevelContext()
+  const modelUpdateVersion = useModelUpdateVersion()
+  const modelUpdateKey = useModelUpdateKey()
+  const modelUpdateDocumentationHome = useModelUpdateDocumentationHome()
+
+  const handleChangeVersion = (value: string) => {
+    return modelUpdateVersion.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeKey = (value: string) => {
+    return modelUpdateKey.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeDocumentationHome = (value: string) => {
+    return modelUpdateDocumentationHome.mutateAsync({modelId: model.id, value: value})
+  }
   return <PropertiesForm>
-    {isDetailLevelTech && <div>Identifier</div>}
-    {isDetailLevelTech && <div><code>{model.id}</code></div>}
+    {isDetailLevelTech && <div><InfoLabel>Model Key</InfoLabel></div>}
+    {isDetailLevelTech && <div>
+      <InlineEditSingleLine
+        value={model.key}
+        onChange={handleChangeKey}>
+        <code>{model.key}</code>
+      </InlineEditSingleLine>
+    </div>}
+
     <div>Version</div>
-    <div><code>{model.version}</code></div>
+    <div>
+      <InlineEditSingleLine
+        value={model.version}
+        onChange={handleChangeVersion}>
+        <code>{model.version}</code>
+      </InlineEditSingleLine>
+    </div>
     <div>Documentation</div>
-    <div>{!model.documentationHome ? <MissingInformation>add external link</MissingInformation> :
-      <ExternalUrl url={model.documentationHome}/>}</div>
+    <div>
+      <InlineEditSingleLine
+        value={model.documentationHome ?? ""}
+        onChange={handleChangeDocumentationHome}
+      >{!model.documentationHome
+        ? <MissingInformation>add external link</MissingInformation>
+        : <ExternalUrl url={model.documentationHome}/>}
+      </InlineEditSingleLine>
+    </div>
     <div>Hashtags</div>
     <div>{model.hashtags.length === 0 ? <MissingInformation>add tags</MissingInformation> :
       <Tags tags={model.hashtags}/>}</div>
     {isDetailLevelTech && <div>Origin</div>}
     {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
+    {isDetailLevelTech && <div>Identifier</div>}
+    {isDetailLevelTech && <div><code>{model.id}</code></div>}
   </PropertiesForm>
 
 

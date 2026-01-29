@@ -63,7 +63,16 @@ class RestCommandInvocation(
                     "Invocation error for $resourceForLog/$functionForLog: ${exception.message}"
                 )
             }
-            call.respond(exception.status, exception.payload)
+
+            val payloadJson = buildJsonObject {
+                put("type", "about:blank")
+                put("title", exception.msg)
+                put("status", exception.status.value)
+                exception.payload.forEach { (k, v) ->
+                    put(k,v)
+                }
+            }
+            call.respondText(status = exception.status, text = payloadJson.toString(), contentType = ContentType.Application.Json)
         }
     }
 

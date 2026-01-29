@@ -25,7 +25,7 @@ const useStyles = makeStyles({
 
   },
   title: {
-    width: "80rem",
+    width: "60rem",
     margin: "auto",
   },
   main: {

@@ -189,6 +189,7 @@ export const InlineEditSingleLineLayout = (
             </PopoverTrigger>
             <PopoverSurface tabIndex={-1}>
               <div id="editor-action-bar">
+                {error && <ErrorBox error={toProblem(error)}/>}
                 <ButtonBar variant="end">
                   <Button disabled={pending} onClick={handleEditCancel} variant="secondary">
                     Cancel
@@ -203,7 +204,7 @@ export const InlineEditSingleLineLayout = (
 
         </div>
       </div>
-      {error && <ErrorBox error={error}/>}
+
     </div>
   );
 }

@@ -6,7 +6,6 @@ import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
 
 export function InlineEditSingleLine({value, children, onChange}: {
   value: string | null | undefined,
-  placeholder: string,
   onChange: (value: string) => Promise<unknown>
 } & PropsWithChildren) {
 

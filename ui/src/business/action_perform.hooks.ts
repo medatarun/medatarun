@@ -23,6 +23,40 @@ export const useModelUpdateDescription = () => {
     onSuccess: () => queryClient.invalidateQueries()
   })
 }
+export const useModelUpdateDocumentationHome = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, value: string }) =>
+      executeAction("model", "model_update_documentation_link", {
+        modelRef: "id:" + props.modelId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+export const useModelUpdateKey = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, value: string }) =>
+      executeAction("model", "model_update_key", {
+        modelRef: "id:" + props.modelId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+export const useModelUpdateVersion = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, value: string }) =>
+      executeAction("model", "model_update_version", {
+        modelRef: "id:" + props.modelId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+
 export const useTypeUpdateDescription = () => {
   const queryClient = useQueryClient()
   return useMutation({

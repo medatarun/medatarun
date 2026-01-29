@@ -2,7 +2,7 @@ import type {PropsWithChildren} from "react";
 import {tokens} from "@fluentui/react-components";
 
 export function ContainedHumanReadable({children}: PropsWithChildren) {
-  return <div style={{margin: "auto", width: "80rem"}}>{children}</div>
+  return <div style={{margin: "auto", width: "60rem"}}>{children}</div>
 }
 
 export function ContainedFixed({children}: PropsWithChildren) {

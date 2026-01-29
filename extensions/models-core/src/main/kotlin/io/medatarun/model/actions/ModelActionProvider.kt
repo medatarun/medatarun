@@ -3,6 +3,9 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.*
@@ -57,6 +60,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
             is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
+            is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(cmd)
             is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
             is ModelAction.Model_AddTag -> handler.modelAddTag(cmd)
             is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(cmd)
@@ -199,6 +203,21 @@ class ModelActionHandler(
             ModelCmd.UpdateModelDescription(
                 modelRef = cmd.modelRef,
                 description = cmd.value,
+            )
+        )
+    }
+
+    fun modelUpdateDocumentationHome(cmd: ModelAction.Model_UpdateDocumentationHome) {
+        val value = try {
+            val value = cmd.value?.trimToNull()
+            if (value == null) null else URI(value).toURL()
+        } catch (e: Exception) {
+            throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
+        }
+        dispatch(
+            ModelCmd.UpdateModelDocumentationHome(
+                modelRef = cmd.modelRef,
+                url = value
             )
         )
     }

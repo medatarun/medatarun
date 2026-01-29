@@ -1,5 +1,6 @@
 import {api} from "../services/api.ts";
 import {queryClient} from "../services/queryClient.ts";
+import {Problem} from "@seij/common-types";
 
 export type ActionResp =
   | { contentType: "text", text: string }
@@ -17,7 +18,8 @@ export async function executeAction(actionGroup: string, actionName: string, pay
     .then(async res => {
       const isError = res.status >= 400
       if (isError) {
-        throw new Error(await res.text())
+        const errorPayload = await res.json()
+        throw new Problem(errorPayload)
       } else {
         // Json response
         const type = res.headers.get("content-type") || "";

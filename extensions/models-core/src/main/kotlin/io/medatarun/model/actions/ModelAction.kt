@@ -222,6 +222,29 @@ sealed interface ModelAction {
 
 
     @ActionDoc(
+        key = "model_update_documentation_link",
+        title = "Update model external documentation",
+        description = "Provides a link to an external documentation.",
+        uiLocations = [ActionUILocation.model_hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Model_UpdateDocumentationHome(
+        @ActionParamDoc(
+            name = "Model reference",
+            description = "Reference of the model to be updated",
+            order = 0
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "URL",
+            description = "Link to the external documentation.",
+            order = 1
+        )
+        val value: String?
+    ) : ModelAction
+
+
+    @ActionDoc(
         key = "model_update_version",
         title = "Update model version",
         description = "Changes model version",

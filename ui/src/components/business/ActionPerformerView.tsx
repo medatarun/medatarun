@@ -46,7 +46,7 @@ export function ActionPerformerView() {
   const action = actionRegistry.findActionOptional(request.actionGroupKey, request.actionKey)
   if (!action) return null
 
-  const defaultFormData: FormDataType = { }
+  const defaultFormData: FormDataType = {}
   for (const actionParam of action.parameters) {
     defaultFormData[actionParam.name] = state.request.params[actionParam.name]?.value ?? null
   }
@@ -184,8 +184,9 @@ function FormFieldInput({field, value, validationResult, inputRef, onChange}: {
       // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
       // The second param is the props for the slot, which need to be passed to the InfoLabel.
       children: (_: unknown, slotProps: LabelProps) => (
-        <InfoLabel {...slotProps}
-                   info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
+        <InfoLabel
+          {...slotProps}
+          info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
           {field.title}
         </InfoLabel>
       ),
