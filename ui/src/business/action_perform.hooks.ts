@@ -128,20 +128,45 @@ export const useEntityDeleteTag = () => {
   return useEntityMutation<{ tag: string }>("model", "entity_delete_tag")
 }
 
-export const useEntityAttributeUpdateDescription = () => {
+function useEntityAttributeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, entityId: string, attributeId: string, value: string }) =>
-      executeAction("model", "entity_attribute_update_description", {
-        modelRef: "id:" + props.modelId,
-        entityRef: "id:" + props.entityId,
-        attributeRef: "id:" + props.attributeId,
-        value: props.value
-      }),
+    mutationFn: (props: { modelId: string, entityId: string, attributeId:string } & P) => {
+      const {modelId, entityId, attributeId, ...otherProps} = props
+      return executeAction(actionGroupKey, actionKey, {
+        modelRef: "id:" + modelId,
+        entityRef: "id:" + entityId,
+        attributeRef: "id:" + attributeId,
+        ...otherProps
+      })
+    },
     onSuccess: () => queryClient.invalidateQueries()
-
   })
 }
+
+export const useEntityAttributeUpdateName = () => {
+  return useEntityAttributeMutation<{ value: string }>("model", "entity_attribute_update_name");
+}
+export const useEntityAttributeUpdateDescription = () => {
+  return useEntityAttributeMutation<{ value: string }>("model", "entity_attribute_update_description");
+}
+export const useEntityAttributeUpdateKey = () => {
+  return useEntityAttributeMutation<{ value: string }>("model", "entity_attribute_update_key");
+}
+export const useEntityAttributeUpdateType = () => {
+  return useEntityAttributeMutation<{ value: string }>("model", "entity_attribute_update_type");
+}
+export const useEntityAttributeUpdateOptional = () => {
+  return useEntityAttributeMutation<{ value: boolean }>("model", "entity_attribute_update_optional");
+}
+export const useEntityAttributeAddTag = () => {
+  return useEntityAttributeMutation<{ tag: string }>("model", "entity_attribute_add_tag")
+}
+export const useEntityAttributeDeleteTag = () => {
+  return useEntityAttributeMutation<{ tag: string }>("model", "entity_attribute_delete_tag")
+}
+
+
 export const useRelationshipUpdateDescription = () => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -155,17 +180,44 @@ export const useRelationshipUpdateDescription = () => {
 
   })
 }
-export const useRelationshipAttributeUpdateDescription = () => {
+
+function useRelationshipAttributeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, relationshipId: string, attributeId: string, value: string }) =>
-      executeAction("model", "relationship_attribute_update_description", {
-        modelRef: "id:" + props.modelId,
-        relationshippRef: "id:" + props.relationshipId,
-        attributeRef: "id:" + props.attributeId,
-        value: props.value
-      }),
+    mutationFn: (props: { modelId: string, relationshipId: string, attributeId:string } & P) => {
+      const {modelId, relationshipId, attributeId, ...otherProps} = props
+      return executeAction(actionGroupKey, actionKey, {
+        modelRef: "id:" + modelId,
+        relationshipRef: "id:" + relationshipId,
+        attributeRef: "id:" + attributeId,
+        ...otherProps
+      })
+    },
     onSuccess: () => queryClient.invalidateQueries()
-
   })
 }
+
+export const useRelationshipAttributeUpdateName = () => {
+  return useRelationshipAttributeMutation<{ value: string }>("model", "relationship_attribute_update_name");
+}
+export const useRelationshipAttributeUpdateDescription = () => {
+  return useRelationshipAttributeMutation<{ value: string }>("model", "relationship_attribute_update_description");
+}
+export const useRelationshipAttributeUpdateKey = () => {
+  return useRelationshipAttributeMutation<{ value: string }>("model", "relationship_attribute_update_key");
+}
+export const useRelationshipAttributeUpdateType = () => {
+  return useRelationshipAttributeMutation<{ value: string }>("model", "relationship_attribute_update_type");
+}
+export const useRelationshipAttributeUpdateOptional = () => {
+  return useRelationshipAttributeMutation<{ value: boolean }>("model", "relationship_attribute_update_optional");
+}
+export const useRelationshipAttributeAddTag = () => {
+  return useRelationshipAttributeMutation<{ tag: string }>("model", "relationship_attribute_add_tag")
+}
+export const useRelationshipAttributeDeleteTag = () => {
+  return useRelationshipAttributeMutation<{ tag: string }>("model", "relationship_attribute_delete_tag")
+}
+
+
+
