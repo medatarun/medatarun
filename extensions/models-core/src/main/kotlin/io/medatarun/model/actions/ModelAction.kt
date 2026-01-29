@@ -366,10 +366,23 @@ sealed interface ModelAction {
 
 
     @ActionDoc(
+        key = "type_update_key",
+        title = "Update type key",
+        description = "Updates a type key",
+        uiLocations = [ActionUILocation.type_hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Type_UpdateKey(
+        val modelRef: ModelRef,
+        val typeRef: TypeRef,
+        val value: TypeKey
+    ) : ModelAction
+
+    @ActionDoc(
         key = "type_update_name",
         title = "Update type name",
         description = "Updates a type name",
-        uiLocations = [ActionUILocation.type],
+        uiLocations = [ActionUILocation.type_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateName(

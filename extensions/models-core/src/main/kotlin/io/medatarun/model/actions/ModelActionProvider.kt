@@ -72,6 +72,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 
             is ModelAction.Type_Create -> handler.typeCreate(cmd)
             is ModelAction.Type_UpdateName -> handler.typeUpdateName(cmd)
+            is ModelAction.Type_UpdateKey -> handler.typeUpdateKey(cmd)
             is ModelAction.Type_UpdateDescription -> handler.typeUpdateDescription(cmd)
             is ModelAction.Type_Delete -> handler.typeDelete(cmd)
 
@@ -267,6 +268,16 @@ class ModelActionHandler(
                     name = cmd.name,
                     description = cmd.description,
                 )
+            )
+        )
+    }
+
+    fun typeUpdateKey(cmd: ModelAction.Type_UpdateKey) {
+        dispatch(
+            ModelCmd.UpdateType(
+                modelRef = cmd.modelRef,
+                typeRef = cmd.typeRef,
+                cmd = ModelTypeUpdateCmd.Key(cmd.value)
             )
         )
     }
