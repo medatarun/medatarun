@@ -1,5 +1,12 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, Model, type TypeDto, useActionRegistry, useModel} from "../../business";
+import {
+  ActionUILocations,
+  Model,
+  type TypeDto,
+  useActionRegistry,
+  useModel,
+  useTypeUpdateDescription
+} from "../../business";
 import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {
@@ -13,8 +20,6 @@ import {
 import {ModelIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -26,6 +31,8 @@ import {useDetailLevelContext} from "../../components/business/DetailLevelContex
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {useMemo} from "react";
 
 
 export function TypePage({modelId, typeId}: {
@@ -34,9 +41,11 @@ export function TypePage({modelId, typeId}: {
 }) {
 
   const {data: modelDto} = useModel(modelId)
+  const model = useMemo(()=> modelDto ? new Model(modelDto) : null, [modelDto])
 
   if (!modelDto) return null
-  const model = new Model(modelDto)
+  if (!model) return null
+
 
 
   const type = model.findTypeDto(typeId)
@@ -51,9 +60,11 @@ function TypeView({model, type}: {
   type: TypeDto,
   model: Model
 }) {
+
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.type)
+  const typeUpdateDescription = useTypeUpdateDescription()
 
   const handleClickModel = () => {
     navigate({
@@ -79,7 +90,7 @@ function TypeView({model, type}: {
       <ViewTitle eyebrow={"Data type"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
           <div>
-        {type.name ?? type.id} {" "}
+        {model.findTypeNameOrKey(type.id)} {" "}
           </div>
           <div>
 
@@ -99,9 +110,12 @@ function TypeView({model, type}: {
           <SectionPaper>
             <TypeOverview model={model} type={type}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {type.description ? <Markdown value={type.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={type.description}
+              placeholder={"add description"}
+              onChange = {v => typeUpdateDescription.mutateAsync({modelId: model.id, typeId: type.id, value: v})}
+            />
           </SectionPaper>
 
         </ContainedHumanReadable>

@@ -4,7 +4,8 @@ import {
   type RelationshipDto,
   type RelationshipRoleDto,
   useActionRegistry,
-  useModel
+  useModel,
+  useRelationshipUpdateDescription
 } from "../../business";
 import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
@@ -33,7 +34,6 @@ import {
   ContainedScrollable
 } from "../../components/layout/Contained.tsx";
 import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
@@ -44,6 +44,7 @@ import {SectionTable} from "../../components/layout/SecionTable.tsx";
 import {AttributesTable} from "../../components/business/AttributesTable.tsx";
 import {Tags} from "../../components/core/Tag.tsx";
 import {SectionCards} from "../../components/layout/SectionCards.tsx";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 
 export function RelationshipPage({modelId, relationshipId}: {
   modelId: string,
@@ -72,6 +73,7 @@ export function RelationshipView({model, relationship}: {
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.relationship)
   const {isDetailLevelTech} = useDetailLevelContext()
+  const relationshipUpdateDescription = useRelationshipUpdateDescription()
 
   const handleClickModel = () => {
     navigate({
@@ -107,7 +109,6 @@ export function RelationshipView({model, relationship}: {
             {relationship.name ?? relationship.key ?? relationship.id} {" "}
           </div>
           <div>
-
             <ActionMenuButton
               label="Actions"
               itemActions={actions}
@@ -124,9 +125,12 @@ export function RelationshipView({model, relationship}: {
           <SectionPaper>
             <RelationshipOverview model={model} relationship={relationship}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {relationship.description ? <Markdown value={relationship.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={relationship.description}
+              placeholder={"add description"}
+              onChange = {v => relationshipUpdateDescription.mutateAsync({modelId: model.id, relationshipId: relationship.id, value: v})}
+            />
           </SectionPaper>
 
 

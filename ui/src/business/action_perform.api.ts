@@ -1,10 +1,12 @@
 import {api} from "../services/api.ts";
+import {queryClient} from "../services/queryClient.ts";
 
 export type ActionResp =
   | { contentType: "text", text: string }
   | { contentType: "json", json: unknown }
 
 export type ActionPayload = Record<string, unknown>
+
 export async function executeAction(actionGroup: string, actionName: string, payload: ActionPayload): Promise<ActionResp> {
   const headers = api().createHeaders()
   return fetch("/api/" + actionGroup + "/" + actionName, {
@@ -32,4 +34,15 @@ export async function executeAction(actionGroup: string, actionName: string, pay
     .catch(err => {
       return Promise.reject(err);
     })
+}
+
+export function useExecuteAction() {
+  const s = executeAction
+  return {
+    executeAction: async (actionGroupKey: string, actionKey: string, payload: ActionPayload) => {
+      const resp = await s(actionGroupKey, actionKey, payload)
+      await queryClient.invalidateQueries()
+      return resp
+    }
+  }
 }

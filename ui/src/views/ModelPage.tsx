@@ -1,5 +1,12 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
+import {
+  ActionUILocations,
+  type ElementOrigin,
+  Model,
+  useActionRegistry,
+  useModel,
+  useModelUpdateDescription
+} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
 import {tokens} from "@fluentui/react-components";
@@ -11,7 +18,6 @@ import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx"
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
 import {SectionTitle} from "../components/layout/SectionTitle.tsx";
-import {Markdown} from "../components/core/Markdown.tsx";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
 import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable} from "../components/layout/Contained.tsx";
 import {SectionPaper} from "../components/layout/SectionPaper.tsx";
@@ -19,9 +25,12 @@ import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
 import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
+import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
+
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
+
   return <div>
     {model && <ModelContext value={new Model(model)}><ModelView/></ModelContext>}
   </div>
@@ -31,9 +40,10 @@ export function ModelPage({modelId}: { modelId: string }) {
 export function ModelView() {
   const model = useModelContext().dto
   const actionRegistry = useActionRegistry()
+  const navigate = useNavigate();
+  const modelUpdateDescription = useModelUpdateDescription()
 
   const displayName = model.name ?? model.id
-  const navigate = useNavigate();
 
   const handleClickType = (typeId: string) => {
     navigate({to: "/model/$modelId/type/$typeId", params: {modelId: model.id, typeId: typeId}})
@@ -74,9 +84,12 @@ export function ModelView() {
           <SectionPaper>
             <ModelOverview/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {model.description ? <Markdown value={model.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={model.description}
+              placeholder={"add description"}
+              onChange = {v => modelUpdateDescription.mutateAsync({modelId: model.id, value: v})}
+            />
           </SectionPaper>
 
           <SectionTitle
@@ -174,3 +187,5 @@ export function ExternalUrl({
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
 }
+
+

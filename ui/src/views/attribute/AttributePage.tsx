@@ -6,7 +6,9 @@ import {
   Model,
   type RelationshipDto,
   useActionRegistry,
-  useModel
+  useEntityAttributeUpdateDescription,
+  useModel,
+  useRelationshipAttributeUpdateDescription
 } from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
@@ -22,7 +24,6 @@ import {
 import {EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedFixed,
@@ -42,6 +43,7 @@ import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {Tags} from "../../components/core/Tag.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 
 
 export function AttributePage({modelId, parentType, parentId, attributeId}: {
@@ -80,9 +82,13 @@ export function AttributeView({parent, parentType, attribute}: {
   parentType: "entity" | "relationship",
   attribute: AttributeDto
 }) {
+
   const model = useModelContext()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
+  const updateEntityAttributeDescription = useEntityAttributeUpdateDescription()
+  const updateRelationshipAttributeDescription = useRelationshipAttributeUpdateDescription()
+
   const actions = actionRegistry.findActions(parentType == "entity" ? ActionUILocations.entity_attribute : ActionUILocations.relationship_attribute)
 
   const handleClickModel = () => {
@@ -114,6 +120,15 @@ export function AttributeView({parent, parentType, attribute}: {
     : parentAsRelationship !== null
       ? createActionTemplateRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id)
       : createActionTemplateModel(model.id)
+  const handleUpdateDescription = async (value: string) => {
+    if (parentAsEntity != null) {
+      return updateEntityAttributeDescription.mutateAsync({modelId: model.id, entityId: parentAsEntity.id, attributeId: attribute.id, value: value})
+    } else if (parentAsRelationship != null) {
+      return updateRelationshipAttributeDescription.mutateAsync({modelId: model.id, relationshipId: parentAsRelationship.id, attributeId: attribute.id, value: value})
+    }
+    throw new Error("Attribute has neither an entity or a relationship as parent.")
+  }
+
 
 
   return <ViewLayoutContained title={<div>
@@ -169,9 +184,12 @@ export function AttributeView({parent, parentType, attribute}: {
           <SectionPaper>
             <AttributeOverview model={model} attribute={attribute}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {attribute.description ? <Markdown value={attribute.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={attribute.description}
+              placeholder={"add description"}
+              onChange = {handleUpdateDescription}
+            />
           </SectionPaper>
 
         </ContainedHumanReadable>

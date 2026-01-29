@@ -202,7 +202,7 @@ sealed interface ModelAction {
         key = "model_update_description",
         title = "Update model description",
         description = "Changes model description",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateDescription(
@@ -352,20 +352,20 @@ sealed interface ModelAction {
     data class Type_UpdateName(
         val modelRef: ModelRef,
         val typeRef: TypeRef,
-        val name: LocalizedText?
+        val value: LocalizedText?
     ) : ModelAction
 
     @ActionDoc(
         key = "type_update_description",
         title = "Update type description",
         description = "Updates a type description",
-        uiLocations = [ActionUILocation.type],
+        uiLocations = [ActionUILocation.type_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateDescription(
         val modelRef: ModelRef,
         val typeRef: TypeRef,
-        val description: LocalizedMarkdown?
+        val value: LocalizedMarkdown?
     ) :
         ModelAction
 
@@ -504,7 +504,7 @@ sealed interface ModelAction {
         key = "entity_update_description",
         title = "Update entity description",
         description = "Changes the description of an entity.",
-        uiLocations = [ActionUILocation.entity],
+        uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateDescription(
@@ -664,7 +664,7 @@ sealed interface ModelAction {
         key = "entity_attribute_update_description",
         title = "Update entity attribute description",
         description = "Changes the description of an entity attribute.",
-        uiLocations = [ActionUILocation.entity_attribute],
+        uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateDescription(
@@ -802,7 +802,7 @@ sealed interface ModelAction {
         key = "relationship_update_description",
         title = "Update relationship description",
         description = "Changes the description of the relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateDescription(
@@ -985,7 +985,7 @@ sealed interface ModelAction {
         key = "relationship_attribute_update_description",
         title = "Update relationship attribute description",
         description = "Changes the description of a relationship attribute.",
-        uiLocations = [ActionUILocation.relationship_attribute],
+        uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateDescription(

@@ -256,7 +256,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Name(cmd.name)
+                cmd = ModelTypeUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -266,7 +266,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Description(cmd.description)
+                cmd = ModelTypeUpdateCmd.Description(cmd.value)
             )
         )
     }

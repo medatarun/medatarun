@@ -1,5 +1,12 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, type EntityDto, Model, useActionRegistry, useModel} from "../../business";
+import {
+  ActionUILocations,
+  type EntityDto,
+  Model,
+  useActionRegistry,
+  useEntityUpdateDescription,
+  useModel
+} from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
@@ -11,8 +18,6 @@ import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.t
 import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {EntityOverview} from "./EntityOverview.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -25,6 +30,7 @@ import {
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
 } from "../../components/business/actionTemplates.ts";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 
 
 export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
@@ -39,6 +45,7 @@ export function EntityPage({modelId, entityId}: { modelId: string, entityId: str
 
 export function EntityView({entity}: { entity: EntityDto }) {
   const model = useModelContext()
+  const entityUpdateDescription= useEntityUpdateDescription()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.entity)
@@ -93,9 +100,12 @@ export function EntityView({entity}: { entity: EntityDto }) {
           <SectionPaper>
             <EntityOverview entity={entity}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {entity.description ? <Markdown value={entity.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={entity.description}
+              placeholder={"add description"}
+              onChange = {v => entityUpdateDescription.mutateAsync({modelId: model.id, entityId: entity.id, value: v})}
+            />
           </SectionPaper>
 
           <SectionTitle
