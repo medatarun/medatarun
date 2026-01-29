@@ -49,7 +49,7 @@ export function EntityPage({modelId, entityId}: { modelId: string, entityId: str
 export function EntityView({entity}: { entity: EntityDto }) {
 
   const model = useModelContext()
-  const entityUpdateDescription= useEntityUpdateDescription()
+  const entityUpdateDescription = useEntityUpdateDescription()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const entityUpdateName = useEntityUpdateName()
@@ -97,7 +97,8 @@ export function EntityView({entity}: { entity: EntityDto }) {
             <InlineEditSingleLine
               value={entity.name ?? ""}
               onChange={handleChangeName}>
-              {entity.name ?              model.findEntityNameOrKey(entity.id) : <MissingInformation>{model.findEntityNameOrKey(entity.id)}</MissingInformation>} {" "}
+              {entity.name ? model.findEntityNameOrKey(entity.id) :
+                <MissingInformation>{model.findEntityNameOrKey(entity.id)}</MissingInformation>} {" "}
             </InlineEditSingleLine>
           </div>
           <div><ActionMenuButton
@@ -119,7 +120,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
             <InlineEditDescription
               value={entity.description}
               placeholder={"add description"}
-              onChange = {v => entityUpdateDescription.mutateAsync({modelId: model.id, entityId: entity.id, value: v})}
+              onChange={v => entityUpdateDescription.mutateAsync({modelId: model.id, entityId: entity.id, value: v})}
             />
           </SectionPaper>
 
@@ -132,7 +133,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
             <AttributesTable
               attributes={entity.attributes}
               actionUILocation={ActionUILocations.entity_attribute}
-              actionParamsFactory={(attributeId:string)=>createActionTemplateEntityAttribute(model.id, entity.id, attributeId)}
+              actionParamsFactory={(attributeId: string) => createActionTemplateEntityAttribute(model.id, entity.id, attributeId)}
               onClickAttribute={handleClickAttribute}/>
           </SectionTable>
 

@@ -839,7 +839,7 @@ sealed interface ModelAction {
         key = "relationship_update_key",
         title = "Update relationship key",
         description = "Changes the key of the relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateKey(
@@ -852,7 +852,7 @@ sealed interface ModelAction {
         key = "relationship_update_name",
         title = "Update relationship name",
         description = "Changes the name of the relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateName(
@@ -964,7 +964,7 @@ sealed interface ModelAction {
         key = "relationship_add_tag",
         title = "Add tag to relationship",
         description = "Add tag to relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_AddTag(
@@ -977,7 +977,7 @@ sealed interface ModelAction {
         key = "relationship_delete_tag",
         title = "Delete relationship tag",
         description = "Delete tag from relationship",
-        uiLocations = [ActionUILocation.relationship],
+        uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_DeleteTag(

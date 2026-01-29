@@ -12,7 +12,6 @@ import {
   InfoLabel,
   Input,
   type LabelProps,
-  MessageBar,
   tokens
 } from "@fluentui/react-components";
 
@@ -29,9 +28,10 @@ import {
 import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
-import {Button} from "@seij/common-ui";
+import {Button, ErrorBox} from "@seij/common-ui";
 import {formDataNormalize} from "../../business/action_form.normalize.ts";
 import {isNil, isPlainObject} from "lodash-es";
+import {toProblem} from "@seij/common-types";
 
 
 export function ActionPerformerView() {
@@ -138,7 +138,7 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
                   validationResult={validationResults.get(field.key)}
                   onChange={handleChangeFormFieldInput}/>))}
 
-              {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
+              {state.kind === "error" ? <ErrorBox error={toProblem(state.error)}/> : null}
               {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
             </div>
           </DialogContent>

@@ -78,6 +78,7 @@ export const useModelDeleteTag = () => {
     onSuccess: () => queryClient.invalidateQueries()
   })
 }
+
 function useTypeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -143,7 +144,7 @@ export const useEntityDeleteTag = () => {
 function useEntityAttributeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, entityId: string, attributeId:string } & P) => {
+    mutationFn: (props: { modelId: string, entityId: string, attributeId: string } & P) => {
       const {modelId, entityId, attributeId, ...otherProps} = props
       return executeAction(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
@@ -179,24 +180,41 @@ export const useEntityAttributeDeleteTag = () => {
 }
 
 
-export const useRelationshipUpdateDescription = () => {
+function useRelationshipMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, relationshipId: string, value: string }) =>
-      executeAction("model", "relationship_update_description", {
-        modelRef: "id:" + props.modelId,
-        relationshipRef: "id:" + props.relationshipId,
-        value: props.value
-      }),
+    mutationFn: (props: { modelId: string, relationshipId: string } & P) => {
+      const {modelId, relationshipId, ...otherProps} = props
+      return executeAction(actionGroupKey, actionKey, {
+        modelRef: "id:" + modelId,
+        relationshipRef: "id:" + relationshipId,
+        ...otherProps
+      })
+    },
     onSuccess: () => queryClient.invalidateQueries()
-
   })
+}
+
+export const useRelationshipUpdateName = () => {
+  return useRelationshipMutation<{ value: string }>("model", "relationship_update_name");
+}
+export const useRelationshipUpdateDescription = () => {
+  return useRelationshipMutation<{ value: string }>("model", "relationship_update_description");
+}
+export const useRelationshipUpdateKey = () => {
+  return useRelationshipMutation<{ value: string }>("model", "relationship_update_key");
+}
+export const useRelationshipAddTag = () => {
+  return useRelationshipMutation<{ tag: string }>("model", "relationship_add_tag")
+}
+export const useRelationshipDeleteTag = () => {
+  return useRelationshipMutation<{ tag: string }>("model", "relationship_delete_tag")
 }
 
 function useRelationshipAttributeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, relationshipId: string, attributeId:string } & P) => {
+    mutationFn: (props: { modelId: string, relationshipId: string, attributeId: string } & P) => {
       const {modelId, relationshipId, attributeId, ...otherProps} = props
       return executeAction(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,

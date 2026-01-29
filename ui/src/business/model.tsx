@@ -119,8 +119,12 @@ export class Model {
 
   findRelationshipDto(relationshipId: string) {
     return this.dto.relationships.find(it => it.id === relationshipId)
-
   }
+  findRelationshipNameOrKey(id: string): string | null {
+    const e = this.dto.relationships.find(it => it.id === id)
+    return e?.name ?? e?.key ?? null
+  }
+
 
   findRelationshipAttributeDto(relationshipId: string, attributeId: string) {
     return this.dto.relationships.find(it => it.id === relationshipId)
