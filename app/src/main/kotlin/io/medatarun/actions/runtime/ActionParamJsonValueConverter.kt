@@ -134,6 +134,7 @@ class ActionParamJsonValueConverter(
     }
 
     private fun convertString(raw: JsonElement): ConversionResult {
+        if (raw is JsonNull) return ConversionResult.Value(null)
         return runCatching { raw.jsonPrimitive.content }
             .fold(
                 onSuccess = { ConversionResult.Value(it) },

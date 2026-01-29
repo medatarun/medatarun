@@ -13,6 +13,7 @@ interface TypeJsonConverter<T> {
      *
      * Do NOT validate data itself, just build the object. Syntax validation will be done in a second step,
      * on the object you return (typically with the [TypeDescriptor.validate] function)
+     *
      */
     fun deserialize(json: JsonElement): T
 }

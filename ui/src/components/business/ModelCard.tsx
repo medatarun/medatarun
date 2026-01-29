@@ -9,7 +9,7 @@ export function ModelCard({model, onClick}: { model: ModelSummaryDto, onClick: (
 
   return <Card style={{maxWidth: "20em", width:"20em", minWidth:"20em"}} key={model.id} onClick={() => onClick(model.id)}>
     <CardHeader style={{height: "3em", overflow: "hidden", alignItems: "start"}}
-                header={<Text weight="semibold" style={{maxHeight:"3em"}}>{model.name ?? model.id}</Text>}></CardHeader>
+                header={<Text weight="semibold" style={{maxHeight:"3em"}}>{model.name ?? model.key ?? model.id}</Text>}></CardHeader>
 
     <div style={{minHeight: "4em", maxHeight: "4em", overflow: "hidden"}}>
 

@@ -17,12 +17,13 @@ import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KClass
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ActionInvokerTest {
+
+    // ------------------------------------------------------------------------
+    // Dispatch tests
+    // ------------------------------------------------------------------------
 
     @Test
     fun `dispatch uses the action class resolved from json`() {
@@ -43,6 +44,10 @@ class ActionInvokerTest {
         assertNotNull(runtime.lastActionCtx())
     }
 
+    // ------------------------------------------------------------------------
+    // Optional params
+    // ------------------------------------------------------------------------
+
     @Test
     fun `optional params are respected when provided`() {
         val runtime = TestRuntime()
@@ -58,6 +63,10 @@ class ActionInvokerTest {
         assertTrue(cmd is TestAction.Alpha)
         assertEquals("memo", cmd.note)
     }
+
+    // ------------------------------------------------------------------------
+    // List and map
+    // ------------------------------------------------------------------------
 
     @Test
     fun `list and map parameters are converted`() {
@@ -80,6 +89,57 @@ class ActionInvokerTest {
         assertEquals(listOf("alpha", "beta"), cmd.names)
         assertEquals(mapOf("alpha" to 1, "beta" to 2), cmd.counts)
     }
+
+    // ------------------------------------------------------------------------
+    // String
+    // ------------------------------------------------------------------------
+
+     @Test
+     fun `string optional when undefined then null`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertNull(cmd.value)
+     }
+
+     @Test
+     fun `string optional when null then null`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+             put("value", JsonNull)
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertNull(cmd.value)
+     }
+
+     @Test
+     fun `string optional when provided then found`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+             put("value", JsonPrimitive("alpha"))
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertEquals("alpha", cmd.value)
+     }
+
+
+    // ------------------------------------------------------------------------
+    // Big decimal
+    // ------------------------------------------------------------------------
+
 
     @Test
     fun `big decimal parameters are converted from string`() {
@@ -573,6 +633,22 @@ class ActionInvokerTest {
                 order = 1
             )
             val date: LocalDate
+        ) : TestAction
+
+        @ActionDoc(
+            key = "string_optional",
+            title = "String",
+            description = "Action with String",
+            uiLocations = [""],
+            securityRule = RULE_ALLOW
+        )
+        class WithStringOptional(
+            @ActionParamDoc(
+                name = "value",
+                description = "Value",
+                order = 1
+            )
+            val value: String?
         ) : TestAction
 
         @ActionDoc(
