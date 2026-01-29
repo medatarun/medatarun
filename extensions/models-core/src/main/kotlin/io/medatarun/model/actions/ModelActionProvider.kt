@@ -83,6 +83,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Entity_UpdateKey -> handler.entityUpdateId(cmd)
             is ModelAction.Entity_UpdateName -> handler.entityUpdateName(cmd)
             is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(cmd)
+            is ModelAction.Entity_UpdateDocumentationHome -> handler.entityUpdateDocumentationHome(cmd)
             is ModelAction.Entity_AddTag -> handler.entityAddTag(cmd)
             is ModelAction.Entity_DeleteTag -> handler.entityDeleteTag(cmd)
             is ModelAction.Entity_Delete -> handler.entityDelete(cmd)
@@ -348,6 +349,22 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 cmd = EntityUpdateCmd.Description(cmd.value)
+            )
+        )
+    }
+
+    fun entityUpdateDocumentationHome(cmd: ModelAction.Entity_UpdateDocumentationHome) {
+        val value = try {
+            val value = cmd.value?.trimToNull()
+            if (value == null) null else URI(value).toURL()
+        } catch (e: Exception) {
+            throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
+        }
+        dispatch(
+            ModelCmd.UpdateEntity(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                cmd = EntityUpdateCmd.DocumentationHome(value)
             )
         )
     }

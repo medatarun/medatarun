@@ -1,5 +1,5 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {executeAction} from "./action_perform.api.ts";
+import {type ActionPayload, executeAction} from "./action_perform.api.ts";
 
 export const useModelUpdateName = () => {
   const queryClient = useQueryClient()
@@ -92,19 +92,42 @@ export const useTypeUpdateDescription = () => {
 
   })
 }
-export const useEntityUpdateDescription = () => {
+
+function useEntityMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, entityId: string, value: string }) =>
-      executeAction("model", "entity_update_description", {
-        modelRef: "id:" + props.modelId,
-        entityRef: "id:" + props.entityId,
-        value: props.value
-      }),
+    mutationFn: (props: { modelId: string, entityId: string } & P) => {
+      const {modelId, entityId, ...otherProps} = props
+      return executeAction(actionGroupKey, actionKey, {
+        modelRef: "id:" + modelId,
+        entityRef: "id:" + entityId,
+        ...otherProps
+      })
+    },
     onSuccess: () => queryClient.invalidateQueries()
-
   })
+
 }
+
+export const useEntityUpdateName = () => {
+  return useEntityMutation<{ value: string }>("model", "entity_update_name");
+}
+export const useEntityUpdateKey = () => {
+  return useEntityMutation<{ value: string }>("model", "entity_update_key");
+}
+export const useEntityUpdateDescription = () => {
+  return useEntityMutation<{ value: string }>("model", "entity_update_description");
+}
+export const useEntityUpdateDocumentationHome = () => {
+  return useEntityMutation<{ value: string }>("model", "entity_update_documentation_link");
+}
+export const useEntityAddTag = () => {
+  return useEntityMutation<{ tag: string }>("model", "entity_add_tag")
+}
+export const useEntityDeleteTag = () => {
+  return useEntityMutation<{ tag: string }>("model", "entity_delete_tag")
+}
+
 export const useEntityAttributeUpdateDescription = () => {
   const queryClient = useQueryClient()
   return useMutation({

@@ -15,7 +15,7 @@ import {
 } from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
-import {InfoLabel, tokens} from "@fluentui/react-components";
+import {InfoLabel, Text, tokens} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
@@ -174,12 +174,12 @@ export function ModelOverview() {
     }
   }
   return <PropertiesForm>
-    {isDetailLevelTech && <div><InfoLabel>Model Key</InfoLabel></div>}
+    {isDetailLevelTech && <div><InfoLabel>Model&nbsp;key</InfoLabel></div>}
     {isDetailLevelTech && <div>
       <InlineEditSingleLine
         value={model.key}
         onChange={handleChangeKey}>
-        <code>{model.key}</code>
+        <Text><code>{model.key}</code></Text>
       </InlineEditSingleLine>
     </div>}
 
@@ -203,7 +203,7 @@ export function ModelOverview() {
       </InlineEditSingleLine>
     </div>
 
-    <div>Hashtags</div>
+    <div>Tags</div>
     <div>
       <InlineEditTags value={model.hashtags} onChange={handleChangeTags}>
         {

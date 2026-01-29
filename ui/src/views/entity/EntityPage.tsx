@@ -5,6 +5,7 @@ import {
   Model,
   useActionRegistry,
   useEntityUpdateDescription,
+  useEntityUpdateName,
   useModel
 } from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
@@ -31,6 +32,8 @@ import {
   createActionTemplateEntityForRelationships
 } from "../../components/business/actionTemplates.ts";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
+import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 
 
 export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
@@ -44,10 +47,13 @@ export function EntityPage({modelId, entityId}: { modelId: string, entityId: str
 }
 
 export function EntityView({entity}: { entity: EntityDto }) {
+
   const model = useModelContext()
   const entityUpdateDescription= useEntityUpdateDescription()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
+  const entityUpdateName = useEntityUpdateName()
+
   const actions = actionRegistry.findActions(ActionUILocations.entity)
   const relationshipsInvolved = model.dto.relationships
     .filter(it => it.roles.some(r => r.entityId === entity.id));
@@ -73,6 +79,9 @@ export function EntityView({entity}: { entity: EntityDto }) {
     })
   }
 
+  const handleChangeName = (value: string) => {
+    return entityUpdateName.mutateAsync({modelId: model.id, entityId: entity.id, value: value})
+  }
   return <ViewLayoutContained title={
     <div>
       <Breadcrumb style={{marginLeft: "-22px"}} size="small">
@@ -84,7 +93,13 @@ export function EntityView({entity}: { entity: EntityDto }) {
       </Breadcrumb>
       <ViewTitle eyebrow={"Entity"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{entity.name ?? entity.key ?? entity.id} {" "}</div>
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine
+              value={entity.name ?? ""}
+              onChange={handleChangeName}>
+              {entity.name ?              model.findEntityNameOrKey(entity.id) : <MissingInformation>{model.findEntityNameOrKey(entity.id)}</MissingInformation>} {" "}
+            </InlineEditSingleLine>
+          </div>
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}
