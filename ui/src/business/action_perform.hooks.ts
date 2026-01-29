@@ -78,20 +78,32 @@ export const useModelDeleteTag = () => {
     onSuccess: () => queryClient.invalidateQueries()
   })
 }
-
-export const useTypeUpdateDescription = () => {
+function useTypeMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (props: { modelId: string, typeId: string, value: string }) =>
-      executeAction("model", "type_update_description", {
-        modelRef: "id:" + props.modelId,
-        typeRef: "id:" + props.typeId,
-        value: props.value
-      }),
+    mutationFn: (props: { modelId: string, typeId: string } & P) => {
+      const {modelId, typeId, ...otherProps} = props
+      return executeAction(actionGroupKey, actionKey, {
+        modelRef: "id:" + modelId,
+        typeRef: "id:" + typeId,
+        ...otherProps
+      })
+    },
     onSuccess: () => queryClient.invalidateQueries()
-
   })
+
 }
+
+export const useTypeUpdateName = () => {
+  return useTypeMutation<{ value: string }>("model", "type_update_name");
+}
+export const useTypeUpdateKey = () => {
+  return useTypeMutation<{ value: string }>("model", "type_update_key");
+}
+export const useTypeUpdateDescription = () => {
+  return useTypeMutation<{ value: string }>("model", "type_update_description");
+}
+
 
 function useEntityMutation<P extends ActionPayload>(actionGroupKey: string, actionKey: string) {
   const queryClient = useQueryClient()

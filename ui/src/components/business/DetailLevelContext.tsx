@@ -9,9 +9,16 @@ type DetailLevelContextValue = {
 const DetailLevelContext = createContext<DetailLevelContextValue | null>(null)
 
 export const DetailLevelProvider = ({children}: PropsWithChildren) => {
-  const [level, setLevel] = useState<DetailLevel>("business")
+  const defaultValueStorage = localStorage.getItem("detailLevel")
+  const defaultValue = defaultValueStorage === "tech" ? "tech" : "business"
+
+  const [level, setLevel] = useState<DetailLevel>(defaultValue)
+  const handleLevelChange = (value: DetailLevel) => {
+    localStorage.setItem("detailLevel", value)
+    setLevel(value)
+  }
   return (
-    <DetailLevelContext.Provider value={{level, setLevel}}>{children}</DetailLevelContext.Provider>
+    <DetailLevelContext.Provider value={{level, setLevel: handleLevelChange}}>{children}</DetailLevelContext.Provider>
   )
 }
 
