@@ -158,7 +158,7 @@ sealed interface ModelAction {
         key = "model_update_key",
         title = "Update model key",
         description = "Changes model key",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateKey(
@@ -180,7 +180,7 @@ sealed interface ModelAction {
         key = "model_update_name",
         title = "Update model name",
         description = "Changes model name",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateName(
@@ -248,7 +248,7 @@ sealed interface ModelAction {
         key = "model_update_version",
         title = "Update model version",
         description = "Changes model version",
-        uiLocations = [ActionUILocation.model_overview],
+        uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateVersion(

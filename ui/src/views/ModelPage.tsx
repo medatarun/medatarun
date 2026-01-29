@@ -178,7 +178,7 @@ export function ModelOverview() {
         <code>{model.version}</code>
       </InlineEditSingleLine>
     </div>
-    <div>Documentation</div>
+    <div>External&nbsp;link</div>
     <div>
       <InlineEditSingleLine
         value={model.documentationHome ?? ""}
