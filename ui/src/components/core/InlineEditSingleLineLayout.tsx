@@ -1,4 +1,4 @@
-import {forwardRef, type ReactElement, type ReactNode, useEffect, useImperativeHandle, useState} from "react";
+import {type ReactElement, type ReactNode, useEffect, useState} from "react";
 import {type Problem, toProblem} from "@seij/common-types";
 import {makeStyles, Popover, PopoverSurface, PopoverTrigger, tokens, Tooltip} from "@fluentui/react-components";
 import {EditRegular as EditIcon} from "@fluentui/react-icons";
@@ -57,7 +57,7 @@ export interface InlineEditSingleLineLayoutProps {
   /**
    * Editor to display in EditMode
    */
-  editor: ReactElement;
+  editor: (intents: { commit: () => void, cancel: () => void, pending:boolean}) => ReactElement;
   /**
    * Called before the editor mode is switched to "on" (prepare data)
    * If the promise rejects, we will display an error before the editor
@@ -87,10 +87,6 @@ export interface InlineEditSingleLineLayoutProps {
    **/
   onEditCancel: () => Promise<unknown>;
 }
-export interface InlineEditSingleLineLayoutHandle {
-  requestOk: () => void
-  requestCancel: () => void
-}
 
 /**
  * Component that switches between read and write modes inline.
@@ -100,7 +96,7 @@ export interface InlineEditSingleLineLayoutHandle {
  *
  * Editor must be provided
  */
-export const InlineEditSingleLineLayout = forwardRef<InlineEditSingleLineLayoutHandle, InlineEditSingleLineLayoutProps> ((
+export const InlineEditSingleLineLayout = (
   {
     children,
     editor,
@@ -108,7 +104,7 @@ export const InlineEditSingleLineLayout = forwardRef<InlineEditSingleLineLayoutH
     onEditStart,
     onEditOK,
     onEditCancel,
-  }, ref)=> {
+  }: InlineEditSingleLineLayoutProps) => {
   const styles = useStyles()
   const [editing, setEditing] = useState<boolean>(false);
   const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
@@ -155,12 +151,7 @@ export const InlineEditSingleLineLayout = forwardRef<InlineEditSingleLineLayoutH
       setPending(false);
     }
   };
-  useImperativeHandle(ref, ()=>(
-    {
-      requestOk: handleEditOK,
-      requestCancel: handleEditCancel,
-    }
-  ))
+
 
   useEffect(() => {
     if (editing && onEditStarted && !editStartedCalled) {
@@ -184,16 +175,19 @@ export const InlineEditSingleLineLayout = forwardRef<InlineEditSingleLineLayoutH
       </div>
     );
 
+  const Editor = editor({commit:handleEditOK, cancel:handleEditCancel, pending:pending})
+
   return (
     <div>
       <div className={styles.editorRoot}>
         <div className={styles.editorField}>
 
-          <Popover open={true} unstable_disableAutoFocus={true} positioning={"below-start"} size={"small"} withArrow={true}  >
+          <Popover open={true} unstable_disableAutoFocus={true} positioning={"below-start"} size={"small"}
+                   withArrow={true}>
             <PopoverTrigger>
-              {editor}
+              {Editor}
             </PopoverTrigger>
-            <PopoverSurface tabIndex={-1} >
+            <PopoverSurface tabIndex={-1}>
               <div id="editor-action-bar">
                 <ButtonBar variant="end">
                   <Button disabled={pending} onClick={handleEditCancel} variant="secondary">
@@ -212,4 +206,4 @@ export const InlineEditSingleLineLayout = forwardRef<InlineEditSingleLineLayoutH
       {error && <ErrorBox error={error}/>}
     </div>
   );
-})
+}
