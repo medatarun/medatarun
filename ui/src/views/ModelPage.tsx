@@ -5,7 +5,8 @@ import {
   Model,
   useActionRegistry,
   useModel,
-  useModelUpdateDescription
+  useModelUpdateDescription,
+  useModelUpdateName
 } from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
@@ -26,6 +27,7 @@ import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
 import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
 import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "../components/core/InlineEditSingleLine.tsx";
 
 
 export function ModelPage({modelId}: { modelId: string }) {
@@ -42,6 +44,7 @@ export function ModelView() {
   const actionRegistry = useActionRegistry()
   const navigate = useNavigate();
   const modelUpdateDescription = useModelUpdateDescription()
+  const modelUpdateName = useModelUpdateName()
 
   const displayName = model.name ?? model.id
 
@@ -62,11 +65,18 @@ export function ModelView() {
   }
 
   const actions = actionRegistry.findActions(ActionUILocations.model_overview)
+
+  const handleChangeName = (value:string) => {
+    return modelUpdateName.mutateAsync({modelId: model.id, value: value})
+  }
+
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow={<span>Model</span>}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{displayName} {" "}</div>
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine value={model.name ?? ""} placeholder={displayName} onChange={handleChangeName}>{displayName} {" "}</InlineEditSingleLine>
+          </div>
           <div>
             <ActionMenuButton
               label="Actions"

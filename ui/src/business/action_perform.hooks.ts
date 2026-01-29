@@ -1,6 +1,17 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {executeAction} from "./action_perform.api.ts";
 
+export const useModelUpdateName = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { modelId: string, value: string }) =>
+      executeAction("model", "model_update_name", {
+        modelRef: "id:" + props.modelId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
 export const useModelUpdateDescription = () => {
   const queryClient = useQueryClient()
   return useMutation({
