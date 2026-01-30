@@ -225,7 +225,7 @@ function Path({searchResult}: { searchResult: SearchResult }) {
         onClick={() => navigate({
           to: "/model/$modelId/entity/$entityId/attribute/$attributeId",
           params: {modelId: modelId, entityId: entityId, attributeId: entityAttributeId}
-        })}>{entityLabel}</BreadcrumbButton>
+        })}>{entityAttributeLabel}</BreadcrumbButton>
     </BreadcrumbItem>}
 
 
@@ -248,7 +248,7 @@ function Path({searchResult}: { searchResult: SearchResult }) {
           onClick={() => navigate({
             to: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
             params: {modelId: modelId, relationshipId: relationshipId, attributeId: relationshipAttributeId}
-          })}>{entityLabel}</BreadcrumbButton>
+          })}>{relationshipAttributeLabel}</BreadcrumbButton>
       </BreadcrumbItem>}
 
   </Breadcrumb>
