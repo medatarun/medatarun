@@ -17,7 +17,7 @@ export function ActionProvider({children}: { children: React.ReactNode }) {
     state:state,
     performAction: (actionRequest) =>
       performer.performAction(actionRequest),
-    confirmAction: (formData) => performer.confirmAction(formData),
+    confirmAction: (payload) => performer.confirmAction(payload),
     cancelAction: (reason) => performer.cancelAction(reason),
     finishAction: () => performer.finishAction()
   };

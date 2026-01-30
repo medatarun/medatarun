@@ -35,7 +35,7 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
   }, [selectedGroupKey, actionRegistry])
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findAction(selectedGroupKey, selectedActionKey)
+    return actionRegistry.findActionOptional(selectedGroupKey, selectedActionKey)
   }, [selectedActionKey, selectedGroupKey, actionRegistry])
 
   const handleSubmit = () => {

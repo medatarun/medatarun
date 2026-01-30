@@ -10,20 +10,20 @@ import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import org.junit.jupiter.api.Assertions.*
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KClass
-import kotlin.test.Test
+import kotlin.test.*
 
 class ActionInvokerTest {
+
+    // ------------------------------------------------------------------------
+    // Dispatch tests
+    // ------------------------------------------------------------------------
 
     @Test
     fun `dispatch uses the action class resolved from json`() {
@@ -38,12 +38,15 @@ class ActionInvokerTest {
         assertEquals("ok", result)
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.Alpha)
-        val alpha = cmd as TestAction.Alpha
-        assertEquals("alpha", alpha.name)
-        assertEquals(2, alpha.count)
-        assertEquals(null, alpha.note)
+        assertEquals("alpha", cmd.name)
+        assertEquals(2, cmd.count)
+        assertEquals(null, cmd.note)
         assertNotNull(runtime.lastActionCtx())
     }
+
+    // ------------------------------------------------------------------------
+    // Optional params
+    // ------------------------------------------------------------------------
 
     @Test
     fun `optional params are respected when provided`() {
@@ -58,9 +61,12 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.Alpha)
-        val alpha = cmd as TestAction.Alpha
-        assertEquals("memo", alpha.note)
+        assertEquals("memo", cmd.note)
     }
+
+    // ------------------------------------------------------------------------
+    // List and map
+    // ------------------------------------------------------------------------
 
     @Test
     fun `list and map parameters are converted`() {
@@ -80,10 +86,60 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithCollections)
-        val collections = cmd as TestAction.WithCollections
-        assertEquals(listOf("alpha", "beta"), collections.names)
-        assertEquals(mapOf("alpha" to 1, "beta" to 2), collections.counts)
+        assertEquals(listOf("alpha", "beta"), cmd.names)
+        assertEquals(mapOf("alpha" to 1, "beta" to 2), cmd.counts)
     }
+
+    // ------------------------------------------------------------------------
+    // String
+    // ------------------------------------------------------------------------
+
+     @Test
+     fun `string optional when undefined then null`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertNull(cmd.value)
+     }
+
+     @Test
+     fun `string optional when null then null`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+             put("value", JsonNull)
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertNull(cmd.value)
+     }
+
+     @Test
+     fun `string optional when provided then found`() {
+         val runtime = TestRuntime()
+         val payload = buildJsonObject {
+             put("value", JsonPrimitive("alpha"))
+         }
+
+         runtime.invoke("string_optional", payload)
+
+         val cmd = runtime.lastCommand()
+         assertTrue(cmd is TestAction.WithStringOptional)
+         assertEquals("alpha", cmd.value)
+     }
+
+
+    // ------------------------------------------------------------------------
+    // Big decimal
+    // ------------------------------------------------------------------------
+
 
     @Test
     fun `big decimal parameters are converted from string`() {
@@ -96,8 +152,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDecimal)
-        val decimal = cmd as TestAction.WithDecimal
-        assertEquals(0, BigDecimal("12.50").compareTo(decimal.price))
+        assertEquals(0, BigDecimal("12.50").compareTo(cmd.price))
     }
 
     @Test
@@ -111,8 +166,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDecimal)
-        val decimal = cmd as TestAction.WithDecimal
-        assertEquals(0, BigDecimal("12.5").compareTo(decimal.price))
+        assertEquals(0, BigDecimal("12.5").compareTo(cmd.price))
     }
 
     @Test
@@ -126,8 +180,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithBigInteger)
-        val big = cmd as TestAction.WithBigInteger
-        assertEquals(BigInteger("12345678901234567890"), big.value)
+        assertEquals(BigInteger("12345678901234567890"), cmd.value)
     }
 
     @Test
@@ -141,12 +194,11 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithBigInteger)
-        val big = cmd as TestAction.WithBigInteger
-        assertEquals(BigInteger("1234567890"), big.value)
+        assertEquals(BigInteger("1234567890"), cmd.value)
     }
 
     @Test
-    fun `value class parameters are converted when required`() {
+    fun `value class required parameters are converted when specified`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
             put("value", JsonPrimitive("abcd"))
@@ -156,12 +208,33 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithAbbreviation)
-        val abbreviation = cmd as TestAction.WithAbbreviation
-        assertEquals(Abbreviation("abcd"), abbreviation.value)
+        assertEquals(Abbreviation("abcd"), cmd.value)
     }
 
     @Test
-    fun `value class parameters are optional when missing`() {
+    fun `value class required parameters are rejected when missing`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+
+        }
+        assertThrows<ActionInvocationException> {
+            runtime.invoke("abbreviation", payload)
+        }
+    }
+
+    @Test
+    fun `value class required parameters are rejected when null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
+        assertThrows<ActionInvocationException> {
+            runtime.invoke("abbreviation", payload)
+        }
+    }
+
+    @Test
+    fun `value class optional parameters are converted to null when missing`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject { }
 
@@ -169,8 +242,35 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithOptionalAbbreviation)
-        val abbreviation = cmd as TestAction.WithOptionalAbbreviation
-        assertEquals(null, abbreviation.value)
+        assertEquals(null, cmd.value)
+    }
+
+    @Test
+    fun `value class optional parameters are converted to null when null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        assertEquals(null, cmd.value)
+    }
+
+    @Test
+    fun `value class optional parameters are converted when specified`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("abcd"))
+        }
+
+        runtime.invoke("optional_abbreviation", payload)
+
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithOptionalAbbreviation)
+        assertEquals(Abbreviation("abcd"), cmd.value)
     }
 
     @Test
@@ -184,8 +284,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDouble)
-        val dbl = cmd as TestAction.WithDouble
-        assertEquals(12.75, dbl.value)
+        assertEquals(12.75, cmd.value)
     }
 
     @Test
@@ -199,8 +298,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDouble)
-        val dbl = cmd as TestAction.WithDouble
-        assertEquals(12.75, dbl.value)
+        assertEquals(12.75, cmd.value)
     }
 
     @Test
@@ -214,8 +312,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithInstant)
-        val instant = cmd as TestAction.WithInstant
-        assertEquals(Instant.parse("2023-11-14T00:00:00Z"), instant.at)
+        assertEquals(Instant.parse("2023-11-14T00:00:00Z"), cmd.at)
     }
 
     @Test
@@ -229,8 +326,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithInstant)
-        val instant = cmd as TestAction.WithInstant
-        assertEquals(Instant.ofEpochMilli(1700000000123), instant.at)
+        assertEquals(Instant.ofEpochMilli(1700000000123), cmd.at)
     }
 
     @Test
@@ -244,8 +340,7 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithLocalDate)
-        val date = cmd as TestAction.WithLocalDate
-        assertEquals(LocalDate.parse("2023-11-14"), date.date)
+        assertEquals(LocalDate.parse("2023-11-14"), cmd.date)
     }
 
     @Test
@@ -286,12 +381,11 @@ class ActionInvokerTest {
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithComplex)
-        val complex = cmd as TestAction.WithComplex
-        assertEquals("pack", complex.payload.name)
-        assertEquals(0, BigDecimal("9.99").compareTo(complex.payload.amount))
-        assertEquals(listOf("t1", "t2"), complex.payload.tags)
-        assertEquals(mapOf("a" to 7, "b" to 8), complex.payload.meta)
-        assertEquals("note", complex.payload.note)
+        assertEquals("pack", cmd.payload.name)
+        assertEquals(0, BigDecimal("9.99").compareTo(cmd.payload.amount))
+        assertEquals(listOf("t1", "t2"), cmd.payload.tags)
+        assertEquals(mapOf("a" to 7, "b" to 8), cmd.payload.meta)
+        assertEquals("note", cmd.payload.note)
     }
 
     @Test
@@ -539,6 +633,22 @@ class ActionInvokerTest {
                 order = 1
             )
             val date: LocalDate
+        ) : TestAction
+
+        @ActionDoc(
+            key = "string_optional",
+            title = "String",
+            description = "Action with String",
+            uiLocations = [""],
+            securityRule = RULE_ALLOW
+        )
+        class WithStringOptional(
+            @ActionParamDoc(
+                name = "value",
+                description = "Value",
+                order = 1
+            )
+            val value: String?
         ) : TestAction
 
         @ActionDoc(

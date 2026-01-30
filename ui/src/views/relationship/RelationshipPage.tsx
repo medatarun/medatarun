@@ -4,7 +4,12 @@ import {
   type RelationshipDto,
   type RelationshipRoleDto,
   useActionRegistry,
-  useModel
+  useModel,
+  useRelationshipAddTag,
+  useRelationshipDeleteTag,
+  useRelationshipUpdateDescription,
+  useRelationshipUpdateKey,
+  useRelationshipUpdateName
 } from "../../business";
 import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
@@ -33,7 +38,6 @@ import {
   ContainedScrollable
 } from "../../components/layout/Contained.tsx";
 import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
@@ -44,6 +48,9 @@ import {SectionTable} from "../../components/layout/SecionTable.tsx";
 import {AttributesTable} from "../../components/business/AttributesTable.tsx";
 import {Tags} from "../../components/core/Tag.tsx";
 import {SectionCards} from "../../components/layout/SectionCards.tsx";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
 
 export function RelationshipPage({modelId, relationshipId}: {
   modelId: string,
@@ -72,6 +79,12 @@ export function RelationshipView({model, relationship}: {
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.relationship)
   const {isDetailLevelTech} = useDetailLevelContext()
+  const relationshipUpdateDescription = useRelationshipUpdateDescription()
+  const updateName = useRelationshipUpdateName()
+
+  const handleChangeName = (value: string) => {
+    return updateName.mutateAsync({modelId: model.id, relationshipId: relationship.id, value: value})
+  }
 
   const handleClickModel = () => {
     navigate({
@@ -103,11 +116,15 @@ export function RelationshipView({model, relationship}: {
     <div>
       <ViewTitle eyebrow={"Relationship"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>
-            {relationship.name ?? relationship.key ?? relationship.id} {" "}
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine
+              value={relationship.name ?? ""}
+              onChange={handleChangeName}>
+              {relationship.name ? model.findRelationshipNameOrKey(relationship.id) :
+                <span style={{color:tokens.colorNeutralForeground4, fontStyle: "italic"}}>{model.findRelationshipNameOrKey(relationship.id)}</span>} {" "}
+            </InlineEditSingleLine>
           </div>
           <div>
-
             <ActionMenuButton
               label="Actions"
               itemActions={actions}
@@ -124,9 +141,12 @@ export function RelationshipView({model, relationship}: {
           <SectionPaper>
             <RelationshipOverview model={model} relationship={relationship}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {relationship.description ? <Markdown value={relationship.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={relationship.description}
+              placeholder={"add description"}
+              onChange = {v => relationshipUpdateDescription.mutateAsync({modelId: model.id, relationshipId: relationship.id, value: v})}
+            />
           </SectionPaper>
 
 
@@ -203,9 +223,31 @@ export function RelationshipOverview({relationship, model}: {
   model: Model
 }) {
   const {isDetailLevelTech} = useDetailLevelContext()
+  const relationshipUpdateKey = useRelationshipUpdateKey()
+  const relationshipAddTag = useRelationshipAddTag()
+  const relationshipDeleteTag = useRelationshipDeleteTag()
+  const handleChangeKey = (value: string) => {
+    return relationshipUpdateKey.mutateAsync({modelId: model.id, relationshipId: relationship.id, value: value})
+  }
+
+  const handleChangeTags = async (value: string[]) => {
+    for (const tag of relationship.hashtags) {
+      if (!value.includes(tag)) await relationshipDeleteTag.mutateAsync({modelId: model.id, relationshipId: relationship.id, tag: tag})
+    }
+    for (const tag of value) {
+      if (!relationship.hashtags.includes(tag)) await relationshipAddTag.mutateAsync({
+        modelId: model.id,
+        relationshipId: relationship.id,
+        tag: tag
+      })
+    }
+  }
   return <PropertiesForm>
     {isDetailLevelTech && <div><Text>Relationship&nbsp;key</Text></div>}
-    {isDetailLevelTech && <div><Text><code>{relationship.key}</code></Text></div>}
+
+    {isDetailLevelTech && <InlineEditSingleLine value={relationship.key} onChange={handleChangeKey}>
+      <Text><code>{relationship.key}</code></Text>
+    </InlineEditSingleLine>}
     <div><Text>From&nbsp;model</Text></div>
     <div>
       <Link
@@ -213,8 +255,15 @@ export function RelationshipOverview({relationship, model}: {
         params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
     <div><Text>Tags</Text></div>
-    <div>{relationship.hashtags.length == 0 ? <MissingInformation>add tags</MissingInformation> :
-      <Tags tags={relationship.hashtags}/>}</div>
+    <div>
+      <InlineEditTags value={relationship.hashtags} onChange={handleChangeTags}>
+        {
+          relationship.hashtags.length === 0
+            ? <MissingInformation>add tags</MissingInformation>
+            : <Tags tags={relationship.hashtags}/>
+        }
+      </InlineEditTags>
+    </div>
     {isDetailLevelTech && <div><Text>Relationship&nbsp;id</Text></div>}
     {isDetailLevelTech && <div><Text><code>{relationship.id}</code></Text></div>}
   </PropertiesForm>

@@ -43,6 +43,7 @@ class ModelInMemoryReducer {
                 if (type.id != cmd.typeId) type else when (cmd.cmd) {
                     is ModelTypeUpdateCmd.Name -> type.copy(name = cmd.cmd.value)
                     is ModelTypeUpdateCmd.Description -> type.copy(description = cmd.cmd.value)
+                    is ModelTypeUpdateCmd.Key -> type.copy(key = cmd.cmd.value)
                 }
             })
 

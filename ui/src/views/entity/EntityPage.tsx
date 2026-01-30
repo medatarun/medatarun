@@ -1,5 +1,13 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, type EntityDto, Model, useActionRegistry, useModel} from "../../business";
+import {
+  ActionUILocations,
+  type EntityDto,
+  Model,
+  useActionRegistry,
+  useEntityUpdateDescription,
+  useEntityUpdateName,
+  useModel
+} from "../../business";
 import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
@@ -11,8 +19,6 @@ import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.t
 import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {EntityOverview} from "./EntityOverview.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -25,6 +31,9 @@ import {
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
 } from "../../components/business/actionTemplates.ts";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
+import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 
 
 export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
@@ -38,9 +47,13 @@ export function EntityPage({modelId, entityId}: { modelId: string, entityId: str
 }
 
 export function EntityView({entity}: { entity: EntityDto }) {
+
   const model = useModelContext()
+  const entityUpdateDescription = useEntityUpdateDescription()
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
+  const entityUpdateName = useEntityUpdateName()
+
   const actions = actionRegistry.findActions(ActionUILocations.entity)
   const relationshipsInvolved = model.dto.relationships
     .filter(it => it.roles.some(r => r.entityId === entity.id));
@@ -66,6 +79,9 @@ export function EntityView({entity}: { entity: EntityDto }) {
     })
   }
 
+  const handleChangeName = (value: string) => {
+    return entityUpdateName.mutateAsync({modelId: model.id, entityId: entity.id, value: value})
+  }
   return <ViewLayoutContained title={
     <div>
       <Breadcrumb style={{marginLeft: "-22px"}} size="small">
@@ -77,7 +93,14 @@ export function EntityView({entity}: { entity: EntityDto }) {
       </Breadcrumb>
       <ViewTitle eyebrow={"Entity"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{entity.name ?? entity.key ?? entity.id} {" "}</div>
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine
+              value={entity.name ?? ""}
+              onChange={handleChangeName}>
+              {entity.name ? model.findEntityNameOrKey(entity.id) :
+                <MissingInformation>{model.findEntityNameOrKey(entity.id)}</MissingInformation>} {" "}
+            </InlineEditSingleLine>
+          </div>
           <div><ActionMenuButton
             label="Actions"
             itemActions={actions}
@@ -93,9 +116,12 @@ export function EntityView({entity}: { entity: EntityDto }) {
           <SectionPaper>
             <EntityOverview entity={entity}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {entity.description ? <Markdown value={entity.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={entity.description}
+              placeholder={"add description"}
+              onChange={v => entityUpdateDescription.mutateAsync({modelId: model.id, entityId: entity.id, value: v})}
+            />
           </SectionPaper>
 
           <SectionTitle
@@ -107,7 +133,7 @@ export function EntityView({entity}: { entity: EntityDto }) {
             <AttributesTable
               attributes={entity.attributes}
               actionUILocation={ActionUILocations.entity_attribute}
-              actionParamsFactory={(attributeId:string)=>createActionTemplateEntityAttribute(model.id, entity.id, attributeId)}
+              actionParamsFactory={(attributeId: string) => createActionTemplateEntityAttribute(model.id, entity.id, attributeId)}
               onClickAttribute={handleClickAttribute}/>
           </SectionTable>
 

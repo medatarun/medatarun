@@ -4,6 +4,8 @@ import io.ktor.http.*
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import kotlinx.serialization.json.JsonObject
 import org.slf4j.Logger
@@ -81,6 +83,20 @@ class ActionInvoker(
                     mapOf(
                         "details" to (e.message ?: e::class.simpleName).toString()
                     )
+                )
+            }
+        } catch (e: MedatarunException) {
+            if (e.httpStatusCode.httpStatusCode < StatusCode.INTERNAL_SERVER_ERROR.httpStatusCode) {
+                throw ActionInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    e.msg
+                )
+            } else {
+                logger.error("Invocation failed", e)
+                throw ActionInvocationException(
+                    HttpStatusCode.InternalServerError,
+                    "Internal server error",
+                    mapOf("details" to e.msg)
                 )
             }
         } catch (throwable: Throwable) {

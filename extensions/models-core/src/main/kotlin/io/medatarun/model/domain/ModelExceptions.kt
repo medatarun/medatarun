@@ -63,6 +63,7 @@ class ModelVersionPreReleaseLeadingZeroException :
 class LocalizedTextMapEmptyException :
     MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")
 
+
 class UpdateAttributeDuplicateKeyException(entityRef: EntityRef, attributeRef: EntityAttributeRef, newKey: AttributeKey) :
     MedatarunException("Can not change attribute [${attributeRef.asString()}] key to [${newKey.value}] because it is already used for another attribute in entity [${entityRef.asString()}]")
 
@@ -77,6 +78,9 @@ class ModelTypeDeleteUsedException(typeId: TypeKey) :
 
 class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] already exists with the same id in model [${modelKey.value}]")
+
+class TypeUpdateDuplicateKeyException(typeKey: TypeKey) :
+    MedatarunException("Another type uses the key [${typeKey.value}].", StatusCode.BAD_REQUEST)
 
 
 class TypeNotFoundByKeyException(modelKey: ModelKey, typeKey: TypeKey) :

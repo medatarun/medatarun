@@ -215,7 +215,25 @@ class ModelCmdsImpl(
     private fun updateType(cmd: ModelCmd.UpdateType) {
         val model = findModel(cmd.modelRef)
         val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
-        storage.dispatch(ModelRepoCmd.UpdateType(model.id, type.id, cmd.cmd))
+        val subcommand = when (cmd.cmd) {
+            is ModelTypeUpdateCmd.Name -> {
+                if (model.name == cmd.cmd.value) return
+                cmd.cmd
+            }
+            is ModelTypeUpdateCmd.Description -> {
+                if (model.description == cmd.cmd.value) return
+                cmd.cmd
+            }
+            is ModelTypeUpdateCmd.Key -> {
+                if (type.key == cmd.cmd.value) return
+                val found = model.findTypeOptional(cmd.cmd.value)
+                if (found != null) throw TypeUpdateDuplicateKeyException(cmd.cmd.value)
+                cmd.cmd
+            }
+        }
+
+        storage.dispatch(ModelRepoCmd.UpdateType(model.id, type.id, subcommand))
+
     }
 
     private fun deleteType(cmd: ModelCmd.DeleteType) {

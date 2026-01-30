@@ -1,7 +1,8 @@
 import type {ActionDescriptorDto, ActionParamDescriptorDto, ActionRegistryDto} from "./action_registry.dto.ts";
 import type {ActionUILocation} from "./action_registry.uilocations.ts";
+import {throwError} from "@seij/common-types";
 
-export class Action_registryBiz {
+export class ActionDescriptor {
   public actionGroupKey: string
   public key: string;
   public description: string | null
@@ -50,23 +51,27 @@ export class ActionRegistry {
   public readonly actionGroupKeys: string[]
 
   private readonly dto: ActionRegistryDto;
-  private readonly actionDescriptors: Action_registryBiz[]
+  private readonly actionDescriptors: ActionDescriptor[]
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
     this.actionGroupKeys = [...new Set(this.dto.map(it => it.groupKey))]
-    this.actionDescriptors = dto.map(it => new Action_registryBiz(it))
+    this.actionDescriptors = dto.map(it => new ActionDescriptor(it))
   }
 
-  public findActionDtoListByResource(groupKey: string | undefined | null): Action_registryBiz[] {
+  public findActionDtoListByResource(groupKey: string | undefined | null): ActionDescriptor[] {
     if (!groupKey) return []
     return this.actionDescriptors.filter(it => it.actionGroupKey === groupKey)
   }
 
-  public findAction(actionGroupKey: string | undefined | null, actionKey: string | undefined | null): Action_registryBiz | undefined {
+  public findActionOptional(actionGroupKey: string | undefined | null, actionKey: string | undefined | null): ActionDescriptor | undefined {
     if (!actionGroupKey) return undefined
     if (!actionKey) return undefined
     return this.actionDescriptors.find(it => actionGroupKey === it.actionGroupKey && actionKey == it.key)
+  }
+
+  public findAction(actionGroupKey: string, actionKey: string) : ActionDescriptor{
+    return this.findActionOptional(actionGroupKey, actionKey) ?? throwError(`Unknown action ${actionGroupKey}/${actionKey}`)
   }
 
   public findFirstActionKey(resource: string): string | undefined {
@@ -82,23 +87,23 @@ export class ActionRegistry {
   }
 
   public existsAction(resource: string, action: string) {
-    return this.findAction(resource, action) !== undefined
+    return this.findActionOptional(resource, action) !== undefined
   }
 
   public createPayloadTemplate(resource: string | undefined | null, actionName: string | undefined | null): string {
-    const action = this.findAction(resource, actionName)
+    const action = this.findActionOptional(resource, actionName)
     if (!action) return "{}"
     return buildPayloadTemplate(action)
   }
 
-  public findActions(location: ActionUILocation): Action_registryBiz[] {
+  public findActions(location: ActionUILocation): ActionDescriptor[] {
     return this.actionDescriptors.filter(it => it.matchesLocation(location))
   }
 
 }
 
 
-function buildPayloadTemplate(action: Action_registryBiz): string {
+function buildPayloadTemplate(action: ActionDescriptor): string {
   const payload: Record<string, string> = {}
   action.parameters.forEach(param => {
     payload[param.name] = ""

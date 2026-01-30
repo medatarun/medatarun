@@ -2,10 +2,11 @@ import type {PropsWithChildren, ReactNode} from "react";
 import {type ActionUILocation, useActionRegistry} from "../../business";
 import {Text, tokens} from "@fluentui/react-components";
 import {ActionMenuButton} from "../business/TypesTable.tsx";
+import type {ActionPerformerRequestParams} from "../business/ActionPerformer.tsx";
 
 export function SectionTitle({icon, location, actionParams, children}: {
   icon: ReactNode,
-  actionParams: Record<string, string>,
+  actionParams: ActionPerformerRequestParams,
   location: ActionUILocation
 } & PropsWithChildren) {
   const actionRegistry = useActionRegistry()

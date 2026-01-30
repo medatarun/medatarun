@@ -12,28 +12,26 @@ import {
   InfoLabel,
   Input,
   type LabelProps,
-  MessageBar,
   tokens
 } from "@fluentui/react-components";
 
-import {useState} from "react";
+import {type Ref, useEffect, useRef, useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
-import {Action_registryBiz, type ActionResp, useActionRegistry} from "../../business";
-import type {ActionPerformerState} from "./ActionPerformer.tsx";
+import {
+  ActionDescriptor,
+  type ActionResp,
+  type FormDataType,
+  type FormFieldType,
+  useActionRegistry,
+  validateForm
+} from "../../business";
+import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
-import {combineValidationResults, invalid, valid, type ValidationResult} from "@seij/common-validation";
-import {Button} from "@seij/common-ui";
-
-type FormDataType = Record<string, unknown>;
-type FormFieldType = {
-  key: string
-  title: string
-  description: string | null
-  optional: boolean,
-  type: string
-  order: number
-  prefilled: boolean
-}
+import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
+import {Button, ErrorBox} from "@seij/common-ui";
+import {formDataNormalize} from "../../business/action_form.normalize.ts";
+import {isNil, isPlainObject} from "lodash-es";
+import {toProblem} from "@seij/common-types";
 
 
 export function ActionPerformerView() {
@@ -45,12 +43,14 @@ export function ActionPerformerView() {
   if (state.kind === 'idle') return null;
 
   const {request} = state; // request.location, request.params
-  const action = actionRegistry.findAction(request.actionGroupKey, request.actionKey)
+  const action = actionRegistry.findActionOptional(request.actionGroupKey, request.actionKey)
   if (!action) return null
 
-  const defaultFormData: FormDataType = {
-    ...state.request.params
+  const defaultFormData: FormDataType = {}
+  for (const actionParam of action.parameters) {
+    defaultFormData[actionParam.name] = state.request.params[actionParam.name]?.value ?? null
   }
+
   const formFields = createFormFields(action, state.request.params);
 
   return <ActionPerformerViewLoaded
@@ -62,27 +62,28 @@ export function ActionPerformerView() {
 
 export function ActionPerformerViewLoaded({state, action, defaultFormData, formFields}: {
   state: ActionPerformerState,
-  action: Action_registryBiz,
+  action: ActionDescriptor,
   defaultFormData: FormDataType,
   formFields: FormFieldType[]
 }) {
 
-
+  const actionRegistry = useActionRegistry()
   const {confirmAction, cancelAction, finishAction} = useActionPerformer();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null)
   const [formData, setFormData] = useState<FormDataType>(defaultFormData)
+  const firstInputRef = useRef<HTMLInputElement>(null)
 
-  const displayExecute = state.kind == "pendingUser"
-  const displayCancel = state.kind == "pendingUser" || state.kind == "running"
-  const displayFinish = state.kind == "done" || state.kind == "error"
+  const displayExecute = state.kind == "pendingUser" || state.kind == "error"
+  const displayCancel = state.kind == "pendingUser" || state.kind == "running" || state.kind == "error"
+  const displayFinish = state.kind == "done"
 
-  const validationResults = validate({formData, formFields})
+  const validationResults = validateForm({formData, formFields})
   const validationResult = combineValidationResults([...validationResults.values()])
   const valid = validationResult.valid
 
   const onValidate = async () => {
-    const formDataNormalized = {...formData}; // We should filter
-    const output = await confirmAction(formDataNormalized);
+    const payload = formDataNormalize(action.actionGroupKey, action.key, formData, actionRegistry)
+    const output = await confirmAction(payload);
     setActionResp(output)
   };
 
@@ -98,10 +99,23 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
     setFormData({...formData, [field.key]: value})
   }
 
+  useEffect(() => {
+    const isDone = state.kind === "done"
+    const display = hasResultToDisplay(actionResp)
+    if (isDone && !display) {
+      finishAction()
+    }
+  }, [state.kind, actionResp, finishAction]);
+
+  const focusedFieldKey = formFields.find(it => it.visible && !it.readonly)?.key
+
+  useEffect(() => {
+    firstInputRef?.current?.focus()
+  }, [focusedFieldKey, firstInputRef.current])
 
   return (
     <Dialog open={true}>
-      <DialogSurface >
+      <DialogSurface>
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
@@ -114,13 +128,17 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
             }}>
               {action.description && <div>{action.description}</div>}
-              {formFields.map(field => (
+              {formFields.filter(it => it.visible).map((field) => (
 
-                <FormFieldInput field={field} value={formData[field.key]}
-                                validationResult={validationResults.get(field.key)}
-                                onChange={handleChangeFormFieldInput}/>))}
+                <FormFieldInput
+                  key={field.key}
+                  inputRef={field.key === focusedFieldKey ? firstInputRef : undefined}
+                  field={field}
+                  value={formData[field.key]}
+                  validationResult={validationResults.get(field.key)}
+                  onChange={handleChangeFormFieldInput}/>))}
 
-              {state.kind === "error" ? <MessageBar intent="error">{state.error?.toString()}</MessageBar> : null}
+              {state.kind === "error" ? <ErrorBox error={toProblem(state.error)}/> : null}
               {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
             </div>
           </DialogContent>
@@ -147,11 +165,12 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
 }
 
-function FormFieldInput({field, value, validationResult, onChange}: {
+function FormFieldInput({field, value, validationResult, inputRef, onChange}: {
   field: FormFieldType,
   value: unknown,
   validationResult: ValidationResult | undefined,
-  onChange: (field: FormFieldType, value: unknown) => void
+  onChange: (field: FormFieldType, value: unknown) => void,
+  inputRef?: Ref<HTMLInputElement>
 }) {
   const valueNormalized = (value === null || value === undefined) ? "" : "" + value
   const validationState: FieldProps["validationState"] =
@@ -163,10 +182,11 @@ function FormFieldInput({field, value, validationResult, onChange}: {
     label={{
       // Setting children to a render function allows you to replace the entire slot.
       // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
-      // The second param are the props for the slot, which need to be passed to the InfoLabel.
+      // The second param is the props for the slot, which need to be passed to the InfoLabel.
       children: (_: unknown, slotProps: LabelProps) => (
-        <InfoLabel {...slotProps}
-                   info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
+        <InfoLabel
+          {...slotProps}
+          info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
           {field.title}
         </InfoLabel>
       ),
@@ -175,13 +195,14 @@ function FormFieldInput({field, value, validationResult, onChange}: {
     validationMessage={validationResult?.error}
     required={!field.optional}>
     <Input
-      disabled={field.prefilled}
+      ref={inputRef}
+      disabled={field.readonly}
       value={valueNormalized}
       onChange={(_, data) => onChange(field, data.value)}/>
   </Field></div>
 }
 
-function createFormFields(action: Action_registryBiz, prefill: Record<string, unknown>) {
+function createFormFields(action: ActionDescriptor, prefill: ActionPerformerRequestParams) {
   const formFields: FormFieldType[] = []
   action.parameters.forEach(param => {
     const prefilledValue = prefill[param.name]
@@ -192,7 +213,8 @@ function createFormFields(action: Action_registryBiz, prefill: Record<string, un
       optional: param.optional,
       type: param.type,
       order: param.order,
-      prefilled: (prefilledValue !== null && prefilledValue !== undefined)
+      readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
+      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly
     }
     formFields.push(field)
   })
@@ -203,84 +225,18 @@ function sortFields(fields: FormFieldType[]): FormFieldType[] {
   return [...fields].sort((a, b) => a.order - b.order)
 }
 
-function validate({formData, formFields}: {
-  formData: FormDataType,
-  formFields: FormFieldType[]
-}): Map<string, ValidationResult> {
-  const validationResults: Map<string, ValidationResult> = new Map();
-  for (const formField of formFields) {
-    let result = valid;
-    if (formField.type === "String") result = validateString(formField, formData[formField.key])
-    else if (formField.type === "List<ActionWithPayload>") result = validateString(formField, formData[formField.key])
-    else if (formField.type === "AttributeKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "AttributeRef") result = validateRef(formField, formData[formField.key])
-    else if (formField.type === "EntityKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "EntityRef") result = validateRef(formField, formData[formField.key])
-    else if (formField.type === "RelationshipKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "RelationshipRef") result = validateRef(formField, formData[formField.key])
-    else if (formField.type === "TypeKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "TypeRef") result = validateRef(formField, formData[formField.key])
-    else if (formField.type === "ModelKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "ModelRef") result = validateRef(formField, formData[formField.key])
-    else if (formField.type === "Hashtag") result = validateHashtag(formField, formData[formField.key])
-    else if (formField.type === "ModelVersion") result = validateVersion(formField, formData[formField.key])
-    //else if (formField.type === "Boolean") result = validateBoolean(formField, formData[formField.key])
-    else if (formField.type === "Boolean") result = valid
-    else if (formField.type === "LocalizedText") result = validateString(formField, formData[formField.key])
-    else if (formField.type === "LocalizedMarkdown") result = validateString(formField, formData[formField.key])
-    else if (formField.type === "RelationshipRoleKey") result = validateKey(formField, formData[formField.key])
-    else if (formField.type === "RelationshipCardinality") result = validateString(formField, formData[formField.key])
-    else result = invalid("Unsupported type: " + formField.type)
-    validationResults.set(formField.key, result)
+
+function hasResultToDisplay(actionResp: ActionResp | null): boolean {
+  if (actionResp === null) return false
+  if (actionResp.contentType === "text") return true
+  if (actionResp.contentType === "json") {
+    const json = actionResp.json as Record<string, unknown>
+    if (isPlainObject(json)) {
+      if (Object.keys(json).length === 0) return true
+      if (Object.keys(json).length > 1) return true
+      return json["status"] !== "ok";
+    }
+    return true
   }
-  return validationResults
-}
-
-function validateKey(field: FormFieldType, formDatum: any) {
-  const valid = validateString(field, formDatum)
-  if (!valid.valid) return valid
-  if (valid.valid && (formDatum === null || formDatum === undefined || formDatum === "")) return valid
-  if (formDatum.length > 255) return invalid("Too long")
-  if (formDatum.length < 1) return invalid("Too short")
-  return valid
-}
-
-function validateRef(field: FormFieldType, formDatum: any) {
-  const valid = validateString(field, formDatum)
-  if (!valid.valid) return valid
-  if (valid.valid && (formDatum === null || formDatum === undefined || formDatum === "")) return valid
-  if (formDatum.length > 255) return invalid("Too long")
-  if (formDatum.length < 1) return invalid("Too short")
-  return valid
-}
-
-/*
-function validateBoolean(field: FormFieldType, formDatum: any) {
-  if (formDatum === null || formDatum === undefined) {
-    if (field.optional) return valid
-    else return invalid("Required")
-  }
-  if (typeof formDatum !== "boolean") return invalid("Must be a boolean")
-  else return valid
-}
-*/
-function validateString(field: FormFieldType, formDatum: any) {
-  if (formDatum === null || formDatum === undefined) {
-    if (field.optional) return valid
-    else return invalid("Required")
-  }
-  if (typeof formDatum !== "string") return invalid("Must be a string")
-  if (formDatum.length === 0) {
-    if (field.optional) return valid
-    else return invalid("Required")
-  }
-  return valid
-}
-
-function validateVersion(field: FormFieldType, formDatum: any) {
-  return validateString(field, formDatum)
-}
-
-function validateHashtag(field: FormFieldType, formDatum: any) {
-  return validateString(field, formDatum)
+  return true
 }

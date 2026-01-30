@@ -1,10 +1,14 @@
 import {api} from "../services/api.ts";
+import {queryClient} from "../services/queryClient.ts";
+import {Problem} from "@seij/common-types";
 
 export type ActionResp =
   | { contentType: "text", text: string }
   | { contentType: "json", json: unknown }
 
-export async function executeAction(actionGroup: string, actionName: string, payload: unknown): Promise<ActionResp> {
+export type ActionPayload = Record<string, unknown>
+
+export async function executeAction(actionGroup: string, actionName: string, payload: ActionPayload): Promise<ActionResp> {
   const headers = api().createHeaders()
   return fetch("/api/" + actionGroup + "/" + actionName, {
     method: "POST",
@@ -14,7 +18,8 @@ export async function executeAction(actionGroup: string, actionName: string, pay
     .then(async res => {
       const isError = res.status >= 400
       if (isError) {
-        throw Error(await res.text())
+        const errorPayload = await res.json()
+        throw new Problem(errorPayload)
       } else {
         // Json response
         const type = res.headers.get("content-type") || "";
@@ -31,4 +36,15 @@ export async function executeAction(actionGroup: string, actionName: string, pay
     .catch(err => {
       return Promise.reject(err);
     })
+}
+
+export function useExecuteAction() {
+  const s = executeAction
+  return {
+    executeAction: async (actionGroupKey: string, actionKey: string, payload: ActionPayload) => {
+      const resp = await s(actionGroupKey, actionKey, payload)
+      await queryClient.invalidateQueries()
+      return resp
+    }
+  }
 }

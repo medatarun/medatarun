@@ -5,6 +5,7 @@ import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
 import {Tags} from "../core/Tag.tsx";
 import {Markdown} from "../core/Markdown.tsx";
+import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -45,7 +46,7 @@ const useStyles = makeStyles({
 
 export function AttributesTable({attributes, actionUILocation, onClickAttribute, actionParamsFactory}: {
   attributes: AttributeDto[],
-  actionParamsFactory: (attributeId: string) => Record<string, string>,
+  actionParamsFactory: (attributeId: string) => ActionPerformerRequestParams,
   actionUILocation: ActionUILocation,
   onClickAttribute: (id: string) => void
 }) {

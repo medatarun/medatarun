@@ -1,5 +1,6 @@
 package io.medatarun.model.adapters.descriptors
 
+import io.medatarun.model.adapters.json.RelationshipAttributeRefTypeJsonConverter
 import io.medatarun.model.domain.RelationshipAttributeRef
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
@@ -18,6 +19,8 @@ class RelationshipAttributeRefDescriptor : TypeDescriptor<RelationshipAttributeR
             }
         }
     }
+
+    override val jsonConverter = RelationshipAttributeRefTypeJsonConverter()
 
     override val description = """A reference to a relationship attribute."""
 

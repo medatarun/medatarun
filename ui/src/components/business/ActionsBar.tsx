@@ -1,11 +1,12 @@
-import {Action_registryBiz, type ActionUILocation, useActionRegistry} from "../../business";
+import {ActionDescriptor, type ActionUILocation, useActionRegistry} from "../../business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";
+import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
 
 type ActionBarProps = {
   location: ActionUILocation,
-  params?: Record<string, string>,
+  params?: ActionPerformerRequestParams,
   variant?: ComponentProps<typeof ButtonBar>["variant"]
 }
 
@@ -21,8 +22,8 @@ export const ActionsBar = ({location, params = {}, variant}: ActionBarProps) => 
 
 export const ActionButton = ({action, params}: {
   location: string,
-  action: Action_registryBiz,
-  params: Record<string, string>
+  action: ActionDescriptor,
+  params: ActionPerformerRequestParams
 }) => {
 
   const {performAction, state} = useActionPerformer();
@@ -30,7 +31,7 @@ export const ActionButton = ({action, params}: {
 
   const handleClick = async () => {
     try {
-      await performAction({
+      performAction({
         actionKey: action.key,
         actionGroupKey: action.actionGroupKey,
         params: params,

@@ -52,7 +52,7 @@ fun Application.installUIStatusPageAndSpaFallback(
 
             // Here we are careful to not replace 404 coming from API, MCP, SSE or files
             if (noFallbackOnWithLocals.any{path.startsWith(it)} || path.contains('.')) {
-                call.respond(status)
+                //call.respond(status)
                 return@status
             }
 

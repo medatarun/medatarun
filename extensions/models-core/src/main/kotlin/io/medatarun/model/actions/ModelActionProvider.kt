@@ -3,6 +3,9 @@ package io.medatarun.model.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
+import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.*
@@ -57,6 +60,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
             is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
+            is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(cmd)
             is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
             is ModelAction.Model_AddTag -> handler.modelAddTag(cmd)
             is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(cmd)
@@ -68,6 +72,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 
             is ModelAction.Type_Create -> handler.typeCreate(cmd)
             is ModelAction.Type_UpdateName -> handler.typeUpdateName(cmd)
+            is ModelAction.Type_UpdateKey -> handler.typeUpdateKey(cmd)
             is ModelAction.Type_UpdateDescription -> handler.typeUpdateDescription(cmd)
             is ModelAction.Type_Delete -> handler.typeDelete(cmd)
 
@@ -79,6 +84,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Entity_UpdateKey -> handler.entityUpdateId(cmd)
             is ModelAction.Entity_UpdateName -> handler.entityUpdateName(cmd)
             is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(cmd)
+            is ModelAction.Entity_UpdateDocumentationHome -> handler.entityUpdateDocumentationHome(cmd)
             is ModelAction.Entity_AddTag -> handler.entityAddTag(cmd)
             is ModelAction.Entity_DeleteTag -> handler.entityDeleteTag(cmd)
             is ModelAction.Entity_Delete -> handler.entityDelete(cmd)
@@ -203,6 +209,21 @@ class ModelActionHandler(
         )
     }
 
+    fun modelUpdateDocumentationHome(cmd: ModelAction.Model_UpdateDocumentationHome) {
+        val value = try {
+            val value = cmd.value?.trimToNull()
+            if (value == null) null else URI(value).toURL()
+        } catch (e: Exception) {
+            throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
+        }
+        dispatch(
+            ModelCmd.UpdateModelDocumentationHome(
+                modelRef = cmd.modelRef,
+                url = value
+            )
+        )
+    }
+
     fun modelUpdateVersion(cmd: ModelAction.Model_UpdateVersion) {
         dispatch(
             ModelCmd.UpdateModelVersion(
@@ -251,12 +272,22 @@ class ModelActionHandler(
         )
     }
 
+    fun typeUpdateKey(cmd: ModelAction.Type_UpdateKey) {
+        dispatch(
+            ModelCmd.UpdateType(
+                modelRef = cmd.modelRef,
+                typeRef = cmd.typeRef,
+                cmd = ModelTypeUpdateCmd.Key(cmd.value)
+            )
+        )
+    }
+
     fun typeUpdateName(cmd: ModelAction.Type_UpdateName) {
         dispatch(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Name(cmd.name)
+                cmd = ModelTypeUpdateCmd.Name(cmd.value)
             )
         )
     }
@@ -266,7 +297,7 @@ class ModelActionHandler(
             ModelCmd.UpdateType(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Description(cmd.description)
+                cmd = ModelTypeUpdateCmd.Description(cmd.value)
             )
         )
     }
@@ -329,6 +360,22 @@ class ModelActionHandler(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 cmd = EntityUpdateCmd.Description(cmd.value)
+            )
+        )
+    }
+
+    fun entityUpdateDocumentationHome(cmd: ModelAction.Entity_UpdateDocumentationHome) {
+        val value = try {
+            val value = cmd.value?.trimToNull()
+            if (value == null) null else URI(value).toURL()
+        } catch (e: Exception) {
+            throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
+        }
+        dispatch(
+            ModelCmd.UpdateEntity(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                cmd = EntityUpdateCmd.DocumentationHome(value)
             )
         )
     }

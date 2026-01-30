@@ -1,8 +1,21 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, type ElementOrigin, Model, useActionRegistry, useModel} from "../business";
+import {
+  ActionUILocations,
+  type ElementOrigin,
+  Model,
+  useActionRegistry,
+  useModel,
+  useModelAddTag,
+  useModelDeleteTag,
+  useModelUpdateDescription,
+  useModelUpdateDocumentationHome,
+  useModelUpdateKey,
+  useModelUpdateName,
+  useModelUpdateVersion
+} from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
 import {Tags} from "../components/core/Tag.tsx";
-import {tokens} from "@fluentui/react-components";
+import {InfoLabel, Text, tokens} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
@@ -11,7 +24,6 @@ import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx"
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
 import {SectionTitle} from "../components/layout/SectionTitle.tsx";
-import {Markdown} from "../components/core/Markdown.tsx";
 import {MissingInformation} from "../components/core/MissingInformation.tsx";
 import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable} from "../components/layout/Contained.tsx";
 import {SectionPaper} from "../components/layout/SectionPaper.tsx";
@@ -19,9 +31,14 @@ import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
 import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
+import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "../components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "../components/core/InlineEditTags.tsx";
+
 
 export function ModelPage({modelId}: { modelId: string }) {
   const {data: model} = useModel(modelId);
+
   return <div>
     {model && <ModelContext value={new Model(model)}><ModelView/></ModelContext>}
   </div>
@@ -31,9 +48,12 @@ export function ModelPage({modelId}: { modelId: string }) {
 export function ModelView() {
   const model = useModelContext().dto
   const actionRegistry = useActionRegistry()
+  const navigate = useNavigate();
+  const modelUpdateDescription = useModelUpdateDescription()
+  const modelUpdateName = useModelUpdateName()
+
 
   const displayName = model.name ?? model.id
-  const navigate = useNavigate();
 
   const handleClickType = (typeId: string) => {
     navigate({to: "/model/$modelId/type/$typeId", params: {modelId: model.id, typeId: typeId}})
@@ -53,11 +73,22 @@ export function ModelView() {
 
   const actions = actionRegistry.findActions(ActionUILocations.model_overview)
 
+  const handleChangeName = (value: string) => {
+    return modelUpdateName.mutateAsync({modelId: model.id, value: value})
+  }
+
+
   return <ViewLayoutContained title={
     <div>
       <ViewTitle eyebrow={<span>Model</span>}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>{displayName} {" "}</div>
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine
+              value={model.name ?? ""}
+              onChange={handleChangeName}>
+              {displayName} {" "}
+            </InlineEditSingleLine>
+          </div>
           <div>
             <ActionMenuButton
               label="Actions"
@@ -75,9 +106,12 @@ export function ModelView() {
           <SectionPaper>
             <ModelOverview/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {model.description ? <Markdown value={model.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={model.description}
+              placeholder={"add description"}
+              onChange={v => modelUpdateDescription.mutateAsync({modelId: model.id, value: v})}
+            />
           </SectionPaper>
 
           <SectionTitle
@@ -85,24 +119,26 @@ export function ModelView() {
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_entities}>Entities</SectionTitle>
 
-          { model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
-          { model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards> }
+          {model.entities.length === 0 && <p><MissingInformation>add entities</MissingInformation></p>}
+          {model.entities.length > 0 && <SectionCards><EntitiesCardList onClick={handleClickEntity}/></SectionCards>}
 
           <SectionTitle
             icon={<RelationshipIcon/>}
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_relationships}>Relationships</SectionTitle>
 
-          { model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p> }
-          { model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship} relationships={model.relationships}/></SectionTable> }
+          {model.relationships.length === 0 && <p><MissingInformation>add relationships</MissingInformation></p>}
+          {model.relationships.length > 0 && <SectionTable><RelationshipsTable onClick={handleClickRelationship}
+                                                                               relationships={model.relationships}/></SectionTable>}
 
           <SectionTitle
             icon={<TypeIcon/>}
             actionParams={createActionTemplateModel(model.id)}
             location={ActionUILocations.model_types}>Data Types</SectionTitle>
 
-          { model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p> }
-          { model.types.length > 0 && <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable> }
+          {model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p>}
+          {model.types.length > 0 &&
+            <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable>}
 
         </ContainedHumanReadable>
       </ContainedScrollable>
@@ -111,21 +147,76 @@ export function ModelView() {
 }
 
 export function ModelOverview() {
+
   const model = useModelContext().dto
   const {isDetailLevelTech} = useDetailLevelContext()
+  const modelUpdateVersion = useModelUpdateVersion()
+  const modelUpdateKey = useModelUpdateKey()
+  const modelUpdateDocumentationHome = useModelUpdateDocumentationHome()
+  const modelUpdateAddTag = useModelAddTag()
+  const modelUpdateDeleteTag = useModelDeleteTag()
+
+  const handleChangeVersion = (value: string) => {
+    return modelUpdateVersion.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeKey = (value: string) => {
+    return modelUpdateKey.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeDocumentationHome = (value: string) => {
+    return modelUpdateDocumentationHome.mutateAsync({modelId: model.id, value: value})
+  }
+  const handleChangeTags = async (value: string[]) => {
+    for (const tag of model.hashtags) {
+      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: tag})
+    }
+    for (const tag of value) {
+      if (!model.hashtags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: tag})
+    }
+  }
   return <PropertiesForm>
-    {isDetailLevelTech && <div>Identifier</div>}
-    {isDetailLevelTech && <div><code>{model.id}</code></div>}
+    {isDetailLevelTech && <div><InfoLabel>Model&nbsp;key</InfoLabel></div>}
+    {isDetailLevelTech && <div>
+      <InlineEditSingleLine
+        value={model.key}
+        onChange={handleChangeKey}>
+        <Text><code>{model.key}</code></Text>
+      </InlineEditSingleLine>
+    </div>}
+
     <div>Version</div>
-    <div><code>{model.version}</code></div>
-    <div>Documentation</div>
-    <div>{!model.documentationHome ? <MissingInformation>add external link</MissingInformation> :
-      <ExternalUrl url={model.documentationHome}/>}</div>
-    <div>Hashtags</div>
-    <div>{model.hashtags.length === 0 ? <MissingInformation>add tags</MissingInformation> :
-      <Tags tags={model.hashtags}/>}</div>
+    <div>
+      <InlineEditSingleLine
+        value={model.version}
+        onChange={handleChangeVersion}>
+        <code>{model.version}</code>
+      </InlineEditSingleLine>
+    </div>
+
+    <div>External&nbsp;link</div>
+    <div>
+      <InlineEditSingleLine
+        value={model.documentationHome ?? ""}
+        onChange={handleChangeDocumentationHome}
+      >{!model.documentationHome
+        ? <MissingInformation>add external link</MissingInformation>
+        : <ExternalUrl url={model.documentationHome}/>}
+      </InlineEditSingleLine>
+    </div>
+
+    <div>Tags</div>
+    <div>
+      <InlineEditTags value={model.hashtags} onChange={handleChangeTags}>
+        {
+          model.hashtags.length === 0
+            ? <MissingInformation>add tags</MissingInformation>
+            : <Tags tags={model.hashtags}/>
+        }
+      </InlineEditTags>
+    </div>
     {isDetailLevelTech && <div>Origin</div>}
     {isDetailLevelTech && <div><Origin value={model.origin}/></div>}
+    {isDetailLevelTech && <div>Identifier</div>}
+    {isDetailLevelTech && <div><code>{model.id}</code></div>}
   </PropertiesForm>
 
 
@@ -173,3 +264,5 @@ export function ExternalUrl({
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
 }
+
+

@@ -1,5 +1,14 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, Model, type TypeDto, useActionRegistry, useModel} from "../../business";
+import {
+  ActionUILocations,
+  Model,
+  type TypeDto,
+  useActionRegistry,
+  useModel,
+  useTypeUpdateDescription,
+  useTypeUpdateKey,
+  useTypeUpdateName
+} from "../../business";
 import {ModelContext} from "../../components/business/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {
@@ -13,8 +22,6 @@ import {
 import {ModelIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {Markdown} from "../../components/core/Markdown.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -26,6 +33,9 @@ import {useDetailLevelContext} from "../../components/business/DetailLevelContex
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {useMemo} from "react";
+import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
 
 
 export function TypePage({modelId, typeId}: {
@@ -34,13 +44,14 @@ export function TypePage({modelId, typeId}: {
 }) {
 
   const {data: modelDto} = useModel(modelId)
+  const model = useMemo(() => modelDto ? new Model(modelDto) : null, [modelDto])
 
   if (!modelDto) return null
-  const model = new Model(modelDto)
+  if (!model) return null
 
 
   const type = model.findTypeDto(typeId)
-  if (!type) return <ErrorBox error={toProblem("Type not found")} />
+  if (!type) return <ErrorBox error={toProblem("Type not found")}/>
 
   return <ModelContext value={model}>
     <TypeView model={model} type={type}/>
@@ -51,9 +62,12 @@ function TypeView({model, type}: {
   type: TypeDto,
   model: Model
 }) {
+
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const actions = actionRegistry.findActions(ActionUILocations.type)
+  const typeUpdateName = useTypeUpdateName()
+  const typeUpdateDescription = useTypeUpdateDescription()
 
   const handleClickModel = () => {
     navigate({
@@ -62,31 +76,39 @@ function TypeView({model, type}: {
     })
   };
 
+  const handleChangeName = (value: string) => {
+    return typeUpdateName.mutateAsync({modelId: model.id, typeId: type.id, value: value})
+  }
   const actionParams = createActionTemplateType(model.id, type.id)
 
 
   return <ViewLayoutContained title={<div>
     <div style={{marginLeft: "-22px"}}>
-    <Breadcrumb size="small">
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<ModelIcon/>}
-          onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
-      <BreadcrumbDivider/>
-    </Breadcrumb>
+      <Breadcrumb size="small">
+        <BreadcrumbItem>
+          <BreadcrumbButton
+            icon={<ModelIcon/>}
+            onClick={handleClickModel}>{model.nameOrKey}</BreadcrumbButton></BreadcrumbItem>
+        <BreadcrumbDivider/>
+      </Breadcrumb>
     </div>
     <div>
       <ViewTitle eyebrow={"Data type"}>
         <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div>
-        {type.name ?? type.id} {" "}
+          <div style={{width: "100%"}}>
+            <InlineEditSingleLine
+              value={type.name ?? ""}
+              onChange={handleChangeName}>
+              {type.name ? model.findTypeNameOrKey(type.id) :
+                <span style={{color:tokens.colorNeutralForeground4, fontStyle: "italic"}}>{model.findTypeNameOrKey(type.id)}</span>} {" "}
+            </InlineEditSingleLine>
           </div>
           <div>
 
-        <ActionMenuButton
-          label="Actions"
-          itemActions={actions}
-          actionParams={actionParams}/>
+            <ActionMenuButton
+              label="Actions"
+              itemActions={actions}
+              actionParams={actionParams}/>
           </div>
         </div>
       </ViewTitle>
@@ -99,9 +121,12 @@ function TypeView({model, type}: {
           <SectionPaper>
             <TypeOverview model={model} type={type}/>
           </SectionPaper>
-          <SectionPaper topspacing="XXXL">
-            {type.description ? <Markdown value={type.description}/> :
-              <MissingInformation>add description</MissingInformation>}
+          <SectionPaper topspacing="XXXL" nopadding>
+            <InlineEditDescription
+              value={type.description}
+              placeholder={"add description"}
+              onChange={v => typeUpdateDescription.mutateAsync({modelId: model.id, typeId: type.id, value: v})}
+            />
           </SectionPaper>
 
         </ContainedHumanReadable>
@@ -111,13 +136,22 @@ function TypeView({model, type}: {
 }
 
 export function TypeOverview({type, model}: {
-  type:TypeDto,
+  type: TypeDto,
   model: Model
 }) {
+  const typeUpdateKey = useTypeUpdateKey()
   const {isDetailLevelTech} = useDetailLevelContext()
+
+
+  const handleChangeKey = (value: string) => {
+    return typeUpdateKey.mutateAsync({modelId: model.id, typeId: type.id, value: value})
+  }
+
   return <PropertiesForm>
     {isDetailLevelTech && <div><Text>Type&nbsp;key</Text></div>}
-    {isDetailLevelTech && <div><Text><code>{type.key}</code></Text></div>}
+    {isDetailLevelTech && <InlineEditSingleLine value={type.key} onChange={handleChangeKey}>
+      <Text><code>{type.key}</code></Text>
+    </InlineEditSingleLine>}
     <div><Text>From&nbsp;model</Text></div>
     <div>
       <Link
