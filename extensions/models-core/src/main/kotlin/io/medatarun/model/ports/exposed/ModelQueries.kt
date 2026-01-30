@@ -23,4 +23,7 @@ interface ModelQueries {
     fun findEntityAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute
     fun findEntityAttributeOptional(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute?
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
+
+
+    fun findTags(tag: List<Hashtag>): List<TagSearchResult>
 }

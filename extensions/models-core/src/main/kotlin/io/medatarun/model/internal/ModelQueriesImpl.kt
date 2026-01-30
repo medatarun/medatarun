@@ -2,6 +2,7 @@ package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.model.ports.exposed.TagSearchResult
 import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
 import java.text.Normalizer
@@ -121,4 +122,94 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         }
     }
 
+    override fun findTags(tag: List<Hashtag>): List<TagSearchResult> {
+        val result = mutableListOf<TagSearchResult>()
+        storage.findAllModelIds().forEach { modelId ->
+            val model = storage.findModelById(modelId)
+            val modelMatchingTags = model.hashtags.filter { tag.contains(it) }
+            if (modelMatchingTags.isNotEmpty()) {
+                result.add(
+                    TagSearchResult(
+                        id = model.id.asString(),
+                        locationType = "model",
+                        modelId = model.id,
+                        modelLabel = model.name?.name ?: model.key.value,
+                        tags = modelMatchingTags
+                    )
+                )
+            }
+            model.entities.forEach { entity ->
+                val entityMatchingTags = entity.hashtags.filter { tag.contains(it) }
+                if (entityMatchingTags.isNotEmpty()) {
+                    result.add(
+                        TagSearchResult(
+                            id = entity.id.asString(),
+                            locationType = "entity",
+                            modelId = model.id,
+                            modelLabel = model.name?.name ?: model.key.value,
+                            entityId = entity.id,
+                            entityLabel = entity.name?.name ?: entity.key.value,
+                            tags = entityMatchingTags
+                        )
+                    )
+                }
+                entity.attributes.forEach { attr ->
+                    val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
+                    if (attrMatchingTags.isNotEmpty()) {
+                        result.add(
+                            TagSearchResult(
+                                id = attr.id.asString(),
+                                locationType = "entity_attribute",
+                                modelId = model.id,
+                                modelLabel = model.name?.name ?: model.key.value,
+                                entityId = entity.id,
+                                entityLabel = entity.name?.name ?: entity.key.value,
+                                entityAttributeId = attr.id,
+                                entityAttributeLabel = attr.name?.name ?: attr.key.value,
+                                tags = attrMatchingTags
+                            )
+                        )
+                    }
+                }
+
+
+                model.relationships.forEach { rel ->
+                    val relMatchingTags = rel.hashtags.filter { tag.contains(it) }
+                    if (relMatchingTags.isNotEmpty()) {
+                        result.add(
+                            TagSearchResult(
+                                id = rel.id.asString(),
+                                locationType = "relationship",
+                                modelId = model.id,
+                                modelLabel = model.name?.name ?: model.key.value,
+                                relationshipId = rel.id,
+                                relationshipLabel = rel.name?.name ?: rel.key.value,
+                                tags = relMatchingTags
+                            )
+                        )
+                    }
+                    rel.attributes.forEach { attr ->
+                        val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
+                        if (attrMatchingTags.isNotEmpty()) {
+                            result.add(
+                                TagSearchResult(
+                                    id = attr.id.asString(),
+                                    locationType = "relationship_attribute",
+                                    modelId = model.id,
+                                    modelLabel = model.name?.name ?: model.key.value,
+                                    relationshipId = rel.id,
+                                    relationshipLabel = rel.name?.name ?: rel.key.value,
+                                    relationshipAttributeId = attr.id,
+                                    relationshipAttributeLabel = attr.name?.name ?: rel.key.value,
+                                    tags = attrMatchingTags
+                                )
+                            )
+                        }
+
+                    }
+                }
+            }
+        }
+        return result
+    }
 }

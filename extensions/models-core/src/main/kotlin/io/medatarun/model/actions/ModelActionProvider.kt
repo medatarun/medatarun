@@ -6,6 +6,7 @@ import io.medatarun.actions.ports.needs.getService
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
+import io.medatarun.model.domain.Hashtag
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.*
@@ -13,7 +14,7 @@ import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ResourceLocator
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
@@ -51,6 +52,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Import -> handler.modelImport(cmd)
             is ModelAction.Inspect_Human -> handler.modelInspectHuman()
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
+            is ModelAction.Tag_Search -> handler.tagSearch(cmd)
 
             is ModelAction.Model_List -> handler.modelList(cmd)
             is ModelAction.Model_Export -> handler.modelExport(cmd)
@@ -758,5 +760,34 @@ class ModelActionHandler(
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 
+    }
+
+    fun tagSearch(cmd: ModelAction.Tag_Search): JsonObject {
+        val tags = cmd.tags.split(",").map { Hashtag(it.trim()) }
+        val result = modelQueries.findTags(tags)
+        return buildJsonObject {
+            putJsonArray("results") {
+                for (searchResult in result) {
+                    addJsonObject() {
+                        put("id", searchResult.id)
+                        put("modelId", searchResult.modelId.asString())
+                        put("modelLabel", searchResult.modelLabel)
+                        put("entityId", searchResult.entityId?.asString())
+                        put("entityLabel", searchResult.entityLabel)
+                        put("entityAttributeId", searchResult.entityAttributeId?.asString())
+                        put("entityAttributeLabel", searchResult.entityAttributeLabel)
+                        put("relationshipId", searchResult.relationshipId?.asString())
+                        put("relationshipLabel", searchResult.relationshipLabel)
+                        put("relationshipAttributeId", searchResult.relationshipAttributeId?.asString())
+                        put("relationshipAttributeLabel", searchResult.relationshipAttributeLabel)
+                        putJsonArray("tags") {
+                            for (tag in searchResult.tags) {
+                                add(JsonPrimitive(tag.value))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

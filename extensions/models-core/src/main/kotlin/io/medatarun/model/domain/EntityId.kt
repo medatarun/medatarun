@@ -5,6 +5,7 @@ import java.util.*
 
 @JvmInline
 value class EntityId(val value: UUID){
+    fun asString(): String = value.toString()
     companion object {
         fun generate(): EntityId {
             return EntityId(UuidUtils.generateV7())
