@@ -5,6 +5,7 @@ import java.util.*
 
 @JvmInline
 value class RelationshipId(val value: UUID) {
+    fun asString() = value.toString()
     companion object {
         fun generate(): RelationshipId {
             return RelationshipId(UuidUtils.generateV7())

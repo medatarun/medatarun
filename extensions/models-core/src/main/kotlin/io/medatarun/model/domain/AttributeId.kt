@@ -5,6 +5,7 @@ import java.util.*
 
 @JvmInline
 value class AttributeId(val value: UUID) {
+    fun asString() = value.toString()
     companion object {
         fun generate(): AttributeId {
             return AttributeId(UuidUtils.generateV7())

@@ -1128,4 +1128,16 @@ sealed interface ModelAction {
     ) : ModelAction
 
 
+    @ActionDoc(
+        key = "tag_search",
+        title = "Search tags",
+        description = "Returns all models where specified tags appear",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Tag_Search(
+        val tags: String
+    ) : ModelAction
+
+
 }

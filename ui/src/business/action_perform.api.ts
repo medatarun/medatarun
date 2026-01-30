@@ -2,13 +2,13 @@ import {api} from "../services/api.ts";
 import {queryClient} from "../services/queryClient.ts";
 import {Problem} from "@seij/common-types";
 
-export type ActionResp =
+export type ActionResp<T = unknown> =
   | { contentType: "text", text: string }
-  | { contentType: "json", json: unknown }
+  | { contentType: "json", json: T }
 
 export type ActionPayload = Record<string, unknown>
 
-export async function executeAction(actionGroup: string, actionName: string, payload: ActionPayload): Promise<ActionResp> {
+export async function executeAction<T = unknown>(actionGroup: string, actionName: string, payload: ActionPayload): Promise<ActionResp<T>> {
   const headers = api().createHeaders()
   return fetch("/api/" + actionGroup + "/" + actionName, {
     method: "POST",
@@ -24,12 +24,12 @@ export async function executeAction(actionGroup: string, actionName: string, pay
         // Json response
         const type = res.headers.get("content-type") || "";
         if (type.includes("application/json")) {
-          const actionRespJson: ActionResp = {contentType: "json", json: await res.json() as unknown};
+          const actionRespJson: ActionResp<T> = {contentType: "json", json: await res.json() as unknown as T};
           return actionRespJson
         }
         // Text or other response
         const t = await res.text();
-        const actionRespText: ActionResp = {contentType: "text", text: t};
+        const actionRespText: ActionResp<T> = {contentType: "text", text: t};
         return actionRespText
       }
     })

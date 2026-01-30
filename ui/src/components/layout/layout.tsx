@@ -62,6 +62,15 @@ export function Layout2() {
       description: undefined,
       icon: "dashboard",
       rule: undefined
+    },{
+      id: "reports",
+      parentId: null,
+      type: "page",
+      path: "/reports",
+      label: "Reports",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
     },
     {
       id: "preferences",

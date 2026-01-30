@@ -341,9 +341,9 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
             attributeId: attribute.id,
             tag: tag
           })
+        }else {
+          throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
         }
-      } else {
-        throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
       }
     }
     for (const tag of value) {

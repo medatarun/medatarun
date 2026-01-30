@@ -26,6 +26,9 @@ importers:
       '@seij/common-ui-auth':
         specifier: ^0.1.0
         version: 0.1.0(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(intl-messageformat@10.7.18)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(scheduler@0.27.0)(typescript@5.9.3)
+      '@seij/common-ui-csv-export':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@seij/common-ui-icons':
         specifier: ^0.1.3
         version: 0.1.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1002,6 +1005,9 @@ packages:
     peerDependencies:
       react: 19.2.3
       react-dom: 19.2.3
+
+  '@seij/common-ui-csv-export@0.1.1':
+    resolution: {integrity: sha512-6i8tyHHwat4BJnDSVkGrrXEGfY0Dtoau81qqjmHSUTrwH8r6/8QF+CArhs0WD0stq636ucfntmh7FcBLxEckMw==}
 
   '@seij/common-ui-icons@0.1.3':
     resolution: {integrity: sha512-5EmDBcu69pHSqSi6AGTs2/17UVGIfkfNXPYmUdxI2F4gwEb3pPd946U6lK8xQ3tmV6M88JksH4j6R6BmuxF46g==}
@@ -3455,6 +3461,8 @@ snapshots:
       - intl-messageformat
       - scheduler
       - typescript
+
+  '@seij/common-ui-csv-export@0.1.1': {}
 
   '@seij/common-ui-icons@0.1.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:

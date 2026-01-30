@@ -32,6 +32,7 @@ import {PreferencesPage} from "./views/PreferencesPage.tsx";
 import {AttributePage} from "./views/attribute/AttributePage.tsx";
 import {TypePage} from "./views/type/TypePage.tsx";
 import {RelationshipPage} from "./views/relationship/RelationshipPage.tsx";
+import {ReportsPage} from "./views/reports/ReportsPage.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -99,6 +100,10 @@ function RelationshipAttributeRouteComponent() {
 function RelationshipRouteComponent() {
   const {modelId, relationshipId} = useParams({"from": "/model/$modelId/relationship/$relationshipId"})
   return <RelationshipPage modelId={modelId} relationshipId={relationshipId} />
+}
+
+function ReportsRouteComponent() {
+  return <ReportsPage />
 }
 
 function TypeRouteComponent() {
@@ -180,6 +185,12 @@ const relationshipAttributeRoute = createRoute({
   component: RelationshipAttributeRouteComponent
 })
 
+const reportsRoute = createRoute({
+  getParentRoute:() => rootRoute,
+  path: "/reports",
+  component: ReportsRouteComponent
+})
+
 const typeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/model/$modelId/type/$typeId",
@@ -199,6 +210,7 @@ const routeTree = rootRoute.addChildren([
   preferencesRoute,
   relationshipAttributeRoute,
   relationshipRoute,
+  reportsRoute,
   typeRoute
 ]);
 
