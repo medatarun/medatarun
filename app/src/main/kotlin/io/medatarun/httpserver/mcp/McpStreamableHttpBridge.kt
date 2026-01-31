@@ -131,8 +131,15 @@ class McpStreamableHttpBridge {
         call.respond(HttpStatusCode.NoContent)
     }
 
+    /**
+     * Route plugin that inspects presence of "mcp-session-id" header on GET requests (SSE).
+     *
+     * - If not found, then throws a BadRequest exception.
+     * - If found, tries to retrieve the associated session from the manager.
+     *   - If not found, then throws a Gone exception.
+     *   - If found, attaches the session to the call attributes so it can be retrieved later.
+     */
     fun createMcpSseGuard(): RouteScopedPlugin<Unit> {
-
         return createRouteScopedPlugin("McpSseGuard") {
             onCall { call ->
                 if (call.request.httpMethod == HttpMethod.Get) {
