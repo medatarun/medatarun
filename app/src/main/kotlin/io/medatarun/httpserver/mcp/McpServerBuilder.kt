@@ -9,10 +9,13 @@ import io.modelcontextprotocol.kotlin.sdk.*
 import io.modelcontextprotocol.kotlin.sdk.server.RegisteredTool
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.*
+import kotlinx.serialization.serializer
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
 // Json serialization for tool responses
 private val json = Json { prettyPrint = false }
@@ -141,10 +144,26 @@ class McpServerBuilder(
                     structuredContent = json
                 )
             }
+            is Iterable<*> -> {
+                val items = buildJsonArray {
+                    for (item in result) {
+                        if (item == null) {
+                            add(JsonNull)
+                        } else {
+                            add(encodeAnyToJsonElement(item))
+                        }
+                    }
+                }
+                val json = buildJsonObject { put("items", items) }
+                CallToolResult(
+                    content=listOf(TextContent(json.toString())),
+                    structuredContent = json
+                )
+            }
             // Else we apply Json serialization to the result and return it as plain text
             // and consider it is Json (typical of serializable classes returned by actions)
             else -> {
-                val json = json.encodeToJsonElement(result)
+                val json = encodeAnyToJsonElement(result)
                 val jsonObject = when(json) {
                     is JsonObject -> json
                     else -> JsonObject(mapOf("result" to json))
@@ -163,6 +182,12 @@ class McpServerBuilder(
             parts += "$key: $value"
         }
         return parts.joinToString(separator = "\n")
+    }
+
+    private fun encodeAnyToJsonElement(value: Any): JsonElement {
+        // Use the runtime type to avoid trying to serialize as Any? (which has no serializer).
+        val serializer = json.serializersModule.serializer(value::class.createType()) as KSerializer<Any>
+        return json.encodeToJsonElement(serializer, value)
     }
 
     /**

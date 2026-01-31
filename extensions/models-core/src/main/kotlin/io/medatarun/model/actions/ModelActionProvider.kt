@@ -737,21 +737,27 @@ class ModelActionHandler(
     }
 
     @Serializable
+    data class ModelListDto(
+        val items: List<ModelListItemDto>
+    )
+
+    @Serializable
     data class ModelListItemDto(
         val id: String,
         val key: String,
         val name: String?
     )
 
-    fun modelList(cmd: ModelAction.Model_List): List<ModelListItemDto> {
+    fun modelList(cmd: ModelAction.Model_List): ModelListDto {
         val summaries = modelQueries.findAllModelSummaries(locale)
-        return summaries.map {
+        val dtos = summaries.map {
             ModelListItemDto(
                 id = it.id.value.toString(),
                 key = it.key.value,
                 name = it.name
             )
         }
+        return ModelListDto(dtos)
     }
 
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
