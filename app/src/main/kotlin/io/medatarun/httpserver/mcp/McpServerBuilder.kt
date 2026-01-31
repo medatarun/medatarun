@@ -9,11 +9,16 @@ import io.modelcontextprotocol.kotlin.sdk.*
 import io.modelcontextprotocol.kotlin.sdk.server.RegisteredTool
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.*
+import kotlinx.serialization.serializer
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.createType
+
+// Json serialization for tool responses
+private val json = Json { prettyPrint = false }
 
 class McpServerBuilder(
     private val actionRegistry: ActionRegistry,
@@ -83,11 +88,8 @@ class McpServerBuilder(
         )
 
         return try {
-            val result =
-                actionInvoker.handleInvocation(invocationRequest, actionCtxFactory.create(principal))
-            CallToolResult(
-                content = listOf(TextContent(formatInvocationResult(result)))
-            )
+            val result = actionInvoker.handleInvocation(invocationRequest, actionCtxFactory.create(principal))
+            toCallToolResult(result)
         } catch (exception: ActionInvocationException) {
             CallToolResult(
                 content = listOf(TextContent(buildMcpErrorMessage(exception))),
@@ -118,11 +120,60 @@ class McpServerBuilder(
         return builder.toString()
     }
 
-
-    private fun formatInvocationResult(result: Any?): String = when (result) {
-        null, Unit -> "ok"
-        is String -> result
-        else -> result.toString()
+    private fun toCallToolResult(result: Any?): CallToolResult {
+        return when(result) {
+            // When no result is provided, returns "ok" to the agent as a string
+            // the protocol doesn't specify what to do when the tool only acts and doesn't have content to return
+            null, Unit -> CallToolResult(content = listOf(TextContent("ok")))
+            // If the action response is a plain String then we consider this is text only
+            is String -> CallToolResult(content=listOf(TextContent(result)))
+            // If the action response is a structured object, we return it as a JSON object
+            // it should be in "content" as plain text and also in "structuredContent" as JSON object
+            // as specified in protocol
+            is JsonObject -> CallToolResult(
+                content=listOf(TextContent(result.toString())),
+                structuredContent = result
+            )
+            // If the action response is an array, the protocol doesn't accept arrays as is
+            // so we wrap it in a JSON object with "items" key and return it as "structuredContent"
+            // As specified in the protocol, we should also return it as plain text in "content"
+            is JsonArray -> {
+                val json = buildJsonObject { put("items", result) }
+                CallToolResult(
+                    content=listOf(TextContent(json.toString())),
+                    structuredContent = json
+                )
+            }
+            is Iterable<*> -> {
+                val items = buildJsonArray {
+                    for (item in result) {
+                        if (item == null) {
+                            add(JsonNull)
+                        } else {
+                            add(encodeAnyToJsonElement(item))
+                        }
+                    }
+                }
+                val json = buildJsonObject { put("items", items) }
+                CallToolResult(
+                    content=listOf(TextContent(json.toString())),
+                    structuredContent = json
+                )
+            }
+            // Else we apply Json serialization to the result and return it as plain text
+            // and consider it is Json (typical of serializable classes returned by actions)
+            else -> {
+                val json = encodeAnyToJsonElement(result)
+                val jsonObject = when(json) {
+                    is JsonObject -> json
+                    else -> JsonObject(mapOf("result" to json))
+                }
+                CallToolResult(
+                    content=listOf(TextContent(jsonObject.toString())),
+                    structuredContent = jsonObject
+                )
+            }
+        }
     }
 
     private fun buildMcpErrorMessage(exception: ActionInvocationException): String {
@@ -131,6 +182,12 @@ class McpServerBuilder(
             parts += "$key: $value"
         }
         return parts.joinToString(separator = "\n")
+    }
+
+    private fun encodeAnyToJsonElement(value: Any): JsonElement {
+        // Use the runtime type to avoid trying to serialize as Any? (which has no serializer).
+        val serializer = json.serializersModule.serializer(value::class.createType()) as KSerializer<Any>
+        return json.encodeToJsonElement(serializer, value)
     }
 
     /**
