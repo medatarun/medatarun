@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.sse.*
+import io.ktor.util.AttributeKey
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCMessage
 import io.modelcontextprotocol.kotlin.sdk.JSONRPCRequest
 import io.modelcontextprotocol.kotlin.sdk.server.Server
@@ -22,37 +23,22 @@ class McpStreamableHttpBridge {
     private val streamableSessions = McpStreamableHttpSessionManager()
 
     /**
-     * Handles the SSE leg of a StreamableHTTP session: validates the session id, resumes delivery
+     * Handles the SSE leg of a StreamableHTTP session: resumes delivery
      * of buffered events (honouring `Last-Event-ID` for replays), and hands control to the transport
      * so it can stream MCP notifications back to the client until the SSE disconnects.
      */
     suspend fun handleStreamableSse(session: ServerSSESession) {
-        // Clients must reconnect with the same session id, otherwise we cannot recover the
-        // transport state required to replay buffered events.
 
-        val sessionId = session.call.request.headers[MCP_SESSION_ID_HEADER]
-        if (sessionId.isNullOrBlank()) {
-            session.call.respond(HttpStatusCode.BadRequest, "Missing MCP session header")
-            return
-        }
-
-        val streamSession = streamableSessions.getSession(sessionId)
-        if (streamSession == null) {
-            session.call.respond(HttpStatusCode.Gone, "Unknown MCP session")
-            return
-        }
+        val streamSession = session.call.attributes.get(MCP_SESSION_ATTR)
 
         val lastEventId = session.call.request.headers[LAST_EVENT_ID_HEADER]?.toLongOrNull()
-
-        // Ktor commits SSE responses before invoking the handler, so headers must not be mutated here.
-        session.call.response.headers.append(HttpHeaders.CacheControl, "no-store")
 
         // We let the transport handle SSE attachments so it can restore inflight messages if
         // the client presented a Last-Event-ID during a reconnect (important for long streams).
         runCatching {
             streamSession.mcpTransport.attachSse(session, lastEventId)
         }.onFailure { throwable ->
-            logger.warn("SSE stream failure for session $sessionId", throwable)
+            logger.warn("SSE stream failure for session ${streamSession.id}", throwable)
         }
     }
 
@@ -145,10 +131,29 @@ class McpStreamableHttpBridge {
         call.respond(HttpStatusCode.NoContent)
     }
 
+    fun createMcpSseGuard(): RouteScopedPlugin<Unit> {
+
+        return createRouteScopedPlugin("McpSseGuard") {
+            onCall { call ->
+                if (call.request.httpMethod == HttpMethod.Get) {
+                    val sessionId = call.request.headers[MCP_SESSION_ID_HEADER]
+                    if (sessionId.isNullOrBlank()) {
+                        throw McpMissingSessionHeaderException()
+                    }
+                    val session = streamableSessions.getSession(sessionId)
+                        ?: throw McpUnknownSessionException()
+
+                    call.attributes.put(MCP_SESSION_ATTR, session)
+                }
+            }
+        }
+    }
+
 
     companion object {
         private val logger = LoggerFactory.getLogger(McpStreamableHttpBridge::class.java)
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
         private const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
+        private val MCP_SESSION_ATTR: AttributeKey<McpStreamableHttpSession> = AttributeKey("McpSession")
     }
 }
