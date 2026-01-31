@@ -27,7 +27,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
     /**
      * Returns the list of supported commands. Note that we NEVER return the business model's commands
      * but something mode user-facing so that the model can evolve with preserving maximum compatibility
-     * with user facing actions.
+     * with user-facing actions.
      */
     override fun findCommandClass() = ModelAction::class
 
@@ -189,7 +189,7 @@ class ModelActionHandler(
         )
     }
 
-    fun modelUpdateKey(cmd: ModelAction.Model_UpdateKey) {
+    fun modelUpdateKey(@Suppress("unused") cmd: ModelAction.Model_UpdateKey) {
         TODO("Not yet implemented")
     }
 
@@ -215,7 +215,7 @@ class ModelActionHandler(
         val value = try {
             val value = cmd.value?.trimToNull()
             if (value == null) null else URI(value).toURL()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
         }
         dispatch(
@@ -370,7 +370,7 @@ class ModelActionHandler(
         val value = try {
             val value = cmd.value?.trimToNull()
             if (value == null) null else URI(value).toURL()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
         }
         dispatch(
@@ -609,27 +609,27 @@ class ModelActionHandler(
         )
     }
 
-    fun relationshipRoleCreate(cmd: ModelAction.RelationshipRole_Create) {
+    fun relationshipRoleCreate(@Suppress("unused") cmd: ModelAction.RelationshipRole_Create) {
         TODO("Not yet implemented")
     }
 
-    fun relationshipRoleUpdateKey(cmd: ModelAction.RelationshipRole_UpdateKey) {
+    fun relationshipRoleUpdateKey(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateKey) {
         TODO("Not yet implemented")
     }
 
-    fun relationshipRoleUpdateName(cmd: ModelAction.RelationshipRole_UpdateName) {
+    fun relationshipRoleUpdateName(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateName) {
         TODO("Not yet implemented")
     }
 
-    fun relationshipRoleUpdateEntity(cmd: ModelAction.RelationshipRole_UpdateEntity) {
+    fun relationshipRoleUpdateEntity(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateEntity) {
         TODO("Not yet implemented")
     }
 
-    fun relationshipRoleUpdateCardinality(cmd: ModelAction.RelationshipRole_UpdateCardinality) {
+    fun relationshipRoleUpdateCardinality(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateCardinality) {
         TODO("Not yet implemented")
     }
 
-    fun relationshipRoleDelete(cmd: ModelAction.RelationshipRole_Delete) {
+    fun relationshipRoleDelete(@Suppress("unused") cmd: ModelAction.RelationshipRole_Delete) {
         TODO("Not yet implemented")
     }
 
@@ -748,7 +748,7 @@ class ModelActionHandler(
         val name: String?
     )
 
-    fun modelList(cmd: ModelAction.Model_List): ModelListDto {
+    fun modelList(@Suppress("unused") cmd: ModelAction.Model_List): ModelListDto {
         val summaries = modelQueries.findAllModelSummaries(locale)
         val dtos = summaries.map {
             ModelListItemDto(
@@ -774,7 +774,7 @@ class ModelActionHandler(
         return buildJsonObject {
             putJsonArray("results") {
                 for (searchResult in result) {
-                    addJsonObject() {
+                    addJsonObject {
                         put("id", searchResult.id)
                         put("modelId", searchResult.modelId.asString())
                         put("modelLabel", searchResult.modelLabel)
