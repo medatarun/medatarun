@@ -12,6 +12,7 @@ import io.ktor.server.routing.*
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.ModelId
 import io.medatarun.runtime.AppRuntime
 import java.net.URI
@@ -51,7 +52,7 @@ fun Application.installUIStatusPageAndSpaFallback(
             val path = call.request.path()
 
             // Here we are careful to not replace 404 coming from API, MCP, SSE or files
-            if (noFallbackOnWithLocals.any{path.startsWith(it)} || path.contains('.')) {
+            if (noFallbackOnWithLocals.any { path.startsWith(it) } || path.contains('.')) {
                 //call.respond(status)
                 return@status
             }
@@ -62,6 +63,12 @@ fun Application.installUIStatusPageAndSpaFallback(
                 call.respondText(uiIndexTemplate.render(index, oidcAuthority, oidcClientId), ContentType.Text.Html)
             else
                 call.respond(status)
+        }
+        exception<MedatarunException> { call, exception ->
+            call.respondText(
+                text = "${exception.httpStatusCode.httpStatusCode} ${exception.httpStatusCode.message}: ${exception.msg}",
+                status = HttpStatusCode(exception.httpStatusCode.httpStatusCode, exception.httpStatusCode.message)
+            )
         }
         exception<Throwable> { call, cause ->
             call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)

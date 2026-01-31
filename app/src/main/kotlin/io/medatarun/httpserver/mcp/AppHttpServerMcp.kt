@@ -58,8 +58,10 @@ fun Routing.installMcp(
     }
 
     if (enableMcpStreamingHttp) {
+
         authenticate(AUTH_MEDATARUN_JWT) {
             route("/mcp") {
+                install(mcpStreamableHttpBridge.createMcpSseGuard())
                 post {
                     debugCall(call)
                     val principal = principalFactory.getAndSync(call)
