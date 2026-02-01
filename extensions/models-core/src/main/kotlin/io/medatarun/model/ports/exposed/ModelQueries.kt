@@ -1,6 +1,8 @@
 package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchQuery
+import io.medatarun.model.domain.search.SearchResults
 import java.util.*
 
 interface ModelQueries {
@@ -26,4 +28,5 @@ interface ModelQueries {
 
 
     fun findTags(tag: List<Hashtag>): List<TagSearchResult>
+    fun search(query: SearchQuery): SearchResults
 }

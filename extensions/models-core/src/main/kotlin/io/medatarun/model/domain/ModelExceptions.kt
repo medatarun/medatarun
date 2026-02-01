@@ -83,9 +83,6 @@ class TypeUpdateDuplicateKeyException(typeKey: TypeKey) :
     MedatarunException("Another type uses the key [${typeKey.value}].", StatusCode.BAD_REQUEST)
 
 
-class TypeNotFoundByKeyException(modelKey: ModelKey, typeKey: TypeKey) :
-    MedatarunException("Type with id [${typeKey.value}] not found in model [${modelKey.value}]")
-
 class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef, attributeRef: EntityAttributeRef) :
     MedatarunException("Can not delete attribute [${attributeRef.asString()}] in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
 
@@ -126,3 +123,4 @@ class KeyTooLongException(maxsize: Int) :
 class ModelExportNoPluginFoundException(): MedatarunException("No model exporters found in extensions")
 class CopyModelIdConversionFailedException(name: String, oldId: String):
         MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
+

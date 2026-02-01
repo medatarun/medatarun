@@ -4,6 +4,8 @@ import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchFields
+import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.security.SecurityRuleNames
 
 @Suppress("ClassName")
@@ -1139,5 +1141,16 @@ sealed interface ModelAction {
         val tags: String
     ) : ModelAction
 
+    @ActionDoc(
+        key="search",
+        title="search",
+        description="Search",
+        uiLocations=[ActionUILocation.global],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Search(
+        val filters: SearchFilters,
+        val fields: SearchFields,
+    ) : ModelAction
 
 }
