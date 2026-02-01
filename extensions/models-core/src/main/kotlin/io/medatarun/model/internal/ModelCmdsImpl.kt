@@ -463,7 +463,13 @@ class ModelCmdsImpl(
         val part: ModelRepoCmdAttributeUpdate = when (cmd.cmd) {
             is AttributeUpdateCmd.Name -> ModelRepoCmdAttributeUpdate.Name(cmd.cmd.value)
             is AttributeUpdateCmd.Description -> ModelRepoCmdAttributeUpdate.Description(cmd.cmd.value)
-            is AttributeUpdateCmd.Key -> ModelRepoCmdAttributeUpdate.Key(cmd.cmd.value)
+            is AttributeUpdateCmd.Key -> {
+                // We cannot have two attributes with the same key
+                if (rel.attributes.any { it.key == cmd.cmd.value && it.key != attr.key }) {
+                    throw RelationshipAttributeUpdateDuplicateKeyException(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef, cmd.cmd.value)
+                }
+                ModelRepoCmdAttributeUpdate.Key(cmd.cmd.value)
+            }
             is AttributeUpdateCmd.Optional -> ModelRepoCmdAttributeUpdate.Optional(cmd.cmd.value)
             is AttributeUpdateCmd.Type -> {
                 val type = findType(cmd.modelRef, cmd.cmd.value)
