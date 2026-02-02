@@ -6,16 +6,7 @@ import io.medatarun.actions.ports.needs.getService
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
-import io.medatarun.model.domain.DomainLocation
-import io.medatarun.model.domain.EntityAttributeLocation
-import io.medatarun.model.domain.EntityLocation
-import io.medatarun.model.domain.Hashtag
-import io.medatarun.model.domain.ModelExportNoPluginFoundException
-import io.medatarun.model.domain.ModelLocation
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipAttributeLocation
-import io.medatarun.model.domain.RelationshipLocation
-import io.medatarun.model.domain.TypeLocation
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.ModelExporter
@@ -60,7 +51,6 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Import -> handler.modelImport(cmd)
             is ModelAction.Inspect_Human -> handler.modelInspectHuman()
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
-            is ModelAction.Tag_Search -> handler.tagSearch(cmd)
             is ModelAction.Search -> handler.search(cmd)
 
             is ModelAction.Model_List -> handler.modelList(cmd)
@@ -776,27 +766,6 @@ class ModelActionHandler(
         return exporter.exportJson(model)
 
     }
-
-    fun tagSearch(cmd: ModelAction.Tag_Search): JsonObject {
-        val tags = cmd.tags.split(",").map { Hashtag(it.trim()) }
-        val result = modelQueries.findTags(tags)
-        return buildJsonObject {
-            putJsonArray("results") {
-                for (searchResult in result) {
-                    addJsonObject {
-                        put("id", searchResult.id)
-                        put("location", createLocation(searchResult.location))
-                        putJsonArray("tags") {
-                            for (tag in searchResult.tags) {
-                                add(JsonPrimitive(tag.value))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     fun search(cmd: ModelAction.Search): JsonObject {
         val result = modelQueries.search(

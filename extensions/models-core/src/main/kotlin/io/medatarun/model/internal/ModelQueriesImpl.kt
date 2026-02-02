@@ -2,14 +2,8 @@ package io.medatarun.model.internal
 
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.search.SearchFilter
-import io.medatarun.model.domain.search.SearchFilterTags
-import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
-import io.medatarun.model.domain.search.SearchQuery
-import io.medatarun.model.domain.search.SearchResultItem
-import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
-import io.medatarun.model.ports.exposed.TagSearchResult
 import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
 import java.text.Normalizer
@@ -129,78 +123,6 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         }
     }
 
-    override fun findTags(tag: List<Hashtag>): List<TagSearchResult> {
-        val result = mutableListOf<TagSearchResult>()
-        storage.findAllModelIds().forEach { modelId ->
-            val model = storage.findModelById(modelId)
-            val modelMatchingTags = model.hashtags.filter { tag.contains(it) }
-            val modelLocation = createModelLocation(model)
-            if (modelMatchingTags.isNotEmpty()) {
-
-                result.add(
-                    TagSearchResult(
-                        id = model.id.asString(),
-                        location = modelLocation,
-                        tags = modelMatchingTags
-                    )
-                )
-            }
-            model.entities.forEach { entity ->
-                val entityMatchingTags = entity.hashtags.filter { tag.contains(it) }
-                val entityLocation = createEntityLocation(model, entity)
-                if (entityMatchingTags.isNotEmpty()) {
-                    result.add(
-                        TagSearchResult(
-                            id = entity.id.asString(),
-                            location = entityLocation,
-                            tags = entityMatchingTags
-                        )
-                    )
-                }
-                entity.attributes.forEach { attr ->
-                    val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
-                    if (attrMatchingTags.isNotEmpty()) {
-                        result.add(
-                            TagSearchResult(
-                                id = attr.id.asString(),
-                                location = createEntityAttributeLocation(model, entity, attr),
-                                tags = attrMatchingTags
-                            )
-                        )
-                    }
-                }
-
-
-                model.relationships.forEach { rel ->
-                    val relMatchingTags = rel.hashtags.filter { tag.contains(it) }
-                    val relationshipLocation = createRelationshipLocation(model, rel)
-                    if (relMatchingTags.isNotEmpty()) {
-                        result.add(
-                            TagSearchResult(
-                                id = rel.id.asString(),
-                                location = relationshipLocation,
-                                tags = relMatchingTags
-                            )
-                        )
-                    }
-                    rel.attributes.forEach { attr ->
-                        val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
-                        if (attrMatchingTags.isNotEmpty()) {
-                            result.add(
-                                TagSearchResult(
-                                    id = attr.id.asString(),
-                                    location = createRelationshipAttributeLocation(model, rel, attr),
-                                    tags = attrMatchingTags
-                                )
-                            )
-                        }
-
-                    }
-                }
-            }
-        }
-        return result
-    }
 
     override fun search(query: SearchQuery): SearchResults {
         val index = QueryIndexBuilder(storage).build()
