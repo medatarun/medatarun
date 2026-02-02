@@ -50,24 +50,31 @@ interface SearchResult {
 }
 
 interface SearchResults {
-  results: SearchResult[]
+  items: SearchResult[]
 }
 
-async function tagSearch(tags: string) {
-  if (tags == "") return {results:[]}
-  const result = await executeAction<SearchResults>("model", "tag_search", {
-    tags: tags
-  })
+async function search(tags: string): Promise<SearchResults> {
+  if (tags == "") return {items:[]}
+  const payload = {
+    filters: {
+      operator: "and",
+      filters: [
+        {"type": "tags", "condition": "anyOf", "value": tags.split(",").map(it => it.trim())}
+      ]
+    },
+    fields: ["location"],
+  }
+  const result = await executeAction<SearchResults>("model", "search", payload)
   if (result.contentType === "json") {
     return result.json
   } else throw toProblem("Invalid response content type")
 }
 
 
-const useTagSearch = (tags: string) => {
+const useSearch = (tags: string) => {
   return useQuery({
-    queryKey: ["tag_search", tags],
-    queryFn: () => tagSearch(tags)
+    queryKey: ["search", tags],
+    queryFn: () => search(tags)
   })
 }
 
@@ -123,8 +130,8 @@ export function ReportsPage() {
 
   const [tags, setTags] = useState<string>(defaultTags)
   const [inputTags, setInputTags] = useState<string>(defaultTags)
-  const data = useTagSearch(tags)
-  const results = data?.data?.results ?? []
+  const query = useSearch(tags)
+  const items = query?.data?.items ?? []
   const handleClickSearch = () => {
     localStorage.setItem("reports-query", inputTags)
     setTags(inputTags)
@@ -156,23 +163,23 @@ export function ReportsPage() {
             <Button appearance="primary" icon={<SearchFilled/>} onClick={handleClickSearch}>Search</Button>
           </div>
         </div>
-        {results.length > 0 &&
+        {items.length > 0 &&
           <div style={{padding: tokens.spacingVerticalM}}>
-            <Button icon={<ArrowDownloadRegular/>} onClick={() => createCsv(results)}>Download CSV</Button>
+            <Button icon={<ArrowDownloadRegular/>} onClick={() => createCsv(items)}>Download CSV</Button>
           </div>
         }
       </ContainedFixed>
       <ContainedScrollable>
-        {results.length == 0 &&
+        {items.length == 0 &&
           <div style={{padding: tokens.spacingVerticalM}}>
             <MissingInformation>No results.</MissingInformation>
           </div>}
         <Table>
           <TableBody>
-            {results.map(it => {
+            {items.map(it => {
               return <TableRow key={it.id}>
                 <TableCell>
-                  <Path key={it.id} searchResult={it}/>
+                  <Path key={it.id} location={it.location}/>
                 </TableCell>
                 <TableCell>
                   <TagGroup>
@@ -188,7 +195,7 @@ export function ReportsPage() {
   </ViewLayoutContained>
 }
 
-function Path({searchResult}: { searchResult: SearchResult }) {
+function Path({location}: { location: SearchResultLocation }) {
   const navigate = useNavigate()
   const {
     modelId,
@@ -201,7 +208,7 @@ function Path({searchResult}: { searchResult: SearchResult }) {
     relationshipLabel,
     relationshipAttributeId,
     relationshipAttributeLabel
-  } = searchResult.location
+  } = location
   return <Breadcrumb>
 
     <BreadcrumbItem>

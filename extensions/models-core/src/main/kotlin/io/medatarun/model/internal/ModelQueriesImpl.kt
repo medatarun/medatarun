@@ -1,7 +1,12 @@
 package io.medatarun.model.internal
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchFilter
+import io.medatarun.model.domain.search.SearchFilterTags
+import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
 import io.medatarun.model.domain.search.SearchQuery
+import io.medatarun.model.domain.search.SearchResultItem
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.exposed.TagSearchResult
@@ -129,7 +134,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         storage.findAllModelIds().forEach { modelId ->
             val model = storage.findModelById(modelId)
             val modelMatchingTags = model.hashtags.filter { tag.contains(it) }
-            val modelLocation = ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)
+            val modelLocation = createModelLocation(model)
             if (modelMatchingTags.isNotEmpty()) {
 
                 result.add(
@@ -142,12 +147,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
             }
             model.entities.forEach { entity ->
                 val entityMatchingTags = entity.hashtags.filter { tag.contains(it) }
-                val entityLocation = EntityLocation(
-                    modelLocation,
-                    id = entity.id,
-                    key = entity.key,
-                    label = entity.name?.name ?: entity.key.value
-                )
+                val entityLocation = createEntityLocation(model, entity)
                 if (entityMatchingTags.isNotEmpty()) {
                     result.add(
                         TagSearchResult(
@@ -163,7 +163,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
                         result.add(
                             TagSearchResult(
                                 id = attr.id.asString(),
-                                location = EntityAttributeLocation(entityLocation, id = attr.id, key = attr.key, label = attr.name?.name ?: attr.key.value),
+                                location = createEntityAttributeLocation(model, entity, attr),
                                 tags = attrMatchingTags
                             )
                         )
@@ -173,12 +173,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
                 model.relationships.forEach { rel ->
                     val relMatchingTags = rel.hashtags.filter { tag.contains(it) }
-                    val relationshipLocation = RelationshipLocation(
-                        modelLocation,
-                        id = rel.id,
-                        key = rel.key,
-                        label = rel.name?.name ?: rel.key.value
-                    )
+                    val relationshipLocation = createRelationshipLocation(model, rel)
                     if (relMatchingTags.isNotEmpty()) {
                         result.add(
                             TagSearchResult(
@@ -194,7 +189,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
                             result.add(
                                 TagSearchResult(
                                     id = attr.id.asString(),
-                                    location = RelationshipAttributeLocation(relationshipLocation, id = attr.id, key = attr.key, label = attr.name?.name ?: attr.key.value),
+                                    location = createRelationshipAttributeLocation(model, rel, attr),
                                     tags = attrMatchingTags
                                 )
                             )
@@ -208,6 +203,130 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
     }
 
     override fun search(query: SearchQuery): SearchResults {
-        TODO("Not yet implemented")
+        val index = QueryIndexBuilder(storage).build()
+        fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
+            return { indexedItem ->
+                when (filter) {
+                    is SearchFilterTags.Empty -> {
+                        indexedItem.tags.isEmpty()
+                    }
+
+                    is SearchFilterTags.NotEmpty -> {
+                        indexedItem.tags.isNotEmpty()
+                    }
+
+                    is SearchFilterTags.AllOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.all(indexedItem.tags::contains)
+                    }
+
+                    is SearchFilterTags.NoneOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.none { indexedItem.tags.contains(it) }
+                    }
+
+                    is SearchFilterTags.AnyOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.any { indexedItem.tags.contains(it) }
+                    }
+                }
+            }
+        }
+
+        val predicateChain = query.filters.filters.map { toQueryItemPredicate(it) }
+        val filteredItems = when (query.filters.operator) {
+            SearchFiltersLogicalOperator.AND -> {
+                index.items.filter {
+                    predicateChain.all { pred -> pred(it) }
+                }
+            }
+
+            SearchFiltersLogicalOperator.OR -> {
+                index.items.filter {
+                    predicateChain.any { pred -> pred(it) }
+                }
+            }
+        }
+        return SearchResults(
+            filteredItems.map {
+                SearchResultItem(
+                    id = UuidUtils.generateV7().toString(),
+                    location = it.location,
+                    fields = emptyMap()
+                )
+            }
+        )
     }
+
+    class QueryIndex(val items: List<QueryIndexItem>)
+    class QueryIndexItem(val location: DomainLocation, val tags: List<Hashtag>)
+
+    class QueryIndexBuilder(private val storage: ModelStorages) {
+        fun build(): QueryIndex {
+            val index = mutableListOf<QueryIndexItem>()
+            storage.findAllModelIds().forEach { modelId ->
+                val model = storage.findModelById(modelId)
+                index.add(QueryIndexItem(createModelLocation(model), model.hashtags))
+                model.entities.forEach { entity ->
+                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.hashtags))
+                    entity.attributes.forEach { attr ->
+                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.hashtags))
+                    }
+                }
+                model.relationships.forEach { rel ->
+                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.hashtags))
+                    rel.attributes.forEach { attr ->
+                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.hashtags))
+                    }
+                }
+            }
+            return QueryIndex(index)
+        }
+    }
+
+
+}
+
+fun createModelLocation(model: Model): ModelLocation {
+    return ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)
+}
+
+fun createEntityLocation(model: Model, entity: Entity): EntityLocation {
+    return EntityLocation(
+        createModelLocation(model),
+        id = entity.id,
+        key = entity.key,
+        label = entity.name?.name ?: entity.key.value
+    )
+}
+
+fun createEntityAttributeLocation(model: Model, entity: Entity, attr: Attribute): EntityAttributeLocation {
+    return EntityAttributeLocation(
+        createEntityLocation(model, entity),
+        id = attr.id,
+        key = attr.key,
+        label = attr.name?.name ?: attr.key.value
+    )
+}
+
+fun createRelationshipLocation(model: Model, rel: Relationship): RelationshipLocation {
+    return RelationshipLocation(
+        createModelLocation(model),
+        id = rel.id,
+        key = rel.key,
+        label = rel.name?.name ?: rel.key.value
+    )
+}
+
+fun createRelationshipAttributeLocation(
+    model: Model,
+    rel: Relationship,
+    attr: Attribute
+): RelationshipAttributeLocation {
+    return RelationshipAttributeLocation(
+        createRelationshipLocation(model, rel),
+        id = attr.id,
+        key = attr.key,
+        label = attr.name?.name ?: attr.key.value
+    )
 }
