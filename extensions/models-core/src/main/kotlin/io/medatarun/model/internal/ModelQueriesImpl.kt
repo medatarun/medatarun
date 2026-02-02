@@ -1,8 +1,9 @@
 package io.medatarun.model.internal
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
-import io.medatarun.model.ports.exposed.TagSearchResult
 import io.medatarun.model.ports.needs.ModelStorages
 import java.text.Collator
 import java.text.Normalizer
@@ -102,7 +103,7 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         }
     }
 
-    private class TextComparator(val locale: Locale) : Comparator<String> {
+    private class TextComparator(locale: Locale) : Comparator<String> {
         private val collator = Collator.getInstance(locale)
         private val comparator = Comparator.nullsLast(
             Comparator<String> { x, y ->
@@ -122,94 +123,132 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
         }
     }
 
-    override fun findTags(tag: List<Hashtag>): List<TagSearchResult> {
-        val result = mutableListOf<TagSearchResult>()
-        storage.findAllModelIds().forEach { modelId ->
-            val model = storage.findModelById(modelId)
-            val modelMatchingTags = model.hashtags.filter { tag.contains(it) }
-            if (modelMatchingTags.isNotEmpty()) {
-                result.add(
-                    TagSearchResult(
-                        id = model.id.asString(),
-                        locationType = "model",
-                        modelId = model.id,
-                        modelLabel = model.name?.name ?: model.key.value,
-                        tags = modelMatchingTags
-                    )
-                )
-            }
-            model.entities.forEach { entity ->
-                val entityMatchingTags = entity.hashtags.filter { tag.contains(it) }
-                if (entityMatchingTags.isNotEmpty()) {
-                    result.add(
-                        TagSearchResult(
-                            id = entity.id.asString(),
-                            locationType = "entity",
-                            modelId = model.id,
-                            modelLabel = model.name?.name ?: model.key.value,
-                            entityId = entity.id,
-                            entityLabel = entity.name?.name ?: entity.key.value,
-                            tags = entityMatchingTags
-                        )
-                    )
-                }
-                entity.attributes.forEach { attr ->
-                    val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
-                    if (attrMatchingTags.isNotEmpty()) {
-                        result.add(
-                            TagSearchResult(
-                                id = attr.id.asString(),
-                                locationType = "entity_attribute",
-                                modelId = model.id,
-                                modelLabel = model.name?.name ?: model.key.value,
-                                entityId = entity.id,
-                                entityLabel = entity.name?.name ?: entity.key.value,
-                                entityAttributeId = attr.id,
-                                entityAttributeLabel = attr.name?.name ?: attr.key.value,
-                                tags = attrMatchingTags
-                            )
-                        )
+
+    override fun search(query: SearchQuery): SearchResults {
+        val index = QueryIndexBuilder(storage).build()
+        fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
+            return { indexedItem ->
+                when (filter) {
+                    is SearchFilterTags.Empty -> {
+                        indexedItem.tags.isEmpty()
                     }
-                }
 
-
-                model.relationships.forEach { rel ->
-                    val relMatchingTags = rel.hashtags.filter { tag.contains(it) }
-                    if (relMatchingTags.isNotEmpty()) {
-                        result.add(
-                            TagSearchResult(
-                                id = rel.id.asString(),
-                                locationType = "relationship",
-                                modelId = model.id,
-                                modelLabel = model.name?.name ?: model.key.value,
-                                relationshipId = rel.id,
-                                relationshipLabel = rel.name?.name ?: rel.key.value,
-                                tags = relMatchingTags
-                            )
-                        )
+                    is SearchFilterTags.NotEmpty -> {
+                        indexedItem.tags.isNotEmpty()
                     }
-                    rel.attributes.forEach { attr ->
-                        val attrMatchingTags = attr.hashtags.filter { tag.contains(it) }
-                        if (attrMatchingTags.isNotEmpty()) {
-                            result.add(
-                                TagSearchResult(
-                                    id = attr.id.asString(),
-                                    locationType = "relationship_attribute",
-                                    modelId = model.id,
-                                    modelLabel = model.name?.name ?: model.key.value,
-                                    relationshipId = rel.id,
-                                    relationshipLabel = rel.name?.name ?: rel.key.value,
-                                    relationshipAttributeId = attr.id,
-                                    relationshipAttributeLabel = attr.name?.name ?: rel.key.value,
-                                    tags = attrMatchingTags
-                                )
-                            )
-                        }
 
+                    is SearchFilterTags.AllOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.all(indexedItem.tags::contains)
+                    }
+
+                    is SearchFilterTags.NoneOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.none { indexedItem.tags.contains(it) }
+                    }
+
+                    is SearchFilterTags.AnyOf -> {
+                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        searchedTags.any { indexedItem.tags.contains(it) }
                     }
                 }
             }
         }
-        return result
+
+        val predicateChain = query.filters.filters.map { toQueryItemPredicate(it) }
+        val filteredItems = when (query.filters.operator) {
+            SearchFiltersLogicalOperator.AND -> {
+                index.items.filter {
+                    predicateChain.all { pred -> pred(it) }
+                }
+            }
+
+            SearchFiltersLogicalOperator.OR -> {
+                index.items.filter {
+                    predicateChain.any { pred -> pred(it) }
+                }
+            }
+        }
+        return SearchResults(
+            filteredItems.map {
+                SearchResultItem(
+                    id = UuidUtils.generateV7().toString(),
+                    location = it.location,
+                    fields = emptyMap()
+                )
+            }
+        )
     }
+
+    class QueryIndex(val items: List<QueryIndexItem>)
+    class QueryIndexItem(val location: DomainLocation, val tags: List<Hashtag>)
+
+    class QueryIndexBuilder(private val storage: ModelStorages) {
+        fun build(): QueryIndex {
+            val index = mutableListOf<QueryIndexItem>()
+            storage.findAllModelIds().forEach { modelId ->
+                val model = storage.findModelById(modelId)
+                index.add(QueryIndexItem(createModelLocation(model), model.hashtags))
+                model.entities.forEach { entity ->
+                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.hashtags))
+                    entity.attributes.forEach { attr ->
+                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.hashtags))
+                    }
+                }
+                model.relationships.forEach { rel ->
+                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.hashtags))
+                    rel.attributes.forEach { attr ->
+                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.hashtags))
+                    }
+                }
+            }
+            return QueryIndex(index)
+        }
+    }
+
+
+}
+
+fun createModelLocation(model: Model): ModelLocation {
+    return ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)
+}
+
+fun createEntityLocation(model: Model, entity: Entity): EntityLocation {
+    return EntityLocation(
+        createModelLocation(model),
+        id = entity.id,
+        key = entity.key,
+        label = entity.name?.name ?: entity.key.value
+    )
+}
+
+fun createEntityAttributeLocation(model: Model, entity: Entity, attr: Attribute): EntityAttributeLocation {
+    return EntityAttributeLocation(
+        createEntityLocation(model, entity),
+        id = attr.id,
+        key = attr.key,
+        label = attr.name?.name ?: attr.key.value
+    )
+}
+
+fun createRelationshipLocation(model: Model, rel: Relationship): RelationshipLocation {
+    return RelationshipLocation(
+        createModelLocation(model),
+        id = rel.id,
+        key = rel.key,
+        label = rel.name?.name ?: rel.key.value
+    )
+}
+
+fun createRelationshipAttributeLocation(
+    model: Model,
+    rel: Relationship,
+    attr: Attribute
+): RelationshipAttributeLocation {
+    return RelationshipAttributeLocation(
+        createRelationshipLocation(model, rel),
+        id = attr.id,
+        key = attr.key,
+        label = attr.name?.name ?: attr.key.value
+    )
 }

@@ -27,42 +27,54 @@ import {downloadCsv} from "@seij/common-ui-csv-export";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {sortBy} from "lodash-es";
 
+interface SearchResultLocation {
+  objectType: string
+  modelId: string
+  modelKey: string
+  modelLabel: string
+  entityId: string | undefined
+  entityKey: string | undefined
+  entityLabel: string | undefined
+  entityAttributeId: string | undefined
+  entityAttributeLabel: string | undefined
+  relationshipId: string | undefined
+  relationshipLabel: string | undefined
+  relationshipAttributeId: string | undefined
+  relationshipAttributeLabel: string | undefined
+}
 
 interface SearchResult {
   id: string
-  locationType: string
-  modelId: string
-  modelLabel: string
-  entityId: string | null
-  entityLabel: string | null
-  entityAttributeId: string | null
-  entityAttributeLabel: string | null
-  relationshipId: string | null
-  relationshipLabel: string | null
-  relationshipAttributeId: string | null
-  relationshipAttributeLabel: string | null
+  location: SearchResultLocation
   tags: string[]
 }
 
 interface SearchResults {
-  results: SearchResult[]
+  items: SearchResult[]
 }
 
-async function tagSearch(tags: string) {
-  if (tags == "") return {results:[]}
-  const result = await executeAction<SearchResults>("model", "tag_search", {
-    tags: tags
-  })
+async function search(tags: string): Promise<SearchResults> {
+  if (tags == "") return {items:[]}
+  const payload = {
+    filters: {
+      operator: "and",
+      filters: [
+        {"type": "tags", "condition": "anyOf", "value": tags.split(",").map(it => it.trim())}
+      ]
+    },
+    fields: ["location"],
+  }
+  const result = await executeAction<SearchResults>("model", "search", payload)
   if (result.contentType === "json") {
     return result.json
   } else throw toProblem("Invalid response content type")
 }
 
 
-const useTagSearch = (tags: string) => {
+const useSearch = (tags: string) => {
   return useQuery({
-    queryKey: ["tag_search", tags],
-    queryFn: () => tagSearch(tags)
+    queryKey: ["search", tags],
+    queryFn: () => search(tags)
   })
 }
 
@@ -71,17 +83,17 @@ function createCsv(items: SearchResult[]) {
       {
         code: "model",
         label: "Model",
-        render: (it) => it.modelLabel
+        render: (it) => it.location.modelLabel
       },
       {
         code: "type",
         label: "Type",
         render: (it) => {
-          if (it.entityId == null && it.entityId == null) return "Model"
-          if (it.entityId != null && it.entityAttributeId == null) return "Entity"
-          if (it.entityId != null && it.entityAttributeId != null) return "Entity attribute"
-          if (it.relationshipId != null && it.relationshipAttributeId == null) return "Relationship"
-          if (it.relationshipId != null && it.relationshipAttributeId != null) return "Relationship attribute"
+          if (it.location.objectType === "model") return "Model"
+          if (it.location.objectType === "entity") return "Entity"
+          if (it.location.objectType === "entityAttribute") return "Entity attribute"
+          if (it.location.objectType === "relationship") return "Relationship"
+          if (it.location.objectType === "relationshipAttribute") return "Relationship attribute"
           return "unknown"
         }
       },
@@ -89,8 +101,8 @@ function createCsv(items: SearchResult[]) {
         code: "entity",
         label: "Entity/Relationship",
         render: (it) => {
-          if (it.entityLabel != null) return it.entityLabel
-          if (it.relationshipLabel != null) return it.relationshipLabel
+          if (it.location.entityLabel) return it.location.entityLabel
+          if (it.location.relationshipLabel != null) return it.location.relationshipLabel
           return ""
         }
       },
@@ -98,8 +110,8 @@ function createCsv(items: SearchResult[]) {
         code: "attribute",
         label: "Attribute",
         render: (it) => {
-          if (it.entityAttributeLabel != null) return it.entityAttributeLabel
-          if (it.relationshipAttributeLabel != null) return it.relationshipAttributeLabel
+          if (it.location.entityAttributeLabel) return it.location.entityAttributeLabel
+          if (it.location.relationshipAttributeLabel) return it.location.relationshipAttributeLabel
           return ""
         }
       }, {
@@ -118,8 +130,8 @@ export function ReportsPage() {
 
   const [tags, setTags] = useState<string>(defaultTags)
   const [inputTags, setInputTags] = useState<string>(defaultTags)
-  const data = useTagSearch(tags)
-  const results = data?.data?.results ?? []
+  const query = useSearch(tags)
+  const items = query?.data?.items ?? []
   const handleClickSearch = () => {
     localStorage.setItem("reports-query", inputTags)
     setTags(inputTags)
@@ -151,23 +163,23 @@ export function ReportsPage() {
             <Button appearance="primary" icon={<SearchFilled/>} onClick={handleClickSearch}>Search</Button>
           </div>
         </div>
-        {results.length > 0 &&
+        {items.length > 0 &&
           <div style={{padding: tokens.spacingVerticalM}}>
-            <Button icon={<ArrowDownloadRegular/>} onClick={() => createCsv(results)}>Download CSV</Button>
+            <Button icon={<ArrowDownloadRegular/>} onClick={() => createCsv(items)}>Download CSV</Button>
           </div>
         }
       </ContainedFixed>
       <ContainedScrollable>
-        {results.length == 0 &&
+        {items.length == 0 &&
           <div style={{padding: tokens.spacingVerticalM}}>
             <MissingInformation>No results.</MissingInformation>
           </div>}
         <Table>
           <TableBody>
-            {results.map(it => {
+            {items.map(it => {
               return <TableRow key={it.id}>
                 <TableCell>
-                  <Path key={it.id} searchResult={it}/>
+                  <Path key={it.id} location={it.location}/>
                 </TableCell>
                 <TableCell>
                   <TagGroup>
@@ -183,7 +195,7 @@ export function ReportsPage() {
   </ViewLayoutContained>
 }
 
-function Path({searchResult}: { searchResult: SearchResult }) {
+function Path({location}: { location: SearchResultLocation }) {
   const navigate = useNavigate()
   const {
     modelId,
@@ -196,7 +208,7 @@ function Path({searchResult}: { searchResult: SearchResult }) {
     relationshipLabel,
     relationshipAttributeId,
     relationshipAttributeLabel
-  } = searchResult
+  } = location
   return <Breadcrumb>
 
     <BreadcrumbItem>
@@ -208,8 +220,8 @@ function Path({searchResult}: { searchResult: SearchResult }) {
         })}>{modelLabel}</BreadcrumbButton>
     </BreadcrumbItem>
 
-    {entityId !== null && entityLabel !== null && <BreadcrumbDivider/>}
-    {entityId !== null && entityLabel !== null && <BreadcrumbItem>
+    {entityId && entityLabel && <BreadcrumbDivider/>}
+    {entityId && entityLabel && <BreadcrumbItem>
       <BreadcrumbButton
         icon={<EntityIcon/>}
         onClick={() => navigate({
@@ -218,8 +230,8 @@ function Path({searchResult}: { searchResult: SearchResult }) {
         })}>{entityLabel}</BreadcrumbButton>
     </BreadcrumbItem>}
 
-    {entityId !== null && entityAttributeId !== null && entityAttributeLabel !== null && <BreadcrumbDivider/>}
-    {entityId !== null && entityAttributeId !== null && entityAttributeLabel !== null && <BreadcrumbItem>
+    {entityId && entityAttributeId && entityAttributeLabel && <BreadcrumbDivider/>}
+    {entityId && entityAttributeId && entityAttributeLabel && <BreadcrumbItem>
       <BreadcrumbButton
         icon={<AttributeIcon/>}
         onClick={() => navigate({
@@ -229,8 +241,8 @@ function Path({searchResult}: { searchResult: SearchResult }) {
     </BreadcrumbItem>}
 
 
-    {relationshipId !== null && relationshipLabel !== null && <BreadcrumbDivider/>}
-    {relationshipId !== null && relationshipLabel !== null && <BreadcrumbItem>
+    {relationshipId && relationshipLabel && <BreadcrumbDivider/>}
+    {relationshipId && relationshipLabel && <BreadcrumbItem>
       <BreadcrumbButton
         icon={<RelationshipIcon/>}
         onClick={() => navigate({
@@ -239,9 +251,9 @@ function Path({searchResult}: { searchResult: SearchResult }) {
         })}>{relationshipLabel}</BreadcrumbButton>
     </BreadcrumbItem>}
 
-    {relationshipId !== null && relationshipAttributeId !== null && relationshipAttributeLabel !== null &&
+    {relationshipId && relationshipAttributeId && relationshipAttributeLabel &&
       <BreadcrumbDivider/>}
-    {relationshipId !== null && relationshipAttributeId !== null && relationshipAttributeLabel !== null &&
+    {relationshipId && relationshipAttributeId && relationshipAttributeLabel &&
       <BreadcrumbItem>
         <BreadcrumbButton
           icon={<AttributeIcon/>}

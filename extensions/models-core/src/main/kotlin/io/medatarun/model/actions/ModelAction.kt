@@ -4,6 +4,8 @@ import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchFields
+import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.security.SecurityRuleNames
 
 @Suppress("ClassName")
@@ -1127,17 +1129,16 @@ sealed interface ModelAction {
         val attributeRef: RelationshipAttributeRef,
     ) : ModelAction
 
-
     @ActionDoc(
-        key = "tag_search",
-        title = "Search tags",
-        description = "Returns all models where specified tags appear",
-        uiLocations = [ActionUILocation.global],
+        key="search",
+        title="search",
+        description="Search",
+        uiLocations=[ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Tag_Search(
-        val tags: String
+    data class Search(
+        val filters: SearchFilters,
+        val fields: SearchFields,
     ) : ModelAction
-
 
 }
