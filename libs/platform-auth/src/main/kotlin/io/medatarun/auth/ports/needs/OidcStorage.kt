@@ -15,7 +15,7 @@ interface OidcStorage {
     // and login page loops until success
     // ------------------------------------------------------------------------
 
-    fun saveAuthCtx(oidcAuthorizeCtxId: OidcAuthorizeCtx)
+    fun saveAuthCtx(oidcAuthorizeCtx: OidcAuthorizeCtx)
     fun findAuthCtx(authCtxId: String): OidcAuthorizeCtx
     fun deleteAuthCtx(authorizeCtxCode: String)
 

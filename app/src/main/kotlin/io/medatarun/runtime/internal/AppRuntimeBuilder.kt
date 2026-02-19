@@ -17,6 +17,8 @@ import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.platform.db.PlatformStorageDbExtension
+import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunServiceRegistry
 import io.medatarun.platform.kernel.PlatformRuntime
@@ -41,6 +43,8 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         TypeSystemExtension(),
         SecurityExtension(),
         ActionsExtension(),
+        PlatformStorageDbExtension(),
+        PlatformStorageDbSqliteExtension(),
         AuthExtension(),
         ModelExtension(),
         SysopsConfigInspectorExtension(),
@@ -48,8 +52,8 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
-    val serviceRegistry = MedatarunServiceRegistryImpl(extensions, config)
-    val extensionPlatform = ExtensionPlaformImpl(extensions, config)
+    val serviceRegistry = MedatarunServiceRegistryImpl(config)
+    val extensionPlatform = ExtensionPlaformImpl(extensions, serviceRegistry, config)
 
     // 🤔 🤔 🤔
     // Little dirty here

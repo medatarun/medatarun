@@ -3,6 +3,7 @@ package io.medatarun.auth.infra
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.OidcStorage
+import io.medatarun.platform.db.DbConnectionFactory
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 
@@ -184,7 +185,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
-    init {
+    fun initSchema() {
         dbConnectionFactory.getConnection().use { connection ->
             SCHEMA.split(";")
                 .map { it.trim() }
