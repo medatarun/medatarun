@@ -1,11 +1,12 @@
-package io.medatarun.auth.infra
+package io.medatarun.platform.db.sqlite
 
+import io.medatarun.platform.db.DbProvider
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.sql.Connection
 import java.sql.DriverManager
 
-class DbConnectionFactoryImpl(private val dbPath: String) : DbConnectionFactory {
+class DbProviderSqlite(private val dbPath: String) : DbProvider {
 
 
     init {

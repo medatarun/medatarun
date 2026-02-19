@@ -11,7 +11,6 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
@@ -32,10 +31,14 @@ import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
+import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.kernel.ExtensionId
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.PlatformStartedCtx
+import io.medatarun.platform.kernel.PlatformStartedListener
+import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -59,6 +62,14 @@ class AuthExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.register(TypeDescriptor::class, ActorIdDescriptor())
+        ctx.register(PlatformStartedListener::class, object: PlatformStartedListener {
+            override fun onPlatformStarted(ctx: PlatformStartedCtx) {
+                val db = ctx.services.getService<DbConnectionFactory>()
+                UserStorageSQLite(db).initSchema()
+                OidcStorageSQLite(db).initSchema()
+                ActorStorageSQLite(db).initSchema()
+            }
+        })
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -105,9 +116,7 @@ class AuthExtension : MedatarunExtension {
     override fun initServices(ctx: MedatarunServiceCtx) {
         val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
-        val dbConnectionFactory = DbConnectionFactoryImpl(
-            ctx.resolveApplicationHomePath("data/database.db").toAbsolutePath().toString()
-        )
+        val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val authClock = object : AuthClock {
             override fun now(): Instant = Instant.now()
         }
@@ -191,7 +200,6 @@ class AuthExtension : MedatarunExtension {
         ctx.register(OidcService::class, oidcService)
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
-
 
     }
 

@@ -1,9 +1,8 @@
-package io.medatarun.auth.infra
+package io.medatarun.platform.db
 
 import java.sql.Connection
 
-interface DbConnectionFactory {
-
-
+interface DbProvider {
     fun getConnection(): Connection
+
 }

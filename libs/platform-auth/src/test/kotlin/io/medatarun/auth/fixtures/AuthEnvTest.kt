@@ -13,7 +13,6 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.DbConnectionFactoryImpl
 import io.medatarun.auth.infra.OidcStorageSQLite
 import io.medatarun.auth.infra.UserStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
@@ -30,6 +29,8 @@ import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import java.nio.file.Files
 import java.sql.Connection
 import kotlin.test.assertEquals
@@ -69,7 +70,7 @@ class AuthEnvTest(
     val adminUsername: Username = Username("admin")
     val adminFullname: Fullname = Fullname("Admin")
     val adminPassword: PasswordClear = PasswordClear("admin." + UuidUtils.generateV4String())
-    val dbConnectionFactory: DbConnectionFactoryImpl
+    val dbConnectionFactory: DbConnectionFactory
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
     var bootstrapSecretKeeper = ""
@@ -91,8 +92,13 @@ class AuthEnvTest(
         // In memory database. Be sure to keep one connection alive during the lifecycle
         // of any instance of this class. Using UUIDs to name in memory databases or else
         // SQLite will reuse existing bases across tests.
-        this.dbConnectionFactory =
-            DbConnectionFactoryImpl("file:test_${UuidUtils.generateV4String()}?mode=memory&cache=shared")
+        this.dbConnectionFactory = object:DbConnectionFactory  {
+            val sqlite = DbProviderSqlite("file:test_${UuidUtils.generateV4String()}?mode=memory&cache=shared")
+            override fun getConnection(): Connection {
+                return sqlite.getConnection()
+            }
+
+        }
         dbConnectionKeeper = dbConnectionFactory.getConnection()
 
         // Fake clock that always give the same point in time. Used to tests instant.now()
@@ -109,8 +115,11 @@ class AuthEnvTest(
         // -----------------------------------------------------------
 
         val userStorage = UserStorageSQLite(dbConnectionFactory)
+            .also { it.initSchema() }
         val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
+            .also { it.initSchema() }
         val actorStorage = ActorStorageSQLite(dbConnectionFactory)
+            .also { it.initSchema() }
 
         val actorClaimsAdapter = ActorClaimsAdapter()
         val authEmbeddedKeyRegistry = JwtInternalInternalSigninKeyRegistryImpl(cfgKeyStorePath)
