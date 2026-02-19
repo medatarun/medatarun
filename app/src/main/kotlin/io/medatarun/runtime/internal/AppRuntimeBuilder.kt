@@ -28,6 +28,7 @@ import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityExtension
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRolesRegistryImpl
+import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.types.TypeSystemExtension
 import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 import org.slf4j.LoggerFactory
@@ -46,6 +47,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
         AuthExtension(),
+        TagsCoreExtension(),
         ModelExtension(),
         SysopsConfigInspectorExtension(),
         ModelJsonExtension(),

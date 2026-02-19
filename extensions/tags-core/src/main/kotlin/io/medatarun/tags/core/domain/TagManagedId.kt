@@ -1,0 +1,13 @@
+package io.medatarun.tags.core.domain
+
+import io.medatarun.lang.uuid.UuidUtils
+import java.util.UUID
+
+@JvmInline
+value class TagManagedId(val value: UUID) {
+    companion object {
+        fun generate(): TagManagedId {
+            return TagManagedId(UuidUtils.generateV7())
+        }
+    }
+}

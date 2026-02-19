@@ -35,6 +35,7 @@ include(":extensions:sysops-config-inspector")
 include(":extensions:models-storage-json")
 include(":extensions:models-import-jdbc")
 include(":extensions:models-import-frictionlessdata")
+include(":extensions:tags-core")
 
 
 rootProject.name = "medatarun-core"
