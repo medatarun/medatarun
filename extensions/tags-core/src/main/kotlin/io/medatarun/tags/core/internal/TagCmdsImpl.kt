@@ -68,7 +68,11 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     private fun findTagManagedOptional(groupRef: TagGroupRef, tagRef: TagManagedRef): TagManaged? {
         val group = findTagGroupOptional(groupRef) ?: return null
         return when (tagRef) {
-            is TagManagedRef.ById -> storage.findTagManagedByIdOptional(tagRef.id)
+            is TagManagedRef.ById -> {
+                val existing = storage.findTagManagedByIdOptional(tagRef.id) ?: return null
+                if (existing.groupId != group.id) return null
+                existing
+            }
             is TagManagedRef.ByKey -> storage.findTagManagedByKeyOptional(group.id, tagRef.key)
         }
     }
