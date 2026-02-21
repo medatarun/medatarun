@@ -24,6 +24,10 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         }
     }
 
+    override fun findAllTagFree(): List<TagFree> {
+        TODO("Not yet implemented")
+    }
+
     override fun findTagFreeByKeyOptional(key: TagFreeKey): TagFree? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
@@ -62,6 +66,9 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         }
     }
 
+    override fun findAllTagGroup(): List<TagGroup> {
+        TODO("Not yet implemented")
+    }
     override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
@@ -98,6 +105,10 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 }
             }
         }
+    }
+
+    override fun findAllTagManaged(): List<TagManaged> {
+        TODO("Not yet implemented")
     }
 
     override fun findTagManagedByIdOptional(id: TagManagedId): TagManaged? {

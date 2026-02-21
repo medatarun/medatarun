@@ -1,6 +1,8 @@
 package io.medatarun.tags.core.actions
 
+import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.domain.*
 
 sealed interface TagAction {
@@ -152,4 +154,25 @@ sealed interface TagAction {
     )
     class TagManagedDelete(val groupRef: TagGroupRef, val tagRef: TagManagedRef) : TagAction
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Queries
+    // -----------------------------------------------------------------------------------------------------------------
+
+    @ActionDoc(
+        key = "tag_list",
+        title = "Tag list",
+        description = "List all known tags, free and managed.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    class TagList() : TagAction
+
+    @ActionDoc(
+        key = "tag_group_list",
+        title = "Tag group list",
+        description = "List all group of managed tags.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    class TagGroupList() : TagAction
 }

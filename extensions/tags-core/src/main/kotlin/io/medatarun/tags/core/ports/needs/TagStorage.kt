@@ -12,6 +12,11 @@ import io.medatarun.tags.core.domain.TagManaged
 import io.medatarun.tags.core.internal.TagGroupInMemory
 
 interface TagStorage {
+
+    fun findAllTagFree():List<TagFree>
+    fun findAllTagManaged():List<TagManaged>
+    fun findAllTagGroup():List<TagGroup>
+
     fun findTagFreeByKeyOptional(key: TagFreeKey): TagFree?
     fun findTagFreeByIdOptional(id: TagFreeId): TagFree?
 
@@ -22,5 +27,6 @@ interface TagStorage {
     fun findTagManagedByKeyOptional(id: TagGroupId, key: TagManagedKey): TagManaged?
 
     fun dispatch(cmd: TagRepoCmd)
+
 
 }

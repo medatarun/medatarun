@@ -5,6 +5,12 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
+import io.medatarun.tags.core.domain.TagQueries
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.putJsonArray
+import javax.swing.UIManager.put
 import kotlin.reflect.KClass
 
 class TagActionProvider() : ActionProvider<TagAction> {
@@ -18,7 +24,8 @@ class TagActionProvider() : ActionProvider<TagAction> {
         actionCtx: ActionCtx
     ): Any {
         val tagCmds = actionCtx.getService<TagCmds>()
-        val handler = TagActionHander(tagCmds)
+        val tagQueries = actionCtx.getService<TagQueries>()
+        val handler = TagActionHander(tagCmds, tagQueries)
 
         val result = when (cmd) {
 
@@ -39,12 +46,15 @@ class TagActionProvider() : ActionProvider<TagAction> {
             is TagAction.TagGroupUpdateKey -> handler.tagGroupUpdateKey(cmd)
             is TagAction.TagGroupUpdateName -> handler.tagGroupUpdateName(cmd)
             is TagAction.TagGroupUpdateDescription -> handler.tagGroupUpdateDescription(cmd)
+
+            is TagAction.TagList -> handler.tagList(cmd)
+            is TagAction.TagGroupList -> handler.tagGroupList(cmd)
         }
         return result
     }
 }
 
-class TagActionHander(private val tagCmds: TagCmds) {
+class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQueries) {
 
 
     fun tagGroupCreate(cmd: TagAction.TagGroupCreate) {
@@ -108,6 +118,51 @@ class TagActionHander(private val tagCmds: TagCmds) {
 
     fun tagFreeUpdateName(cmd: TagAction.TagFreeUpdateName) {
         tagCmds.dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
+    }
+
+    fun tagList(cmd: TagAction.TagList): JsonObject {
+        val free = tagQueries.findAllFreeTags()
+        val managed = tagQueries.findAllManagedTags()
+        return buildJsonObject {
+            putJsonArray("items") {
+                free.sortedBy { it.key.value }.forEach {
+                    addJsonObject {
+                        put("id", it.id.value)
+                        put("key", it.id.value)
+                        put("groupId", null)
+                        put("name", it.name)
+                        put("description", it.description)
+                    }
+                }
+                managed.sortedBy { it.key.value }.forEach {
+                    addJsonObject {
+                        put("id", it.id.value)
+                        put("key", it.id.value)
+                        put("groupId", it.groupId.value)
+                        put("name", it.name)
+                        put("description", it.description)
+                    }
+                }
+            }
+        }
+    }
+
+
+    fun tagGroupList(cmd: TagAction.TagGroupList): JsonObject {
+        val items = tagQueries.findAllTagGroup()
+        return buildJsonObject {
+            putJsonArray("items") {
+                items.forEach {
+                    addJsonObject {
+                        put("id", it.id.value)
+                        put("key", it.key.value)
+                        put("name", it.name)
+                        put("description", it.description)
+                    }
+                }
+            }
+        }
+
     }
 
 }

@@ -10,15 +10,15 @@ import io.medatarun.tags.core.ports.needs.TagStorage
 
 class TagQueriesImpl(private val storage: TagStorage): TagQueries {
     override fun findAllFreeTags(): List<TagFree> {
-        TODO("Not yet implemented")
+        return storage.findAllTagFree()
     }
 
     override fun findAllManagedTags(): List<TagManaged> {
-        TODO("Not yet implemented")
+        return storage.findAllTagManaged()
     }
 
-    override fun findAllManagedTaggGroup(): List<TagGroup> {
-        TODO("Not yet implemented")
+    override fun findAllTagGroup(): List<TagGroup> {
+        return storage.findAllTagGroup()
     }
 
     override fun findTagFreeByRefOptional(tagRef: TagFreeRef): TagFree? {
