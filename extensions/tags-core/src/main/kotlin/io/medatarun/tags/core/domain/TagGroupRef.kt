@@ -1,7 +1,9 @@
 package io.medatarun.tags.core.domain
 
-sealed interface TagGroupRef {
-    fun asString(): String
+import io.medatarun.type.commons.ref.Ref
+
+sealed interface TagGroupRef : Ref<TagGroupRef> {
+
     data class ById(
         val id: TagGroupId
     ) : TagGroupRef {

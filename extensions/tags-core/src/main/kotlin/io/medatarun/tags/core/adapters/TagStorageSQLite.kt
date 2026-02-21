@@ -8,9 +8,12 @@ import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagManagedInMemory
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
+import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.key.Key
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
+import java.util.UUID
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
 
@@ -151,7 +154,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 "SELECT id, tag_group_id, key, name, description FROM tag_managed WHERE tag_group_id = ? AND key = ?"
             ).use { ps ->
                 ps.setString(1, id.asString())
-                ps.setString(2, key.value)
+                ps.setString(2, key.asString())
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
                     return tagManagedFromRow(rs)
@@ -169,7 +172,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                         "INSERT INTO tag_free(id, key, name, description) VALUES (?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.key.value)
+                        ps.setString(2, cmd.item.key.asString())
                         ps.setString(3, cmd.item.name)
                         ps.setString(4, cmd.item.description)
                         ps.executeUpdate()
@@ -180,7 +183,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     c.prepareStatement(
                         "UPDATE tag_free SET key = ? WHERE id = ?"
                     ).use { ps ->
-                        ps.setString(1, cmd.value.value)
+                        ps.setString(1, cmd.value.asString())
                         ps.setString(2, cmd.tagFreeId.asString())
                         ps.executeUpdate()
                     }
@@ -220,7 +223,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                         "INSERT INTO tag_group(id, key, name, description) VALUES (?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.key.value)
+                        ps.setString(2, cmd.item.key.asString())
                         ps.setString(3, cmd.item.name)
                         ps.setString(4, cmd.item.description)
                         ps.executeUpdate()
@@ -231,7 +234,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     c.prepareStatement(
                         "UPDATE tag_group SET key = ? WHERE id = ?"
                     ).use { ps ->
-                        ps.setString(1, cmd.value.value)
+                        ps.setString(1, cmd.value.asString())
                         ps.setString(2, cmd.tagGroupId.asString())
                         ps.executeUpdate()
                     }
@@ -272,7 +275,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
                         ps.setString(2, cmd.item.groupId.asString())
-                        ps.setString(3, cmd.item.key.value)
+                        ps.setString(3, cmd.item.key.asString())
                         ps.setString(4, cmd.item.name)
                         ps.setString(5, cmd.item.description)
                         ps.executeUpdate()
@@ -283,7 +286,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     c.prepareStatement(
                         "UPDATE tag_managed SET key = ? WHERE id = ?"
                     ).use { ps ->
-                        ps.setString(1, cmd.value.value)
+                        ps.setString(1, cmd.value.asString())
                         ps.setString(2, cmd.tagManagedId.asString())
                         ps.executeUpdate()
                     }
@@ -321,22 +324,11 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         }
     }
 
-    private fun tagFreeIdFromSql(value: String): TagFreeId {
-        return TagFreeId(UuidUtils.fromString(value))
-    }
-
-    private fun tagGroupIdFromSql(value: String): TagGroupId {
-        return TagGroupId(UuidUtils.fromString(value))
-    }
-
-    private fun tagManagedIdFromSql(value: String): TagManagedId {
-        return TagManagedId(UuidUtils.fromString(value))
-    }
 
     private fun tagFreeFromRow(rs: ResultSet): TagFree {
         return TagFreeInMemory(
-            id = tagFreeIdFromSql(rs.getString("id")),
-            key = TagFreeKey(rs.getString("key")),
+            id = Id.fromString(rs.getString("id"), ::TagFreeId),
+            key = Key.fromString(rs.getString("key"), ::TagFreeKey),
             name = rs.getString("name"),
             description = rs.getString("description")
         )
@@ -344,8 +336,8 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     private fun tagGroupFromRow(rs: ResultSet): TagGroup {
         return TagGroupInMemory(
-            id = tagGroupIdFromSql(rs.getString("id")),
-            key = TagGroupKey(rs.getString("key")),
+            id = Id.fromString(rs.getString("id"), ::TagGroupId),
+            key = Key.fromString(rs.getString("key"), ::TagGroupKey),
             name = rs.getString("name"),
             description = rs.getString("description")
         )
@@ -353,8 +345,8 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     private fun tagManagedFromRow(rs: ResultSet): TagManaged {
         return TagManagedInMemory(
-            id = tagManagedIdFromSql(rs.getString("id")),
-            groupId = tagGroupIdFromSql(rs.getString("tag_group_id")),
+            id = Id.fromString(rs.getString("id"), ::TagManagedId),
+            groupId = Id.fromString(rs.getString("tag_group_id"), ::TagGroupId),
             key = TagManagedKey(rs.getString("key")),
             name = rs.getString("name"),
             description = rs.getString("description")

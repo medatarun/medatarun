@@ -18,8 +18,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         return buildJsonArray {
             data.forEach { m ->
                 addJsonObject {
-                    put("id", m.id.value.toString())
-                    put("key", m.key.value)
+                    put("id", m.id.asString())
+                    put("key", m.key.asString())
                     put("name", m.name)
                     put("description", m.description)
                     put("error", m.error)
@@ -35,8 +35,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         val model = modelQueries.findModelById(modelId)
 
         return buildJsonObject {
-            put("id", model.id.value.toString())
-            put("key", model.key.value)
+            put("id", model.id.asString())
+            put("key", model.key.asString())
             put("name", model.name?.get(locale))
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
@@ -87,16 +87,16 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale
     ): JsonObject {
         val relationshipJson = buildJsonObject {
-            put("id", relationship.id.value.toString())
-            put("key", relationship.key.value)
+            put("id", relationship.id.asString())
+            put("key", relationship.key.asString())
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
             put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
-                        put("id", role.id.value.toString())
-                        put("key", role.key.value)
+                        put("id", role.id.asString())
+                        put("key", role.key.asString())
                         put("name", role.name?.get(locale))
                         put("entityId", role.entityId.value.toString())
                         put("cardinality", role.cardinality.code)
@@ -105,8 +105,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             }
             putJsonArray("attributes") { relationship.attributes.forEach { attr ->
                 addJsonObject {
-                    put("id", attr.id.value.toString())
-                    put("key", attr.key.value)
+                    put("id", attr.id.asString())
+                    put("key", attr.key.asString())
                     put("name", attr.name?.get(locale))
                     put("description", attr.description?.get(locale))
                     put("type", attr.typeId.value.toString())
@@ -131,8 +131,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         val origin = e.origin
         val documentationHome = e.documentationHome
         return buildJsonObject {
-            put("id", e.id.value.toString())
-            put("key", e.key.value)
+            put("id", e.id.asString())
+            put("key", e.key.asString())
             put("name", name)
             put("description", description)
             put("documentationHome", documentationHome?.toExternalForm())
@@ -159,8 +159,8 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                 val attributes = model.findEntityAttributes(e.ref)
                 attributes.forEach { attr ->
                     addJsonObject {
-                        put("id", attr.id.value.toString())
-                        put("key", attr.key.value)
+                        put("id", attr.id.asString())
+                        put("key", attr.key.asString())
                         put("name", attr.name?.get(locale))
                         put("description", attr.description?.get(locale))
                         put("type", attr.typeId.value.toString())

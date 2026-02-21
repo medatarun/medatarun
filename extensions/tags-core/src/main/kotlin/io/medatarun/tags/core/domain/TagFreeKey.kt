@@ -1,15 +1,6 @@
 package io.medatarun.tags.core.domain
 
-import io.medatarun.type.commons.key.KeyValidation
+import io.medatarun.type.commons.key.Key
 
 @JvmInline
-value class TagFreeKey(val value: String) {
-    fun validated(): TagFreeKey {
-        KeyValidation.validate(value)
-        return this
-    }
-
-    fun asString(): String {
-        return value
-    }
-}
+value class TagFreeKey(override val value: String): Key<TagFreeKey>

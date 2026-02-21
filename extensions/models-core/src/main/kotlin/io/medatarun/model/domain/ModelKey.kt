@@ -1,14 +1,11 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.type.commons.key.Key
 import io.medatarun.type.commons.key.KeyValidation
 
-@JvmInline value class ModelKey(val value: String) {
-    fun validated(): ModelKey {
-        KeyValidation.validate(this@ModelKey.value)
-        return this
-    }
-
+@JvmInline
+value class ModelKey(override val value: String) : Key<ModelKey> {
     companion object {
         fun generateRandom(): ModelKey {
             return ModelKey(UuidUtils.generateV4String())

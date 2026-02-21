@@ -1,8 +1,10 @@
 package io.medatarun.model.domain
 
-sealed interface EntityAttributeRef {
+import io.medatarun.type.commons.ref.Ref
 
-    fun asString():String
+sealed interface EntityAttributeRef: Ref<EntityAttributeRef> {
+
+
 
     data class ById(
         val id: AttributeId
