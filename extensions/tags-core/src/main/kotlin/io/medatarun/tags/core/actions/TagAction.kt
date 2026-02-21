@@ -25,7 +25,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateName(val tagRef: FreeTagRef, val value: String) : TagAction
+    class TagFreeUpdateName(val tagRef: TagFreeRef, val value: String?) : TagAction
 
     @ActionDoc(
         key = "tag_free_update_description",
@@ -34,7 +34,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateDescription(val tagRef: FreeTagRef, val value: String) : TagAction
+    class TagFreeUpdateDescription(val tagRef: TagFreeRef, val value: String?) : TagAction
 
     @ActionDoc(
         key = "tag_free_update_key",
@@ -43,7 +43,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateKey(val tagRef: FreeTagRef, val value: String) : TagAction
+    class TagFreeUpdateKey(val tagRef: TagFreeRef, val value: TagFreeKey) : TagAction
 
     @ActionDoc(
         key = "tag_free_delete",
@@ -52,7 +52,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeDelete(val tagRef: FreeTagRef) : TagAction
+    class TagFreeDelete(val tagRef: TagFreeRef) : TagAction
 
     // ------------------------------------------------------------------------
     // ManagedTagGroup
@@ -92,7 +92,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagGroupUpdateKey(val tagGroupRef: TagGroupRef, val value: String) : TagAction
+    class TagGroupUpdateKey(val tagGroupRef: TagGroupRef, val value: TagGroupKey) : TagAction
 
     @ActionDoc(
         key = "tag_managed_group_delete",
@@ -141,7 +141,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedUpdateKey(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: String) : TagAction
+    class TagManagedUpdateKey(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: TagManagedKey) : TagAction
 
     @ActionDoc(
         key = "tag_managed_delete",

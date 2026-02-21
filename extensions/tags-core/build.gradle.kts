@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":libs:platform-security"))
     implementation(project(":libs:platform-type-system"))
     implementation(project(":libs:platform-storage-db"))
-    testImplementation(project(":libs:platform-storage-db-sqlite"))
+    implementation(project(":libs:platform-storage-db-sqlite"))
     testImplementation(kotlin("test"))
+    testImplementation(libs.logback)
 }

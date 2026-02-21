@@ -1,6 +1,6 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.tags.core.domain.FreeTagRef
+import io.medatarun.tags.core.domain.TagFreeRef
 import io.medatarun.tags.core.domain.TagManagedRef
 import io.medatarun.tags.core.domain.TagGroupRef
 import io.medatarun.tags.core.domain.TagCmd
@@ -43,14 +43,14 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         }
     }
 
-    private fun findTagFreeOptional(ref: FreeTagRef): TagFree? {
+    private fun findTagFreeOptional(ref: TagFreeRef): TagFree? {
         return when (ref) {
-            is FreeTagRef.ById -> storage.findTagFreeByIdOptional(ref.id)
-            is FreeTagRef.ByKey -> storage.findTagFreeByKeyOptional(ref.key)
+            is TagFreeRef.ById -> storage.findTagFreeByIdOptional(ref.id)
+            is TagFreeRef.ByKey -> storage.findTagFreeByKeyOptional(ref.key)
         }
     }
 
-    private fun findTagFree(ref: FreeTagRef): TagFree {
+    private fun findTagFree(ref: TagFreeRef): TagFree {
         return findTagFreeOptional(ref) ?: throw TagFreeNotFoundException(ref.asString())
     }
 

@@ -5,6 +5,7 @@ import java.util.UUID
 
 @JvmInline
 value class TagManagedId(val value: UUID) {
+    fun asString() = value.toString()
     companion object {
         fun generate(): TagManagedId {
             return TagManagedId(UuidUtils.generateV7())

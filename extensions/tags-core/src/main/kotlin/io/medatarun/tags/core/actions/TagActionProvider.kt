@@ -107,7 +107,7 @@ class TagActionHander(private val tagCmds: TagCmds) {
     }
 
     fun tagFreeUpdateName(cmd: TagAction.TagFreeUpdateName) {
-        tagCmds.dispatch(TagCmd.TagFreeUpdateDescription(cmd.tagRef, cmd.value))
+        tagCmds.dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
     }
 
 }
