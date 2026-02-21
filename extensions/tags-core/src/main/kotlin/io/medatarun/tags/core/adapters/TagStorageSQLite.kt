@@ -10,6 +10,7 @@ import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.sql.ResultSet
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
 
@@ -25,7 +26,19 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     }
 
     override fun findAllTagFree(): List<TagFree> {
-        TODO("Not yet implemented")
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement(
+                "SELECT id, key, name, description FROM tag_free"
+            ).use { ps ->
+                ps.executeQuery().use { rs ->
+                    val items = mutableListOf<TagFree>()
+                    while (rs.next()) {
+                        items.add(tagFreeFromRow(rs))
+                    }
+                    return items
+                }
+            }
+        }
     }
 
     override fun findTagFreeByKeyOptional(key: TagFreeKey): TagFree? {
@@ -36,12 +49,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(1, key.value)
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagFreeInMemory(
-                        id = tagFreeIdFromSql(rs.getString("id")),
-                        key = TagFreeKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagFreeFromRow(rs)
                 }
             }
         }
@@ -55,19 +63,26 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagFreeInMemory(
-                        id = tagFreeIdFromSql(rs.getString("id")),
-                        key = TagFreeKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagFreeFromRow(rs)
                 }
             }
         }
     }
 
     override fun findAllTagGroup(): List<TagGroup> {
-        TODO("Not yet implemented")
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement(
+                "SELECT id, key, name, description FROM tag_group"
+            ).use { ps ->
+                ps.executeQuery().use { rs ->
+                    val items = mutableListOf<TagGroup>()
+                    while (rs.next()) {
+                        items.add(tagGroupFromRow(rs))
+                    }
+                    return items
+                }
+            }
+        }
     }
     override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
         dbConnectionFactory.getConnection().use { c ->
@@ -77,12 +92,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagGroupInMemory(
-                        id = tagGroupIdFromSql(rs.getString("id")),
-                        key = TagGroupKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagGroupFromRow(rs)
                 }
             }
         }
@@ -96,19 +106,26 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(1, key.value)
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagGroupInMemory(
-                        id = tagGroupIdFromSql(rs.getString("id")),
-                        key = TagGroupKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagGroupFromRow(rs)
                 }
             }
         }
     }
 
     override fun findAllTagManaged(): List<TagManaged> {
-        TODO("Not yet implemented")
+        dbConnectionFactory.getConnection().use { c ->
+            c.prepareStatement(
+                "SELECT id, tag_group_id, key, name, description FROM tag_managed"
+            ).use { ps ->
+                ps.executeQuery().use { rs ->
+                    val items = mutableListOf<TagManaged>()
+                    while (rs.next()) {
+                        items.add(tagManagedFromRow(rs))
+                    }
+                    return items
+                }
+            }
+        }
     }
 
     override fun findTagManagedByIdOptional(id: TagManagedId): TagManaged? {
@@ -119,13 +136,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagManagedInMemory(
-                        id = tagManagedIdFromSql(rs.getString("id")),
-                        groupId = tagGroupIdFromSql(rs.getString("tag_group_id")),
-                        key = TagManagedKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagManagedFromRow(rs)
                 }
             }
         }
@@ -143,13 +154,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                 ps.setString(2, key.value)
                 ps.executeQuery().use { rs ->
                     if (!rs.next()) return null
-                    return TagManagedInMemory(
-                        id = tagManagedIdFromSql(rs.getString("id")),
-                        groupId = tagGroupIdFromSql(rs.getString("tag_group_id")),
-                        key = TagManagedKey(rs.getString("key")),
-                        name = rs.getString("name"),
-                        description = rs.getString("description")
-                    )
+                    return tagManagedFromRow(rs)
                 }
             }
         }
@@ -326,6 +331,34 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     private fun tagManagedIdFromSql(value: String): TagManagedId {
         return TagManagedId(UuidUtils.fromString(value))
+    }
+
+    private fun tagFreeFromRow(rs: ResultSet): TagFree {
+        return TagFreeInMemory(
+            id = tagFreeIdFromSql(rs.getString("id")),
+            key = TagFreeKey(rs.getString("key")),
+            name = rs.getString("name"),
+            description = rs.getString("description")
+        )
+    }
+
+    private fun tagGroupFromRow(rs: ResultSet): TagGroup {
+        return TagGroupInMemory(
+            id = tagGroupIdFromSql(rs.getString("id")),
+            key = TagGroupKey(rs.getString("key")),
+            name = rs.getString("name"),
+            description = rs.getString("description")
+        )
+    }
+
+    private fun tagManagedFromRow(rs: ResultSet): TagManaged {
+        return TagManagedInMemory(
+            id = tagManagedIdFromSql(rs.getString("id")),
+            groupId = tagGroupIdFromSql(rs.getString("tag_group_id")),
+            key = TagManagedKey(rs.getString("key")),
+            name = rs.getString("name"),
+            description = rs.getString("description")
+        )
     }
 
     companion object {

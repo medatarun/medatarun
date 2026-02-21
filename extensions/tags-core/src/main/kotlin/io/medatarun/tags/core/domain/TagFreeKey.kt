@@ -8,4 +8,8 @@ value class TagFreeKey(val value: String) {
         KeyValidation.validate(value)
         return this
     }
+
+    fun asString(): String {
+        return value
+    }
 }

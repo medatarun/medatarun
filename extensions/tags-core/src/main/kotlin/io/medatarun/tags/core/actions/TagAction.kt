@@ -61,7 +61,7 @@ sealed interface TagAction {
     // ------------------------------------------------------------------------
 
     @ActionDoc(
-        key = "tag_managed_group_create",
+        key = "tag_group_create",
         title = "Create a managed tag group",
         description = "Creates a new managed tag group, with key, name and description.",
         uiLocations = [TagActionUILocation.tag_managed_group_list],
@@ -70,7 +70,7 @@ sealed interface TagAction {
     class TagGroupCreate(val key: TagGroupKey, val name: String?, val description: String?) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_group_update_name",
+        key = "tag_group_update_name",
         title = "Update managed tag group name",
         description = "Updates the name of a managed tag group.",
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
@@ -79,7 +79,7 @@ sealed interface TagAction {
     class TagGroupUpdateName(val tagGroupRef: TagGroupRef, val value: String) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_group_update_description",
+        key = "tag_group_update_description",
         title = "Update managed tag group description",
         description = "Updates the description of a managed tag group.",
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
@@ -88,7 +88,7 @@ sealed interface TagAction {
     class TagGroupUpdateDescription(val tagGroupRef: TagGroupRef, val value: String) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_group_update_key",
+        key = "tag_group_update_key",
         title = "Update managed tag group key",
         description = "Updates the key of a managed tag group.",
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
@@ -97,7 +97,7 @@ sealed interface TagAction {
     class TagGroupUpdateKey(val tagGroupRef: TagGroupRef, val value: TagGroupKey) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_group_delete",
+        key = "tag_group_delete",
         title = "Delete managed tag group",
         description = "Deletes a managed tag group.",
         uiLocations = [TagActionUILocation.tag_managed_group_detail],

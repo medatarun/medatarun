@@ -6,11 +6,12 @@ import io.medatarun.actions.ports.needs.getService
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import javax.swing.UIManager.put
 import kotlin.reflect.KClass
 
 class TagActionProvider() : ActionProvider<TagAction> {
@@ -127,18 +128,18 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
             putJsonArray("items") {
                 free.sortedBy { it.key.value }.forEach {
                     addJsonObject {
-                        put("id", it.id.value)
-                        put("key", it.id.value)
-                        put("groupId", null)
+                        put("id", it.id.asString())
+                        put("key", it.key.asString())
+                        put("groupId", JsonNull)
                         put("name", it.name)
                         put("description", it.description)
                     }
                 }
                 managed.sortedBy { it.key.value }.forEach {
                     addJsonObject {
-                        put("id", it.id.value)
-                        put("key", it.id.value)
-                        put("groupId", it.groupId.value)
+                        put("id", it.id.asString())
+                        put("key", it.key.asString())
+                        put("groupId", it.groupId.asString())
                         put("name", it.name)
                         put("description", it.description)
                     }
@@ -154,8 +155,8 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
             putJsonArray("items") {
                 items.forEach {
                     addJsonObject {
-                        put("id", it.id.value)
-                        put("key", it.key.value)
+                        put("id", it.id.asString())
+                        put("key", it.key.asString())
                         put("name", it.name)
                         put("description", it.description)
                     }
