@@ -1,15 +1,15 @@
-package io.medatarun.model.adapters.json
+package io.medatarun.type.commons.ref
 
 import io.medatarun.lang.uuid.UuidUtils
-import io.medatarun.model.adapters.TypeJsonInvalidRefException
-import io.medatarun.model.adapters.TypeJsonInvalidRefSchemeException
-import io.medatarun.model.adapters.TypeJsonJsonObjectExpectedException
-import io.medatarun.model.adapters.TypeJsonJsonStringExpectedException
-import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
 import io.medatarun.types.TypeJsonConverterIllegalNullException
-import kotlinx.serialization.json.*
+import io.medatarun.types.TypeJsonJsonObjectExpectedException
+import io.medatarun.types.TypeJsonJsonStringExpectedException
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -45,18 +45,18 @@ class RefTypeJsonConvertersTest {
         val id = UuidUtils.fromString("11111111-2222-3333-4444-555555555555")
         // "id:" path should map to EntityRef.ById and keep the UUID unchanged.
         val idRef = decodeEntityRef(JsonPrimitive("id:$id"))
-        assertEquals(EntityRef.ById(EntityId(id)), idRef)
+        assertEquals(SampleRef.ById(SampleId(id)), idRef)
 
         // "key:" path should map to EntityRef.ByKey and keep raw values for model/entity.
         val keyRef = decodeEntityRef(JsonPrimitive("key:my-entity"))
-        val expectedKeyRef = EntityRef.ByKey(
-            EntityKey("my-entity"),
+        val expectedKeyRef = SampleRef.ByKey(
+            SampleKey("my-entity"),
         )
         assertEquals(expectedKeyRef, keyRef)
 
         // Percent-encoded values must be decoded before building keys.
         val encodedKeyRef = decodeEntityRef(JsonPrimitive("key:ent%2F1"))
-        val expectedEncodedKeyRef = EntityRef.ByKey(EntityKey("ent/1"))
+        val expectedEncodedKeyRef = SampleRef.ByKey(SampleKey("ent/1"))
         assertEquals(expectedEncodedKeyRef, encodedKeyRef)
 
     }
@@ -100,15 +100,43 @@ class RefTypeJsonConvertersTest {
     }
 
 
-
-    private fun decodeEntityRef(json: JsonElement): EntityRef {
+    private fun decodeEntityRef(json: JsonElement): SampleRef {
         // Mirror EntityRefTypeJsonConverter's usage of RefTypeJsonConverters.decodeRef.
         return RefTypeJsonConverters.decodeRef(
             json,
             whenId = { id ->
-                EntityRef.ById(EntityId.fromString(id))
+                SampleRef.ById(SampleId.fromString(id))
             },
-            whenKey = { keyParts -> EntityRef.ByKey(key = EntityKey(keyParts)) }
+            whenKey = { keyParts -> SampleRef.ByKey(key = SampleKey(keyParts)) }
         )
+    }
+
+    @JvmInline
+    value class SampleId(val value: UUID) {
+        companion object {
+            fun fromString(value: String): SampleId {
+                return SampleId(UuidUtils.fromString(value))
+            }
+        }
+    }
+
+    @JvmInline
+    value class SampleKey(val value: String)
+
+    sealed interface SampleRef {
+
+        fun asString(): String
+
+        data class ById(val id: SampleId) : SampleRef {
+            override fun asString(): String {
+                return "id:" + id.value
+            }
+        }
+
+        data class ByKey(val key: SampleKey) : SampleRef {
+            override fun asString(): String {
+                return "key:" + key.value
+            }
+        }
     }
 }

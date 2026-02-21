@@ -10,5 +10,8 @@ value class TagManagedId(val value: UUID) {
         fun generate(): TagManagedId {
             return TagManagedId(UuidUtils.generateV7())
         }
+        fun fromString(value: String): TagManagedId {
+            return TagManagedId(UuidUtils.fromString(value))
+        }
     }
 }

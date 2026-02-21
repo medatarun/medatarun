@@ -3,6 +3,7 @@ package io.medatarun.model.adapters.json
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.domain.RelationshipRef
+import io.medatarun.type.commons.ref.RefTypeJsonConverters
 import io.medatarun.types.TypeJsonConverter
 import kotlinx.serialization.json.JsonElement
 

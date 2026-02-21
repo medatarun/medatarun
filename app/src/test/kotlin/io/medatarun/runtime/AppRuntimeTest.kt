@@ -2,6 +2,7 @@ package io.medatarun.runtime
 
 import com.google.common.base.StandardSystemProperty
 import com.google.common.jimfs.Jimfs
+import io.medatarun.actions.runtime.AppHttpServerServices
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.runtime.internal.AppRuntimeBuilder
@@ -19,6 +20,7 @@ class AppRuntimeTest {
         val os = AppRuntimeOSBridgeTest()
         val config = AppRuntimeConfigFactory(cli = false, os).create()
         val runtime = AppRuntimeBuilder(config).build()
+        val services = AppHttpServerServices(runtime)
 
     }
 

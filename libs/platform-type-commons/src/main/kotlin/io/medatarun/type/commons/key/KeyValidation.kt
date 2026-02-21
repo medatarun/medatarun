@@ -1,8 +1,4 @@
-package io.medatarun.model.internal
-
-import io.medatarun.model.domain.KeyEmptyException
-import io.medatarun.model.domain.KeyInvalidFormatException
-import io.medatarun.model.domain.KeyTooLongException
+package io.medatarun.type.commons.key
 
 /**
  * A key is a technical, user-defined identifier that may originate from heterogeneous systems and becomes canonical inside Medatarun.

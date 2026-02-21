@@ -1,5 +1,6 @@
 package io.medatarun
 
+import io.medatarun.actions.runtime.AppHttpServerServices
 import io.medatarun.cli.AppCLIConfigProperty
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.cli.AppCLIUtils.configureCliLogging
@@ -19,7 +20,7 @@ fun main(args: Array<String>) {
         banner()
         val c = createConfig(cli = false)
         val runtime = AppRuntimeBuilder(c.config).build()
-        val server = AppHttpServer(runtime, c.publicBaseUrl)
+        val server = AppHttpServer(c.publicBaseUrl, AppHttpServerServices(runtime))
         Runtime.getRuntime().addShutdownHook(Thread { server.stop() })
         server.start(
             host = c.serverHost,

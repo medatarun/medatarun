@@ -111,15 +111,6 @@ class RelationshipAttributeUpdateDuplicateKeyException(
 ) :
     MedatarunException("Cannot change key of attribute [${attributeRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to value [${newKey.value}] because it is already used by another attribute.")
 
-class KeyInvalidFormatException :
-    MedatarunException("Invalid key format", StatusCode.BAD_REQUEST)
-
-class KeyEmptyException :
-    MedatarunException("Invalid key format, a key can not be empty", StatusCode.BAD_REQUEST)
-
-class KeyTooLongException(maxsize: Int) :
-    MedatarunException("Key size can not exceed $maxsize characters", StatusCode.BAD_REQUEST)
-
 class ModelExportNoPluginFoundException(): MedatarunException("No model exporters found in extensions")
 class CopyModelIdConversionFailedException(name: String, oldId: String):
         MedatarunException("While copying model, could not get new $name identifier for old id $oldId")

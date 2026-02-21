@@ -1,7 +1,7 @@
 package io.medatarun.model.adapters.descriptors
 
 import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.internal.KeyValidation
+import io.medatarun.type.commons.key.KeyValidation
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
 import kotlin.reflect.KClass

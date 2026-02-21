@@ -10,5 +10,9 @@ value class TagFreeId(val value: UUID) {
         fun generate(): TagFreeId {
             return TagFreeId(UuidUtils.generateV7())
         }
+
+        fun fromString(value: String): TagFreeId {
+            return TagFreeId(UuidUtils.fromString(value))
+        }
     }
 }

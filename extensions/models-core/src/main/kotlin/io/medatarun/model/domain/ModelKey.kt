@@ -1,7 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.uuid.UuidUtils
-import io.medatarun.model.internal.KeyValidation
+import io.medatarun.type.commons.key.KeyValidation
 
 @JvmInline value class ModelKey(val value: String) {
     fun validated(): ModelKey {

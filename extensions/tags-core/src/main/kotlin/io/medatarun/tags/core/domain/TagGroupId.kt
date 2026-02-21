@@ -10,5 +10,8 @@ value class TagGroupId(val value: UUID) {
         fun generate(): TagGroupId {
             return TagGroupId(UuidUtils.generateV7())
         }
+        fun fromString(value: String): TagGroupId {
+            return TagGroupId(UuidUtils.fromString(value))
+        }
     }
 }

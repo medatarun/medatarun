@@ -1,11 +1,14 @@
-package io.medatarun.model.adapters.json
+package io.medatarun.type.commons.ref
 
-import io.medatarun.model.adapters.TypeJsonInvalidRefException
-import io.medatarun.model.adapters.TypeJsonInvalidRefSchemeException
-import io.medatarun.model.adapters.TypeJsonJsonObjectExpectedException
-import io.medatarun.model.adapters.TypeJsonJsonStringExpectedException
+import io.medatarun.types.TypeJsonConverterBadFormatException
 import io.medatarun.types.TypeJsonConverterIllegalNullException
-import kotlinx.serialization.json.*
+import io.medatarun.types.TypeJsonJsonObjectExpectedException
+import io.medatarun.types.TypeJsonJsonStringExpectedException
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.net.URLDecoder
 
 object RefTypeJsonConverters {
@@ -48,3 +51,6 @@ object RefTypeJsonConverters {
     private fun formUrlDecode(value: String): String =
         URLDecoder.decode(value, Charsets.UTF_8)
 }
+
+class TypeJsonInvalidRefException(ref: String) : TypeJsonConverterBadFormatException("Invalid ref: $ref")
+class TypeJsonInvalidRefSchemeException(ref: String) : TypeJsonConverterBadFormatException("Unsupported ref scheme: $ref")
