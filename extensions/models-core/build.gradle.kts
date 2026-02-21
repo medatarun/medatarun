@@ -16,5 +16,6 @@ dependencies {
     implementation(project(":libs:platform-security"))
     implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-type-system"))
+    implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
 }
