@@ -1,27 +1,10 @@
 package io.medatarun.tags.core
 
 import io.medatarun.tags.core.actions.TagAction
-import io.medatarun.tags.core.domain.TagFreeDuplicateKeyException
-import io.medatarun.tags.core.domain.TagFreeId
-import io.medatarun.tags.core.domain.TagFreeKey
-import io.medatarun.tags.core.domain.TagGroupDuplicateKeyException
-import io.medatarun.tags.core.domain.TagGroupId
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupNotFoundException
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagManagedDuplicateKeyException
-import io.medatarun.tags.core.domain.TagManagedId
-import io.medatarun.tags.core.domain.TagManagedKey
-import io.medatarun.tags.core.domain.TagManagedNotFoundException
-import io.medatarun.tags.core.domain.TagManagedRef
+import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagFreeRef.Companion.tagFreeRefId
 import io.medatarun.tags.core.domain.TagFreeRef.Companion.tagFreeRefKey
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class TagTest {
 
@@ -630,6 +613,89 @@ class TagTest {
     }
 
     @Test
+    fun `tag managed update unknown tag then error`() {
+        val env = TagTestEnv()
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+
+        // Why this test:
+        // Update must fail with a dedicated managed-tag-not-found error when the target tag is absent.
+        assertFailsWith<TagManagedNotFoundException> {
+            env.dispatch(
+                TagAction.TagManagedUpdateDescription(
+                    TagGroupRef.ById(group.id),
+                    TagManagedRef.ByKey(TagManagedKey("missing-tag")),
+                    "new-description"
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `tag managed update works with tag by id`() {
+        val env = TagTestEnv()
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+        val managedKey = TagManagedKey("managed-key")
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, "name", "description"))
+        val tag = env.tagStorage.findTagManagedByKeyOptional(group.id, managedKey)
+        assertNotNull(tag)
+
+        // Why this test:
+        // Tag references can be passed by id; we validate update name/description on this path.
+        env.dispatch(
+            TagAction.TagManagedUpdateName(
+                TagGroupRef.ById(group.id),
+                TagManagedRef.ById(tag.id),
+                "new-name"
+            )
+        )
+        env.dispatch(
+            TagAction.TagManagedUpdateDescription(
+                TagGroupRef.ById(group.id),
+                TagManagedRef.ById(tag.id),
+                "new-description"
+            )
+        )
+
+        val updated = env.tagStorage.findTagManagedByIdOptional(tag.id)
+        assertNotNull(updated)
+        assertEquals("new-name", updated.name)
+        assertEquals("new-description", updated.description)
+    }
+
+    @Test
+    fun `tag managed update key with same value is a no-op and does not fail`() {
+        val env = TagTestEnv()
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+        val managedKey = TagManagedKey("managed-key")
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
+        val tag = env.tagStorage.findTagManagedByKeyOptional(group.id, managedKey)
+        assertNotNull(tag)
+
+        // Why this test:
+        // Updating a key to its current value should be accepted and must not trigger duplicate detection.
+        env.dispatch(
+            TagAction.TagManagedUpdateKey(
+                TagGroupRef.ById(group.id),
+                TagManagedRef.ById(tag.id),
+                managedKey
+            )
+        )
+
+        val found = env.tagStorage.findTagManagedByIdOptional(tag.id)
+        assertNotNull(found)
+        assertEquals(managedKey, found.key)
+    }
+
+    @Test
     fun `tag managed delete`() {
         val env = TagTestEnv()
         val groupKey = TagGroupKey("group-key")
@@ -681,10 +747,8 @@ class TagTest {
         }
     }
 
-
     @Test
-    fun `tag managed update and delete unknown tag then error`() {
-        // TODO this test should be split between update and delete. Not two behaviours in the same test. Tests with update and delete shall be sorted together to keep the tests ordered in the file
+    fun `tag managed delete unknown tag then error`() {
         val env = TagTestEnv()
         val groupKey = TagGroupKey("group-key")
         env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
@@ -692,17 +756,7 @@ class TagTest {
         assertNotNull(group)
 
         // Why this test:
-        // Update and delete must fail with a dedicated managed-tag-not-found error when the target is absent.
-        assertFailsWith<TagManagedNotFoundException> {
-            env.dispatch(
-                TagAction.TagManagedUpdateDescription(
-                    TagGroupRef.ById(group.id),
-                    TagManagedRef.ByKey(TagManagedKey("missing-tag")),
-                    "new-description"
-                )
-            )
-        }
-
+        // Delete must fail with a dedicated managed-tag-not-found error when the target tag is absent.
         assertFailsWith<TagManagedNotFoundException> {
             env.dispatch(
                 TagAction.TagManagedDelete(
@@ -758,8 +812,7 @@ class TagTest {
     }
 
     @Test
-    fun `tag managed update and delete work with tag by id`() {
-        // TODO this test should be split between update and delete. Not two behaviours in the same test. Tests with update and delete shall be sorted together to keep the tests ordered in the file
+    fun `tag managed delete works with tag by id`() {
         val env = TagTestEnv()
         val groupKey = TagGroupKey("group-key")
         env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
@@ -771,56 +824,9 @@ class TagTest {
         assertNotNull(tag)
 
         // Why this test:
-        // Tag references can be passed by id; we validate update name/description and delete on this path.
-        env.dispatch(
-            TagAction.TagManagedUpdateName(
-                TagGroupRef.ById(group.id),
-                TagManagedRef.ById(tag.id),
-                "new-name"
-            )
-        )
-        env.dispatch(
-            TagAction.TagManagedUpdateDescription(
-                TagGroupRef.ById(group.id),
-                TagManagedRef.ById(tag.id),
-                "new-description"
-            )
-        )
-
-        val updated = env.tagStorage.findTagManagedByIdOptional(tag.id)
-        assertNotNull(updated)
-        assertEquals("new-name", updated.name)
-        assertEquals("new-description", updated.description)
-
+        // Tag references can be passed by id; we validate delete on this path.
         env.dispatch(TagAction.TagManagedDelete(TagGroupRef.ById(group.id), TagManagedRef.ById(tag.id)))
         assertNull(env.tagStorage.findTagManagedByIdOptional(tag.id))
-    }
-
-    @Test
-    fun `tag managed update key with same value is a no-op and does not fail`() {
-        val env = TagTestEnv()
-        val groupKey = TagGroupKey("group-key")
-        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
-        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
-        assertNotNull(group)
-        val managedKey = TagManagedKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
-        val tag = env.tagStorage.findTagManagedByKeyOptional(group.id, managedKey)
-        assertNotNull(tag)
-
-        // Why this test:
-        // Updating a key to its current value should be accepted and must not trigger duplicate detection.
-        env.dispatch(
-            TagAction.TagManagedUpdateKey(
-                TagGroupRef.ById(group.id),
-                TagManagedRef.ById(tag.id),
-                managedKey
-            )
-        )
-
-        val found = env.tagStorage.findTagManagedByIdOptional(tag.id)
-        assertNotNull(found)
-        assertEquals(managedKey, found.key)
     }
 
 
