@@ -13,7 +13,4 @@ interface AppRuntime {
     val extensionRegistry: ExtensionRegistry
     val services: MedatarunServiceRegistry
 
-    val actionRegistry: ActionRegistry
-    val actionInvoker: ActionInvoker
-    val actionCtxFactory: ActionCtxFactory
 }
