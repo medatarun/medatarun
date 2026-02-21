@@ -1,6 +1,6 @@
 package io.medatarun.tags.core.domain
 
-interface TagManaged {
+interface TagManaged: Tag {
     /**
      * Tag unique identifier in application instance
      */

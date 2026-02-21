@@ -19,6 +19,7 @@ import io.medatarun.tags.core.domain.TagManagedId
 import io.medatarun.tags.core.domain.TagManagedNotFoundException
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
+import io.medatarun.type.commons.id.Id
 
 class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     override fun dispatch(cmd: TagCmd) {
@@ -89,7 +90,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         storage.dispatch(
             TagRepoCmd.TagFreeCreate(
                 TagFreeInMemory(
-                    id = TagFreeId.generate(),
+                    id = Id.generate(::TagFreeId),
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description
@@ -127,7 +128,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         storage.dispatch(
             TagRepoCmd.TagGroupCreate(
                 TagGroupInMemory(
-                    id = TagGroupId.generate(),
+                    id = Id.generate(::TagGroupId),
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description
@@ -169,7 +170,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         storage.dispatch(
             TagRepoCmd.TagManagedCreate(
                 TagManagedInMemory(
-                    id = TagManagedId.generate(),
+                    id = Id.generate(::TagManagedId),
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description,

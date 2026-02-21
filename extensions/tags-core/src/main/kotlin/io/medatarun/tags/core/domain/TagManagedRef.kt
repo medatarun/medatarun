@@ -1,7 +1,9 @@
 package io.medatarun.tags.core.domain
 
-sealed interface TagManagedRef {
-    fun asString(): String
+import io.medatarun.type.commons.ref.Ref
+
+sealed interface TagManagedRef: Ref<TagManagedRef> {
+
     data class ById(
         val id: TagManagedId
     ) : TagManagedRef {

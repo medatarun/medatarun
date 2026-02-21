@@ -1,10 +1,12 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.model.ports.needs.RepositoryRef
+import io.medatarun.type.commons.id.Id
 import java.util.*
 
 @JvmInline
-value class TypeId(val value: UUID) {
+value class TypeId(override val value: UUID): Id<TypeId> {
     companion object {
         fun generate(): TypeId {
             return TypeId(UuidUtils.generateV7())

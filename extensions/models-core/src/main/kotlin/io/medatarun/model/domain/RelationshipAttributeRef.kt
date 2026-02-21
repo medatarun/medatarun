@@ -1,8 +1,10 @@
 package io.medatarun.model.domain
 
-sealed interface RelationshipAttributeRef {
+import io.medatarun.type.commons.ref.Ref
 
-    fun asString():String
+sealed interface RelationshipAttributeRef: Ref<RelationshipAttributeRef> {
+
+
 
     data class ById(
         val id: AttributeId

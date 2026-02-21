@@ -1,8 +1,10 @@
 package io.medatarun.model.domain
 
-sealed interface TypeRef {
+import io.medatarun.type.commons.ref.Ref
 
-    fun asString(): String
+sealed interface TypeRef: Ref<TypeRef> {
+
+
 
     data class ById(val id: TypeId) : TypeRef {
         override fun asString(): String {
