@@ -1,5 +1,8 @@
 package io.medatarun.runtime
 
+import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionInvoker
+import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunServiceRegistry
 import io.medatarun.runtime.internal.AppRuntimeConfig
@@ -10,4 +13,7 @@ interface AppRuntime {
     val extensionRegistry: ExtensionRegistry
     val services: MedatarunServiceRegistry
 
+    val actionRegistry: ActionRegistry
+    val actionInvoker: ActionInvoker
+    val actionCtxFactory: ActionCtxFactory
 }

@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.microprofileConfigApi)
     implementation(libs.smallryeConfig)
     testImplementation(kotlin("test"))
+    testImplementation(libs.jimfs)
 }
 
 application {

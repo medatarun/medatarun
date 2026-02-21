@@ -2,16 +2,8 @@ package io.medatarun.tags.core
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.kernel.MedatarunExtension
-import io.medatarun.platform.kernel.MedatarunExtensionCtx
-import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.PlatformStartedCtx
-import io.medatarun.platform.kernel.PlatformStartedListener
-import io.medatarun.platform.kernel.getService
-import io.medatarun.security.AppPrincipalRole
-import io.medatarun.security.SecurityRolesProvider
-import io.medatarun.security.SecurityRuleCtx
-import io.medatarun.security.SecurityRuleEvaluator
+import io.medatarun.platform.kernel.*
+import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.actions.TagSecurityRuleNames
 import io.medatarun.tags.core.adapters.TagStorageSQLite
@@ -50,18 +42,26 @@ class TagsCoreExtension() : MedatarunExtension {
                 return listOf(TagFreeManageRole, TagManagedManageRole, TagGroupManageRole)
             }
         })
-        ctx.register(SecurityRuleEvaluator::class, object : SecurityRuleEvaluator {
-            override val key: String = TagSecurityRuleNames.TAG_MANAGED_MANAGE
-            override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
+        ctx.register(SecurityRulesProvider::class, object : SecurityRulesProvider {
+            override fun getRules(): List<SecurityRuleEvaluator> {
+                return listOf(
+                    object : SecurityRuleEvaluator {
+                        override val key: String = TagSecurityRuleNames.TAG_MANAGED_MANAGE
+                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
+                    },
+                    object : SecurityRuleEvaluator {
+                        override val key: String = TagSecurityRuleNames.TAG_FREE_MANAGE
+                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagFreeManageRole)
+                    },
+                    object : SecurityRuleEvaluator {
+                        override val key: String = TagSecurityRuleNames.TAG_GROUP_MANAGE
+                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
+                    }
+                )
+            }
+
         })
-        ctx.register(SecurityRuleEvaluator::class, object : SecurityRuleEvaluator {
-            override val key: String = TagSecurityRuleNames.TAG_FREE_MANAGE
-            override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagFreeManageRole)
-        })
-        ctx.register(SecurityRuleEvaluator::class, object : SecurityRuleEvaluator {
-            override val key: String = TagSecurityRuleNames.TAG_GROUP_MANAGE
-            override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
-        })
+
         ctx.register(PlatformStartedListener::class, object: PlatformStartedListener {
             override fun onPlatformStarted(ctx: PlatformStartedCtx) {
                 val db = ctx.services.getService<DbConnectionFactory>()

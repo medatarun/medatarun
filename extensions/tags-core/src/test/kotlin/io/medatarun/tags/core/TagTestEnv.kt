@@ -22,7 +22,7 @@ class TagTestEnv {
     val provider = TagActionProvider()
     var actionCtx = ActionCtxWithActor()
     val dbConnectionFactory = object : DbConnectionFactory {
-        val sqlite = DbProviderSqlite("file:test_${UuidUtils.generateV4String()}?mode=memory&cache=shared")
+        val sqlite = DbProviderSqlite.randomDb()
         override fun getConnection(): Connection {
             return sqlite.getConnection()
         }
