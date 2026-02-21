@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS tag_group (
 CREATE TABLE IF NOT EXISTS tag_managed (
   id TEXT PRIMARY KEY UNIQUE,
   tag_group_id TEXT NOT NULL,
-  key TEXT NOT NULL UNIQUE,
+  key TEXT NOT NULL,
   name TEXT,
   description TEXT
 );
