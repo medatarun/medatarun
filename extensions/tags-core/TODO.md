@@ -205,18 +205,6 @@ Ce n'est pas un bug de logique, mais c'est un piège de compréhension pour une 
 Description de ce qu'il faudra faire :
 - mettre à jour ce commentaire pour refléter le format réellement utilisé
 
-## 15) TODO déjà visible dans les tests : vérifier explicitement le scope des tags managed créés
-
-Dans `TagTest.kt`, le test `tag managed created with name and description` contient déjà un commentaire :
-- `TODO il faudrait tester le scope après ca sur les tags créés`
-
-Le système de scope est maintenant central, donc ce test devrait explicitement vérifier :
-- `scope == TagScopeRef.Global`
-- `isManaged == true`
-
-Description de ce qu'il faudra faire :
-- compléter ce test (ou un test voisin) pour verrouiller le scope des tags managed
-
 ## 17) Références circulaires potentielles : sujet maîtrisé pour l'instant, à surveiller avec le flux inverse
 
 Le découplage actuel est bon :

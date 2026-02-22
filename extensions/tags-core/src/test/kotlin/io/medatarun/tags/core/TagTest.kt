@@ -44,6 +44,7 @@ class TagTest {
         val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
+        assertEquals(scopeRef, found.scope)
         assertNull(found.groupId)
         assertEquals("name", found.name)
         assertEquals("description", found.description)
@@ -53,6 +54,7 @@ class TagTest {
         val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef, key2))
         assertEquals(key2, found2.key)
         assertFalse(found2.isManaged)
+        assertEquals(scopeRef, found2.scope)
         assertNull(found2.groupId)
         assertEquals("name2", found2.name)
         assertEquals("description2", found2.description)
@@ -70,6 +72,7 @@ class TagTest {
         val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
+        assertEquals(scopeRef, found.scope)
         assertNull(found.groupId)
         assertNull(found.name)
         assertNull(found.description)
@@ -450,9 +453,6 @@ class TagTest {
 
     @Test
     fun `tag managed created with name and description`() {
-
-        // TODO il faudrait tester le scope après ca sur les tags créés
-
         val env = TagTestEnv()
         val groupKey = TagGroupKey("group-key")
         env.dispatch(TagAction.TagGroupCreate(groupKey, "group", "group-description"))
@@ -469,6 +469,8 @@ class TagTest {
 
         val found = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
+        assertEquals(TagScopeRef.Global, found.scope)
+        assertTrue(found.isManaged)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
         assertEquals("name", found.name)
@@ -476,6 +478,8 @@ class TagTest {
 
         val found2 = env.tagStorage.findTagByKeyOptional(group.id, managedKey2)
         assertNotNull(found2)
+        assertEquals(TagScopeRef.Global, found2.scope)
+        assertTrue(found2.isManaged)
         assertEquals(group.id, found2.groupId)
         assertEquals(managedKey2, found2.key)
         assertEquals("name2", found2.name)
@@ -496,6 +500,8 @@ class TagTest {
 
         val found = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
+        assertEquals(TagScopeRef.Global, found.scope)
+        assertTrue(found.isManaged)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
         assertNull(found.name)
