@@ -24,6 +24,7 @@ Other modules consume this core and define how tags can be applied to their own 
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
 - lifecycle events (`before` / `after`) so consumer modules can veto or react
+- transaction strategy across tag mutations and cross-module reactions (not addressed yet, and will become critical soon)
 
 ## Purpose
 

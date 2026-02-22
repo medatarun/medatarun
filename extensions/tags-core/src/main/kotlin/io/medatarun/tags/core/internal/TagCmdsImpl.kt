@@ -1,11 +1,15 @@
 package io.medatarun.tags.core.internal
 
 import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.ports.needs.TagEventListener
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 
-class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
+class TagCmdsImpl(
+    private val storage: TagStorage,
+    private val evts: TagEventListener
+) : TagCmds {
     private val tagRefResolver = TagRefResolver(storage)
 
     override fun dispatch(cmd: TagCmd) {
@@ -114,6 +118,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagFreeDelete(cmd: TagCmd.TagFreeDelete) {
         val existing = findTagFree(cmd.ref)
+        evts.onBeforeDelete(existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 
@@ -198,6 +203,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagManagedDelete(cmd: TagCmd.TagManagedDelete) {
         val existing = findTagManaged(cmd.tagRef)
+        evts.onBeforeDelete(existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 }

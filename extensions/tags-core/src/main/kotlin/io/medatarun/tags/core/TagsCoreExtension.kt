@@ -10,7 +10,11 @@ import io.medatarun.tags.core.adapters.*
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.internal.TagCmdsImpl
+import io.medatarun.tags.core.internal.TagEventListenerMediator
 import io.medatarun.tags.core.internal.TagQueriesImpl
+import io.medatarun.tags.core.internal.TagScopeManagerResolverImpl
+import io.medatarun.tags.core.internal.TagScopeRegistryImpl
+import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 
 object TagFreeManageRole : AppPrincipalRole {
@@ -32,12 +36,16 @@ class TagsCoreExtension : MedatarunExtension {
     override val id = "tags-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
+        val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val storage = TagStorageSQLite(dbConnectionFactory)
-        ctx.register(TagCmds::class, TagCmdsImpl(storage))
+        val tagScopeRegistry = TagScopeRegistryImpl(TagScopeManagerResolverImpl(extensionRegistry))
+        val tagEvents = TagEventListenerMediator(tagScopeRegistry)
+        ctx.register(TagCmds::class, TagCmdsImpl(storage, tagEvents))
         ctx.register(TagQueries::class, TagQueriesImpl(storage))
     }
 
     override fun init(ctx: MedatarunExtensionCtx) {
+        ctx.registerContributionPoint("$id.tag-scope-manager", TagScopeManager::class)
         ctx.register(TypeDescriptor::class, TagIdTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagKeyTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagRefTypeDescriptor())
