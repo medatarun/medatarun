@@ -8,6 +8,8 @@ import io.medatarun.tags.core.domain.TagRef
 import io.medatarun.tags.core.ports.needs.TagStorage
 
 class TagQueriesImpl(private val storage: TagStorage): TagQueries {
+    private val tagRefResolver = TagRefResolver(storage)
+
     override fun findAllTags(): List<Tag> {
         return storage.findAllTag()
     }
@@ -17,18 +19,7 @@ class TagQueriesImpl(private val storage: TagStorage): TagQueries {
     }
 
     override fun findTagByRefOptional(tagRef: TagRef): Tag? {
-        return when(tagRef) {
-            is TagRef.ById -> storage.findTagByIdOptional(tagRef.id)
-            is TagRef.ByKey -> {
-                val groupKey = tagRef.groupKey
-                if (groupKey == null) {
-                    storage.findTagByKeyOptional(null, tagRef.key)
-                } else {
-                    val group = storage.findTagGroupByKeyOptional(groupKey) ?: return null
-                    storage.findTagByKeyOptional(group.id, tagRef.key)
-                }
-            }
-        }
+        return tagRefResolver.findTagByRefOptional(tagRef)
     }
 
     override fun findTagByRef(tagRef: TagRef): Tag {

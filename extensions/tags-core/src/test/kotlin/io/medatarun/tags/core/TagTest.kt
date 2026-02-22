@@ -3,11 +3,9 @@ package io.medatarun.tags.core
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
-import io.medatarun.tags.core.domain.TagRef.Companion.tagRefKey
 import kotlin.test.*
 
 class TagTest {
-    private fun tagKey(value: TagKey): TagKey = value
     private fun tagRef(groupKey: TagGroupKey?, key: TagKey): TagRef = TagRef.ByKey(groupKey, key)
     private fun tagRef(id: TagId): TagRef = TagRef.ById(id)
 
@@ -16,7 +14,7 @@ class TagTest {
         val env = TagTestEnv()
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key), "name", "description"))
+        env.dispatch(TagAction.TagFreeCreate(key, "name", "description"))
         val found = env.tagQueries.findTagByRef(tagRef(null, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
@@ -25,9 +23,9 @@ class TagTest {
         assertEquals("description", found.description)
 
         // create again
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key2), "name2", "description2"))
+        env.dispatch(TagAction.TagFreeCreate(key2, "name2", "description2"))
         val found2 = env.tagQueries.findTagByRef(tagRef(null, key2))
-        assertEquals(TagKey(key2.value), found2.key)
+        assertEquals(key2, found2.key)
         assertFalse(found2.isManaged)
         assertNull(found2.groupId)
         assertEquals("name2", found2.name)
@@ -41,7 +39,7 @@ class TagTest {
     fun `tag free created without name and description`() {
         val env = TagTestEnv()
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key, null, null))
         val found = env.tagQueries.findTagByRef(tagRef(null, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
@@ -54,9 +52,9 @@ class TagTest {
     fun `tag free create with duplicate key then error`() {
         val env = TagTestEnv()
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key, null, null))
         assertFailsWith<TagFreeDuplicateKeyException> {
-            env.dispatch(TagAction.TagFreeCreate(tagKey(key), null, null))
+            env.dispatch(TagAction.TagFreeCreate(key, null, null))
         }
     }
 
@@ -66,8 +64,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key1), null, null))
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key2), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
 
         fun assertTagName(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(null, key))
@@ -111,8 +109,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key1), null, null))
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key2), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
 
         fun assertTagDescription(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(null, key))
@@ -155,8 +153,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key1), null, null))
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key2), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
 
         val tag1Id = env.tagQueries.findTagByRef(tagRef(null, key1)).id
         val tag2Id = env.tagQueries.findTagByRef(tagRef(null, key2)).id
@@ -192,8 +190,8 @@ class TagTest {
         val env = TagTestEnv()
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key), null, null))
-        env.dispatch(TagAction.TagFreeCreate(tagKey(key2), null, null))
+        env.dispatch(TagAction.TagFreeCreate(key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
         env.dispatch(TagAction.TagFreeDelete(tagRef(null, key)))
         assertNull(env.tagQueries.findTagByRefOptional(tagRef(null, key)))
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, key2)))
@@ -394,22 +392,22 @@ class TagTest {
         val managedKey1 = TagKey("managed-key1")
         val managedKey1b = TagKey("managed-key1b")
         val managedKey2 = TagKey("managed-key2")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), tagKey(managedKey1), null, null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), tagKey(managedKey1b), null, null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), tagKey(managedKey2), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), managedKey1, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), managedKey1b, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), managedKey2, null, null))
         val freeKey1 = TagKey("free-key1")
         val freeKey2 = TagKey("free-key2")
-        env.dispatch(TagAction.TagFreeCreate(tagKey(freeKey1), null, null))
-        env.dispatch(TagAction.TagFreeCreate(tagKey(freeKey2), null, null))
+        env.dispatch(TagAction.TagFreeCreate(freeKey1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(freeKey2, null, null))
 
         // Business rule: deleting a group also deletes the managed tags that belong to it.
         env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group1.id)))
 
         // All managed tags of the deleted group must be removed.
-        assertNull(env.tagStorage.findTagByKeyOptional(group1.id, TagKey(managedKey1.value)))
-        assertNull(env.tagStorage.findTagByKeyOptional(group1.id, TagKey(managedKey1b.value)))
+        assertNull(env.tagStorage.findTagByKeyOptional(group1.id, managedKey1))
+        assertNull(env.tagStorage.findTagByKeyOptional(group1.id, managedKey1b))
         // Managed tags in other groups must remain unchanged.
-        assertNotNull(env.tagStorage.findTagByKeyOptional(group2.id, TagKey(managedKey2.value)))
+        assertNotNull(env.tagStorage.findTagByKeyOptional(group2.id, managedKey2))
         // Free tags (without group) must remain unchanged.
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, freeKey1)))
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, freeKey2)))
@@ -428,22 +426,22 @@ class TagTest {
 
         val managedKey = TagKey("managed-key")
         val managedKey2 = TagKey("managed-key2")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), "name", "description"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, "name", "description"))
         // This test also checks that a second managed tag can be created in the same group
         // (with a different key) and gets a distinct identifier.
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey2), "name2", "description2"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey2, "name2", "description2"))
 
-        val found = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        val found = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
         assertEquals("name", found.name)
         assertEquals("description", found.description)
 
-        val found2 = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey2.value))
+        val found2 = env.tagStorage.findTagByKeyOptional(group.id, managedKey2)
         assertNotNull(found2)
         assertEquals(group.id, found2.groupId)
-        assertEquals(TagKey(managedKey2.value), found2.key)
+        assertEquals(managedKey2, found2.key)
         assertEquals("name2", found2.name)
         assertEquals("description2", found2.description)
         assertNotEquals(found.id, found2.id)
@@ -458,9 +456,9 @@ class TagTest {
         assertNotNull(group)
 
         val managedKey = TagKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
 
-        val found = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        val found = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
@@ -477,9 +475,9 @@ class TagTest {
         assertNotNull(group)
 
         val managedKey = TagKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
         assertFailsWith<TagManagedDuplicateKeyException> {
-            env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), null, null))
+            env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
         }
     }
 
@@ -497,12 +495,12 @@ class TagTest {
         assertNotNull(group2)
 
         val managedKey = TagKey("shared-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), tagKey(managedKey), "name-1", "description-1"))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), tagKey(managedKey), "name-2", "description-2"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), managedKey, "name-1", "description-1"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), managedKey, "name-2", "description-2"))
 
-        val found1 = env.tagStorage.findTagByKeyOptional(group1.id, TagKey(managedKey.value))
+        val found1 = env.tagStorage.findTagByKeyOptional(group1.id, managedKey)
         assertNotNull(found1)
-        val found2 = env.tagStorage.findTagByKeyOptional(group2.id, TagKey(managedKey.value))
+        val found2 = env.tagStorage.findTagByKeyOptional(group2.id, managedKey)
         assertNotNull(found2)
         assertNotEquals(found1.id, found2.id)
         assertEquals(group1.id, found1.groupId)
@@ -536,11 +534,11 @@ class TagTest {
 
         val managedKey1 = TagKey("managed-key1")
         val managedKey2 = TagKey("managed-key2")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey1), "name-1", null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey2), "name-2", null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey1, "name-1", null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey2, "name-2", null))
 
         fun assertTagManagedName(expected: String, key: TagKey) {
-            val found = env.tagStorage.findTagByKeyOptional(group.id, TagKey(key.value))
+            val found = env.tagStorage.findTagByKeyOptional(group.id, key)
             assertNotNull(found)
             assertEquals(expected, found.name)
         }
@@ -570,11 +568,11 @@ class TagTest {
 
         val managedKey1 = TagKey("managed-key1")
         val managedKey2 = TagKey("managed-key2")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey1), null, "description-1"))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey2), null, "description-2"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey1, null, "description-1"))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey2, null, "description-2"))
 
         fun assertTagManagedDescription(expected: String, key: TagKey) {
-            val found = env.tagStorage.findTagByKeyOptional(group.id, TagKey(key.value))
+            val found = env.tagStorage.findTagByKeyOptional(group.id, key)
             assertNotNull(found)
             assertEquals(expected, found.description)
         }
@@ -610,13 +608,13 @@ class TagTest {
         val group1Key1 = TagKey("group1-key1")
         val group1Key2 = TagKey("group1-key2")
         val group2Key1 = TagKey("group2-key1")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), tagKey(group1Key1), null, null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), tagKey(group1Key2), null, null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), tagKey(group2Key1), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), group1Key1, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), group1Key2, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), group2Key1, null, null))
 
-        val group1Tag1 = env.tagStorage.findTagByKeyOptional(group1.id, TagKey(group1Key1.value))
+        val group1Tag1 = env.tagStorage.findTagByKeyOptional(group1.id, group1Key1)
         assertNotNull(group1Tag1)
-        val group1Tag2 = env.tagStorage.findTagByKeyOptional(group1.id, TagKey(group1Key2.value))
+        val group1Tag2 = env.tagStorage.findTagByKeyOptional(group1.id, group1Key2)
         assertNotNull(group1Tag2)
 
         // Duplicate key inside the same group is forbidden.
@@ -675,8 +673,8 @@ class TagTest {
         val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
         val managedKey = TagKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), "name", "description"))
-        val tag = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, "name", "description"))
+        val tag = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(tag)
 
         // Why this test:
@@ -708,8 +706,8 @@ class TagTest {
         val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
         val managedKey = TagKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), null, null))
-        val tag = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
+        val tag = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(tag)
 
         // Why this test:
@@ -717,7 +715,7 @@ class TagTest {
         env.dispatch(
             TagAction.TagManagedUpdateKey(
                 tagRef(tag.id),
-                tagKey(managedKey)
+                managedKey
             )
         )
 
@@ -736,15 +734,15 @@ class TagTest {
 
         val managedKey1 = TagKey("managed-key1")
         val managedKey2 = TagKey("managed-key2")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey1), null, null))
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey2), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey1, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey2, null, null))
 
         env.dispatch(TagAction.TagManagedDelete(tagRef(groupKey, managedKey1)))
-        assertNull(env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey1.value)))
-        assertNotNull(env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey2.value)))
+        assertNull(env.tagStorage.findTagByKeyOptional(group.id, managedKey1))
+        assertNotNull(env.tagStorage.findTagByKeyOptional(group.id, managedKey2))
 
         env.dispatch(TagAction.TagManagedDelete(tagRef(groupKey, managedKey2)))
-        assertNull(env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey2.value)))
+        assertNull(env.tagStorage.findTagByKeyOptional(group.id, managedKey2))
     }
 
     @Test
@@ -777,7 +775,7 @@ class TagTest {
         env.dispatch(
                 TagAction.TagManagedCreate(
                     TagGroupRef.ByKey(groupKey),
-                    tagKey(managedKey),
+                    managedKey,
                     "name",
                     "description"
                 )
@@ -794,13 +792,13 @@ class TagTest {
 
         val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
-        val found = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        val found = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
         assertEquals("new-name", found.name)
         assertEquals("new-description", found.description)
 
         env.dispatch(TagAction.TagManagedDelete(tagRef(groupKey, managedKey)))
-        assertNull(env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value)))
+        assertNull(env.tagStorage.findTagByKeyOptional(group.id, managedKey))
     }
 
     @Test
@@ -811,8 +809,8 @@ class TagTest {
         val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
         val managedKey = TagKey("managed-key")
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), tagKey(managedKey), "name", "description"))
-        val tag = env.tagStorage.findTagByKeyOptional(group.id, TagKey(managedKey.value))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, "name", "description"))
+        val tag = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(tag)
 
         // Why this test:

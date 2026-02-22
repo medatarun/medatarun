@@ -6,12 +6,11 @@ import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.actions.TagSecurityRuleNames
-import io.medatarun.tags.core.adapters.TagFreeKeyTypeDescriptor
-import io.medatarun.tags.core.adapters.TagFreeRefTypeDescriptor
 import io.medatarun.tags.core.adapters.TagGroupKeyTypeDescriptor
 import io.medatarun.tags.core.adapters.TagGroupRefTypeDescriptor
-import io.medatarun.tags.core.adapters.TagManagedKeyTypeDescriptor
-import io.medatarun.tags.core.adapters.TagManagedRefTypeDescriptor
+import io.medatarun.tags.core.adapters.TagIdTypeDescriptor
+import io.medatarun.tags.core.adapters.TagKeyTypeDescriptor
+import io.medatarun.tags.core.adapters.TagRefTypeDescriptor
 import io.medatarun.tags.core.adapters.TagStorageSQLite
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
@@ -34,7 +33,7 @@ object TagGroupManageRole : AppPrincipalRole {
         get() = "tag_group_manage"
 }
 
-class TagsCoreExtension() : MedatarunExtension {
+class TagsCoreExtension : MedatarunExtension {
     override val id = "tags-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
@@ -44,12 +43,11 @@ class TagsCoreExtension() : MedatarunExtension {
     }
 
     override fun init(ctx: MedatarunExtensionCtx) {
-        ctx.register(TypeDescriptor::class, TagFreeKeyTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagFreeRefTypeDescriptor())
+        ctx.register(TypeDescriptor::class, TagIdTypeDescriptor())
+        ctx.register(TypeDescriptor::class, TagKeyTypeDescriptor())
+        ctx.register(TypeDescriptor::class, TagRefTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupRefTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagManagedKeyTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagManagedRefTypeDescriptor())
         ctx.register(ActionProvider::class, TagActionProvider())
         ctx.register(SecurityRolesProvider::class, object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {
@@ -84,4 +82,3 @@ class TagsCoreExtension() : MedatarunExtension {
         })
     }
 }
-

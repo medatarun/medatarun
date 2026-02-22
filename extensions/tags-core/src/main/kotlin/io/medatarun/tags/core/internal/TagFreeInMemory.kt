@@ -3,7 +3,6 @@ package io.medatarun.tags.core.internal
 import io.medatarun.tags.core.domain.TagFree
 import io.medatarun.tags.core.domain.TagFreeKey
 import io.medatarun.tags.core.domain.TagFreeId
-import javax.swing.text.html.HTML
 
 data class TagFreeInMemory(
     override val id: TagFreeId,

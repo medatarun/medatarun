@@ -6,6 +6,8 @@ import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 
 class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
+    private val tagRefResolver = TagRefResolver(storage)
+
     override fun dispatch(cmd: TagCmd) {
         return when (cmd) {
             is TagCmd.TagFreeCreate -> tagFreeCreate(cmd)
@@ -54,19 +56,8 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         return findTagGroupOptional(ref) ?: throw TagGroupNotFoundException(ref.asString())
     }
 
-    private fun findTagByRefOptional(tagRef: TagRef): io.medatarun.tags.core.domain.Tag? {
-        return when (tagRef) {
-            is TagRef.ById -> storage.findTagByIdOptional(tagRef.id)
-            is TagRef.ByKey -> {
-                val groupKey = tagRef.groupKey
-                if (groupKey == null) {
-                    storage.findTagByKeyOptional(null, tagRef.key)
-                } else {
-                    val group = storage.findTagGroupByKeyOptional(groupKey) ?: return null
-                    storage.findTagByKeyOptional(group.id, tagRef.key)
-                }
-            }
-        }
+    private fun findTagByRefOptional(tagRef: TagRef): Tag? {
+        return tagRefResolver.findTagByRefOptional(tagRef)
     }
 
     private fun findTagManagedOptional(tagRef: TagRef): Tag? {

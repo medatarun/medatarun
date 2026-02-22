@@ -2,7 +2,6 @@ package io.medatarun.tags.core.internal
 
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagManagedId
-import io.medatarun.tags.core.domain.TagFreeKey
 import io.medatarun.tags.core.domain.TagManaged
 import io.medatarun.tags.core.domain.TagManagedKey
 

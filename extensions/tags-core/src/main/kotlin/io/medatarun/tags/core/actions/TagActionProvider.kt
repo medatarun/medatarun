@@ -15,7 +15,7 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlin.reflect.KClass
 
-class TagActionProvider() : ActionProvider<TagAction> {
+class TagActionProvider : ActionProvider<TagAction> {
     override val actionGroupKey: String = "tag"
 
 
@@ -27,7 +27,7 @@ class TagActionProvider() : ActionProvider<TagAction> {
     ): Any {
         val tagCmds = actionCtx.getService<TagCmds>()
         val tagQueries = actionCtx.getService<TagQueries>()
-        val handler = TagActionHander(tagCmds, tagQueries)
+        val handler = TagActionHandler(tagCmds, tagQueries)
 
         val result = when (cmd) {
 
@@ -56,7 +56,7 @@ class TagActionProvider() : ActionProvider<TagAction> {
     }
 }
 
-class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQueries) {
+class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: TagQueries) {
 
 
     fun tagGroupCreate(cmd: TagAction.TagGroupCreate) {
