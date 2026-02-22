@@ -3,7 +3,7 @@ package io.medatarun.tags.core.domain
 /**
  * A free tag is a tag that is not managed by the company who operates the application. It means its form is free.
  */
-interface TagFree: Tag {
+interface TagFree {
     /**
      * Tag unique identifier in application instance
      */
