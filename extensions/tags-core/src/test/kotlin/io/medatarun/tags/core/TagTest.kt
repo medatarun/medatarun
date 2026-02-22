@@ -1,12 +1,22 @@
 package io.medatarun.tags.core
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.fixtures.Ingredient
+import io.medatarun.tags.core.fixtures.Recipe
+import io.medatarun.tags.core.fixtures.RecipeStep
+import io.medatarun.tags.core.fixtures.SampleId
+import io.medatarun.tags.core.fixtures.Vehicle
+import io.medatarun.tags.core.fixtures.VehiclePart
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
+import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
 import java.util.UUID
 
 class TagTest {
+    private class SampleScopeManagerDeleteVetoException(message: String) : RuntimeException(message)
+
     private val testLocalScopeRef = TagScopeRef.Local(
         type = TagScopeType("model"),
         localScopeId = TagScopeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
@@ -838,5 +848,112 @@ class TagTest {
         assertNull(env.tagStorage.findTagByIdOptional(tag.id))
     }
 
+    @Test
+    fun `tag managed delete removes tag from objects`() {
+        val env = TagTestEnv()
+        // Why this test:
+        // Deleting a managed tag must propagate through TagCmds to all registered scope managers so they can
+        // remove the deleted tag from every object they own (recipe and vehicle fixture domains here).
+        val groupKey = TagGroupKey("governance")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("shared"), null, null))
+        val deletedTag = env.tagStorage.findTagByKeyOptional(group.id, TagKey("shared"))
+        assertNotNull(deletedTag)
+
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("keep"), null, null))
+        val keptTag = env.tagStorage.findTagByKeyOptional(group.id, TagKey("keep"))
+        assertNotNull(keptTag)
+
+        val recipeId = sampleId()
+        val ingredientId = sampleId()
+        val stepId = sampleId()
+        val vehicleId = sampleId()
+        val partId = sampleId()
+
+        // This test explicitly defines the objects that exist and their tag usage.
+        env.recipeService.createRecipe(Recipe(recipeId, "Pasta", listOf(deletedTag.id, keptTag.id)))
+        env.recipeService.createIngredient(Ingredient(ingredientId, recipeId, "Tomato", listOf(deletedTag.id)))
+        env.recipeService.createRecipeStep(RecipeStep(stepId, recipeId, "Boil water", listOf(deletedTag.id, keptTag.id)))
+        env.vehicleService.createVehicle(Vehicle(vehicleId, "Truck", listOf(deletedTag.id)))
+        env.vehicleService.createVehiclePart(VehiclePart(partId, vehicleId, "Wheel", listOf(keptTag.id, deletedTag.id)))
+
+        env.dispatch(TagAction.TagManagedDelete(tagRef(deletedTag.id)))
+
+        assertEquals(listOf(keptTag.id), env.recipeService.findRecipeById(recipeId).tags)
+        assertEquals(emptyList(), env.recipeService.findIngredientById(ingredientId).tags)
+        assertEquals(listOf(keptTag.id), env.recipeService.findRecipeStepById(stepId).tags)
+        assertEquals(emptyList(), env.vehicleService.findVehicleById(vehicleId).tags)
+        assertEquals(listOf(keptTag.id), env.vehicleService.findVehiclePartById(partId).tags)
+    }
+
+    @Test
+    fun `tag free delete removes tag from objects`() {
+        val env = TagTestEnv()
+        // Why this test:
+        // Deleting a free tag must propagate through the free-tag command path and still notify all registered
+        // scope managers so they can clean their objects exactly like the managed path does.
+        val deletedKey = TagKey("local-shared")
+        val keptKey = TagKey("local-keep")
+
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, deletedKey, null, null))
+        val deletedTag = env.tagQueries.findTagByRef(tagRef(null, deletedKey))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, keptKey, null, null))
+        val keptTag = env.tagQueries.findTagByRef(tagRef(null, keptKey))
+
+        val recipeId = sampleId()
+        val ingredientId = sampleId()
+        val stepId = sampleId()
+        val vehicleId = sampleId()
+        val partId = sampleId()
+
+        // This test explicitly defines the objects that exist and their tag usage.
+        env.recipeService.createRecipe(Recipe(recipeId, "Soup", listOf(deletedTag.id, keptTag.id)))
+        env.recipeService.createIngredient(Ingredient(ingredientId, recipeId, "Salt", listOf(deletedTag.id)))
+        env.recipeService.createRecipeStep(RecipeStep(stepId, recipeId, "Mix", listOf(deletedTag.id, keptTag.id)))
+        env.vehicleService.createVehicle(Vehicle(vehicleId, "Bike", listOf(deletedTag.id)))
+        env.vehicleService.createVehiclePart(VehiclePart(partId, vehicleId, "Chain", listOf(keptTag.id, deletedTag.id)))
+
+        env.dispatch(TagAction.TagFreeDelete(tagRef(deletedTag.id)))
+
+        assertEquals(listOf(keptTag.id), env.recipeService.findRecipeById(recipeId).tags)
+        assertEquals(emptyList(), env.recipeService.findIngredientById(ingredientId).tags)
+        assertEquals(listOf(keptTag.id), env.recipeService.findRecipeStepById(stepId).tags)
+        assertEquals(emptyList(), env.vehicleService.findVehicleById(vehicleId).tags)
+        assertEquals(listOf(keptTag.id), env.vehicleService.findVehiclePartById(partId).tags)
+    }
+
+    @Test
+    fun `tag delete blocked by scope manager veto`() {
+        // Why this test:
+        // Scope managers own local security rules and can veto tag deletion before storage mutation.
+        // We verify the veto blocks the command and the tag remains present.
+        val vetoManager = object : TagScopeManager {
+            override val type: TagScopeType = TagScopeType("veto-test")
+
+            override fun onBeforeTagDelete(tagId: TagId) {
+                throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${tagId.asString()}")
+            }
+        }
+        val env = TagTestEnv(extraScopeManagers = listOf(vetoManager))
+
+        val key = TagKey("mykey")
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
+        val tag = env.tagQueries.findTagByRef(tagRef(null, key))
+
+        val ex = assertFailsWith<SampleScopeManagerDeleteVetoException> {
+            env.dispatch(TagAction.TagFreeDelete(tagRef(tag.id)))
+        }
+        assertContains(ex.message ?: "", "Deletion vetoed by scope manager")
+
+        // The tag must still exist because the veto happens before the storage delete.
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(tag.id)))
+    }
+
+    private fun sampleId(): SampleId {
+        return SampleId(UuidUtils.generateV7())
+    }
 
 }

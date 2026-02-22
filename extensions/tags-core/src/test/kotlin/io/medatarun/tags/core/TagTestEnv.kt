@@ -24,7 +24,7 @@ import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
 import java.sql.Connection
 import kotlin.reflect.KClass
 
-class TagTestEnv {
+class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
     val provider = TagActionProvider()
     var actionCtx = ActionCtxWithActor()
     val dbConnectionFactory = object : DbConnectionFactory {
@@ -44,7 +44,7 @@ class TagTestEnv {
     val tagScopeManagers = listOf<TagScopeManager>(
         RecipeTagScopeManager(recipeService),
         VehicleTagScopeManager(vehicleService)
-    )
+    ) + extraScopeManagers
     val tagScopeRegistry = TagScopeRegistryImpl(
         object : TagScopeManagerResolver {
             override fun findScopeManagers(): List<TagScopeManager> {
