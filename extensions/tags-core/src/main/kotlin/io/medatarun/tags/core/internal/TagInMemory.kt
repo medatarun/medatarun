@@ -4,12 +4,12 @@ import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagScope
+import io.medatarun.tags.core.domain.TagScopeRef
 
 data class TagInMemory(
     override val id: TagId,
     override val key: TagKey,
-    override val scope: TagScope,
+    override val scope: TagScopeRef,
     override val groupId: TagGroupId?,
     override val name: String?,
     override val description: String?

@@ -20,7 +20,7 @@ interface Tag {
     /**
      * Scope that owns the semantic meaning of the tag.
      */
-    val scope: TagScope
+    val scope: TagScopeRef
 
     /**
      * Tells which group controls this tag, if any.

@@ -42,7 +42,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         }
     }
 
-    override fun findTagByKeyOptional(scope: TagScope, groupId: TagGroupId?, key: TagKey): Tag? {
+    override fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
         dbConnectionFactory.getConnection().use { c ->
             if (scope.isLocal) {
                 c.prepareStatement(
@@ -267,11 +267,11 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     private fun tagFromRow(rs: ResultSet): Tag {
         val scopeType = TagScopeType(rs.getString("scope_type"))
         val scopeIdString = rs.getString("scope_id")
-        val scope = if (scopeType.value == TagScope.TagScopeGlobal.type.value) {
-            TagScope.TagScopeGlobal
+        val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
+            TagScopeRef.Global
         } else {
             val localScopeId = scopeIdString ?: throw IllegalStateException("Local tag row missing scope_id")
-            TagScope.TagScopeLocal(scopeType, Id.fromString(localScopeId, ::TagScopeId))
+            TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
         }
         val groupIdString = rs.getString("tag_group_id")
         val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)

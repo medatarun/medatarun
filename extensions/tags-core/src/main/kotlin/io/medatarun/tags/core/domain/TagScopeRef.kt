@@ -1,6 +1,8 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.ref.Ref
+import java.util.UUID
 
 sealed interface TagScopeRef : Ref<TagScopeRef> {
     val type: TagScopeType
@@ -15,15 +17,8 @@ sealed interface TagScopeRef : Ref<TagScopeRef> {
     val isFree: Boolean
         get() = isLocal
 
-    fun toScope(): TagScope {
-        return when (this) {
-            is Global -> TagScope.TagScopeGlobal
-            is Local -> TagScope.TagScopeLocal(type = type, scopeId = localScopeId)
-        }
-    }
-
     object Global : TagScopeRef {
-        override val type: TagScopeType = TagScope.TagScopeGlobal.type
+        override val type: TagScopeType = TagScopeType("global")
         override val scopeId: TagScopeId? = null
 
         override fun asString(): String {
@@ -36,7 +31,7 @@ sealed interface TagScopeRef : Ref<TagScopeRef> {
         val localScopeId: TagScopeId
     ) : TagScopeRef {
         init {
-            if (type.value == TagScope.TagScopeGlobal.type.value) {
+            if (type.value == Global.type.value) {
                 throw IllegalArgumentException("Local scope ref can not use the global scope name")
             }
         }
@@ -48,3 +43,9 @@ sealed interface TagScopeRef : Ref<TagScopeRef> {
         }
     }
 }
+
+@JvmInline
+value class TagScopeType(val value: String)
+
+@JvmInline
+value class TagScopeId(override val value: UUID): Id<TagScopeId>

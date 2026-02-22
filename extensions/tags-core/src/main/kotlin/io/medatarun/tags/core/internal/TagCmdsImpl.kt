@@ -78,7 +78,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagFreeCreate(cmd: TagCmd.TagFreeCreate) {
         if (cmd.scopeRef.isGlobal) throw TagFreeCommandIncompatibleTagScopeRefException(cmd.scopeRef.asString())
-        val tagScope = cmd.scopeRef.toScope()
+        val tagScope = cmd.scopeRef
         val existing = storage.findTagByKeyOptional(tagScope, null, cmd.key)
         if (existing != null) throw TagFreeDuplicateKeyException()
         storage.dispatch(
@@ -167,7 +167,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
             TagRepoCmd.TagCreate(
                 TagInMemory(
                     id = Id.generate(::TagId),
-                    scope = TagScope.TagScopeGlobal,
+                    scope = TagScopeRef.Global,
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description,

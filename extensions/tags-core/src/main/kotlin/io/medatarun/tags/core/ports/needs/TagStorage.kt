@@ -7,9 +7,9 @@ interface TagStorage {
     fun findAllTag():List<Tag>
     fun findAllTagGroup():List<TagGroup>
 
-    fun findTagByKeyOptional(scope: TagScope, groupId: TagGroupId?, key: TagKey): Tag?
+    fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag?
     fun findTagByKeyOptional(groupId: TagGroupId?, key: TagKey): Tag? {
-        return findTagByKeyOptional(TagScope.TagScopeGlobal, groupId, key)
+        return findTagByKeyOptional(TagScopeRef.Global, groupId, key)
     }
     fun findTagByIdOptional(id: TagId): Tag?
 

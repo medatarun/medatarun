@@ -17,9 +17,9 @@ class TagRefResolver(private val storage: TagStorage) {
                 if (tagRef.scopeRef is TagScopeRef.Global) {
                     val groupKey = tagRef.groupKey ?: return null
                     val group = storage.findTagGroupByKeyOptional(groupKey) ?: return null
-                    storage.findTagByKeyOptional(tagRef.scopeRef.toScope(), group.id, tagRef.key)
+                    storage.findTagByKeyOptional(tagRef.scopeRef, group.id, tagRef.key)
                 } else {
-                    storage.findTagByKeyOptional(tagRef.scopeRef.toScope(), null, tagRef.key)
+                    storage.findTagByKeyOptional(tagRef.scopeRef, null, tagRef.key)
                 }
             }
         }

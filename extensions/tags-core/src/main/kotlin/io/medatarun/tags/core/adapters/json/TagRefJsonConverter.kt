@@ -4,7 +4,6 @@ import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScope
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
@@ -40,7 +39,7 @@ class TagRefJsonConverter : TypeJsonConverter<TagRef> {
             throw TypeJsonConverterBadFormatException("Invalid tag ref key format: $value")
         }
         val key = Key.fromString(tagKeyValue, ::TagKey).validated()
-        if (scopeTypeValue == TagScope.TagScopeGlobal.type.value) {
+        if (scopeTypeValue == TagScopeRef.Global.type.value) {
             return TagRef.ByKey(
                 scopeRef = TagScopeRef.Global,
                 groupKey = Key.fromString(middleValue, ::TagGroupKey).validated(),

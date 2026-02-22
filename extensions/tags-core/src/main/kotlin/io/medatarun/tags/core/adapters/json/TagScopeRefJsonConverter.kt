@@ -1,6 +1,5 @@
 package io.medatarun.tags.core.adapters.json
 
-import io.medatarun.tags.core.domain.TagScope
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
@@ -15,7 +14,7 @@ class TagScopeRefJsonConverter : TypeJsonConverter<TagScopeRef> {
     override fun deserialize(json: JsonElement): TagScopeRef {
         val obj = json as? JsonObject ?: throw TypeJsonConverterBadFormatException("Expected object for TagScopeRef")
         val typeValue = readString(obj, "type")
-        if (typeValue == TagScope.TagScopeGlobal.type.value) {
+        if (typeValue == TagScopeRef.Global.type.value) {
             return TagScopeRef.Global
         }
         val idValue = readString(obj, "id")
