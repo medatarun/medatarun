@@ -217,21 +217,6 @@ Le système de scope est maintenant central, donc ce test devrait explicitement 
 Description de ce qu'il faudra faire :
 - compléter ce test (ou un test voisin) pour verrouiller le scope des tags managed
 
-## 16) Indexation SQLite (performance future, pas logique)
-
-Le schéma SQLite fonctionne pour la logique actuelle, mais les recherches principales s'appuient sur :
-- (`scope_type`, `scope_id`, `key`) pour les tags free
-- (`tag_group_id`, `key`) pour les tags managed
-- `id` (déjà clé primaire)
-
-Les index spécifiques sur ces colonnes ne sont pas encore présents.
-
-Ce n'est pas un problème de logique fonctionnelle aujourd'hui, mais c'est un point probable de performance si le volume grossit.
-
-Description de ce qu'il faudra faire (si besoin) :
-- profiler les requêtes
-- ajouter les index utiles si nécessaire
-
 ## 17) Références circulaires potentielles : sujet maîtrisé pour l'instant, à surveiller avec le flux inverse
 
 Le découplage actuel est bon :

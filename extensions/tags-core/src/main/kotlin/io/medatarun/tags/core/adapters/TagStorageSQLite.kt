@@ -312,6 +312,12 @@ CREATE TABLE IF NOT EXISTS tag (
   FOREIGN KEY (tag_group_id) REFERENCES tag_group(id) ON DELETE CASCADE
 );
 
+CREATE INDEX IF NOT EXISTS idx_tag_scope_key
+ON tag(scope_type, scope_id, key);
+
+CREATE INDEX IF NOT EXISTS idx_tag_group_key
+ON tag(tag_group_id, key);
+
 """
 
         private val logger = LoggerFactory.getLogger(TagStorageSQLite::class.java)
