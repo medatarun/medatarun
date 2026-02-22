@@ -1,11 +1,6 @@
 package io.medatarun.tags.core.ports.needs
 
-import io.medatarun.tags.core.domain.Tag
-import io.medatarun.tags.core.domain.TagGroup
-import io.medatarun.tags.core.domain.TagGroupId
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.*
 
 sealed interface TagRepoCmd {
 

@@ -1,10 +1,6 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.tags.core.domain.Tag
-import io.medatarun.tags.core.domain.TagGroup
-import io.medatarun.tags.core.domain.TagNotFoundException
-import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagStorage
 
 class TagQueriesImpl(private val storage: TagStorage): TagQueries {

@@ -6,12 +6,7 @@ import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.actions.TagSecurityRuleNames
-import io.medatarun.tags.core.adapters.TagGroupKeyTypeDescriptor
-import io.medatarun.tags.core.adapters.TagGroupRefTypeDescriptor
-import io.medatarun.tags.core.adapters.TagIdTypeDescriptor
-import io.medatarun.tags.core.adapters.TagKeyTypeDescriptor
-import io.medatarun.tags.core.adapters.TagRefTypeDescriptor
-import io.medatarun.tags.core.adapters.TagStorageSQLite
+import io.medatarun.tags.core.adapters.*
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.internal.TagCmdsImpl
