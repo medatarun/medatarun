@@ -130,12 +130,17 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         logger.debug(cmd.toString())
         dbConnectionFactory.getConnection().use { c ->
             when (cmd) {
-                is TagRepoCmd.TagFreeCreate -> {
+                is TagRepoCmd.TagCreate -> {
                     c.prepareStatement(
                         "INSERT INTO tag(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
-                        ps.setNull(2, Types.VARCHAR)
+                        val itemGroupId = cmd.item.groupId
+                        if (itemGroupId == null) {
+                            ps.setNull(2, Types.VARCHAR)
+                        } else {
+                            ps.setString(2, itemGroupId.asString())
+                        }
                         ps.setString(3, cmd.item.key.asString())
                         ps.setString(4, cmd.item.name)
                         ps.setString(5, cmd.item.description)
@@ -143,41 +148,41 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     }
                 }
 
-                is TagRepoCmd.TagFreeUpdateKey -> {
+                is TagRepoCmd.TagUpdateKey -> {
                     c.prepareStatement(
-                        "UPDATE tag SET key = ? WHERE tag_group_id IS NULL AND id = ?"
+                        "UPDATE tag SET key = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value.asString())
-                        ps.setString(2, cmd.tagFreeId.asString())
+                        ps.setString(2, cmd.tagId.asString())
                         ps.executeUpdate()
                     }
                 }
 
-                is TagRepoCmd.TagFreeUpdateName -> {
+                is TagRepoCmd.TagUpdateName -> {
                     c.prepareStatement(
-                        "UPDATE tag SET name = ? WHERE tag_group_id IS NULL AND id = ?"
+                        "UPDATE tag SET name = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagFreeId.asString())
+                        ps.setString(2, cmd.tagId.asString())
                         ps.executeUpdate()
                     }
                 }
 
-                is TagRepoCmd.TagFreeUpdateDescription -> {
+                is TagRepoCmd.TagUpdateDescription -> {
                     c.prepareStatement(
-                        "UPDATE tag SET description = ? WHERE tag_group_id IS NULL AND id = ?"
+                        "UPDATE tag SET description = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagFreeId.asString())
+                        ps.setString(2, cmd.tagId.asString())
                         ps.executeUpdate()
                     }
                 }
 
-                is TagRepoCmd.TagFreeDelete -> {
+                is TagRepoCmd.TagDelete -> {
                     c.prepareStatement(
-                        "DELETE FROM tag WHERE tag_group_id IS NULL AND id = ?"
+                        "DELETE FROM tag WHERE id = ?"
                     ).use { ps ->
-                        ps.setString(1, cmd.tagFreeId.asString())
+                        ps.setString(1, cmd.tagId.asString())
                         ps.executeUpdate()
                     }
                 }
@@ -233,57 +238,6 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     }
                 }
 
-                is TagRepoCmd.TagManagedCreate -> {
-                    c.prepareStatement(
-                        "INSERT INTO tag(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
-                    ).use { ps ->
-                        ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.groupId.asString())
-                        ps.setString(3, cmd.item.key.asString())
-                        ps.setString(4, cmd.item.name)
-                        ps.setString(5, cmd.item.description)
-                        ps.executeUpdate()
-                    }
-                }
-
-                is TagRepoCmd.TagManagedUpdateKey -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET key = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value.asString())
-                        ps.setString(2, cmd.tagManagedId.asString())
-                        ps.executeUpdate()
-                    }
-                }
-
-                is TagRepoCmd.TagManagedUpdateName -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET name = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagManagedId.asString())
-                        ps.executeUpdate()
-                    }
-                }
-
-                is TagRepoCmd.TagManagedUpdateDescription -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET description = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagManagedId.asString())
-                        ps.executeUpdate()
-                    }
-                }
-
-                is TagRepoCmd.TagManagedDelete -> {
-                    c.prepareStatement(
-                        "DELETE FROM tag WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.tagManagedId.asString())
-                        ps.executeUpdate()
-                    }
-                }
             }
         }
     }

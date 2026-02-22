@@ -1,24 +1,6 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.tags.core.domain.TagFreeRef
-import io.medatarun.tags.core.domain.TagManagedRef
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagCmd
-import io.medatarun.tags.core.domain.TagCmds
-import io.medatarun.tags.core.domain.TagFree
-import io.medatarun.tags.core.domain.TagFreeDuplicateKeyException
-import io.medatarun.tags.core.domain.TagFreeId
-import io.medatarun.tags.core.domain.TagFreeNotFoundException
-import io.medatarun.tags.core.domain.TagGroup
-import io.medatarun.tags.core.domain.TagGroupDuplicateKeyException
-import io.medatarun.tags.core.domain.TagGroupId
-import io.medatarun.tags.core.domain.TagGroupNotFoundException
-import io.medatarun.tags.core.domain.TagManaged
-import io.medatarun.tags.core.domain.TagManagedDuplicateKeyException
-import io.medatarun.tags.core.domain.TagManagedId
-import io.medatarun.tags.core.domain.TagManagedNotFoundException
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
@@ -46,14 +28,18 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         }
     }
 
-    private fun findTagFreeOptional(ref: TagFreeRef): TagFree? {
-        return when (ref) {
-            is TagFreeRef.ById -> asTagFreeOptional(storage.findTagByIdOptional(TagId(ref.id.value)))
-            is TagFreeRef.ByKey -> asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(ref.key.value)))
+    private fun findTagFreeOptional(ref: TagRef): Tag? {
+        if (ref is TagRef.ByKey && ref.groupKey != null) {
+            throw TagFreeCommandIncompatibleTagRefException(ref.asString())
         }
+        val tag = findTagByRefOptional(ref) ?: return null
+        if (tag.isManaged) {
+            throw TagFreeCommandIncompatibleTagRefException(ref.asString())
+        }
+        return tag
     }
 
-    private fun findTagFree(ref: TagFreeRef): TagFree {
+    private fun findTagFree(ref: TagRef): Tag {
         return findTagFreeOptional(ref) ?: throw TagFreeNotFoundException(ref.asString())
     }
 
@@ -68,31 +54,45 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         return findTagGroupOptional(ref) ?: throw TagGroupNotFoundException(ref.asString())
     }
 
-    private fun findTagManagedOptional(groupRef: TagGroupRef, tagRef: TagManagedRef): TagManaged? {
-        val group = findTagGroupOptional(groupRef) ?: return null
+    private fun findTagByRefOptional(tagRef: TagRef): io.medatarun.tags.core.domain.Tag? {
         return when (tagRef) {
-            is TagManagedRef.ById -> {
-                val existing = asTagManagedOptional(storage.findTagByIdOptional(TagId(tagRef.id.value))) ?: return null
-                if (existing.groupId != group.id) return null
-                existing
+            is TagRef.ById -> storage.findTagByIdOptional(tagRef.id)
+            is TagRef.ByKey -> {
+                val groupKey = tagRef.groupKey
+                if (groupKey == null) {
+                    storage.findTagByKeyOptional(null, tagRef.key)
+                } else {
+                    val group = storage.findTagGroupByKeyOptional(groupKey) ?: return null
+                    storage.findTagByKeyOptional(group.id, tagRef.key)
+                }
             }
-            is TagManagedRef.ByKey -> asTagManagedOptional(storage.findTagByKeyOptional(group.id, TagKey(tagRef.key.value)))
         }
     }
 
-    private fun findTagManaged(groupRef: TagGroupRef, tagRef: TagManagedRef): TagManaged {
-        return findTagManagedOptional(groupRef, tagRef)
-            ?: throw TagManagedNotFoundException(groupRef.asString(), tagRef.asString())
+    private fun findTagManagedOptional(tagRef: TagRef): Tag? {
+        if (tagRef is TagRef.ByKey && tagRef.groupKey == null) {
+            throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
+        }
+        val tag = findTagByRefOptional(tagRef) ?: return null
+        if (!tag.isManaged) {
+            throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
+        }
+        return tag
+    }
 
+    private fun findTagManaged(tagRef: TagRef): Tag {
+        return findTagManagedOptional(tagRef)
+            ?: throw TagManagedNotFoundException(tagRef.asString())
     }
 
     private fun tagFreeCreate(cmd: TagCmd.TagFreeCreate) {
-        val existing = asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(cmd.key.value)))
+        val existing = storage.findTagByKeyOptional(null, cmd.key)
         if (existing != null) throw TagFreeDuplicateKeyException()
         storage.dispatch(
-            TagRepoCmd.TagFreeCreate(
-                TagFreeInMemory(
-                    id = Id.generate(::TagFreeId),
+            TagRepoCmd.TagCreate(
+                TagInMemory(
+                    id = Id.generate(::TagId),
+                    groupId = null,
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description
@@ -103,24 +103,24 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagFreeUpdateKey(cmd: TagCmd.TagFreeUpdateKey) {
         val existing = findTagFree(cmd.ref)
-        val duplicate = asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(cmd.value.value)))
+        val duplicate = storage.findTagByKeyOptional(null, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagFreeDuplicateKeyException()
-        storage.dispatch(TagRepoCmd.TagFreeUpdateKey(existing.id, cmd.value))
+        storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))
     }
 
     private fun tagFreeUpdateName(cmd: TagCmd.TagFreeUpdateName) {
         val existing = findTagFree(cmd.ref)
-        storage.dispatch(TagRepoCmd.TagFreeUpdateName(existing.id, cmd.value))
+        storage.dispatch(TagRepoCmd.TagUpdateName(existing.id, cmd.value))
     }
 
     private fun tagFreeUpdateDescription(cmd: TagCmd.TagFreeUpdateDescription) {
         val existing = findTagFree(cmd.ref)
-        storage.dispatch(TagRepoCmd.TagFreeUpdateDescription(existing.id, cmd.value))
+        storage.dispatch(TagRepoCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
     private fun tagFreeDelete(cmd: TagCmd.TagFreeDelete) {
         val existing = findTagFree(cmd.ref)
-        storage.dispatch(TagRepoCmd.TagFreeDelete(existing.id))
+        storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 
 
@@ -166,13 +166,13 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     private fun tagManagedCreate(cmd: TagCmd.TagManagedCreate) {
         val group = findTagGroup(cmd.groupRef)
 
-        val existing = asTagManagedOptional(storage.findTagByKeyOptional(group.id, TagKey(cmd.key.value)))
+        val existing = storage.findTagByKeyOptional(group.id, cmd.key)
         if (existing != null) throw TagManagedDuplicateKeyException()
 
         storage.dispatch(
-            TagRepoCmd.TagManagedCreate(
-                TagManagedInMemory(
-                    id = Id.generate(::TagManagedId),
+            TagRepoCmd.TagCreate(
+                TagInMemory(
+                    id = Id.generate(::TagId),
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description,
@@ -183,49 +183,26 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
     private fun tagManagedUpdateKey(cmd: TagCmd.TagManagedUpdateKey) {
-        val existing = findTagManaged(cmd.groupRef, cmd.tagRef)
-        val duplicate = asTagManagedOptional(storage.findTagByKeyOptional(existing.groupId, TagKey(cmd.value.value)))
+        val existing = findTagManaged(cmd.tagRef)
+        val existingGroupId = existing.groupId ?: throw TagManagedCommandIncompatibleTagRefException(cmd.tagRef.asString())
+        val duplicate = storage.findTagByKeyOptional(existingGroupId, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagManagedDuplicateKeyException()
-        storage.dispatch(TagRepoCmd.TagManagedUpdateKey(existing.id, cmd.value))
+        storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))
 
     }
 
     private fun tagManagedUpdateName(cmd: TagCmd.TagManagedUpdateName) {
-        val existing = findTagManaged(cmd.groupRef, cmd.tagRef)
-        storage.dispatch(TagRepoCmd.TagManagedUpdateName(existing.id, cmd.value))
+        val existing = findTagManaged(cmd.tagRef)
+        storage.dispatch(TagRepoCmd.TagUpdateName(existing.id, cmd.value))
     }
 
     private fun tagManagedUpdateDescription(cmd: TagCmd.TagManagedUpdateDescription) {
-        val existing = findTagManaged(cmd.groupRef, cmd.tagRef)
-        storage.dispatch(TagRepoCmd.TagManagedUpdateDescription(existing.id, cmd.value))
+        val existing = findTagManaged(cmd.tagRef)
+        storage.dispatch(TagRepoCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
     private fun tagManagedDelete(cmd: TagCmd.TagManagedDelete) {
-        val existing = findTagManaged(cmd.groupRef, cmd.tagRef)
-        storage.dispatch(TagRepoCmd.TagManagedDelete(existing.id))
-    }
-
-
-    private fun asTagFreeOptional(tag: io.medatarun.tags.core.domain.Tag?): TagFree? {
-        if (tag == null) return null
-        if (tag.groupId != null) return null
-        return TagFreeInMemory(
-            id = TagFreeId(tag.id.value),
-            key = io.medatarun.tags.core.domain.TagFreeKey(tag.key.value),
-            name = tag.name,
-            description = tag.description
-        )
-    }
-
-    private fun asTagManagedOptional(tag: io.medatarun.tags.core.domain.Tag?): TagManaged? {
-        if (tag == null) return null
-        val groupId = tag.groupId ?: return null
-        return TagManagedInMemory(
-            id = TagManagedId(tag.id.value),
-            key = io.medatarun.tags.core.domain.TagManagedKey(tag.key.value),
-            name = tag.name,
-            description = tag.description,
-            groupId = groupId
-        )
+        val existing = findTagManaged(cmd.tagRef)
+        storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 }

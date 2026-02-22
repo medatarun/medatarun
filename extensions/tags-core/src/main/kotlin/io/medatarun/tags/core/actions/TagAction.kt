@@ -17,7 +17,7 @@ sealed interface TagAction {
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
     data class TagFreeCreate(
-        val key: TagFreeKey, val name: String?, val description: String?
+        val key: TagKey, val name: String?, val description: String?
     ) : TagAction
 
     @ActionDoc(
@@ -27,7 +27,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateName(val tagRef: TagFreeRef, val value: String?) : TagAction
+    class TagFreeUpdateName(val tagRef: TagRef, val value: String?) : TagAction
 
     @ActionDoc(
         key = "tag_free_update_description",
@@ -36,7 +36,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateDescription(val tagRef: TagFreeRef, val value: String?) : TagAction
+    class TagFreeUpdateDescription(val tagRef: TagRef, val value: String?) : TagAction
 
     @ActionDoc(
         key = "tag_free_update_key",
@@ -45,7 +45,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeUpdateKey(val tagRef: TagFreeRef, val value: TagFreeKey) : TagAction
+    class TagFreeUpdateKey(val tagRef: TagRef, val value: TagKey) : TagAction
 
     @ActionDoc(
         key = "tag_free_delete",
@@ -54,7 +54,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
-    class TagFreeDelete(val tagRef: TagFreeRef) : TagAction
+    class TagFreeDelete(val tagRef: TagRef) : TagAction
 
     // ------------------------------------------------------------------------
     // ManagedTagGroup
@@ -116,7 +116,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_list],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagManagedKey, val name: String?, val description: String?) : TagAction
+    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagKey, val name: String?, val description: String?) : TagAction
 
     @ActionDoc(
         key = "tag_managed_update_name",
@@ -125,7 +125,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedUpdateName(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: String) : TagAction
+    class TagManagedUpdateName(val tagRef: TagRef, val value: String) : TagAction
 
     @ActionDoc(
         key = "tag_managed_update_description",
@@ -134,7 +134,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedUpdateDescription(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: String) : TagAction
+    class TagManagedUpdateDescription(val tagRef: TagRef, val value: String) : TagAction
 
     @ActionDoc(
         key = "tag_managed_update_key",
@@ -143,7 +143,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedUpdateKey(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: TagManagedKey) : TagAction
+    class TagManagedUpdateKey(val tagRef: TagRef, val value: TagKey) : TagAction
 
     @ActionDoc(
         key = "tag_managed_delete",
@@ -152,7 +152,7 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_detail],
         securityRule = TagSecurityRuleNames.TAG_MANAGED_MANAGE
     )
-    class TagManagedDelete(val groupRef: TagGroupRef, val tagRef: TagManagedRef) : TagAction
+    class TagManagedDelete(val tagRef: TagRef) : TagAction
 
     // -----------------------------------------------------------------------------------------------------------------
     // Queries

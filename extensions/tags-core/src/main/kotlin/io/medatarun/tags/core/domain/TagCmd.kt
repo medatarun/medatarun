@@ -2,11 +2,11 @@ package io.medatarun.tags.core.domain
 
 sealed interface TagCmd {
 
-    class TagFreeCreate(val key: TagFreeKey, val name: String?, val description: String?): TagCmd
-    class TagFreeUpdateName(val ref: TagFreeRef, val value: String?): TagCmd
-    class TagFreeUpdateDescription(val ref: TagFreeRef, val value: String?): TagCmd
-    class TagFreeUpdateKey(val ref: TagFreeRef, val value: TagFreeKey): TagCmd
-    class TagFreeDelete(val ref: TagFreeRef): TagCmd
+    class TagFreeCreate(val key: TagKey, val name: String?, val description: String?): TagCmd
+    class TagFreeUpdateName(val ref: TagRef, val value: String?): TagCmd
+    class TagFreeUpdateDescription(val ref: TagRef, val value: String?): TagCmd
+    class TagFreeUpdateKey(val ref: TagRef, val value: TagKey): TagCmd
+    class TagFreeDelete(val ref: TagRef): TagCmd
 
     class TagGroupCreate(val key: TagGroupKey, val name: String?, val description: String?): TagCmd
     class TagGroupUpdateName(val ref: TagGroupRef, val value: String): TagCmd
@@ -14,9 +14,9 @@ sealed interface TagCmd {
     class TagGroupUpdateKey(val ref: TagGroupRef, val value: TagGroupKey): TagCmd
     class TagGroupDelete(val ref: TagGroupRef): TagCmd
 
-    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagManagedKey, val name: String?, val description: String?): TagCmd
-    class TagManagedUpdateName(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: String): TagCmd
-    class TagManagedUpdateDescription(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: String): TagCmd
-    class TagManagedUpdateKey(val groupRef: TagGroupRef, val tagRef: TagManagedRef, val value: TagManagedKey): TagCmd
-    class TagManagedDelete(val groupRef: TagGroupRef, val tagRef: TagManagedRef): TagCmd
+    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagKey, val name: String?, val description: String?): TagCmd
+    class TagManagedUpdateName(val tagRef: TagRef, val value: String): TagCmd
+    class TagManagedUpdateDescription(val tagRef: TagRef, val value: String): TagCmd
+    class TagManagedUpdateKey(val tagRef: TagRef, val value: TagKey): TagCmd
+    class TagManagedDelete(val tagRef: TagRef): TagCmd
 }

@@ -3,6 +3,7 @@ package io.medatarun.tags.core.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.getService
+import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
@@ -85,19 +86,19 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
     }
 
     fun tagManagedUpdateDescription(cmd: TagAction.TagManagedUpdateDescription) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateDescription(cmd.groupRef, cmd.tagRef, cmd.value))
+        tagCmds.dispatch(TagCmd.TagManagedUpdateDescription(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedUpdateKey(cmd: TagAction.TagManagedUpdateKey) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateKey(cmd.groupRef, cmd.tagRef, cmd.value))
+        tagCmds.dispatch(TagCmd.TagManagedUpdateKey(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedUpdateName(cmd: TagAction.TagManagedUpdateName) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateName(cmd.groupRef, cmd.tagRef, cmd.value))
+        tagCmds.dispatch(TagCmd.TagManagedUpdateName(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedDelete(cmd: TagAction.TagManagedDelete) {
-        tagCmds.dispatch(TagCmd.TagManagedDelete(cmd.groupRef, cmd.tagRef))
+        tagCmds.dispatch(TagCmd.TagManagedDelete(cmd.tagRef))
     }
 
 
@@ -126,7 +127,7 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
         return buildJsonObject {
             putJsonArray("items") {
                 items.sortedWith(
-                    compareBy<io.medatarun.tags.core.domain.Tag> { it.groupId != null }
+                    compareBy<Tag> { it.groupId != null }
                         .thenBy { it.key.value }
                 ).forEach {
                     val groupId = it.groupId
@@ -163,5 +164,4 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
         }
 
     }
-
 }
