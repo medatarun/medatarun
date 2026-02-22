@@ -277,7 +277,7 @@ CREATE TABLE IF NOT EXISTS tag_group (
 CREATE TABLE IF NOT EXISTS tag (
   id TEXT PRIMARY KEY UNIQUE,
   tag_group_id TEXT,
-  key TEXT,
+  key TEXT NOT NULL,
   name TEXT,
   description TEXT,
   FOREIGN KEY (tag_group_id) REFERENCES tag_group(id) ON DELETE CASCADE

@@ -11,4 +11,4 @@ class TagManagedCommandIncompatibleTagRefException(ref:String): MedatarunExcepti
 class TagGroupNotFoundException(ref:String): MedatarunException("Tag group [${ref}] was not found", StatusCode.NOT_FOUND)
 class TagGroupDuplicateKeyException(): MedatarunException("Tag group with same key already exists", StatusCode.BAD_REQUEST)
 class TagManagedDuplicateKeyException(): MedatarunException("Managed tag with same key in same group already exists", StatusCode.BAD_REQUEST)
-class TagManagedNotFoundException(tagRef: String): MedatarunException("Managed tag [$tagRef] was not found", StatusCode.BAD_REQUEST)
+class TagManagedNotFoundException(tagRef: String): MedatarunException("Managed tag [$tagRef] was not found", StatusCode.NOT_FOUND)
