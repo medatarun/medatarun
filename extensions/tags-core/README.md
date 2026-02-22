@@ -189,6 +189,19 @@ Examples of current differences:
 
 Even with a unified `Tag`, the command layer keeps these distinctions explicit.
 
+## Decisions (Current)
+
+- Database uniqueness for tags is intentionally **not** enforced by SQL constraints (beyond primary keys and existing group FK).
+- Tag uniqueness rules are enforced in business code (`TagCmdsImpl`), because free and managed tags do not share the same uniqueness logic.
+- Current uniqueness rules are:
+  - free tags: unique within a local scope
+  - managed tags: unique within a tag group
+- This is an explicit design decision, not a missing implementation.
+- The consistency between `Tag.scope` and `Tag.groupId` is also intentionally enforced in business code (commands and domain rules), not by SQL constraints.
+- Current business rule for that consistency is:
+  - global / managed tag -> `groupId` is required
+  - local / free tag -> `groupId` is absent
+
 ## Why tags-core is agnostic
 
 `tags-core` is not "tags for models only".

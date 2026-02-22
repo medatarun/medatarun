@@ -11,3 +11,4 @@
 - Comments shall not repeat code but explain what the code or method does and choices had been made and why.
 - Logs are produced using slf4j
 - In tests we prefer using Kotlin test assertions
+- Avoid using the word "invariant" in explanations/comments/docs for this project; describe the concrete rule/assumption instead.

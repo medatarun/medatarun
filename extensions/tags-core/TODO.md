@@ -173,40 +173,14 @@ Description de ce qu'il faudra faire :
 - écrire le test qui fixe le comportement attendu
 - puis aligner l'implémentation si nécessaire
 
-## 11) `TagEventListenerTest` est probablement redondant avec `TagTest`
-
-Le comportement métier "delete tag -> nettoyage des objets" est déjà testé dans `TagTest.kt` (chemins free et managed).
-
-`TagEventListenerTest.kt` teste aussi ce comportement, avec un angle plus "câblage".
-Ce n'est pas un bug, mais c'est une source possible de duplication de maintenance.
-
-Description de ce qu'il faudra décider :
-- garder `TagEventListenerTest` comme test d'infra/câblage explicite
-- ou le supprimer pour réduire les doublons
-
-## 12) Invariants de cohérence `scope` / `groupId` surtout garantis par le métier (pas par la base)
-
-Le design métier actuel veut :
-- tags managed = scope global + `groupId` non null
-- tags free = scope local + `groupId` null
-
-Le code métier va dans ce sens, mais la base SQLite n'exprime pas encore explicitement toutes ces combinaisons comme contraintes SQL.
-
-Ce n'est pas forcément un problème (ça peut être volontaire pour garder de la souplesse), mais il faut le garder en tête :
-- la robustesse dépend surtout de `TagCmdsImpl` et des commandes, pas de la BDD seule
-
-Description de ce qu'il faudra décider plus tard :
-- quels invariants doivent rester métier uniquement
-- quels invariants méritent une contrainte DB (si un jour utile)
-
-## 13) Exceptions internes `IllegalStateException` encore présentes dans quelques gardes d'invariant
+## 13) Exceptions internes `IllegalStateException` encore présentes dans quelques gardes de cohérence interne
 
 Le module a déjà été nettoyé sur plusieurs points en remplaçant des `IllegalStateException` par des `MedatarunException` métier.
 
 Il reste encore des `IllegalStateException` dans des gardes internes (par exemple dans `TagRef` et `TagStorageSQLite`) pour des états considérés impossibles.
 
 Ce n'est pas nécessairement une erreur :
-- certaines sont des assertions internes d'invariant
+- certaines sont des gardes sur des états considérés impossibles en usage normal
 
 Mais c'est un point à surveiller :
 - si un de ces cas devient atteignable par des données réelles (ex: corruption / migration / appel externe), il faudra peut-être passer à une exception métier plus explicite
@@ -273,4 +247,3 @@ Ce n'est pas un bug actuel, mais c'est un point de vigilance architectural.
 Description de ce qu'il faudra faire :
 - définir un port inverse explicite
 - garder la médiation/orchestration hors de `TagCmdsImpl`
-

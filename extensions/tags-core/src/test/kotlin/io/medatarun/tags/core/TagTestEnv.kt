@@ -58,19 +58,19 @@ class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
 
     inner class ActionCtxWithActor : ActionCtx {
         override val extensionRegistry: ExtensionRegistry
-            get() = throw IllegalStateException("Should not be called")
+            get() = throw TagTestIllegalStateException("Should not be called")
 
         override fun dispatchAction(req: ActionRequest): Any? {
-            throw IllegalStateException("Should not be called")
+            throw TagTestIllegalStateException("Should not be called")
         }
 
         override fun <T : Any> getService(type: KClass<T>): T {
             if (type == TagCmds::class) return tagCmds as T
             if (type == TagQueries::class) return tagQueries as T
-            throw IllegalStateException("Unknown service " + type)
+            throw TagTestIllegalStateException("Unknown service $type")
         }
 
         override val principal: ActionPrincipalCtx
-            get() = throw IllegalStateException("Should not be called")
+            get() = throw TagTestIllegalStateException("Should not be called")
     }
 }

@@ -14,8 +14,8 @@ sealed interface TagRef : Ref<TagRef> {
 
     /**
      * Key reference format:
-     * - free tag: "<tagKey>"
-     * - managed tag: "<groupKey>/<tagKey>"
+     * - managed/global tag: "global/<groupKey>/<tagKey>"
+     * - local/free tag: "<scopeType>/<scopeId>/<tagKey>"
      */
     data class ByKey(
         val scopeRef: TagScopeRef,
@@ -24,20 +24,21 @@ sealed interface TagRef : Ref<TagRef> {
     ) : TagRef {
         init {
             if (scopeRef.isGlobal && groupKey == null) {
-                throw IllegalArgumentException("Global tag ref by key requires a group key")
+                throw TagRefGlobalByKeyMissingGroupKeyException()
             }
             if (scopeRef.isLocal && groupKey != null) {
-                throw IllegalArgumentException("Local tag ref by key can not provide a group key")
+                throw TagRefLocalByKeyUnexpectedGroupKeyException()
             }
         }
 
         override fun asString(): String {
-            if (scopeRef.isGlobal) {
-                val localGroupKey = groupKey ?: throw IllegalStateException("Global tag ref requires group key")
+            if (scopeRef is TagScopeRef.Global) {
+                val localGroupKey = groupKey ?: throw TagRefGlobalByKeySerializationMissingGroupKeyException()
                 return "key:${scopeRef.type.value}/${localGroupKey.value}/${key.value}"
             }
-            val localScopeId = scopeRef.scopeId ?: throw IllegalStateException("Local tag ref requires scope id")
-            return "key:${scopeRef.type.value}/${localScopeId.asString()}/${key.value}"
+            val localScopeRef = scopeRef as TagScopeRef.Local
+            val localScopeId = localScopeRef.scopeId
+            return "key:${localScopeRef.type.value}/${localScopeId.asString()}/${key.value}"
         }
     }
 

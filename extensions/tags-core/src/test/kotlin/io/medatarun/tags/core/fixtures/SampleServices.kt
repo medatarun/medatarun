@@ -1,5 +1,7 @@
 package io.medatarun.tags.core.fixtures
 
+import io.medatarun.tags.core.TagTestIllegalStateException
+
 /**
  * In-memory test fixture service for recipe-related objects.
  * This behaves like a tiny repository set used by unit tests.
@@ -22,15 +24,15 @@ class RecipeService {
     }
 
     fun findRecipeById(id: SampleId): Recipe {
-        return recipes[id] ?: throw IllegalStateException("Recipe not found: $id")
+        return recipes[id] ?: throw TagTestIllegalStateException("Recipe not found: $id")
     }
 
     fun findIngredientById(id: SampleId): Ingredient {
-        return ingredients[id] ?: throw IllegalStateException("Ingredient not found: $id")
+        return ingredients[id] ?: throw TagTestIllegalStateException("Ingredient not found: $id")
     }
 
     fun findRecipeStepById(id: SampleId): RecipeStep {
-        return recipeSteps[id] ?: throw IllegalStateException("RecipeStep not found: $id")
+        return recipeSteps[id] ?: throw TagTestIllegalStateException("RecipeStep not found: $id")
     }
 
     fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {
@@ -61,11 +63,11 @@ class VehicleService {
     }
 
     fun findVehicleById(id: SampleId): Vehicle {
-        return vehicles[id] ?: throw IllegalStateException("Vehicle not found: $id")
+        return vehicles[id] ?: throw TagTestIllegalStateException("Vehicle not found: $id")
     }
 
     fun findVehiclePartById(id: SampleId): VehiclePart {
-        return vehicleParts[id] ?: throw IllegalStateException("VehiclePart not found: $id")
+        return vehicleParts[id] ?: throw TagTestIllegalStateException("VehiclePart not found: $id")
     }
 
     fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {

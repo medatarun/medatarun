@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.adapters
 
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
@@ -14,6 +15,8 @@ import java.sql.ResultSet
 import java.sql.Types
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
+    private class TagStorageSQLiteInvalidLookupException(message: String) : MedatarunException(message)
+    private class TagStorageSQLiteInvalidRowException(message: String) : MedatarunException(message)
 
     fun initSchema() {
         dbConnectionFactory.getConnection().use { connection ->
@@ -44,30 +47,34 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     override fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
         dbConnectionFactory.getConnection().use { c ->
-            if (scope.isLocal) {
-                c.prepareStatement(
-                    "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id = ? AND tag_group_id IS NULL AND key = ?"
-                ).use { ps ->
-                    ps.setString(1, scope.type.value)
-                    val scopeId = scope.scopeId ?: throw IllegalStateException("Local scope requires scopeId")
-                    ps.setString(2, scopeId.asString())
-                    ps.setString(3, key.value)
-                    ps.executeQuery().use { rs ->
-                        if (!rs.next()) return null
-                        return tagFromRow(rs)
+            when (scope) {
+                is TagScopeRef.Local -> {
+                    c.prepareStatement(
+                        "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id = ? AND tag_group_id IS NULL AND key = ?"
+                    ).use { ps ->
+                        ps.setString(1, scope.type.value)
+                        ps.setString(2, scope.localScopeId.asString())
+                        ps.setString(3, key.value)
+                        ps.executeQuery().use { rs ->
+                            if (!rs.next()) return null
+                            return tagFromRow(rs)
+                        }
                     }
                 }
-            } else {
-                val effectiveGroupId = groupId ?: throw IllegalStateException("Global tag lookup requires groupId")
-                c.prepareStatement(
-                    "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id IS NULL AND tag_group_id = ? AND key = ?"
-                ).use { ps ->
-                    ps.setString(1, scope.type.value)
-                    ps.setString(2, effectiveGroupId.asString())
-                    ps.setString(3, key.value)
-                    ps.executeQuery().use { rs ->
-                        if (!rs.next()) return null
-                        return tagFromRow(rs)
+
+                is TagScopeRef.Global -> {
+                    val effectiveGroupId = groupId
+                        ?: throw TagStorageSQLiteInvalidLookupException("Global tag lookup requires groupId")
+                    c.prepareStatement(
+                        "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id IS NULL AND tag_group_id = ? AND key = ?"
+                    ).use { ps ->
+                        ps.setString(1, scope.type.value)
+                        ps.setString(2, effectiveGroupId.asString())
+                        ps.setString(3, key.value)
+                        ps.executeQuery().use { rs ->
+                            if (!rs.next()) return null
+                            return tagFromRow(rs)
+                        }
                     }
                 }
             }
@@ -141,11 +148,9 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
                         ps.setString(2, cmd.item.scope.type.value)
-                        val itemScopeId = cmd.item.scope.scopeId
-                        if (itemScopeId == null) {
-                            ps.setNull(3, Types.VARCHAR)
-                        } else {
-                            ps.setString(3, itemScopeId.asString())
+                        when (val scope = cmd.item.scope) {
+                            is TagScopeRef.Global -> ps.setNull(3, Types.VARCHAR)
+                            is TagScopeRef.Local -> ps.setString(3, scope.localScopeId.asString())
                         }
                         val itemGroupId = cmd.item.groupId
                         if (itemGroupId == null) {
@@ -270,7 +275,8 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
             TagScopeRef.Global
         } else {
-            val localScopeId = scopeIdString ?: throw IllegalStateException("Local tag row missing scope_id")
+            val localScopeId = scopeIdString
+                ?: throw TagStorageSQLiteInvalidRowException("Local tag row missing scope_id")
             TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
         }
         val groupIdString = rs.getString("tag_group_id")
