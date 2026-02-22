@@ -9,6 +9,7 @@ class TagNotFoundException(ref:String): MedatarunException("Tag [${ref}] was not
 class TagRefGlobalByKeyMissingGroupKeyException(): MedatarunException("Global tag ref by key requires a group key", StatusCode.BAD_REQUEST)
 class TagRefLocalByKeyUnexpectedGroupKeyException(): MedatarunException("Local tag ref by key can not provide a group key", StatusCode.BAD_REQUEST)
 class TagRefGlobalByKeySerializationMissingGroupKeyException(): MedatarunException("Global tag ref by key requires a group key to serialize", StatusCode.INTERNAL_SERVER_ERROR)
+class TagScopeRefLocalUsesGlobalTypeException(): MedatarunException("Local scope ref can not use the global scope name", StatusCode.BAD_REQUEST)
 class TagFreeCommandIncompatibleTagRefException(ref:String): MedatarunException("Tag ref [$ref] does not point to a free tag", StatusCode.BAD_REQUEST)
 class TagFreeCommandIncompatibleTagScopeRefException(ref:String): MedatarunException("Tag scope ref [$ref] can not be used for a free tag", StatusCode.BAD_REQUEST)
 class TagManagedCommandIncompatibleTagRefException(ref:String): MedatarunException("Tag ref [$ref] does not point to a managed tag", StatusCode.BAD_REQUEST)

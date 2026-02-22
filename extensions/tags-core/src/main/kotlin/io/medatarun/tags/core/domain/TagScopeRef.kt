@@ -32,7 +32,7 @@ sealed interface TagScopeRef : Ref<TagScopeRef> {
     ) : TagScopeRef {
         init {
             if (type.value == Global.type.value) {
-                throw IllegalArgumentException("Local scope ref can not use the global scope name")
+                throw TagScopeRefLocalUsesGlobalTypeException()
             }
         }
 
