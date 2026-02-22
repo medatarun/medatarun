@@ -17,6 +17,8 @@ import io.medatarun.tags.core.domain.TagManaged
 import io.medatarun.tags.core.domain.TagManagedDuplicateKeyException
 import io.medatarun.tags.core.domain.TagManagedId
 import io.medatarun.tags.core.domain.TagManagedNotFoundException
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
@@ -46,8 +48,8 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun findTagFreeOptional(ref: TagFreeRef): TagFree? {
         return when (ref) {
-            is TagFreeRef.ById -> storage.findTagFreeByIdOptional(ref.id)
-            is TagFreeRef.ByKey -> storage.findTagFreeByKeyOptional(ref.key)
+            is TagFreeRef.ById -> asTagFreeOptional(storage.findTagByIdOptional(TagId(ref.id.value)))
+            is TagFreeRef.ByKey -> asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(ref.key.value)))
         }
     }
 
@@ -70,11 +72,11 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
         val group = findTagGroupOptional(groupRef) ?: return null
         return when (tagRef) {
             is TagManagedRef.ById -> {
-                val existing = storage.findTagManagedByIdOptional(tagRef.id) ?: return null
+                val existing = asTagManagedOptional(storage.findTagByIdOptional(TagId(tagRef.id.value))) ?: return null
                 if (existing.groupId != group.id) return null
                 existing
             }
-            is TagManagedRef.ByKey -> storage.findTagManagedByKeyOptional(group.id, tagRef.key)
+            is TagManagedRef.ByKey -> asTagManagedOptional(storage.findTagByKeyOptional(group.id, TagKey(tagRef.key.value)))
         }
     }
 
@@ -85,7 +87,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
     private fun tagFreeCreate(cmd: TagCmd.TagFreeCreate) {
-        val existing = storage.findTagFreeByKeyOptional(cmd.key)
+        val existing = asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(cmd.key.value)))
         if (existing != null) throw TagFreeDuplicateKeyException()
         storage.dispatch(
             TagRepoCmd.TagFreeCreate(
@@ -101,7 +103,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagFreeUpdateKey(cmd: TagCmd.TagFreeUpdateKey) {
         val existing = findTagFree(cmd.ref)
-        val duplicate = storage.findTagFreeByKeyOptional(cmd.value)
+        val duplicate = asTagFreeOptional(storage.findTagByKeyOptional(null, TagKey(cmd.value.value)))
         if (duplicate != null && duplicate.id != existing.id) throw TagFreeDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagFreeUpdateKey(existing.id, cmd.value))
     }
@@ -164,7 +166,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     private fun tagManagedCreate(cmd: TagCmd.TagManagedCreate) {
         val group = findTagGroup(cmd.groupRef)
 
-        val existing = storage.findTagManagedByKeyOptional(group.id, cmd.key)
+        val existing = asTagManagedOptional(storage.findTagByKeyOptional(group.id, TagKey(cmd.key.value)))
         if (existing != null) throw TagManagedDuplicateKeyException()
 
         storage.dispatch(
@@ -182,7 +184,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagManagedUpdateKey(cmd: TagCmd.TagManagedUpdateKey) {
         val existing = findTagManaged(cmd.groupRef, cmd.tagRef)
-        val duplicate = storage.findTagManagedByKeyOptional(existing.groupId, cmd.value)
+        val duplicate = asTagManagedOptional(storage.findTagByKeyOptional(existing.groupId, TagKey(cmd.value.value)))
         if (duplicate != null && duplicate.id != existing.id) throw TagManagedDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagManagedUpdateKey(existing.id, cmd.value))
 
@@ -204,4 +206,26 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
 
+    private fun asTagFreeOptional(tag: io.medatarun.tags.core.domain.Tag?): TagFree? {
+        if (tag == null) return null
+        if (tag.groupId != null) return null
+        return TagFreeInMemory(
+            id = TagFreeId(tag.id.value),
+            key = io.medatarun.tags.core.domain.TagFreeKey(tag.key.value),
+            name = tag.name,
+            description = tag.description
+        )
+    }
+
+    private fun asTagManagedOptional(tag: io.medatarun.tags.core.domain.Tag?): TagManaged? {
+        if (tag == null) return null
+        val groupId = tag.groupId ?: return null
+        return TagManagedInMemory(
+            id = TagManagedId(tag.id.value),
+            key = io.medatarun.tags.core.domain.TagManagedKey(tag.key.value),
+            name = tag.name,
+            description = tag.description,
+            groupId = groupId
+        )
+    }
 }

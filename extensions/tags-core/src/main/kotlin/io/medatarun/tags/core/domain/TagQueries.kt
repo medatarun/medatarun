@@ -1,10 +1,9 @@
 package io.medatarun.tags.core.domain
 
 interface TagQueries {
-    fun findAllFreeTags(): List<TagFree>
-    fun findAllManagedTags(): List<TagManaged>
+    fun findAllTags(): List<Tag>
     fun findAllTagGroup(): List<TagGroup>
 
-    fun findTagFreeByRefOptional(tagRef: TagFreeRef): TagFree?
-    fun findTagFreeByRef(tagRef: TagFreeRef): TagFree
+    fun findTagByRefOptional(tagRef: TagRef): Tag?
+    fun findTagByRef(tagRef: TagRef): Tag
 }

@@ -122,24 +122,22 @@ class TagActionHander(private val tagCmds: TagCmds, private val tagQueries: TagQ
     }
 
     fun tagList(cmd: TagAction.TagList): JsonObject {
-        val free = tagQueries.findAllFreeTags()
-        val managed = tagQueries.findAllManagedTags()
+        val items = tagQueries.findAllTags()
         return buildJsonObject {
             putJsonArray("items") {
-                free.sortedBy { it.key.value }.forEach {
+                items.sortedWith(
+                    compareBy<io.medatarun.tags.core.domain.Tag> { it.groupId != null }
+                        .thenBy { it.key.value }
+                ).forEach {
+                    val groupId = it.groupId
                     addJsonObject {
                         put("id", it.id.asString())
                         put("key", it.key.asString())
-                        put("groupId", JsonNull)
-                        put("name", it.name)
-                        put("description", it.description)
-                    }
-                }
-                managed.sortedBy { it.key.value }.forEach {
-                    addJsonObject {
-                        put("id", it.id.asString())
-                        put("key", it.key.asString())
-                        put("groupId", it.groupId.asString())
+                        if (groupId == null) {
+                            put("groupId", JsonNull)
+                        } else {
+                            put("groupId", groupId.asString())
+                        }
                         put("name", it.name)
                         put("description", it.description)
                     }
