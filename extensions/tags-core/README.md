@@ -10,14 +10,17 @@ Other modules consume this core and define how tags can be applied to their own 
 ### Implemented today
 
 - unified `Tag` identity and references (`TagId`, `TagRef`)
+- explicit tag scope via `TagScopeRef` (global or local container scope)
 - `TagGroup` support for managed vocabularies
 - distinct business commands for `managed` vs `free` tags
 - unified storage model for tags
+- persisted tag scope in storage (`scope_type`, `scope_id`)
+- key-based `TagRef` format includes scope information
+- `TagFreeCreate` requires an explicit local `TagScopeRef`
 - command-level compatibility checks between tag refs and business intent (`free` vs `managed`)
 
 ### Planned next
 
-- explicit tag `scope` (global vs local container scope)
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
 - lifecycle events (`before` / `after`) so consumer modules can veto or react
@@ -84,16 +87,17 @@ Free tags are:
 
 Important consequence:
 
-- free tags cannot be treated as globally unique semantic concepts if they remain ungouverned
+- free tags cannot be treated as globally unique semantic concepts if they remain ungoverned
 - two teams may legitimately use the same key with different meanings
 
 This is why free tags must be scoped (see below).
 
-## Scope (Target Direction)
+## Scope (Implemented foundation, evolving rules)
 
-The next business direction is to make scope explicit for tags.
+The scope foundation is now implemented in `tags-core` via `TagScopeRef`.
+The next work is to use it consistently in all consuming modules and enforce assignment policies.
 
-The design target is:
+Current design:
 
 - every tag has a scope
 - objects determine which tag scopes they accept
@@ -105,14 +109,14 @@ Conceptually:
 - `Global` scope
 - `Local` scope tied to a container (`containerType`, `containerId`)
 
-This is the intended reading of the current model:
+This is the current reading of the model:
 
 - managed tags -> global scope
 - free tags -> local scope
 
 ### Governance implications by scope
 
-Expected rules:
+Current / target rules:
 
 - `Global` tags:
   - strong governance permissions
@@ -122,6 +126,9 @@ Expected rules:
   - permissions relative to the local container
   - intended for contextual/local meaning
   - can coexist with other local tags with the same key in other scopes
+
+`TagScopeRef` is a domain concept (a reference to a scope owned by another module/context), not an input format.
+JSON representations are adapter concerns and are handled by converters.
 
 ## Tag Groups
 
@@ -146,12 +153,19 @@ Business role of groups:
 Tags are referenced using a unified `TagRef`:
 
 - by ID (`id:<tagId>`)
-- by key (`key:<tagKey>` or `key:<groupKey>/<tagKey>`)
+- by key with explicit scope
+  - managed/global: `key:global/<groupKey>/<tagKey>`
+  - local/free: `key:<scopeType>/<scopeId>/<tagKey>`
 
 This supports:
 
 - robust references by ID
 - readable references for APIs, CLI and human-driven operations
+
+Interpretation rule for key refs:
+
+- if scope type is `global`, the middle segment is a `groupKey`
+- otherwise, the middle segment is a local `scopeId`
 
 Business compatibility is checked in command handling:
 
@@ -167,9 +181,10 @@ because their rules are not identical.
 
 Examples of current differences:
 
-- free tag key uniqueness is checked in the free-tag namespace/rules
+- free tag key uniqueness is checked within the local tag scope
 - managed tag key uniqueness is checked within a tag group
 - managed tags require group-related governance
+- `Tag.isManaged` derives from the tag scope (global vs local)
 
 Even with a unified `Tag`, the command layer keeps these distinctions explicit.
 
@@ -198,6 +213,8 @@ This matches Medatarun's broader goal:
 A key business rule for future modules:
 
 - a taggable object should define which tag scopes it accepts
+
+The scope infrastructure is already available in `tags-core`; what remains is module-specific policy enforcement.
 
 Examples:
 
