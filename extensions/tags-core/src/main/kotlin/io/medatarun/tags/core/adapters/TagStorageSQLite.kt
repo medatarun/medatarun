@@ -1,6 +1,5 @@
 package io.medatarun.tags.core.adapters
 
-import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.internal.TagFreeInMemory
@@ -13,7 +12,7 @@ import io.medatarun.type.commons.key.Key
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
-import java.util.UUID
+import java.sql.Types
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
 
@@ -31,7 +30,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findAllTagFree(): List<TagFree> {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_free"
+                "SELECT id, key, name, description FROM tag WHERE tag_group_id IS NULL"
             ).use { ps ->
                 ps.executeQuery().use { rs ->
                     val items = mutableListOf<TagFree>()
@@ -47,7 +46,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findTagFreeByKeyOptional(key: TagFreeKey): TagFree? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_free WHERE key = ?"
+                "SELECT id, key, name, description FROM tag WHERE tag_group_id IS NULL AND key = ?"
             ).use { ps ->
                 ps.setString(1, key.value)
                 ps.executeQuery().use { rs ->
@@ -61,7 +60,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findTagFreeByIdOptional(id: TagFreeId): TagFree? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_free WHERE id = ?"
+                "SELECT id, key, name, description FROM tag WHERE tag_group_id IS NULL AND id = ?"
             ).use { ps ->
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
@@ -118,7 +117,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findAllTagManaged(): List<TagManaged> {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, tag_group_id, key, name, description FROM tag_managed"
+                "SELECT id, tag_group_id, key, name, description FROM tag WHERE tag_group_id IS NOT NULL"
             ).use { ps ->
                 ps.executeQuery().use { rs ->
                     val items = mutableListOf<TagManaged>()
@@ -134,7 +133,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findTagManagedByIdOptional(id: TagManagedId): TagManaged? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, tag_group_id, key, name, description FROM tag_managed WHERE id = ?"
+                "SELECT id, tag_group_id, key, name, description FROM tag WHERE tag_group_id IS NOT NULL AND id = ?"
             ).use { ps ->
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
@@ -151,7 +150,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     ): TagManaged? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, tag_group_id, key, name, description FROM tag_managed WHERE tag_group_id = ? AND key = ?"
+                "SELECT id, tag_group_id, key, name, description FROM tag WHERE tag_group_id = ? AND key = ?"
             ).use { ps ->
                 ps.setString(1, id.asString())
                 ps.setString(2, key.asString())
@@ -169,19 +168,20 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             when (cmd) {
                 is TagRepoCmd.TagFreeCreate -> {
                     c.prepareStatement(
-                        "INSERT INTO tag_free(id, key, name, description) VALUES (?, ?, ?, ?)"
+                        "INSERT INTO tag(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.key.asString())
-                        ps.setString(3, cmd.item.name)
-                        ps.setString(4, cmd.item.description)
+                        ps.setNull(2, Types.VARCHAR)
+                        ps.setString(3, cmd.item.key.asString())
+                        ps.setString(4, cmd.item.name)
+                        ps.setString(5, cmd.item.description)
                         ps.executeUpdate()
                     }
                 }
 
                 is TagRepoCmd.TagFreeUpdateKey -> {
                     c.prepareStatement(
-                        "UPDATE tag_free SET key = ? WHERE id = ?"
+                        "UPDATE tag SET key = ? WHERE tag_group_id IS NULL AND id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value.asString())
                         ps.setString(2, cmd.tagFreeId.asString())
@@ -191,7 +191,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagFreeUpdateName -> {
                     c.prepareStatement(
-                        "UPDATE tag_free SET name = ? WHERE id = ?"
+                        "UPDATE tag SET name = ? WHERE tag_group_id IS NULL AND id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
                         ps.setString(2, cmd.tagFreeId.asString())
@@ -201,7 +201,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagFreeUpdateDescription -> {
                     c.prepareStatement(
-                        "UPDATE tag_free SET description = ? WHERE id = ?"
+                        "UPDATE tag SET description = ? WHERE tag_group_id IS NULL AND id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
                         ps.setString(2, cmd.tagFreeId.asString())
@@ -211,7 +211,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagFreeDelete -> {
                     c.prepareStatement(
-                        "DELETE FROM tag_free WHERE id = ?"
+                        "DELETE FROM tag WHERE tag_group_id IS NULL AND id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.tagFreeId.asString())
                         ps.executeUpdate()
@@ -271,7 +271,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagManagedCreate -> {
                     c.prepareStatement(
-                        "INSERT INTO tag_managed(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
+                        "INSERT INTO tag(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
                         ps.setString(2, cmd.item.groupId.asString())
@@ -284,7 +284,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagManagedUpdateKey -> {
                     c.prepareStatement(
-                        "UPDATE tag_managed SET key = ? WHERE id = ?"
+                        "UPDATE tag SET key = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value.asString())
                         ps.setString(2, cmd.tagManagedId.asString())
@@ -294,7 +294,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagManagedUpdateName -> {
                     c.prepareStatement(
-                        "UPDATE tag_managed SET name = ? WHERE id = ?"
+                        "UPDATE tag SET name = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
                         ps.setString(2, cmd.tagManagedId.asString())
@@ -304,7 +304,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagManagedUpdateDescription -> {
                     c.prepareStatement(
-                        "UPDATE tag_managed SET description = ? WHERE id = ?"
+                        "UPDATE tag SET description = ? WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.value)
                         ps.setString(2, cmd.tagManagedId.asString())
@@ -314,7 +314,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagManagedDelete -> {
                     c.prepareStatement(
-                        "DELETE FROM tag_managed WHERE id = ?"
+                        "DELETE FROM tag WHERE id = ?"
                     ).use { ps ->
                         ps.setString(1, cmd.tagManagedId.asString())
                         ps.executeUpdate()
@@ -356,13 +356,6 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     companion object {
         @Language("SQLite")
         private const val SCHEMA = """
-CREATE TABLE IF NOT EXISTS tag_free (
-  id TEXT PRIMARY KEY UNIQUE,
-  key TEXT NOT NULL UNIQUE,
-  name TEXT,
-  description TEXT
-);
-
 CREATE TABLE IF NOT EXISTS tag_group (
   id TEXT PRIMARY KEY UNIQUE,
   key TEXT NOT NULL UNIQUE,
@@ -370,12 +363,13 @@ CREATE TABLE IF NOT EXISTS tag_group (
   description TEXT
 );
 
-CREATE TABLE IF NOT EXISTS tag_managed (
+CREATE TABLE IF NOT EXISTS tag (
   id TEXT PRIMARY KEY UNIQUE,
-  tag_group_id TEXT NOT NULL,
-  key TEXT NOT NULL,
+  tag_group_id TEXT,
+  key TEXT,
   name TEXT,
-  description TEXT
+  description TEXT,
+  FOREIGN KEY (tag_group_id) REFERENCES tag_group(id) ON DELETE CASCADE
 );
 
 """

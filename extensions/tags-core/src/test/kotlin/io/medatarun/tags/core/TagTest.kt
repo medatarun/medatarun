@@ -366,6 +366,43 @@ class TagTest {
         assertNull(env.tagStorage.findTagGroupByKeyOptional(key2))
     }
 
+    @Test
+    fun `tag group delete deletes managed tags`() {
+        val env = TagTestEnv()
+        val groupKey1 = TagGroupKey("group-key1")
+        val groupKey2 = TagGroupKey("group-key2")
+        env.dispatch(TagAction.TagGroupCreate(groupKey1, null, null))
+        env.dispatch(TagAction.TagGroupCreate(groupKey2, null, null))
+
+        val group1 = env.tagStorage.findTagGroupByKeyOptional(groupKey1)
+        assertNotNull(group1)
+        val group2 = env.tagStorage.findTagGroupByKeyOptional(groupKey2)
+        assertNotNull(group2)
+
+        val managedKey1 = TagManagedKey("managed-key1")
+        val managedKey1b = TagManagedKey("managed-key1b")
+        val managedKey2 = TagManagedKey("managed-key2")
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), managedKey1, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group1.id), managedKey1b, null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), managedKey2, null, null))
+        val freeKey1 = TagFreeKey("free-key1")
+        val freeKey2 = TagFreeKey("free-key2")
+        env.dispatch(TagAction.TagFreeCreate(freeKey1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(freeKey2, null, null))
+
+        // Business rule: deleting a group also deletes the managed tags that belong to it.
+        env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group1.id)))
+
+        // All managed tags of the deleted group must be removed.
+        assertNull(env.tagStorage.findTagManagedByKeyOptional(group1.id, managedKey1))
+        assertNull(env.tagStorage.findTagManagedByKeyOptional(group1.id, managedKey1b))
+        // Managed tags in other groups must remain unchanged.
+        assertNotNull(env.tagStorage.findTagManagedByKeyOptional(group2.id, managedKey2))
+        // Free tags (without group) must remain unchanged.
+        assertNotNull(env.tagQueries.findTagFreeByRefOptional(tagFreeRefKey(freeKey1)))
+        assertNotNull(env.tagQueries.findTagFreeByRefOptional(tagFreeRefKey(freeKey2)))
+    }
+
     // Managed Tags
 
     @Test
