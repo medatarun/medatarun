@@ -61,26 +61,6 @@ Description de ce qu'il faudra faire :
 - fournir dans `tags-core` le traitement correspondant (supprimer les tags du scope)
 - définir ce qui est attendu si un des tags ne peut pas être supprimé (veto / erreur)
 
-## 4) Problème potentiel de logique : suppression d'un `TagGroup` supprime les tags sans notifier les managers
-
-État actuel du code :
-- `TagGroupDelete` supprime le groupe en base (`TagCmdsImpl`)
-- SQLite supprime les tags liés via `FOREIGN KEY ... ON DELETE CASCADE`
-
-Problème potentiel :
-- cette suppression de tags via cascade SQL ne passe pas par `TagCmdsImpl.tagManagedDelete(...)`
-- donc `onBeforeDelete(tagId)` n'est pas appelé pour chaque tag supprimé
-- les managers de scope ne sont pas notifiés
-- des objets métier pourraient conserver des références mortes (`TagId`) vers des tags supprimés par cascade
-
-Le test actuel `tag group delete deletes managed tags` vérifie bien la suppression des tags en storage, mais pas le nettoyage dans les objets des managers.
-
-Description de ce qu'il faudra faire :
-- décider si `TagGroupDelete` doit :
-  - émettre explicitement les événements de suppression tag par tag avant de supprimer le groupe, ou
-  - avoir un autre mécanisme de cleanup centralisé
-- ajouter des tests métier sur ce comportement (objets taggés + suppression de groupe)
-
 ## 5) Événements lifecycle incomplets (seul `onBeforeDelete` existe)
 
 Le `README` parle de `before` / `after`, mais le code actuel n'implémente que :
@@ -156,19 +136,3 @@ Description de ce qu'il faudra définir :
 - que se passe-t-il sur lecture de tags déjà existants pour ce scope ?
 - que se passe-t-il sur suppression de tag (pas de manager pour nettoyer) ?
 - faut-il bloquer certaines opérations tant que le plugin manque ?
-
-## 10) Tests métier encore manquants autour de `TagGroupDelete` + cleanup des objets
-
-`TagTest.kt` couvre maintenant très bien :
-- create/update/delete free & managed
-- unicité free par scope
-- validation de scope
-- veto des managers
-- propagation delete (free et managed) vers objets
-
-Mais il manque encore un test métier important :
-- suppression d'un `TagGroup` avec tags managed effectivement utilisés par des objets, et vérification du cleanup (ou de l'absence de cleanup selon la décision retenue)
-
-Description de ce qu'il faudra faire :
-- écrire le test qui fixe le comportement attendu
-- puis aligner l'implémentation si nécessaire

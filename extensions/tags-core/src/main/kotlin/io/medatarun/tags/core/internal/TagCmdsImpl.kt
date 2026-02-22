@@ -160,6 +160,15 @@ class TagCmdsImpl(
 
     private fun tagGroupDelete(cmd: TagCmd.TagGroupDelete) {
         val existing = findTagGroup(cmd.ref)
+        val groupTags = storage.findAllTag()
+            .filter { it.groupId == existing.id }
+
+        // Business rule: deleting a group deletes its managed tags and notifies cleanup listeners for each tag.
+        // This behavior is implemented here and does not rely on SQL cascade support.
+        groupTags.forEach {
+            evts.onBeforeDelete(it.id)
+            storage.dispatch(TagRepoCmd.TagDelete(it.id))
+        }
         storage.dispatch(TagRepoCmd.TagGroupDelete(existing.id))
     }
 

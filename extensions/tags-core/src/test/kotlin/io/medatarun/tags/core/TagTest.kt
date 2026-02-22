@@ -449,6 +449,56 @@ class TagTest {
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, freeKey2)))
     }
 
+    @Test
+    fun `tag group delete removes managed tags from objects`() {
+        // Why this test:
+        // SQL cascade deletes managed tags when a group is deleted, but the business rule also requires notifying
+        // scope managers so they can remove those tag ids from every object they own.
+        val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
+        val groupKey = TagGroupKey("governance")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("managed-a"), null, null))
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("managed-b"), null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, TagKey("free-keep"), null, null))
+
+        val managedA = env.tagStorage.findTagByKeyOptional(group.id, TagKey("managed-a"))
+        assertNotNull(managedA)
+        val managedB = env.tagStorage.findTagByKeyOptional(group.id, TagKey("managed-b"))
+        assertNotNull(managedB)
+        val freeKeep = env.tagQueries.findTagByRef(tagRef(scopeRef, TagKey("free-keep")))
+
+        val recipeId = sampleId()
+        val ingredientId = sampleId()
+        val stepId = sampleId()
+        val vehicleId = sampleId()
+        val partId = sampleId()
+
+        env.recipeService.createRecipe(Recipe(recipeId, "Pasta", listOf(managedA.id, freeKeep.id, managedB.id)))
+        env.recipeService.createIngredient(Ingredient(ingredientId, recipeId, "Tomato", listOf(managedA.id)))
+        env.recipeService.createRecipeStep(RecipeStep(stepId, recipeId, "Boil", listOf(managedB.id, freeKeep.id)))
+        env.vehicleService.createVehicle(Vehicle(vehicleId, "Truck", listOf(managedA.id, managedB.id)))
+        env.vehicleService.createVehiclePart(VehiclePart(partId, vehicleId, "Wheel", listOf(freeKeep.id, managedB.id)))
+
+        env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group.id)))
+
+        // Managed tags are deleted from storage by SQL cascade.
+        assertNull(env.tagStorage.findTagByIdOptional(managedA.id))
+        assertNull(env.tagStorage.findTagByIdOptional(managedB.id))
+        // Free tag remains.
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(freeKeep.id)))
+
+        // Managed tag ids are removed from all objects, other tags are kept.
+        assertEquals(listOf(freeKeep.id), env.recipeService.findRecipeById(recipeId).tags)
+        assertEquals(emptyList(), env.recipeService.findIngredientById(ingredientId).tags)
+        assertEquals(listOf(freeKeep.id), env.recipeService.findRecipeStepById(stepId).tags)
+        assertEquals(emptyList(), env.vehicleService.findVehicleById(vehicleId).tags)
+        assertEquals(listOf(freeKeep.id), env.vehicleService.findVehiclePartById(partId).tags)
+    }
+
     // Managed Tags
 
     @Test
