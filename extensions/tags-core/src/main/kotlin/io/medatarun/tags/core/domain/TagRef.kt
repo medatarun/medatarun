@@ -18,20 +18,32 @@ sealed interface TagRef : Ref<TagRef> {
      * - managed tag: "<groupKey>/<tagKey>"
      */
     data class ByKey(
+        val scopeRef: TagScopeRef,
         val groupKey: TagGroupKey?,
         val key: TagKey,
     ) : TagRef {
-        override fun asString(): String {
-            if (groupKey == null) {
-                return "key:${key.value}"
+        init {
+            if (scopeRef.isGlobal && groupKey == null) {
+                throw IllegalArgumentException("Global tag ref by key requires a group key")
             }
-            return "key:${groupKey.value}/${key.value}"
+            if (scopeRef.isLocal && groupKey != null) {
+                throw IllegalArgumentException("Local tag ref by key can not provide a group key")
+            }
+        }
+
+        override fun asString(): String {
+            if (scopeRef.isGlobal) {
+                val localGroupKey = groupKey ?: throw IllegalStateException("Global tag ref requires group key")
+                return "key:${scopeRef.type.value}/${localGroupKey.value}/${key.value}"
+            }
+            val localScopeId = scopeRef.scopeId ?: throw IllegalStateException("Local tag ref requires scope id")
+            return "key:${scopeRef.type.value}/${localScopeId.asString()}/${key.value}"
         }
     }
 
     companion object {
-        fun tagRefKey(groupKey: TagGroupKey?, key: TagKey): ByKey {
-            return ByKey(groupKey = groupKey, key = key)
+        fun tagRefKey(scopeRef: TagScopeRef, groupKey: TagGroupKey?, key: TagKey): ByKey {
+            return ByKey(scopeRef = scopeRef, groupKey = groupKey, key = key)
         }
 
         fun tagRefId(value: TagId): ById {

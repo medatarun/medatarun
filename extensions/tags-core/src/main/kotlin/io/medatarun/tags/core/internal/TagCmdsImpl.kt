@@ -31,7 +31,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
     private fun findTagFreeOptional(ref: TagRef): Tag? {
-        if (ref is TagRef.ByKey && ref.groupKey != null) {
+        if (ref is TagRef.ByKey && ref.scopeRef.isGlobal) {
             throw TagFreeCommandIncompatibleTagRefException(ref.asString())
         }
         val tag = findTagByRefOptional(ref) ?: return null
@@ -61,7 +61,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
     private fun findTagManagedOptional(tagRef: TagRef): Tag? {
-        if (tagRef is TagRef.ByKey && tagRef.groupKey == null) {
+        if (tagRef is TagRef.ByKey && tagRef.scopeRef.isLocal) {
             throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
         }
         val tag = findTagByRefOptional(tagRef) ?: return null
@@ -77,12 +77,15 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
     }
 
     private fun tagFreeCreate(cmd: TagCmd.TagFreeCreate) {
-        val existing = storage.findTagByKeyOptional(null, cmd.key)
+        if (cmd.scopeRef.isGlobal) throw TagFreeCommandIncompatibleTagScopeRefException(cmd.scopeRef.asString())
+        val tagScope = cmd.scopeRef.toScope()
+        val existing = storage.findTagByKeyOptional(tagScope, null, cmd.key)
         if (existing != null) throw TagFreeDuplicateKeyException()
         storage.dispatch(
             TagRepoCmd.TagCreate(
                 TagInMemory(
                     id = Id.generate(::TagId),
+                    scope = tagScope,
                     groupId = null,
                     key = cmd.key,
                     name = cmd.name,
@@ -94,7 +97,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
 
     private fun tagFreeUpdateKey(cmd: TagCmd.TagFreeUpdateKey) {
         val existing = findTagFree(cmd.ref)
-        val duplicate = storage.findTagByKeyOptional(null, cmd.value)
+        val duplicate = storage.findTagByKeyOptional(existing.scope, null, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagFreeDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))
     }
@@ -164,6 +167,7 @@ class TagCmdsImpl(private val storage: TagStorage) : TagCmds {
             TagRepoCmd.TagCreate(
                 TagInMemory(
                     id = Id.generate(::TagId),
+                    scope = TagScope.TagScopeGlobal,
                     key = cmd.key,
                     name = cmd.name,
                     description = cmd.description,

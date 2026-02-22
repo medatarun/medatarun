@@ -4,6 +4,10 @@ import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScope
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import io.medatarun.type.commons.ref.RefTypeJsonConverters
@@ -25,24 +29,31 @@ class TagRefJsonConverter : TypeJsonConverter<TagRef> {
     }
 
     private fun decodeTagKeyRef(value: String): TagRef.ByKey {
-        val slashIndex = value.indexOf('/')
-        if (slashIndex < 0) {
+        val parts = value.split('/')
+        if (parts.size != 3) {
+            throw TypeJsonConverterBadFormatException("Invalid tag ref key format: $value")
+        }
+        val scopeTypeValue = parts[0]
+        val middleValue = parts[1]
+        val tagKeyValue = parts[2]
+        if (scopeTypeValue.isBlank() || middleValue.isBlank() || tagKeyValue.isBlank()) {
+            throw TypeJsonConverterBadFormatException("Invalid tag ref key format: $value")
+        }
+        val key = Key.fromString(tagKeyValue, ::TagKey).validated()
+        if (scopeTypeValue == TagScope.TagScopeGlobal.type.value) {
             return TagRef.ByKey(
-                groupKey = null,
-                key = Key.fromString(value, ::TagKey).validated()
+                scopeRef = TagScopeRef.Global,
+                groupKey = Key.fromString(middleValue, ::TagGroupKey).validated(),
+                key = key
             )
         }
-        if (slashIndex == 0 || slashIndex == value.length - 1) {
-            throw TypeJsonConverterBadFormatException("Invalid tag ref key format: $value")
-        }
-        if (value.indexOf('/', slashIndex + 1) >= 0) {
-            throw TypeJsonConverterBadFormatException("Invalid tag ref key format: $value")
-        }
-        val groupKeyValue = value.substring(0, slashIndex)
-        val tagKeyValue = value.substring(slashIndex + 1)
         return TagRef.ByKey(
-            groupKey = Key.fromString(groupKeyValue, ::TagGroupKey).validated(),
-            key = Key.fromString(tagKeyValue, ::TagKey).validated()
+            scopeRef = TagScopeRef.Local(
+                type = TagScopeType(scopeTypeValue),
+                localScopeId = Id.fromString(middleValue, ::TagScopeId)
+            ),
+            groupKey = null,
+            key = key
         )
     }
 }

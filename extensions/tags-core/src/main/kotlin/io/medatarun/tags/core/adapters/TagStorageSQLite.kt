@@ -29,7 +29,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findAllTag(): List<Tag> {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, tag_group_id, key, name, description FROM tag"
+                "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag"
             ).use { ps ->
                 ps.executeQuery().use { rs ->
                     val items = mutableListOf<Tag>()
@@ -42,24 +42,29 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
         }
     }
 
-    override fun findTagByKeyOptional(groupId: TagGroupId?, key: TagKey): Tag? {
+    override fun findTagByKeyOptional(scope: TagScope, groupId: TagGroupId?, key: TagKey): Tag? {
         dbConnectionFactory.getConnection().use { c ->
-            if (groupId == null) {
+            if (scope.isLocal) {
                 c.prepareStatement(
-                    "SELECT id, tag_group_id, key, name, description FROM tag WHERE tag_group_id IS NULL AND key = ?"
+                    "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id = ? AND tag_group_id IS NULL AND key = ?"
                 ).use { ps ->
-                    ps.setString(1, key.value)
+                    ps.setString(1, scope.type.value)
+                    val scopeId = scope.scopeId ?: throw IllegalStateException("Local scope requires scopeId")
+                    ps.setString(2, scopeId.asString())
+                    ps.setString(3, key.value)
                     ps.executeQuery().use { rs ->
                         if (!rs.next()) return null
                         return tagFromRow(rs)
                     }
                 }
             } else {
+                val effectiveGroupId = groupId ?: throw IllegalStateException("Global tag lookup requires groupId")
                 c.prepareStatement(
-                    "SELECT id, tag_group_id, key, name, description FROM tag WHERE tag_group_id = ? AND key = ?"
+                    "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id IS NULL AND tag_group_id = ? AND key = ?"
                 ).use { ps ->
-                    ps.setString(1, groupId.asString())
-                    ps.setString(2, key.value)
+                    ps.setString(1, scope.type.value)
+                    ps.setString(2, effectiveGroupId.asString())
+                    ps.setString(3, key.value)
                     ps.executeQuery().use { rs ->
                         if (!rs.next()) return null
                         return tagFromRow(rs)
@@ -72,7 +77,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     override fun findTagByIdOptional(id: TagId): Tag? {
         dbConnectionFactory.getConnection().use { c ->
             c.prepareStatement(
-                "SELECT id, tag_group_id, key, name, description FROM tag WHERE id = ?"
+                "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE id = ?"
             ).use { ps ->
                 ps.setString(1, id.asString())
                 ps.executeQuery().use { rs ->
@@ -132,18 +137,25 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             when (cmd) {
                 is TagRepoCmd.TagCreate -> {
                     c.prepareStatement(
-                        "INSERT INTO tag(id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?)"
+                        "INSERT INTO tag(id, scope_type, scope_id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?, ?, ?)"
                     ).use { ps ->
                         ps.setString(1, cmd.item.id.asString())
+                        ps.setString(2, cmd.item.scope.type.value)
+                        val itemScopeId = cmd.item.scope.scopeId
+                        if (itemScopeId == null) {
+                            ps.setNull(3, Types.VARCHAR)
+                        } else {
+                            ps.setString(3, itemScopeId.asString())
+                        }
                         val itemGroupId = cmd.item.groupId
                         if (itemGroupId == null) {
-                            ps.setNull(2, Types.VARCHAR)
+                            ps.setNull(4, Types.VARCHAR)
                         } else {
-                            ps.setString(2, itemGroupId.asString())
+                            ps.setString(4, itemGroupId.asString())
                         }
-                        ps.setString(3, cmd.item.key.asString())
-                        ps.setString(4, cmd.item.name)
-                        ps.setString(5, cmd.item.description)
+                        ps.setString(5, cmd.item.key.asString())
+                        ps.setString(6, cmd.item.name)
+                        ps.setString(7, cmd.item.description)
                         ps.executeUpdate()
                     }
                 }
@@ -253,10 +265,19 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     }
 
     private fun tagFromRow(rs: ResultSet): Tag {
+        val scopeType = TagScopeType(rs.getString("scope_type"))
+        val scopeIdString = rs.getString("scope_id")
+        val scope = if (scopeType.value == TagScope.TagScopeGlobal.type.value) {
+            TagScope.TagScopeGlobal
+        } else {
+            val localScopeId = scopeIdString ?: throw IllegalStateException("Local tag row missing scope_id")
+            TagScope.TagScopeLocal(scopeType, Id.fromString(localScopeId, ::TagScopeId))
+        }
         val groupIdString = rs.getString("tag_group_id")
         val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)
         return TagInMemory(
             id = Id.fromString(rs.getString("id"), ::TagId),
+            scope = scope,
             groupId = groupId,
             key = Key.fromString(rs.getString("key"), ::TagKey),
             name = rs.getString("name"),
@@ -276,6 +297,8 @@ CREATE TABLE IF NOT EXISTS tag_group (
 
 CREATE TABLE IF NOT EXISTS tag (
   id TEXT PRIMARY KEY UNIQUE,
+  scope_type TEXT NOT NULL,
+  scope_id TEXT,
   tag_group_id TEXT,
   key TEXT NOT NULL,
   name TEXT,

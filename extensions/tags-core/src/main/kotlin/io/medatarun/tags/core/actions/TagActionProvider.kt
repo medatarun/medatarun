@@ -98,7 +98,7 @@ class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: Tag
 
 
     fun tagFreeCreate(cmd: TagAction.TagFreeCreate) {
-        tagCmds.dispatch(TagCmd.TagFreeCreate(cmd.key, cmd.name, cmd.description))
+        tagCmds.dispatch(TagCmd.TagFreeCreate(cmd.scopeRef, cmd.key, cmd.name, cmd.description))
     }
 
     fun tagFreeDelete(cmd: TagAction.TagFreeDelete) {

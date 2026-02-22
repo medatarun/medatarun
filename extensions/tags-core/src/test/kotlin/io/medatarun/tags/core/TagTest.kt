@@ -4,17 +4,33 @@ import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
 import kotlin.test.*
+import java.util.UUID
 
 class TagTest {
-    private fun tagRef(groupKey: TagGroupKey?, key: TagKey): TagRef = TagRef.ByKey(groupKey, key)
+    private val testLocalScopeRef = TagScopeRef.Local(
+        type = TagScopeType("model"),
+        localScopeId = TagScopeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+    )
+
+    private fun tagRef(groupKey: TagGroupKey?, key: TagKey): TagRef {
+        return if (groupKey == null) {
+            TagRef.ByKey(scopeRef = testLocalScopeRef, groupKey = null, key = key)
+        } else {
+            TagRef.ByKey(scopeRef = TagScopeRef.Global, groupKey = groupKey, key = key)
+        }
+    }
+
     private fun tagRef(id: TagId): TagRef = TagRef.ById(id)
 
     @Test
     fun `tag free created with name and description`() {
+
+        // TODO il faudrait tester le scope
+
         val env = TagTestEnv()
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(key, "name", "description"))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, "name", "description"))
         val found = env.tagQueries.findTagByRef(tagRef(null, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
@@ -23,7 +39,7 @@ class TagTest {
         assertEquals("description", found.description)
 
         // create again
-        env.dispatch(TagAction.TagFreeCreate(key2, "name2", "description2"))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, "name2", "description2"))
         val found2 = env.tagQueries.findTagByRef(tagRef(null, key2))
         assertEquals(key2, found2.key)
         assertFalse(found2.isManaged)
@@ -39,7 +55,7 @@ class TagTest {
     fun `tag free created without name and description`() {
         val env = TagTestEnv()
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
         val found = env.tagQueries.findTagByRef(tagRef(null, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
@@ -52,9 +68,9 @@ class TagTest {
     fun `tag free create with duplicate key then error`() {
         val env = TagTestEnv()
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
         assertFailsWith<TagFreeDuplicateKeyException> {
-            env.dispatch(TagAction.TagFreeCreate(key, null, null))
+            env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
         }
     }
 
@@ -64,8 +80,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
 
         fun assertTagName(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(null, key))
@@ -109,8 +125,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
 
         fun assertTagDescription(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(null, key))
@@ -153,8 +169,8 @@ class TagTest {
         val env = TagTestEnv()
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
 
         val tag1Id = env.tagQueries.findTagByRef(tagRef(null, key1)).id
         val tag2Id = env.tagQueries.findTagByRef(tagRef(null, key2)).id
@@ -190,8 +206,8 @@ class TagTest {
         val env = TagTestEnv()
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(key, null, null))
-        env.dispatch(TagAction.TagFreeCreate(key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
         env.dispatch(TagAction.TagFreeDelete(tagRef(null, key)))
         assertNull(env.tagQueries.findTagByRefOptional(tagRef(null, key)))
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, key2)))
@@ -397,8 +413,8 @@ class TagTest {
         env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), managedKey2, null, null))
         val freeKey1 = TagKey("free-key1")
         val freeKey2 = TagKey("free-key2")
-        env.dispatch(TagAction.TagFreeCreate(freeKey1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(freeKey2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, freeKey1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, freeKey2, null, null))
 
         // Business rule: deleting a group also deletes the managed tags that belong to it.
         env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group1.id)))
@@ -417,6 +433,9 @@ class TagTest {
 
     @Test
     fun `tag managed created with name and description`() {
+
+        // TODO il faudrait tester le scope après ca sur les tags créés
+
         val env = TagTestEnv()
         val groupKey = TagGroupKey("group-key")
         env.dispatch(TagAction.TagGroupCreate(groupKey, "group", "group-description"))

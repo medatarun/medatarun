@@ -2,7 +2,7 @@ package io.medatarun.tags.core.domain
 
 sealed interface TagCmd {
 
-    class TagFreeCreate(val key: TagKey, val name: String?, val description: String?): TagCmd
+    class TagFreeCreate(val scopeRef: TagScopeRef, val key: TagKey, val name: String?, val description: String?): TagCmd
     class TagFreeUpdateName(val ref: TagRef, val value: String?): TagCmd
     class TagFreeUpdateDescription(val ref: TagRef, val value: String?): TagCmd
     class TagFreeUpdateKey(val ref: TagRef, val value: TagKey): TagCmd

@@ -16,6 +16,10 @@ class TagRefTypeDescriptor : TypeDescriptor<TagRef> {
         return when (value) {
             is TagRef.ById -> value
             is TagRef.ByKey -> {
+                when (val scopeRef = value.scopeRef) {
+                    is io.medatarun.tags.core.domain.TagScopeRef.Global -> scopeRef
+                    is io.medatarun.tags.core.domain.TagScopeRef.Local -> scopeRef
+                }
                 val localGroupKey = value.groupKey
                 if (localGroupKey != null) {
                     localGroupKey.validated()

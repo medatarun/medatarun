@@ -4,6 +4,9 @@ import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.type.commons.key.KeyStrictInvalidFormatException
 import io.medatarun.tags.core.domain.TagRef
 import io.medatarun.type.commons.ref.TypeJsonInvalidRefException
@@ -23,12 +26,20 @@ class TagRefJsonConverterTest {
         val idRef = converter.deserialize(JsonPrimitive("id:$id"))
         assertEquals(TagRef.ById(TagId(id)), idRef)
 
-        val freeKeyRef = converter.deserialize(JsonPrimitive("key:Release_2026"))
-        assertEquals(TagRef.ByKey(groupKey = null, key = TagKey("Release_2026")), freeKeyRef)
-
-        val managedKeyRef = converter.deserialize(JsonPrimitive("key:Project_A/Release-2026"))
+        val localScopeId = UuidUtils.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
+        val freeKeyRef = converter.deserialize(JsonPrimitive("key:model/$localScopeId/Release_2026"))
         assertEquals(
-            TagRef.ByKey(groupKey = TagGroupKey("Project_A"), key = TagKey("Release-2026")),
+            TagRef.ByKey(
+                scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(localScopeId)),
+                groupKey = null,
+                key = TagKey("Release_2026")
+            ),
+            freeKeyRef
+        )
+
+        val managedKeyRef = converter.deserialize(JsonPrimitive("key:global/Project_A/Release-2026"))
+        assertEquals(
+            TagRef.ByKey(scopeRef = TagScopeRef.Global, groupKey = TagGroupKey("Project_A"), key = TagKey("Release-2026")),
             managedKeyRef
         )
     }
@@ -43,20 +54,20 @@ class TagRefJsonConverterTest {
     @Test
     fun `deserialize should reject invalid slash placement or count in key refs`() {
         assertFailsWith<TypeJsonConverterBadFormatException> {
-            converter.deserialize(JsonPrimitive("key:/tag"))
+            converter.deserialize(JsonPrimitive("key:/x/tag"))
         }
         assertFailsWith<TypeJsonConverterBadFormatException> {
-            converter.deserialize(JsonPrimitive("key:group/"))
+            converter.deserialize(JsonPrimitive("key:global/group/"))
         }
         assertFailsWith<TypeJsonConverterBadFormatException> {
-            converter.deserialize(JsonPrimitive("key:group/tag/extra"))
+            converter.deserialize(JsonPrimitive("key:global/group/tag/extra"))
         }
     }
 
     @Test
     fun `deserialize should reject invalid characters in tag keys`() {
         assertFailsWith<KeyStrictInvalidFormatException> {
-            converter.deserialize(JsonPrimitive("key:Tag Value"))
+            converter.deserialize(JsonPrimitive("key:global/group/Tag Value"))
         }
     }
 }

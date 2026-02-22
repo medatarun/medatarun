@@ -2,6 +2,7 @@ package io.medatarun.tags.core.internal
 
 import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.ports.needs.TagStorage
 
 /**
@@ -13,12 +14,12 @@ class TagRefResolver(private val storage: TagStorage) {
         return when (tagRef) {
             is TagRef.ById -> storage.findTagByIdOptional(tagRef.id)
             is TagRef.ByKey -> {
-                val groupKey = tagRef.groupKey
-                if (groupKey == null) {
-                    storage.findTagByKeyOptional(null, tagRef.key)
-                } else {
+                if (tagRef.scopeRef is TagScopeRef.Global) {
+                    val groupKey = tagRef.groupKey ?: return null
                     val group = storage.findTagGroupByKeyOptional(groupKey) ?: return null
-                    storage.findTagByKeyOptional(group.id, tagRef.key)
+                    storage.findTagByKeyOptional(tagRef.scopeRef.toScope(), group.id, tagRef.key)
+                } else {
+                    storage.findTagByKeyOptional(tagRef.scopeRef.toScope(), null, tagRef.key)
                 }
             }
         }

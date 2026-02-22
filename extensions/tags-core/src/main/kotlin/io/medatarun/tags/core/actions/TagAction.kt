@@ -7,6 +7,7 @@ import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagGroupRef
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeRef
 
 sealed interface TagAction {
     // ------------------------------------------------------------------------
@@ -20,7 +21,7 @@ sealed interface TagAction {
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
     data class TagFreeCreate(
-        val key: TagKey, val name: String?, val description: String?
+        val scopeRef: TagScopeRef, val key: TagKey, val name: String?, val description: String?
     ) : TagAction
 
     @ActionDoc(

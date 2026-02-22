@@ -41,6 +41,7 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, TagIdTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagKeyTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagRefTypeDescriptor())
+        ctx.register(TypeDescriptor::class, TagScopeRefTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupRefTypeDescriptor())
         ctx.register(ActionProvider::class, TagActionProvider())
