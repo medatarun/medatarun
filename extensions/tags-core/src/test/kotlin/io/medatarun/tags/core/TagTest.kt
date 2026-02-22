@@ -7,6 +7,7 @@ import io.medatarun.tags.core.fixtures.Ingredient
 import io.medatarun.tags.core.fixtures.Recipe
 import io.medatarun.tags.core.fixtures.RecipeStep
 import io.medatarun.tags.core.fixtures.SampleId
+import io.medatarun.tags.core.fixtures.SampleScopes
 import io.medatarun.tags.core.fixtures.Vehicle
 import io.medatarun.tags.core.fixtures.VehiclePart
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
@@ -17,31 +18,30 @@ import java.util.UUID
 class TagTest {
     private class SampleScopeManagerDeleteVetoException(message: String) : RuntimeException(message)
 
-    private val testLocalScopeRef = TagScopeRef.Local(
-        type = TagScopeType("model"),
-        localScopeId = TagScopeId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-    )
+    private fun tagRef(scopeRef: TagScopeRef.Local, key: TagKey): TagRef {
+        return TagRef.ByKey(scopeRef = scopeRef, groupKey = null, key = key)
+    }
 
-    private fun tagRef(groupKey: TagGroupKey?, key: TagKey): TagRef {
-        return if (groupKey == null) {
-            TagRef.ByKey(scopeRef = testLocalScopeRef, groupKey = null, key = key)
-        } else {
-            TagRef.ByKey(scopeRef = TagScopeRef.Global, groupKey = groupKey, key = key)
-        }
+    private fun tagRef(groupKey: TagGroupKey, key: TagKey): TagRef {
+        return TagRef.ByKey(scopeRef = TagScopeRef.Global, groupKey = groupKey, key = key)
     }
 
     private fun tagRef(id: TagId): TagRef = TagRef.ById(id)
 
+    private fun createRecipeScope(env: TagTestEnv, name: String = "scope-root"): TagScopeRef.Local {
+        val recipeId = sampleId()
+        env.recipeService.createRecipe(Recipe(recipeId, name, emptyList()))
+        return SampleScopes.recipeScopeRef(recipeId)
+    }
+
     @Test
     fun `tag free created with name and description`() {
-
-        // TODO il faudrait tester le scope
-
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, "name", "description"))
-        val found = env.tagQueries.findTagByRef(tagRef(null, key))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key, "name", "description"))
+        val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
         assertNull(found.groupId)
@@ -49,8 +49,8 @@ class TagTest {
         assertEquals("description", found.description)
 
         // create again
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, "name2", "description2"))
-        val found2 = env.tagQueries.findTagByRef(tagRef(null, key2))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, "name2", "description2"))
+        val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef, key2))
         assertEquals(key2, found2.key)
         assertFalse(found2.isManaged)
         assertNull(found2.groupId)
@@ -64,9 +64,10 @@ class TagTest {
     @Test
     fun `tag free created without name and description`() {
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
-        val found = env.tagQueries.findTagByRef(tagRef(null, key))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
+        val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
         assertFalse(found.isManaged)
         assertNull(found.groupId)
@@ -77,10 +78,11 @@ class TagTest {
     @Test
     fun `tag free create with duplicate key then error`() {
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
         assertFailsWith<TagFreeDuplicateKeyException> {
-            env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
+            env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
         }
     }
 
@@ -88,40 +90,41 @@ class TagTest {
     fun `tag free update name`() {
         // given 2 tags with names set to null
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, null, null))
 
         fun assertTagName(expected: String?, key: TagKey) {
-            val found = env.tagQueries.findTagByRef(tagRef(null, key))
+            val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.name)
             assertFalse(found.isManaged)
         }
 
         // Update tag1 name
-        env.dispatch(TagAction.TagFreeUpdateName(tagRef(null, key1), "newname1"))
+        env.dispatch(TagAction.TagFreeUpdateName(tagRef(scopeRef, key1), "newname1"))
 
         // Then tag1 name shall be set and tag2 still null
         assertTagName("newname1", key1)
         assertTagName(null, key2)
 
         // Update tag2 name
-        env.dispatch(TagAction.TagFreeUpdateName(tagRef(null, key2), "newname2"))
+        env.dispatch(TagAction.TagFreeUpdateName(tagRef(scopeRef, key2), "newname2"))
 
         // Then tag2 name shall be set and tag1 unmodified
         assertTagName("newname1", key1)
         assertTagName("newname2", key2)
 
         // Changes the now not null tag1 name
-        env.dispatch(TagAction.TagFreeUpdateName(tagRef(null, key1), "newname1bis"))
+        env.dispatch(TagAction.TagFreeUpdateName(tagRef(scopeRef, key1), "newname1bis"))
 
         // Then tag1 name shall be set and tag2 unmodified
         assertTagName("newname1bis", key1)
         assertTagName("newname2", key2)
 
         // Changes the now not null tag2 name to null
-        env.dispatch(TagAction.TagFreeUpdateName(tagRef(null, key2), null))
+        env.dispatch(TagAction.TagFreeUpdateName(tagRef(scopeRef, key2), null))
 
         // Then tag2 name shall be null and tag1 unmodified
         assertTagName("newname1bis", key1)
@@ -133,40 +136,41 @@ class TagTest {
     fun `free tag update description`() {
         // given 2 tags with descriptions set to null
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, null, null))
 
         fun assertTagDescription(expected: String?, key: TagKey) {
-            val found = env.tagQueries.findTagByRef(tagRef(null, key))
+            val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.description)
             assertFalse(found.isManaged)
         }
 
         // Update tag1 description
-        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(null, key1), "newname1"))
+        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(scopeRef, key1), "newname1"))
 
         // Then tag1 description shall be set and tag2 still null
         assertTagDescription("newname1", key1)
         assertTagDescription(null, key2)
 
         // Update tag2 description
-        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(null, key2), "newname2"))
+        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(scopeRef, key2), "newname2"))
 
         // Then tag2 description shall be set and tag1 unmodified
         assertTagDescription("newname1", key1)
         assertTagDescription("newname2", key2)
 
         // Changes the now not null tag1 description
-        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(null, key1), "newname1bis"))
+        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(scopeRef, key1), "newname1bis"))
 
         // Then tag1 description shall be set and tag2 unmodified
         assertTagDescription("newname1bis", key1)
         assertTagDescription("newname2", key2)
 
         // Changes the now not null tag2 description to null
-        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(null, key2), null))
+        env.dispatch(TagAction.TagFreeUpdateDescription(tagRef(scopeRef, key2), null))
 
         // Then tag2 description shall be null and tag1 unmodified
         assertTagDescription("newname1bis", key1)
@@ -177,13 +181,14 @@ class TagTest {
     fun `free tag update key`() {
         // given 2 tags with names set to null
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key1 = TagKey("mykey1")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, null, null))
 
-        val tag1Id = env.tagQueries.findTagByRef(tagRef(null, key1)).id
-        val tag2Id = env.tagQueries.findTagByRef(tagRef(null, key2)).id
+        val tag1Id = env.tagQueries.findTagByRef(tagRef(scopeRef, key1)).id
+        val tag2Id = env.tagQueries.findTagByRef(tagRef(scopeRef, key2)).id
 
         fun assertTagKey(expected: String, id: TagId) {
             val found = env.tagQueries.findTagByRef(tagRefId(id))
@@ -214,15 +219,16 @@ class TagTest {
     @Test
     fun `free tag delete`() {
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val key = TagKey("mykey")
         val key2 = TagKey("mykey2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key2, null, null))
-        env.dispatch(TagAction.TagFreeDelete(tagRef(null, key)))
-        assertNull(env.tagQueries.findTagByRefOptional(tagRef(null, key)))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, key2)))
-        env.dispatch(TagAction.TagFreeDelete(tagRef(null, key2)))
-        assertNull(env.tagQueries.findTagByRefOptional(tagRef(null, key2)))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, null, null))
+        env.dispatch(TagAction.TagFreeDelete(tagRef(scopeRef, key)))
+        assertNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, key)))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, key2)))
+        env.dispatch(TagAction.TagFreeDelete(tagRef(scopeRef, key2)))
+        assertNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, key2)))
     }
 
     // Tag groups
@@ -405,6 +411,7 @@ class TagTest {
     @Test
     fun `tag group delete deletes managed tags`() {
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         val groupKey1 = TagGroupKey("group-key1")
         val groupKey2 = TagGroupKey("group-key2")
         env.dispatch(TagAction.TagGroupCreate(groupKey1, null, null))
@@ -423,8 +430,8 @@ class TagTest {
         env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group2.id), managedKey2, null, null))
         val freeKey1 = TagKey("free-key1")
         val freeKey2 = TagKey("free-key2")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, freeKey1, null, null))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, freeKey2, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, freeKey1, null, null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, freeKey2, null, null))
 
         // Business rule: deleting a group also deletes the managed tags that belong to it.
         env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group1.id)))
@@ -435,8 +442,8 @@ class TagTest {
         // Managed tags in other groups must remain unchanged.
         assertNotNull(env.tagStorage.findTagByKeyOptional(group2.id, managedKey2))
         // Free tags (without group) must remain unchanged.
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, freeKey1)))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(null, freeKey2)))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, freeKey1)))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(scopeRef, freeKey2)))
     }
 
     // Managed Tags
@@ -892,16 +899,17 @@ class TagTest {
     @Test
     fun `tag free delete removes tag from objects`() {
         val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
         // Why this test:
         // Deleting a free tag must propagate through the free-tag command path and still notify all registered
         // scope managers so they can clean their objects exactly like the managed path does.
         val deletedKey = TagKey("local-shared")
         val keptKey = TagKey("local-keep")
 
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, deletedKey, null, null))
-        val deletedTag = env.tagQueries.findTagByRef(tagRef(null, deletedKey))
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, keptKey, null, null))
-        val keptTag = env.tagQueries.findTagByRef(tagRef(null, keptKey))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, deletedKey, null, null))
+        val deletedTag = env.tagQueries.findTagByRef(tagRef(scopeRef, deletedKey))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, keptKey, null, null))
+        val keptTag = env.tagQueries.findTagByRef(tagRef(scopeRef, keptKey))
 
         val recipeId = sampleId()
         val ingredientId = sampleId()
@@ -933,15 +941,21 @@ class TagTest {
         val vetoManager = object : TagScopeManager {
             override val type: TagScopeType = TagScopeType("veto-test")
 
+            override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
+                // Not used in this test.
+                return true
+            }
+
             override fun onBeforeTagDelete(tagId: TagId) {
                 throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${tagId.asString()}")
             }
         }
         val env = TagTestEnv(extraScopeManagers = listOf(vetoManager))
+        val scopeRef = createRecipeScope(env)
 
         val key = TagKey("mykey")
-        env.dispatch(TagAction.TagFreeCreate(testLocalScopeRef, key, null, null))
-        val tag = env.tagQueries.findTagByRef(tagRef(null, key))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
+        val tag = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
 
         val ex = assertFailsWith<SampleScopeManagerDeleteVetoException> {
             env.dispatch(TagAction.TagFreeDelete(tagRef(tag.id)))
@@ -950,6 +964,18 @@ class TagTest {
 
         // The tag must still exist because the veto happens before the storage delete.
         assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(tag.id)))
+    }
+
+    @Test
+    fun `tag free create with missing scope then error`() {
+        // Why this test:
+        // A free tag is local to a scope, so creation must fail when the referenced scope does not exist.
+        val env = TagTestEnv()
+        val missingScopeRef = SampleScopes.recipeScopeRef(sampleId())
+
+        assertFailsWith<TagScopeNotFoundException> {
+            env.dispatch(TagAction.TagFreeCreate(missingScopeRef, TagKey("mykey"), null, null))
+        }
     }
 
     private fun sampleId(): SampleId {

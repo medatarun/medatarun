@@ -9,11 +9,7 @@ import io.medatarun.tags.core.actions.TagSecurityRuleNames
 import io.medatarun.tags.core.adapters.*
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.internal.TagCmdsImpl
-import io.medatarun.tags.core.internal.TagEventListenerMediator
-import io.medatarun.tags.core.internal.TagQueriesImpl
-import io.medatarun.tags.core.internal.TagScopeManagerResolverImpl
-import io.medatarun.tags.core.internal.TagScopeRegistryImpl
+import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 
@@ -39,9 +35,13 @@ class TagsCoreExtension : MedatarunExtension {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val storage = TagStorageSQLite(dbConnectionFactory)
         val tagScopeRegistry = TagScopeRegistryImpl(TagScopeManagerResolverImpl(extensionRegistry))
-        val tagEvents = TagEventListenerMediator(tagScopeRegistry)
-        ctx.register(TagCmds::class, TagCmdsImpl(storage, tagEvents))
-        ctx.register(TagQueries::class, TagQueriesImpl(storage))
+        val tagCmdEvents = TagCmdsEventsHandler(tagScopeRegistry)
+        val tagScopes = TagScopesImpl(tagScopeRegistry)
+        val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents)
+        val tagQueries = TagQueriesImpl(storage)
+
+        ctx.register(TagCmds::class, tagCmds)
+        ctx.register(TagQueries::class, tagQueries)
     }
 
     override fun init(ctx: MedatarunExtensionCtx) {

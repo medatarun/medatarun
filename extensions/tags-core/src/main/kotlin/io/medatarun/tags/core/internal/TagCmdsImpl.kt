@@ -1,14 +1,15 @@
 package io.medatarun.tags.core.internal
 
 import io.medatarun.tags.core.domain.*
-import io.medatarun.tags.core.ports.needs.TagEventListener
+import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 
 class TagCmdsImpl(
     private val storage: TagStorage,
-    private val evts: TagEventListener
+    private val tagScopes: TagScopes,
+    private val evts: TagCmdsEvents
 ) : TagCmds {
     private val tagRefResolver = TagRefResolver(storage)
 
@@ -83,6 +84,7 @@ class TagCmdsImpl(
     private fun tagFreeCreate(cmd: TagCmd.TagFreeCreate) {
         if (cmd.scopeRef.isGlobal) throw TagFreeCommandIncompatibleTagScopeRefException(cmd.scopeRef.asString())
         val tagScope = cmd.scopeRef
+        tagScopes.ensureLocalScopeExists(tagScope)
         val existing = storage.findTagByKeyOptional(tagScope, null, cmd.key)
         if (existing != null) throw TagFreeDuplicateKeyException()
         storage.dispatch(

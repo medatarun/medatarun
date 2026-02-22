@@ -38,6 +38,10 @@ class RecipeService {
         ingredients.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
         recipeSteps.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
     }
+
+    fun existsRecipeById(id: SampleId): Boolean {
+        return recipes[id] != null
+    }
 }
 
 /**
@@ -67,5 +71,9 @@ class VehicleService {
     fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {
         vehicles.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
         vehicleParts.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
+    }
+
+    fun existsVehicleById(id: SampleId): Boolean {
+        return vehicles[id] != null
     }
 }

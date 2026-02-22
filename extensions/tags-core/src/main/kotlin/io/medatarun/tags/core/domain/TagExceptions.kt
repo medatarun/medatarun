@@ -14,3 +14,5 @@ class TagGroupDuplicateKeyException(): MedatarunException("Tag group with same k
 class TagManagedDuplicateKeyException(): MedatarunException("Managed tag with same key in same group already exists", StatusCode.BAD_REQUEST)
 class TagManagedNotFoundException(tagRef: String): MedatarunException("Managed tag [$tagRef] was not found", StatusCode.NOT_FOUND)
 class TagDuplicateScopeManagerException(scopeType: String): MedatarunException("Multiple TagScopeManager registered for scope type [$scopeType]", StatusCode.INTERNAL_SERVER_ERROR)
+class TagScopeManagerNotFoundException(scopeType: String): MedatarunException("No TagScopeManager registered for scope type [$scopeType]", StatusCode.BAD_REQUEST)
+class TagScopeNotFoundException(scopeRef: String): MedatarunException("Tag scope [$scopeRef] was not found", StatusCode.BAD_REQUEST)

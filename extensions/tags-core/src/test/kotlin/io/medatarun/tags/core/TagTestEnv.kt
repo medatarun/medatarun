@@ -15,10 +15,7 @@ import io.medatarun.tags.core.fixtures.RecipeService
 import io.medatarun.tags.core.fixtures.RecipeTagScopeManager
 import io.medatarun.tags.core.fixtures.VehicleService
 import io.medatarun.tags.core.fixtures.VehicleTagScopeManager
-import io.medatarun.tags.core.internal.TagCmdsImpl
-import io.medatarun.tags.core.internal.TagEventListenerMediator
-import io.medatarun.tags.core.internal.TagQueriesImpl
-import io.medatarun.tags.core.internal.TagScopeRegistryImpl
+import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
 import java.sql.Connection
@@ -52,8 +49,9 @@ class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
             }
         }
     )
-    val tagEvents = TagEventListenerMediator(tagScopeRegistry)
-    val tagCmds = TagCmdsImpl(tagStorage, tagEvents)
+    val tagEvents = TagCmdsEventsHandler(tagScopeRegistry)
+    val tagScopes = TagScopesImpl(tagScopeRegistry)
+    val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents)
     val tagQueries = TagQueriesImpl(tagStorage)
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, actionCtx)
