@@ -978,6 +978,116 @@ class TagTest {
         }
     }
 
+    @Test
+    fun `tag free create with unknown scope type then error`() {
+        // Why this test:
+        // Free-tag creation depends on a scope manager for the local scope type. Unknown types must fail fast.
+        val env = TagTestEnv()
+        val unknownScopeRef = TagScopeRef.Local(TagScopeType("unknown-scope"), TagScopeId(UuidUtils.generateV7()))
+
+        assertFailsWith<TagScopeManagerNotFoundException> {
+            env.dispatch(TagAction.TagFreeCreate(unknownScopeRef, TagKey("mykey"), null, null))
+        }
+    }
+
+    @Test
+    fun `tag free create with same key in different scopes is allowed`() {
+        // Why this test:
+        // Free-tag uniqueness is local to a scope, so the same key can exist in two different recipe scopes.
+        val env = TagTestEnv()
+        val scopeRef1 = createRecipeScope(env, "recipe-1")
+        val scopeRef2 = createRecipeScope(env, "recipe-2")
+        val sharedKey = TagKey("shared-key")
+
+        env.dispatch(TagAction.TagFreeCreate(scopeRef1, sharedKey, "name-1", null))
+        env.dispatch(TagAction.TagFreeCreate(scopeRef2, sharedKey, "name-2", null))
+
+        val found1 = env.tagQueries.findTagByRef(tagRef(scopeRef1, sharedKey))
+        val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef2, sharedKey))
+        assertNotEquals(found1.id, found2.id)
+        assertEquals(scopeRef1, found1.scope)
+        assertEquals(scopeRef2, found2.scope)
+    }
+
+    @Test
+    fun `tag free create with same key in same scope then error`() {
+        // Why this test:
+        // Free-tag uniqueness still applies inside one scope, so a duplicate key in the same local scope must fail.
+        val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
+        val sharedKey = TagKey("shared-key")
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, sharedKey, null, null))
+
+        assertFailsWith<TagFreeDuplicateKeyException> {
+            env.dispatch(TagAction.TagFreeCreate(scopeRef, sharedKey, null, null))
+        }
+    }
+
+    @Test
+    fun `tag managed delete blocked by scope manager veto`() {
+        // Why this test:
+        // Managed-tag deletion uses a different command path than free deletion but must still honor scope-manager vetoes.
+        val vetoManager = object : TagScopeManager {
+            override val type: TagScopeType = TagScopeType("veto-test")
+
+            override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
+                return true
+            }
+
+            override fun onBeforeTagDelete(tagId: TagId) {
+                throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${tagId.asString()}")
+            }
+        }
+        val env = TagTestEnv(extraScopeManagers = listOf(vetoManager))
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+        val managedKey = TagKey("managed-key")
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
+        val managedTag = env.tagStorage.findTagByKeyOptional(group.id, managedKey)
+        assertNotNull(managedTag)
+
+        val ex = assertFailsWith<SampleScopeManagerDeleteVetoException> {
+            env.dispatch(TagAction.TagManagedDelete(tagRef(managedTag.id)))
+        }
+        assertContains(ex.message ?: "", "Deletion vetoed by scope manager")
+
+        // The managed tag must still exist because the veto happens before the storage delete.
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(managedTag.id)))
+    }
+
+    @Test
+    fun `tag free command with global ref then error`() {
+        // Why this test:
+        // Free-tag commands must reject a managed/global key reference, even if the tag itself exists.
+        val env = TagTestEnv()
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+        val managedKey = TagKey("managed-key")
+        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), managedKey, null, null))
+
+        assertFailsWith<TagFreeCommandIncompatibleTagRefException> {
+            env.dispatch(TagAction.TagFreeUpdateName(tagRef(groupKey, managedKey), "new-name"))
+        }
+    }
+
+    @Test
+    fun `tag managed command with local ref then error`() {
+        // Why this test:
+        // Managed-tag commands must reject a local/free key reference because it does not identify a managed tag.
+        val env = TagTestEnv()
+        val scopeRef = createRecipeScope(env)
+        val freeKey = TagKey("free-key")
+        env.dispatch(TagAction.TagFreeCreate(scopeRef, freeKey, null, null))
+
+        assertFailsWith<TagManagedCommandIncompatibleTagRefException> {
+            env.dispatch(TagAction.TagManagedUpdateDescription(tagRef(scopeRef, freeKey), "new-description"))
+        }
+    }
+
     private fun sampleId(): SampleId {
         return SampleId(UuidUtils.generateV7())
     }
