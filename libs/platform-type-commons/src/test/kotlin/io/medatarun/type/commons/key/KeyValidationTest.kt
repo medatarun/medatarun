@@ -50,6 +50,13 @@ class KeyValidationTest {
     }
 
     @Test
+    fun `slash is accepted`() {
+        val key = "abc/def"
+        val result = KeyValidation.validate(key)
+        Assertions.assertEquals(key, result)
+    }
+
+    @Test
     fun `quotes are rejected`() {
         Assertions.assertThrows(KeyInvalidFormatException::class.java) {
             KeyValidation.validate("abc\"def")
@@ -65,4 +72,5 @@ class KeyValidationTest {
             KeyValidation.validate("abc`def")
         }
     }
+
 }

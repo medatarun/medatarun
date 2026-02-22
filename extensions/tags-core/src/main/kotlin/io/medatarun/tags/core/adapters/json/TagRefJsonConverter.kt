@@ -29,7 +29,7 @@ class TagRefJsonConverter : TypeJsonConverter<TagRef> {
         if (slashIndex < 0) {
             return TagRef.ByKey(
                 groupKey = null,
-                key = Key.fromString(value, ::TagKey)
+                key = Key.fromString(value, ::TagKey).validated()
             )
         }
         if (slashIndex == 0 || slashIndex == value.length - 1) {
@@ -41,8 +41,8 @@ class TagRefJsonConverter : TypeJsonConverter<TagRef> {
         val groupKeyValue = value.substring(0, slashIndex)
         val tagKeyValue = value.substring(slashIndex + 1)
         return TagRef.ByKey(
-            groupKey = Key.fromString(groupKeyValue, ::TagGroupKey),
-            key = Key.fromString(tagKeyValue, ::TagKey)
+            groupKey = Key.fromString(groupKeyValue, ::TagGroupKey).validated(),
+            key = Key.fromString(tagKeyValue, ::TagKey).validated()
         )
     }
 }
