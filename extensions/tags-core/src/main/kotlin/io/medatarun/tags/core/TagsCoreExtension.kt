@@ -2,6 +2,7 @@ package io.medatarun.tags.core
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
@@ -32,12 +33,13 @@ class TagsCoreExtension : MedatarunExtension {
     override val id = "tags-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
+        val dbTransactionManager = ctx.getService(DbTransactionManager::class)
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val storage = TagStorageSQLite(dbConnectionFactory)
         val tagScopeRegistry = TagScopeRegistryImpl(TagScopeManagerResolverImpl(extensionRegistry))
         val tagCmdEvents = TagCmdsEventsHandler(tagScopeRegistry)
         val tagScopes = TagScopesImpl(tagScopeRegistry)
-        val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents)
+        val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents, dbTransactionManager)
         val tagQueries = TagQueriesImpl(storage)
 
         ctx.register(TagCmds::class, tagCmds)

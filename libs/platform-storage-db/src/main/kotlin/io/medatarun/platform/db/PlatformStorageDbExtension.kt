@@ -1,6 +1,8 @@
 package io.medatarun.platform.db
 
 import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
+import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
+import io.medatarun.platform.db.adapters.ExtensionRegistryDbProvider
 import io.medatarun.platform.kernel.*
 
 class PlatformStorageDbExtension: MedatarunExtension {
@@ -8,7 +10,10 @@ class PlatformStorageDbExtension: MedatarunExtension {
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
-        ctx.register(DbConnectionFactory::class, DbConnectionFactoryImpl(extensionRegistry))
+        val dbProvider = ExtensionRegistryDbProvider(extensionRegistry)
+        val txManager = DbTransactionManagerImpl(dbProvider)
+        ctx.register(DbTransactionManager::class, txManager)
+        ctx.register(DbConnectionFactory::class, DbConnectionFactoryImpl(dbProvider, txManager))
     }
 
     override fun init(ctx: MedatarunExtensionCtx) {

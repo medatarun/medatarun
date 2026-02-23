@@ -4,6 +4,8 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
+import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.tags.core.actions.TagAction
@@ -24,12 +26,9 @@ import kotlin.reflect.KClass
 class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
     val provider = TagActionProvider()
     var actionCtx = ActionCtxWithActor()
-    val dbConnectionFactory = object : DbConnectionFactory {
-        val sqlite = DbProviderSqlite.randomDb()
-        override fun getConnection(): Connection {
-            return sqlite.getConnection()
-        }
-    }
+    val sqliteDbProvider = DbProviderSqlite.randomDb()
+    val txManager = DbTransactionManagerImpl(sqliteDbProvider)
+    val dbConnectionFactory: DbConnectionFactory = DbConnectionFactoryImpl(sqliteDbProvider, txManager)
 
     // Keeps a connection alive until this class lifecycle ends
     @Suppress("unused")
@@ -51,7 +50,7 @@ class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
     )
     val tagEvents = TagCmdsEventsHandler(tagScopeRegistry)
     val tagScopes = TagScopesImpl(tagScopeRegistry)
-    val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents)
+    val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents, txManager)
     val tagQueries = TagQueriesImpl(tagStorage)
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, actionCtx)

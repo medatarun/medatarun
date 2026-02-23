@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.internal
 
+import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
@@ -9,29 +10,32 @@ import io.medatarun.type.commons.id.Id
 class TagCmdsImpl(
     private val storage: TagStorage,
     private val tagScopes: TagScopes,
-    private val evts: TagCmdsEvents
+    private val evts: TagCmdsEvents,
+    private val txManager: DbTransactionManager
 ) : TagCmds {
     private val tagRefResolver = TagRefResolver(storage)
 
     override fun dispatch(cmd: TagCmd) {
-        return when (cmd) {
-            is TagCmd.TagFreeCreate -> tagFreeCreate(cmd)
-            is TagCmd.TagFreeDelete -> tagFreeDelete(cmd)
-            is TagCmd.TagFreeUpdateDescription -> tagFreeUpdateDescription(cmd)
-            is TagCmd.TagFreeUpdateKey -> tagFreeUpdateKey(cmd)
-            is TagCmd.TagFreeUpdateName -> tagFreeUpdateName(cmd)
+        return txManager.runInTransaction {
+            when (cmd) {
+                is TagCmd.TagFreeCreate -> tagFreeCreate(cmd)
+                is TagCmd.TagFreeDelete -> tagFreeDelete(cmd)
+                is TagCmd.TagFreeUpdateDescription -> tagFreeUpdateDescription(cmd)
+                is TagCmd.TagFreeUpdateKey -> tagFreeUpdateKey(cmd)
+                is TagCmd.TagFreeUpdateName -> tagFreeUpdateName(cmd)
 
-            is TagCmd.TagGroupCreate -> tagGroupCreate(cmd)
-            is TagCmd.TagGroupDelete -> tagGroupDelete(cmd)
-            is TagCmd.TagGroupUpdateDescription -> tagGroupUpdateDescription(cmd)
-            is TagCmd.TagGroupUpdateKey -> tagGroupUpdateKey(cmd)
-            is TagCmd.TagGroupUpdateName -> tagGroupUpdateName(cmd)
+                is TagCmd.TagGroupCreate -> tagGroupCreate(cmd)
+                is TagCmd.TagGroupDelete -> tagGroupDelete(cmd)
+                is TagCmd.TagGroupUpdateDescription -> tagGroupUpdateDescription(cmd)
+                is TagCmd.TagGroupUpdateKey -> tagGroupUpdateKey(cmd)
+                is TagCmd.TagGroupUpdateName -> tagGroupUpdateName(cmd)
 
-            is TagCmd.TagManagedCreate -> tagManagedCreate(cmd)
-            is TagCmd.TagManagedDelete -> tagManagedDelete(cmd)
-            is TagCmd.TagManagedUpdateDescription -> tagManagedUpdateDescription(cmd)
-            is TagCmd.TagManagedUpdateKey -> tagManagedUpdateKey(cmd)
-            is TagCmd.TagManagedUpdateName -> tagManagedUpdateName(cmd)
+                is TagCmd.TagManagedCreate -> tagManagedCreate(cmd)
+                is TagCmd.TagManagedDelete -> tagManagedDelete(cmd)
+                is TagCmd.TagManagedUpdateDescription -> tagManagedUpdateDescription(cmd)
+                is TagCmd.TagManagedUpdateKey -> tagManagedUpdateKey(cmd)
+                is TagCmd.TagManagedUpdateName -> tagManagedUpdateName(cmd)
+            }
         }
     }
 
