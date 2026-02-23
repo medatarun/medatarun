@@ -55,7 +55,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         FrictionlessdataExtension()
     )
 
-    val serviceRegistry = MedatarunServiceRegistryImpl(config)
+    val serviceRegistry = MedatarunServiceRegistryImpl()
     val extensionPlatform = ExtensionPlaformImpl(extensions, serviceRegistry, config)
 
     // 🤔 🤔 🤔

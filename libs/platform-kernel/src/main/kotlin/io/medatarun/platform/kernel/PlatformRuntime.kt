@@ -4,8 +4,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class PlatformRuntime(
-    private val extensionPlatform: ExtensionPlatform,
-    private val services: MedatarunServiceRegistry
+    val extensionPlatform: ExtensionPlatform,
+    val services: MedatarunServiceRegistry
 ) {
     fun start() {
         val startListeners = extensionPlatform.extensionRegistry.findContributionsFlat(PlatformStartedListener::class)
