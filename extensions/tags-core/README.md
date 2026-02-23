@@ -18,13 +18,13 @@ Other modules consume this core and define how tags can be applied to their own 
 - key-based `TagRef` format includes scope information
 - `TagFreeCreate` requires an explicit local `TagScopeRef`
 - command-level compatibility checks between tag refs and business intent (`free` vs `managed`)
+- transaction strategy across tag mutations and cross-module reactions (implemented via transaction manager and onBefore events that triggers changes in other modules, supposed to use the transaction manager too)
 
 ### Planned next
 
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
-- lifecycle events (`before` / `after`) so consumer modules can veto or react
-- transaction strategy across tag mutations and cross-module reactions (not addressed yet, and will become critical soon)
+
 
 ## Purpose
 
@@ -291,8 +291,8 @@ Other modules may need to:
 
 The event model should distinguish:
 
-- `before` events (validation / veto / blocking)
-- `after` events (reaction / projection / sync)
+- `before` events (validation / veto / cleanup before final operation / blocking). Typically when an object needs to be deleted, it asks other modules via event to delete traces of usages before real deletion (or to block deletion)
+- `after` events (reaction / projection / sync) - no use case for now
 
 This avoids mixing business veto logic with post-change side effects.
 

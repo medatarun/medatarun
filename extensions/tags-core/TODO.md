@@ -61,38 +61,7 @@ Description de ce qu'il faudra faire :
 - fournir dans `tags-core` le traitement correspondant (supprimer les tags du scope)
 - définir ce qui est attendu si un des tags ne peut pas être supprimé (veto / erreur)
 
-## 5) Événements lifecycle incomplets (seul `onBeforeDelete` existe)
 
-Le `README` parle de `before` / `after`, mais le code actuel n'implémente que :
-- `TagCmdsEvents.onBeforeDelete(tagId)`
-
-Il n'existe pas encore :
-- d'événement `after`
-- de distinction explicite entre événements de veto et notifications post-action
-
-Ce n'est pas forcément un bug aujourd'hui, mais c'est un point de design à compléter avant d'ajouter plus de flux inter-modules.
-
-Description de ce qu'il faudra faire :
-- définir la liste des événements `before` (veto possibles)
-- définir la liste des événements `after` (notifications non veto)
-- définir clairement ce que chaque événement garantit (avant mutation / après mutation)
-
-## 6) Transactions cross-modules : stratégie non définie
-
-Le sujet est noté dans le `README`, mais il faut garder une trace concrète ici.
-
-État actuel :
-- les managers de test sont en mémoire
-- les veto `before` existent déjà
-
-Problème potentiel futur :
-- dès qu'un module consommateur persiste des données (assignations, projections, etc.), une suppression de tag peut nécessiter plusieurs écritures dans plusieurs composants
-- sans stratégie de transaction, on risque des états partiels incohérents
-
-Description de ce qu'il faudra faire :
-- définir la sémantique attendue en cas d'échec (rollback strict / compensation / best effort)
-- définir les frontières transactionnelles (au moins conceptuellement)
-- aligner les événements `before` / `after` sur cette stratégie
 
 ## 7) Suppression en lot (ex: suppression d'un scope -> beaucoup de tags) : comportement à définir
 
