@@ -1,0 +1,97 @@
+package io.medatarun.platform.kernel
+
+import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
+import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
+import java.nio.file.Path
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+
+class PlatformKernelTest {
+    @Test
+    fun `platform builds`() {
+        platform(listOf(ExtensionRecipe(), ExtensionVehicle()))
+    }
+
+    @Test
+    fun `events fired and received`() {
+
+        val p = platform(listOf(ExtensionRecipe(), ExtensionVehicle()))
+        val vehicle = p.services.getService<ExtensionVehicle.VehicleService>()
+        val recipe = p.services.getService<ExtensionRecipe.RecipeService>()
+        assertTrue(vehicle.driving.isEmpty())
+        recipe.sendRecipe("burger")
+        assertEquals( listOf("burger"), vehicle.driving)
+
+    }
+
+
+    class ExtensionRecipe : MedatarunExtension {
+        override val id: ExtensionId = "recipe"
+        override fun init(ctx: MedatarunExtensionCtx) {
+
+        }
+
+        override fun initServices(ctx: MedatarunServiceCtx) {
+            val e = ctx.getService(EventSystem::class)
+            val recipeSentEvt = e.createNotifier(RecipeSent::class)
+            val recipeService = RecipeService(recipeSentEvt)
+            ctx.register(RecipeService::class, recipeService)
+        }
+
+        class RecipeService(val evt: EventNotifier<RecipeSent>) {
+            fun sendRecipe(name: String) {
+                evt.fire(RecipeSent(name))
+            }
+        }
+
+        data class RecipeSent(val name: String) : Event
+    }
+
+    class ExtensionVehicle : MedatarunExtension {
+        override val id: ExtensionId = "vehicle"
+        override fun initServices(ctx: MedatarunServiceCtx) {
+            val e = ctx.getService(EventSystem::class)
+            val s = VehicleService()
+            e.registerObserver(ExtensionRecipe.RecipeSent::class, object : EventObserver<ExtensionRecipe.RecipeSent> {
+                override fun onEvent(evt: ExtensionRecipe.RecipeSent) {
+                    s.drive(evt.name)
+                }
+            })
+            ctx.register(VehicleService::class, s)
+
+        }
+
+        override fun init(ctx: MedatarunExtensionCtx) {
+
+        }
+
+        class VehicleService {
+            val driving = mutableListOf<String>()
+            fun drive(name: String) {
+                driving.add(name)
+            }
+        }
+    }
+
+    fun platform(
+        extensions: List<MedatarunExtension> = listOf(
+            ExtensionRecipe(),
+            ExtensionVehicle()
+        )
+    ): PlatformRuntime {
+        val config = object : MedatarunConfig {
+            override val applicationHomeDir: Path = Path.of("/tmp")
+            override val projectDir: Path = Path.of("/tmp/project")
+            override fun getProperty(key: String): String? = null
+            override fun getProperty(key: String, defaultValue: String): String = defaultValue
+            override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Not to use in tests")
+        }
+        val serviceRegistry = MedatarunServiceRegistryImpl()
+        val extensionPlatform = ExtensionPlaformImpl(extensions, serviceRegistry, config)
+        val runtime = PlatformRuntime(extensionPlatform, serviceRegistry)
+        runtime.start()
+        return runtime
+    }
+}
