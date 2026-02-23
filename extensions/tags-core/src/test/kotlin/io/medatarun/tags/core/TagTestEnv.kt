@@ -13,12 +13,18 @@ import io.medatarun.platform.kernel.internal.EventSystemImpl
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.adapters.TagStorageSQLite
+import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
+import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.fixtures.RecipeService
 import io.medatarun.tags.core.fixtures.RecipeTagScopeManager
 import io.medatarun.tags.core.fixtures.VehicleService
 import io.medatarun.tags.core.fixtures.VehicleTagScopeManager
+import io.medatarun.tags.core.fixtures.recipeScopeRef
+import io.medatarun.tags.core.fixtures.recipeScopeType
+import io.medatarun.tags.core.fixtures.vehicleScopeRef
+import io.medatarun.tags.core.fixtures.vehicleScopeType
 import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
@@ -42,12 +48,27 @@ class TagTestEnv(
     val dbConnectionKeeper = dbConnectionFactory.getConnection()
 
     val tagStorage = TagStorageSQLite(dbConnectionFactory).also { it.initSchema() }
-    val recipeService = RecipeService()
-    val vehicleService = VehicleService()
-    val tagScopeManagers = listOf<TagScopeManager>(
-        RecipeTagScopeManager(recipeService),
-        VehicleTagScopeManager(vehicleService)
+
+    // Recipe domain
+    val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+    val recipeService = RecipeService(onBeforeDelete = { id ->
+        recipeEventNotifier.fire(TagScopeBeforeDeleteEvent(recipeScopeRef(id)))
+    })
+    val recipeTagScopeManager = RecipeTagScopeManager(recipeService)
+
+    // Vehicle domain
+    val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+    val vehicleService = VehicleService { id ->
+        vehicleServiceDeletedNotifier.fire(TagScopeBeforeDeleteEvent(vehicleScopeRef(id)))
+    }
+    val vehicleTagScopeManager = VehicleTagScopeManager(vehicleService)
+
+
+    val tagScopeManagers = listOf(
+        recipeTagScopeManager,
+        vehicleTagScopeManager
     ) + extraScopeManagers
+
     val tagScopeRegistry = TagScopeRegistryImpl(
         object : TagScopeManagerResolver {
             override fun findScopeManagers(): List<TagScopeManager> {
@@ -56,11 +77,11 @@ class TagTestEnv(
         }
     )
 
-
-    val tagEvents = TagCmdsEventsHandler(eventSystem.createNotifier(TagBeforeDeleteEvt::class))
+    val tagEvents = TagCmdsEventsHandler(eventSystem)
     val tagScopes = TagScopesImpl(tagScopeRegistry)
     val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents, txManager)
     val tagQueries = TagQueriesImpl(tagStorage)
+
 
     init {
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
@@ -68,11 +89,14 @@ class TagTestEnv(
                 recipeService.removeTagEverywhere(evt.id)
             }
         })
+
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
             override fun onEvent(evt: TagBeforeDeleteEvt) {
                 vehicleService.removeTagEverywhere(evt.id)
             }
         })
+
+
     }
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, actionCtx)

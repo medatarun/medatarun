@@ -19,4 +19,6 @@ sealed interface TagCmd {
     class TagManagedUpdateDescription(val tagRef: TagRef, val value: String): TagCmd
     class TagManagedUpdateKey(val tagRef: TagRef, val value: TagKey): TagCmd
     class TagManagedDelete(val tagRef: TagRef): TagCmd
+
+    class TagScopeDelete(val scopeRef: TagScopeRef): TagCmd
 }

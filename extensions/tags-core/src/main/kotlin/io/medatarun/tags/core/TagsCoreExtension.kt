@@ -8,9 +8,11 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.actions.TagSecurityRuleNames
 import io.medatarun.tags.core.adapters.*
+import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.internal.*
+import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 
@@ -38,10 +40,13 @@ class TagsCoreExtension : MedatarunExtension {
         val storage = TagStorageSQLite(dbConnectionFactory)
         val tagScopeRegistry = TagScopeRegistryImpl(TagScopeManagerResolverImpl(extensionRegistry))
         val eventSystem = ctx.getService(EventSystem::class)
-        val tagCmdEvents = TagCmdsEventsHandler(eventSystem.createNotifier(TagBeforeDeleteEvt::class))
+        val tagCmdEvents = TagCmdsEventsHandler(eventSystem)
         val tagScopes = TagScopesImpl(tagScopeRegistry)
         val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents, dbTransactionManager)
         val tagQueries = TagQueriesImpl(storage)
+        eventSystem.registerObserver(TagScopeBeforeDeleteEvent::class) { evt ->
+            tagCmds.dispatch(TagCmd.TagScopeDelete(evt.tagScopeRef))
+        }
 
         ctx.register(TagCmds::class, tagCmds)
         ctx.register(TagQueries::class, tagQueries)

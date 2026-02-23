@@ -35,7 +35,15 @@ class TagCmdsImpl(
                 is TagCmd.TagManagedUpdateDescription -> tagManagedUpdateDescription(cmd)
                 is TagCmd.TagManagedUpdateKey -> tagManagedUpdateKey(cmd)
                 is TagCmd.TagManagedUpdateName -> tagManagedUpdateName(cmd)
+
+                is TagCmd.TagScopeDelete -> tagScopeDelete(cmd)
             }
+        }
+    }
+
+    private fun tagScopeDelete(cmd: TagCmd.TagScopeDelete) {
+        storage.findAllTag().filter { it.scope == cmd.scopeRef }.forEach {
+            storage.dispatch(TagRepoCmd.TagDelete(it.id))
         }
     }
 
@@ -199,7 +207,8 @@ class TagCmdsImpl(
 
     private fun tagManagedUpdateKey(cmd: TagCmd.TagManagedUpdateKey) {
         val existing = findTagManaged(cmd.tagRef)
-        val existingGroupId = existing.groupId ?: throw TagManagedCommandIncompatibleTagRefException(cmd.tagRef.asString())
+        val existingGroupId =
+            existing.groupId ?: throw TagManagedCommandIncompatibleTagRefException(cmd.tagRef.asString())
         val duplicate = storage.findTagByKeyOptional(existingGroupId, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagManagedDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))

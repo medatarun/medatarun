@@ -50,13 +50,20 @@ fun recipeScopeRef(recipeId: SampleId): TagScopeRef.Local {
  * In-memory test fixture service for recipe-related objects.
  * This behaves like a tiny repository set used by unit tests.
  */
-class RecipeService {
+class RecipeService(
+    val onBeforeDelete:(id: SampleId) -> Unit
+) {
     private val recipes = mutableMapOf<SampleId, Recipe>()
     private val ingredients = mutableMapOf<SampleId, Ingredient>()
     private val recipeSteps = mutableMapOf<SampleId, RecipeStep>()
 
     fun createRecipe(item: Recipe) {
         recipes[item.id] = item
+    }
+
+    fun deleteRecipe(id: SampleId) {
+        onBeforeDelete(id)
+        recipes.remove(id)
     }
 
     fun createIngredient(item: Ingredient) {

@@ -26,4 +26,16 @@ class EventSystemImpl: EventSystem {
         val list = observers.getOrPut(clazz, ) {mutableListOf()}
         list.add(evtObserver)
     }
+
+    override fun <T : Event> registerObserver(
+        clazz: KClass<T>,
+        block: (T) -> Unit
+    ) {
+        val obs = object: EventObserver<T> {
+            override fun onEvent(evt: T) {
+                block(evt)
+            }
+        }
+        registerObserver(clazz, obs)
+    }
 }

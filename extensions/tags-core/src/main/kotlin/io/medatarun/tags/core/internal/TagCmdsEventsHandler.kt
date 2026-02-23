@@ -2,6 +2,7 @@ package io.medatarun.tags.core.internal
 
 import io.medatarun.platform.kernel.Event
 import io.medatarun.platform.kernel.EventNotifier
+import io.medatarun.platform.kernel.EventSystem
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 
@@ -10,10 +11,11 @@ import io.medatarun.tags.core.ports.needs.TagCmdsEvents
  * Managers may throw to veto an operation according to their local rules.
  */
 class TagCmdsEventsHandler(
-    private val createNotifier: EventNotifier<TagBeforeDeleteEvt>
+    eventSystem: EventSystem
 ) : TagCmdsEvents {
+    val tagBeofreDeleteEvtHandler = eventSystem.createNotifier(TagBeforeDeleteEvt::class)
     override fun onBeforeDelete(tagId: TagId) {
-        createNotifier.fire(TagBeforeDeleteEvt(tagId))
+        tagBeofreDeleteEvtHandler.fire(TagBeforeDeleteEvt(tagId))
     }
 }
 

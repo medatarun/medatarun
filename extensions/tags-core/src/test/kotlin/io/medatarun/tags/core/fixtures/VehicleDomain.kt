@@ -2,6 +2,7 @@ package io.medatarun.tags.core.fixtures
 
 import io.medatarun.tags.core.TagTestIllegalStateException
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.ports.needs.TagScopeManager
@@ -27,6 +28,9 @@ data class VehiclePart(
 )
 
 val vehicleScopeType = TagScopeType("vehicle")
+fun vehicleScopeRef(vehicleId: SampleId): TagScopeRef.Local {
+    return TagScopeRef.Local(vehicleScopeType, TagScopeId(vehicleId.value))
+}
 
 
 
@@ -34,12 +38,19 @@ val vehicleScopeType = TagScopeType("vehicle")
  * In-memory test fixture service for vehicle-related objects.
  * This behaves like a tiny repository set used by unit tests.
  */
-class VehicleService {
+class VehicleService(
+    val onBeforeDelete: (id: SampleId) -> Unit
+) {
     private val vehicles = mutableMapOf<SampleId, Vehicle>()
     private val vehicleParts = mutableMapOf<SampleId, VehiclePart>()
 
     fun createVehicle(item: Vehicle) {
         vehicles[item.id] = item
+    }
+
+    fun deleteehicle(id: SampleId) {
+        onBeforeDelete(id)
+        vehicles.remove(id)
     }
 
     fun createVehiclePart(item: VehiclePart) {
