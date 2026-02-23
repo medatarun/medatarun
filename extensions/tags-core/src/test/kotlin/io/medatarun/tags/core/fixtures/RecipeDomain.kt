@@ -1,6 +1,50 @@
 package io.medatarun.tags.core.fixtures
 
 import io.medatarun.tags.core.TagTestIllegalStateException
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.ports.needs.TagScopeManager
+
+/**
+ * Recipe is the local scope root for the "food" sample domain.
+ * Tags attached to a recipe and its children are expected to use the recipe scope.
+ */
+data class Recipe(
+    val id: SampleId,
+    val name: String,
+    val tags: List<TagId>,
+)
+
+/**
+ * Ingredient belongs to a recipe and is taggable in the same recipe scope.
+ */
+data class Ingredient(
+    val id: SampleId,
+    val recipeId: SampleId,
+    val name: String,
+    val tags: List<TagId>,
+)
+
+/**
+ * RecipeStep belongs to a recipe and is taggable in the same recipe scope.
+ */
+data class RecipeStep(
+    val id: SampleId,
+    val recipeId: SampleId,
+    val name: String,
+    val tags: List<TagId>,
+)
+
+
+val recipeScopeType = TagScopeType("recipe")
+
+
+fun recipeScopeRef(recipeId: SampleId): TagScopeRef.Local {
+    return TagScopeRef.Local(recipeScopeType, TagScopeId(recipeId.value))
+}
+
 
 /**
  * In-memory test fixture service for recipe-related objects.
@@ -46,36 +90,19 @@ class RecipeService {
     }
 }
 
-/**
- * In-memory test fixture service for vehicle-related objects.
- * This behaves like a tiny repository set used by unit tests.
- */
-class VehicleService {
-    private val vehicles = mutableMapOf<SampleId, Vehicle>()
-    private val vehicleParts = mutableMapOf<SampleId, VehiclePart>()
 
-    fun createVehicle(item: Vehicle) {
-        vehicles[item.id] = item
+class RecipeTagScopeManager(
+    private val recipeService: RecipeService
+) : TagScopeManager {
+    override val type: TagScopeType = recipeScopeType
+
+    override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
+        val id = scopeRef.scopeId.value
+        return recipeService.existsRecipeById(SampleId(id))
     }
 
-    fun createVehiclePart(item: VehiclePart) {
-        vehicleParts[item.id] = item
-    }
-
-    fun findVehicleById(id: SampleId): Vehicle {
-        return vehicles[id] ?: throw TagTestIllegalStateException("Vehicle not found: $id")
-    }
-
-    fun findVehiclePartById(id: SampleId): VehiclePart {
-        return vehicleParts[id] ?: throw TagTestIllegalStateException("VehiclePart not found: $id")
-    }
-
-    fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {
-        vehicles.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
-        vehicleParts.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
-    }
-
-    fun existsVehicleById(id: SampleId): Boolean {
-        return vehicles[id] != null
+    override fun onBeforeTagDelete(tagId: TagId) {
+        recipeService.removeTagEverywhere(tagId)
     }
 }
+

@@ -3,17 +3,11 @@ package io.medatarun.tags.core
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
-import io.medatarun.tags.core.fixtures.Ingredient
-import io.medatarun.tags.core.fixtures.Recipe
-import io.medatarun.tags.core.fixtures.RecipeStep
-import io.medatarun.tags.core.fixtures.SampleId
-import io.medatarun.tags.core.fixtures.SampleScopes
-import io.medatarun.tags.core.fixtures.Vehicle
-import io.medatarun.tags.core.fixtures.VehiclePart
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
+import io.medatarun.tags.core.fixtures.*
+import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
-import java.util.UUID
 
 class TagTest {
     private class SampleScopeManagerDeleteVetoException(message: String) : RuntimeException(message)
@@ -31,7 +25,7 @@ class TagTest {
     private fun createRecipeScope(env: TagTestEnv, name: String = "scope-root"): TagScopeRef.Local {
         val recipeId = sampleId()
         env.recipeService.createRecipe(Recipe(recipeId, name, emptyList()))
-        return SampleScopes.recipeScopeRef(recipeId)
+        return recipeScopeRef(recipeId)
     }
 
     @Test
@@ -616,6 +610,7 @@ class TagTest {
             )
         }
     }
+
     @Test
     fun `tag managed update name`() {
         val env = TagTestEnv()
@@ -636,14 +631,16 @@ class TagTest {
         }
 
         env.dispatch(
-            TagAction.TagManagedUpdateName(tagRef(groupKey, managedKey1), "new-name-1"
+            TagAction.TagManagedUpdateName(
+                tagRef(groupKey, managedKey1), "new-name-1"
             )
         )
         assertTagManagedName("new-name-1", managedKey1)
         assertTagManagedName("name-2", managedKey2)
 
         env.dispatch(
-            TagAction.TagManagedUpdateName(tagRef(groupKey, managedKey2), "new-name-2"
+            TagAction.TagManagedUpdateName(
+                tagRef(groupKey, managedKey2), "new-name-2"
             )
         )
         assertTagManagedName("new-name-1", managedKey1)
@@ -670,14 +667,16 @@ class TagTest {
         }
 
         env.dispatch(
-            TagAction.TagManagedUpdateDescription(tagRef(groupKey, managedKey1), "new-description-1"
+            TagAction.TagManagedUpdateDescription(
+                tagRef(groupKey, managedKey1), "new-description-1"
             )
         )
         assertTagManagedDescription("new-description-1", managedKey1)
         assertTagManagedDescription("description-2", managedKey2)
 
         env.dispatch(
-            TagAction.TagManagedUpdateDescription(tagRef(groupKey, managedKey2), "new-description-2"
+            TagAction.TagManagedUpdateDescription(
+                tagRef(groupKey, managedKey2), "new-description-2"
             )
         )
         assertTagManagedDescription("new-description-1", managedKey1)
@@ -849,7 +848,8 @@ class TagTest {
         // Delete must fail with a dedicated managed-tag-not-found error when the target tag is absent.
         assertFailsWith<TagManagedNotFoundException> {
             env.dispatch(
-                TagAction.TagManagedDelete(tagRef(groupKey, TagKey("missing-tag"))
+                TagAction.TagManagedDelete(
+                    tagRef(groupKey, TagKey("missing-tag"))
                 )
             )
         }
@@ -865,20 +865,22 @@ class TagTest {
         // Why this test:
         // Group references can be passed by key in commands; we validate create/update/delete on this path.
         env.dispatch(
-                TagAction.TagManagedCreate(
-                    TagGroupRef.ByKey(groupKey),
-                    managedKey,
-                    "name",
-                    "description"
-                )
+            TagAction.TagManagedCreate(
+                TagGroupRef.ByKey(groupKey),
+                managedKey,
+                "name",
+                "description"
+            )
         )
 
         env.dispatch(
-            TagAction.TagManagedUpdateName(tagRef(groupKey, managedKey), "new-name"
+            TagAction.TagManagedUpdateName(
+                tagRef(groupKey, managedKey), "new-name"
             )
         )
         env.dispatch(
-            TagAction.TagManagedUpdateDescription(tagRef(groupKey, managedKey), "new-description"
+            TagAction.TagManagedUpdateDescription(
+                tagRef(groupKey, managedKey), "new-description"
             )
         )
 
@@ -939,7 +941,14 @@ class TagTest {
         // This test explicitly defines the objects that exist and their tag usage.
         env.recipeService.createRecipe(Recipe(recipeId, "Pasta", listOf(deletedTag.id, keptTag.id)))
         env.recipeService.createIngredient(Ingredient(ingredientId, recipeId, "Tomato", listOf(deletedTag.id)))
-        env.recipeService.createRecipeStep(RecipeStep(stepId, recipeId, "Boil water", listOf(deletedTag.id, keptTag.id)))
+        env.recipeService.createRecipeStep(
+            RecipeStep(
+                stepId,
+                recipeId,
+                "Boil water",
+                listOf(deletedTag.id, keptTag.id)
+            )
+        )
         env.vehicleService.createVehicle(Vehicle(vehicleId, "Truck", listOf(deletedTag.id)))
         env.vehicleService.createVehiclePart(VehiclePart(partId, vehicleId, "Wheel", listOf(keptTag.id, deletedTag.id)))
 
@@ -1027,7 +1036,7 @@ class TagTest {
         // Why this test:
         // A free tag is local to a scope, so creation must fail when the referenced scope does not exist.
         val env = TagTestEnv()
-        val missingScopeRef = SampleScopes.recipeScopeRef(sampleId())
+        val missingScopeRef = recipeScopeRef(sampleId())
 
         assertFailsWith<TagScopeNotFoundException> {
             env.dispatch(TagAction.TagFreeCreate(missingScopeRef, TagKey("mykey"), null, null))
@@ -1144,8 +1153,6 @@ class TagTest {
         }
     }
 
-    private fun sampleId(): SampleId {
-        return SampleId(UuidUtils.generateV7())
-    }
+
 
 }
