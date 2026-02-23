@@ -25,26 +25,23 @@ Découpage du travail :
 Règle technique :
 - utiliser `TagId` comme référence dans les objets métier (pas `TagRef` par key), pour ne pas casser les liens si une key de tag change
 
-## 2) Règles pour autoriser/refuser l'attachement d'un tag à un objet (pas encore implémenté)
+## 2) Validation simple de scope au moment d'attacher un tag (pas encore implémenté)
 
-Ce point concerne le moment où le point 1 existera (attacher un tag à un objet métier).
+Quand les actions métier attacheront un tag à un objet, elles passeront probablement un `TagRef`
+(et l'objet métier stockera un `TagId`).
 
-Quand on voudra faire :
-- "attacher le tag T à l'objet O"
+Le contrôle attendu est simple :
+- autoriser un tag global (si le module appelant l'autorise)
+- autoriser un tag local du même scope que l'objet ciblé
+- refuser un tag local d'un autre scope
 
-il faudra surtout vérifier qu'on n'attache pas à `O` un tag free qui vient d'un autre scope local.
-(`managed` global pourra en général être autorisé, selon la règle du module métier.)
+Exemple `model-core` :
+- objet dans le scope du modèle `M1`
+- tag free du scope `M1` -> ok
+- tag free du scope `M2` -> refusé
+- tag managed global -> ok (si autorisé)
 
-Le code actuel a déjà l'infrastructure de scope (`TagScopeRef`) mais pas encore la règle métier
-qui dit quand refuser un tag parce qu'il vient du mauvais scope local.
-
-Exemple de règle attendue (plus tard) :
-- un objet de `model-core` accepte :
-  - les tags managed (scope global)
-  - les tags free du scope de son modèle
-- il refuse les tags free d'un autre modèle
-
-Description de ce qu'il faudra faire :
-- définir la validation au moment de l'attachement (surtout refuser les tags free d'un autre scope local)
-- décider où vit la règle (probablement dans les modules consommateurs, pas dans `tags-core`)
-- brancher cette validation dans les futures commandes d'attachement de tags
+Ce qu'il faudra faire :
+- ajouter dans `tags-core` un helper du type `ensureTagCanBeAttachedToScope(targetScopeRef, tagRef, authorizeGlobal = true)`
+- utiliser ce helper dans les commandes des modules métiers avant d'attacher le tag
+- stocker le `TagId` résolu dans les objets métier (pas le `TagRef`)
