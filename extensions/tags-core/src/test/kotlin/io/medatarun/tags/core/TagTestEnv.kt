@@ -13,18 +13,17 @@ import io.medatarun.platform.kernel.internal.EventSystemImpl
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.adapters.TagStorageSQLite
+import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.RecipeService
 import io.medatarun.tags.core.fixtures.RecipeTagScopeManager
 import io.medatarun.tags.core.fixtures.VehicleService
 import io.medatarun.tags.core.fixtures.VehicleTagScopeManager
 import io.medatarun.tags.core.fixtures.recipeScopeRef
-import io.medatarun.tags.core.fixtures.recipeScopeType
 import io.medatarun.tags.core.fixtures.vehicleScopeRef
-import io.medatarun.tags.core.fixtures.vehicleScopeType
 import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
@@ -84,6 +83,10 @@ class TagTestEnv(
 
 
     init {
+        eventSystem.registerObserver(TagScopeBeforeDeleteEvent::class) { evt ->
+            tagCmds.dispatch(TagCmd.TagScopeDelete(evt.tagScopeRef))
+        }
+
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
             override fun onEvent(evt: TagBeforeDeleteEvt) {
                 recipeService.removeTagEverywhere(evt.id)

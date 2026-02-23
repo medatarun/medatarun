@@ -25,6 +25,27 @@ Other modules consume this core and define how tags can be applied to their own 
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
 
+## Deletion Event Semantics (Current)
+
+Two different deletion-related events exist and they do not mean the same thing.
+
+- `TagBeforeDeleteEvt`
+  - emitted by `tags-core` before deleting one explicit tag (free/managed)
+  - also emitted once per managed tag when deleting a tag group
+  - used by consumer modules to cleanup references to a specific `TagId` and optionally veto deletion
+
+- `TagScopeBeforeDeleteEvent`
+  - emitted by the module that owns a local scope (for example a recipe/vehicle module) before deleting the scope root
+  - consumed by `tags-core` to bulk-delete tag definitions that belong to that scope
+  - does not imply a `TagBeforeDeleteEvt` emission for each deleted tag in that scope cleanup path
+
+Current responsibility split:
+
+- scope owner module: deletes its scope objects and local data
+- `tags-core`: deletes tag definitions of that scope
+
+This keeps scope deletion as a bulk operation driven by the scope owner, instead of modeling it as a sequence of explicit tag deletions.
+
 
 ## Purpose
 

@@ -7,7 +7,7 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
-import io.medatarun.tags.core.internal.TagBeforeDeleteEvt
+import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
 
@@ -1163,6 +1163,60 @@ class TagTest {
         assertFailsWith<TagManagedCommandIncompatibleTagRefException> {
             env.dispatch(TagAction.TagManagedUpdateDescription(tagRef(scopeRef, freeKey), "new-description"))
         }
+    }
+
+    @Test
+    fun `recipe delete deletes tags of recipe scope only`() {
+        // Why this test:
+        // Deleting a recipe emits a scope-delete event. tags-core must remove only free tags of that recipe scope.
+        val env = TagTestEnv()
+        val recipeId1 = sampleId()
+        val recipeId2 = sampleId()
+        val vehicleId = sampleId()
+        env.recipeService.createRecipe(Recipe(recipeId1, "recipe-1", emptyList()))
+        env.recipeService.createRecipe(Recipe(recipeId2, "recipe-2", emptyList()))
+        env.vehicleService.createVehicle(Vehicle(vehicleId, "vehicle-1", emptyList()))
+
+        val recipeScope1 = recipeScopeRef(recipeId1)
+        val recipeScope2 = recipeScopeRef(recipeId2)
+        val vehicleScope = vehicleScopeRef(vehicleId)
+
+        env.dispatch(TagAction.TagFreeCreate(recipeScope1, TagKey("recipe-1-tag"), null, null))
+        env.dispatch(TagAction.TagFreeCreate(recipeScope2, TagKey("recipe-2-tag"), null, null))
+        env.dispatch(TagAction.TagFreeCreate(vehicleScope, TagKey("vehicle-tag"), null, null))
+
+        env.recipeService.deleteRecipe(recipeId1)
+
+        assertNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope1, TagKey("recipe-1-tag"))))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope2, TagKey("recipe-2-tag"))))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope, TagKey("vehicle-tag"))))
+    }
+
+    @Test
+    fun `vehicle delete deletes tags of vehicle scope only`() {
+        // Why this test:
+        // Deleting a vehicle emits a scope-delete event. tags-core must remove only free tags of that vehicle scope.
+        val env = TagTestEnv()
+        val vehicleId1 = sampleId()
+        val vehicleId2 = sampleId()
+        val recipeId = sampleId()
+        env.vehicleService.createVehicle(Vehicle(vehicleId1, "vehicle-1", emptyList()))
+        env.vehicleService.createVehicle(Vehicle(vehicleId2, "vehicle-2", emptyList()))
+        env.recipeService.createRecipe(Recipe(recipeId, "recipe-1", emptyList()))
+
+        val vehicleScope1 = vehicleScopeRef(vehicleId1)
+        val vehicleScope2 = vehicleScopeRef(vehicleId2)
+        val recipeScope = recipeScopeRef(recipeId)
+
+        env.dispatch(TagAction.TagFreeCreate(vehicleScope1, TagKey("vehicle-1-tag"), null, null))
+        env.dispatch(TagAction.TagFreeCreate(vehicleScope2, TagKey("vehicle-2-tag"), null, null))
+        env.dispatch(TagAction.TagFreeCreate(recipeScope, TagKey("recipe-tag"), null, null))
+
+        env.vehicleService.deleteVehicle(vehicleId1)
+
+        assertNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope1, TagKey("vehicle-1-tag"))))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope2, TagKey("vehicle-2-tag"))))
+        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope, TagKey("recipe-tag"))))
     }
 
 

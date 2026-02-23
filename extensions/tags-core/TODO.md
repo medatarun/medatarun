@@ -9,32 +9,34 @@ Il liste :
 
 Le but est de pouvoir reprendre le sujet sans dépendre du contexte oral.
 
-## 1) Affectation de tags sur des objets métier (pas encore implémenté)
+## 1) Bascule des objets métier de `Hashtag` vers `TagId` (pas encore implémenté)
 
-Aujourd'hui `tags-core` gère correctement :
+Aujourd'hui les objets métier de `models-core` utilisent encore l'ancien système (`hashtags: List<Hashtag>`).
 
-- la définition des tags (`Tag`)
-- les groupes de tags (`TagGroup`)
-- les scopes (`TagScopeRef`)
-- les règles métier free/managed
+Le travail à faire n'est pas une migration de données : le logiciel est en cours de construction.
+On peut faire évoluer le modèle et le code sans gérer de migration.
 
-Mais il ne gère pas encore le fait de dire :
+Découpage du travail :
+- 1.1 ajouter le nouveau système à côté de l'ancien dans les objets métier (`tags: List<TagId>` en plus de `hashtags`)
+- 1.2 gérer la persistance et les commandes/requêtes backend pour lire / attacher / retirer les `TagId` sur `Model`, `Entity`, etc.
+- 1.3 brancher l'UI sur le nouveau système (c'est là que l'usage réel se joue pendant la transition)
+- 1.4 supprimer l'ancien système `Hashtag` (modèle, persistance, commandes/requêtes, UI)
 
-- "cet objet métier porte ce tag"
+Règle technique :
+- utiliser `TagId` comme référence dans les objets métier (pas `TagRef` par key), pour ne pas casser les liens si une key de tag change
 
-Il manque donc un modèle explicite d'affectation (liaison objet <-> `TagId`) et les commandes/requêtes associées.
+## 2) Règles pour autoriser/refuser l'attachement d'un tag à un objet (pas encore implémenté)
 
-Description de ce qu'il faudra faire :
-- définir une représentation générique d'affectation de tag à un objet (objet cible + `TagId`)
-- définir les commandes pour affecter / retirer un tag
-- définir les requêtes pour lire les tags d'un objet (et éventuellement les objets d'un tag)
-- garder `TagId` comme référence dans les affectations (pas `TagRef` par key) pour éviter les problèmes lors d'un changement de key
+Ce point concerne le moment où le point 1 existera (attacher un tag à un objet métier).
 
-## 2) Règles d'acceptation des scopes par les objets (pas encore implémenté)
+Quand on voudra faire :
+- "attacher le tag T à l'objet O"
 
-Le `README` décrit la règle métier cible : un objet doit définir quels scopes de tags il accepte.
+il faudra surtout vérifier qu'on n'attache pas à `O` un tag free qui vient d'un autre scope local.
+(`managed` global pourra en général être autorisé, selon la règle du module métier.)
 
-Le code actuel a déjà l'infrastructure de scope (`TagScopeRef`) mais pas encore la politique d'acceptation par type d'objet.
+Le code actuel a déjà l'infrastructure de scope (`TagScopeRef`) mais pas encore la règle métier
+qui dit quand refuser un tag parce qu'il vient du mauvais scope local.
 
 Exemple de règle attendue (plus tard) :
 - un objet de `model-core` accepte :
@@ -43,49 +45,6 @@ Exemple de règle attendue (plus tard) :
 - il refuse les tags free d'un autre modèle
 
 Description de ce qu'il faudra faire :
-- définir un contrat de validation d'affectation (scope autorisé ou non)
+- définir la validation au moment de l'attachement (surtout refuser les tags free d'un autre scope local)
 - décider où vit la règle (probablement dans les modules consommateurs, pas dans `tags-core`)
-- brancher cette validation dans les futures commandes d'affectation
-
-## 3) Flux inverse manquant : "scope supprimé" -> suppression des tags du scope
-
-Le flux `tags-core -> TagScopeManager` existe déjà :
-- avant suppression d'un tag, `TagCmdsImpl` notifie les managers (`onBeforeTagDelete`)
-
-Mais le flux inverse n'existe pas encore :
-- si un scope local disparaît (ex: un `Recipe` ou un `Vehicle` supprimé dans un module consommateur), il n'existe pas encore de mécanisme standard pour demander à `tags-core` de supprimer tous les tags de ce scope
-
-Description de ce qu'il faudra faire :
-- définir une interface/port pour les événements venant des managers vers `tags-core`
-- définir au moins le cas "scope supprimé"
-- fournir dans `tags-core` le traitement correspondant (supprimer les tags du scope)
-- définir ce qui est attendu si un des tags ne peut pas être supprimé (veto / erreur)
-
-
-
-## 7) Suppression en lot (ex: suppression d'un scope -> beaucoup de tags) : comportement à définir
-
-Quand le flux "scope supprimé -> supprimer tous les tags du scope" existera, il pourra supprimer plusieurs tags d'un coup.
-
-Problèmes à clarifier :
-- suppression unitaire répétée ou commande bulk dédiée ?
-- que faire si la suppression du 1er tag passe mais pas le 2e ?
-- faut-il un comportement tout-ou-rien ?
-
-Description de ce qu'il faudra faire :
-- définir la sémantique de suppression multiple
-- choisir si les événements sont émis par tag ou en bulk
-- écrire les tests de comportement attendu
-
-## 8) Contrat du `TagScopeManager` à préciser (responsabilités exactes)
-
-Aujourd'hui `TagScopeManager` fait déjà deux choses :
-- vérifier si un scope local existe (`localScopeExists`)
-- réagir avant suppression de tag (`onBeforeTagDelete`)
-
-C'est cohérent pour l'instant, mais le contrat va s'élargir avec le flux inverse (scope -> tags).
-
-Description de ce qu'il faudra clarifier :
-- quelles responsabilités appartiennent au manager (validation locale, veto, cleanup)
-- quelles responsabilités restent dans `tags-core` (orchestration)
-- comment exposer les événements remontants des managers vers `tags-core` sans couplage direct à `TagCmds`
+- brancher cette validation dans les futures commandes d'attachement de tags

@@ -1,8 +1,7 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.platform.kernel.Event
-import io.medatarun.platform.kernel.EventNotifier
 import io.medatarun.platform.kernel.EventSystem
+import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 
@@ -19,4 +18,3 @@ class TagCmdsEventsHandler(
     }
 }
 
-data class TagBeforeDeleteEvt(val id: TagId): Event

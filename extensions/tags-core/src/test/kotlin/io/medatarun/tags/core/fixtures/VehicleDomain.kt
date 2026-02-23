@@ -48,7 +48,7 @@ class VehicleService(
         vehicles[item.id] = item
     }
 
-    fun deleteehicle(id: SampleId) {
+    fun deleteVehicle(id: SampleId) {
         onBeforeDelete(id)
         vehicles.remove(id)
     }

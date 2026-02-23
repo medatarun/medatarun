@@ -11,8 +11,8 @@ import io.medatarun.tags.core.adapters.*
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
+import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.internal.*
-import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 
