@@ -7,7 +7,9 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
 import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
+import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.internal.EventSystemImpl
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.adapters.TagStorageSQLite
@@ -20,15 +22,20 @@ import io.medatarun.tags.core.fixtures.VehicleTagScopeManager
 import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
-import java.sql.Connection
 import kotlin.reflect.KClass
 
-class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
+class TagTestEnv(
+    val extraScopeManagers: List<TagScopeManager> = emptyList(),
+    val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
+) {
     val provider = TagActionProvider()
     var actionCtx = ActionCtxWithActor()
     val sqliteDbProvider = DbProviderSqlite.randomDb()
     val txManager = DbTransactionManagerImpl(sqliteDbProvider)
     val dbConnectionFactory: DbConnectionFactory = DbConnectionFactoryImpl(sqliteDbProvider, txManager)
+    val eventSystem = EventSystemImpl().also { e ->
+        extraListeners.forEach { e.registerObserver(TagBeforeDeleteEvt::class, it) }
+    }
 
     // Keeps a connection alive until this class lifecycle ends
     @Suppress("unused")
@@ -48,10 +55,25 @@ class TagTestEnv(extraScopeManagers: List<TagScopeManager> = emptyList()) {
             }
         }
     )
-    val tagEvents = TagCmdsEventsHandler(tagScopeRegistry)
+
+
+    val tagEvents = TagCmdsEventsHandler(eventSystem.createNotifier(TagBeforeDeleteEvt::class))
     val tagScopes = TagScopesImpl(tagScopeRegistry)
     val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents, txManager)
     val tagQueries = TagQueriesImpl(tagStorage)
+
+    init {
+        eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
+            override fun onEvent(evt: TagBeforeDeleteEvt) {
+                recipeService.removeTagEverywhere(evt.id)
+            }
+        })
+        eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
+            override fun onEvent(evt: TagBeforeDeleteEvt) {
+                vehicleService.removeTagEverywhere(evt.id)
+            }
+        })
+    }
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, actionCtx)
 

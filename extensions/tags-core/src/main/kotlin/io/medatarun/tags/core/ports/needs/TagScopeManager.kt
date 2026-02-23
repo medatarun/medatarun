@@ -1,6 +1,5 @@
 package io.medatarun.tags.core.ports.needs
 
-import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 
@@ -17,8 +16,5 @@ interface TagScopeManager {
      */
     fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean
 
-    /**
-     * Called before a tag is deleted. Implementations may throw to veto the deletion.
-     */
-    fun onBeforeTagDelete(tagId: TagId)
+
 }

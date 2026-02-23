@@ -79,7 +79,7 @@ class RecipeService {
         return recipeSteps[id] ?: throw TagTestIllegalStateException("RecipeStep not found: $id")
     }
 
-    fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {
+    fun removeTagEverywhere(tagId: TagId) {
         recipes.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
         ingredients.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
         recipeSteps.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
@@ -101,8 +101,6 @@ class RecipeTagScopeManager(
         return recipeService.existsRecipeById(SampleId(id))
     }
 
-    override fun onBeforeTagDelete(tagId: TagId) {
-        recipeService.removeTagEverywhere(tagId)
-    }
+
 }
 

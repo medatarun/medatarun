@@ -54,6 +54,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
         ModelsImportJdbcExtension(),
         FrictionlessdataExtension()
     )
+
     val serviceRegistry = MedatarunServiceRegistryImpl(config)
     val extensionPlatform = ExtensionPlaformImpl(extensions, serviceRegistry, config)
 

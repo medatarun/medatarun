@@ -2,7 +2,6 @@ package io.medatarun.tags.core.fixtures
 
 import io.medatarun.tags.core.TagTestIllegalStateException
 import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.ports.needs.TagScopeManager
@@ -30,9 +29,6 @@ data class VehiclePart(
 val vehicleScopeType = TagScopeType("vehicle")
 
 
-fun vehicleScopeRef(vehicleId: SampleId): TagScopeRef.Local {
-    return TagScopeRef.Local(vehicleScopeType, TagScopeId(vehicleId.value))
-}
 
 /**
  * In-memory test fixture service for vehicle-related objects.
@@ -58,7 +54,7 @@ class VehicleService {
         return vehicleParts[id] ?: throw TagTestIllegalStateException("VehiclePart not found: $id")
     }
 
-    fun removeTagEverywhere(tagId: io.medatarun.tags.core.domain.TagId) {
+    fun removeTagEverywhere(tagId: TagId) {
         vehicles.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
         vehicleParts.replaceAll { _, item -> item.copy(tags = item.tags.filter { it != tagId }) }
     }
@@ -78,7 +74,5 @@ class VehicleTagScopeManager(
         return vehicleService.existsVehicleById(id)
     }
 
-    override fun onBeforeTagDelete(tagId: TagId) {
-        vehicleService.removeTagEverywhere(tagId)
-    }
+
 }

@@ -1,11 +1,13 @@
 package io.medatarun.tags.core
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
+import io.medatarun.tags.core.internal.TagBeforeDeleteEvt
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
 
@@ -1011,11 +1013,16 @@ class TagTest {
                 return true
             }
 
-            override fun onBeforeTagDelete(tagId: TagId) {
-                throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${tagId.asString()}")
-            }
         }
-        val env = TagTestEnv(extraScopeManagers = listOf(vetoManager))
+        val env = TagTestEnv(
+            extraScopeManagers = listOf(vetoManager), extraListeners = listOf(
+            object : EventObserver<TagBeforeDeleteEvt> {
+                override fun onEvent(evt: TagBeforeDeleteEvt) {
+                    throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${evt.id.asString()}")
+                }
+
+            }
+        ))
         val scopeRef = createRecipeScope(env)
 
         val key = TagKey("mykey")
@@ -1099,11 +1106,16 @@ class TagTest {
                 return true
             }
 
-            override fun onBeforeTagDelete(tagId: TagId) {
-                throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${tagId.asString()}")
-            }
         }
-        val env = TagTestEnv(extraScopeManagers = listOf(vetoManager))
+        val env = TagTestEnv(
+            extraScopeManagers = listOf(vetoManager),
+            extraListeners = listOf(object : EventObserver<TagBeforeDeleteEvt> {
+                override fun onEvent(evt: TagBeforeDeleteEvt) {
+                    throw SampleScopeManagerDeleteVetoException("Deletion vetoed by scope manager for tag ${evt.id.asString()}")
+                }
+
+            })
+        )
         val groupKey = TagGroupKey("group-key")
         env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
         val group = env.tagStorage.findTagGroupByKeyOptional(groupKey)
@@ -1152,7 +1164,6 @@ class TagTest {
             env.dispatch(TagAction.TagManagedUpdateDescription(tagRef(scopeRef, freeKey), "new-description"))
         }
     }
-
 
 
 }

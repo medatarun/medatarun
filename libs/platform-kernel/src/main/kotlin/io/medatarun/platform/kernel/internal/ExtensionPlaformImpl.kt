@@ -7,7 +7,7 @@ class ExtensionPlaformImpl(
     private val serviceRegistry: MedatarunServiceRegistryImpl,
     private val config: MedatarunConfig
 ) : ExtensionPlatform {
-
+    private val eventSystem = EventSystemImpl()
     override val extensionRegistry: ExtensionRegistry = createExtensionRegistry()
 
     fun createExtensionRegistry(): ExtensionRegistryImpl {
@@ -22,6 +22,7 @@ class ExtensionPlaformImpl(
         // can at least access the core services, including the service registry itself, and the extension registry.
         serviceRegistry.register(ExtensionRegistry::class, extensionRegistry)
         serviceRegistry.register(MedatarunServiceRegistry::class, serviceRegistry)
+        serviceRegistry.register(EventSystem::class, eventSystem)
 
         // Now let's fetch all services from all extensions
         // We must respect the order since extensions can depend on each other.
