@@ -150,7 +150,6 @@ class ModelTest {
 
     class TestEnvOneModel {
         private val env = createEnv()
-        val cmd: ModelCmds = env.cmd
         val query: ModelQueries = env.queries
         private val modelKey = ModelKey("m1")
         val modelRef = modelRef(modelKey)
@@ -291,7 +290,6 @@ class ModelTest {
 
     class TestEnvTypes {
         val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("m1")
         val modelRef = modelRefKey(ModelKey("m1"))
@@ -709,7 +707,6 @@ class ModelTest {
 
     class TestEnvEntityUpdate {
         val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("model-entity-update")
         val modelRef = modelRefKey(ModelKey("model-entity-update"))
@@ -1394,7 +1391,6 @@ class ModelTest {
 
     class TestEnvInvalidModel {
         val runtime = createEnv()
-        val cmd = runtime.cmd
         val dispatch = runtime::dispatch
         val query = runtime.queries
         private val modelKey = ModelKey("test")

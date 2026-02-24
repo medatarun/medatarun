@@ -10,7 +10,6 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.infra.ModelRepositoryInMemory
-import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelRepository
 import io.medatarun.platform.db.PlatformStorageDbExtension
@@ -61,23 +60,22 @@ class ModelTestEnv(val repositories: List<ModelRepositoryInMemory> = emptyList()
         extensions = extensions
     ).buildAndStart()
 
-    val cmd
-        get() = platform.services.getService(ModelCmds::class)
-
     val queries
         get() = platform.services.getService(ModelQueries::class)
 
-    fun dispatch(action: ModelAction) {
-        val a = ModelActionProvider(platform.config.createResourceLocator())
-        a.dispatch(action, object: ActionCtx {
-            override val extensionRegistry: ExtensionRegistry = platform.extensions
-            override fun dispatchAction(req: ActionRequest): Any =
-                throw IllegalStateException("Should not be called in tests")
+    private val actionProvider = ModelActionProvider(platform.config.createResourceLocator())
+    private val actionCtx = object : ActionCtx {
+        override val extensionRegistry: ExtensionRegistry = platform.extensions
+        override fun dispatchAction(req: ActionRequest): Any =
+            throw IllegalStateException("Should not be called in tests")
 
-            override fun <T : Any> getService(type: KClass<T>): T = platform.services.getService(type)
-            override val principal: ActionPrincipalCtx
-                get() = throw IllegalStateException("Should not be called")
-        })
+        override fun <T : Any> getService(type: KClass<T>): T = platform.services.getService(type)
+        override val principal: ActionPrincipalCtx
+            get() = throw IllegalStateException("Should not be called")
+    }
+
+    fun dispatch(action: ModelAction) {
+        actionProvider.dispatch(action, actionCtx)
     }
 }
 
