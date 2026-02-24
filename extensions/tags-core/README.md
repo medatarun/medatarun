@@ -24,7 +24,6 @@ Other modules consume this core and define how tags can be applied to their own 
 
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
-- helper(s) for scope compatibility checks when attaching tags to business objects
 - richer consumer-module UX integration (display/search/select real tags, transport `TagId`)
 
 ### Current integration progress in `model-core` (important)
@@ -35,12 +34,14 @@ and resolves `TagRef` at command/API boundaries.
 Current state of that integration:
 
 - backend attach/detach flows are implemented
+- attach-time scope acceptance checks are implemented in `model-core` (global + same-model local allowed, foreign local rejected)
 - model JSON serialization uses `tags` (list of tag ids)
 - search filters are being migrated to `TagRef`
+- `model` local tag scope is declared by `ModelExtension` and validated via `ModelQueries`
+- attachment policy is implemented in `model-core` (`ModelTagResolver`), not in `TagQueries`
 
 Still missing / not stabilized:
 
-- attach-time scope acceptance checks (global vs same-model local vs foreign local)
 - UI behavior based on real tags (display/search/selection), instead of ids only
 - dedicated test coverage for tag-based search and import edge cases
 

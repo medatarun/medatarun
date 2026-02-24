@@ -295,6 +295,15 @@ class ModelTest {
     }
 
     @Test
+    fun `add local tag of same model on model persists tag ids`() {
+        val env = TestEnvOneModel()
+        val localTag = createFreeTagInModelScope(env.runtime, env.modelRef, "local-model-tag")
+
+        env.dispatch(ModelAction.Model_AddTag(env.modelRef, localTag.ref))
+        assertEquals(listOf(localTag.id), env.query.findModel(env.modelRef).tags)
+    }
+
+    @Test
     fun `add local tag of another model on model then error`() {
         val env = TestEnvOneModel()
         val foreignModelRef = modelRefKey("m2")
@@ -962,6 +971,15 @@ class ModelTest {
     }
 
     @Test
+    fun `add local tag of same model on entity persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val localTag = createFreeTagInModelScope(env.runtime, env.modelRef, "local-entity-tag")
+
+        env.dispatch(ModelAction.Entity_AddTag(env.modelRef, env.primaryEntityRef, localTag.ref))
+        assertEquals(listOf(localTag.id), env.query.findEntity(env.modelRef, env.primaryEntityRef).tags)
+    }
+
+    @Test
     fun `add local tag of another model on entity then error`() {
         val env = TestEnvEntityUpdate()
         val foreignModelRef = modelRefKey("model-entity-update-2")
@@ -1521,6 +1539,25 @@ class ModelTest {
     }
 
     @Test
+    fun `add local tag of same model on entity attribute persists tag ids`() {
+        val env = TestEnvAttribute()
+        env.addSampleEntity()
+        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
+        val localTag = createFreeTagInModelScope(env.runtime, env.sampleModelRef, "local-ea-tag")
+
+        env.dispatch(
+            ModelAction.EntityAttribute_AddTag(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                EntityAttributeRef.ById(attribute.id),
+                localTag.ref
+            )
+        )
+        val added = env.query.findEntityAttribute(env.sampleModelRef, env.sampleEntityRef, EntityAttributeRef.ById(attribute.id))
+        assertEquals(listOf(localTag.id), added.tags)
+    }
+
+    @Test
     fun `add local tag of another model on entity attribute then error`() {
         val env = TestEnvAttribute()
         env.addSampleEntity()
@@ -1581,6 +1618,34 @@ class ModelTest {
 
         env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, managedTag.ref))
         assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+    }
+
+    @Test
+    fun `add local tag of same model on relationship persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("works-with")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val localTag = createFreeTagInModelScope(env.runtime, env.modelRef, "local-rel-tag")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("a"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("b"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+
+        env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, localTag.ref))
+        assertEquals(listOf(localTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
     }
 
     @Test
@@ -1666,6 +1731,48 @@ class ModelTest {
         val deleted = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(deleted)
         assertTrue(deleted.tags.isEmpty())
+    }
+
+    @Test
+    fun `add local tag of same model on relationship attribute persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("employs")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
+        val localTag = createFreeTagInModelScope(env.runtime, env.modelRef, "local-rel-attr-tag")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("employer"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("employee"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+        env.dispatch(
+            ModelAction.RelationshipAttribute_Create(
+                modelRef = env.modelRef,
+                relationshipRef = relationshipRef,
+                attributeKey = AttributeKey("startDate"),
+                type = typeRef("String"),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+
+        env.dispatch(ModelAction.RelationshipAttribute_AddTag(env.modelRef, relationshipRef, attributeRef, localTag.ref))
+        val added = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        assertNotNull(added)
+        assertEquals(listOf(localTag.id), added.tags)
     }
 
     @Test

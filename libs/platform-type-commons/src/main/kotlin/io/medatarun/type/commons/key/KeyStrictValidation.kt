@@ -1,7 +1,7 @@
 package io.medatarun.type.commons.key
 
 /**
- * Strict key validation for user-facing keys such as tags/hashtags.
+ * Strict key validation for user-facing keys such as tags.
  *
  * Allowed characters are intentionally limited to letters, digits, '_' and '-'.
  * Case is preserved.
@@ -29,4 +29,3 @@ object KeyStrictValidation {
             ch == '-'
     }
 }
-
