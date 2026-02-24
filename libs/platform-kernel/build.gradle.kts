@@ -12,5 +12,6 @@ dependencies {
     implementation(libs.slf4j)
     implementation(project(":libs:lang"))
     testImplementation(kotlin("test"))
+    testImplementation(libs.jimfs)
     testImplementation(libs.logback)
 }

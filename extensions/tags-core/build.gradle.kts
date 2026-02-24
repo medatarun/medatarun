@@ -20,4 +20,5 @@ dependencies {
     implementation(project(":libs:platform-storage-db-sqlite"))
     testImplementation(kotlin("test"))
     testImplementation(libs.logback)
+    testImplementation(libs.jimfs)
 }

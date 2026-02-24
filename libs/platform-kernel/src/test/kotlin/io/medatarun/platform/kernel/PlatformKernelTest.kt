@@ -1,6 +1,9 @@
 package io.medatarun.platform.kernel
 
+import com.google.common.jimfs.Jimfs
+import io.medatarun.platform.kernel.MedatarunConfig.Companion.createTempConfig
 import java.nio.file.Path
+import javax.security.auth.login.AppConfigurationEntry
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,11 +75,5 @@ class PlatformKernelTest {
             }
         }
     }
-    val config = object : MedatarunConfig {
-        override val applicationHomeDir: Path = Path.of("/tmp")
-        override val projectDir: Path = Path.of("/tmp/project")
-        override fun getProperty(key: String): String? = null
-        override fun getProperty(key: String, defaultValue: String): String = defaultValue
-        override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Not to use in tests")
-    }
+    val config = createTempConfig(Jimfs.newFileSystem(), emptyMap())
 }

@@ -1,5 +1,6 @@
 package io.medatarun.tags.core
 
+import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
@@ -9,6 +10,7 @@ import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension.Companion.JDBC_URL_PROPERTY
 import io.medatarun.platform.kernel.*
+import io.medatarun.platform.kernel.MedatarunConfig.Companion.createTempConfig
 import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
@@ -18,7 +20,6 @@ import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeSystemExtension
-import java.nio.file.Path
 import kotlin.reflect.KClass
 
 class VehicleExtension : MedatarunExtension {
@@ -95,20 +96,6 @@ class TagTestEnv(
     val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
 ) {
 
-    val config = object : MedatarunConfig {
-        override val applicationHomeDir: Path = Path.of("/tmp/medatarun")
-        override val projectDir: Path = Path.of("/tmp/medatarun/project")
-        override fun getProperty(key: String): String? {
-            if (key == JDBC_URL_PROPERTY) return DbProviderSqlite.randomDbUrl()
-            return null
-        }
-
-        override fun getProperty(key: String, defaultValue: String): String {
-            return getProperty(key) ?: defaultValue
-        }
-
-        override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Test should not use this")
-    }
     val extensions = listOf(
         TypeSystemExtension(),
         ActionsExtension(),
@@ -120,7 +107,13 @@ class TagTestEnv(
         RecipeExtension(),
         ExtraExtension(extraScopeManagers, extraListeners)
     )
-    val platform = PlatformBuilder(config, extensions).buildAndStart()
+    val platform = PlatformBuilder(
+        createTempConfig(
+            newFileSystem(),
+            mapOf(
+                JDBC_URL_PROPERTY to DbProviderSqlite.randomDbUrl()
+            )
+        ), extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()
     val vehicleService get() = platform.services.getService<VehicleService>()
