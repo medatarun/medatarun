@@ -14,7 +14,7 @@ import org.junit.platform.commons.logging.LoggerFactory
 class ModelTestRuntime private constructor (
     val repositories: List<ModelRepositoryInMemory>
 ) {
-    val storages = ModelStoragesComposite(repositories, ModelValidationImpl())
+    val storages = ModelStoragesComposite({ repositories }, ModelValidationImpl())
     val cmd: ModelCmds = ModelCmdsImpl(storages, object : ModelAuditor {
         override fun onCmdProcessed(cmd: ModelCmd) {
             logger.info { "onCmdProcessed: $cmd" }

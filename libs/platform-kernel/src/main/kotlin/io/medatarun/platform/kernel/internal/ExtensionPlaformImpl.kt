@@ -2,7 +2,13 @@ package io.medatarun.platform.kernel.internal
 
 import io.medatarun.platform.kernel.*
 
+/**
+ *
+ */
 class ExtensionPlaformImpl(
+    /**
+     * Extensions must be given in the correct dependency order
+     */
     private val extensions: List<MedatarunExtension>,
     private val serviceRegistry: MedatarunServiceRegistryImpl,
     private val config: MedatarunConfig

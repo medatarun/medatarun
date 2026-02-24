@@ -9,12 +9,19 @@ import io.medatarun.model.ports.needs.*
  * available [io.medatarun.model.ports.needs.ModelRepository] declared in the contribution point.
  */
 class ModelStoragesComposite(
-    val repositories: List<ModelRepository>,
+    val _repositories: () -> List<ModelRepository>,
     val modelValidation: ModelValidation,
 ) : ModelStorages {
 
+    val repositories: List<ModelRepository>
+        get() {
+            val r = _repositories.invoke()
+            if (r.isEmpty()) throw ModelStoragesCompositeNoRepositoryException()
+            return r
+        }
+
     init {
-        if (repositories.isEmpty()) throw ModelStoragesCompositeNoRepositoryException()
+
     }
 
     override fun existsModelByKey(modelKey: ModelKey): Boolean {

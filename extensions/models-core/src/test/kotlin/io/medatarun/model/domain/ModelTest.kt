@@ -18,7 +18,8 @@ class ModelTest {
     @Test
     fun `can not instantiate storages without repositories`() {
         assertFailsWith(ModelStoragesCompositeNoRepositoryException::class) {
-            ModelStoragesComposite(emptyList(), ModelValidationImpl())
+            val c = ModelStoragesComposite({ emptyList() }, ModelValidationImpl())
+            c.findAllModelIds()
         }
     }
 
