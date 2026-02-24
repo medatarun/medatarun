@@ -9,13 +9,13 @@ import kotlin.test.assertTrue
 class PlatformKernelTest {
     @Test
     fun `platform builds`() {
-        platform(listOf(ExtensionRecipe(), ExtensionVehicle()))
+        PlatformBuilder(config, listOf(ExtensionRecipe(), ExtensionVehicle())).buildAndStart()
     }
 
     @Test
     fun `events fired and received`() {
 
-        val p = platform(listOf(ExtensionRecipe(), ExtensionVehicle()))
+        val p = PlatformBuilder(config, listOf(ExtensionRecipe(), ExtensionVehicle())).buildAndStart()
         val vehicle = p.services.getService<ExtensionVehicle.VehicleService>()
         val recipe = p.services.getService<ExtensionRecipe.RecipeService>()
         assertTrue(vehicle.driving.isEmpty())
@@ -72,21 +72,11 @@ class PlatformKernelTest {
             }
         }
     }
-
-    fun platform(
-        extensions: List<MedatarunExtension> = listOf(
-            ExtensionRecipe(),
-            ExtensionVehicle()
-        )
-    ): PlatformRuntime {
-        val config = object : MedatarunConfig {
-            override val applicationHomeDir: Path = Path.of("/tmp")
-            override val projectDir: Path = Path.of("/tmp/project")
-            override fun getProperty(key: String): String? = null
-            override fun getProperty(key: String, defaultValue: String): String = defaultValue
-            override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Not to use in tests")
-        }
-        val runtime = PlatformBuilder(config, extensions).buildAndStart()
-        return runtime
+    val config = object : MedatarunConfig {
+        override val applicationHomeDir: Path = Path.of("/tmp")
+        override val projectDir: Path = Path.of("/tmp/project")
+        override fun getProperty(key: String): String? = null
+        override fun getProperty(key: String, defaultValue: String): String = defaultValue
+        override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Not to use in tests")
     }
 }
