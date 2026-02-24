@@ -377,6 +377,7 @@ class ModelTest {
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("m1")
         val modelRef = modelRefKey(ModelKey("m1"))
+        val dispatch = runtime::dispatch
 
         init {
             runtime.dispatch(
@@ -435,10 +436,12 @@ class ModelTest {
     fun `create type on unknown model throw ModelNotFoundException`() {
         val env = TestEnvTypes()
         assertThrows<ModelNotFoundException> {
-            env.cmd.dispatch(
-                ModelCmd.CreateType(
-                    modelRefKey("unknown"),
-                    ModelTypeInitializer(TypeKey("String"), null, null)
+            env.dispatch(
+                ModelAction.Type_Create(
+                    modelRef = modelRefKey("unknown"),
+                    typeKey = TypeKey("String"),
+                    name = null,
+                    description = null
                 )
             )
         }
@@ -447,12 +450,14 @@ class ModelTest {
     @Test
     fun `create type with duplicate name throws DuplicateTypeException`() {
         val env = TestEnvTypes()
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(TypeKey("String"), null, null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
         assertThrows<TypeCreateDuplicateException> {
-            env.cmd.dispatch(
-                ModelCmd.CreateType(
-                    env.modelRef,
-                    ModelTypeInitializer(TypeKey("String"), null, null)
+            env.dispatch(
+                ModelAction.Type_Create(
+                    modelRef = env.modelRef,
+                    typeKey = TypeKey("String"),
+                    name = null,
+                    description = null
                 )
             )
         }
@@ -463,12 +468,12 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
-        env.cmd.dispatch(
-            ModelCmd.UpdateType(
-                env.modelRef,
-                typeRef,
-                ModelTypeUpdateCmd.Name(LocalizedTextNotLocalized("This is a string"))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(
+            ModelAction.Type_UpdateName(
+                modelRef = env.modelRef,
+                typeRef = typeRef,
+                value = LocalizedTextNotLocalized("This is a string")
             )
         )
         val t = env.model.findTypeOptional(typeRef)
@@ -481,8 +486,8 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
-        env.cmd.dispatch(ModelCmd.UpdateType(env.modelRef, typeRef, ModelTypeUpdateCmd.Name(null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(ModelAction.Type_UpdateName(env.modelRef, typeRef, null))
         val t = env.model.findTypeOptional(typeRef)
         assertNotNull(t)
         assertNull(t.name)
@@ -493,12 +498,12 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
-        env.cmd.dispatch(
-            ModelCmd.UpdateType(
-                env.modelRef,
-                typeRef,
-                ModelTypeUpdateCmd.Description(LocalizedMarkdownNotLocalized("This is a string"))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(
+            ModelAction.Type_UpdateDescription(
+                modelRef = env.modelRef,
+                typeRef = typeRef,
+                value = LocalizedMarkdownNotLocalized("This is a string")
             )
         )
         val t = env.model.findTypeOptional(typeRef)
@@ -511,8 +516,8 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
-        env.cmd.dispatch(ModelCmd.UpdateType(env.modelRef, typeRef, ModelTypeUpdateCmd.Description(null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
+        env.dispatch(ModelAction.Type_UpdateDescription(env.modelRef, typeRef, null))
         val t = env.model.findTypeOptional(typeRef)
         assertNotNull(t)
         assertNull(t.description)
@@ -523,13 +528,13 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
         assertThrows<ModelNotFoundException> {
-            env.cmd.dispatch(
-                ModelCmd.UpdateType(
-                    modelRefKey("unknown"),
-                    typeRef,
-                    ModelTypeUpdateCmd.Description(null)
+            env.dispatch(
+                ModelAction.Type_UpdateDescription(
+                    modelRef = modelRefKey("unknown"),
+                    typeRef = typeRef,
+                    value = null
                 )
             )
         }
@@ -539,13 +544,13 @@ class ModelTest {
     fun `update type with type not found`() {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
         assertThrows<TypeNotFoundException> {
-            env.cmd.dispatch(
-                ModelCmd.UpdateType(
-                    env.modelRef,
-                    TypeRef.ByKey(TypeKey("String2")),
-                    ModelTypeUpdateCmd.Description(null)
+            env.dispatch(
+                ModelAction.Type_UpdateDescription(
+                    modelRef = env.modelRef,
+                    typeRef = TypeRef.ByKey(TypeKey("String2")),
+                    value = null
                 )
             )
         }
@@ -556,9 +561,9 @@ class ModelTest {
         val env = TestEnvTypes()
         val typeKey = TypeKey("String")
         val typeRef = TypeRef.ByKey(typeKey)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
         assertThrows<ModelNotFoundException> {
-            env.cmd.dispatch(ModelCmd.DeleteType(modelRefKey("unknown"), typeRef))
+            env.dispatch(ModelAction.Type_Delete(modelRefKey("unknown"), typeRef))
         }
     }
 
@@ -568,9 +573,9 @@ class ModelTest {
         val typeKey = TypeKey("String")
         val typeKeyWrong = TypeKey("String2")
         val typeRefWrong = TypeRef.ByKey(typeKeyWrong)
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(typeKey, null, null)))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
         assertThrows<TypeNotFoundException> {
-            env.cmd.dispatch(ModelCmd.DeleteType(env.modelRef, typeRefWrong))
+            env.dispatch(ModelAction.Type_Delete(env.modelRef, typeRefWrong))
         }
     }
 
@@ -620,10 +625,10 @@ class ModelTest {
     @Test
     fun `delete type success`() {
         val env = TestEnvTypes()
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(TypeKey("String"), null, null)))
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(TypeKey("Markdown"), null, null)))
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(TypeKey("Int"), null, null)))
-        env.cmd.dispatch(ModelCmd.DeleteType(env.modelRef, TypeRef.ByKey(TypeKey("Int"))))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Markdown"), null, null))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Int"), null, null))
+        env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Int"))))
         assertNull(env.model.findTypeOptional(TypeRef.ByKey(TypeKey("Int"))))
         assertNotNull(env.model.findTypeOptional(typeRef("String")))
         assertNotNull(env.model.findTypeOptional(TypeRef.ByKey(TypeKey("Markdown"))))
