@@ -1,5 +1,6 @@
 package io.medatarun.model.domain
 
+import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelValidationImpl
@@ -30,14 +31,14 @@ class ModelTest {
     fun `create model fail with ambiguous storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val cmd = createEnv(repositories = listOf(repo1, repo2)).cmd
+        val env = createEnv(repositories = listOf(repo1, repo2))
         assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
-            cmd.dispatch(
-                ModelCmd.CreateModel(
-                    ModelKey("m1"),
-                    LocalizedTextNotLocalized("M1"),
-                    null,
-                    ModelVersion("1.0.0")
+            env.dispatch(
+                ModelAction.Model_Create(
+                    modelKey = ModelKey("m1"),
+                    name = LocalizedTextNotLocalized("M1"),
+                    description = null,
+                    version = ModelVersion("1.0.0")
                 )
             )
         }
@@ -46,15 +47,15 @@ class ModelTest {
     @Test
     fun `create model ok with one storage mode auto`() {
         val repo1 = ModelRepositoryInMemory("repo1")
-        val cmd = createEnv(repositories = listOf(repo1)).cmd
+        val env = createEnv(repositories = listOf(repo1))
         val modelKey = ModelKey("m1")
         assertDoesNotThrow {
-            cmd.dispatch(
-                ModelCmd.CreateModel(
-                    modelKey,
-                    LocalizedTextNotLocalized("M1"),
-                    null,
-                    ModelVersion("1.0.0")
+            env.dispatch(
+                ModelAction.Model_Create(
+                    modelKey = modelKey,
+                    name = LocalizedTextNotLocalized("M1"),
+                    description = null,
+                    version = ModelVersion("1.0.0")
                 )
             )
         }
@@ -88,16 +89,15 @@ class ModelTest {
 
     @Test
     fun `create model with name description and version when present`() {
-        val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
-        val query: ModelQueries = runtime.queries
+        val env = createEnv()
+        val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m-")
         val name = LocalizedTextNotLocalized("Model name")
         val description = LocalizedMarkdownNotLocalized("Model description")
         val version = ModelVersion("2.0.0")
 
-        cmd.dispatch(ModelCmd.CreateModel(modelKey, name, description, version))
+        env.dispatch(ModelAction.Model_Create(modelKey, name, description, version))
 
         val reloaded = query.findModelByKey(modelKey)
         assertEquals(name, reloaded.name)
@@ -108,15 +108,14 @@ class ModelTest {
     @Test
     fun `create model keeps values without optional description`() {
 
-        val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
-        val query: ModelQueries = runtime.queries
+        val env = createEnv()
+        val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m")
         val name = LocalizedTextNotLocalized("Model without description")
         val version = ModelVersion("3.0.0")
 
-        cmd.dispatch(ModelCmd.CreateModel(modelKey, name, null, version))
+        env.dispatch(ModelAction.Model_Create(modelKey, name, null, version))
 
         val reloaded = query.findModelByKey(modelKey)
         assertEquals(name, reloaded.name)
@@ -130,68 +129,74 @@ class ModelTest {
 
     @Test
     fun `updates on model fails if model not found`() {
-        val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
-        val query: ModelQueries = runtime.queries
+        val env = createEnv()
+        val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m1")
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey,
-                LocalizedTextNotLocalized("Model name"),
-                null,
-                ModelVersion("2.0.0")
+        env.dispatch(
+            ModelAction.Model_Create(
+                modelKey = modelKey,
+                name = LocalizedTextNotLocalized("Model name"),
+                description = null,
+                version = ModelVersion("2.0.0")
             )
         )
         val modelKeyWrong = modelRefKey("m2")
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.dispatch(
-                ModelCmd.UpdateModelName(
-                    modelKeyWrong,
-                    LocalizedTextNotLocalized("other")
+            env.dispatch(
+                ModelAction.Model_UpdateName(
+                    modelRef = modelKeyWrong,
+                    value = LocalizedTextNotLocalized("other")
                 )
             )
         }
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.dispatch(
-                ModelCmd.UpdateModelDescription(
-                    modelKeyWrong,
-                    LocalizedMarkdownNotLocalized("other description")
+            env.dispatch(
+                ModelAction.Model_UpdateDescription(
+                    modelRef = modelKeyWrong,
+                    value = LocalizedMarkdownNotLocalized("other description")
                 )
             )
         }
         assertFailsWith(ModelNotFoundException::class) {
-            cmd.dispatch(
-                ModelCmd.UpdateModelVersion(
-                    modelKeyWrong,
-                    ModelVersion("3.0.0")
+            env.dispatch(
+                ModelAction.Model_UpdateVersion(
+                    modelRef = modelKeyWrong,
+                    value = ModelVersion("3.0.0")
                 )
             )
         }
-        cmd.dispatch(ModelCmd.UpdateModelName(modelRefKey(modelKey), LocalizedTextNotLocalized("Model name 2")))
+        env.dispatch(
+            ModelAction.Model_UpdateName(
+                modelRef = modelRefKey(modelKey),
+                value = LocalizedTextNotLocalized("Model name 2")
+            )
+        )
         assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelByKey(modelKey).name)
     }
 
     class TestEnvOneModel {
-        val runtime = createEnv()
-        val cmd: ModelCmds = runtime.cmd
-        val query: ModelQueries = runtime.queries
+        private val env = createEnv()
+        val cmd: ModelCmds = env.cmd
+        val query: ModelQueries = env.queries
         private val modelKey = ModelKey("m1")
         val modelRef = modelRef(modelKey)
-
+        val dispatch = env::dispatch
         init {
-            cmd.dispatch(
-                ModelCmd.CreateModel(
-                    modelKey,
-                    LocalizedTextNotLocalized("Model name"),
-                    null,
-                    ModelVersion("2.0.0")
+            env.dispatch(
+                ModelAction.Model_Create(
+                    modelKey = modelKey,
+                    name = LocalizedTextNotLocalized("Model name"),
+                    description = null,
+                    version = ModelVersion("2.0.0")
                 )
             )
-            cmd.dispatch(
-                ModelCmd.CreateType(
+            env.dispatch(
+                ModelAction.Type_Create(
                     modelRef = modelRef,
-                    initializer = ModelTypeInitializer(TypeKey("String"), null, null)
+                    typeKey = TypeKey("String"),
+                    name = null,
+                    description = null
                 )
             )
         }
@@ -201,17 +206,22 @@ class ModelTest {
     @Test
     fun `updates on model name persists the name`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(ModelCmd.UpdateModelName(env.modelRef, LocalizedTextNotLocalized("Model name 2")))
+        env.dispatch(
+            ModelAction.Model_UpdateName(
+                modelRef = env.modelRef,
+                value = LocalizedTextNotLocalized("Model name 2")
+            )
+        )
         assertEquals(LocalizedTextNotLocalized("Model name 2"), env.query.findModel(env.modelRef).name)
     }
 
     @Test
     fun `updates on model description persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(
-            ModelCmd.UpdateModelDescription(
-                env.modelRef,
-                LocalizedMarkdownNotLocalized("Model description 2")
+        env.dispatch(
+            ModelAction.Model_UpdateDescription(
+                modelRef = env.modelRef,
+                value = LocalizedMarkdownNotLocalized("Model description 2")
             )
         )
         assertEquals(
@@ -223,20 +233,20 @@ class ModelTest {
     @Test
     fun `updates on model description to null persists the description`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(
-            ModelCmd.UpdateModelDescription(
-                env.modelRef,
-                LocalizedMarkdownNotLocalized("Model description 2")
+        env.dispatch(
+            ModelAction.Model_UpdateDescription(
+                modelRef = env.modelRef,
+                value = LocalizedMarkdownNotLocalized("Model description 2")
             )
         )
-        env.cmd.dispatch(ModelCmd.UpdateModelDescription(env.modelRef, null))
+        env.dispatch(ModelAction.Model_UpdateDescription(env.modelRef, null))
         assertNull(env.query.findModel(env.modelRef).description)
     }
 
     @Test
     fun `updates on model version persists the version`() {
         val env = TestEnvOneModel()
-        env.cmd.dispatch(ModelCmd.UpdateModelVersion(env.modelRef, ModelVersion("4.5.6")))
+        env.dispatch(ModelAction.Model_UpdateVersion(env.modelRef, ModelVersion("4.5.6")))
         assertEquals(ModelVersion("4.5.6"), env.query.findModel(env.modelRef).version)
     }
 
@@ -244,7 +254,7 @@ class ModelTest {
     fun `update documentation home with value then updated`() {
         val env = TestEnvOneModel()
         val url = URI("https://some.url/index.html").toURL()
-        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelRef, url))
+        env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, url.toString()))
         assertEquals(url, env.query.findModel(env.modelRef).documentationHome)
     }
 
@@ -252,8 +262,8 @@ class ModelTest {
     fun `update documentation home with null then updated to null`() {
         val env = TestEnvOneModel()
         val url = URI("https://some.url/index.html").toURL()
-        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelRef, url))
-        env.cmd.dispatch(ModelCmd.UpdateModelDocumentationHome(env.modelRef, null))
+        env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, url.toString()))
+        env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, null))
         assertNull(env.query.findModel(env.modelRef).documentationHome)
     }
 
@@ -369,12 +379,12 @@ class ModelTest {
         val modelRef = modelRefKey(ModelKey("m1"))
 
         init {
-            cmd.dispatch(
-                ModelCmd.CreateModel(
-                    modelKey,
-                    LocalizedTextNotLocalized("Model name"),
-                    null,
-                    ModelVersion("2.0.0")
+            runtime.dispatch(
+                ModelAction.Model_Create(
+                    modelKey = modelKey,
+                    name = LocalizedTextNotLocalized("Model name"),
+                    description = null,
+                    version = ModelVersion("2.0.0")
                 )
             )
         }
@@ -388,14 +398,12 @@ class ModelTest {
     @Test
     fun `create type`() {
         val env = TestEnvTypes()
-        env.cmd.dispatch(
-            ModelCmd.CreateType(
-                env.modelRef,
-                ModelTypeInitializer(
-                    TypeKey("String"),
-                    LocalizedTextNotLocalized("Simple string"),
-                    LocalizedMarkdownNotLocalized("Simple string description")
-                )
+        env.runtime.dispatch(
+            ModelAction.Type_Create(
+                modelRef = env.modelRef,
+                typeKey = TypeKey("String"),
+                name = LocalizedTextNotLocalized("Simple string"),
+                description = LocalizedMarkdownNotLocalized("Simple string description")
             )
         )
         assertEquals(1, env.model.types.size)
@@ -408,7 +416,14 @@ class ModelTest {
     @Test
     fun `create type without name and description`() {
         val env = TestEnvTypes()
-        env.cmd.dispatch(ModelCmd.CreateType(env.modelRef, ModelTypeInitializer(TypeKey("String"), null, null)))
+        env.runtime.dispatch(
+            ModelAction.Type_Create(
+                modelRef = env.modelRef,
+                typeKey = TypeKey("String"),
+                name = null,
+                description = null
+            )
+        )
         assertEquals(1, env.model.types.size)
         val type = env.model.findTypeOptional(TypeKey("String"))
         assertNotNull(type)
