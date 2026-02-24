@@ -40,7 +40,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
             put("name", model.name?.get(locale))
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
-            put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
+            put("tags", JsonArray(model.tags.map { JsonPrimitive(it.value.toString()) }))
             put("description", model.description?.get(locale))
             val origin = model.origin
             put(
@@ -91,7 +91,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
             put("key", relationship.key.asString())
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
-            put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
+            put("tags", JsonArray(relationship.tags.map { JsonPrimitive(it.value.toString()) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
@@ -112,8 +112,8 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
                     put("type", attr.typeId.value.toString())
                     put("optional", attr.optional)
                     put("identifierAttribute", false)
-                    putJsonArray("hashtags") {
-                        attr.hashtags.forEach { add(it.value) }
+                    putJsonArray("tags") {
+                        attr.tags.forEach { add(it.value.toString()) }
                     }
                 }
             } }
@@ -136,8 +136,8 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
             put("name", name)
             put("description", description)
             put("documentationHome", documentationHome?.toExternalForm())
-            putJsonArray("hashtags") {
-                e.hashtags.forEach { add(it.value) }
+            putJsonArray("tags") {
+                e.tags.forEach { add(it.value.toString()) }
             }
             putJsonObject("model") {
                 put("id", model.key.value)
@@ -166,8 +166,8 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
                         put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
                         put("identifierAttribute", e.identifierAttributeId == attr.id)
-                        putJsonArray("hashtags") {
-                            attr.hashtags.forEach { add(it.value) }
+                        putJsonArray("tags") {
+                            attr.tags.forEach { add(it.value.toString()) }
                         }
                     }
                 }
@@ -220,5 +220,4 @@ data class ActionParamDescriptorDto(
     val description: String?,
     val order: Int
 )
-
 

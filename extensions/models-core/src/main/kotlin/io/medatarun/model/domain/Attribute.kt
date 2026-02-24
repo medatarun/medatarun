@@ -39,10 +39,5 @@ interface Attribute {
     /**
      * Tags added to this attribute for categorization
      */
-    val hashtags: List<Hashtag>
-
-    /**
-     * Tags added to this attribute for categorization
-     */
     val tags: List<TagId>
 }

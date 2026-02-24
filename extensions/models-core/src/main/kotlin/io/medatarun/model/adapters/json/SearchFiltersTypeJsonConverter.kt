@@ -5,6 +5,7 @@ import io.medatarun.model.domain.search.SearchFilter
 import io.medatarun.model.domain.search.SearchFilterTags
 import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
+import io.medatarun.tags.core.adapters.json.TagRefJsonConverter
 import io.medatarun.types.TypeJsonConverter
 import kotlinx.serialization.json.*
 
@@ -38,9 +39,9 @@ class SearchFiltersTypeJsonConverter : TypeJsonConverter<SearchFilters> {
             return when(conditionStr) {
                 "empty" -> SearchFilterTags.Empty
                 "notEmpty" -> SearchFilterTags.NotEmpty
-                "anyOf" -> SearchFilterTags.AnyOf(json["value"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList())
-                "noneOf" -> SearchFilterTags.NoneOf(json["value"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList())
-                "allOf" -> SearchFilterTags.AllOf(json["value"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList())
+                "anyOf" -> SearchFilterTags.AnyOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
+                "noneOf" -> SearchFilterTags.NoneOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
+                "allOf" -> SearchFilterTags.AllOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
                 else -> throw IllegalArgumentException("Unknown filter tag condition: $conditionStr")
             }
         }

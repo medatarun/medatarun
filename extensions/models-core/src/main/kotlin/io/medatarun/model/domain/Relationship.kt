@@ -66,11 +66,6 @@ interface Relationship {
     /**
      * Tags added to relationship for classification
      */
-    val hashtags: List<Hashtag>
-
-    /**
-     * Tags added to relationship for classification
-     */
     val tags: List<TagId>
 
     val ref get() = RelationshipRef.ById(id)

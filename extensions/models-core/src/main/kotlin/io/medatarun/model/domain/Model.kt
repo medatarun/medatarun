@@ -61,11 +61,6 @@ interface Model {
     val documentationHome: URL?
 
     /**
-     * Hashtags used as classifiers for the model
-     */
-    val hashtags: List<Hashtag>
-
-    /**
      * Tags used as classifiers for the model
      */
     val tags: List<TagId>

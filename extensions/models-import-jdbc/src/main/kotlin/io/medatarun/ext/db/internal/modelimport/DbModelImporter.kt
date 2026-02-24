@@ -57,7 +57,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                     description = it.remarks?.let(::LocalizedMarkdownNotLocalized),
                     typeId = type.id,
                     optional = it.isNullable != false,
-                    hashtags = emptyList(),
+                    tags = emptyList(),
                 )
             }
             val pkAttributeKey = table.pkNameOrFirstColumn()
@@ -73,7 +73,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                 identifierAttributeId = pkAttribute.id,
                 origin = EntityOrigin.Uri(URI(path)),
                 documentationHome = null,
-                hashtags = emptyList()
+                tags = emptyList()
 
             )
         }
@@ -113,7 +113,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                     description = null,
                     attributes = emptyList(),
                     roles = roles,
-                    hashtags = emptyList(),
+                    tags = emptyList(),
                 )
             }
         }
@@ -128,7 +128,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             entities = entities,
             relationships = relationships.flatten(),
             documentationHome = null,
-            hashtags = emptyList(),
+            tags = emptyList(),
         )
         return model
     }

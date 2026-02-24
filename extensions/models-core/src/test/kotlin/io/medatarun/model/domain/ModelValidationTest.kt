@@ -40,7 +40,7 @@ class ModelValidationTest {
                             name = null,
                             description = null,
                             optional = false,
-                            hashtags = emptyList()
+                            tags = emptyList()
                         )
                     )
                 }
@@ -79,12 +79,12 @@ class ModelValidationTest {
                     AttributeInMemory(
                         id = identifierAttribute,
                         key = AttributeKey("id"),
-                        typeId = typeIdInvalid,
-                        name = null,
-                        description = null,
-                        optional = false,
-                        hashtags = emptyList()
-                    )
+                            typeId = typeIdInvalid,
+                            name = null,
+                            description = null,
+                            optional = false,
+                            tags = emptyList()
+                        )
                 )
             }
         }

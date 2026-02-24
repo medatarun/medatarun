@@ -36,6 +36,8 @@ open class ModelExtension : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
+        val tagQueries = ctx.getService(TagQueries::class)
+
         val auditor: ModelAuditor = object : ModelAuditor {
             override fun onCmdProcessed(cmd: ModelCmd) {
                 logger.info("onCmdProcessed: $cmd")
@@ -46,13 +48,13 @@ open class ModelExtension : MedatarunExtension {
         val storage = ModelStoragesComposite({
             extensionRegistry.findContributionsFlat(ModelRepository::class)
         }, validation)
-        val modelQueriesImpl = ModelQueriesImpl(storage)
-        val tagQueries = ctx.getService(TagQueries::class)
+
         val tagResolver = object : ModelTagResolver {
             override fun resolveTagId(tagRef: TagRef): TagId {
                 return tagQueries.findTagByRef(tagRef).id
             }
         }
+        val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
         val securityRolesRegistry = SecurityRolesRegistryImpl(extensionRegistry)
@@ -71,7 +73,6 @@ open class ModelExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityRefDescriptor())
         ctx.register(TypeDescriptor::class, EntityAttributeRefDescriptor())
-        ctx.register(TypeDescriptor::class, HashtagDescriptor())
         ctx.register(TypeDescriptor::class, LocalizedMarkdownDescriptor())
         ctx.register(TypeDescriptor::class, LocalizedTextDescriptor())
         ctx.register(TypeDescriptor::class, ModelKeyDescriptor())

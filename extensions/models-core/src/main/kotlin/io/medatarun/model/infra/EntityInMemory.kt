@@ -16,8 +16,7 @@ data class EntityInMemory(
     override val identifierAttributeId: AttributeId,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
-    override val hashtags: List<Hashtag>,
-    override val tags: List<TagId> = emptyList(),
+    override val tags: List<TagId>,
 ) : Entity {
 
     private val map = attributes.associateBy { it.key }
@@ -40,7 +39,6 @@ data class EntityInMemory(
                 identifierAttributeId = other.identifierAttributeId,
                 origin = other.origin,
                 documentationHome = other.documentationHome,
-                hashtags = other.hashtags,
                 tags = other.tags,
             )
         }
@@ -54,7 +52,6 @@ data class EntityInMemory(
             var identifierAttributeId: AttributeId,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
-            var hashtags: MutableList<Hashtag> = mutableListOf(),
             var tags: MutableList<TagId> = mutableListOf(),
         ) {
 
@@ -72,7 +69,6 @@ data class EntityInMemory(
                     identifierAttributeId = identifierAttributeId,
                     origin = origin,
                     documentationHome = documentationHome,
-                    hashtags = hashtags,
                     tags = tags,
                 )
             }

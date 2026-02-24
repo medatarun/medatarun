@@ -42,16 +42,6 @@ sealed interface ModelRepoCmd {
         val url: URL?
     ) : ModelRepoCmdOnModel
 
-    data class UpdateModelHashtagAdd(
-        override val modelId: ModelId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateModelHashtagDelete(
-        override val modelId: ModelId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
     data class UpdateModelTagAdd(
         override val modelId: ModelId,
         val tagId: TagId
@@ -101,18 +91,6 @@ sealed interface ModelRepoCmd {
         val cmd: ModelRepoCmdEntityUpdate
     ) : ModelRepoCmdOnModel
 
-    data class UpdateEntityHashtagAdd(
-        override val modelId: ModelId,
-        val entityId: EntityId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateEntityHashtagDelete(
-        override val modelId: ModelId,
-        val entityId: EntityId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
     data class UpdateEntityTagAdd(
         override val modelId: ModelId,
         val entityId: EntityId,
@@ -153,20 +131,6 @@ sealed interface ModelRepoCmd {
         val cmd: ModelRepoCmdAttributeUpdate
     ) : ModelRepoCmdOnModel
 
-    data class UpdateEntityAttributeHashtagAdd(
-        override val modelId: ModelId,
-        val entityId: EntityId,
-        val attributeId: AttributeId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateEntityAttributeHashtagDelete(
-        override val modelId: ModelId,
-        val entityId: EntityId,
-        val attributeId: AttributeId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
     data class UpdateEntityAttributeTagAdd(
         override val modelId: ModelId,
         val entityId: EntityId,
@@ -197,18 +161,6 @@ sealed interface ModelRepoCmd {
         val cmd: ModelRepoCmdRelationshipUpdate
     ) : ModelRepoCmdOnModel
 
-    data class UpdateRelationshipHashtagAdd(
-        override val modelId: ModelId,
-        val relationshipId: RelationshipId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateRelationshipHashtagDelete(
-        override val modelId: ModelId,
-        val relationshipId: RelationshipId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
     data class UpdateRelationshipTagAdd(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
@@ -237,20 +189,6 @@ sealed interface ModelRepoCmd {
         val relationshipId: RelationshipId,
         val attributeId: AttributeId,
         val cmd: ModelRepoCmdAttributeUpdate
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateRelationshipAttributeHashtagAdd(
-        override val modelId: ModelId,
-        val relationshipId: RelationshipId,
-        val attributeId: AttributeId,
-        val hashtag: Hashtag
-    ) : ModelRepoCmdOnModel
-
-    data class UpdateRelationshipAttributeHashtagDelete(
-        override val modelId: ModelId,
-        val relationshipId: RelationshipId,
-        val attributeId: AttributeId,
-        val hashtag: Hashtag
     ) : ModelRepoCmdOnModel
 
     data class UpdateRelationshipAttributeTagAdd(

@@ -66,7 +66,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -75,7 +75,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -84,7 +84,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -93,7 +93,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -102,7 +102,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeMarkdown.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 )
             )
         }
@@ -120,7 +120,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -129,7 +129,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = false,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -138,7 +138,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = true,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 ),
                 AttributeInMemory(
                     id = AttributeId.generate(),
@@ -147,7 +147,7 @@ class ModelInMemoryTest {
                     description = null,
                     typeId = typeString.id,
                     optional = true,
-                    hashtags = emptyList()
+                    tags = emptyList()
                 )
             )
 
@@ -164,7 +164,7 @@ class ModelInMemoryTest {
             relationships = emptyList(), // TODO tests on model in memory relationships
             documentationHome = null,
             origin = ModelOrigin.Manual,
-            hashtags = emptyList()
+            tags = emptyList()
         )
     }
 }

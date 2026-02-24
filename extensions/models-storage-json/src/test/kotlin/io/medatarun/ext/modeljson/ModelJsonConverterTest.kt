@@ -31,6 +31,15 @@ internal class ModelJsonConverterTest {
         assertEquals(modelRead.key, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
         assertEquals(modelRead.entities.size, 2)
+        assertEquals(
+            setOf(
+                "11111111-1111-1111-1111-111111111111",
+                "22222222-2222-2222-2222-222222222222",
+                "33333333-3333-3333-3333-333333333333",
+                "44444444-4444-4444-4444-444444444444"
+            ),
+            modelRead.tags.map { it.value.toString() }.toSet()
+        )
 
         val contactEntityRef = EntityRef.ByKey(EntityKey("contact"))
         val companyRef = EntityRef.ByKey(EntityKey("company"))
@@ -39,6 +48,13 @@ internal class ModelJsonConverterTest {
         assertEquals(contactEntity.key, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
         assertEquals(contactNameAttributeId, contactEntity.identifierAttributeId)
+        assertEquals(
+            setOf(
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1",
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2"
+            ),
+            contactEntity.tags.map { it.value.toString() }.toSet()
+        )
 
         val companyEntity = modelRead.findEntity(companyRef)
         assertEquals(companyEntity.key, EntityKey("company"))
@@ -46,6 +62,13 @@ internal class ModelJsonConverterTest {
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")
+        assertEquals(
+            setOf(
+                "cccccccc-cccc-cccc-cccc-ccccccccccc1",
+                "cccccccc-cccc-cccc-cccc-ccccccccccc2"
+            ),
+            companyEntity.tags.map { it.value.toString() }.toSet()
+        )
 
         val companyNameRef = EntityAttributeRef.ByKey(AttributeKey("name"))
         val companyName = modelRead.findEntityAttributeOptional(companyRef,companyNameRef)
@@ -55,6 +78,7 @@ internal class ModelJsonConverterTest {
         assertEquals(companyName.description, null)
         assertEquals(companyName.optional, false)
         assertEquals(companyName.typeId, typeIdString)
+        assertTrue(companyName.tags.isEmpty())
 
         val companyProfileUrlRef = EntityAttributeRef.ByKey(AttributeKey("profile_url"))
         val companyProfileUrl = modelRead.findEntityAttributeOptional(companyRef, companyProfileUrlRef)
@@ -76,6 +100,13 @@ internal class ModelJsonConverterTest {
         )
         assertEquals(companyInfos.optional, true)
         assertEquals(companyInfos.typeId, typeIdMarkdown)
+
+        val contactName = modelRead.findEntityAttributeOptional(contactEntityRef, EntityAttributeRef.ByKey(AttributeKey("name")))
+        assertNotNull(contactName)
+        assertEquals(
+            setOf("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1"),
+            contactName.tags.map { it.value.toString() }.toSet()
+        )
     }
 
     /**
@@ -229,16 +260,18 @@ internal class ModelJsonConverterTest {
         assertEquals(URI(entityDocHome).toURL(), modelRead.entities.first().documentationHome)
     }
 
-    fun createJsonForHashtagsTest(modelHashtags: JsonElement?, entityHashtags: JsonElement?): JsonObject {
+    fun createJsonForTagsTest(modelTags: JsonElement?, entityTags: JsonElement?): JsonObject {
         return buildJsonObject {
             put("id", ModelId.generate().value.toString())
             put("key", "exemple")
             put("version", "1.0.0")
             put($$"$schema", ModelJsonSchemas.v_1_0)
-            if (modelHashtags != null) put("hashtags", modelHashtags)
-            putJsonArray("types") { addJsonObject {
-                put("id", TypeId.generate().value.toString())
-                put("key", "string") }
+            if (modelTags != null) put("tags", modelTags)
+            putJsonArray("types") {
+                addJsonObject {
+                    put("id", TypeId.generate().value.toString())
+                    put("key", "string")
+                }
             }
             putJsonArray("entities") {
                 addJsonObject {
@@ -246,7 +279,7 @@ internal class ModelJsonConverterTest {
                     put("key", "contact")
                     put("name", "Contact")
                     put("identifierAttribute", "id")
-                    if (entityHashtags != null) put("hashtags", entityHashtags)
+                    if (entityTags != null) put("tags", entityTags)
                     putJsonArray("attributes") {
                         addJsonObject {
                             put("id", AttributeId.generate().value.toString())
@@ -260,66 +293,66 @@ internal class ModelJsonConverterTest {
         }
     }
 
-
     @Test
-    fun `model and entity hashtags undefined`() {
-        val json = createJsonForHashtagsTest(null, null)
+    fun `model and entity tags undefined`() {
+        val json = createJsonForTagsTest(null, null)
         val model = instance.fromJson(json.toString())
-        assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entities.first().hashtags.isEmpty())
+        assertTrue(model.tags.isEmpty())
+        assertTrue(model.entities.first().tags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
-        assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entities.first().hashtags.isEmpty())
+        assertTrue(modelRead.tags.isEmpty())
+        assertTrue(modelRead.entities.first().tags.isEmpty())
     }
 
     @Test
-    fun `model and entity hashtags null`() {
-        val json = createJsonForHashtagsTest(JsonNull, JsonNull)
+    fun `model and entity tags null`() {
+        val json = createJsonForTagsTest(JsonNull, JsonNull)
         val model = instance.fromJson(json.toString())
-        assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entities.first().hashtags.isEmpty())
+        assertTrue(model.tags.isEmpty())
+        assertTrue(model.entities.first().tags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
-        assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entities.first().hashtags.isEmpty())
+        assertTrue(modelRead.tags.isEmpty())
+        assertTrue(modelRead.entities.first().tags.isEmpty())
     }
 
     @Test
-    fun `model and entity hashtags empty list`() {
-        val json = createJsonForHashtagsTest(buildJsonArray {}, buildJsonArray { })
+    fun `model and entity tags empty list`() {
+        val json = createJsonForTagsTest(buildJsonArray {}, buildJsonArray { })
         val model = instance.fromJson(json.toString())
-        assertTrue(model.hashtags.isEmpty())
-        assertTrue(model.entities.first().hashtags.isEmpty())
+        assertTrue(model.tags.isEmpty())
+        assertTrue(model.entities.first().tags.isEmpty())
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
-        assertTrue(modelRead.hashtags.isEmpty())
-        assertTrue(modelRead.entities.first().hashtags.isEmpty())
+        assertTrue(modelRead.tags.isEmpty())
+        assertTrue(modelRead.entities.first().tags.isEmpty())
     }
 
     @Test
-    fun `model and entity hashtags home defined`() {
-        val modelDocHome = listOf("tag1", "tag2")
-        val entityDocHome = listOf("tag3", "tag4")
-        val json = createJsonForHashtagsTest(
-            JsonArray(modelDocHome.map { JsonPrimitive(it) }),
-            JsonArray(entityDocHome.map { JsonPrimitive(it) })
+    fun `model and entity tags defined`() {
+        val modelTags = listOf(
+            java.util.UUID.randomUUID().toString(),
+            java.util.UUID.randomUUID().toString()
+        )
+        val entityTags = listOf(
+            java.util.UUID.randomUUID().toString(),
+            java.util.UUID.randomUUID().toString()
+        )
+        val json = createJsonForTagsTest(
+            JsonArray(modelTags.map { JsonPrimitive(it) }),
+            JsonArray(entityTags.map { JsonPrimitive(it) })
         )
         val model = instance.fromJson(json.toString())
 
-
-        assertContains(model.hashtags, Hashtag("tag1"))
-        assertContains(model.hashtags, Hashtag("tag2"))
-        assertContains(model.entities.first().hashtags, Hashtag("tag3"))
-        assertContains(model.entities.first().hashtags, Hashtag("tag4"))
+        assertEquals(modelTags.toSet(), model.tags.map { it.value.toString() }.toSet())
+        assertEquals(entityTags.toSet(), model.entities.first().tags.map { it.value.toString() }.toSet())
 
         val jsonWritten = instance.toJsonString(model)
         val modelRead = instance.fromJson(jsonWritten)
 
-        assertContains(modelRead.hashtags, Hashtag("tag1"))
-        assertContains(modelRead.hashtags, Hashtag("tag2"))
-        assertContains(modelRead.entities.first().hashtags, Hashtag("tag3"))
-        assertContains(modelRead.entities.first().hashtags, Hashtag("tag4"))
+        assertEquals(modelTags.toSet(), modelRead.tags.map { it.value.toString() }.toSet())
+        assertEquals(entityTags.toSet(), modelRead.entities.first().tags.map { it.value.toString() }.toSet())
     }
 
     fun normalizeJson(str: String): String {
@@ -328,4 +361,3 @@ internal class ModelJsonConverterTest {
         return parser.encodeToString(JsonElement.serializer(), element)
     }
 }
-

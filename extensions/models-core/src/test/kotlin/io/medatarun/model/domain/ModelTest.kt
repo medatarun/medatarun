@@ -1586,7 +1586,7 @@ class ModelTest {
                             name = null,
                             description = null,
                             optional = false,
-                            hashtags = emptyList()
+                            tags = emptyList()
                         )
                     )
                 }

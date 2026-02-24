@@ -13,8 +13,7 @@ data class AttributeInMemory(
     override val description: LocalizedMarkdown?,
     override val typeId: TypeId,
     override val optional: Boolean,
-    override val hashtags: List<Hashtag>,
-    override val tags: List<TagId> = emptyList(),
+    override val tags: List<TagId>,
 ) : Attribute {
     companion object {
 
@@ -26,7 +25,6 @@ data class AttributeInMemory(
                 description = other.description,
                 typeId = other.typeId,
                 optional = other.optional,
-                hashtags = other.hashtags,
                 tags = other.tags,
             )
         }

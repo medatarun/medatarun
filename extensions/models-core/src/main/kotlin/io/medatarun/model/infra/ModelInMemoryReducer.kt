@@ -15,20 +15,6 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateModelName -> model.copy(name = cmd.name)
             is ModelRepoCmd.UpdateModelVersion -> model.copy(version = cmd.version)
             is ModelRepoCmd.UpdateModelDocumentationHome -> model.copy(documentationHome = cmd.url)
-            is ModelRepoCmd.UpdateModelHashtagAdd -> model.copy(
-                hashtags = hashtagAdd(
-                    model.hashtags,
-                    cmd.hashtag
-                )
-            )
-
-            is ModelRepoCmd.UpdateModelHashtagDelete -> model.copy(
-                hashtags = hashtagDelete(
-                    model.hashtags,
-                    cmd.hashtag
-                )
-            )
-
             is ModelRepoCmd.UpdateModelTagAdd -> model.copy(
                 tags = tagAdd(
                     model.tags,
@@ -80,16 +66,6 @@ class ModelInMemoryReducer {
                 }
             }
 
-            is ModelRepoCmd.UpdateEntityHashtagAdd ->
-                modifyingEntity(model, cmd.entityId) { previous ->
-                    previous.copy(hashtags = hashtagAdd(previous.hashtags, cmd.hashtag))
-                }
-
-            is ModelRepoCmd.UpdateEntityHashtagDelete ->
-                modifyingEntity(model, cmd.entityId) { previous ->
-                    previous.copy(hashtags = hashtagDelete(previous.hashtags, cmd.hashtag))
-                }
-
             is ModelRepoCmd.UpdateEntityTagAdd ->
                 modifyingEntity(model, cmd.entityId) { previous ->
                     previous.copy(tags = tagAdd(previous.tags, cmd.tagId))
@@ -109,16 +85,6 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateEntityAttribute ->
                 modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     updateEntityAttribute(model, a, cmd)
-                }
-
-            is ModelRepoCmd.UpdateEntityAttributeHashtagAdd ->
-                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
-                    a.copy(hashtags = hashtagAdd(a.hashtags, cmd.hashtag))
-                }
-
-            is ModelRepoCmd.UpdateEntityAttributeHashtagDelete ->
-                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
-                    a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.UpdateEntityAttributeTagAdd ->
@@ -141,16 +107,6 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateRelationship ->
                 modifyingRelationship(model, cmd.relationshipId) { rel ->
                     updateRelationship(model, rel, cmd)
-                }
-
-            is ModelRepoCmd.UpdateRelationshipHashtagAdd ->
-                modifyingRelationship(model, cmd.relationshipId) { rel ->
-                    rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
-                }
-
-            is ModelRepoCmd.UpdateRelationshipHashtagDelete ->
-                modifyingRelationship(model, cmd.relationshipId) { rel ->
-                    rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
                 }
 
             is ModelRepoCmd.UpdateRelationshipTagAdd ->
@@ -180,16 +136,6 @@ class ModelInMemoryReducer {
                     updateRelationshipAttribute(model, attr, cmd)
                 }
 
-
-            is ModelRepoCmd.UpdateRelationshipAttributeHashtagAdd ->
-                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
-                    attr.copy(hashtags = hashtagAdd(attr.hashtags, cmd.hashtag))
-                }
-
-            is ModelRepoCmd.UpdateRelationshipAttributeHashtagDelete ->
-                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
-                    attr.copy(hashtags = hashtagDelete(attr.hashtags, cmd.hashtag))
-                }
 
             is ModelRepoCmd.UpdateRelationshipAttributeTagAdd ->
                 modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
@@ -339,14 +285,6 @@ private fun modifyingRelationship(
         relationships = model.relationships.mapNotNull { rel ->
             if (rel.id != relationshipId) rel else block(rel)
         })
-}
-
-private fun hashtagAdd(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
-    return if (!hashtags.contains(next)) hashtags.plus(next) else hashtags
-}
-
-private fun hashtagDelete(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
-    return hashtags.filter { it != next }
 }
 
 private fun tagAdd(tags: List<TagId>, next: TagId): List<TagId> {

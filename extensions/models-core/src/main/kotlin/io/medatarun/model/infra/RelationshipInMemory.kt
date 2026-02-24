@@ -10,8 +10,7 @@ data class RelationshipInMemory(
     override val description: LocalizedMarkdown?,
     override val roles: List<RelationshipRoleInMemory>,
     override val attributes: List<AttributeInMemory>,
-    override val hashtags: List<Hashtag>,
-    override val tags: List<TagId> = emptyList(),
+    override val tags: List<TagId>,
 ) : Relationship {
     companion object {
         fun of(other: Relationship): RelationshipInMemory {
@@ -22,7 +21,6 @@ data class RelationshipInMemory(
                 description = other.description,
                 roles = other.roles.map(RelationshipRoleInMemory::of),
                 attributes = other.attributes.map(AttributeInMemory::of),
-                hashtags = other.hashtags,
                 tags = other.tags,
 
             )

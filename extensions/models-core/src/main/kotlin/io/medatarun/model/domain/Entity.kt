@@ -48,11 +48,6 @@ interface Entity {
     val documentationHome: URL?
 
     /**
-     * Hashtags used for classification
-     */
-    val hashtags: List<Hashtag>
-
-    /**
      * Tags used for classification
      */
     val tags: List<TagId>

@@ -116,7 +116,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                         )
                     },
                     attributes = toAttributeJsonList(model, rel.attributes),
-                    hashtags = rel.hashtags.map { it.value },
                     tags = rel.tags.map { it.value.toString() }
 
                 )
@@ -135,12 +134,10 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     origin = toEntityOriginStr(entity.origin),
                     attributes = attributesJson,
                     documentationHome = entity.documentationHome?.toExternalForm(),
-                    hashtags = entity.hashtags.map { it.value },
                     tags = entity.tags.map { it.value.toString() }
                 )
             },
             documentationHome = model.documentationHome?.toExternalForm(),
-            hashtags = model.hashtags.map { it.value },
             tags = model.tags.map { it.value.toString() }
         )
         return modelJson
@@ -219,12 +216,10 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                         )
                     },
                     attributes = toAttributeList(types, relationJson.attributes),
-                    hashtags = relationJson.hashtags?.map { Hashtag(it) } ?: emptyList(),
                     tags = relationJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
                 )
             },
             documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
-            hashtags = modelJson.hashtags?.map { Hashtag(it) } ?: emptyList(),
             tags = modelJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
         )
         return model
@@ -247,7 +242,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             },
             attributes = attributes,
             documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
-            hashtags = entityJson.hashtags?.map { Hashtag(it) } ?: emptyList(),
             tags = entityJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
         )
     }
@@ -262,7 +256,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = it.description,
                     type = model.findType(TypeRef.ById(it.typeId)).key.value,
                     optional = it.optional,
-                    hashtags = it.hashtags.map { it.value },
                     tags = it.tags.map { it.value.toString() }
                 )
             }
@@ -282,7 +275,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = attributeJson.description,
                     optional = attributeJson.optional,
                     typeId = type.id,
-                    hashtags = attributeJson.hashtags?.map { Hashtag(it) } ?: emptyList(),
                     tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
                 )
             }
@@ -308,7 +300,6 @@ internal class ModelEntityJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val identifierAttribute: @Contextual String,
     val origin: String? = null,
-    val hashtags: List<String>? = emptyList(),
     val tags: List<String>? = emptyList(),
     val attributes: List<ModelAttributeJson>,
     val documentationHome: String? = null,
@@ -324,7 +315,6 @@ internal class ModelAttributeJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val type: String,
     val optional: Boolean = false,
-    val hashtags: List<String>? = emptyList(),
     val tags: List<String>? = emptyList()
 )
 
@@ -347,7 +337,6 @@ internal class RelationshipJson(
     val description: @Contextual LocalizedMarkdown? = null,
     val roles: List<RelationshipRoleJson>,
     val attributes: List<ModelAttributeJson>,
-    val hashtags: List<String>? = emptyList(),
     val tags: List<String>? = emptyList()
 )
 
@@ -362,7 +351,6 @@ internal class ModelJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val origin: String? = null,
-    val hashtags: List<String>? = emptyList(),
     val tags: List<String>? = emptyList(),
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,
