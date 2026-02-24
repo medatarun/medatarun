@@ -1,7 +1,6 @@
 package io.medatarun.model.domain
 
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelTestRuntime.Companion.createRuntime
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.ports.exposed.*
@@ -31,7 +30,7 @@ class ModelTest {
     fun `create model fail with ambiguous storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val cmd = createRuntime(repositories = listOf(repo1, repo2)).cmd
+        val cmd = createEnv(repositories = listOf(repo1, repo2)).cmd
         assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
             cmd.dispatch(
                 ModelCmd.CreateModel(
@@ -47,7 +46,7 @@ class ModelTest {
     @Test
     fun `create model ok with one storage mode auto`() {
         val repo1 = ModelRepositoryInMemory("repo1")
-        val cmd = createRuntime(repositories = listOf(repo1)).cmd
+        val cmd = createEnv(repositories = listOf(repo1)).cmd
         val modelKey = ModelKey("m1")
         assertDoesNotThrow {
             cmd.dispatch(
@@ -66,7 +65,7 @@ class ModelTest {
     fun `create model ok with multiple storages and specified storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createRuntime(repositories = listOf(repo1, repo2))
+        val runtime = createEnv(repositories = listOf(repo1, repo2))
         val cmd = runtime.cmd
         val query = runtime.queries
 
@@ -89,7 +88,7 @@ class ModelTest {
 
     @Test
     fun `create model with name description and version when present`() {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
@@ -109,7 +108,7 @@ class ModelTest {
     @Test
     fun `create model keeps values without optional description`() {
 
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
@@ -131,7 +130,7 @@ class ModelTest {
 
     @Test
     fun `updates on model fails if model not found`() {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
@@ -174,7 +173,7 @@ class ModelTest {
     }
 
     class TestEnvOneModel {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("m1")
@@ -266,7 +265,7 @@ class ModelTest {
     fun `delete model fails if model Id not found in any storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createRuntime(listOf(repo1, repo2))
+        val runtime = createEnv(listOf(repo1, repo2))
         val cmd: ModelCmds = runtime.cmd
         cmd.dispatch(
             ModelCmd.CreateModel(
@@ -295,7 +294,7 @@ class ModelTest {
     fun `delete model removes it from storage`() {
         val repo1 = ModelRepositoryInMemory("repo1")
         val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createRuntime(listOf(repo1, repo2))
+        val runtime = createEnv(listOf(repo1, repo2))
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
@@ -363,7 +362,7 @@ class ModelTest {
     // ------------------------------------------------------------------------
 
     class TestEnvTypes {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("m1")
@@ -778,7 +777,7 @@ class ModelTest {
     }
 
     class TestEnvEntityUpdate {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("model-entity-update")
@@ -1024,7 +1023,7 @@ class ModelTest {
 
     @Test
     fun `delete entity with same id in two models then only entity in the specified model is removed`() {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
 
@@ -1096,7 +1095,7 @@ class ModelTest {
     // -----------------------------------------------------------------------------------------------------------------
 
     class TestEnvAttribute {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd: ModelCmds = runtime.cmd
         val query: ModelQueries = runtime.queries
         private val sampleModelKey = ModelKey("model-1")
@@ -1525,7 +1524,7 @@ class ModelTest {
     // ------------------------------------------------------------------------
 
     class TestEnvInvalidModel {
-        val runtime = createRuntime()
+        val runtime = createEnv()
         val cmd = runtime.cmd
         val query = runtime.queries
         private val modelKey = ModelKey("test")

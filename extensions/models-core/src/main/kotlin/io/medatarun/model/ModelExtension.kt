@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory
 /**
  * Extension to register the "model" base plugin to the kernel.
  */
-class ModelExtension : MedatarunExtension {
+open class ModelExtension : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
