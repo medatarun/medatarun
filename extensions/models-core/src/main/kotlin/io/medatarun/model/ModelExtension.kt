@@ -3,6 +3,8 @@ package io.medatarun.model
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.adapters.descriptors.*
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
 import io.medatarun.model.infra.ModelStoragesComposite
 import io.medatarun.model.internal.ModelAuditor
@@ -16,16 +18,16 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
-import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRolesRegistryImpl
-import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 import org.slf4j.LoggerFactory
 
@@ -49,11 +51,7 @@ open class ModelExtension : MedatarunExtension {
             extensionRegistry.findContributionsFlat(ModelRepository::class)
         }, validation)
 
-        val tagResolver = object : ModelTagResolver {
-            override fun resolveTagId(tagRef: TagRef): TagId {
-                return tagQueries.findTagByRef(tagRef).id
-            }
-        }
+        val tagResolver = ModelTagResolverWithQueries(tagQueries)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
@@ -65,9 +63,20 @@ open class ModelExtension : MedatarunExtension {
         ctx.register(SecurityRolesRegistry::class, securityRolesRegistry)
     }
     override fun init(ctx: MedatarunExtensionCtx) {
+        val modelQueries = ctx.getService(ModelQueries::class)
+        val modelTagScopeManager = object : TagScopeManager {
+            override val type: TagScopeType = TagScopeType("model")
+
+            override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
+                val modelId = ModelId(scopeRef.localScopeId.value)
+                return modelQueries.findModelOptional(ModelRef.ById(modelId)) != null
+            }
+        }
+
         ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
+        ctx.register(TagScopeManager::class, modelTagScopeManager)
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())

@@ -9,9 +9,12 @@ import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagGroupRef
 import io.medatarun.tags.core.domain.Tag
+import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -32,6 +35,22 @@ class ModelTest {
         env.dispatchTag(TagAction.TagGroupCreate(groupKey, null, null))
         env.dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
 
+        return env.tagQueries.findTagByRef(tagRef)
+    }
+
+    private fun createFreeTagInModelScope(env: ModelTestEnv, modelRef: ModelRef, tagKeyValue: String): Tag {
+        val modelId = env.queries.findModel(modelRef).id
+        val scopeRef = TagScopeRef.Local(
+            type = TagScopeType("model"),
+            localScopeId = TagScopeId(modelId.value)
+        )
+        val tagKey = TagKey(tagKeyValue)
+        val tagRef = TagRef.ByKey(
+            scopeRef = scopeRef,
+            groupKey = null,
+            key = tagKey
+        )
+        env.dispatchTag(TagAction.TagFreeCreate(scopeRef, tagKey, null, null))
         return env.tagQueries.findTagByRef(tagRef)
     }
 
@@ -273,6 +292,25 @@ class ModelTest {
 
         env.dispatch(ModelAction.Model_DeleteTag(env.modelRef, managedTag.ref))
         assertTrue(env.query.findModel(env.modelRef).tags.isEmpty())
+    }
+
+    @Test
+    fun `add local tag of another model on model then error`() {
+        val env = TestEnvOneModel()
+        val foreignModelRef = modelRefKey("m2")
+        env.runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("m2"),
+                name = LocalizedTextNotLocalized("Model 2"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        val foreignTag = createFreeTagInModelScope(env.runtime, foreignModelRef, "foreign-model-tag")
+
+        assertFailsWith<TagAttachScopeMismatchException> {
+            env.dispatch(ModelAction.Model_AddTag(env.modelRef, foreignTag.ref))
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -923,6 +961,25 @@ class ModelTest {
         assertTrue(env.query.findEntity(env.modelRef, env.primaryEntityRef).tags.isEmpty())
     }
 
+    @Test
+    fun `add local tag of another model on entity then error`() {
+        val env = TestEnvEntityUpdate()
+        val foreignModelRef = modelRefKey("model-entity-update-2")
+        env.runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("model-entity-update-2"),
+                name = LocalizedTextNotLocalized("Model entity update 2"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        val foreignTag = createFreeTagInModelScope(env.runtime, foreignModelRef, "foreign-entity-tag")
+
+        assertFailsWith<TagAttachScopeMismatchException> {
+            env.dispatch(ModelAction.Entity_AddTag(env.modelRef, env.primaryEntityRef, foreignTag.ref))
+        }
+    }
+
 
     @Test
     fun `delete entity in model then entity removed`() {
@@ -1463,6 +1520,34 @@ class ModelTest {
         assertTrue(deleted.tags.isEmpty())
     }
 
+    @Test
+    fun `add local tag of another model on entity attribute then error`() {
+        val env = TestEnvAttribute()
+        env.addSampleEntity()
+        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
+        val foreignModelRef = modelRefKey("sample-model-2")
+        env.runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("sample-model-2"),
+                name = LocalizedTextNotLocalized("Sample model 2"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        val foreignTag = createFreeTagInModelScope(env.runtime, foreignModelRef, "foreign-ea-tag")
+
+        assertFailsWith<TagAttachScopeMismatchException> {
+            env.dispatch(
+                ModelAction.EntityAttribute_AddTag(
+                    env.sampleModelRef,
+                    env.sampleEntityRef,
+                    EntityAttributeRef.ById(attribute.id),
+                    foreignTag.ref
+                )
+            )
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------------
@@ -1496,6 +1581,44 @@ class ModelTest {
 
         env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, managedTag.ref))
         assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+    }
+
+    @Test
+    fun `add local tag of another model on relationship then error`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("works-with")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val foreignModelRef = modelRefKey("model-rel-2")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("a"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("b"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+        env.runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("model-rel-2"),
+                name = LocalizedTextNotLocalized("Model rel 2"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        val foreignTag = createFreeTagInModelScope(env.runtime, foreignModelRef, "foreign-rel-tag")
+
+        assertFailsWith<TagAttachScopeMismatchException> {
+            env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, foreignTag.ref))
+        }
     }
 
     @Test
@@ -1543,6 +1666,56 @@ class ModelTest {
         val deleted = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(deleted)
         assertTrue(deleted.tags.isEmpty())
+    }
+
+    @Test
+    fun `add local tag of another model on relationship attribute then error`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("employs")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
+        val foreignModelRef = modelRefKey("model-rel-attr-2")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("employer"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("employee"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+        env.dispatch(
+            ModelAction.RelationshipAttribute_Create(
+                modelRef = env.modelRef,
+                relationshipRef = relationshipRef,
+                attributeKey = AttributeKey("startDate"),
+                type = typeRef("String"),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        env.runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("model-rel-attr-2"),
+                name = LocalizedTextNotLocalized("Model rel attr 2"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        val foreignTag = createFreeTagInModelScope(env.runtime, foreignModelRef, "foreign-rel-attr-tag")
+
+        assertFailsWith<TagAttachScopeMismatchException> {
+            env.dispatch(ModelAction.RelationshipAttribute_AddTag(env.modelRef, relationshipRef, attributeRef, foreignTag.ref))
+        }
     }
 
     // ------------------------------------------------------------------------

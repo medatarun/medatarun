@@ -20,3 +20,4 @@ class TagManagedNotFoundException(tagRef: String): MedatarunException("Managed t
 class TagDuplicateScopeManagerException(scopeType: String): MedatarunException("Multiple TagScopeManager registered for scope type [$scopeType]", StatusCode.INTERNAL_SERVER_ERROR)
 class TagScopeManagerNotFoundException(scopeType: String): MedatarunException("No TagScopeManager registered for scope type [$scopeType]", StatusCode.BAD_REQUEST)
 class TagScopeNotFoundException(scopeRef: String): MedatarunException("Tag scope [$scopeRef] was not found", StatusCode.BAD_REQUEST)
+class TagAttachScopeMismatchException(targetScope: String, tagScope: String, tagRef: String): MedatarunException("Tag [$tagRef] belongs to scope [$tagScope] and can not be attached to target scope [$targetScope]", StatusCode.BAD_REQUEST)

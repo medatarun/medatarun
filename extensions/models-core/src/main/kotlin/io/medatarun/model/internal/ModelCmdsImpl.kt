@@ -4,7 +4,6 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.*
-import io.medatarun.tags.core.domain.TagRef
 
 class ModelCmdsImpl(
     val storage: ModelStorages,
@@ -133,8 +132,6 @@ class ModelCmdsImpl(
         return attr
     }
 
-    private fun findTagId(tagRef: TagRef) = tagResolver.resolveTagId(tagRef)
-
 
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
@@ -196,12 +193,16 @@ class ModelCmdsImpl(
 
     private fun updateModelTagAdd(cmd: ModelCmd.UpdateModelTagAdd) {
         val model = findModel(cmd.modelRef)
-        storage.dispatch(ModelRepoCmd.UpdateModelTagAdd(model.id, findTagId(cmd.tagRef)))
+        storage.dispatch(ModelRepoCmd.UpdateModelTagAdd(model.id,
+            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+        ))
     }
 
     private fun updateModelTagDelete(cmd: ModelCmd.UpdateModelTagDelete) {
         val model = findModel(cmd.modelRef)
-        storage.dispatch(ModelRepoCmd.UpdateModelTagDelete(model.id, findTagId(cmd.tagRef)))
+        storage.dispatch(ModelRepoCmd.UpdateModelTagDelete(model.id,
+            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+        ))
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -279,13 +280,17 @@ class ModelCmdsImpl(
     private fun updateEntityTagAdd(cmd: ModelCmd.UpdateEntityTagAdd) {
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
-        storage.dispatch(ModelRepoCmd.UpdateEntityTagAdd(model.id, entity.id, findTagId(cmd.tagRef)))
+        storage.dispatch(ModelRepoCmd.UpdateEntityTagAdd(model.id, entity.id,
+            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+        ))
     }
 
     private fun updateEntityTagDelete(cmd: ModelCmd.UpdateEntityTagDelete) {
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
-        storage.dispatch(ModelRepoCmd.UpdateEntityTagDelete(model.id, entity.id, findTagId(cmd.tagRef)))
+        storage.dispatch(ModelRepoCmd.UpdateEntityTagDelete(model.id, entity.id,
+            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+        ))
     }
 
 
@@ -423,7 +428,7 @@ class ModelCmdsImpl(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = attribute.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
@@ -437,7 +442,7 @@ class ModelCmdsImpl(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = attribute.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
@@ -499,7 +504,7 @@ class ModelCmdsImpl(
                 modelId = model.id,
                 relationshipId = rel.id,
                 attributeId = attr.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
@@ -513,7 +518,7 @@ class ModelCmdsImpl(
                 modelId = model.id,
                 relationshipId = rel.id,
                 attributeId = attr.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
@@ -572,7 +577,7 @@ class ModelCmdsImpl(
             ModelRepoCmd.UpdateRelationshipTagAdd(
                 modelId = model.id,
                 relationshipId = rel.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
@@ -584,7 +589,7 @@ class ModelCmdsImpl(
             ModelRepoCmd.UpdateRelationshipTagDelete(
                 modelId = model.id,
                 relationshipId = rel.id,
-                tagId = findTagId(cmd.tagRef)
+                tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
