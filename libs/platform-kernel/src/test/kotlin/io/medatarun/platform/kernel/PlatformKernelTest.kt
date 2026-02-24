@@ -1,7 +1,5 @@
 package io.medatarun.platform.kernel
 
-import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
-import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,7 +20,7 @@ class PlatformKernelTest {
         val recipe = p.services.getService<ExtensionRecipe.RecipeService>()
         assertTrue(vehicle.driving.isEmpty())
         recipe.sendRecipe("burger")
-        assertEquals( listOf("burger"), vehicle.driving)
+        assertEquals(listOf("burger"), vehicle.driving)
 
     }
 
@@ -88,10 +86,7 @@ class PlatformKernelTest {
             override fun getProperty(key: String, defaultValue: String): String = defaultValue
             override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Not to use in tests")
         }
-        val serviceRegistry = MedatarunServiceRegistryImpl()
-        val extensionPlatform = ExtensionPlaformImpl(extensions, serviceRegistry, config)
-        val runtime = PlatformRuntime(extensionPlatform, serviceRegistry)
-        runtime.start()
+        val runtime = PlatformBuilder(config, extensions).buildAndStart()
         return runtime
     }
 }

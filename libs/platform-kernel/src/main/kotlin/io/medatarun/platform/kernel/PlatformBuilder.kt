@@ -1,22 +1,21 @@
-package io.medatarun.platform.kernel.internal
+package io.medatarun.platform.kernel
 
-import io.medatarun.platform.kernel.*
+import io.medatarun.platform.kernel.internal.*
 
-/**
- *
- */
-class ExtensionPlaformImpl(
-    /**
-     * Extensions must be given in the correct dependency order
-     */
+class PlatformBuilder(
+    private val config: MedatarunConfig,
     private val extensions: List<MedatarunExtension>,
-    private val serviceRegistry: MedatarunServiceRegistryImpl,
-    private val config: MedatarunConfig
-) : ExtensionPlatform {
-    private val eventSystem = EventSystemImpl()
-    override val extensionRegistry: ExtensionRegistry = createExtensionRegistry()
+) {
+    fun buildAndStart(): PlatformRuntime {
+        val services = MedatarunServiceRegistryImpl()
+        val eventSystem = EventSystemImpl()
+        val extensions = createExtensionRegistry(services, eventSystem, )
+        val runtime = PlatformRuntimeImpl(extensions, services, config)
+        runtime.start()
+        return runtime
+    }
 
-    fun createExtensionRegistry(): ExtensionRegistryImpl {
+    fun createExtensionRegistry(serviceRegistry: MedatarunServiceRegistryImpl, eventSystem: EventSystem): ExtensionRegistryImpl {
         val allExtensions = listOf(KernelSelfExtension()) + extensions
 
         // Create an extension registry and give it all known extensions,
@@ -46,11 +45,10 @@ class ExtensionPlaformImpl(
         return extensionRegistry
     }
 
-    class KernelSelfExtension : MedatarunExtension {
+    internal class KernelSelfExtension : MedatarunExtension {
         override val id: ExtensionId = "kernel"
         override fun init(ctx: MedatarunExtensionCtx) {
             ctx.registerContributionPoint(this.id + ".startup", PlatformStartedListener::class)
         }
     }
-
 }

@@ -5,8 +5,8 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.commons.AppPrincipalFactory
+import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
-import io.medatarun.runtime.AppRuntime
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
 
@@ -14,20 +14,20 @@ import io.medatarun.types.TypeDescriptor
  * Services exposed to the HttpServer
  */
 class AppHttpServerServices(
-    val runtime: AppRuntime,
+    val runtime: PlatformRuntime,
 ) {
 
     val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(
-        runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
+        runtime.extensions.findContributionsFlat(SecurityRulesProvider::class)
             .flatMap { it.getRules() }
     )
     val actionTypesRegistry = ActionTypesRegistry(
-        runtime.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
+        runtime.extensions.findContributionsFlat(TypeDescriptor::class)
     )
     val actionRegistry = ActionRegistry(
         actionSecurityRuleEvaluators,
         actionTypesRegistry,
-        runtime.extensionRegistry.findContributionsFlat(ActionProvider::class)
+        runtime.extensions.findContributionsFlat(ActionProvider::class)
     )
 
     val actionInvoker = ActionInvoker(

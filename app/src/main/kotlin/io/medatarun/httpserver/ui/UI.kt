@@ -3,13 +3,13 @@ package io.medatarun.httpserver.ui
 import io.medatarun.actions.runtime.ActionRegistry
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
-import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import java.util.*
 
-class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
+class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
 
     val modelQueries = runtime.services.getService<ModelQueries>()
 

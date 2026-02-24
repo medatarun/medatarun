@@ -9,8 +9,6 @@ import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension.Companion.JDBC_URL_PROPERTY
 import io.medatarun.platform.kernel.*
-import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
-import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
 import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
@@ -96,7 +94,7 @@ class TagTestEnv(
     val extraScopeManagers: List<TagScopeManager> = emptyList(),
     val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
 ) {
-    val services = MedatarunServiceRegistryImpl()
+
     val config = object : MedatarunConfig {
         override val applicationHomeDir: Path = Path.of("/tmp/medatarun")
         override val projectDir: Path = Path.of("/tmp/medatarun/project")
@@ -111,22 +109,18 @@ class TagTestEnv(
 
         override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Test should not use this")
     }
-    val extensionPlatform: ExtensionPlatform = ExtensionPlaformImpl(
-        extensions = listOf(
-            TypeSystemExtension(),
-            ActionsExtension(),
-            SecurityExtension(),
-            PlatformStorageDbExtension(),
-            PlatformStorageDbSqliteExtension(),
-            TagsCoreExtension(),
-            VehicleExtension(),
-            RecipeExtension(),
-            ExtraExtension(extraScopeManagers, extraListeners)
-        ),
-        serviceRegistry = services,
-        config = config
+    val extensions = listOf(
+        TypeSystemExtension(),
+        ActionsExtension(),
+        SecurityExtension(),
+        PlatformStorageDbExtension(),
+        PlatformStorageDbSqliteExtension(),
+        TagsCoreExtension(),
+        VehicleExtension(),
+        RecipeExtension(),
+        ExtraExtension(extraScopeManagers, extraListeners)
     )
-    val platform = PlatformRuntime(extensionPlatform, services).also { it.start() }
+    val platform = PlatformBuilder(config, extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()
     val vehicleService get() = platform.services.getService<VehicleService>()
@@ -135,7 +129,7 @@ class TagTestEnv(
     private val provider = TagActionProvider()
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = extensionPlatform.extensionRegistry
+        override val extensionRegistry: ExtensionRegistry = platform.extensions
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
 

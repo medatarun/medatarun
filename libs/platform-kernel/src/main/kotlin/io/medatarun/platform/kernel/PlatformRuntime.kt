@@ -3,17 +3,25 @@ package io.medatarun.platform.kernel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class PlatformRuntime(
-    val extensionPlatform: ExtensionPlatform,
+interface PlatformRuntime {
+    val config: MedatarunConfig
     val services: MedatarunServiceRegistry
-) {
-    fun start() {
-        val startListeners = extensionPlatform.extensionRegistry.findContributionsFlat(PlatformStartedListener::class)
+    val extensions: ExtensionRegistry
+}
+
+internal class PlatformRuntimeImpl(
+    override val extensions: ExtensionRegistry,
+    override val services: MedatarunServiceRegistry,
+    override val config: MedatarunConfig
+) : PlatformRuntime {
+
+    internal fun start() {
+        val startListeners = extensions.findContributionsFlat(PlatformStartedListener::class)
         val ctx: PlatformStartedCtx = object : PlatformStartedCtx {
             override val services: MedatarunServiceRegistry =
-                this@PlatformRuntime.services
+                this@PlatformRuntimeImpl.services
             override val extensionRegistry: ExtensionRegistry =
-                extensionPlatform.extensionRegistry
+                this@PlatformRuntimeImpl.extensions
         }
         for (s in startListeners) {
             logger.info("Starting contribution: ${s.javaClass.simpleName}")
