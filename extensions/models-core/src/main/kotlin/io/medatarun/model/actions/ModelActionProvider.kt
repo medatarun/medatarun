@@ -327,8 +327,8 @@ class ModelActionHandler(
                     identityAttribute = AttributeIdentityInitializer(
                         attributeKey = cmd.identityAttributeKey,
                         type = cmd.identityAttributeType,
-                        name = cmd.name,
-                        description = cmd.description,
+                        name = cmd.identityAttributeName,
+                        description = null,
                     )
                 ),
             )
