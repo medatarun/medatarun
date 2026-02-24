@@ -24,6 +24,25 @@ Other modules consume this core and define how tags can be applied to their own 
 
 - assignment model (tagging arbitrary business objects with `TagId`)
 - object-level rules defining which tag scopes are accepted
+- helper(s) for scope compatibility checks when attaching tags to business objects
+- richer consumer-module UX integration (display/search/select real tags, transport `TagId`)
+
+### Current integration progress in `model-core` (important)
+
+`model-core` already stores `TagId` on business objects (`Model`, `Entity`, `Relationship`, `Attribute`)
+and resolves `TagRef` at command/API boundaries.
+
+Current state of that integration:
+
+- backend attach/detach flows are implemented
+- model JSON serialization uses `tags` (list of tag ids)
+- search filters are being migrated to `TagRef`
+
+Still missing / not stabilized:
+
+- attach-time scope acceptance checks (global vs same-model local vs foreign local)
+- UI behavior based on real tags (display/search/selection), instead of ids only
+- dedicated test coverage for tag-based search and import edge cases
 
 ## Deletion Event Semantics (Current)
 
@@ -273,6 +292,9 @@ For `Model` objects (`Model` itself and the `Entity`(s), `Relationship`(s), `Att
   - free tags from another `Model`
 
 This gives local flexibility without polluting the organization-wide semantic space.
+
+This rule is now important in practice because `model-core` already stores `TagId` on objects.
+Without the attach-time scope check, a local tag from another model can be attached by mistake.
 
 ## Future: assignments (tagging objects)
 
