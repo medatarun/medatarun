@@ -5,6 +5,13 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.ports.exposed.*
+import io.medatarun.tags.core.actions.TagAction
+import io.medatarun.tags.core.domain.TagGroupKey
+import io.medatarun.tags.core.domain.TagGroupRef
+import io.medatarun.tags.core.domain.Tag
+import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeRef
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -12,6 +19,21 @@ import java.net.URI
 import kotlin.test.*
 
 class ModelTest {
+
+    private fun createManagedTag(env: ModelTestEnv, groupKeyValue: String, tagKeyValue: String): Tag {
+        val groupKey = TagGroupKey(groupKeyValue)
+        val tagKey = TagKey(tagKeyValue)
+        val tagRef = TagRef.ByKey(
+            scopeRef = TagScopeRef.Global,
+            groupKey = groupKey,
+            key = tagKey
+        )
+
+        env.dispatchTag(TagAction.TagGroupCreate(groupKey, null, null))
+        env.dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
+
+        return env.tagQueries.findTagByRef(tagRef)
+    }
 
     @Test
     fun `can not instantiate storages without repositories`() {
@@ -150,6 +172,8 @@ class ModelTest {
 
     class TestEnvOneModel {
         private val env = createEnv()
+        val runtime: ModelTestEnv
+            get() = env
         val query: ModelQueries = env.queries
         private val modelKey = ModelKey("m1")
         val modelRef = modelRef(modelKey)
@@ -237,6 +261,18 @@ class ModelTest {
         env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, url.toString()))
         env.dispatch(ModelAction.Model_UpdateDocumentationHome(env.modelRef, null))
         assertNull(env.query.findModel(env.modelRef).documentationHome)
+    }
+
+    @Test
+    fun `add and delete tag on model persists tag ids`() {
+        val env = TestEnvOneModel()
+        val managedTag = createManagedTag(env.runtime, "g-model", "t-model")
+
+        env.dispatch(ModelAction.Model_AddTag(env.modelRef, managedTag.ref))
+        assertEquals(listOf(managedTag.id), env.query.findModel(env.modelRef).tags)
+
+        env.dispatch(ModelAction.Model_DeleteTag(env.modelRef, managedTag.ref))
+        assertTrue(env.query.findModel(env.modelRef).tags.isEmpty())
     }
 
     // ------------------------------------------------------------------------
@@ -707,6 +743,7 @@ class ModelTest {
 
     class TestEnvEntityUpdate {
         val runtime = createEnv()
+        val dispatch = runtime::dispatch
         val query: ModelQueries = runtime.queries
         private val modelKey = ModelKey("model-entity-update")
         val modelRef = modelRefKey(ModelKey("model-entity-update"))
@@ -714,10 +751,9 @@ class ModelTest {
         val primaryEntityRef = EntityRef.ByKey(primaryEntityKey)
         val secondaryEntityKey = EntityKey("entity-secondary")
         val secondaryEntityRef = EntityRef.ByKey(secondaryEntityKey)
-        val dispatch = runtime::dispatch
 
         init {
-            dispatch(
+            runtime.dispatch(
                 ModelAction.Model_Create(
                     modelKey = modelKey,
                     name = LocalizedTextNotLocalized("Model entity update"),
@@ -725,8 +761,8 @@ class ModelTest {
                     version = ModelVersion("1.0.0")
                 )
             )
-            dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
-            dispatch(
+            runtime.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
+            runtime.dispatch(
                 ModelAction.Entity_Create(
                     modelRef = modelRef,
                     entityKey = primaryEntityKey,
@@ -738,7 +774,7 @@ class ModelTest {
                     documentationHome = null
                 )
             )
-            dispatch(
+            runtime.dispatch(
                 ModelAction.Entity_Create(
                     modelRef = modelRef,
                     entityKey = secondaryEntityKey,
@@ -759,7 +795,7 @@ class ModelTest {
         val wrongModelKey = modelRefKey("unknown-model")
 
         assertFailsWith<ModelNotFoundException> {
-            env.dispatch(
+            env.runtime.dispatch(
                 ModelAction.Entity_UpdateName(
                     wrongModelKey,
                     env.primaryEntityRef,
@@ -875,6 +911,18 @@ class ModelTest {
         assertNull(reloaded.documentationHome)
     }
 
+    @Test
+    fun `add and delete tag on entity persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val managedTag = createManagedTag(env.runtime, "g-entity", "t-entity")
+
+        env.dispatch(ModelAction.Entity_AddTag(env.modelRef, env.primaryEntityRef, managedTag.ref))
+        assertEquals(listOf(managedTag.id), env.query.findEntity(env.modelRef, env.primaryEntityRef).tags)
+
+        env.dispatch(ModelAction.Entity_DeleteTag(env.modelRef, env.primaryEntityRef, managedTag.ref))
+        assertTrue(env.query.findEntity(env.modelRef, env.primaryEntityRef).tags.isEmpty())
+    }
+
 
     @Test
     fun `delete entity in model then entity removed`() {
@@ -956,15 +1004,15 @@ class ModelTest {
 
     class TestEnvAttribute {
         val runtime = createEnv()
+        val dispatch = runtime::dispatch
         val query: ModelQueries = runtime.queries
         private val sampleModelKey = ModelKey("model-1")
         val sampleModelRef = modelRefKey(sampleModelKey)
         val sampleEntityKey = EntityKey("Entity1")
         val sampleEntityRef = EntityRef.ByKey(sampleEntityKey)
-        val dispatch = runtime::dispatch
 
         init {
-            dispatch(
+            runtime.dispatch(
                 ModelAction.Model_Create(
                     sampleModelKey,
                     LocalizedTextNotLocalized("Model 1"),
@@ -972,11 +1020,11 @@ class ModelTest {
                     ModelVersion("1.0.0")
                 )
             )
-            dispatch(ModelAction.Type_Create(sampleModelRef, TypeKey("String"), null, null))
+            runtime.dispatch(ModelAction.Type_Create(sampleModelRef, TypeKey("String"), null, null))
         }
 
         fun addSampleEntity() {
-            dispatch(
+            runtime.dispatch(
                 ModelAction.Entity_Create(
                     modelRef = sampleModelRef,
                     entityKey = sampleEntityKey,
@@ -998,7 +1046,7 @@ class ModelTest {
             description: LocalizedMarkdown? = null
         ): Attribute {
 
-            dispatch(
+            runtime.dispatch(
                 ModelAction.EntityAttribute_Create(
                     modelRef = sampleModelRef,
                     entityRef = sampleEntityRef,
@@ -1025,15 +1073,15 @@ class ModelTest {
             // TODO supprimer ca et réintégrer dans chaque test
 
             when (command) {
-                is AttributeUpdateCmd.Key -> dispatch(
+                is AttributeUpdateCmd.Key -> runtime.dispatch(
                     ModelAction.EntityAttribute_UpdateId(sampleModelRef, sampleEntityRef, attributeRef, command.value)
                 )
 
-                is AttributeUpdateCmd.Name -> dispatch(
+                is AttributeUpdateCmd.Name -> runtime.dispatch(
                     ModelAction.EntityAttribute_UpdateName(sampleModelRef, sampleEntityRef, attributeRef, command.value)
                 )
 
-                is AttributeUpdateCmd.Description -> dispatch(
+                is AttributeUpdateCmd.Description -> runtime.dispatch(
                     ModelAction.EntityAttribute_UpdateDescription(
                         sampleModelRef,
                         sampleEntityRef,
@@ -1042,11 +1090,11 @@ class ModelTest {
                     )
                 )
 
-                is AttributeUpdateCmd.Type -> dispatch(
+                is AttributeUpdateCmd.Type -> runtime.dispatch(
                     ModelAction.EntityAttribute_UpdateType(sampleModelRef, sampleEntityRef, attributeRef, command.value)
                 )
 
-                is AttributeUpdateCmd.Optional -> dispatch(
+                is AttributeUpdateCmd.Optional -> runtime.dispatch(
                     ModelAction.EntityAttribute_UpdateOptional(sampleModelRef, sampleEntityRef, attributeRef, command.value)
                 )
             }
@@ -1383,6 +1431,118 @@ class ModelTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun `add and delete tag on entity attribute persists tag ids`() {
+        val env = TestEnvAttribute()
+        env.addSampleEntity()
+        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
+        val managedTag = createManagedTag(env.runtime, "g-ea", "t-ea")
+
+        env.dispatch(
+            ModelAction.EntityAttribute_AddTag(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                EntityAttributeRef.ById(attribute.id),
+                managedTag.ref
+            )
+        )
+        val added = env.query.findEntityAttribute(env.sampleModelRef, env.sampleEntityRef, EntityAttributeRef.ById(attribute.id))
+        assertEquals(listOf(managedTag.id), added.tags)
+
+        env.dispatch(
+            ModelAction.EntityAttribute_DeleteTag(
+                env.sampleModelRef,
+                env.sampleEntityRef,
+                EntityAttributeRef.ById(attribute.id),
+                managedTag.ref
+            )
+        )
+        val deleted = env.query.findEntityAttribute(env.sampleModelRef, env.sampleEntityRef, EntityAttributeRef.ById(attribute.id))
+        assertTrue(deleted.tags.isEmpty())
+    }
+
+    // ------------------------------------------------------------------------
+    // Relationships
+    // ------------------------------------------------------------------------
+
+    @Test
+    fun `add and delete tag on relationship persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("works-with")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val managedTag = createManagedTag(env.runtime, "g-rel", "t-rel")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("a"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("b"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+
+        env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, managedTag.ref))
+        assertEquals(listOf(managedTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
+
+        env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, managedTag.ref))
+        assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+    }
+
+    @Test
+    fun `add and delete tag on relationship attribute persists tag ids`() {
+        val env = TestEnvEntityUpdate()
+        val relationshipKey = RelationshipKey("employs")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+        val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
+        val managedTag = createManagedTag(env.runtime, "g-ra", "t-ra")
+
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("employer"),
+                roleAEntityRef = env.primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("employee"),
+                roleBEntityRef = env.secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+        env.dispatch(
+            ModelAction.RelationshipAttribute_Create(
+                modelRef = env.modelRef,
+                relationshipRef = relationshipRef,
+                attributeKey = AttributeKey("startDate"),
+                type = typeRef("String"),
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+
+        env.dispatch(ModelAction.RelationshipAttribute_AddTag(env.modelRef, relationshipRef, attributeRef, managedTag.ref))
+        val added = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        assertNotNull(added)
+        assertEquals(listOf(managedTag.id), added.tags)
+
+        env.dispatch(ModelAction.RelationshipAttribute_DeleteTag(env.modelRef, relationshipRef, attributeRef, managedTag.ref))
+        val deleted = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        assertNotNull(deleted)
+        assertTrue(deleted.tags.isEmpty())
     }
 
     // ------------------------------------------------------------------------

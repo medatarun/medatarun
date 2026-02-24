@@ -1,6 +1,7 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
+import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
 /**
@@ -18,6 +19,7 @@ data class ModelInMemory(
     override val relationships: List<RelationshipInMemory>,
     override val documentationHome: URL?,
     override val hashtags: List<Hashtag>,
+    override val tags: List<TagId> = emptyList(),
 ) : Model {
 
     companion object {
@@ -33,7 +35,8 @@ data class ModelInMemory(
                 entities = other.entities.map(EntityInMemory::of),
                 relationships = other.relationships.map(RelationshipInMemory::of),
                 documentationHome = other.documentationHome,
-                hashtags = other.hashtags
+                hashtags = other.hashtags,
+                tags = other.tags,
             )
         }
 
@@ -49,6 +52,7 @@ data class ModelInMemory(
             var relationships: MutableList<RelationshipInMemory> = mutableListOf(),
             var documentationHome: URL? = null,
             var hashtags: MutableList<Hashtag> = mutableListOf(),
+            var tags: MutableList<TagId> = mutableListOf(),
         ) {
             fun build(): ModelInMemory {
                 return ModelInMemory(
@@ -63,6 +67,7 @@ data class ModelInMemory(
                     relationships = relationships,
                     documentationHome = documentationHome,
                     hashtags = hashtags,
+                    tags = tags,
                 )
             }
 

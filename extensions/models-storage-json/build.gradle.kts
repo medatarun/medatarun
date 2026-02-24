@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-security"))
     implementation(project(":extensions:models-core"))
+    implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
 

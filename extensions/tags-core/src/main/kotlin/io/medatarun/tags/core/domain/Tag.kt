@@ -42,4 +42,12 @@ interface Tag {
      */
     val isManaged: Boolean
         get() = scope.isManaged
+
+    /**
+     * Stable reference to the tag.
+     *
+     * Using the identifier avoids breaking links when the tag key changes.
+     */
+    val ref: TagRef
+        get() = TagRef.ById(id)
 }

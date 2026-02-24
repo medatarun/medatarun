@@ -16,12 +16,16 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRolesRegistryImpl
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagQueries
+import io.medatarun.tags.core.domain.TagRef
 import io.medatarun.types.TypeDescriptor
 import org.slf4j.LoggerFactory
 
@@ -43,7 +47,13 @@ open class ModelExtension : MedatarunExtension {
             extensionRegistry.findContributionsFlat(ModelRepository::class)
         }, validation)
         val modelQueriesImpl = ModelQueriesImpl(storage)
-        val modelCmdsImpl = ModelCmdsImpl(storage, auditor)
+        val tagQueries = ctx.getService(TagQueries::class)
+        val tagResolver = object : ModelTagResolver {
+            override fun resolveTagId(tagRef: TagRef): TagId {
+                return tagQueries.findTagByRef(tagRef).id
+            }
+        }
+        val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
         val securityRolesRegistry = SecurityRolesRegistryImpl(extensionRegistry)
 
@@ -83,4 +93,3 @@ open class ModelExtension : MedatarunExtension {
         private val logger = LoggerFactory.getLogger("audit")
     }
 }
-

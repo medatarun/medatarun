@@ -1,5 +1,7 @@
 package io.medatarun.model.domain
 
+import io.medatarun.tags.core.domain.TagId
+
 /**
  * A [Relationship] describes the conceptual structure of a link between entities.
  * It belongs to the *structural* layer of the metamodel: it defines what exists,
@@ -66,6 +68,11 @@ interface Relationship {
      */
     val hashtags: List<Hashtag>
 
+    /**
+     * Tags added to relationship for classification
+     */
+    val tags: List<TagId>
+
     val ref get() = RelationshipRef.ById(id)
 }
 
@@ -119,4 +126,3 @@ interface RelationshipRole {
 
     val ref get() = RelationshipRoleRef.ById(id)
 }
-

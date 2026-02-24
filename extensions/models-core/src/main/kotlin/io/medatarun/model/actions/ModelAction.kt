@@ -7,6 +7,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.security.SecurityRuleNames
+import io.medatarun.tags.core.domain.TagRef
 
 @Suppress("ClassName")
 sealed interface ModelAction {
@@ -287,7 +288,7 @@ sealed interface ModelAction {
             description = "Tag to add",
             order = 1
         )
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -309,7 +310,7 @@ sealed interface ModelAction {
             description = "Tag to delete",
             order = 1
         )
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -618,7 +619,7 @@ sealed interface ModelAction {
             description = "Tag to add to entity.",
             order = 30
         )
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
 
@@ -647,7 +648,7 @@ sealed interface ModelAction {
             description = "Tag to delete.",
             order = 30
         )
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
 
@@ -780,7 +781,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -794,7 +795,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -972,7 +973,7 @@ sealed interface ModelAction {
     data class Relationship_AddTag(
         val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -985,7 +986,7 @@ sealed interface ModelAction {
     data class Relationship_DeleteTag(
         val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -1099,7 +1100,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
@@ -1113,7 +1114,7 @@ sealed interface ModelAction {
         val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val tag: Hashtag
+        val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(

@@ -2,6 +2,7 @@ package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.needs.RepositoryRef
+import io.medatarun.tags.core.domain.TagRef
 import java.net.URL
 
 /**
@@ -49,6 +50,8 @@ sealed interface ModelCmd {
 
     data class UpdateModelHashtagAdd(override val modelRef: ModelRef, val hashtag: Hashtag) : ModelCmdOnModel
     data class UpdateModelHashtagDelete(override val modelRef: ModelRef, val hashtag: Hashtag) : ModelCmdOnModel
+    data class UpdateModelTagAdd(override val modelRef: ModelRef, val tagRef: TagRef) : ModelCmdOnModel
+    data class UpdateModelTagDelete(override val modelRef: ModelRef, val tagRef: TagRef) : ModelCmdOnModel
 
     class CopyModel(
         override val modelRef: ModelRef,
@@ -107,6 +110,18 @@ sealed interface ModelCmd {
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
+    data class UpdateEntityTagAdd(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityTagDelete(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
     data class DeleteEntity(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
@@ -149,6 +164,20 @@ sealed interface ModelCmd {
         val hashtag: Hashtag
     ) : ModelCmdOnModel
 
+    data class UpdateEntityAttributeTagAdd(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityAttributeTagDelete(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
     // ------------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------------
@@ -174,6 +203,18 @@ sealed interface ModelCmd {
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipTagAdd(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipTagDelete(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val tagRef: TagRef
     ) : ModelCmdOnModel
 
     class DeleteRelationship(
@@ -207,6 +248,20 @@ sealed interface ModelCmd {
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
         val hashtag: Hashtag
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeTagAdd(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val tagRef: TagRef
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeTagDelete(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val tagRef: TagRef
     ) : ModelCmdOnModel
 
     class DeleteRelationshipAttribute(

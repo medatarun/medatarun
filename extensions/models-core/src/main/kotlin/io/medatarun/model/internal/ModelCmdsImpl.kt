@@ -4,10 +4,12 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.*
+import io.medatarun.tags.core.domain.TagRef
 
 class ModelCmdsImpl(
     val storage: ModelStorages,
-    val auditor: ModelAuditor
+    val auditor: ModelAuditor,
+    val tagResolver: ModelTagResolver
 ) : ModelCmds {
 
     override fun dispatch(cmd: ModelCmd) {
@@ -22,6 +24,8 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
             is ModelCmd.UpdateModelHashtagAdd -> updateModelHashtagAdd(cmd)
             is ModelCmd.UpdateModelHashtagDelete -> updateModelHashtagDelete(cmd)
+            is ModelCmd.UpdateModelTagAdd -> updateModelTagAdd(cmd)
+            is ModelCmd.UpdateModelTagDelete -> updateModelTagDelete(cmd)
             is ModelCmd.DeleteModel -> deleteModel(cmd)
             is ModelCmd.CreateType -> createType(cmd)
             is ModelCmd.UpdateType -> updateType(cmd)
@@ -30,21 +34,29 @@ class ModelCmdsImpl(
             is ModelCmd.UpdateEntity -> updateEntity(cmd)
             is ModelCmd.UpdateEntityHashtagAdd -> updateEntityHashtagAdd(cmd)
             is ModelCmd.UpdateEntityHashtagDelete -> updateEntityHashtagDelete(cmd)
+            is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmd)
+            is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmd)
             is ModelCmd.DeleteEntity -> deleteEntity(cmd)
             is ModelCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
             is ModelCmd.UpdateEntityAttribute -> updateEntityAttribute(cmd)
             is ModelCmd.UpdateEntityAttributeHashtagAdd -> updateEntityAttributeHashtagAdd(cmd)
             is ModelCmd.UpdateEntityAttributeHashtagDelete -> updateEntityAttributeHashtagDelete(cmd)
+            is ModelCmd.UpdateEntityAttributeTagAdd -> updateEntityAttributeTagAdd(cmd)
+            is ModelCmd.UpdateEntityAttributeTagDelete -> updateEntityAttributeTagDelete(cmd)
             is ModelCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd)
             is ModelCmd.CreateRelationship -> createRelationship(cmd)
             is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
             is ModelCmd.UpdateRelationship -> updateRelationship(cmd)
             is ModelCmd.UpdateRelationshipHashtagAdd -> updateRelationshipHashtagAdd(cmd)
             is ModelCmd.UpdateRelationshipHashtagDelete -> updateRelationshipHashtagDelete(cmd)
+            is ModelCmd.UpdateRelationshipTagAdd -> updateRelationshipTagAdd(cmd)
+            is ModelCmd.UpdateRelationshipTagDelete -> updateRelationshipTagDelete(cmd)
             is ModelCmd.DeleteRelationship -> deleteRelationship(cmd)
             is ModelCmd.UpdateRelationshipAttribute -> updateRelationshipAttribute(cmd)
             is ModelCmd.UpdateRelationshipAttributeHashtagAdd -> updateRelationshipAttributeHashtagAdd(cmd)
             is ModelCmd.UpdateRelationshipAttributeHashtagDelete -> updateRelationshipAttributeHashtagDelete(cmd)
+            is ModelCmd.UpdateRelationshipAttributeTagAdd -> updateRelationshipAttributeTagAdd(cmd)
+            is ModelCmd.UpdateRelationshipAttributeTagDelete -> updateRelationshipAttributeTagDelete(cmd)
             is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd)
 
         }
@@ -131,6 +143,8 @@ class ModelCmdsImpl(
         return attr
     }
 
+    private fun findTagId(tagRef: TagRef) = tagResolver.resolveTagId(tagRef)
+
 
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelInMemory(
@@ -145,6 +159,7 @@ class ModelCmdsImpl(
             relationships = emptyList(),
             documentationHome = null,
             hashtags = emptyList(),
+            tags = emptyList(),
         )
         storage.dispatch(ModelRepoCmd.CreateModel(model), cmd.repositoryRef)
     }
@@ -198,6 +213,16 @@ class ModelCmdsImpl(
     private fun updateModelHashtagDelete(cmd: ModelCmd.UpdateModelHashtagDelete) {
         val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelHashtagDelete(model.id, cmd.hashtag))
+    }
+
+    private fun updateModelTagAdd(cmd: ModelCmd.UpdateModelTagAdd) {
+        val model = findModel(cmd.modelRef)
+        storage.dispatch(ModelRepoCmd.UpdateModelTagAdd(model.id, findTagId(cmd.tagRef)))
+    }
+
+    private fun updateModelTagDelete(cmd: ModelCmd.UpdateModelTagDelete) {
+        val model = findModel(cmd.modelRef)
+        storage.dispatch(ModelRepoCmd.UpdateModelTagDelete(model.id, findTagId(cmd.tagRef)))
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -284,6 +309,18 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepoCmd.UpdateEntityHashtagDelete(model.id, entity.id, cmd.hashtag))
     }
 
+    private fun updateEntityTagAdd(cmd: ModelCmd.UpdateEntityTagAdd) {
+        val model = findModel(cmd.modelRef)
+        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        storage.dispatch(ModelRepoCmd.UpdateEntityTagAdd(model.id, entity.id, findTagId(cmd.tagRef)))
+    }
+
+    private fun updateEntityTagDelete(cmd: ModelCmd.UpdateEntityTagDelete) {
+        val model = findModel(cmd.modelRef)
+        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        storage.dispatch(ModelRepoCmd.UpdateEntityTagDelete(model.id, entity.id, findTagId(cmd.tagRef)))
+    }
+
 
     private fun createEntity(c: ModelCmd.CreateEntity) {
         val model = findModel(c.modelRef)
@@ -295,7 +332,8 @@ class ModelCmdsImpl(
             description = c.entityInitializer.identityAttribute.description,
             typeId = type.id,
             optional = false, // because it's identity, can never be optional
-            hashtags = emptyList()
+            hashtags = emptyList(),
+            tags = emptyList(),
         )
         val attributes = listOf(identityAttribute)
         storage.dispatch(
@@ -310,6 +348,7 @@ class ModelCmdsImpl(
                     origin = EntityOrigin.Manual,
                     documentationHome = c.entityInitializer.documentationHome,
                     hashtags = emptyList(),
+                    tags = emptyList(),
                     attributes = attributes
                 )
             )
@@ -348,7 +387,8 @@ class ModelCmdsImpl(
                     description = c.attributeInitializer.description,
                     typeId = type.id,
                     optional = c.attributeInitializer.optional,
-                    hashtags = emptyList()
+                    hashtags = emptyList(),
+                    tags = emptyList(),
                 )
             )
         )
@@ -438,6 +478,34 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateEntityAttributeTagAdd(cmd: ModelCmd.UpdateEntityAttributeTagAdd) {
+        val model = findModel(cmd.modelRef)
+        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateEntityAttributeTagAdd(
+                modelId = model.id,
+                entityId = entity.id,
+                attributeId = attribute.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
+    private fun updateEntityAttributeTagDelete(cmd: ModelCmd.UpdateEntityAttributeTagDelete) {
+        val model = findModel(cmd.modelRef)
+        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateEntityAttributeTagDelete(
+                modelId = model.id,
+                entityId = entity.id,
+                attributeId = attribute.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
     // ------------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------------
@@ -514,6 +582,34 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateRelationshipAttributeTagAdd(cmd: ModelCmd.UpdateRelationshipAttributeTagAdd) {
+        val model = findModel(cmd.modelRef)
+        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateRelationshipAttributeTagAdd(
+                modelId = model.id,
+                relationshipId = rel.id,
+                attributeId = attr.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
+    private fun updateRelationshipAttributeTagDelete(cmd: ModelCmd.UpdateRelationshipAttributeTagDelete) {
+        val model = findModel(cmd.modelRef)
+        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateRelationshipAttributeTagDelete(
+                modelId = model.id,
+                relationshipId = rel.id,
+                attributeId = attr.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
     private fun deleteRelationship(cmd: ModelCmd.DeleteRelationship) {
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
@@ -585,6 +681,30 @@ class ModelCmdsImpl(
         )
     }
 
+    private fun updateRelationshipTagAdd(cmd: ModelCmd.UpdateRelationshipTagAdd) {
+        val model = findModel(cmd.modelRef)
+        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateRelationshipTagAdd(
+                modelId = model.id,
+                relationshipId = rel.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
+    private fun updateRelationshipTagDelete(cmd: ModelCmd.UpdateRelationshipTagDelete) {
+        val model = findModel(cmd.modelRef)
+        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        storage.dispatch(
+            ModelRepoCmd.UpdateRelationshipTagDelete(
+                modelId = model.id,
+                relationshipId = rel.id,
+                tagId = findTagId(cmd.tagRef)
+            )
+        )
+    }
+
     private fun createRelationshipAttribute(cmd: ModelCmd.CreateRelationshipAttribute) {
         val model = findModel(cmd.modelRef)
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
@@ -607,7 +727,8 @@ class ModelCmdsImpl(
                     description = cmd.attr.description,
                     typeId = type.id,
                     optional = cmd.attr.optional,
-                    hashtags = emptyList()
+                    hashtags = emptyList(),
+                    tags = emptyList(),
                 ),
                 relationshipId = rel.id
             )
@@ -646,6 +767,7 @@ class ModelCmdsImpl(
                         )
                     },
                     hashtags = emptyList(),
+                    tags = emptyList(),
                     attributes = emptyList(),
                 )
             )

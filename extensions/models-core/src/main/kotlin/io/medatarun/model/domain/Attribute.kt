@@ -1,5 +1,7 @@
 package io.medatarun.model.domain
 
+import io.medatarun.tags.core.domain.TagId
+
 /**
  * Attribute definition for an [Entity]
  */
@@ -38,4 +40,9 @@ interface Attribute {
      * Tags added to this attribute for categorization
      */
     val hashtags: List<Hashtag>
+
+    /**
+     * Tags added to this attribute for categorization
+     */
+    val tags: List<TagId>
 }

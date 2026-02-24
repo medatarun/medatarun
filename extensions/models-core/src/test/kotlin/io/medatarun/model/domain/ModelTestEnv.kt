@@ -24,6 +24,9 @@ import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.PlatformBuilder
 import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.TagsCoreExtension
+import io.medatarun.tags.core.actions.TagAction
+import io.medatarun.tags.core.actions.TagActionProvider
+import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.KClass
 
@@ -62,8 +65,11 @@ class ModelTestEnv(val repositories: List<ModelRepositoryInMemory> = emptyList()
 
     val queries
         get() = platform.services.getService(ModelQueries::class)
+    val tagQueries
+        get() = platform.services.getService(TagQueries::class)
 
-    private val actionProvider = ModelActionProvider(platform.config.createResourceLocator())
+    private val modelActionProvider = ModelActionProvider(platform.config.createResourceLocator())
+    private val tagActionProvider = TagActionProvider()
     private val actionCtx = object : ActionCtx {
         override val extensionRegistry: ExtensionRegistry = platform.extensions
         override fun dispatchAction(req: ActionRequest): Any =
@@ -75,7 +81,11 @@ class ModelTestEnv(val repositories: List<ModelRepositoryInMemory> = emptyList()
     }
 
     fun dispatch(action: ModelAction) {
-        actionProvider.dispatch(action, actionCtx)
+        modelActionProvider.dispatch(action, actionCtx)
+    }
+
+    fun dispatchTag(action: TagAction) {
+        tagActionProvider.dispatch(action, actionCtx)
     }
 }
 

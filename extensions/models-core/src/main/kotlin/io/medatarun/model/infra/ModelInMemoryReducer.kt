@@ -4,6 +4,7 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
 import io.medatarun.model.ports.needs.*
+import io.medatarun.tags.core.domain.TagId
 
 class ModelInMemoryReducer {
     fun dispatch(model: ModelInMemory, cmd: ModelRepoCmdOnModel): ModelInMemory {
@@ -25,6 +26,20 @@ class ModelInMemoryReducer {
                 hashtags = hashtagDelete(
                     model.hashtags,
                     cmd.hashtag
+                )
+            )
+
+            is ModelRepoCmd.UpdateModelTagAdd -> model.copy(
+                tags = tagAdd(
+                    model.tags,
+                    cmd.tagId
+                )
+            )
+
+            is ModelRepoCmd.UpdateModelTagDelete -> model.copy(
+                tags = tagDelete(
+                    model.tags,
+                    cmd.tagId
                 )
             )
 
@@ -75,6 +90,16 @@ class ModelInMemoryReducer {
                     previous.copy(hashtags = hashtagDelete(previous.hashtags, cmd.hashtag))
                 }
 
+            is ModelRepoCmd.UpdateEntityTagAdd ->
+                modifyingEntity(model, cmd.entityId) { previous ->
+                    previous.copy(tags = tagAdd(previous.tags, cmd.tagId))
+                }
+
+            is ModelRepoCmd.UpdateEntityTagDelete ->
+                modifyingEntity(model, cmd.entityId) { previous ->
+                    previous.copy(tags = tagDelete(previous.tags, cmd.tagId))
+                }
+
             is ModelRepoCmd.DeleteEntity -> modifyingEntity(model, cmd.entityId) { null }
 
             is ModelRepoCmd.CreateEntityAttribute -> modifyingEntity(model, cmd.entityId) {
@@ -94,6 +119,16 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateEntityAttributeHashtagDelete ->
                 modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
                     a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
+                }
+
+            is ModelRepoCmd.UpdateEntityAttributeTagAdd ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
+                    a.copy(tags = tagAdd(a.tags, cmd.tagId))
+                }
+
+            is ModelRepoCmd.UpdateEntityAttributeTagDelete ->
+                modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
+                    a.copy(tags = tagDelete(a.tags, cmd.tagId))
                 }
 
             is ModelRepoCmd.DeleteEntityAttribute ->
@@ -116,6 +151,16 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateRelationshipHashtagDelete ->
                 modifyingRelationship(model, cmd.relationshipId) { rel ->
                     rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
+                }
+
+            is ModelRepoCmd.UpdateRelationshipTagAdd ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
+                    rel.copy(tags = tagAdd(rel.tags, cmd.tagId))
+                }
+
+            is ModelRepoCmd.UpdateRelationshipTagDelete ->
+                modifyingRelationship(model, cmd.relationshipId) { rel ->
+                    rel.copy(tags = tagDelete(rel.tags, cmd.tagId))
                 }
 
 
@@ -144,6 +189,16 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateRelationshipAttributeHashtagDelete ->
                 modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
                     attr.copy(hashtags = hashtagDelete(attr.hashtags, cmd.hashtag))
+                }
+
+            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                    attr.copy(tags = tagAdd(attr.tags, cmd.tagId))
+                }
+
+            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete ->
+                modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
+                    attr.copy(tags = tagDelete(attr.tags, cmd.tagId))
                 }
 
             is ModelRepoCmd.CreateRelationshipAttribute -> model.copy(
@@ -292,6 +347,14 @@ private fun hashtagAdd(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
 
 private fun hashtagDelete(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
     return hashtags.filter { it != next }
+}
+
+private fun tagAdd(tags: List<TagId>, next: TagId): List<TagId> {
+    return if (!tags.contains(next)) tags.plus(next) else tags
+}
+
+private fun tagDelete(tags: List<TagId>, next: TagId): List<TagId> {
+    return tags.filter { it != next }
 }
 
 class ModelInMemoryReducerCommandNotSupportedException(cmd: ModelRepoCmd) :
