@@ -1,21 +1,30 @@
 package io.medatarun.tags.core
 
+import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
-import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
+import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
+import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension.Companion.JDBC_URL_PROPERTY
 import io.medatarun.platform.kernel.EventObserver
+import io.medatarun.platform.kernel.EventSystem
+import io.medatarun.platform.kernel.ExtensionPlatform
 import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.platform.kernel.internal.EventSystemImpl
+import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.PlatformRuntime
+import io.medatarun.platform.kernel.ResourceLocator
+import io.medatarun.platform.kernel.getService
+import io.medatarun.platform.kernel.internal.ExtensionPlaformImpl
+import io.medatarun.platform.kernel.internal.MedatarunServiceRegistryImpl
+import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.TagStorageSQLite
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
-import io.medatarun.tags.core.domain.TagCmd
-import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.RecipeService
@@ -24,74 +33,26 @@ import io.medatarun.tags.core.fixtures.VehicleService
 import io.medatarun.tags.core.fixtures.VehicleTagScopeManager
 import io.medatarun.tags.core.fixtures.recipeScopeRef
 import io.medatarun.tags.core.fixtures.vehicleScopeRef
-import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
-import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
+import io.medatarun.tags.core.ports.needs.TagStorage
+import io.medatarun.types.TypeSystemExtension
+import java.nio.file.Path
 import kotlin.reflect.KClass
 
-class TagTestEnv(
-    val extraScopeManagers: List<TagScopeManager> = emptyList(),
-    val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
-) {
-    val provider = TagActionProvider()
-    var actionCtx = ActionCtxWithActor()
-    val sqliteDbProvider = DbProviderSqlite.randomDb()
-    val txManager = DbTransactionManagerImpl(sqliteDbProvider)
-    val dbConnectionFactory: DbConnectionFactory = DbConnectionFactoryImpl(sqliteDbProvider, txManager)
-    val eventSystem = EventSystemImpl().also { e ->
-        extraListeners.forEach { e.registerObserver(TagBeforeDeleteEvt::class, it) }
+class VehicleExtension : MedatarunExtension {
+    override val id: String = "vehicle"
+    override fun init(ctx: MedatarunExtensionCtx) {
+        val vehicleService = ctx.getService(VehicleService::class)
+        val vehicleTagScopeManager = VehicleTagScopeManager(vehicleService)
+        ctx.register(TagScopeManager::class, vehicleTagScopeManager)
     }
 
-    // Keeps a connection alive until this class lifecycle ends
-    @Suppress("unused")
-    val dbConnectionKeeper = dbConnectionFactory.getConnection()
-
-    val tagStorage = TagStorageSQLite(dbConnectionFactory).also { it.initSchema() }
-
-    // Recipe domain
-    val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
-    val recipeService = RecipeService(onBeforeDelete = { id ->
-        recipeEventNotifier.fire(TagScopeBeforeDeleteEvent(recipeScopeRef(id)))
-    })
-    val recipeTagScopeManager = RecipeTagScopeManager(recipeService)
-
-    // Vehicle domain
-    val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
-    val vehicleService = VehicleService { id ->
-        vehicleServiceDeletedNotifier.fire(TagScopeBeforeDeleteEvent(vehicleScopeRef(id)))
-    }
-    val vehicleTagScopeManager = VehicleTagScopeManager(vehicleService)
-
-
-    val tagScopeManagers = listOf(
-        recipeTagScopeManager,
-        vehicleTagScopeManager
-    ) + extraScopeManagers
-
-    val tagScopeRegistry = TagScopeRegistryImpl(
-        object : TagScopeManagerResolver {
-            override fun findScopeManagers(): List<TagScopeManager> {
-                return tagScopeManagers
-            }
+    override fun initServices(ctx: MedatarunServiceCtx) {
+        val eventSystem = ctx.getService(EventSystem::class)
+        val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+        val vehicleService = VehicleService { id ->
+            vehicleServiceDeletedNotifier.fire(TagScopeBeforeDeleteEvent(vehicleScopeRef(id)))
         }
-    )
-
-    val tagEvents = TagCmdsEventsHandler(eventSystem)
-    val tagScopes = TagScopesImpl(tagScopeRegistry)
-    val tagCmds = TagCmdsImpl(tagStorage, tagScopes, tagEvents, txManager)
-    val tagQueries = TagQueriesImpl(tagStorage)
-
-
-    init {
-        eventSystem.registerObserver(TagScopeBeforeDeleteEvent::class) { evt ->
-            tagCmds.dispatch(TagCmd.TagScopeDelete(evt.tagScopeRef))
-        }
-
-        eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
-            override fun onEvent(evt: TagBeforeDeleteEvt) {
-                recipeService.removeTagEverywhere(evt.id)
-            }
-        })
 
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
             override fun onEvent(evt: TagBeforeDeleteEvt) {
@@ -99,26 +60,105 @@ class TagTestEnv(
             }
         })
 
+        ctx.register(VehicleService::class, vehicleService)
+    }
+}
 
+class RecipeExtension : MedatarunExtension {
+    override val id: String = "recipe"
+    override fun init(ctx: MedatarunExtensionCtx) {
+        val recipeService = ctx.getService(RecipeService::class)
+        val recipeTagScopeManager = RecipeTagScopeManager(recipeService)
+        ctx.register(TagScopeManager::class, recipeTagScopeManager)
     }
 
-    fun dispatch(cmd: TagAction) = provider.dispatch(cmd, actionCtx)
+    override fun initServices(ctx: MedatarunServiceCtx) {
+        val eventSystem = ctx.getService(EventSystem::class)
+        val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+        val recipeService = RecipeService(onBeforeDelete = { id ->
+            recipeEventNotifier.fire(TagScopeBeforeDeleteEvent(recipeScopeRef(id)))
+        })
 
-    inner class ActionCtxWithActor : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry
-            get() = throw TagTestIllegalStateException("Should not be called")
+        eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
+            override fun onEvent(evt: TagBeforeDeleteEvt) {
+                recipeService.removeTagEverywhere(evt.id)
+            }
+        })
 
-        override fun dispatchAction(req: ActionRequest): Any? {
-            throw TagTestIllegalStateException("Should not be called")
+        ctx.register(RecipeService::class, recipeService)
+    }
+}
+
+class ExtraExtension(
+    val extraScopeManagers: List<TagScopeManager> = emptyList(),
+    val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
+) : MedatarunExtension {
+    override val id: String = "extra"
+
+    override fun initServices(ctx: MedatarunServiceCtx) {
+        val eventSystem = ctx.getService(EventSystem::class)
+        for (observer in extraListeners) {
+            eventSystem.registerObserver(TagBeforeDeleteEvt::class, observer)
+        }
+    }
+
+    override fun init(ctx: MedatarunExtensionCtx) {
+        extraScopeManagers.forEach { ctx.register(TagScopeManager::class, it) }
+    }
+}
+
+
+class TagTestEnv(
+    val extraScopeManagers: List<TagScopeManager> = emptyList(),
+    val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
+) {
+    val services = MedatarunServiceRegistryImpl()
+    val config = object : MedatarunConfig {
+        override val applicationHomeDir: Path = Path.of("/tmp/medatarun")
+        override val projectDir: Path = Path.of("/tmp/medatarun/project")
+        override fun getProperty(key: String): String? {
+            if (key == JDBC_URL_PROPERTY) return DbProviderSqlite.randomDbUrl()
+            return null
         }
 
-        override fun <T : Any> getService(type: KClass<T>): T {
-            if (type == TagCmds::class) return tagCmds as T
-            if (type == TagQueries::class) return tagQueries as T
-            throw TagTestIllegalStateException("Unknown service $type")
+        override fun getProperty(key: String, defaultValue: String): String {
+            return getProperty(key) ?: defaultValue
         }
 
+        override fun createResourceLocator(): ResourceLocator = throw IllegalStateException("Test should not use this")
+    }
+    val extensionPlatform: ExtensionPlatform = ExtensionPlaformImpl(
+        extensions = listOf(
+            TypeSystemExtension(),
+            ActionsExtension(),
+            SecurityExtension(),
+            PlatformStorageDbExtension(),
+            PlatformStorageDbSqliteExtension(),
+            TagsCoreExtension(),
+            VehicleExtension(),
+            RecipeExtension(),
+            ExtraExtension(extraScopeManagers, extraListeners)
+        ),
+        serviceRegistry = services,
+        config = config
+    )
+    val platform = PlatformRuntime(extensionPlatform, services).also { it.start() }
+
+    val tagQueries get() = platform.services.getService<TagQueries>()
+    val vehicleService get() = platform.services.getService<VehicleService>()
+    val recipeService get() = platform.services.getService<RecipeService>()
+
+    private val provider = TagActionProvider()
+
+    fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
+        override val extensionRegistry: ExtensionRegistry = extensionPlatform.extensionRegistry
+        override fun dispatchAction(req: ActionRequest): Any =
+            throw IllegalStateException("Should not be called in tests")
+
+        override fun <T : Any> getService(type: KClass<T>): T = platform.services.getService(type)
         override val principal: ActionPrincipalCtx
             get() = throw TagTestIllegalStateException("Should not be called")
-    }
+
+    })
+
 }

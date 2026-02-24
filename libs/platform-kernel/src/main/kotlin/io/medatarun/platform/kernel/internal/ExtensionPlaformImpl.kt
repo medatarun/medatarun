@@ -16,7 +16,7 @@ class ExtensionPlaformImpl(
         // Create an extension registry and give it all known extensions,
         // including the kernel as an extension itself.
         // Nothing will be initialized yet, everything is empty.
-        val extensionRegistry = ExtensionRegistryImpl(allExtensions, config)
+        val extensionRegistry = ExtensionRegistryImpl(allExtensions, config, serviceRegistry)
 
         // Pushes core services into the service registry, so that services declared in extensions
         // can at least access the core services, including the service registry itself, and the extension registry.

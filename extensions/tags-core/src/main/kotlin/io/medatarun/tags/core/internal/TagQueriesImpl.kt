@@ -21,4 +21,20 @@ class TagQueriesImpl(private val storage: TagStorage): TagQueries {
     override fun findTagByRef(tagRef: TagRef): Tag {
         return findTagByRefOptional(tagRef) ?: throw TagNotFoundException(tagRef.asString())
     }
+
+    override fun findTagByKeyOptional(id: TagGroupId, managedKey: TagKey): Tag? {
+        return storage.findTagByKeyOptional(id, managedKey)
+    }
+
+    override fun findTagGroupByKeyOptional(groupKey: TagGroupKey): TagGroup? {
+        return storage.findTagGroupByKeyOptional(groupKey)
+    }
+
+    override fun findTagByIdOptional(id: TagId): Tag? {
+        return storage.findTagByIdOptional(id)
+    }
+
+    override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
+        return storage.findTagGroupByIdOptional(id)
+    }
 }
