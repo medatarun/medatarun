@@ -2,7 +2,7 @@ package io.medatarun.tags.core.fixtures
 
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.type.commons.id.Id
-import java.util.UUID
+import java.util.*
 
 /**
  * Single test-only ID type reused by all sample domain objects used in tag assignment tests.

@@ -7,7 +7,6 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.domain.TagRef.Companion.tagRefId
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
-import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
 

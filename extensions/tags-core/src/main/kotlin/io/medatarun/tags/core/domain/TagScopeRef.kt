@@ -2,7 +2,7 @@ package io.medatarun.tags.core.domain
 
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.ref.Ref
-import java.util.UUID
+import java.util.*
 
 sealed interface TagScopeRef : Ref<TagScopeRef> {
     val type: TagScopeType

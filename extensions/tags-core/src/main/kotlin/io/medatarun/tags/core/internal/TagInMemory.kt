@@ -1,10 +1,6 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.tags.core.domain.Tag
-import io.medatarun.tags.core.domain.TagGroupId
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.*
 
 data class TagInMemory(
     override val id: TagId,

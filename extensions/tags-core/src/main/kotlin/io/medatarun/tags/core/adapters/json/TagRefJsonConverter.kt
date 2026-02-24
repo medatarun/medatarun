@@ -1,12 +1,6 @@
 package io.medatarun.tags.core.adapters.json
 
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import io.medatarun.type.commons.ref.RefTypeJsonConverters

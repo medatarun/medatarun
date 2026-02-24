@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.internal
 
-import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.domain.TagDuplicateScopeManagerException
+import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.tags.core.ports.needs.TagScopeManagerResolver
 import io.medatarun.tags.core.ports.needs.TagScopeRegistry

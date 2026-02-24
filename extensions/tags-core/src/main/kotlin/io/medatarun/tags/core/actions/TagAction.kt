@@ -3,11 +3,7 @@ package io.medatarun.tags.core.actions
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.security.SecurityRuleNames
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.*
 
 sealed interface TagAction {
     // ------------------------------------------------------------------------

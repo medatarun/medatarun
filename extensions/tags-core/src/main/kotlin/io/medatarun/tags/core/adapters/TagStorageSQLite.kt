@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.adapters
 
-import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
