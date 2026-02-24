@@ -5,8 +5,6 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.infra.*
 import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.ports.exposed.*
-import io.medatarun.model.ports.needs.RepositoryRef
-import io.medatarun.model.ports.needs.RepositoryRef.Companion.ref
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -60,31 +58,6 @@ class ModelTest {
             )
         }
         assertNotNull(repo1.findModelByKeyOptional(modelKey))
-    }
-
-    @Test
-    fun `create model ok with multiple storages and specified storage`() {
-        val repo1 = ModelRepositoryInMemory("repo1")
-        val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createEnv(repositories = listOf(repo1, repo2))
-        val cmd = runtime.cmd
-        val query = runtime.queries
-
-        val modelKey = ModelKey("m1")
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey,
-                LocalizedTextNotLocalized("M1"),
-                null,
-                ModelVersion("1.0.0"),
-                RepositoryRef.Id(repo2.repositoryId)
-            )
-        )
-        assertDoesNotThrow { query.findModelByKey(modelKey) }
-
-        assertNull(repo1.findModelByKeyOptional(modelKey))
-        assertNotNull(repo2.findModelByKeyOptional(modelKey))
-
     }
 
     @Test
@@ -273,97 +246,42 @@ class ModelTest {
 
     @Test
     fun `delete model fails if model Id not found in any storage`() {
-        val repo1 = ModelRepositoryInMemory("repo1")
-        val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createEnv(listOf(repo1, repo2))
-        val cmd: ModelCmds = runtime.cmd
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-delete-repo-1"),
-                name = LocalizedTextNotLocalized("Model to delete"),
-                description = null,
-                version = ModelVersion("0.0.1"),
-                repositoryRef = repo2.repositoryId.ref()
-            )
-        )
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-delete-repo-2"),
-                name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
-                description = null,
-                version = ModelVersion("0.0.1"),
-                repositoryRef = repo2.repositoryId.ref()
-            )
-        )
+        val env = createEnv()
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-delete-1"), LocalizedTextNotLocalized("Model to delete"), null, ModelVersion("0.0.1")))
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-delete-2"), LocalizedTextNotLocalized("Model to delete 2"), null, ModelVersion("0.0.1")))
         assertThrows<ModelNotFoundException> {
-            cmd.dispatch(ModelCmd.DeleteModel(modelRefKey("m-to-delete-repo-3")))
+            env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-delete-3")))
         }
     }
 
     @Test
     fun `delete model removes it from storage`() {
-        val repo1 = ModelRepositoryInMemory("repo1")
-        val repo2 = ModelRepositoryInMemory("repo2")
-        val runtime = createEnv(listOf(repo1, repo2))
-        val cmd: ModelCmds = runtime.cmd
-        val query: ModelQueries = runtime.queries
+        val env = createEnv()
+        val query: ModelQueries = env.queries
 
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-delete-repo-1"),
-                name = LocalizedTextNotLocalized("Model to delete"),
-                description = null,
-                version = ModelVersion("0.0.1"),
-                repositoryRef = repo1.repositoryId.ref()
-            )
-        )
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-preserve-repo-1"),
-                name = LocalizedTextNotLocalized("Model to preserve"),
-                description = null,
-                version = ModelVersion("0.1.0"),
-                repositoryRef = repo1.repositoryId.ref()
-            )
-        )
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-delete-repo-2"),
-                name = LocalizedTextNotLocalized("Model to delete 2 on repo 2"),
-                description = null,
-                version = ModelVersion("0.0.1"),
-                repositoryRef = repo2.repositoryId.ref()
-            )
-        )
-        cmd.dispatch(
-            ModelCmd.CreateModel(
-                modelKey = ModelKey("m-to-preserve-repo-2"),
-                name = LocalizedTextNotLocalized("Model to preserve on repo 2"),
-                description = null,
-                version = ModelVersion("0.1.0"),
-                repositoryRef = repo2.repositoryId.ref()
-            )
-        )
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-delete-1"), LocalizedTextNotLocalized("Model to delete"), null, ModelVersion("0.0.1")))
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-keep-1"), LocalizedTextNotLocalized("Model to preserve"), null, ModelVersion("0.1.0")))
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-delete-2"), LocalizedTextNotLocalized("Model to delete 2"), null, ModelVersion("0.0.1")))
+        env.dispatch(ModelAction.Model_Create(ModelKey("m-to-keep-2"), LocalizedTextNotLocalized("Model to preserve 2"), null, ModelVersion("0.1.0")))
 
-        cmd.dispatch(ModelCmd.DeleteModel(modelRef("m-to-delete-repo-1")))
-        assertNull(repo1.findModelOptional(modelRef("m-to-delete-repo-1")))
-        assertNull(query.findModelOptional(modelRef("m-to-delete-repo-1")))
+        env.dispatch(ModelAction.Model_Delete(modelRef("m-to-delete-1")))
+        assertNull(query.findModelOptional(modelRef("m-to-delete-1")))
 
-        assertNotNull(query.findModelOptional(modelRef("m-to-preserve-repo-1")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-delete-repo-2")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-preserve-repo-2")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-keep-1")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-delete-2")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
 
-        cmd.dispatch(ModelCmd.DeleteModel(modelRefKey("m-to-delete-repo-2")))
-        assertNull(repo1.findModelOptional(modelRef("m-to-delete-repo-2")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-preserve-repo-1")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-preserve-repo-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-delete-2")))
+        assertNull(query.findModelOptional(modelRef("m-to-delete-2")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-keep-1")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
 
-        cmd.dispatch(ModelCmd.DeleteModel(modelRef("m-to-preserve-repo-1")))
-        assertNull(repo2.findModelOptional(modelRef("m-to-delete-repo-2")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-preserve-repo-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRef("m-to-keep-1")))
+        assertNull(query.findModelOptional(modelRef("m-to-keep-1")))
+        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
 
-        cmd.dispatch(ModelCmd.DeleteModel(modelRefKey("m-to-preserve-repo-2")))
-        assertNull(repo2.findModelOptional(modelRef("m-to-delete-repo-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-keep-2")))
+        assertNull(query.findModelOptional(modelRef("m-to-keep-2")))
 
     }
 
@@ -638,28 +556,23 @@ class ModelTest {
     // ------------------------------------------------------------------------
 
     @Test
-    fun `create entity then id name and description shall persist`() {
+    fun `create entity then id and name shall persist`() {
         val env = TestEnvOneModel()
         val entityId = EntityKey("entity")
         val entityRef = EntityRef.ByKey(entityId)
         val name = LocalizedTextNotLocalized("Order")
         val description = LocalizedMarkdownNotLocalized("Order description")
-
-        env.cmd.dispatch(
-            ModelCmd.CreateEntity(
-                env.modelRef, EntityInitializer.build(
-                    entityKey = entityId,
-                    identityAttribute = AttributeIdentityInitializer(
-                        attributeKey = AttributeKey("id"),
-                        type = typeRef("String"),
-                        name = LocalizedTextNotLocalized("Identifier"),
-                        description = LocalizedMarkdownNotLocalized("Identifier description")
-                    )
-                ) {
-                    this.name = name
-                    this.description = description
-
-                }
+        val docHome= "http://test.dev/local=123"
+        env.dispatch(
+            ModelAction.Entity_Create(
+                env.modelRef,
+                entityKey = entityId,
+                name = name,
+                description = description,
+                identityAttributeKey = AttributeKey("id"),
+                identityAttributeName = LocalizedTextNotLocalized("Identifier"),
+                documentationHome = docHome,
+                identityAttributeType = typeRef("String")
             )
         )
 
@@ -667,11 +580,12 @@ class ModelTest {
         assertEquals(entityId, reloaded.key)
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
+        assertEquals(URI.create(docHome).toURL(), reloaded.documentationHome)
         assertEquals(1, reloaded.attributes.size)
         val attrId = reloaded.attributes[0]
         assertEquals(AttributeKey("id"), attrId.key)
         assertEquals("Identifier", attrId.name?.name)
-        assertEquals("Identifier description", attrId.description?.name)
+        assertNull( attrId.description?.name)
     }
 
     @Test
