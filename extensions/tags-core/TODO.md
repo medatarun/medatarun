@@ -21,10 +21,8 @@ Il reste du nettoyage/alignement autour de modules adjacents et de l'expérience
 Le travail à faire n'est pas une migration de données : le logiciel est en cours de construction.
 On peut faire évoluer le modèle et le code sans gérer de migration.
 
-Découpage du travail (état actuel) :
-- 1.1 fait : objets métier `models-core` en `TagId`
-- 1.2 fait : persistance + commandes backend pour attacher/retirer des `TagId` sur `Model`, `Entity`, `Relationship`, `Attribute`
-- 1.3 à finaliser : UI sur le nouveau système, avec usage métier complet des tags (pas seulement IDs bruts)
+Travail restant sur ce point :
+- UI sur le nouveau système, avec usage métier complet des tags (pas seulement IDs bruts)
 
 Règle technique :
 - utiliser `TagId` comme référence dans les objets métier (pas `TagRef` par key), pour ne pas casser les liens si une key de tag change
@@ -42,13 +40,12 @@ L'UI ne doit pas manipuler seulement des IDs bruts.
 
 ## 2) Recherche par tags dans `model-core` (migration vers `TagRef`) à consolider
 
-La recherche `SearchFilterTags` a été migrée vers des `TagRef` (au lieu de strings de hashtags), mais il reste du travail
-de validation métier et de test.
+La recherche `SearchFilterTags` a été migrée vers des `TagRef` (au lieu de strings de hashtags) et la couverture de tests backend
+est maintenant en place dans `ModelSearchTest`.
 
 À faire :
 - confirmer le contrat API/UI pour les filtres de tags (format `TagRef` attendu)
 - vérifier les comportements en cas de `TagRef` introuvable (erreur vs ignoré) et les documenter
-- ajouter des tests dédiés sur `SearchFilterTags` (anyOf / noneOf / allOf / empty / notEmpty)
 
 ## 3) Import Frictionless : création de tags à partir des `keywords` (métier à clarifier)
 
@@ -74,8 +71,7 @@ Points à traiter ensemble :
 
 ### 4.2 Recherche par tags
 - tests de parsing JSON des filtres de tags (`TagRef`)
-- tests de recherche backend (`SearchFilterTags`) avec résolution de `TagRef`
-- tests de comportement sur tags inconnus / refs invalides
+- tests de refs invalides (parsing / format API)
 
 ### 4.3 Import Frictionless
 - tests de création effective des tags via `TagCmds`

@@ -36,14 +36,14 @@ Current state of that integration:
 - backend attach/detach flows are implemented
 - attach-time scope acceptance checks are implemented in `model-core` (global + same-model local allowed, foreign local rejected)
 - model JSON serialization uses `tags` (list of tag ids)
-- search filters are being migrated to `TagRef`
+- search filters use `TagRef` in `model-core`, with dedicated backend test coverage (`ModelSearchTest`)
 - `model` local tag scope is declared by `ModelExtension` and validated via `ModelQueries`
 - attachment policy is implemented in `model-core` (`ModelTagResolver`), not in `TagQueries`
 
 Still missing / not stabilized:
 
 - UI behavior based on real tags (display/search/selection), instead of ids only
-- dedicated test coverage for tag-based search and import edge cases
+- dedicated test coverage for import edge cases
 
 ## Deletion Event Semantics (Current)
 
