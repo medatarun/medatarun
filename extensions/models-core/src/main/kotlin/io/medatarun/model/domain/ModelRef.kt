@@ -1,5 +1,6 @@
 package io.medatarun.model.domain
 
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.type.commons.ref.Ref
 import java.util.*
 

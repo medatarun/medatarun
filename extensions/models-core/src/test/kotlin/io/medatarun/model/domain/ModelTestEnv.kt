@@ -84,6 +84,10 @@ class ModelTestEnv(val repositories: List<ModelRepositoryInMemory> = emptyList()
         modelActionProvider.dispatch(action, actionCtx)
     }
 
+    fun dispatchResult(action: ModelAction): Any {
+        return modelActionProvider.dispatch(action, actionCtx)
+    }
+
     fun dispatchTag(action: TagAction) {
         tagActionProvider.dispatch(action, actionCtx)
     }
