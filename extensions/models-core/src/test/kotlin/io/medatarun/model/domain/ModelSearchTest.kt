@@ -377,7 +377,32 @@ class ModelSearchTest {
      */
     @Test
     fun `intersects filter results with and`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val results = search(
+            fixture,
+            SearchFilters(
+                operator = SearchFiltersLogicalOperator.AND,
+                filters = listOf(
+                    SearchFilterTags.AnyOf(listOf(refs.tags.global.security.public.ref)),
+                    SearchFilterTags.AnyOf(listOf(refs.tags.local.cooking.imported.ref(fixture.env.queries.findModel(refs.cooking.ref).id)))
+                )
+            )
+        )
+
+        assertEquals(
+            setOf(
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
+            ),
+            resultHits(results)
+        )
     }
 
     /**
@@ -387,7 +412,34 @@ class ModelSearchTest {
      */
     @Test
     fun `unions filter results with or`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val results = search(
+            fixture,
+            SearchFilters(
+                operator = SearchFiltersLogicalOperator.OR,
+                filters = listOf(
+                    SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_result.ref(fixture.env.queries.findModel(refs.crm.ref).id))),
+                    SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref)))
+            )
+        )
+
+        val hits = resultHits(results)
+        val expectedHits = setOf(
+            Hit.Entity(refs.crm.key, refs.crm.person.key),
+            Hit.Entity(refs.crm.key, refs.crm.company.key),
+            Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
+            Hit.Relationship(refs.crm.key, refs.crm.employment.key),
+            Hit.RelationshipAttribute(refs.crm.key, refs.crm.employment.key, refs.crm.employment.attr.since.key),
+            Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key),
+        )
+
+        assertEquals(
+            expectedHits,
+            hits
+        )
     }
 
     // ------------------------------------------------------------------------
@@ -401,7 +453,13 @@ class ModelSearchTest {
      */
     @Test
     fun `handles any-of with empty requested tags list`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterTags.AnyOf(emptyList())))
+
+        assertEquals(emptySet(), hits)
     }
 
     /**
@@ -411,7 +469,13 @@ class ModelSearchTest {
      */
     @Test
     fun `handles all-of with empty requested tags list`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterTags.AllOf(emptyList())))
+
+        assertEquals(allIndexedHits(fixture), hits)
     }
 
     /**
@@ -421,7 +485,13 @@ class ModelSearchTest {
      */
     @Test
     fun `handles none-of with empty excluded tags list`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterTags.NoneOf(emptyList())))
+
+        assertEquals(allIndexedHits(fixture), hits)
     }
 
     /**
@@ -431,7 +501,35 @@ class ModelSearchTest {
      */
     @Test
     fun `ignores or handles duplicate requested tags in any-of`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val uniqueHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.AnyOf(
+                    listOf(
+                        refs.tags.global.security.public.ref,
+                        refs.tags.global.security.confidential.ref
+                    )
+                )
+            )
+        )
+        val duplicateHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.AnyOf(
+                    listOf(
+                        refs.tags.global.security.public.ref,
+                        refs.tags.global.security.public.ref,
+                        refs.tags.global.security.confidential.ref
+                    )
+                )
+            )
+        )
+
+        assertEquals(uniqueHits, duplicateHits)
     }
 
     /**
@@ -441,7 +539,35 @@ class ModelSearchTest {
      */
     @Test
     fun `ignores or handles duplicate requested tags in all-of`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val uniqueHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.AllOf(
+                    listOf(
+                        refs.tags.global.gdpr.personal_data.ref,
+                        refs.tags.global.security.internal.ref
+                    )
+                )
+            )
+        )
+        val duplicateHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.AllOf(
+                    listOf(
+                        refs.tags.global.gdpr.personal_data.ref,
+                        refs.tags.global.gdpr.personal_data.ref,
+                        refs.tags.global.security.internal.ref
+                    )
+                )
+            )
+        )
+
+        assertEquals(uniqueHits, duplicateHits)
     }
 
     /**
@@ -451,7 +577,29 @@ class ModelSearchTest {
      */
     @Test
     fun `ignores or handles duplicate requested tags in none-of`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val uniqueHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.NoneOf(listOf(refs.tags.global.security.public.ref))
+            )
+        )
+        val duplicateHits = resultHits(
+            search(
+                fixture,
+                SearchFilterTags.NoneOf(
+                    listOf(
+                        refs.tags.global.security.public.ref,
+                        refs.tags.global.security.public.ref
+                    )
+                )
+            )
+        )
+
+        assertEquals(uniqueHits, duplicateHits)
     }
 
     // ------------------------------------------------------------------------
@@ -465,7 +613,21 @@ class ModelSearchTest {
      */
     @Test
     fun `handles and with no filters`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(
+            search(
+                fixture,
+                SearchFilters(
+                    operator = SearchFiltersLogicalOperator.AND,
+                    filters = emptyList()
+                )
+            )
+        )
+
+        assertEquals(allIndexedHits(fixture), hits)
     }
 
     /**
@@ -475,7 +637,21 @@ class ModelSearchTest {
      */
     @Test
     fun `handles or with no filters`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(
+            search(
+                fixture,
+                SearchFilters(
+                    operator = SearchFiltersLogicalOperator.OR,
+                    filters = emptyList()
+                )
+            )
+        )
+
+        assertEquals(emptySet(), hits)
     }
 
     // ------------------------------------------------------------------------
@@ -488,7 +664,17 @@ class ModelSearchTest {
      */
     @Test
     fun `search applies to all indexed object kinds`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+
+        assertTrue(hits.contains(Hit.Model(refs.cooking.key)))
+        assertTrue(hits.contains(Hit.Entity(refs.crm.key, refs.crm.person.key)))
+        assertTrue(hits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key)))
+        assertTrue(hits.contains(Hit.Relationship(refs.crm.key, refs.crm.employment.key)))
+        assertTrue(hits.contains(Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key)))
     }
 
     /**
@@ -497,16 +683,33 @@ class ModelSearchTest {
      */
     @Test
     fun `search includes auto-created entity id attributes in indexed objects`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val emptyHits = resultHits(search(fixture, SearchFilterTags.Empty))
+
+        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.id.key)))
+        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.id.key)))
+        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.id.key)))
+        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.id.key)))
+        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.id.key)))
     }
 
     private fun search(fixture: SearchFixture, filter: SearchFilterTags): JsonObject {
+        return search(
+            fixture,
+            SearchFilters(
+                operator = SearchFiltersLogicalOperator.AND,
+                filters = listOf(filter)
+            )
+        )
+    }
+
+    private fun search(fixture: SearchFixture, filters: SearchFilters): JsonObject {
         return fixture.env.dispatchResult(
             ModelAction.Search(
-                filters = SearchFilters(
-                    operator = SearchFiltersLogicalOperator.AND,
-                    filters = listOf(filter)
-                ),
+                filters = filters,
                 fields = SearchFields(emptyList())
             )
         ) as JsonObject
