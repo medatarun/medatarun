@@ -5,12 +5,19 @@ import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilterTags
 import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
+import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.TagNotFoundException
+import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 import org.junit.jupiter.api.Test
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ModelSearchTest {
@@ -233,7 +240,21 @@ class ModelSearchTest {
      */
     @Test
     fun `resolves global tags by group and key`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val results = search(
+            fixture,
+            SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref))
+        )
+
+        assertEquals(
+            setOf(
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key)
+            ),
+            resultHits(results)
+        )
     }
 
     /**
@@ -242,7 +263,25 @@ class ModelSearchTest {
      */
     @Test
     fun `resolves local tags in crm scope`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
+
+        val results = search(
+            fixture,
+            SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_search.ref(crmModelId)))
+        )
+
+        assertEquals(
+            setOf(
+                Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.name.key),
+                Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key),
+                Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
+                Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
+            ),
+            resultHits(results)
+        )
     }
 
     /**
@@ -251,7 +290,34 @@ class ModelSearchTest {
      */
     @Test
     fun `resolves local tags in cooking scope`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val cookingModelId = fixture.env.queries.findModel(refs.cooking.ref).id
+
+        val results = search(
+            fixture,
+            SearchFilterTags.AnyOf(listOf(refs.tags.local.cooking.imported.ref(cookingModelId)))
+        )
+
+        assertEquals(
+            setOf(
+                Hit.Model(refs.cooking.key),
+                Hit.Entity(refs.cooking.key, refs.cooking.ingredient.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.code.key),
+                Hit.Entity(refs.cooking.key, refs.cooking.recipe.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
+                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
+                Hit.Entity(refs.cooking.key, refs.cooking.chef.key),
+                Hit.Relationship(refs.cooking.key, refs.cooking.usage.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
+                Hit.Relationship(refs.cooking.key, refs.cooking.author.key),
+                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
+            ),
+            resultHits(results)
+        )
     }
 
     /**
@@ -261,7 +327,18 @@ class ModelSearchTest {
      */
     @Test
     fun `fails when any requested global tag does not exist`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val unknownGlobalTag = TagRef.ByKey(
+            scopeRef = TagScopeRef.Global,
+            groupKey = refs.tags.global.security.key,
+            key = TagKey("missing-global-tag")
+        )
+
+        assertFailsWith<TagNotFoundException> {
+            search(fixture, SearchFilterTags.AnyOf(listOf(unknownGlobalTag)))
+        }
     }
 
     /**
@@ -271,7 +348,22 @@ class ModelSearchTest {
      */
     @Test
     fun `fails when any requested local tag does not exist`() {
-        // TODO
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
+        val unknownLocalTag = TagRef.ByKey(
+            scopeRef = TagScopeRef.Local(
+                type = TagScopeType("model"),
+                localScopeId = TagScopeId(crmModelId.value)
+            ),
+            groupKey = null,
+            key = TagKey("missing-local-tag")
+        )
+
+        assertFailsWith<TagNotFoundException> {
+            search(fixture, SearchFilterTags.AnyOf(listOf(unknownLocalTag)))
+        }
     }
 
     // ------------------------------------------------------------------------
