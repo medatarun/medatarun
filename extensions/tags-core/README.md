@@ -381,5 +381,4 @@ Stratégie d'import des tags:
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/internal/ModelCmdsImpl.kt`
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/ModelTagResolverWithQueries.kt`
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/ModelExtension.kt`
-- `extensions/tags-core/README_old.md`
 - `extensions/tags-core/TODO.md`

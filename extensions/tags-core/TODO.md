@@ -97,3 +97,7 @@ Décision actée :
   `security:public` et `security:internal` en même temps)
 - d'autres groupes doivent rester multi-valeurs (exemple: `country:fr` et
   `country:de` autorisés en même temps)
+- offrir des opérations massives sur les tags pour faciliter la gouvernance:
+  - promotion d'un tag local vers un tag global
+  - fusion de tags
+  - remplacement d'un tag par un autre
