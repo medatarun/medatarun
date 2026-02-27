@@ -23,24 +23,21 @@ contrat cible et l'état actuel du code.
 ## But du module
 
 `tags-core` est le module transversal qui centralise la gestion des tags dans
-Medatarun.
-
-Il est utilisé aujourd'hui par le module [models-core](../models-core/README.md).
-Roadmap (lot ultérieur, non implémenté, décision actée) : intégration à `prompts-core` et aux autres modules métiers.
-
-D'où le besoin d'avoir un systeme générique et sans focus sur Models.
-
-
-Il expose:
-
-- un modèle unique (`Tag`, `TagId`, `TagRef`, `TagScopeRef`)
-- des commandes de gestion de tags/groupes (via `TagAction`, `TagCmds` et
-  `TagQueries`)
-- outils communs que les autres extensions peuvent utiliser pour travailler avec
-  les tags
+Medatarun (définition, lifecycle, scope de tag global, etc.). 
 
 Les modules consommateurs (ex: `models-core`) gèrent l'attache/détache sur leurs
-objets et stockent des `TagId`.
+objets et stockent des `TagId` dans les objets taggés et définissent leur scope de tags.
+
+Le module `tags-core` est utilisé aujourd'hui par le module [models-core](../models-core/README.md).
+Roadmap (lot ultérieur, non implémenté, décision actée) : intégration à `prompts-core` et aux autres modules métiers.
+
+Le module `tags-core` expose:
+
+- un modèle unique (`Tag`, `TagId`, `TagRef`, `TagScopeRef`)
+- des commandes de gestion de tags/groupes (via `TagAction`, `TagCmds` et `TagQueries`)
+- outils communs que les autres extensions peuvent utiliser pour travailler avec les tags
+
+
 
 ## Problème initial
 
@@ -204,6 +201,8 @@ Entrées principales exposées côté actions (`TagAction`):
 Règles métier actuellement codées (`TagCmdsImpl`):
 
 - `TagFreeCreate` refuse un scope global.
+- `TagFreeCreate` exige un scope local existant (validation via
+  `TagScopeManager.localScopeExists`).
 - Un tag free est unique par `(scope local, key)`.
 - Un tag managed est unique par `(group, key)`.
 - Les commandes free refusent les refs vers managed (
@@ -237,7 +236,7 @@ Suppression:
 
 3. Suppression de scope local
 
-- Le module propriétaire du scope émet `TagScopeBeforeDeleteEvent(scopeRef)`
+- Le module propriétaire du scope emet un évenement `TagScopeBeforeDeleteEvent(scopeRef)`
 - `tags-core` supprime en masse les tags du scope (`TagScopeDelete`)
 - Décision actée: ce chemin n'émet pas d'événement `TagBeforeDeleteEvt` pour
   chaque tag supprimé
@@ -267,29 +266,18 @@ Permissions des tags free locaux:
   selon ses permissions locales
 - le même mécanisme de veto devra être appliqué aux autres types de scopes
 
-## Fonctionnement UI (état actuel)
+## Fonctionnement UI
 
-Le backend expose déjà des emplacements UI (`TagActionUILocation`):
+Depuis la mise en place de `tags-core`, l'UI n'est pas encore alignée avec le
+nouveau système de tags structuré.
 
-- `tag_free_list`, `tag_free_detail`
-- `tag_managed_group_list`, `tag_managed_group_detail`
-- `tag_managed_list`, `tag_managed_detail`
+Le détail des décisions UI, du travail restant et des questions ouvertes est
+dans [TAGS_UI.md](./TAGS_UI.md).
 
-État:
+Règle UI à ne pas casser:
 
-- Backend CRUD tags/groupes: implémenté
-- UI métier complète tags: non implémentée
-
-État d'avancement connu (TODO projet):
-
-- l'UI doit afficher des tags métiers (nom, key, scope, groupe), pas uniquement
-  des IDs
-- la sélection de tags doit rester orientée utilisateur mais transporter des
-  `TagRef` côté attache/détache (ajout/retrait de tag)
-- côté UI, le format utilisé aujourd'hui est `TagRef.ById` (`id:<TagId>`) ;
-  l'UI n'envoie pas de `TagRef.ByKey` pour ces opérations
-- le backend résout `TagRef -> TagId` avant persistance
-- la recherche UI doit produire des filtres tags basés sur `TagRef`
+- toutes les communications UI -> backend utilisent `TagRef.ById`
+  (`id:<TagId>`) et jamais `TagRef.ByKey`
 
 ## Usage direct de `tags-core`
 
@@ -353,10 +341,13 @@ Contrat requis pour un module consommateur:
 - résoudre vers `TagId` avant persistance de ses objets
 - stocker `TagId` (pas des clés de tags) pour ne pas casser les liens lors de
   renommage de key
-- écouter `TagBeforeDeleteEvt` si le module stocke des références de tags
+- écouter `TagBeforeDeleteEvt` si le module stocke des références de tags ET doit réagir à une suppression explicite de tag/groupe (typiquement nettoyer les tags déjà placés sur ses objets)
+- suppression de scope local (quand un Modele est supprimé par exemple), le module doit supprimer tout usage des tags dans le scope à supprimer (modèle, entités, relations, etc.). Ensuite seulement il émet [`TagScopeBeforeDeleteEvent`](./src/main/kotlin/io/medatarun/tags/core/domain/TagScopeBeforeDeleteEvent.kt) qui dira à `tags-core` de supprimer tous les tags du scope. 
 
 Stratégie d'import des tags:
 
+- ici, "import" désigne les modules qui importent des données externes
+  (exemples: frictionless, jdbc, etc.)
 - pour les modules d'import (`frictionless`, `models`, `jdbc`, etc.), la
   stratégie de résolution/création des tags est à la discrétion du module
   importeur
@@ -365,8 +356,7 @@ Stratégie d'import des tags:
 
 ## Questions ouvertes (à traiter)
 
-- [Q-01] UX cible de sélection de tags dans l'UI `models-core`: chargement,
-  affichage, recherche, création éventuelle à la volée.
+Les questions UI sont suivies dans [TAGS_UI.md](./TAGS_UI.md).
 
 ## Références source
 
@@ -381,4 +371,5 @@ Stratégie d'import des tags:
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/internal/ModelCmdsImpl.kt`
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/ModelTagResolverWithQueries.kt`
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/ModelExtension.kt`
+- `extensions/tags-core/TAGS_UI.md`
 - `extensions/tags-core/TODO.md`

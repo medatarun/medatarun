@@ -22,23 +22,9 @@ Le travail à faire n'est pas une migration de données : le logiciel est en cou
 On peut faire évoluer le modèle et le code sans gérer de migration.
 
 Travail restant sur ce point :
-- UI sur le nouveau système, avec usage métier complet des tags (pas seulement IDs bruts)
+- UI sur le nouveau système: détails dans [TAGS_UI.md](./TAGS_UI.md)
 
-Règle technique :
-- utiliser `TagId` comme référence dans les objets métier (pas `TagRef` par key), pour ne pas casser les liens si une key de tag change
-
-### Détail 1.3 UI tags
-
-L'UI ne doit pas manipuler seulement des IDs bruts.
-
-À faire :
-- charger et afficher des listes de tags réels (nom, key, scope, groupe si pertinent)
-- adapter l'affichage des tags dans les écrans modèle/entité/relation/attribut
-- adapter la sélection de tags (ajout/suppression) pour une sélection métier correcte à l'écran
-- envoyer des `TagRef` via l'API pour les opérations qui attachent ou détachent un tag à un objet (transport API = `TagRef`, UX = tags réels)
-- côté UI, utiliser uniquement des `TagRef` au format `id:<TagId>` pour les opérations d'attache/détache
-- conserver `TagId` uniquement pour le stockage interne des objets métier
-- adapter l'UI de recherche pour sélectionner des tags proprement et construire les filtres correspondants
+Voir [TAGS_UI.md](./TAGS_UI.md) pour le détail UI (décisions, tâches, questions ouvertes).
 
 ## 2) Recherche de `models-core` avec filtres tags (migration vers `TagRef`) à consolider
 
@@ -86,7 +72,7 @@ Décision actée :
 
 Décision actée :
 - état actuel: les opérations free create/update/delete vérifient le rôle global `tag_free_manage`
-- futur: après ce contrôle global, déclencher `onBeforeTagFreeCreate` et `onBeforeTagFreeUpdate` avec le `TagRef` concerné
+- futur: après ce contrôle global, déclencher `onBeforeTagFreeCreate` et `onBeforeTagFreeUpdate` avec le `TagRef` concerné (le `onBeforeTagFreeDelete` est déjà implémenté ainsi)
 - les modules propriétaires de scope pourront veto l'opération selon leurs permissions locales
 - ce mécanisme devra être appliqué de la même manière aux autres types de scopes
 
