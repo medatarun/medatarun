@@ -187,10 +187,10 @@ Conséquences supplémentaires
     - `Local(type, scopeId)`
 - `TagGroup`: groupe de vocabulaire contrôlé pour les tags managed.
 
-Règle de format pour `TagRef.ByKey`:
+Règle de format pour `TagRef.ByKey`: `key:<scopeType>/<middle>/<tagKey>`
 
-- global/managed: `key:global/<groupKey>/<tagKey>`
-- local/free: `key:<scopeType>/<scopeId>/<tagKey>`
+- si `scopeType = global`, le segment du milieu est un `groupKey`
+- sinon, le segment du milieu est `scopeId`
 
 ## Fonctionnement des commandes `tags-core`
 

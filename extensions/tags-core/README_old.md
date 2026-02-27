@@ -5,32 +5,6 @@
 It is intentionally agnostic of concrete business objects (`model-core`, future `prompts-core`, etc.).
 Other modules consume this core and define how tags can be applied to their own objects.
 
-## Tag References
-
-Tags are referenced using a unified `TagRef`:
-
-- by ID (`id:<tagId>`)
-- by key with explicit scope
-  - managed/global: `key:global/<groupKey>/<tagKey>`
-  - local/free: `key:<scopeType>/<scopeId>/<tagKey>`
-
-This supports:
-
-- robust references by ID
-- readable references for APIs, CLI and human-driven operations
-
-Interpretation rule for key refs:
-
-- if scope type is `global`, the middle segment is a `groupKey`
-- otherwise, the middle segment is a local `scopeId`
-
-Business compatibility is checked in command handling:
-
-- free-tag commands reject managed references
-- managed-tag commands reject free references
-
-This keeps the API unified while preserving business intent.
-
 ## Business Rules (Current)
 
 The module intentionally preserves distinct business commands for free vs managed tags
