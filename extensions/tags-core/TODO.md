@@ -35,17 +35,17 @@ L'UI ne doit pas manipuler seulement des IDs bruts.
 - charger et afficher des listes de tags réels (nom, key, scope, groupe si pertinent)
 - adapter l'affichage des tags dans les écrans modèle/entité/relation/attribut
 - adapter la sélection de tags (ajout/suppression) pour une sélection métier correcte à l'écran
-- envoyer les IDs via l'API pour les opérations d'attache/détache (transport = `TagId`, UX = tags réels)
+- envoyer des `TagRef` via l'API pour les opérations qui attachent ou détachent un tag à un objet (transport API = `TagRef`, UX = tags réels)
+- côté UI, utiliser uniquement des `TagRef` au format `id:<TagId>` pour les opérations d'attache/détache
+- conserver `TagId` uniquement pour le stockage interne des objets métier
 - adapter l'UI de recherche pour sélectionner des tags proprement et construire les filtres correspondants
 
-## 2) Recherche par tags dans `model-core` (migration vers `TagRef`) à consolider
+## 2) Recherche de `models-core` avec filtres tags (migration vers `TagRef`) à consolider
 
-La recherche `SearchFilterTags` a été migrée vers des `TagRef` (au lieu de strings de hashtags) et la couverture de tests backend
+L'action `ModelAction.Search` a été migrée vers des filtres tags `SearchFilterTags` en `TagRef` (au lieu de strings de hashtags) et la couverture de tests backend
 est maintenant en place dans `ModelSearchTest`.
-
-À faire :
-- confirmer le contrat API/UI pour les filtres de tags (format `TagRef` attendu)
-- vérifier les comportements en cas de `TagRef` introuvable (erreur vs ignoré) et les documenter
+Décision actée :
+- quand un `TagRef` de filtre est introuvable, la recherche échoue avec `TagNotFoundException` (pas d'ignorance silencieuse).
 
 ## 3) Import Frictionless : création de tags à partir des `keywords` (métier à clarifier)
 
@@ -69,12 +69,36 @@ Points à traiter ensemble :
 
 ## 4) Couverture de tests à compléter
 
-### 4.2 Recherche par tags
+## 4.1 Liste de tags `TagAction.TagList`
+
+État actuel:
+- la sortie de `TagList` inclut `scope` et n'inclut pas `isManaged`.
+
+À faire (avant UI tags):
+- faire évoluer `TagList` pour accepter en entrée `scopeType` et `scopeId`
+- comportement attendu:
+  - si `scopeType` et `scopeId` sont absents, retourner tous les tags connus
+  - si `scopeType = global`, retourner uniquement les tags du scope global
+  - si `scopeType` correspond à un scope local et `scopeId` est fourni,
+    retourner uniquement les tags de ce scope local
+- utiliser ce filtrage pour que l'UI charge des listes de tags pertinentes
+  selon le contexte d'affichage
+
+### 4.2 Recherche ModelAction.search
 - tests de parsing JSON des filtres de tags (`TagRef`)
 - tests de refs invalides (parsing / format API)
+
 
 ### 4.3 Import Frictionless
 - tests de création effective des tags via `TagCmds`
 - tests de déduplication des keywords
 - tests de propagation des `TagId` dans `Model.tags` / `Entity.tags`
 - tests des keywords incompatibles avec `TagKey` (règle à définir)
+
+## 5) Permissions locales par scope (lot ultérieur, non implémenté)
+
+Décision actée :
+- état actuel: les opérations free create/update/delete vérifient le rôle global `tag_free_manage`
+- futur: après ce contrôle global, déclencher `onBeforeTagFreeCreate` et `onBeforeTagFreeUpdate` avec le `TagRef` concerné
+- les modules propriétaires de scope pourront veto l'opération selon leurs permissions locales
+- ce mécanisme devra être appliqué de la même manière aux autres types de scopes

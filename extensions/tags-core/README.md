@@ -209,7 +209,8 @@ Suppression:
 
 - Le module propriétaire du scope émet `TagScopeBeforeDeleteEvent(scopeRef)`
 - `tags-core` supprime en masse les tags du scope (`TagScopeDelete`)
-- Ce chemin ne garantit pas d'événement `TagBeforeDeleteEvt` pour chaque tag
+- Décision actée: ce chemin n'émet pas d'événement `TagBeforeDeleteEvt` pour
+  chaque tag supprimé
 
 ## Sécurité
 
@@ -225,6 +226,16 @@ Règles actions:
 - managed tag actions -> `TAG_MANAGED_MANAGE`
 - group actions -> `TAG_GROUP_MANAGE`
 - listes (`tag_list`, `tag_group_list`) -> utilisateur connecté (`SIGNED_IN`)
+
+Permissions des tags free locaux:
+
+- état actuel: contrôle uniquement via le rôle global `tag_free_manage`
+- lot ultérieur (décision actée): lors des opérations free create/update/delete,
+  le contrôle du rôle `tag_free_manage` reste obligatoire, puis des événements
+  `onBeforeTagFreeCreate` et `onBeforeTagFreeUpdate` exposent le `TagRef`
+  concerné pour que le module propriétaire du scope puisse refuser l'opération
+  selon ses permissions locales
+- le même mécanisme de veto devra être appliqué aux autres types de scopes
 
 ## Fonctionnement UI (état actuel)
 
@@ -244,41 +255,46 @@ Le backend expose déjà des emplacements UI (`TagActionUILocation`):
 - l'UI doit afficher des tags métiers (nom, key, scope, groupe), pas uniquement
   des IDs
 - la sélection de tags doit rester orientée utilisateur mais transporter des
-  `TagId` côté attache/détache
+  `TagRef` côté attache/détache (ajout/retrait de tag)
+- côté UI, le format utilisé aujourd'hui est `TagRef.ById` (`id:<TagId>`) ;
+  l'UI n'envoie pas de `TagRef.ByKey` pour ces opérations
+- le backend résout `TagRef -> TagId` avant persistance
 - la recherche UI doit produire des filtres tags basés sur `TagRef`
+
+## Usage direct de `tags-core`
+
+Actions et requêtes exposées par `TagAction`:
+
+- commandes free: `TagFreeCreate`, `TagFreeUpdateName`,
+  `TagFreeUpdateDescription`, `TagFreeUpdateKey`, `TagFreeDelete`
+- commandes managed group: `TagGroupCreate`, `TagGroupUpdateName`,
+  `TagGroupUpdateDescription`, `TagGroupUpdateKey`, `TagGroupDelete`
+- commandes managed tag: `TagManagedCreate`, `TagManagedUpdateName`,
+  `TagManagedUpdateDescription`, `TagManagedUpdateKey`, `TagManagedDelete`
+- requêtes: `TagList`, `TagGroupList`
+
+Contrat de sortie `TagList`:
+
+- inclut `scope`
+- n'expose pas `isManaged`
+
+Contrat d'entrée `TagList`:
+
+- paramètres optionnels: `scopeType`, `scopeId`
+- comportement:
+  - si `scopeType` et `scopeId` sont absents: retourne tous les tags connus
+  - si `scopeType = global`: retourne uniquement les tags du scope global
+  - si `scopeType` correspond à un scope local avec `scopeId`: retourne
+    uniquement les tags de ce scope local
 
 ## Usage dans les autres modules (focus `models-core`)
 
 `models-core` consomme `tags-core` sur deux axes:
+- pour ajouter / enlever des tags sur les objets de models-core
+- pour réagir aux évènements émis par tags core (suppression de tags par exemple)
 
-1. Commandes d'attache/détache
+Le détail est expliqué dans [models-core](../models-core/README.md)
 
-- Les actions `ModelAction` utilisent `TagRef` pour:
-    - model
-    - entity
-    - entity attribute
-    - relationship
-    - relationship attribute
-- `ModelCmdsImpl` convertit `TagRef -> TagId` via `ModelTagResolverWithQueries`.
-
-2. Règles de compatibilité de scope
-
-- `resolveTagIdCompatible(modelId, tagRef)` accepte:
-    - tags globaux (managed)
-    - tags locaux du scope `model/<modelId>`
-- rejette un tag local d'un autre scope avec `TagAttachScopeMismatchException`.
-
-Stockage métier:
-
-- les objets `Model`, `Entity`, `Relationship`, `Attribute` stockent
-  `List<TagId>`.
-- le transport API/actions reste en `TagRef`.
-
-Recherche:
-
-- `SearchFilterTags` utilise `TagRef` (`anyOf`, `noneOf`, `allOf`, `empty`,
-  `notEmpty`).
-- la résolution en `TagId` est faite dans `ModelQueriesImpl`.
 
 ## Décisions prises dans `tags-core`
 
@@ -320,18 +336,10 @@ Contrat requis pour un module consommateur:
 
 - [Q-01] Politique de conversion `keyword -> TagKey` pendant les imports (
   normalisation stricte, rejet, mapping, reporting): règle non finalisée.
-- [Q-02] Contrat exact API/UI quand un `TagRef` de filtre recherche est
-  introuvable: erreur explicite ou filtre ignoré.
 - [Q-03] UX cible de sélection de tags dans l'UI `models-core`: chargement,
   affichage, recherche, création éventuelle à la volée.
 - [Q-04] Stratégie d'import quand le scope local n'existe pas encore au moment
   de pré-création des tags (cas Frictionless): alignement final à décider.
-- [Q-05] Lors d'un `TagScopeBeforeDeleteEvent`, faut-il (ou non) émettre aussi
-  des événements unitaires par tag supprimé pour les modules consommateurs.
-- [Q-06] Politique de permissions fine sur les tags free locaux: seulement rôle
-  global `tag_free_manage` ou contrôle complémentaire par scope propriétaire.
-- [Q-07] Contrat de sortie de `TagList`: faut-il inclure explicitement `scope`
-  et `isManaged` dans le JSON pour simplifier l'UI.
 
 ## Références source
 
