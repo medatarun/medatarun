@@ -19,6 +19,10 @@ Data schema for French administration, provides a lot of links and the content o
 
 ## Choices and questions
 
+- During import, Frictionless `keywords` are turned into local tags of the
+  imported model and attached to imported objects.
+  This keeps their meaning in the model context and avoids creating global tags
+  from source-specific vocabularies.
 - If a file contains TableSchema and DataPackage items (a `fields` property is present in the file),
   the file will be considered as a composite.
 - If there is no primary key in TableSchema, we use the first found field as an entity identifier
@@ -33,7 +37,6 @@ Data schema for French administration, provides a lot of links and the content o
 - Relationships are not available in the specs, so you end up with no real relationships
 - Primary keys can be composites, but this is not supported in Medatarun. You may end-up with an entity identifier
   that doesn't match any attributes in the entity (composite primary key items are joined as a single string).
-
 
 
 

@@ -47,29 +47,9 @@ est maintenant en place dans `ModelSearchTest`.
 Décision actée :
 - quand un `TagRef` de filtre est introuvable, la recherche échoue avec `TagNotFoundException` (pas d'ignorance silencieuse).
 
-## 3) Import Frictionless : création de tags à partir des `keywords` (métier à clarifier)
+## 3) Couverture de tests à compléter
 
-L'import Frictionless pré-crée maintenant des tags free en scope local `model/<modelId>` et injecte leurs `TagId` dans le modèle.
-C'est la bonne direction métier, mais plusieurs règles doivent être clarifiées/renforcées.
-
-Décision actée (ordre du flux) :
-- 1/ on résout / crée les tags dans le scope du futur `ModelId`
-- 2/ on crée le modèle avec les `TagId` déjà attachés
-- le flux restant transactionnel, un échec rollbacke l'ensemble ; il n'y a pas de gain métier à inverser l'ordre
-
-Points à traiter ensemble :
-- politique `keyword` -> `TagKey` :
-  - aujourd'hui on réutilise le `keyword` presque brut (trim + distinct)
-  - il faut décider une règle explicite (normalisation, rejet, mapping, reporting)
-- validation du scope local `model/<modelId>` pendant l'import :
-  - l'import crée les tags avant persistance du modèle
-  - `ModelExtension` déclare maintenant le scope `model` avec existence réelle via `ModelQueries`
-  - `FrictionlessdataExtension` a encore un comportement permissif pour permettre la précréation avant persistance
-  - il faut décider comment unifier / encadrer proprement cette coexistence
-
-## 4) Couverture de tests à compléter
-
-## 4.1 Liste de tags `TagAction.TagList`
+## 3.1 Liste de tags `TagAction.TagList`
 
 État actuel:
 - la sortie de `TagList` inclut `scope` et n'inclut pas `isManaged`.
@@ -98,18 +78,11 @@ Points à traiter ensemble :
 - utiliser ce filtrage pour que l'UI charge des listes de tags pertinentes
   selon le contexte d'affichage
 
-### 4.2 Recherche ModelAction.search
+### 3.2 Recherche ModelAction.search
 - tests de parsing JSON des filtres de tags (`TagRef`)
 - tests de refs invalides (parsing / format API)
 
-
-### 4.3 Import Frictionless
-- tests de création effective des tags via `TagCmds`
-- tests de déduplication des keywords
-- tests de propagation des `TagId` dans `Model.tags` / `Entity.tags`
-- tests des keywords incompatibles avec `TagKey` (règle à définir)
-
-## 5) Permissions locales par scope (lot ultérieur, non implémenté)
+## 4) Permissions locales par scope (lot ultérieur, non implémenté)
 
 Décision actée :
 - état actuel: les opérations free create/update/delete vérifient le rôle global `tag_free_manage`
@@ -117,7 +90,7 @@ Décision actée :
 - les modules propriétaires de scope pourront veto l'opération selon leurs permissions locales
 - ce mécanisme devra être appliqué de la même manière aux autres types de scopes
 
-## 6) Improvements later
+## 5) Improvements later
 
 - certains `TagGroup` doivent pouvoir imposer qu'un seul de leurs tags soit
   présent à la fois sur un objet donné (exemple: on ne peut pas avoir

@@ -92,8 +92,28 @@ Le système distingue deux usages métier de tags:
 - Portée globale (`TagScopeRef.Global`)
 - Gouvernance forte (rôle dédié `tag_managed_manage`)
 - Organisés par groupes (`TagGroup`)
+- Un `TagGroup` contient uniquement des tags `managed` (jamais de tags `free`)
+- Un tag `managed` appartient à un seul groupe
 - Créés via `TagManagedCreate`
 - utilisés pour les usages transversaux (gouvernance globale)
+- Exemples typiques:
+  - classifications RGPD / privacy
+  - classifications security 
+  - labels de localisation / internationalisation
+  - labels de gouvernance par application propriétaire
+
+Rôle métier de `TagGroup`:
+
+- structurer un vocabulaire `managed` par thème métier (sécurité, privacy,
+  rétention, etc.)
+- porter le contexte de gouvernance d'un ensemble de tags `managed`
+- définir le périmètre d'unicité des tags `managed` par `(group, key)`
+- ne contient pas de tags `free`
+
+Exemple:
+
+- groupe `security`: `public`, `internal`, `restricted`
+- groupe `retention`: `30d`, `365d`, `7y`
 
 2. Tags `free`
 
@@ -102,6 +122,8 @@ Le système distingue deux usages métier de tags:
 - Sans groupe
 - Créés via `TagFreeCreate`
 - utilisés pour les usages locaux (contexte d’un scope)
+- Exemples typique: données affichées à l'écran ou pas, celles qui sont utilisées pour la recherche, conventions, qualité de code ou de data, etc.
+
 
 Les deux usages partagent le même objet `Tag` et le même espace d'identifiants (
 `TagId`). La différence est portée par les règles métier et les commandes, pas
@@ -326,14 +348,18 @@ Contrat requis pour un module consommateur:
   renommage de key
 - écouter `TagBeforeDeleteEvt` si le module stocke des références de tags
 
+Stratégie d'import des tags:
+
+- pour les modules d'import (`frictionless`, `models`, `jdbc`, etc.), la
+  stratégie de résolution/création des tags est à la discrétion du module
+  importeur
+- `tags-core` fournit le contrat de tags (scope, `TagRef`, commandes, règles de
+  cohérence) mais n'impose pas une stratégie d'import homogène entre modules
+
 ## Questions ouvertes (à traiter)
 
-- [Q-01] Politique de conversion `keyword -> TagKey` pendant les imports (
-  normalisation stricte, rejet, mapping, reporting): règle non finalisée.
-- [Q-02] UX cible de sélection de tags dans l'UI `models-core`: chargement,
+- [Q-01] UX cible de sélection de tags dans l'UI `models-core`: chargement,
   affichage, recherche, création éventuelle à la volée.
-- [Q-03] Stratégie d'import quand le scope local n'existe pas encore au moment
-  de pré-création des tags (cas Frictionless): alignement final à décider.
 
 ## Références source
 
