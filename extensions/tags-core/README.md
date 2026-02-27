@@ -318,6 +318,8 @@ Le détail est expliqué dans [models-core](../models-core/README.md)
 
 - un seul type `Tag` pour free + managed
 - différence pilotée par `scope` et règles de commande
+- `isManaged` est dérivé du `scope` (`Global` => managed, `Local` => free), pas
+  stocké comme état indépendant
 
 2. Référence unifiée
 
@@ -327,6 +329,11 @@ Le détail est expliqué dans [models-core](../models-core/README.md)
 
 - contrôlée dans le code (`TagCmdsImpl`)
 - pas de contrainte SQL unique transverse entre free et managed
+- cohérence entre `Tag.scope` et `Tag.groupId` contrôlée au niveau métier
+  (commandes/règles), pas par contrainte SQL
+- règle de cohérence:
+  - `scope = Global` (managed) => `groupId` requis
+  - `scope = Local` (free) => `groupId` absent
 
 4. Validation de scope locale déléguée
 

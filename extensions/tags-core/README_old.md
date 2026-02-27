@@ -5,20 +5,6 @@
 It is intentionally agnostic of concrete business objects (`model-core`, future `prompts-core`, etc.).
 Other modules consume this core and define how tags can be applied to their own objects.
 
-## Business Rules (Current)
-
-The module intentionally preserves distinct business commands for free vs managed tags
-because their rules are not identical.
-
-Examples of current differences:
-
-- free tag key uniqueness is checked within the local tag scope
-- managed tag key uniqueness is checked within a tag group
-- managed tags require group-related governance
-- `Tag.isManaged` derives from the tag scope (global vs local)
-
-Even with a unified `Tag`, the command layer keeps these distinctions explicit.
-
 ## Decisions (Current)
 
 - Database uniqueness for tags is intentionally **not** enforced by SQL constraints (beyond primary keys and existing group FK).
