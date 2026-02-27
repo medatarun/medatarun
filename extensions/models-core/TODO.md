@@ -22,3 +22,10 @@ Attendu cible:
 
 - `ModelActionProvider` route aussi ces actions vers des commandes métier
   (`ModelCmds` / `ModelQueries`) comme les autres actions déjà branchées.
+
+## 2) Éviter les tags dupliqués sur un même objet
+
+Écart actuel à traiter:
+
+- un même objet (`Model`, `Entity`, `Relationship`, `Attribute`) ne doit pas
+  pouvoir recevoir deux fois le même tag (`TagId`)

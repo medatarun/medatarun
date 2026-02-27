@@ -81,6 +81,8 @@ Points à traiter ensemble :
   retourne une erreur explicite
 - comportement attendu:
   - si `scopeType` et `scopeId` sont absents, retourner tous les tags connus
+  - en mode sans filtre, si un tag local référence un scope introuvable,
+    retourner une erreur explicite avec échec global (pas de résultat partiel)
   - si `scopeType = global` et `scopeId` est absent, retourner uniquement les
     tags du scope global
   - si `scopeType = global` et `scopeId` est présent, retourner une erreur
@@ -114,3 +116,11 @@ Décision actée :
 - futur: après ce contrôle global, déclencher `onBeforeTagFreeCreate` et `onBeforeTagFreeUpdate` avec le `TagRef` concerné
 - les modules propriétaires de scope pourront veto l'opération selon leurs permissions locales
 - ce mécanisme devra être appliqué de la même manière aux autres types de scopes
+
+## 6) Improvements later
+
+- certains `TagGroup` doivent pouvoir imposer qu'un seul de leurs tags soit
+  présent à la fois sur un objet donné (exemple: on ne peut pas avoir
+  `security:public` et `security:internal` en même temps)
+- d'autres groupes doivent rester multi-valeurs (exemple: `country:fr` et
+  `country:de` autorisés en même temps)

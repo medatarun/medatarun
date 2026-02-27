@@ -281,31 +281,6 @@ Actions et requêtes exposées par `TagAction`:
   `TagManagedUpdateDescription`, `TagManagedUpdateKey`, `TagManagedDelete`
 - requêtes: `TagList`, `TagGroupList`
 
-Contrat de sortie `TagList`:
-
-- inclut `scope`
-- n'expose pas `isManaged`
-
-Contrat d'entrée `TagList`:
-
-- paramètres optionnels: `scopeType`, `scopeId`
-- règle générale: seuls les cas listés ci-dessous sont valides; toute autre
-  combinaison de paramètres ou tout objet/scope introuvable produit une erreur
-  explicite
-- comportement:
-  - si `scopeType` et `scopeId` sont absents: retourne tous les tags connus
-  - si `scopeType = global` et `scopeId` absent: retourne uniquement les tags
-    du scope global
-  - si `scopeType = global` et `scopeId` présent: erreur explicite
-  - si `scopeType` ne correspond ni à `global` ni à un scope local enregistré:
-    erreur explicite
-  - si `scopeType` correspond à un scope local et que `scopeId` est absent:
-    erreur
-  - si `scopeType` correspond à un scope local avec `scopeId` et que ce scope
-    existe: retourne uniquement les tags de ce scope local
-  - si `scopeType` correspond à un scope local avec `scopeId` mais que ce scope
-    n'existe pas: erreur explicite
-
 ## Usage dans les autres modules (focus `models-core`)
 
 `models-core` consomme `tags-core` sur deux axes:
@@ -355,9 +330,9 @@ Contrat requis pour un module consommateur:
 
 - [Q-01] Politique de conversion `keyword -> TagKey` pendant les imports (
   normalisation stricte, rejet, mapping, reporting): règle non finalisée.
-- [Q-03] UX cible de sélection de tags dans l'UI `models-core`: chargement,
+- [Q-02] UX cible de sélection de tags dans l'UI `models-core`: chargement,
   affichage, recherche, création éventuelle à la volée.
-- [Q-04] Stratégie d'import quand le scope local n'existe pas encore au moment
+- [Q-03] Stratégie d'import quand le scope local n'existe pas encore au moment
   de pré-création des tags (cas Frictionless): alignement final à décider.
 
 ## Références source

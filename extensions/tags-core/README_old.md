@@ -297,25 +297,6 @@ This gives local flexibility without polluting the organization-wide semantic sp
 This rule is now important in practice because `model-core` already stores `TagId` on objects.
 Without the attach-time scope check, a local tag from another model can be attached by mistake.
 
-## Future: assignments (tagging objects)
-
-This module currently manages tag definitions and tag groups.
-
-A future layer (in consuming modules or a shared assignment core) will manage assignments:
-
-- linking a taggable object to a `TagId`
-
-Important business questions to define when implementing assignments:
-
-- can an object have multiple tags from the same managed group?
-- should some groups be single-valued (e.g. one sensitivity level)?
-- what happens when a tag is deleted and is still assigned?
-
-Recommended direction:
-
-- assignments should reference `TagId` (not keys)
-- assignment rules should be expressed at business level per object type / group policy
-
 ## Events and cross-module reactions (planned architecture)
 
 `tags-core` should expose events around tag lifecycle changes so consumer modules can react or block.
