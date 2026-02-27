@@ -12,6 +12,14 @@ Quand on rédige ce README:
 - éviter l'enrobage; préférer des phrases courtes, directes, actionnables
 - poser des questions sur les éléments qui paraissent flous avant de rédiger
 
+## Convention README / TODO
+
+Ce README décrit le contrat fonctionnel cible du module (comportement attendu
+une fois le lot finalisé).
+
+Quand un fichier `TODO.md` existe pour ce module, il liste uniquement le
+travail restant et les écarts entre ce contrat cible et l'état actuel du code.
+
 ## But du module
 
 `models-core` porte le modèle métier principal de Medatarun.
@@ -42,7 +50,9 @@ grâce aux méthodes `find*`.
 
 ## Actions exposées (`ModelAction`)
 
-`ModelAction` regroupe:
+`ModelActionProvider` route les actions déclarées dans `ModelAction` vers `ModelCmds` / `ModelQueries`.
+
+`ModelAction` regroupe, entre autres:
 
 - import/inspection/liste/export/recherche (`Import`, `Inspect_*`, `Model_List`,
   `Model_Export`, `Search`)
@@ -56,20 +66,7 @@ grâce aux méthodes `find*`.
 - opérations sur attributs de relation (`RelationshipAttribute_*`, tags
   add/delete)
 
-Les paramètres de tags dans `ModelAction` sont des `TagRef`.
-
-## État d'implémentation visible (`ModelActionProvider`)
-
-`ModelActionProvider` route les actions vers `ModelCmds` / `ModelQueries`.
-
-État visible dans le code:
-
-- `Model_UpdateKey`: non implémenté (`TODO`)
-- `RelationshipRole_Create`, `RelationshipRole_UpdateKey`,
-  `RelationshipRole_UpdateName`, `RelationshipRole_UpdateEntity`,
-  `RelationshipRole_UpdateCardinality`, `RelationshipRole_Delete`:
-  non implémentés (`TODO`)
-- les autres actions listées sont branchées vers des commandes métier
+Les paramètres de tags dans `ModelAction` sont toujours des `TagRef`.
 
 `Search` renvoie une liste d'items avec `id` et `location` typée
 (`model`, `entity`, `entityAttribute`, `relationship`,

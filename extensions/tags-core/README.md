@@ -12,6 +12,14 @@ Quand on rédige ce README:
 - éviter l'enrobage; préférer des phrases courtes, directes, actionnables
 - poser des questions sur les éléments qui paraissent flous avant de rédiger
 
+## Convention README / TODO
+
+Ce README décrit le contrat fonctionnel cible du module (comportement attendu
+une fois le lot finalisé).
+
+Le fichier `TODO.md` liste uniquement le travail restant et les écarts entre ce
+contrat cible et l'état actuel du code.
+
 ## But du module
 
 `tags-core` est le module transversal qui centralise la gestion des tags dans
@@ -281,11 +289,22 @@ Contrat de sortie `TagList`:
 Contrat d'entrée `TagList`:
 
 - paramètres optionnels: `scopeType`, `scopeId`
+- règle générale: seuls les cas listés ci-dessous sont valides; toute autre
+  combinaison de paramètres ou tout objet/scope introuvable produit une erreur
+  explicite
 - comportement:
   - si `scopeType` et `scopeId` sont absents: retourne tous les tags connus
-  - si `scopeType = global`: retourne uniquement les tags du scope global
-  - si `scopeType` correspond à un scope local avec `scopeId`: retourne
-    uniquement les tags de ce scope local
+  - si `scopeType = global` et `scopeId` absent: retourne uniquement les tags
+    du scope global
+  - si `scopeType = global` et `scopeId` présent: erreur explicite
+  - si `scopeType` ne correspond ni à `global` ni à un scope local enregistré:
+    erreur explicite
+  - si `scopeType` correspond à un scope local et que `scopeId` est absent:
+    erreur
+  - si `scopeType` correspond à un scope local avec `scopeId` et que ce scope
+    existe: retourne uniquement les tags de ce scope local
+  - si `scopeType` correspond à un scope local avec `scopeId` mais que ce scope
+    n'existe pas: erreur explicite
 
 ## Usage dans les autres modules (focus `models-core`)
 

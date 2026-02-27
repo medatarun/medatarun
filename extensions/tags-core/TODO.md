@@ -76,11 +76,23 @@ Points à traiter ensemble :
 
 À faire (avant UI tags):
 - faire évoluer `TagList` pour accepter en entrée `scopeType` et `scopeId`
+- appliquer une validation stricte: seuls les cas listés ci-dessous sont
+  valides; toute autre combinaison de paramètres ou tout objet/scope introuvable
+  retourne une erreur explicite
 - comportement attendu:
   - si `scopeType` et `scopeId` sont absents, retourner tous les tags connus
-  - si `scopeType = global`, retourner uniquement les tags du scope global
-  - si `scopeType` correspond à un scope local et `scopeId` est fourni,
-    retourner uniquement les tags de ce scope local
+  - si `scopeType = global` et `scopeId` est absent, retourner uniquement les
+    tags du scope global
+  - si `scopeType = global` et `scopeId` est présent, retourner une erreur
+    explicite
+  - si `scopeType` ne correspond ni à `global` ni à un scope local enregistré,
+    retourner une erreur explicite
+  - si `scopeType` correspond à un scope local et `scopeId` est absent,
+    retourner une erreur
+  - si `scopeType` correspond à un scope local, `scopeId` est fourni et ce
+    scope existe, retourner uniquement les tags de ce scope local
+  - si `scopeType` correspond à un scope local, `scopeId` est fourni mais le
+    scope n'existe pas, retourner une erreur explicite
 - utiliser ce filtrage pour que l'UI charge des listes de tags pertinentes
   selon le contexte d'affichage
 
