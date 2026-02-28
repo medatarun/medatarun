@@ -131,6 +131,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
     const canCreateTag = scope.type !== "global"
       && trimmedInputValue !== ""
       && tagList.findByScopeAndKey(scope, trimmedInputValue) == null
+    const hasAvailableOptions = canCreateTag || options.length > 0
 
     const onOptionSelect: TagPickerProps["onOptionSelect"] = (_, data) => {
       const selectedOption = data.value
@@ -180,7 +181,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
       <TagPickerInput
         ref={ref}
         value={inputValue}
-        style={{width: "100%"}}
+        //style={{width: "100%"}}
         aria-label="Add Tags"
         disabled={disabled}
         onCompositionStart={() => setIsComposing(true)}
@@ -189,6 +190,11 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
         onChange={handleChange}/>
       </TagPickerControl>
       <TagPickerList>
+        {!hasAvailableOptions &&
+          <div style={{padding: "8px 12px", color: "var(--colorNeutralForeground3)"}}>
+            No matching tags
+          </div>
+        }
         {canCreateTag &&
           <TagPickerOption
             key={CREATE_OPTION_PREFIX + trimmedInputValue}
