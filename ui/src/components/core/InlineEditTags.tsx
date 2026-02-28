@@ -13,24 +13,7 @@ import {
   type TagPickerProps
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
-import {TagList, useTagGroupList, useTagSearch, type TagScopeRef} from "../../business";
-
-const globalTagScope: TagScopeRef = {type: "global", id: null}
-
-function tagSearchByScope(scope: TagScopeRef) {
-  return {
-    filters: {
-      operator: "and" as const,
-      items: [
-        {
-          type: "scopeRef" as const,
-          condition: "is" as const,
-          value: scope
-        }
-      ]
-    }
-  }
-}
+import {TagList, useTagScopedList, type TagScopeRef} from "../../business";
 
 export function InlineEditTags({value, scope, children, onChange}: {
   value: string[],
@@ -39,14 +22,7 @@ export function InlineEditTags({value, scope, children, onChange}: {
 } & PropsWithChildren) {
   const [values, setValues] = useState(value)
   const ref = useRef<HTMLInputElement>(null)
-  const globalTags = useTagSearch(tagSearchByScope(globalTagScope))
-  const scopedTags = useTagSearch(tagSearchByScope(scope), scope.type !== "global")
-  const tagGroups = useTagGroupList()
-
-  const tagList = new TagList(
-    [...(globalTags.data?.items ?? []), ...(scopedTags.data?.items ?? [])],
-    tagGroups.data?.items ?? []
-  )
+  const {tagList} = useTagScopedList(scope)
 
   const handleEditStart = async () => {
     setValues(value)
