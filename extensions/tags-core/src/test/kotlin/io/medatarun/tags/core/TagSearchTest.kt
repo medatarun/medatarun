@@ -2,34 +2,12 @@ package io.medatarun.tags.core
 
 import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.tags.core.actions.TagAction
-import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
-import io.medatarun.tags.core.domain.TagSearchFilters
-import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
-import io.medatarun.tags.core.fixtures.Recipe
-import io.medatarun.tags.core.fixtures.RecipeService
+import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
-import io.medatarun.tags.core.fixtures.Vehicle
-import io.medatarun.tags.core.fixtures.recipeScopeRef
-import io.medatarun.tags.core.fixtures.vehicleScopeRef
 import io.medatarun.tags.core.ports.needs.TagScopeManager
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
-import kotlin.test.fail
+import kotlinx.serialization.json.*
+import kotlin.test.*
 
 class TagSearchTest {
 

@@ -6,11 +6,7 @@ import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
 import io.medatarun.tags.core.domain.TagSearchFilters
 import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
 import io.medatarun.types.TypeJsonConverter
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 
 class TagSearchFiltersJsonConverter : TypeJsonConverter<TagSearchFilters> {
     override fun deserialize(json: JsonElement): TagSearchFilters {
