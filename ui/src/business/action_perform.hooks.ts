@@ -5,7 +5,7 @@ export type TagScopeRef =
   | {type: "global", id: null}
   | {type: string, id: string}
 
-export type TagListReq = {
+export type TagSearchReq = {
   filters?: TagSearchFilters | null
 }
 
@@ -20,7 +20,7 @@ export type TagSearchFilter = {
   value: TagScopeRef
 }
 
-export type TagListItemDto = {
+export type TagSearchItemDto = {
   id: string
   key: string
   groupId: string | null
@@ -29,21 +29,21 @@ export type TagListItemDto = {
   description: string | null
 }
 
-export type TagListResp = {
-  items: TagListItemDto[]
+export type TagSearchResp = {
+  items: TagSearchItemDto[]
 }
 
-export const useTagList = (req: TagListReq) => {
+export const useTagSearch = (req: TagSearchReq) => {
   return useQuery({
-    queryKey: ["action", "tag", "tag_list", req.filters ?? null],
+    queryKey: ["action", "tag", "tag_search", req.filters ?? null],
     queryFn: async () => {
       const payload: ActionPayload = {}
       if (req.filters !== undefined) {
         payload.filters = req.filters
       }
-      const response = await executeAction<TagListResp>("tag", "tag_list", payload)
+      const response = await executeAction<TagSearchResp>("tag", "tag_search", payload)
       if (response.contentType !== "json") {
-        throw Error("Expected JSON response for tag/tag_list")
+        throw Error("Expected JSON response for tag/tag_search")
       }
       return response.json
     }

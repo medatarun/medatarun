@@ -159,13 +159,13 @@ sealed interface TagAction {
     // -----------------------------------------------------------------------------------------------------------------
 
     @ActionDoc(
-        key = "tag_list",
-        title = "Tag list",
-        description = "List all known tags, free and managed.",
+        key = "tag_search",
+        title = "Tag search",
+        description = "Search known tags, free and managed.",
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class TagList(val filters: TagSearchFilters?) : TagAction
+    class TagSearch(val filters: TagSearchFilters?) : TagAction
 
     @ActionDoc(
         key = "tag_group_list",

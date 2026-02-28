@@ -47,7 +47,7 @@ class TagActionProvider : ActionProvider<TagAction> {
             is TagAction.TagGroupUpdateName -> handler.tagGroupUpdateName(cmd)
             is TagAction.TagGroupUpdateDescription -> handler.tagGroupUpdateDescription(cmd)
 
-            is TagAction.TagList -> handler.tagList(cmd)
+            is TagAction.TagSearch -> handler.tagSearch(cmd)
             is TagAction.TagGroupList -> handler.tagGroupList(cmd)
         }
         return result
@@ -120,7 +120,7 @@ class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: Tag
         tagCmds.dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
     }
 
-    fun tagList(cmd: TagAction.TagList): JsonObject {
+    fun tagSearch(cmd: TagAction.TagSearch): JsonObject {
         val filters = cmd.filters ?: TagSearchFilters(
             operator = TagSearchFiltersLogicalOperator.AND,
             filters = emptyList()
