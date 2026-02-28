@@ -2,7 +2,7 @@ package io.medatarun.tags.core.domain
 
 data class TagSearchFilters(
     val operator: TagSearchFiltersLogicalOperator,
-    val filters: List<TagSearchFilter>
+    val items: List<TagSearchFilter>
 )
 
 enum class TagSearchFiltersLogicalOperator(val code: String) {

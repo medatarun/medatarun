@@ -189,14 +189,19 @@ Règle de format pour `TagRef.ByKey`: `key:<scopeType>/<middle>/<tagKey>`
 - si `scopeType = global`, le segment du milieu est un `groupKey`
 - sinon, le segment du milieu est `scopeId`
 
-## Fonctionnement des commandes `tags-core`
+## Fonctionnement des actions `tags-core`
+
+Les actions dans `TagAction` sont l'exposition publique de `tags-core` aux
+utilisateurs finaux. Les actions sont dispatchées par `TagActionProvider` à l'API
+interne, c'est à dire `TagCmds` et `TagQueries`.
 
 Entrées principales exposées côté actions (`TagAction`):
 
 - free: create/update/delete
 - managed group: create/update/delete
 - managed tag: create/update/delete
-- queries: `TagList`, `TagGroupList`
+- liste et recherche de tags avec filtres: `TagSearch`
+- liste des groupes: `TagGroupList`
 
 Règles métier actuellement codées (`TagCmdsImpl`):
 
@@ -254,7 +259,7 @@ Règles actions:
 - free tag actions -> `TAG_FREE_MANAGE`
 - managed tag actions -> `TAG_MANAGED_MANAGE`
 - group actions -> `TAG_GROUP_MANAGE`
-- listes (`tag_list`, `tag_group_list`) -> utilisateur connecté (`SIGNED_IN`)
+- recherche/liste (`tag_search`, `tag_group_list`) -> utilisateur connecté (`SIGNED_IN`)
 
 Permissions des tags free locaux:
 
@@ -289,7 +294,7 @@ Actions et requêtes exposées par `TagAction`:
   `TagGroupUpdateDescription`, `TagGroupUpdateKey`, `TagGroupDelete`
 - commandes managed tag: `TagManagedCreate`, `TagManagedUpdateName`,
   `TagManagedUpdateDescription`, `TagManagedUpdateKey`, `TagManagedDelete`
-- requêtes: `TagList`, `TagGroupList`
+- requêtes: `TagSearch`, `TagGroupList`
 
 ## Usage dans les autres modules (focus `models-core`)
 

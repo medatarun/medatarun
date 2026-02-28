@@ -22,13 +22,13 @@ class TagSearchFiltersJsonConverter : TypeJsonConverter<TagSearchFilters> {
                     ?: throw TypeJsonInvalidTagSearchFiltersSyntaxException(root)
             } ?: TagSearchFiltersLogicalOperator.AND
 
-            val filters = root["filters"]?.jsonArray?.map {
+            val items = root["items"]?.jsonArray?.map {
                 toFilter(it.jsonObject)
             } ?: emptyList()
 
             return TagSearchFilters(
                 operator = operator,
-                filters = filters
+                items = items
             )
         } catch (_: Exception) {
             throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)

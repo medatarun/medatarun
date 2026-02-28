@@ -123,7 +123,7 @@ class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: Tag
     fun tagSearch(cmd: TagAction.TagSearch): JsonObject {
         val filters = cmd.filters ?: TagSearchFilters(
             operator = TagSearchFiltersLogicalOperator.AND,
-            filters = emptyList()
+            items = emptyList()
         )
         val items = tagQueries.search(filters)
         return buildJsonObject {

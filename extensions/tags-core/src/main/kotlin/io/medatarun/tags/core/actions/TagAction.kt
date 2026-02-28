@@ -2,6 +2,7 @@ package io.medatarun.tags.core.actions
 
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.domain.*
 
@@ -161,11 +162,16 @@ sealed interface TagAction {
     @ActionDoc(
         key = "tag_search",
         title = "Tag search",
-        description = "Search known tags, free and managed.",
+        description = "Searches known tags. Without filters, returns all tags. Use filters to restrict the result, for example to one scope such as global tags or the local tags of one scope.",
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class TagSearch(val filters: TagSearchFilters?) : TagAction
+    class TagSearch(
+        @ActionParamDoc(
+            name="filters",
+            description = ""
+        )
+        val filters: TagSearchFilters?) : TagAction
 
     @ActionDoc(
         key = "tag_group_list",

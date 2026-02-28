@@ -11,7 +11,7 @@ structuré de tags (`TagId`, `TagRef`, `scope`, `TagGroup`).
 
 ## Décisions UI déjà prises
 
-- l'UI se base sur `TagAction` pour gérer les tags et récupérer les listes
+- l'UI se base sur `TagAction` pour gérer les tags et récupérer les résultats de recherche de tags
 - pour modifier les tags côté `models`, l'UI utilise les actions de
   `models-core`
 - le composant d'attache/détache de tags doit être réutilisable pour d'autres
@@ -29,15 +29,15 @@ structuré de tags (`TagId`, `TagRef`, `scope`, `TagGroup`).
 
 ## Travail restant UI
 
-- charger et afficher des listes de tags réels (name, key, scope, groupe si
-  pertinent)
+- charger et afficher les résultats réels de `TagSearch` (name, key, scope,
+  groupe si pertinent)
 - adapter l'affichage des tags dans les écrans model/entity/relationship/
   attribute
 - adapter la sélection de tags (ajout/suppression) pour une sélection métier
   correcte à l'écran
 - conserver `TagId` uniquement pour le stockage interne des objets métier
 - adapter la recherche UI pour sélectionner des tags proprement et construire
-  les filtres correspondants
+  les filtres `TagSearchFilters` correspondants
 - implémenter un écran de gestion des tags globaux et de leurs groupes
   (structure d'écran à définir)
 - implémenter un écran de recherche de tags (globaux + locaux)

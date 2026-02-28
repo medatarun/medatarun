@@ -35,33 +35,22 @@ Décision actée :
 
 ## 3) Couverture de tests à compléter
 
-## 3.1 Liste de tags `TagAction.TagList`
+## 3.1 Recherche de tags `TagAction.TagSearch`
 
-État actuel:
-- la sortie de `TagList` inclut `scope` et n'inclut pas `isManaged`.
+Décisions actées:
+- `TagSearch` remplace l'ancien `TagList`
+- le premier filtre supporté est `scopeRef`
+- si `filters` est absent ou vide, la recherche retourne tous les tags connus
 
-À faire (avant UI tags):
-- faire évoluer `TagList` pour accepter en entrée `scopeType` et `scopeId`
-- appliquer une validation stricte: seuls les cas listés ci-dessous sont
-  valides; toute autre combinaison de paramètres ou tout objet/scope introuvable
-  retourne une erreur explicite
-- comportement attendu:
-  - si `scopeType` et `scopeId` sont absents, retourner tous les tags connus
-  - en mode sans filtre, si un tag local référence un scope introuvable,
-    retourner une erreur explicite avec échec global (pas de résultat partiel)
-  - si `scopeType = global` et `scopeId` est absent, retourner uniquement les
-    tags du scope global
-  - si `scopeType = global` et `scopeId` est présent, retourner une erreur
-    explicite
-  - si `scopeType` ne correspond ni à `global` ni à un scope local enregistré,
-    retourner une erreur explicite
-  - si `scopeType` correspond à un scope local et `scopeId` est absent,
-    retourner une erreur
-  - si `scopeType` correspond à un scope local, `scopeId` est fourni et ce
-    scope existe, retourner uniquement les tags de ce scope local
-  - si `scopeType` correspond à un scope local, `scopeId` est fourni mais le
-    scope n'existe pas, retourner une erreur explicite
-- utiliser ce filtrage pour que l'UI charge des listes de tags pertinentes
+Travail restant:
+- ajouter des tests de parsing JSON pour `TagSearchFilters`
+- ajouter des tests de filtres invalides (type inconnu, condition inconnue,
+  valeur manquante, structure JSON invalide)
+- décider si `TagSearch` doit valider strictement l'existence et la validité du
+  scope référencé par un filtre `scopeRef`
+- si cette validation stricte est retenue, implémenter les erreurs explicites
+  correspondantes dans `TagQueries.search`
+- utiliser `TagSearch` comme contrat backend de chargement des tags pour l'UI
   selon le contexte d'affichage
 
 ### 3.2 Recherche ModelAction.search

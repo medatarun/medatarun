@@ -11,7 +11,7 @@ export type TagSearchReq = {
 
 export type TagSearchFilters = {
   operator: "and" | "or"
-  filters: TagSearchFilter[]
+  items: TagSearchFilter[]
 }
 
 export type TagSearchFilter = {
