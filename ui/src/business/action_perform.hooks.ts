@@ -34,9 +34,21 @@ export type TagSearchResp = {
   items: TagSearchItemDto[]
 }
 
-export const useTagSearch = (req: TagSearchReq) => {
+export type TagGroupListItemDto = {
+  id: string
+  key: string
+  name: string | null
+  description: string | null
+}
+
+export type TagGroupListResp = {
+  items: TagGroupListItemDto[]
+}
+
+export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["action", "tag", "tag_search", req.filters ?? null],
+    enabled: enabled,
     queryFn: async () => {
       const payload: ActionPayload = {}
       if (req.filters !== undefined) {
@@ -45,6 +57,19 @@ export const useTagSearch = (req: TagSearchReq) => {
       const response = await executeAction<TagSearchResp>("tag", "tag_search", payload)
       if (response.contentType !== "json") {
         throw Error("Expected JSON response for tag/tag_search")
+      }
+      return response.json
+    }
+  })
+}
+
+export const useTagGroupList = () => {
+  return useQuery({
+    queryKey: ["action", "tag", "tag_group_list"],
+    queryFn: async () => {
+      const response = await executeAction<TagGroupListResp>("tag", "tag_group_list", {})
+      if (response.contentType !== "json") {
+        throw Error("Expected JSON response for tag/tag_group_list")
       }
       return response.json
     }

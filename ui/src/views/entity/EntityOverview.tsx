@@ -1,7 +1,7 @@
 import {Text} from "@fluentui/react-components";
 import {ExternalUrl, Origin} from "../ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
-import {Tags} from "../../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {
   type EntityDto,
   useEntityAddTag,
@@ -51,7 +51,7 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
       </InlineEditSingleLine>
     </div>}
     <div><Text>From&nbsp;model</Text></div>
-    <div><Link to="/model/$modelId" params={{modelId: entity.model.id}}>{entity.model.name ?? entity.model.id}</Link>
+    <div><Link to="/model/$modelId" params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
 
     <div><Text>External&nbsp;link</Text></div>
@@ -70,7 +70,7 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
         {
           entity.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={entity.tags}/>
+            : <Tags tags={entity.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>

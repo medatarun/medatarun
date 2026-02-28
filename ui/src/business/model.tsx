@@ -47,10 +47,6 @@ export interface EntityDto {
   description: string | null
   documentationHome: string | null
   tags: string[]
-  model: {
-    id: string
-    name: string | null
-  }
   origin: EntityOriginDto
   attributes: AttributeDto[]
 }

@@ -46,7 +46,7 @@ import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
 import {SectionTable} from "../../components/layout/SecionTable.tsx";
 import {AttributesTable} from "../../components/business/AttributesTable.tsx";
-import {Tags} from "../../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {SectionCards} from "../../components/layout/SectionCards.tsx";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
@@ -260,7 +260,7 @@ export function RelationshipOverview({relationship, model}: {
         {
           relationship.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={relationship.tags}/>
+            : <Tags tags={relationship.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>

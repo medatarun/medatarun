@@ -3,7 +3,7 @@ import {type ActionUILocation, type AttributeDto, useActionRegistry} from "../..
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "./DetailLevelContext.tsx";
-import {Tags} from "../core/Tag.tsx";
+import {modelTagScope, Tags} from "../core/Tag.tsx";
 import {Markdown} from "../core/Markdown.tsx";
 import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
 
@@ -85,7 +85,7 @@ export function AttributesTable({attributes, actionUILocation, onClickAttribute,
             <div>
               <Markdown value={attribute.description}/>
             </div>
-            {attribute.tags.length > 0 && <Tags tags={attribute.tags}/>}
+            {attribute.tags.length > 0 && <Tags tags={attribute.tags} scope={modelTagScope(model.id)}/>}
           </TableCell>
 
           <TableCell className={styles.actionCell}>

@@ -14,7 +14,7 @@ import {
   useModelUpdateVersion
 } from "../business";
 import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
-import {Tags} from "../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../components/core/Tag.tsx";
 import {InfoLabel, Text, tokens} from "@fluentui/react-components";
 import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
 import {EntityCard} from "../components/business/EntityCard.tsx";
@@ -209,7 +209,7 @@ export function ModelOverview() {
         {
           model.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={model.tags}/>
+            : <Tags tags={model.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>
@@ -264,5 +264,4 @@ export function ExternalUrl({
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
 }
-
 

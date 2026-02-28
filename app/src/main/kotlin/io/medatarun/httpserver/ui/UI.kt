@@ -149,10 +149,6 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
             putJsonArray("tags") {
                 e.tags.forEach { add(it.value.toString()) }
             }
-            putJsonObject("model") {
-                put("id", model.key.value)
-                put("name", model.name?.get(locale))
-            }
             put(
                 "origin", when {
                     origin is EntityOrigin.Uri -> buildJsonObject {

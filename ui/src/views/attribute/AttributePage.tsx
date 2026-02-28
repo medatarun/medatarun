@@ -49,7 +49,7 @@ import {
 } from "../../components/business/actionTemplates.ts";
 import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {Tags} from "../../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
@@ -388,7 +388,7 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
       {
         attribute.tags.length === 0
           ? <MissingInformation>add tags</MissingInformation>
-          : <Tags tags={attribute.tags}/>
+          : <Tags tags={attribute.tags} scope={modelTagScope(model.id)}/>
       }
     </InlineEditTags></div>
 
