@@ -165,7 +165,7 @@ sealed interface TagAction {
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class TagList() : TagAction
+    class TagList(val filters: TagSearchFilters?) : TagAction
 
     @ActionDoc(
         key = "tag_group_list",

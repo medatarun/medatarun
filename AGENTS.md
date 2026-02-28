@@ -11,4 +11,5 @@
 - Comments shall not repeat code but explain what the code or method does and choices had been made and why.
 - Logs are produced using slf4j
 - In tests we prefer using Kotlin test assertions
+- Do not add default parameter values in production code. Keep call contracts explicit and handle "missing value means ..." in the implementation, not in the signature. Ask for authorization before adding a default parameter value outside test helpers.
 - Avoid using the word "invariant" in explanations/comments/docs for this project; describe the concrete rule/assumption instead.

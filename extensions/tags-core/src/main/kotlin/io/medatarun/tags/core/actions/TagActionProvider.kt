@@ -7,6 +7,9 @@ import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
+import io.medatarun.tags.core.domain.TagSearchFilters
+import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
+import io.medatarun.tags.core.domain.TagScopeRef
 import kotlinx.serialization.json.*
 import kotlin.reflect.KClass
 
@@ -118,7 +121,11 @@ class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: Tag
     }
 
     fun tagList(cmd: TagAction.TagList): JsonObject {
-        val items = tagQueries.findAllTags()
+        val filters = cmd.filters ?: TagSearchFilters(
+            operator = TagSearchFiltersLogicalOperator.AND,
+            filters = emptyList()
+        )
+        val items = tagQueries.search(filters)
         return buildJsonObject {
             putJsonArray("items") {
                 items.sortedWith(
@@ -134,10 +141,24 @@ class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: Tag
                         } else {
                             put("groupId", groupId.asString())
                         }
+                        put("tagScopeRef", tagScopeRefJson(it.scope))
                         put("name", it.name)
                         put("description", it.description)
                     }
                 }
+            }
+        }
+    }
+
+    private fun tagScopeRefJson(scopeRef: TagScopeRef): JsonObject {
+        return when (scopeRef) {
+            is TagScopeRef.Global -> buildJsonObject {
+                put("type", scopeRef.type.value)
+                put("id", JsonNull)
+            }
+            is TagScopeRef.Local -> buildJsonObject {
+                put("type", scopeRef.type.value)
+                put("id", scopeRef.localScopeId.asString())
             }
         }
     }

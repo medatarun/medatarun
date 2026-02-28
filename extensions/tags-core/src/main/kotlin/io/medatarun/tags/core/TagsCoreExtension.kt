@@ -60,6 +60,7 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, TagScopeRefTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagGroupRefTypeDescriptor())
+        ctx.register(TypeDescriptor::class, TagSearchFiltersDescriptor())
         ctx.register(ActionProvider::class, TagActionProvider())
         ctx.register(SecurityRolesProvider::class, object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {

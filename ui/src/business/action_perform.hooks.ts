@@ -1,5 +1,54 @@
-import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {type ActionPayload, executeAction} from "./action_perform.api.ts";
+
+export type TagScopeRef =
+  | {type: "global", id: null}
+  | {type: string, id: string}
+
+export type TagListReq = {
+  filters?: TagSearchFilters | null
+}
+
+export type TagSearchFilters = {
+  operator: "and" | "or"
+  filters: TagSearchFilter[]
+}
+
+export type TagSearchFilter = {
+  type: "scopeRef"
+  condition: "is"
+  value: TagScopeRef
+}
+
+export type TagListItemDto = {
+  id: string
+  key: string
+  groupId: string | null
+  tagScopeRef: TagScopeRef
+  name: string | null
+  description: string | null
+}
+
+export type TagListResp = {
+  items: TagListItemDto[]
+}
+
+export const useTagList = (req: TagListReq) => {
+  return useQuery({
+    queryKey: ["action", "tag", "tag_list", req.filters ?? null],
+    queryFn: async () => {
+      const payload: ActionPayload = {}
+      if (req.filters !== undefined) {
+        payload.filters = req.filters
+      }
+      const response = await executeAction<TagListResp>("tag", "tag_list", payload)
+      if (response.contentType !== "json") {
+        throw Error("Expected JSON response for tag/tag_list")
+      }
+      return response.json
+    }
+  })
+}
 
 export const useModelUpdateName = () => {
   const queryClient = useQueryClient()
@@ -248,6 +297,3 @@ export const useRelationshipAttributeAddTag = () => {
 export const useRelationshipAttributeDeleteTag = () => {
   return useRelationshipAttributeMutation<{ tag: string }>("model", "relationship_attribute_delete_tag")
 }
-
-
-
