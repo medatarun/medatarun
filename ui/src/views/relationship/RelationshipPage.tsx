@@ -232,13 +232,13 @@ export function RelationshipOverview({relationship, model}: {
 
   const handleChangeTags = async (value: string[]) => {
     for (const tag of relationship.tags) {
-      if (!value.includes(tag)) await relationshipDeleteTag.mutateAsync({modelId: model.id, relationshipId: relationship.id, tag: tag})
+      if (!value.includes(tag)) await relationshipDeleteTag.mutateAsync({modelId: model.id, relationshipId: relationship.id, tag: "id:" + tag})
     }
     for (const tag of value) {
       if (!relationship.tags.includes(tag)) await relationshipAddTag.mutateAsync({
         modelId: model.id,
         relationshipId: relationship.id,
-        tag: tag
+        tag: "id:" + tag
       })
     }
   }
@@ -256,7 +256,7 @@ export function RelationshipOverview({relationship, model}: {
     </div>
     <div><Text>Tags</Text></div>
     <div>
-      <InlineEditTags value={relationship.tags} onChange={handleChangeTags}>
+      <InlineEditTags value={relationship.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
           relationship.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>

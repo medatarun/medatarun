@@ -8,25 +8,51 @@ import {
   TagPickerControl,
   TagPickerGroup,
   TagPickerInput,
+  TagPickerList,
+  TagPickerOption,
   type TagPickerProps
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
+import {TagList, useTagGroupList, useTagSearch, type TagScopeRef} from "../../business";
 
-export function InlineEditTags({value, children, onChange}: {
+const globalTagScope: TagScopeRef = {type: "global", id: null}
+
+function tagSearchByScope(scope: TagScopeRef) {
+  return {
+    filters: {
+      operator: "and" as const,
+      items: [
+        {
+          type: "scopeRef" as const,
+          condition: "is" as const,
+          value: scope
+        }
+      ]
+    }
+  }
+}
+
+export function InlineEditTags({value, scope, children, onChange}: {
   value: string[],
+  scope: TagScopeRef,
   onChange: (value: string[]) => Promise<unknown>
 } & PropsWithChildren) {
-
   const [values, setValues] = useState(value)
   const ref = useRef<HTMLInputElement>(null)
+  const globalTags = useTagSearch(tagSearchByScope(globalTagScope))
+  const scopedTags = useTagSearch(tagSearchByScope(scope), scope.type !== "global")
+  const tagGroups = useTagGroupList()
+
+  const tagList = new TagList(
+    [...(globalTags.data?.items ?? []), ...(scopedTags.data?.items ?? [])],
+    tagGroups.data?.items ?? []
+  )
 
   const handleEditStart = async () => {
-    console.log("handleEditStart")
-    setValues(value ?? "")
+    setValues(value)
   }
 
   const handleEditStarted = () => {
-    console.log("handleEditStarted", ref)
     ref?.current?.focus()
   }
 
@@ -34,7 +60,7 @@ export function InlineEditTags({value, children, onChange}: {
     await onChange(values)
   }
   const handleEditCancel = async () => {
-    setValues([])
+    setValues(value)
   }
 
 
@@ -43,6 +69,7 @@ export function InlineEditTags({value, children, onChange}: {
       <InputWithKeys
         ref={ref}
         disabled={pending}
+        tagList={tagList}
         values={values}
         onChange={setValues}
         onCommit={commit}
@@ -57,31 +84,33 @@ export function InlineEditTags({value, children, onChange}: {
 type InputWithKeysProps = {
   values: string[],
   disabled: boolean,
+  tagList: TagList,
   onCommit: () => void,
   onCancel: () => void,
   onChange: (value: string[]) => void
 }
 const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
-  ({values, disabled, onChange, onCommit, onCancel}, ref) => {
+  ({values, disabled, tagList, onChange, onCommit, onCancel}, ref) => {
 
     const [inputValue, setInputValue] = useState("")
     const [isComposing, setIsComposing] = useState(false)
+    const options = tagList.search(inputValue, values)
 
     const onOptionSelect: TagPickerProps["onOptionSelect"] = (_, data) => {
       onChange(data.selectedOptions);
+      setInputValue("")
     };
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(event.currentTarget.value);
     };
+    // Some keyboards used to compose characters in languages such as Japanese or Chinese
+    // emit Enter before the text is fully validated. We ignore that Enter so the picker
+    // does not commit the edit or select an option too early.
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (e.key === "Enter") {
-        if (isComposing) return // Asian inputs
-        e.preventDefault();
-        if (inputValue) {
-          setInputValue("")
-          const next = values.includes(inputValue) ? values : [...values, inputValue]
-          onChange(next)
-        } else {
+        if (isComposing) return
+        if (inputValue.trim() === "") {
+          e.preventDefault();
           onCommit()
         }
       }
@@ -91,17 +120,18 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
       }
     }
 
-    return <div style={{position:"relative"}}><TagPicker noPopover onOptionSelect={onOptionSelect} selectedOptions={values}>
+    return <div style={{position:"relative"}}>
+      <TagPicker onOptionSelect={onOptionSelect} selectedOptions={values}>
       <TagPickerControl >
       <TagPickerGroup aria-label="Selected tags">
         {values.map((option, index) => (
           <Tag
             key={index}
             shape="rounded"
-            media={<Avatar aria-hidden name={option} color="colorful" />}
+            media={<Avatar aria-hidden name={tagList.formatLabel(option)} color="colorful" />}
             value={option}
           >
-            {option}
+            {tagList.formatLabel(option)}
           </Tag>
         ))}
       </TagPickerGroup>
@@ -116,8 +146,13 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
         onKeyDown={handleKeyDown}
         onChange={handleChange}/>
       </TagPickerControl>
+      <TagPickerList>
+        {options.map(option =>
+          <TagPickerOption key={option.id} value={option.id} text={tagList.formatLabel(option.id)}>
+            {tagList.formatLabel(option.id)}
+          </TagPickerOption>
+        )}
+      </TagPickerList>
     </TagPicker></div>
   }
 )
-
-

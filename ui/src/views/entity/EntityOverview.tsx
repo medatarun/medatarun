@@ -33,13 +33,13 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
   }
   const handleChangeTags = async (value: string[]) => {
     for (const tag of entity.tags) {
-      if (!value.includes(tag)) await entityDeleteTag.mutateAsync({modelId: model.id, entityId: entity.id, tag: tag})
+      if (!value.includes(tag)) await entityDeleteTag.mutateAsync({modelId: model.id, entityId: entity.id, tag: "id:" + tag})
     }
     for (const tag of value) {
       if (!entity.tags.includes(tag)) await entityAddTag.mutateAsync({
         modelId: model.id,
         entityId: entity.id,
-        tag: tag
+        tag: "id:" + tag
       })
     }
   }
@@ -66,7 +66,7 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
 
     <div><Text>Tags</Text></div>
     <div>
-      <InlineEditTags value={entity.tags} onChange={handleChangeTags}>
+      <InlineEditTags value={entity.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
           entity.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>

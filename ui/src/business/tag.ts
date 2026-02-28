@@ -7,16 +7,23 @@ import type {TagGroupListItemDto, TagSearchItemDto} from "./action_perform.hooks
 export class TagList {
   private readonly tagsById: Map<string, TagSearchItemDto>
   private readonly groupKeysById: Map<string, string>
+  private readonly groupNamesById: Map<string, string>
+  private readonly tags: TagSearchItemDto[]
 
   constructor(tags: TagSearchItemDto[], groups: TagGroupListItemDto[]) {
+    this.tags = tags
     this.tagsById = new Map()
     for (const tag of tags) {
       this.tagsById.set(tag.id, tag)
     }
 
     this.groupKeysById = new Map()
+    this.groupNamesById = new Map()
     for (const group of groups) {
       this.groupKeysById.set(group.id, group.key)
+      if (group.name) {
+        this.groupNamesById.set(group.id, group.name)
+      }
     }
   }
 
@@ -42,5 +49,42 @@ export class TagList {
       return tag.key
     }
     return `${groupKey} / ${tag.key}`
+  }
+
+  /**
+   * Search is based on the technical fields that users already understand today:
+   * tag key, optional tag name, managed group key, and optional managed group name.
+   */
+  search(query: string, excludedTagIds: string[]): TagSearchItemDto[] {
+    const normalizedQuery = query.trim().toLocaleLowerCase()
+    const excludedTagIdsSet = new Set(excludedTagIds)
+
+    return this.tags.filter(tag => {
+      if (excludedTagIdsSet.has(tag.id)) {
+        return false
+      }
+      if (normalizedQuery === "") {
+        return true
+      }
+      return this.searchableText(tag).includes(normalizedQuery)
+    })
+  }
+
+  private searchableText(tag: TagSearchItemDto): string {
+    const parts = [tag.key]
+    if (tag.name) {
+      parts.push(tag.name)
+    }
+    if (tag.groupId) {
+      const groupKey = this.groupKeysById.get(tag.groupId)
+      if (groupKey) {
+        parts.push(groupKey)
+      }
+      const groupName = this.groupNamesById.get(tag.groupId)
+      if (groupName) {
+        parts.push(groupName)
+      }
+    }
+    return parts.join(" ").toLocaleLowerCase()
   }
 }

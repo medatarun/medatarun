@@ -332,14 +332,14 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
             modelId: model.id,
             entityId: parentAsEntity.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else if (parentAsRelationship) {
           await relationshipAttributeDeleteTag.mutateAsync({
             modelId: model.id,
             relationshipId: parentAsRelationship.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         }else {
           throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
@@ -353,14 +353,14 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
             modelId: model.id,
             entityId: parentAsEntity.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else if (parentAsRelationship) {
           await relationshipAttributeAddTag.mutateAsync({
             modelId: model.id,
             relationshipId: parentAsRelationship.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else {
           throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
@@ -384,7 +384,7 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
     </div>
 
     <div><Text>Tags</Text></div>
-    <div><InlineEditTags value={attribute.tags} onChange={handleChangeTags}>
+    <div><InlineEditTags value={attribute.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
       {
         attribute.tags.length === 0
           ? <MissingInformation>add tags</MissingInformation>

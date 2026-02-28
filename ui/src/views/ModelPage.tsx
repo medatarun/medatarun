@@ -167,10 +167,10 @@ export function ModelOverview() {
   }
   const handleChangeTags = async (value: string[]) => {
     for (const tag of model.tags) {
-      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: tag})
+      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: "id:" + tag})
     }
     for (const tag of value) {
-      if (!model.tags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: tag})
+      if (!model.tags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: "id:" + tag})
     }
   }
   return <PropertiesForm>
@@ -205,7 +205,7 @@ export function ModelOverview() {
 
     <div>Tags</div>
     <div>
-      <InlineEditTags value={model.tags} onChange={handleChangeTags}>
+      <InlineEditTags value={model.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
           model.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
@@ -264,4 +264,3 @@ export function ExternalUrl({
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
 }
-
