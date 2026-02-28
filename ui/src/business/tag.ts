@@ -1,4 +1,4 @@
-import type {TagGroupListItemDto, TagSearchItemDto} from "./action_perform.hooks.ts";
+import type {TagGroupListItemDto, TagScopeRef, TagSearchItemDto} from "./action_perform.hooks.ts";
 
 /**
  * Provides a single place to resolve TagId values into UI-friendly data.
@@ -29,6 +29,10 @@ export class TagList {
 
   findById(tagId: string): TagSearchItemDto | undefined {
     return this.tagsById.get(tagId)
+  }
+
+  findByScopeAndKey(scope: TagScopeRef, key: string): TagSearchItemDto | undefined {
+    return this.tags.find(tag => tag.key === key && this.sameScope(tag.tagScopeRef, scope))
   }
 
   /**
@@ -86,5 +90,9 @@ export class TagList {
       }
     }
     return parts.join(" ").toLocaleLowerCase()
+  }
+
+  private sameScope(left: TagScopeRef, right: TagScopeRef): boolean {
+    return left.type === right.type && left.id === right.id
   }
 }

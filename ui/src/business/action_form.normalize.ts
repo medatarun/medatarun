@@ -32,6 +32,9 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "ModelVersion") return normalizeVersion(param, value)
   if (param.type == "RelationshipKey") return normalizeKey(param, value)
   if (param.type == "RelationshipRef") return normalizeRef(param, value)
+  if (param.type == "TagKey") return normalizeKey(param, value)
+  if (param.type == "TagRef") return normalizeRef(param, value)
+  if (param.type == "TagScopeRef") return value
   if (param.type == "TypeKey") return normalizeKey(param, value)
   if (param.type == "TypeRef") return normalizeRef(param, value)
   if (param.type == "String") return normalizeString(param, value)

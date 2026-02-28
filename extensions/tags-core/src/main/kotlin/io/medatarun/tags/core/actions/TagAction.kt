@@ -18,7 +18,44 @@ sealed interface TagAction {
         securityRule = TagSecurityRuleNames.TAG_FREE_MANAGE
     )
     data class TagFreeCreate(
-        val scopeRef: TagScopeRef, val key: TagKey, val name: String?, val description: String?
+        @ActionParamDoc(
+            order = 0,
+            name = "Scope",
+            description = "Local scope that will own this tag."
+        )
+        val scopeRef: TagScopeRef,
+        @ActionParamDoc(
+            order = 1,
+            name = "Key",
+            description = """
+                Unique key of the tag in this scope.
+                
+                Use only letters, digits, `_` and `-`.
+                
+                Example: `customer-visible`
+            """
+        )
+        val key: TagKey,
+        @ActionParamDoc(
+            order = 2,
+            name = "Name",
+            description = """
+                Optional label shown to users.
+                
+                Use it when the key is too technical to read directly.
+            """
+        )
+        val name: String?,
+        @ActionParamDoc(
+            order = 3,
+            name = "Description",
+            description = """
+                Optional help text for users.
+                
+                Explain what the tag means and when it should be used.
+            """
+        )
+        val description: String?
     ) : TagAction
 
     @ActionDoc(

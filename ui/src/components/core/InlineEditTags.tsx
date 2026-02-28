@@ -1,5 +1,5 @@
 import * as React from "react";
-import {forwardRef, type PropsWithChildren, useRef, useState} from "react";
+import {forwardRef, type PropsWithChildren, useEffect, useRef, useState} from "react";
 
 import {
   Avatar,
@@ -14,6 +14,9 @@ import {
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
 import {TagList, useTagScopedList, type TagScopeRef} from "../../business";
+import {useActionPerformer} from "../business/ActionPerformerHook.tsx";
+
+const CREATE_OPTION_PREFIX = "__create__:"
 
 export function InlineEditTags({value, scope, children, onChange}: {
   value: string[],
@@ -23,6 +26,40 @@ export function InlineEditTags({value, scope, children, onChange}: {
   const [values, setValues] = useState(value)
   const ref = useRef<HTMLInputElement>(null)
   const {tagList} = useTagScopedList(scope)
+  const {performAction, state} = useActionPerformer()
+  const [requestedCreatedTagKey, setRequestedCreatedTagKey] = useState<string | null>(null)
+  const [waitingCreatedTagResolution, setWaitingCreatedTagResolution] = useState(false)
+  const previousStateKindRef = useRef(state.kind)
+
+  useEffect(() => {
+    const previousStateKind = previousStateKindRef.current
+    previousStateKindRef.current = state.kind
+
+    if (requestedCreatedTagKey == null) {
+      return
+    }
+    const actionFinished =
+      previousStateKind === "running"
+      && state.kind === "done"
+      && state.request.actionGroupKey === "tag"
+      && state.request.actionKey === "tag_free_create"
+
+    if (actionFinished) {
+      setWaitingCreatedTagResolution(true)
+    }
+
+    if (!waitingCreatedTagResolution && !actionFinished) {
+      return
+    }
+
+    const createdTag = tagList.findByScopeAndKey(scope, requestedCreatedTagKey)
+    if (!createdTag) {
+      return
+    }
+    setValues(previousValues => previousValues.includes(createdTag.id) ? previousValues : [...previousValues, createdTag.id])
+    setRequestedCreatedTagKey(null)
+    setWaitingCreatedTagResolution(false)
+  }, [requestedCreatedTagKey, scope, state, tagList, waitingCreatedTagResolution])
 
   const handleEditStart = async () => {
     setValues(value)
@@ -37,6 +74,21 @@ export function InlineEditTags({value, scope, children, onChange}: {
   }
   const handleEditCancel = async () => {
     setValues(value)
+    setRequestedCreatedTagKey(null)
+    setWaitingCreatedTagResolution(false)
+  }
+
+  const handleCreateTag = (key: string) => {
+    setRequestedCreatedTagKey(key)
+    setWaitingCreatedTagResolution(false)
+    performAction({
+      actionGroupKey: "tag",
+      actionKey: "tag_free_create",
+      params: {
+        scopeRef: {value: scope, readonly: true},
+        key: {value: key, readonly: false},
+      }
+    })
   }
 
 
@@ -45,8 +97,10 @@ export function InlineEditTags({value, scope, children, onChange}: {
       <InputWithKeys
         ref={ref}
         disabled={pending}
+        scope={scope}
         tagList={tagList}
         values={values}
+        onCreateTag={handleCreateTag}
         onChange={setValues}
         onCommit={commit}
         onCancel={cancel}/>
@@ -60,19 +114,31 @@ export function InlineEditTags({value, scope, children, onChange}: {
 type InputWithKeysProps = {
   values: string[],
   disabled: boolean,
+  scope: TagScopeRef,
   tagList: TagList,
   onCommit: () => void,
   onCancel: () => void,
+  onCreateTag: (key: string) => void,
   onChange: (value: string[]) => void
 }
 const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
-  ({values, disabled, tagList, onChange, onCommit, onCancel}, ref) => {
+  ({values, disabled, scope, tagList, onChange, onCommit, onCancel, onCreateTag}, ref) => {
 
     const [inputValue, setInputValue] = useState("")
     const [isComposing, setIsComposing] = useState(false)
     const options = tagList.search(inputValue, values)
+    const trimmedInputValue = inputValue.trim()
+    const canCreateTag = scope.type !== "global"
+      && trimmedInputValue !== ""
+      && tagList.findByScopeAndKey(scope, trimmedInputValue) == null
 
     const onOptionSelect: TagPickerProps["onOptionSelect"] = (_, data) => {
+      const selectedOption = data.value
+      if (typeof selectedOption === "string" && selectedOption.startsWith(CREATE_OPTION_PREFIX)) {
+        onCreateTag(selectedOption.slice(CREATE_OPTION_PREFIX.length))
+        setInputValue("")
+        return
+      }
       onChange(data.selectedOptions);
       setInputValue("")
     };
@@ -123,6 +189,14 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
         onChange={handleChange}/>
       </TagPickerControl>
       <TagPickerList>
+        {canCreateTag &&
+          <TagPickerOption
+            key={CREATE_OPTION_PREFIX + trimmedInputValue}
+            value={CREATE_OPTION_PREFIX + trimmedInputValue}
+            text={`Create "${trimmedInputValue}"`}>
+            Create "{trimmedInputValue}"
+          </TagPickerOption>
+        }
         {options.map(option =>
           <TagPickerOption key={option.id} value={option.id} text={tagList.formatLabel(option.id)}>
             {tagList.formatLabel(option.id)}
