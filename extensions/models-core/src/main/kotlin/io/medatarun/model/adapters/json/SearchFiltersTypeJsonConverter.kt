@@ -19,12 +19,12 @@ class SearchFiltersTypeJsonConverter : TypeJsonConverter<SearchFilters> {
                     ?: throw TypeJsonInvalidSearchFiltersSyntaxException(root)
             } ?: SearchFiltersLogicalOperator.AND
 
-            val filters = root["filters"]?.jsonArray?.map { json ->
+            val filters = root["items"]?.jsonArray?.map { json ->
                 toFilter(json.jsonObject)
             } ?: emptyList()
             return SearchFilters(
                 operator = operator,
-                filters = filters
+                items = filters
             )
         } catch(_: Exception) {
             throw TypeJsonInvalidSearchFiltersSyntaxException(json)

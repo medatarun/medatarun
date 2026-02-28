@@ -385,7 +385,7 @@ class ModelSearchTest {
             fixture,
             SearchFilters(
                 operator = SearchFiltersLogicalOperator.AND,
-                filters = listOf(
+                items = listOf(
                     SearchFilterTags.AnyOf(listOf(refs.tags.global.security.public.ref)),
                     SearchFilterTags.AnyOf(listOf(refs.tags.local.cooking.imported.ref(fixture.env.queries.findModel(refs.cooking.ref).id)))
                 )
@@ -420,7 +420,7 @@ class ModelSearchTest {
             fixture,
             SearchFilters(
                 operator = SearchFiltersLogicalOperator.OR,
-                filters = listOf(
+                items = listOf(
                     SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_result.ref(fixture.env.queries.findModel(refs.crm.ref).id))),
                     SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref)))
             )
@@ -622,7 +622,7 @@ class ModelSearchTest {
                 fixture,
                 SearchFilters(
                     operator = SearchFiltersLogicalOperator.AND,
-                    filters = emptyList()
+                    items = emptyList()
                 )
             )
         )
@@ -646,7 +646,7 @@ class ModelSearchTest {
                 fixture,
                 SearchFilters(
                     operator = SearchFiltersLogicalOperator.OR,
-                    filters = emptyList()
+                    items = emptyList()
                 )
             )
         )
@@ -701,7 +701,7 @@ class ModelSearchTest {
             fixture,
             SearchFilters(
                 operator = SearchFiltersLogicalOperator.AND,
-                filters = listOf(filter)
+                items = listOf(filter)
             )
         )
     }

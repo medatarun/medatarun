@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {type ActionPayload, executeAction} from "./action_perform.api.ts";
+import {toProblem} from "@seij/common-types";
 
 export type TagScopeRef =
   | {type: "global", id: null}
@@ -47,6 +48,55 @@ export const useTagSearch = (req: TagSearchReq) => {
       }
       return response.json
     }
+  })
+}
+
+export interface SearchResultLocation {
+  objectType: string
+  modelId: string
+  modelKey: string
+  modelLabel: string
+  entityId: string | undefined
+  entityKey: string | undefined
+  entityLabel: string | undefined
+  entityAttributeId: string | undefined
+  entityAttributeLabel: string | undefined
+  relationshipId: string | undefined
+  relationshipLabel: string | undefined
+  relationshipAttributeId: string | undefined
+  relationshipAttributeLabel: string | undefined
+}
+
+export interface SearchResult {
+  id: string
+  location: SearchResultLocation
+  tags: string[]
+}
+
+export interface SearchResults {
+  items: SearchResult[]
+}
+
+export async function modelSearch(tags: string): Promise<SearchResults> {
+  if (tags == "") return {items:[]}
+  const payload = {
+    filters: {
+      operator: "and",
+      items: [
+        {"type": "tags", "condition": "anyOf", "value": tags.split(",").map(it => it.trim())}
+      ]
+    },
+    fields: ["location"],
+  }
+  const result = await executeAction<SearchResults>("model", "search", payload)
+  if (result.contentType === "json") {
+    return result.json
+  } else throw toProblem("Invalid response content type")
+}
+export const useModelSearch = (tags: string) => {
+  return useQuery({
+    queryKey: ["search", tags],
+    queryFn: () => modelSearch(tags)
   })
 }
 

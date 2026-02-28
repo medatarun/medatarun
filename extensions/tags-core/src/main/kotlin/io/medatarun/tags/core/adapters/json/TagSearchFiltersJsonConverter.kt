@@ -33,16 +33,16 @@ class TagSearchFiltersJsonConverter : TypeJsonConverter<TagSearchFilters> {
 
     private fun toFilter(json: JsonObject): TagSearchFilter {
         val type = json["type"]?.jsonPrimitive?.content
-            ?: throw IllegalArgumentException("Filter type is missing")
+            ?: throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
         if (type == "scopeRef") {
             val condition = json["condition"]?.jsonPrimitive?.content
-                ?: throw IllegalArgumentException("Filter scopeRef condition missing")
+                ?: throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
             if (condition == "is") {
-                val value = json["value"] ?: throw IllegalArgumentException("Filter scopeRef value missing")
+                val value = json["value"] ?: throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
                 return TagSearchFilterScopeRef.Is(TagScopeRefJsonConverter().deserialize(value))
             }
-            throw IllegalArgumentException("Unknown filter scopeRef condition: $condition")
+            throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
         }
-        throw IllegalArgumentException("Unknown filter type: $type")
+        throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
     }
 }

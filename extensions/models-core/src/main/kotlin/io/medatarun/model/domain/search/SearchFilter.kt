@@ -4,7 +4,7 @@ import io.medatarun.tags.core.domain.TagRef
 
 data class SearchFilters(
     val operator: SearchFiltersLogicalOperator,
-    val filters: List<SearchFilter>
+    val items: List<SearchFilter>
 )
 
 enum class SearchFiltersLogicalOperator(val code: String) {

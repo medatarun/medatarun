@@ -17,66 +17,14 @@ import {
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ArrowDownloadRegular, DocumentBulletListRegular, SearchFilled} from "@fluentui/react-icons";
 import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable} from "../../components/layout/Contained.tsx";
-import {useQuery} from "@tanstack/react-query";
-import {executeAction} from "../../business";
+import {type SearchResult, type SearchResultLocation, useModelSearch} from "../../business";
 import {useState} from "react";
-import {toProblem} from "@seij/common-types";
 import {useNavigate} from "@tanstack/react-router";
 import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {downloadCsv} from "@seij/common-ui-csv-export";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {sortBy} from "lodash-es";
 
-interface SearchResultLocation {
-  objectType: string
-  modelId: string
-  modelKey: string
-  modelLabel: string
-  entityId: string | undefined
-  entityKey: string | undefined
-  entityLabel: string | undefined
-  entityAttributeId: string | undefined
-  entityAttributeLabel: string | undefined
-  relationshipId: string | undefined
-  relationshipLabel: string | undefined
-  relationshipAttributeId: string | undefined
-  relationshipAttributeLabel: string | undefined
-}
-
-interface SearchResult {
-  id: string
-  location: SearchResultLocation
-  tags: string[]
-}
-
-interface SearchResults {
-  items: SearchResult[]
-}
-
-async function search(tags: string): Promise<SearchResults> {
-  if (tags == "") return {items:[]}
-  const payload = {
-    filters: {
-      operator: "and",
-      filters: [
-        {"type": "tags", "condition": "anyOf", "value": tags.split(",").map(it => it.trim())}
-      ]
-    },
-    fields: ["location"],
-  }
-  const result = await executeAction<SearchResults>("model", "search", payload)
-  if (result.contentType === "json") {
-    return result.json
-  } else throw toProblem("Invalid response content type")
-}
-
-
-const useSearch = (tags: string) => {
-  return useQuery({
-    queryKey: ["search", tags],
-    queryFn: () => search(tags)
-  })
-}
 
 function createCsv(items: SearchResult[]) {
   downloadCsv<SearchResult>("tag-report.csv", [
@@ -130,7 +78,7 @@ export function ReportsPage() {
 
   const [tags, setTags] = useState<string>(defaultTags)
   const [inputTags, setInputTags] = useState<string>(defaultTags)
-  const query = useSearch(tags)
+  const query = useModelSearch(tags)
   const items = query?.data?.items ?? []
   const handleClickSearch = () => {
     localStorage.setItem("reports-query", inputTags)

@@ -157,7 +157,7 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
             }
         }
 
-        val predicateChain = query.filters.filters.map { toQueryItemPredicate(it) }
+        val predicateChain = query.filters.items.map { toQueryItemPredicate(it) }
         val filteredItems = when (query.filters.operator) {
             SearchFiltersLogicalOperator.AND -> {
                 index.items.filter {
