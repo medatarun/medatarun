@@ -12,7 +12,7 @@ import io.medatarun.tags.core.ports.needs.TagScopeManager
 class FrictionlessdataExtension : MedatarunExtension {
     override val id: ExtensionId = "models-import-frictionlessdata"
     override fun init(ctx: MedatarunExtensionCtx) {
-        ctx.register(TagScopeManager::class, FrictionlessModelTagScopeManager())
+
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
@@ -21,18 +21,6 @@ class FrictionlessdataExtension : MedatarunExtension {
         val tagImporter = FrictionlessTagImporterWithCmds(tagCmds, tagQueries)
         val importer = FrictionlessdataModelImporter(tagImporter)
         ctx.register(ModelImporter::class, importer)
-    }
-}
-
-private class FrictionlessModelTagScopeManager : TagScopeManager {
-    override val type: TagScopeType = TagScopeType("model")
-
-    /**
-     * Frictionless imports create tags before the imported model is persisted.
-     * Accepting the scope here lets the importer allocate model-scoped free tags and embed their ids in the model.
-     */
-    override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
-        return true
     }
 }
 

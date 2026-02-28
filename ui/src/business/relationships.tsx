@@ -8,7 +8,7 @@ export interface RelationshipDto {
   key: string
   name: string | null
   description: string | null
-  hashtags: string[],
+  tags: string[],
   roles: RelationshipRoleDto[],
   attributes: AttributeDto[]
 }

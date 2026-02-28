@@ -32,11 +32,11 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
     return entityUpdateDocumentationHome.mutateAsync({modelId: model.id, entityId: entity.id, value: value})
   }
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of entity.hashtags) {
+    for (const tag of entity.tags) {
       if (!value.includes(tag)) await entityDeleteTag.mutateAsync({modelId: model.id, entityId: entity.id, tag: tag})
     }
     for (const tag of value) {
-      if (!entity.hashtags.includes(tag)) await entityAddTag.mutateAsync({
+      if (!entity.tags.includes(tag)) await entityAddTag.mutateAsync({
         modelId: model.id,
         entityId: entity.id,
         tag: tag
@@ -66,11 +66,11 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
 
     <div><Text>Tags</Text></div>
     <div>
-      <InlineEditTags value={entity.hashtags} onChange={handleChangeTags}>
+      <InlineEditTags value={entity.tags} onChange={handleChangeTags}>
         {
-          entity.hashtags.length === 0
+          entity.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={entity.hashtags}/>
+            : <Tags tags={entity.tags}/>
         }
       </InlineEditTags>
     </div>

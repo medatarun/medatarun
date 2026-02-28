@@ -11,7 +11,7 @@ export function EntityCard({entity, onClick}:{entity: EntityDto, onClick:(id: st
     <div style={{minHeight: "4em", maxHeight: "4em", overflow: "hidden"}}>
       {entity.description && <div>{entity.description}</div>}
     </div>
-    <div><Tags tags={entity.hashtags} /></div>
+    <div><Tags tags={entity.tags} /></div>
     { isDetailLevelTech &&
     <div><code>{entity.key}</code></div>
     }

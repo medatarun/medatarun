@@ -1,8 +1,10 @@
 package io.medatarun.ext.modeljson
 
 import io.medatarun.ext.modeljson.internal.ModelJsonConverter
+import io.medatarun.ext.modeljson.internal.ModelJsonRepositoryDuplicateModelIdException
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepository
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepositoryId
@@ -19,7 +21,7 @@ class ModelJsonRepositoryTest {
         val files = ModelsStorageJsonFiles(repositoryPath)
         val repo: ModelsStorageJsonRepository = ModelsStorageJsonRepository(files, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
-        val sampleModel2 = sampleModel.copy(key = ModelKey(sampleModel.key.value + "-2"))
+        val sampleModel2 = sampleModel.copy(id = ModelId.generate(), key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {
             repo.persistModel(sampleModel)
         }
@@ -108,6 +110,35 @@ class ModelJsonRepositoryTest {
         assertTrue(ids.contains(env.sampleModel2.id))
     }
 
+    @Test
+    fun `findAllModelIds ignores corrupted json files`() {
+        val env = TestEnv()
+        env.importSample()
+        env.files.save("broken", "{ not-json")
+
+        val repo = ModelsStorageJsonRepository(env.files, converter)
+        val ids = repo.findAllModelIds()
+
+        assertEquals(listOf(env.sampleModel.id), ids)
+        assertEquals(env.sampleModel.id, repo.findModelByIdOptional(env.sampleModel.id)?.id)
+    }
+
+    @Test
+    fun `repository startup fails on duplicate model id`() {
+        val env = TestEnv()
+        env.importSample()
+        env.files.save(
+            "duplicate-id",
+            converter.toJsonString(
+                env.sampleModel.copy(key = ModelKey("duplicate-id"))
+            )
+        )
+
+        assertFailsWith<ModelJsonRepositoryDuplicateModelIdException> {
+            ModelsStorageJsonRepository(env.files, converter)
+        }
+    }
+
 
 
     @Test
@@ -126,4 +157,3 @@ class ModelJsonRepositoryTest {
 
     }
 }
-

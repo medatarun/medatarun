@@ -325,7 +325,7 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
   }
 
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of attribute.hashtags) {
+    for (const tag of attribute.tags) {
       if (!value.includes(tag)) {
         if (parentAsEntity) {
           await entityAttributeDeleteTag.mutateAsync({
@@ -347,7 +347,7 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
       }
     }
     for (const tag of value) {
-      if (!attribute.hashtags.includes(tag)) {
+      if (!attribute.tags.includes(tag)) {
         if (parentAsEntity) {
           await entityAttributeAddTag.mutateAsync({
             modelId: model.id,
@@ -384,11 +384,11 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
     </div>
 
     <div><Text>Tags</Text></div>
-    <div><InlineEditTags value={attribute.hashtags} onChange={handleChangeTags}>
+    <div><InlineEditTags value={attribute.tags} onChange={handleChangeTags}>
       {
-        attribute.hashtags.length === 0
+        attribute.tags.length === 0
           ? <MissingInformation>add tags</MissingInformation>
-          : <Tags tags={attribute.hashtags}/>
+          : <Tags tags={attribute.tags}/>
       }
     </InlineEditTags></div>
 

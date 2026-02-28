@@ -8,6 +8,8 @@ import io.medatarun.model.domain.ModelId
 internal class ModelJsonRepositoryException(message: String) : MedatarunException(message)
 internal class ModelJsonRepositoryModelNotFoundException(modelId: ModelId) :
     MedatarunException("Model with id ${modelId.value} not found in Json repository")
+internal class ModelJsonRepositoryDuplicateModelIdException(modelId: ModelId, firstPath: String, secondPath: String) :
+    MedatarunException("Duplicate model id ${modelId.value} in Json repository between [$firstPath] and [$secondPath]")
 internal class ModelJsonEntityIdentifierAttributeNotFound(attributeKey: String) :
         MedatarunException("Error on entity storage. Specified key [$attributeKey] in Json doesn't match any known attribute. Storage needs to be fixed manually.")
 internal class ModelJsonEntityAttributeTypeNotFoundException(attributeKey: String, attributeType: String) :

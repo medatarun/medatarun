@@ -85,7 +85,7 @@ export function AttributesTable({attributes, actionUILocation, onClickAttribute,
             <div>
               <Markdown value={attribute.description}/>
             </div>
-            {attribute.hashtags.length > 0 && <Tags tags={attribute.hashtags}/>}
+            {attribute.tags.length > 0 && <Tags tags={attribute.tags}/>}
           </TableCell>
 
           <TableCell className={styles.actionCell}>

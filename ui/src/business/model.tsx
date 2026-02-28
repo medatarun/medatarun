@@ -18,7 +18,7 @@ export interface ModelDto {
   name: string | null
   version: string
   documentationHome: string | null
-  hashtags: string[]
+  tags: string[]
   description: string | null
   origin: ElementOrigin
   entities: EntityDto[]
@@ -46,7 +46,7 @@ export interface EntityDto {
   name: string | null
   description: string | null
   documentationHome: string | null
-  hashtags: string[]
+  tags: string[]
   model: {
     id: string
     name: string | null
@@ -63,7 +63,7 @@ export interface AttributeDto {
   type: string
   optional: boolean
   identifierAttribute: boolean
-  hashtags: string[]
+  tags: string[]
 }
 
 interface EntityOriginDto {
