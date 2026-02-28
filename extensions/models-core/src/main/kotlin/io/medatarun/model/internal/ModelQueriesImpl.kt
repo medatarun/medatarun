@@ -19,7 +19,8 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        return storage.findAllModelIds().map { id ->
+        val modelIds = storage.findAllModelIds()
+        return modelIds.map { id ->
             try {
                 val model = storage.findModelById(id)
                 ModelSummary(

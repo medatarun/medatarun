@@ -1,12 +1,17 @@
 package io.medatarun.httpserver.ui
 
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import org.jetbrains.annotations.ApiStatus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
@@ -14,21 +19,26 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
     val modelQueries = runtime.services.getService<ModelQueries>()
 
     fun modelListJson(locale: Locale): String {
-        val data = modelQueries.findAllModelSummaries(locale)
-        return buildJsonArray {
-            data.forEach { m ->
-                addJsonObject {
-                    put("id", m.id.asString())
-                    put("key", m.key.asString())
-                    put("name", m.name)
-                    put("description", m.description)
-                    put("error", m.error)
-                    put("countTypes", m.countTypes)
-                    put("countEntities", m.countEntities)
-                    put("countRelationships", m.countRelationships)
+        try {
+            val data = modelQueries.findAllModelSummaries(locale)
+            return buildJsonArray {
+                data.forEach { m ->
+                    addJsonObject {
+                        put("id", m.id.asString())
+                        put("key", m.key.asString())
+                        put("name", m.name)
+                        put("description", m.description)
+                        put("error", m.error)
+                        put("countTypes", m.countTypes)
+                        put("countEntities", m.countEntities)
+                        put("countRelationships", m.countRelationships)
+                    }
                 }
-            }
-        }.toString()
+            }.toString()
+        } catch(e: Exception) {
+            logger.error("Impossible to read models", e)
+            throw MedatarunException("Could not get list of models", StatusCode.INTERNAL_SERVER_ERROR)
+        }
     }
 
     fun modelJson(modelId: ModelId, locale: Locale): String {
@@ -197,6 +207,10 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
                 }
             )
         }
+    }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(UI::class.java)
     }
 }
 
