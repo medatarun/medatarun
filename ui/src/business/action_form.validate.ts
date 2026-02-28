@@ -16,6 +16,8 @@ export function validateForm({formData, formFields}: {
     else if (formField.type === "EntityRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "RelationshipKey") result = validateKey(formField, formData[formField.key])
     else if (formField.type === "RelationshipRef") result = validateRef(formField, formData[formField.key])
+    else if (formField.type === "TagGroupKey") result = validateKey(formField, formData[formField.key])
+    else if (formField.type === "TagGroupRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "TagKey") result = validateKey(formField, formData[formField.key])
     else if (formField.type === "TagRef") result = validateRef(formField, formData[formField.key])
     else if (formField.type === "TagScopeRef") result = valid

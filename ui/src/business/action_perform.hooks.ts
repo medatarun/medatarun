@@ -76,6 +76,50 @@ export const useTagGroupList = () => {
   })
 }
 
+function useTagGroupMutation(actionKey: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { tagGroupId: string, value: string }) =>
+      executeAction("tag", actionKey, {
+        tagGroupRef: "id:" + props.tagGroupId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+
+function useManagedTagMutation(actionKey: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { tagId: string, value: string }) =>
+      executeAction("tag", actionKey, {
+        tagRef: "id:" + props.tagId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+
+export const useTagGroupUpdateName = () => {
+  return useTagGroupMutation("tag_group_update_name")
+}
+
+export const useTagGroupUpdateDescription = () => {
+  return useTagGroupMutation("tag_group_update_description")
+}
+
+export const useTagGroupUpdateKey = () => {
+  return useTagGroupMutation("tag_group_update_key")
+}
+
+export const useTagManagedUpdateName = () => {
+  return useManagedTagMutation("tag_managed_update_name")
+}
+
+export const useTagManagedUpdateDescription = () => {
+  return useManagedTagMutation("tag_managed_update_description")
+}
+
 export interface SearchResultLocation {
   objectType: string
   modelId: string

@@ -73,6 +73,16 @@ export function Layout2() {
       rule: undefined
     },
     {
+      id: "tag-groups",
+      parentId: null,
+      type: "page",
+      path: "/tag-groups",
+      label: "Tag groups",
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined
+    },
+    {
       id: "preferences",
       parentId: null,
       type: "page",

@@ -33,6 +33,9 @@ import {AttributePage} from "./views/attribute/AttributePage.tsx";
 import {TypePage} from "./views/type/TypePage.tsx";
 import {RelationshipPage} from "./views/relationship/RelationshipPage.tsx";
 import {ReportsPage} from "./views/reports/ReportsPage.tsx";
+import {TagGroupsPage} from "./views/tags/TagGroupsPage.tsx";
+import {TagGroupEdit} from "./views/tags/TagGroupEdit.tsx";
+import {TagEdit} from "./views/tags/TagEdit.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -104,6 +107,20 @@ function RelationshipRouteComponent() {
 
 function ReportsRouteComponent() {
   return <ReportsPage />
+}
+
+function TagGroupsRouteComponent() {
+  return <TagGroupsPage/>
+}
+
+function TagGroupRouteComponent() {
+  const {tagGroupId} = useParams({from: "/tag-group/$tagGroupId"})
+  return <TagGroupEdit tagGroupId={tagGroupId}/>
+}
+
+function TagRouteComponent() {
+  const {tagId} = useParams({from: "/tags/$tagId"})
+  return <TagEdit tagId={tagId}/>
 }
 
 function TypeRouteComponent() {
@@ -191,6 +208,24 @@ const reportsRoute = createRoute({
   component: ReportsRouteComponent
 })
 
+const tagGroupsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tag-groups",
+  component: TagGroupsRouteComponent
+})
+
+const tagGroupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tag-group/$tagGroupId",
+  component: TagGroupRouteComponent
+})
+
+const tagRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/tags/$tagId",
+  component: TagRouteComponent
+})
+
 const typeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/model/$modelId/type/$typeId",
@@ -211,6 +246,9 @@ const routeTree = rootRoute.addChildren([
   relationshipAttributeRoute,
   relationshipRoute,
   reportsRoute,
+  tagGroupRoute,
+  tagGroupsRoute,
+  tagRoute,
   typeRoute
 ]);
 

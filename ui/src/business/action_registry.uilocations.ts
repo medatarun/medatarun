@@ -16,6 +16,10 @@ export const ActionUILocations = {
   relationship_attributes: "relationship.attributes",
   relationship_roles: "relationship.roles",
   relationship_role: "relationship.role",
+  tag_managed_detail: "tag_managed_detail",
+  tag_managed_group_detail: "tag_managed_group_detail",
+  tag_managed_group_list: "tag_managed_group_list",
+  tag_managed_list: "tag_managed_list",
   type: "type",
 } as const
 

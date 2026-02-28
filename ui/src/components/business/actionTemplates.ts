@@ -53,3 +53,25 @@ export const createActionTemplateRelationshipRole = (modelId: string, relationsh
     relationshipRoleRef: refid(roleId),
   }
 }
+
+export const createActionTemplateTagGroup = (tagGroupId: string): ActionPerformerRequestParams => {
+  return {
+    tagGroupRef: refid(tagGroupId),
+  }
+}
+
+export const createActionTemplateTagGroupList = (): ActionPerformerRequestParams => {
+  return {}
+}
+
+export const createActionTemplateTagManagedList = (tagGroupId: string): ActionPerformerRequestParams => {
+  return {
+    groupRef: refid(tagGroupId),
+  }
+}
+
+export const createActionTemplateTag = (tagId: string): ActionPerformerRequestParams => {
+  return {
+    tagRef: refid(tagId),
+  }
+}
