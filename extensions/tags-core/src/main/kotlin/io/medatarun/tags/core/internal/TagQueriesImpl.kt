@@ -3,7 +3,10 @@ package io.medatarun.tags.core.internal
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagStorage
 
-class TagQueriesImpl(private val storage: TagStorage): TagQueries {
+class TagQueriesImpl(
+    private val storage: TagStorage,
+    private val tagScopes: TagScopes
+): TagQueries {
     private val tagRefResolver = TagRefResolver(storage)
 
     override fun findAllTags(): List<Tag> {
@@ -11,10 +14,11 @@ class TagQueriesImpl(private val storage: TagStorage): TagQueries {
     }
 
     override fun search(query: TagSearchFilters): List<Tag> {
-
         if (query.items.isEmpty()) {
             return findAllTags()
         }
+
+        validateSearchFilters(query)
 
         val predicates = query.items.map { filter ->
             when (filter) {
@@ -30,6 +34,22 @@ class TagQueriesImpl(private val storage: TagStorage): TagQueries {
             }
             TagSearchFiltersLogicalOperator.OR -> items.filter { item ->
                 predicates.any { predicate -> predicate(item) }
+            }
+        }
+    }
+
+    /**
+     * Search filters must reference a real local scope so callers get an explicit
+     * error instead of a silent empty result caused by an invalid scopeRef.
+     */
+    private fun validateSearchFilters(query: TagSearchFilters) {
+        query.items.forEach { filter ->
+            when (filter) {
+                is TagSearchFilterScopeRef.Is -> {
+                    if (filter.value is TagScopeRef.Local) {
+                        tagScopes.ensureLocalScopeExists(filter.value)
+                    }
+                }
             }
         }
     }

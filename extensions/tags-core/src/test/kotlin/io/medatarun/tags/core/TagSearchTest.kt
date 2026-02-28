@@ -94,6 +94,27 @@ class TagSearchTest {
         assertEquals(recipeScope.scopeId!!.asString(), jsonString(recipeScopeRef, "id"))
         assertNull(findTagSearchItemByKey(items, "vehicle-tag"))
     }
+
+    @Test
+    fun `tag search with local scope filter fails when scope does not exist`() {
+        val env = createEnvironment()
+        val missingRecipeScope = recipeScopeRef(sampleId())
+
+        assertFailsWith<TagScopeNotFoundException> {
+            env.dispatch(TagAction.TagSearch(filters = scopeIsFilter(missingRecipeScope)))
+        }
+    }
+
+    @Test
+    fun `tag search with local scope filter fails when scope type is unknown`() {
+        val env = createEnvironment()
+        val unknownScope = TagScopeRef.Local(TagScopeType("unknown-scope"), TagScopeId(sampleId().value))
+
+        assertFailsWith<TagScopeManagerNotFoundException> {
+            env.dispatch(TagAction.TagSearch(filters = scopeIsFilter(unknownScope)))
+        }
+    }
+
     private fun createEnvironment(
         extraScopeManagers: List<TagScopeManager> = emptyList(),
         extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()

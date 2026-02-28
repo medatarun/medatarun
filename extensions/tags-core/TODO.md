@@ -40,16 +40,10 @@ Décision actée :
 Décisions actées:
 - `TagSearch` remplace l'ancien `TagList`
 - le premier filtre supporté est `scopeRef`
-- si `filters` est absent ou vide, la recherche retourne tous les tags connus
+- si `filters` est absent ou si `filters.items` est vide, la recherche retourne
+  tous les tags connus
 
 Travail restant:
-- ajouter des tests de parsing JSON pour `TagSearchFilters`
-- ajouter des tests de filtres invalides (type inconnu, condition inconnue,
-  valeur manquante, structure JSON invalide)
-- décider si `TagSearch` doit valider strictement l'existence et la validité du
-  scope référencé par un filtre `scopeRef`
-- si cette validation stricte est retenue, implémenter les erreurs explicites
-  correspondantes dans `TagQueries.search`
 - utiliser `TagSearch` comme contrat backend de chargement des tags pour l'UI
   selon le contexte d'affichage
 

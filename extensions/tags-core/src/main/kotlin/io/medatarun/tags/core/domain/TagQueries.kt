@@ -11,6 +11,9 @@ interface TagQueries {
      *   This keeps the caller contract simple: action/UI code can omit filters without having
      *   to build a dedicated "match all" filter.
      * - filters are combined using [TagSearchFilters.operator]
+     * - a local `scopeRef` filter is validated before filtering
+     * - if a local `scopeRef` type has no registered manager, search fails with [TagScopeManagerNotFoundException]
+     * - if a local `scopeRef` does not exist, search fails with [TagScopeNotFoundException]
      * - this is the query contract used by `TagAction.TagSearch`
      *
      * Search is intentionally built as a list of predicates so new filter kinds can be added without moving

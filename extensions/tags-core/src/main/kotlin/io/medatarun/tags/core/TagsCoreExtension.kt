@@ -43,7 +43,7 @@ class TagsCoreExtension : MedatarunExtension {
         val tagCmdEvents = TagCmdsEventsHandler(eventSystem)
         val tagScopes = TagScopesImpl(tagScopeRegistry)
         val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents, dbTransactionManager)
-        val tagQueries = TagQueriesImpl(storage)
+        val tagQueries = TagQueriesImpl(storage, tagScopes)
         eventSystem.registerObserver(TagScopeBeforeDeleteEvent::class) { evt ->
             tagCmds.dispatch(TagCmd.TagScopeDelete(evt.tagScopeRef))
         }
