@@ -124,13 +124,28 @@ type InputWithKeysProps = {
 const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
   ({values, disabled, scope, tagList, onChange, onCommit, onCancel, onCreateTag}, ref) => {
 
+    // Input value is what the user currently types in the input field
     const [inputValue, setInputValue] = useState("")
+    // Some keyboards used to compose characters in languages as Japaneses send and event
+    // that tells that the user is composing a character. We must take that in account
+    // when managing the Enter key
     const [isComposing, setIsComposing] = useState(false)
+    // Tels when the option list is opened or not
+    const [isOptionSelectOpen, setIsOptionSelectOpen] = useState(false)
+
+    // Options to display in the select box (list of existing tags)
     const options = tagList.search(inputValue, values)
+
     const trimmedInputValue = inputValue.trim()
+
+    // The "Create ..." message and its corresponding option appear when the user
+    // types characters that match no tags. We propose him a "fake" option in the list
+    // that will open the tag creation form in a Model
     const canCreateTag = scope.type !== "global"
       && trimmedInputValue !== ""
       && tagList.findByScopeAndKey(scope, trimmedInputValue) == null
+
+    // Indicates if there are still tags we can select
     const hasAvailableOptions = canCreateTag || options.length > 0
 
     const onOptionSelect: TagPickerProps["onOptionSelect"] = (_, data) => {
@@ -138,20 +153,25 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
       if (typeof selectedOption === "string" && selectedOption.startsWith(CREATE_OPTION_PREFIX)) {
         onCreateTag(selectedOption.slice(CREATE_OPTION_PREFIX.length))
         setInputValue("")
+        setIsOptionSelectOpen(false)
         return
       }
       onChange(data.selectedOptions);
       setInputValue("")
+      setIsOptionSelectOpen(false)
     };
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(event.currentTarget.value);
+      setIsOptionSelectOpen(true)
     };
+
     // Some keyboards used to compose characters in languages such as Japanese or Chinese
     // emit Enter before the text is fully validated. We ignore that Enter so the picker
     // does not commit the edit or select an option too early.
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (e.key === "Enter") {
         if (isComposing) return
+        if (isOptionSelectOpen) return
         if (inputValue.trim() === "") {
           e.preventDefault();
           onCommit()
@@ -164,7 +184,11 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
     }
 
     return <div style={{position:"relative"}}>
-      <TagPicker onOptionSelect={onOptionSelect} selectedOptions={values}>
+      <TagPicker
+        open={isOptionSelectOpen}
+        onOpenChange={(_, data) => setIsOptionSelectOpen(data.open)}
+        onOptionSelect={onOptionSelect}
+        selectedOptions={values}>
       <TagPickerControl >
       <TagPickerGroup aria-label="Selected tags">
         {values.map((option, index) => (
@@ -184,6 +208,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
         //style={{width: "100%"}}
         aria-label="Add Tags"
         disabled={disabled}
+        onFocus={() => setIsOptionSelectOpen(true)}
         onCompositionStart={() => setIsComposing(true)}
         onCompositionEnd={() => setIsComposing(false)}
         onKeyDown={handleKeyDown}
