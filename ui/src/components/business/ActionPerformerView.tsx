@@ -111,7 +111,7 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
 
   useEffect(() => {
     firstInputRef?.current?.focus()
-  }, [focusedFieldKey, firstInputRef.current])
+  }, [focusedFieldKey, action.key])
 
   return (
     <Dialog open={true}>
