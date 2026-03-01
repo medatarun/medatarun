@@ -48,11 +48,11 @@ export function FilterTagRowEditor({
         selectedOptions={[filter.condition]}
         onOptionSelect={handleChangeCondition}
       >
-        <Option value="anyOf">Any of</Option>
-        <Option value="allOf">All of</Option>
-        <Option value="noneOf">None of</Option>
-        <Option value="empty">Empty</Option>
-        <Option value="notEmpty">Not empty</Option>
+        <Option value="anyOf">{tagConditionLabel("anyOf")}</Option>
+        <Option value="allOf">{tagConditionLabel("allOf")}</Option>
+        <Option value="noneOf">{tagConditionLabel("noneOf")}</Option>
+        <Option value="empty">{tagConditionLabel("empty")}</Option>
+        <Option value="notEmpty">{tagConditionLabel("notEmpty")}</Option>
       </Dropdown>
 
       {isTagConditionUsingTags(filter.condition) && (
@@ -83,9 +83,9 @@ function isTagConditionUsingTags(condition: ModelSearchTagFilterCondition) {
 }
 
 function tagConditionLabel(condition: ModelSearchTagFilterCondition) {
-  if (condition === "anyOf") return "Any of";
-  if (condition === "allOf") return "All of";
-  if (condition === "noneOf") return "None of";
-  if (condition === "empty") return "Empty";
-  return "Not empty";
+  if (condition === "anyOf") return "has any of";
+  if (condition === "allOf") return "has all of";
+  if (condition === "noneOf") return "has none of";
+  if (condition === "empty") return "not tagged";
+  return "with tags";
 }

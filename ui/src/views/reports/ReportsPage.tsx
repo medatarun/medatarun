@@ -23,6 +23,7 @@ import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
 import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
 import {FilterModelItemFieldRowEditor} from "./components/FilterModelItemFieldRowEditor.tsx";
 import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
+import {ButtonBar} from "@seij/common-ui";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
@@ -158,7 +159,7 @@ export function ReportsPage() {
               }}
             >
               <div style={{ width: "100%" }}>
-                <DocumentBulletListRegular /> Report: tagged items
+                <DocumentBulletListRegular /> Report model items
               </div>
             </div>
           </ViewTitle>
@@ -207,30 +208,29 @@ export function ReportsPage() {
               }}
             >
               <div style={{ gridColumn: "1 / 4" }}>
-                <Button
-                  appearance="primary"
-                  icon={<SearchFilled />}
-                  disabled={draftQuery.items.length === 0}
-                  onClick={handleClickSearch}
-                >
-                  Show results
-                </Button>
+                <ButtonBar>
+                  <Button
+                    appearance="primary"
+                    icon={<SearchFilled />}
+                    disabled={draftQuery.items.length === 0}
+                    onClick={handleClickSearch}
+                  >
+                    Show results
+                  </Button>
+                  {items.length > 0 && (
+                    <Button
+                      icon={<ArrowDownloadRegular />}
+                      onClick={() => createCsv(items)}
+                    >
+                      Download CSV
+                    </Button>
+                  )}
+                </ButtonBar>
               </div>
               <Button appearance="outline" icon={<AddRegular />} onClick={handleAddFilter}>
                 Add condition
               </Button>
             </div>
-
-            {items.length > 0 && (
-              <div>
-                <Button
-                  icon={<ArrowDownloadRegular />}
-                  onClick={() => createCsv(items)}
-                >
-                  Download CSV
-                </Button>
-              </div>
-            )}
           </div>
         </ContainedFixed>
         <ContainedScrollable>
@@ -301,11 +301,11 @@ function FilterRowEditor({
       <Dropdown
         className={compactDropdownClassName}
         aria-label="Filter type"
-        value={filter.type === "tags" ? "Tag" : "Model item field"}
+        value={filter.type === "tags" ? "Tags" : "Model item field"}
         selectedOptions={[filter.type]}
         onOptionSelect={handleChangeType}
       >
-        <Option value="tags">Tag</Option>
+        <Option value="tags">Tags</Option>
         {ENABLE_MODEL_ITEM_FIELD_FILTER && (
           <Option value="modelItemField">Model item field</Option>
         )}
