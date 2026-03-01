@@ -1,5 +1,5 @@
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
-import {Button, Dropdown, type DropdownProps, Field, Option, tokens,} from "@fluentui/react-components";
+import {Button, Dropdown, type DropdownProps, Option, tokens,} from "@fluentui/react-components";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {
   AddRegular,
@@ -180,16 +180,15 @@ export function ReportsPage() {
                 alignItems: "end",
               }}
             >
-              <Field label="Combine filters with">
-                <Dropdown
-                  value={draftQuery.operator.toUpperCase()}
-                  selectedOptions={[draftQuery.operator]}
-                  onOptionSelect={handleChangeOperator}
-                >
-                  <Option value="and">AND</Option>
-                  <Option value="or">OR</Option>
-                </Dropdown>
-              </Field>
+              <Dropdown
+                aria-label="Combine filters with"
+                value={draftQuery.operator.toUpperCase()}
+                selectedOptions={[draftQuery.operator]}
+                onOptionSelect={handleChangeOperator}
+              >
+                <Option value="and">AND</Option>
+                <Option value="or">OR</Option>
+              </Dropdown>
               <div />
               <Button
                 appearance="primary"
@@ -200,7 +199,15 @@ export function ReportsPage() {
               </Button>
             </div>
 
-            <div style={{ display: "grid", rowGap: tokens.spacingVerticalM }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto 1fr auto",
+                rowGap: tokens.spacingVerticalM,
+                columnGap: tokens.spacingHorizontalM,
+                alignItems: "center",
+              }}
+            >
               {draftQuery.items.map((filter) => (
                 <FilterRowEditor
                   key={filter.id}
@@ -271,45 +278,33 @@ function FilterRowEditor({
   };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "160px 1fr auto",
-        gap: tokens.spacingHorizontalM,
-        alignItems: "start",
-        padding: tokens.spacingHorizontalM,
-        border: `1px solid ${tokens.colorNeutralStroke2}`,
-        borderRadius: tokens.borderRadiusMedium,
-      }}
-    >
-      <Field label="Filter type">
-        <Dropdown
-          value={filter.type === "tags" ? "Tag" : "Model item field"}
-          selectedOptions={[filter.type]}
-          onOptionSelect={handleChangeType}
-        >
-          <Option value="tags">Tag</Option>
-          {ENABLE_MODEL_ITEM_FIELD_FILTER && (
-            <Option value="modelItemField">Model item field</Option>
-          )}
-        </Dropdown>
-      </Field>
+    <>
+      <Dropdown
+        aria-label="Filter type"
+        value={filter.type === "tags" ? "Tag" : "Model item field"}
+        selectedOptions={[filter.type]}
+        onOptionSelect={handleChangeType}
+      >
+        <Option value="tags">Tag</Option>
+        {ENABLE_MODEL_ITEM_FIELD_FILTER && (
+          <Option value="modelItemField">Model item field</Option>
+        )}
+      </Dropdown>
 
-      {filter.type === "tags" ? (
-        <FilterTagRowEditor filter={filter} onChange={onChange} />
-      ) : (
-        <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
-      )}
-
-      <div style={{ paddingTop: "28px" }}>
-        <Button
-          appearance="subtle"
-          icon={<DeleteRegular />}
-          onClick={() => onDelete(filter.id)}
-        >
-          Remove
-        </Button>
+      <div>
+        {filter.type === "tags" ? (
+          <FilterTagRowEditor filter={filter} onChange={onChange} />
+        ) : (
+          <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
+        )}
       </div>
-    </div>
+      <Button
+        appearance="subtle"
+        icon={<DeleteRegular />}
+        onClick={() => onDelete(filter.id)}
+      >
+        Remove
+      </Button>
+    </>
   );
 }

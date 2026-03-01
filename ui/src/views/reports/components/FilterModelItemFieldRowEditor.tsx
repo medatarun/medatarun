@@ -5,10 +5,8 @@ import {
 } from "@/business/model";
 import {
   Dropdown,
-  Field,
   Input,
   Option,
-  tokens,
   type DropdownProps,
 } from "@fluentui/react-components";
 
@@ -43,47 +41,37 @@ export function FilterModelItemFieldRowEditor({
   };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "180px 180px 1fr",
-        gap: tokens.spacingHorizontalM,
-        alignItems: "start",
-      }}
-    >
-      <Field label="Model item field">
-        <Dropdown
-          value={modelItemFieldLabel(filter.field)}
-          selectedOptions={[filter.field]}
-          onOptionSelect={handleChangeField}
-        >
-          <Option value="name">Name</Option>
-          <Option value="key">Key</Option>
-          <Option value="description">Description</Option>
-        </Dropdown>
-      </Field>
-      <Field label="Condition">
-        <Dropdown
-          value={modelItemFieldConditionLabel(filter.condition)}
-          selectedOptions={[filter.condition]}
-          onOptionSelect={handleChangeCondition}
-        >
-          <Option value="contains">Contains</Option>
-          <Option value="is">Is</Option>
-        </Dropdown>
-      </Field>
-      <Field label="Value">
-        <Input
-          value={filter.value}
-          onChange={(_, data) =>
-            onChange({
-              ...filter,
-              value: data.value,
-            })
-          }
-        />
-      </Field>
-    </div>
+    <>
+      <Dropdown
+        aria-label="Model item field"
+        value={modelItemFieldLabel(filter.field)}
+        selectedOptions={[filter.field]}
+        onOptionSelect={handleChangeField}
+      >
+        <Option value="name">Name</Option>
+        <Option value="key">Key</Option>
+        <Option value="description">Description</Option>
+      </Dropdown>
+      <Dropdown
+        aria-label="Model item field condition"
+        value={modelItemFieldConditionLabel(filter.condition)}
+        selectedOptions={[filter.condition]}
+        onOptionSelect={handleChangeCondition}
+      >
+        <Option value="contains">Contains</Option>
+        <Option value="is">Is</Option>
+      </Dropdown>
+      <Input
+        aria-label="Model item field value"
+        value={filter.value}
+        onChange={(_, data) =>
+          onChange({
+            ...filter,
+            value: data.value,
+          })
+        }
+      />
+    </>
   );
 }
 

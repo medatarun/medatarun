@@ -4,13 +4,7 @@ import {
   type ModelSearchTagFilterCondition,
 } from "@/business/model";
 import { useTags } from "@/business/tag";
-import {
-  Dropdown,
-  Field,
-  Option,
-  tokens,
-  type DropdownProps,
-} from "@fluentui/react-components";
+import { Dropdown, Option, type DropdownProps } from "@fluentui/react-components";
 import { FilterTagPicker } from "./FilterTagPicker.tsx";
 
 export function FilterTagRowEditor({
@@ -40,44 +34,34 @@ export function FilterTagRowEditor({
   };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: isTagConditionUsingTags(filter.condition)
-          ? "220px 1fr"
-          : "220px",
-        gap: tokens.spacingHorizontalM,
-        alignItems: "start",
-      }}
-    >
-      <Field label="Tag filter">
-        <Dropdown
-          value={tagConditionLabel(filter.condition)}
-          selectedOptions={[filter.condition]}
-          onOptionSelect={handleChangeCondition}
-        >
-          <Option value="anyOf">Any of</Option>
-          <Option value="allOf">All of</Option>
-          <Option value="noneOf">None of</Option>
-          <Option value="empty">Empty</Option>
-          <Option value="notEmpty">Not empty</Option>
-        </Dropdown>
-      </Field>
+    <div style={{display: "flex", columnGap: "1em"}}>
+      <Dropdown
+        aria-label="Tag filter condition"
+        value={tagConditionLabel(filter.condition)}
+        selectedOptions={[filter.condition]}
+        onOptionSelect={handleChangeCondition}
+      >
+        <Option value="anyOf">Any of</Option>
+        <Option value="allOf">All of</Option>
+        <Option value="noneOf">None of</Option>
+        <Option value="empty">Empty</Option>
+        <Option value="notEmpty">Not empty</Option>
+      </Dropdown>
 
       {isTagConditionUsingTags(filter.condition) && (
-        <Field label="Tags">
-          <FilterTagPicker
-            disabled={isPending}
-            selectedTagIds={filter.tagIds}
-            tags={tags}
-            onChange={(tagIds) =>
-              onChange({
-                ...filter,
-                tagIds: tagIds,
-              })
-            }
-          />
-        </Field>
+        <div style={{flex: 1}}>
+        <FilterTagPicker
+          disabled={isPending}
+          selectedTagIds={filter.tagIds}
+          tags={tags}
+          onChange={(tagIds) =>
+            onChange({
+              ...filter,
+              tagIds: tagIds,
+            })
+          }
+        />
+        </div>
       )}
     </div>
   );
