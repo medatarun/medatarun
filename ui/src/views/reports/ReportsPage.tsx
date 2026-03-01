@@ -21,14 +21,13 @@ import {createCsv} from "./ReportsPage.csvexport.tsx";
 import {v7 as uuidv7} from "uuid";
 import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
 import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
-import {FilterModelItemFieldRowEditor} from "./components/FilterModelItemFieldRowEditor.tsx";
+import {FilterTextRowEditor} from "./components/FilterTextRowEditor.tsx";
 import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
 import {ButtonBar} from "@seij/common-ui";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
-const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
 
-type FilterRowType = "tags" | "modelItemField";
+type FilterRowType = "tags" | "text";
 
 
 function createFilterId() {
@@ -44,11 +43,10 @@ function createDefaultTagFilter(): ModelSearchTagFilter {
   };
 }
 
-function createDefaultModelItemFieldFilter(): ModelSearchFilter {
+function createDefaultTextFilter(): ModelSearchFilter {
   return {
     id: createFilterId(),
-    type: "modelItemField",
-    field: "name",
+    type: "text",
     condition: "contains",
     value: "",
   };
@@ -74,15 +72,12 @@ function loadStoredQuery(): ModelSearchReq {
 }
 
 function availableFilterTypes(): FilterRowType[] {
-  if (ENABLE_MODEL_ITEM_FIELD_FILTER) {
-    return ["tags", "modelItemField"];
-  }
-  return ["tags"];
+  return ["tags", "text"];
 }
 
 function changeFilterType(type: FilterRowType): ModelSearchFilter {
-  if (type === "modelItemField") {
-    return createDefaultModelItemFieldFilter();
+  if (type === "text") {
+    return createDefaultTextFilter();
   }
   return createDefaultTagFilter();
 }
@@ -275,7 +270,7 @@ function FilterRowEditor({
 }) {
   const handleChangeType: DropdownProps["onOptionSelect"] = (_, data) => {
     const type = data.optionValue;
-    if (type !== "tags" && type !== "modelItemField") {
+    if (type !== "tags" && type !== "text") {
       return;
     }
     onTypeChange(filter.id, type);
@@ -301,21 +296,19 @@ function FilterRowEditor({
       <Dropdown
         className={compactDropdownClassName}
         aria-label="Filter type"
-        value={filter.type === "tags" ? "Tags" : "Model item field"}
+        value={filter.type === "tags" ? "Tags" : "Text contains"}
         selectedOptions={[filter.type]}
         onOptionSelect={handleChangeType}
       >
         <Option value="tags">Tags</Option>
-        {ENABLE_MODEL_ITEM_FIELD_FILTER && (
-          <Option value="modelItemField">Model item field</Option>
-        )}
+        <Option value="text">Text contains</Option>
       </Dropdown>
 
       <div>
         {filter.type === "tags" ? (
           <FilterTagRowEditor filter={filter} onChange={onChange} />
         ) : (
-          <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
+          <FilterTextRowEditor filter={filter} onChange={onChange} />
         )}
       </div>
       <Button

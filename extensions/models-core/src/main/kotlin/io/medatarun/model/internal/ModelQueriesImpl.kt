@@ -154,6 +154,15 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
                         val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
                         searchedTags.any { indexedItem.tags.contains(it) }
                     }
+
+                    is SearchFilterText.Contains -> {
+                        val searchedText = normalizeSearchText(filter.value)
+                        if (searchedText.isBlank()) {
+                            true
+                        } else {
+                            indexedItem.searchText.contains(searchedText)
+                        }
+                    }
                 }
             }
         }
@@ -184,32 +193,53 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
     }
 
     class QueryIndex(val items: List<QueryIndexItem>)
-    class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>)
+    class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>, val searchText: String)
 
     class QueryIndexBuilder(private val storage: ModelStorages) {
         fun build(): QueryIndex {
             val index = mutableListOf<QueryIndexItem>()
             storage.findAllModelIds().forEach { modelId ->
                 val model = storage.findModelById(modelId)
-                index.add(QueryIndexItem(createModelLocation(model), model.tags))
+                index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
                 model.entities.forEach { entity ->
-                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags))
+                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
                     entity.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags))
+                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
                     }
                 }
                 model.relationships.forEach { rel ->
-                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags))
+                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags, buildSearchText(rel.key.value, rel.name, rel.description)))
                     rel.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags))
+                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
                     }
                 }
             }
             return QueryIndex(index)
         }
+
+        /**
+         * Search compares normalized key, name and description text the same way for every indexed object.
+         */
+        private fun buildSearchText(key: String, name: LocalizedTextBase?, description: LocalizedMarkdown?): String {
+            return normalizeSearchText(
+                listOfNotNull(
+                    key,
+                    name?.name,
+                    description?.name
+                ).joinToString(" ")
+            )
+        }
     }
 
 
+}
+
+private fun normalizeSearchText(value: String): String {
+    val normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+    return normalized
+        .replace("\\p{M}+".toRegex(), "")
+        .lowercase(Locale.ROOT)
+        .trim()
 }
 
 fun createModelLocation(model: Model): ModelLocation {

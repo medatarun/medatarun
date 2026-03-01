@@ -3,6 +3,7 @@ package io.medatarun.model.domain
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilterTags
+import io.medatarun.model.domain.search.SearchFilterText
 import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
 import io.medatarun.tags.core.domain.TagKey
@@ -696,7 +697,55 @@ class ModelSearchTest {
         assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.id.key)))
     }
 
-    private fun search(fixture: SearchFixture, filter: SearchFilterTags): JsonObject {
+    @Test
+    fun `text contains matches model names`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterText.Contains("cook")))
+
+        assertTrue(hits.contains(Hit.Model(refs.cooking.key)))
+    }
+
+    @Test
+    fun `text contains matches object keys`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        val hits = resultHits(search(fixture, SearchFilterText.Contains("fingerprint")))
+
+        assertEquals(
+            setOf(Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key)),
+            hits
+        )
+    }
+
+    @Test
+    fun `text contains matches object descriptions`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.RelationshipAttribute_UpdateDescription(
+                refs.cooking.ref,
+                refs.cooking.author.ref,
+                refs.cooking.author.attr.date.ref,
+                LocalizedMarkdownNotLocalized("Publication calendar")
+            )
+        )
+
+        val hits = resultHits(search(fixture, SearchFilterText.Contains("calendar")))
+
+        assertEquals(
+            setOf(Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)),
+            hits
+        )
+    }
+
+    private fun search(fixture: SearchFixture, filter: io.medatarun.model.domain.search.SearchFilter): JsonObject {
         return search(
             fixture,
             SearchFilters(
