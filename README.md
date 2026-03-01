@@ -8,8 +8,8 @@ belongs, add tags for governance and sensitivity, enrich types, and keep everyth
 
 Humans and agents use the same operations, so the model is not just documented — it’s operational.
 
-[🌍 Website](https://www.medatarun.com/)
-[📘 Documentation](https://docs.medatarun.com/)
+[🌍 Website](https://www.medatarun.com/) • 
+[📘 Documentation](https://docs.medatarun.com/) • 
 [📦 Download and Install](https://docs.medatarun.com/docs/installation/install-from-distribution)
 
 **Why**
