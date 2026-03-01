@@ -75,3 +75,9 @@ export const createActionTemplateTag = (tagId: string): ActionPerformerRequestPa
     tagRef: refid(tagId),
   }
 }
+
+export const createActionTemplateTagFreeList = (scope: {type: string, id: string | null}): ActionPerformerRequestParams => {
+  return {
+    scopeRef: {value: scope, readonly: true},
+  }
+}

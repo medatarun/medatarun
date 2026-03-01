@@ -1,16 +1,13 @@
 import {useNavigate} from "@tanstack/react-router";
 import {
   ActionUILocations,
-  type TagSearchItemDto,
-  type TagSearchReq,
   useActionRegistry,
   useTagGroupList,
   useTagGroupUpdateDescription,
   useTagGroupUpdateKey,
-  useTagGroupUpdateName,
-  useTagSearch
+  useTagGroupUpdateName
 } from "../../business";
-import {TagGroupIcon, TagIcon} from "../../components/business/Icons.tsx";
+import {TagGroupIcon} from "../../components/business/Icons.tsx";
 import {TagsTable} from "../../components/business/TagsTable.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
 import {
@@ -42,47 +39,24 @@ import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.t
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
 
-const globalTagSearchReq: TagSearchReq = {
-  filters: {
-    operator: "and" as const,
-    items: [
-      {
-        type: "scopeRef" as const,
-        condition: "is" as const,
-        value: {type: "global", id: null} as const
-      }
-    ]
-  }
-}
-
 export function TagGroupEdit({tagGroupId}: { tagGroupId: string }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
   const tagGroups = useTagGroupList()
-  const tags = useTagSearch(globalTagSearchReq)
   const tagGroupUpdateName = useTagGroupUpdateName()
   const tagGroupUpdateDescription = useTagGroupUpdateDescription()
   const tagGroupUpdateKey = useTagGroupUpdateKey()
 
-  if (tagGroups.isPending || tags.isPending) return null
+  if (tagGroups.isPending) return null
   if (tagGroups.error) return <ErrorBox error={toProblem(tagGroups.error)}/>
-  if (tags.error) return <ErrorBox error={toProblem(tags.error)}/>
 
   const tagGroup = tagGroups.data?.items.find(item => item.id === tagGroupId)
   if (!tagGroup) return <ErrorBox error={toProblem(`Can not find tag group [${tagGroupId}]`)}/>
 
-  const groupTags: TagSearchItemDto[] = (tags.data?.items ?? []).filter(item => item.groupId === tagGroup.id)
   const actions = actionRegistry.findActions(ActionUILocations.tag_managed_group_detail)
 
   const handleClickTagGroups = () => {
     navigate({to: "/tag-groups"})
-  }
-
-  const handleClickTag = (tagId: string) => {
-    navigate({
-      to: "/tags/$tagId",
-      params: {tagId: tagId}
-    })
   }
 
   const handleChangeName = (value: string) => {
@@ -150,14 +124,17 @@ export function TagGroupEdit({tagGroupId}: { tagGroupId: string }) {
           </SectionPaper>
 
           <SectionTitle
-            icon={<TagIcon/>}
+            icon={<TagGroupIcon/>}
             location={ActionUILocations.tag_managed_list}
             actionParams={createActionTemplateTagManagedList(tagGroup.id)}>
             Tags
           </SectionTitle>
 
           <SectionTable>
-            <TagsTable tags={groupTags} onClick={handleClickTag}/>
+            <TagsTable
+              scope={{type: "global", id: null}}
+              tagGroupId={tagGroup.id}
+            />
           </SectionTable>
         </ContainedHumanReadable>
       </ContainedScrollable>

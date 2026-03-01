@@ -100,6 +100,18 @@ function useManagedTagMutation(actionKey: string) {
   })
 }
 
+function useFreeTagMutation(actionKey: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (props: { tagId: string, value: string }) =>
+      executeAction("tag", actionKey, {
+        tagRef: "id:" + props.tagId,
+        value: props.value
+      }),
+    onSuccess: () => queryClient.invalidateQueries()
+  })
+}
+
 export const useTagGroupUpdateName = () => {
   return useTagGroupMutation("tag_group_update_name")
 }
@@ -118,6 +130,14 @@ export const useTagManagedUpdateName = () => {
 
 export const useTagManagedUpdateDescription = () => {
   return useManagedTagMutation("tag_managed_update_description")
+}
+
+export const useTagFreeUpdateName = () => {
+  return useFreeTagMutation("tag_free_update_name")
+}
+
+export const useTagFreeUpdateDescription = () => {
+  return useFreeTagMutation("tag_free_update_description")
 }
 
 export interface SearchResultLocation {

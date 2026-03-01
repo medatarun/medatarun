@@ -16,6 +16,8 @@ export const ActionUILocations = {
   relationship_attributes: "relationship.attributes",
   relationship_roles: "relationship.roles",
   relationship_role: "relationship.role",
+  tag_free_detail: "tag_free_detail",
+  tag_free_list: "tag_free_list",
   tag_managed_detail: "tag_managed_detail",
   tag_managed_group_detail: "tag_managed_group_detail",
   tag_managed_group_list: "tag_managed_group_list",

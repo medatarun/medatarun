@@ -20,6 +20,7 @@ import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Ico
 import {EntityCard} from "../components/business/EntityCard.tsx";
 import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
 import {ActionMenuButton, TypesTable} from "../components/business/TypesTable.tsx";
+import {TagsTable} from "../components/business/TagsTable.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
@@ -30,7 +31,7 @@ import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
-import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
+import {createActionTemplateModel, createActionTemplateTagFreeList} from "../components/business/actionTemplates.ts";
 import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../components/core/InlineEditSingleLine.tsx";
 import {InlineEditTags} from "../components/core/InlineEditTags.tsx";
@@ -139,6 +140,19 @@ export function ModelView() {
           {model.types.length === 0 && <p><MissingInformation>add data types</MissingInformation></p>}
           {model.types.length > 0 &&
             <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable>}
+
+          <SectionTitle
+            icon={<TypeIcon/>}
+            actionParams={createActionTemplateTagFreeList(modelTagScope(model.id))}
+            location={ActionUILocations.tag_free_list}>
+            Local tags
+          </SectionTitle>
+
+          <SectionTable>
+            <TagsTable
+              scope={modelTagScope(model.id)}
+            />
+          </SectionTable>
 
         </ContainedHumanReadable>
       </ContainedScrollable>

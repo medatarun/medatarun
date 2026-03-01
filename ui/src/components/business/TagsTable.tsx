@@ -1,5 +1,8 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
-import {ActionUILocations, type TagSearchItemDto, useActionRegistry} from "../../business";
+import {useNavigate} from "@tanstack/react-router";
+import {ErrorBox} from "@seij/common-ui";
+import {toProblem} from "@seij/common-types";
+import {ActionUILocations, type TagScopeRef, useActionRegistry, useTagSearch} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {Markdown} from "../core/Markdown.tsx";
 import {createActionTemplateTag} from "./actionTemplates.ts";
@@ -32,30 +35,61 @@ const useStyles = makeStyles({
   }
 })
 
-export function TagsTable({tags, onClick}: {
-  tags: TagSearchItemDto[],
-  onClick: (tagId: string) => void
+function createSearchByScope(scope: TagScopeRef) {
+  return {
+    filters: {
+      operator: "and" as const,
+      items: [
+        {
+          type: "scopeRef" as const,
+          condition: "is" as const,
+          value: scope
+        }
+      ]
+    }
+  }
+}
+
+export function TagsTable({scope, tagGroupId}: {
+  scope: TagScopeRef,
+  tagGroupId?: string
 }) {
+  const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const itemActions = actionRegistry.findActions(ActionUILocations.tag_managed_detail)
+  const tags = useTagSearch(createSearchByScope(scope))
+  const itemActions = actionRegistry.findActions(
+    scope.type === "global" ? ActionUILocations.tag_managed_detail : ActionUILocations.tag_free_detail
+  )
   const styles = useStyles()
 
+  if (tags.isPending) return null
+  if (tags.error) return <ErrorBox error={toProblem(tags.error)}/>
+
+  const items = (tags.data?.items ?? []).filter(tag => tagGroupId == null || tag.groupId === tagGroupId)
+
+  const handleClickTag = (tagId: string) => {
+    navigate({
+      to: "/tags/$tagId",
+      params: {tagId: tagId}
+    })
+  }
+
   return <div>
-    {tags.length === 0 ? <p style={{paddingTop: tokens.spacingVerticalM}}>
-      <Text italic>No tags in this group.</Text>
+    {items.length === 0 ? <p style={{paddingTop: tokens.spacingVerticalM}}>
+      <Text italic>{tagGroupId == null ? "No tags in this scope." : "No tags in this group."}</Text>
     </p> : null}
     <Table>
       <TableBody>
-        {tags.map(tag =>
+        {items.map(tag =>
           <TableRow key={tag.id}>
             <TableCell
               className={styles.titleCell}
-              onClick={() => onClick(tag.id)}>
+              onClick={() => handleClickTag(tag.id)}>
               {tag.name ?? tag.key}
             </TableCell>
             <TableCell
               className={styles.descriptionCell}
-              onClick={() => onClick(tag.id)}>
+              onClick={() => handleClickTag(tag.id)}>
               <div><Markdown value={tag.description}/></div>
               <div><code>{tag.key}</code></div>
             </TableCell>
