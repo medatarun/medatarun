@@ -2,7 +2,7 @@ import {useNavigate} from "@tanstack/react-router";
 import {
   ActionUILocations,
   useActionRegistry,
-  useTagGroupList,
+  useTags,
   useTagGroupUpdateDescription,
   useTagGroupUpdateKey,
   useTagGroupUpdateName
@@ -42,15 +42,15 @@ import {toProblem} from "@seij/common-types";
 export function TagGroupEdit({tagGroupId}: { tagGroupId: string }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const tagGroups = useTagGroupList()
+  const tagsResult = useTags()
   const tagGroupUpdateName = useTagGroupUpdateName()
   const tagGroupUpdateDescription = useTagGroupUpdateDescription()
   const tagGroupUpdateKey = useTagGroupUpdateKey()
 
-  if (tagGroups.isPending) return null
-  if (tagGroups.error) return <ErrorBox error={toProblem(tagGroups.error)}/>
+  if (tagsResult.isPending) return null
+  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)}/>
 
-  const tagGroup = tagGroups.data?.items.find(item => item.id === tagGroupId)
+  const tagGroup = tagsResult.tags.findTagGroup(tagGroupId)
   if (!tagGroup) return <ErrorBox error={toProblem(`Can not find tag group [${tagGroupId}]`)}/>
 
   const actions = actionRegistry.findActions(ActionUILocations.tag_managed_group_detail)

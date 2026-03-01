@@ -1,5 +1,5 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
-import {ActionUILocations, type TagGroupListItemDto, useActionRegistry} from "../../business";
+import {ActionUILocations, type TagGroup, useActionRegistry} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {Markdown} from "../core/Markdown.tsx";
 import {createActionTemplateTagGroup} from "./actionTemplates.ts";
@@ -33,7 +33,7 @@ const useStyles = makeStyles({
 })
 
 export function TagGroupsTable({tagGroups, onClick}: {
-  tagGroups: TagGroupListItemDto[],
+  tagGroups: TagGroup[],
   onClick: (tagGroupId: string) => void
 }) {
   const actionRegistry = useActionRegistry()
@@ -51,7 +51,7 @@ export function TagGroupsTable({tagGroups, onClick}: {
             <TableCell
               className={styles.titleCell}
               onClick={() => onClick(tagGroup.id)}>
-              {tagGroup.name ?? tagGroup.key}
+              {tagGroup.label}
             </TableCell>
             <TableCell
               className={styles.descriptionCell}

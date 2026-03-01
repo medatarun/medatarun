@@ -1,15 +1,13 @@
 import {Link, useNavigate} from "@tanstack/react-router";
 import {
-  ActionUILocations,
   Model,
-  type TagSearchItemDto,
   useActionRegistry,
-  useTagGroupList,
+  type Tag,
+  useTags,
   useTagFreeUpdateDescription,
   useTagFreeUpdateName,
   useTagManagedUpdateDescription,
   useTagManagedUpdateName,
-  useTagSearch,
   useModel
 } from "../../business";
 import {TagGroupIcon, TagIcon} from "../../components/business/Icons.tsx";
@@ -41,39 +39,33 @@ import {toProblem} from "@seij/common-types";
 export function TagEdit({tagId}: { tagId: string }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const tagGroups = useTagGroupList()
-  const tags = useTagSearch({})
+  const tagsResult = useTags()
   const tagManagedUpdateName = useTagManagedUpdateName()
   const tagManagedUpdateDescription = useTagManagedUpdateDescription()
   const tagFreeUpdateName = useTagFreeUpdateName()
   const tagFreeUpdateDescription = useTagFreeUpdateDescription()
 
-  if (tagGroups.isPending || tags.isPending) return null
-  if (tagGroups.error) return <ErrorBox error={toProblem(tagGroups.error)}/>
-  if (tags.error) return <ErrorBox error={toProblem(tags.error)}/>
+  if (tagsResult.isPending) return null
+  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)}/>
 
-  const tag = tags.data?.items.find(item => item.id === tagId)
+  const tag = tagsResult.tags.findTag(tagId)
   if (!tag) return <ErrorBox error={toProblem(`Can not find tag [${tagId}]`)}/>
 
-  const tagGroup = tagGroups.data?.items.find(item => item.id === tag.groupId)
-  const isGlobalTag = tag.tagScopeRef.type === "global"
-  if (isGlobalTag && !tagGroup) return <ErrorBox error={toProblem(`Can not find tag group for tag [${tagId}]`)}/>
+  const isGlobalTag = tag.isGlobal
 
-  const actions = actionRegistry.findActions(
-    isGlobalTag ? ActionUILocations.tag_managed_detail : ActionUILocations.tag_free_detail
-  )
+  const actions = actionRegistry.findActions(tag.detailActionLocation)
 
   const handleClickTagGroups = () => {
     navigate({to: "/tag-groups"})
   }
 
   const handleClickTagGroup = () => {
-    if (!tagGroup) {
+    if (!tag.groupId) {
       return
     }
     navigate({
       to: "/tag-group/$tagGroupId",
-      params: {tagGroupId: tagGroup.id}
+      params: {tagGroupId: tag.groupId}
     })
   }
 
@@ -97,7 +89,6 @@ export function TagEdit({tagId}: { tagId: string }) {
         <Breadcrumb size="small">
           <TagEditBreadcrumb
             tag={tag}
-            tagGroupLabel={tagGroup ? (tagGroup.name ?? tagGroup.key) : null}
             onClickTagGroups={handleClickTagGroups}
             onClickTagGroup={handleClickTagGroup}
           />
@@ -142,15 +133,14 @@ export function TagEdit({tagId}: { tagId: string }) {
   </ViewLayoutContained>
 }
 
-function TagEditBreadcrumb({tag, tagGroupLabel, onClickTagGroups, onClickTagGroup}: {
-  tag: TagSearchItemDto,
-  tagGroupLabel: string | null,
+function TagEditBreadcrumb({tag, onClickTagGroups, onClickTagGroup}: {
+  tag: Tag,
   onClickTagGroups: () => void,
   onClickTagGroup: () => void
 }) {
-  const modelId = tag.tagScopeRef.type === "model" ? tag.tagScopeRef.id : null
+  const modelId = tag.scope.type === "model" ? tag.scope.id : null
 
-  if (tag.tagScopeRef.type === "global") {
+  if (tag.isGlobal) {
     return <>
       <BreadcrumbItem>
         <BreadcrumbButton
@@ -160,13 +150,13 @@ function TagEditBreadcrumb({tag, tagGroupLabel, onClickTagGroups, onClickTagGrou
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider/>
-      {tagGroupLabel &&
+      {tag.groupLabel &&
         <>
           <BreadcrumbItem>
             <BreadcrumbButton
               icon={<TagIcon/>}
               onClick={onClickTagGroup}>
-              {tagGroupLabel}
+              {tag.groupLabel}
             </BreadcrumbButton>
           </BreadcrumbItem>
           <BreadcrumbDivider/>
@@ -181,7 +171,7 @@ function TagEditBreadcrumb({tag, tagGroupLabel, onClickTagGroups, onClickTagGrou
 
   return <>
     <BreadcrumbItem>
-      <Text>{tag.tagScopeRef.type}</Text>
+      <Text>{tag.scope.type}</Text>
     </BreadcrumbItem>
     <BreadcrumbDivider/>
   </>
@@ -208,10 +198,10 @@ function LocalModelBreadcrumb({modelId}: { modelId: string }) {
   </>
 }
 
-function TagOverview({tag}: { tag: TagSearchItemDto }) {
+function TagOverview({tag}: { tag: Tag }) {
   return <PropertiesForm>
     <div><Text>Scope</Text></div>
-    <div><Text>{tag.tagScopeRef.type === "global" ? "Global" : `${tag.tagScopeRef.type} / ${tag.tagScopeRef.id}`}</Text></div>
+    <div><Text>{tag.scopeLabel}</Text></div>
 
     <div><Text>Key</Text></div>
     <div><Text><code>{tag.key}</code></Text></div>

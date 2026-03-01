@@ -1,5 +1,5 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, useActionRegistry, useTagGroupList} from "../../business";
+import {ActionUILocations, useActionRegistry, useTags} from "../../business";
 import {TagGroupIcon} from "../../components/business/Icons.tsx";
 import {TagGroupsTable} from "../../components/business/TagGroupsTable.tsx";
 import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
@@ -21,7 +21,7 @@ import {toProblem} from "@seij/common-types";
 export function TagGroupsPage() {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const tagGroups = useTagGroupList()
+  const tagsResult = useTags()
   const actions = actionRegistry.findActions(ActionUILocations.tag_managed_group_list)
 
   const handleClickTagGroup = (tagGroupId: string) => {
@@ -31,8 +31,8 @@ export function TagGroupsPage() {
     })
   }
 
-  if (tagGroups.isPending) return null
-  if (tagGroups.error) return <ErrorBox error={toProblem(tagGroups.error)}/>
+  if (tagsResult.isPending) return null
+  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)}/>
 
   return <ViewLayoutContained title={
     <ViewTitle eyebrow={"Global tags"}>
@@ -64,7 +64,7 @@ export function TagGroupsPage() {
 
           <SectionTable>
             <TagGroupsTable
-              tagGroups={tagGroups.data?.items ?? []}
+              tagGroups={tagsResult.tags.listTagGroups()}
               onClick={handleClickTagGroup}
             />
           </SectionTable>

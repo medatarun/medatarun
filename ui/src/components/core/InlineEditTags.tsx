@@ -13,7 +13,7 @@ import {
   type TagPickerProps
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
-import {TagList, useTagScopedList, type TagScopeRef} from "../../business";
+import {Tags, useTags, type TagScopeRef} from "../../business";
 import {useActionPerformer} from "../business/ActionPerformerHook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:"
@@ -25,7 +25,7 @@ export function InlineEditTags({value, scope, children, onChange}: {
 } & PropsWithChildren) {
   const [values, setValues] = useState(value)
   const ref = useRef<HTMLInputElement>(null)
-  const {tagList} = useTagScopedList(scope)
+  const {tags} = useTags(scope)
   const {performAction, state} = useActionPerformer()
   const [requestedCreatedTagKey, setRequestedCreatedTagKey] = useState<string | null>(null)
   const [waitingCreatedTagResolution, setWaitingCreatedTagResolution] = useState(false)
@@ -52,14 +52,14 @@ export function InlineEditTags({value, scope, children, onChange}: {
       return
     }
 
-    const createdTag = tagList.findByScopeAndKey(scope, requestedCreatedTagKey)
+    const createdTag = tags.findTagByScopeAndKey(scope, requestedCreatedTagKey)
     if (!createdTag) {
       return
     }
     setValues(previousValues => previousValues.includes(createdTag.id) ? previousValues : [...previousValues, createdTag.id])
     setRequestedCreatedTagKey(null)
     setWaitingCreatedTagResolution(false)
-  }, [requestedCreatedTagKey, scope, state, tagList, waitingCreatedTagResolution])
+  }, [requestedCreatedTagKey, scope, state, tags, waitingCreatedTagResolution])
 
   const handleEditStart = async () => {
     setValues(value)
@@ -98,7 +98,7 @@ export function InlineEditTags({value, scope, children, onChange}: {
         ref={ref}
         disabled={pending}
         scope={scope}
-        tagList={tagList}
+        tags={tags}
         values={values}
         onCreateTag={handleCreateTag}
         onChange={setValues}
@@ -115,14 +115,14 @@ type InputWithKeysProps = {
   values: string[],
   disabled: boolean,
   scope: TagScopeRef,
-  tagList: TagList,
+  tags: Tags,
   onCommit: () => void,
   onCancel: () => void,
   onCreateTag: (key: string) => void,
   onChange: (value: string[]) => void
 }
 const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
-  ({values, disabled, scope, tagList, onChange, onCommit, onCancel, onCreateTag}, ref) => {
+  ({values, disabled, scope, tags, onChange, onCommit, onCancel, onCreateTag}, ref) => {
 
     // Input value is what the user currently types in the input field
     const [inputValue, setInputValue] = useState("")
@@ -134,7 +134,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
     const [isOptionSelectOpen, setIsOptionSelectOpen] = useState(false)
 
     // Options to display in the select box (list of existing tags)
-    const options = tagList.search(inputValue, values)
+    const options = tags.search(inputValue, values)
 
     const trimmedInputValue = inputValue.trim()
 
@@ -143,7 +143,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
     // that will open the tag creation form in a Model
     const canCreateTag = scope.type !== "global"
       && trimmedInputValue !== ""
-      && tagList.findByScopeAndKey(scope, trimmedInputValue) == null
+      && tags.findTagByScopeAndKey(scope, trimmedInputValue) == null
 
     // Indicates if there are still tags we can select
     const hasAvailableOptions = canCreateTag || options.length > 0
@@ -195,10 +195,10 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
           <Tag
             key={index}
             shape="rounded"
-            media={<Avatar aria-hidden name={tagList.formatLabel(option)} color="colorful" />}
+            media={<Avatar aria-hidden name={tags.formatLabel(option)} color="colorful" />}
             value={option}
           >
-            {tagList.formatLabel(option)}
+            {tags.formatLabel(option)}
           </Tag>
         ))}
       </TagPickerGroup>
@@ -229,8 +229,8 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
           </TagPickerOption>
         }
         {options.map(option =>
-          <TagPickerOption key={option.id} value={option.id} text={tagList.formatLabel(option.id)}>
-            {tagList.formatLabel(option.id)}
+          <TagPickerOption key={option.id} value={option.id} text={tags.formatLabel(option.id)}>
+            {tags.formatLabel(option.id)}
           </TagPickerOption>
         )}
       </TagPickerList>

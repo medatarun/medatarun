@@ -1,5 +1,5 @@
 import {InteractionTag, InteractionTagPrimary, makeStyles, TagGroup, tokens} from "@fluentui/react-components";
-import {type TagScopeRef, useTagScopedList} from "../../business";
+import {type TagScopeRef, useTags} from "../../business";
 
 
 const useStyles = makeStyles(
@@ -22,9 +22,9 @@ export function modelTagScope(modelId: string): TagScopeRef {
 
 export function Tags({tags, scope}: { tags: string[], scope: TagScopeRef }) {
   const styles = useStyles()
-  const {tagList} = useTagScopedList(scope)
+  const {tags: tagRegistry} = useTags(scope)
 
   return <TagGroup className={styles.wrappingTagGroup}>
-    {tags.map((it, i) => <Tag key={i} label={tagList.formatLabel(it)}/>)}
+    {tags.map((it, i) => <Tag key={i} label={tagRegistry.formatLabel(it)}/>)}
   </TagGroup>
 }

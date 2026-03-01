@@ -2,7 +2,7 @@ import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@
 import {useNavigate} from "@tanstack/react-router";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {ActionUILocations, type TagScopeRef, useActionRegistry, useTagSearch} from "../../business";
+import {type TagScopeRef, useActionRegistry, useTags} from "../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {Markdown} from "../core/Markdown.tsx";
 import {createActionTemplateTag} from "./actionTemplates.ts";
@@ -35,37 +35,19 @@ const useStyles = makeStyles({
   }
 })
 
-function createSearchByScope(scope: TagScopeRef) {
-  return {
-    filters: {
-      operator: "and" as const,
-      items: [
-        {
-          type: "scopeRef" as const,
-          condition: "is" as const,
-          value: scope
-        }
-      ]
-    }
-  }
-}
-
 export function TagsTable({scope, tagGroupId}: {
   scope: TagScopeRef,
   tagGroupId?: string
 }) {
   const navigate = useNavigate()
   const actionRegistry = useActionRegistry()
-  const tags = useTagSearch(createSearchByScope(scope))
-  const itemActions = actionRegistry.findActions(
-    scope.type === "global" ? ActionUILocations.tag_managed_detail : ActionUILocations.tag_free_detail
-  )
+  const tagsResult = useTags(scope)
   const styles = useStyles()
 
-  if (tags.isPending) return null
-  if (tags.error) return <ErrorBox error={toProblem(tags.error)}/>
+  if (tagsResult.isPending) return null
+  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)}/>
 
-  const items = (tags.data?.items ?? []).filter(tag => tagGroupId == null || tag.groupId === tagGroupId)
+  const items = tagsResult.tags.findTagsByScope(scope, tagGroupId)
 
   const handleClickTag = (tagId: string) => {
     navigate({
@@ -95,7 +77,7 @@ export function TagsTable({scope, tagGroupId}: {
             </TableCell>
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
-                itemActions={itemActions}
+                itemActions={actionRegistry.findActions(tag.detailActionLocation)}
                 actionParams={createActionTemplateTag(tag.id)}
               />
             </TableCell>
