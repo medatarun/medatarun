@@ -8,7 +8,9 @@ belongs, add tags for governance and sensitivity, enrich types, and keep everyth
 
 Humans and agents use the same operations, so the model is not just documented — it’s operational.
 
-[📦 Download latest version](https://github.com/medatarun/medatarun/releases)
+[🌍 Website](https://www.medatarun.com/)
+[📘 Documentation](https://docs.medatarun.com/)
+[📦 Download and Install](https://docs.medatarun.com/docs/installation/install-from-distribution)
 
 **Why**
 
@@ -21,6 +23,8 @@ on scattered artifacts or interpretation.
 Moreover, in the age of AI, relying on the model to be guessed __is no longer tenable__. Agents **need** a clear, documented and
 structured domain to operate safely and accurately. A central, explicit model becomes the only solid ground you can
 expect them to act on.
+
+Read more on [The Missing Operational Data Model](https://docs.medatarun.com/docs/resources/problem_en/)
 
 ## Key features
 
@@ -140,11 +144,4 @@ Combining our built-in features and AI, here is a sample of use-cases:
   tag-based search.
 - Generating consistent, multilingual documentation directly from the model, avoiding outdated or duplicated
   descriptions.
-
-## Installation and usage
-
-- [Installation](documentation/docs/installation/install.md)
-- [Quickstart](documentation/docs/quickstart.md)
-- [Your project directory and data](documentation/docs/installation/project_data.md)
-- [Build and run project from source](documentation/docs/installation/build_run.md) (for developers)
 
