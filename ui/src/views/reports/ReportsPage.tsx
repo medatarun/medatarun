@@ -1,112 +1,151 @@
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {Button, Dropdown, type DropdownProps, Option, tokens,} from "@fluentui/react-components";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {
-  Breadcrumb,
-  BreadcrumbButton,
-  BreadcrumbDivider,
-  BreadcrumbItem,
-  Button,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Tag,
-  TagGroup,
-  tokens,
-} from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import {
+  AddRegular,
   ArrowDownloadRegular,
+  DismissRegular,
   DocumentBulletListRegular,
   SearchFilled,
 } from "@fluentui/react-icons";
+import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
 import {
-  ContainedFixed,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
-import {
-  type SearchResult,
-  type SearchResultLocation,
+  type ModelSearchFilter,
+  type ModelSearchReq,
+  type ModelSearchTagFilter,
   useModelSearch,
 } from "@/business/model";
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { downloadCsv } from "@seij/common-ui-csv-export";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { sortBy } from "lodash-es";
-import {
-  AttributeIcon,
-  EntityIcon,
-  ModelIcon,
-  RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
+import {useState} from "react";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {createCsv} from "./ReportsPage.csvexport.tsx";
+import {v7 as uuidv7} from "uuid";
+import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
+import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
+import {FilterModelItemFieldRowEditor} from "./components/FilterModelItemFieldRowEditor.tsx";
+import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
+import {ButtonBar} from "@seij/common-ui";
 
-function createCsv(items: SearchResult[]) {
-  downloadCsv<SearchResult>(
-    "tag-report.csv",
-    [
-      {
-        code: "model",
-        label: "Model",
-        render: (it) => it.location.modelLabel,
-      },
-      {
-        code: "type",
-        label: "Type",
-        render: (it) => {
-          if (it.location.objectType === "model") return "Model";
-          if (it.location.objectType === "entity") return "Entity";
-          if (it.location.objectType === "entityAttribute")
-            return "Entity attribute";
-          if (it.location.objectType === "relationship") return "Relationship";
-          if (it.location.objectType === "relationshipAttribute")
-            return "Relationship attribute";
-          return "unknown";
-        },
-      },
-      {
-        code: "entity",
-        label: "Entity/Relationship",
-        render: (it) => {
-          if (it.location.entityLabel) return it.location.entityLabel;
-          if (it.location.relationshipLabel != null)
-            return it.location.relationshipLabel;
-          return "";
-        },
-      },
-      {
-        code: "attribute",
-        label: "Attribute",
-        render: (it) => {
-          if (it.location.entityAttributeLabel)
-            return it.location.entityAttributeLabel;
-          if (it.location.relationshipAttributeLabel)
-            return it.location.relationshipAttributeLabel;
-          return "";
-        },
-      },
-      {
-        code: "tags",
-        label: "Tags",
-        render: (it) => it.tags.join(" "),
-      },
-    ],
-    items,
-  );
+const LOCAL_STORAGE_KEY = "reports-query-builder";
+const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
+
+type FilterRowType = "tags" | "modelItemField";
+
+
+function createFilterId() {
+  return uuidv7();
+}
+
+function createDefaultTagFilter(): ModelSearchTagFilter {
+  return {
+    id: createFilterId(),
+    type: "tags",
+    condition: "anyOf",
+    tagIds: [],
+  };
+}
+
+function createDefaultModelItemFieldFilter(): ModelSearchFilter {
+  return {
+    id: createFilterId(),
+    type: "modelItemField",
+    field: "name",
+    condition: "contains",
+    value: "",
+  };
+}
+
+function createDefaultQuery(): ModelSearchReq {
+  return {
+    operator: "and",
+    items: [createDefaultTagFilter()],
+  };
+}
+
+function loadStoredQuery(): ModelSearchReq {
+  const rawValue = localStorage.getItem(LOCAL_STORAGE_KEY);
+  if (!rawValue) {
+    return createDefaultQuery();
+  }
+  try {
+    return JSON.parse(rawValue) as ModelSearchReq;
+  } catch {
+    return createDefaultQuery();
+  }
+}
+
+function availableFilterTypes(): FilterRowType[] {
+  if (ENABLE_MODEL_ITEM_FIELD_FILTER) {
+    return ["tags", "modelItemField"];
+  }
+  return ["tags"];
+}
+
+function changeFilterType(type: FilterRowType): ModelSearchFilter {
+  if (type === "modelItemField") {
+    return createDefaultModelItemFieldFilter();
+  }
+  return createDefaultTagFilter();
 }
 
 export function ReportsPage() {
-  const defaultTags = localStorage.getItem("reports-query") ?? "";
+  const styles = useCompactDropdownStyles();
+  const [draftQuery, setDraftQuery] = useState<ModelSearchReq>(loadStoredQuery);
+  const [appliedQuery, setAppliedQuery] = useState<ModelSearchReq>(
+    loadStoredQuery,
+  );
 
-  const [tags, setTags] = useState<string>(defaultTags);
-  const [inputTags, setInputTags] = useState<string>(defaultTags);
-  const query = useModelSearch(tags);
-  const items = query?.data?.items ?? [];
-  const handleClickSearch = () => {
-    localStorage.setItem("reports-query", inputTags);
-    setTags(inputTags);
+  const query = useModelSearch(appliedQuery);
+  const items = query.data?.items ?? [];
+  const hasFilters = appliedQuery.items.length > 0;
+
+  const handleChangeOperator: DropdownProps["onOptionSelect"] = (_, data) => {
+    const operator = data.optionValue;
+    if (operator !== "and" && operator !== "or") {
+      return;
+    }
+    setDraftQuery((previous) => ({
+      ...previous,
+      operator: operator,
+    }));
   };
+
+  const handleClickSearch = () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draftQuery));
+    setAppliedQuery(draftQuery);
+  };
+
+  const handleAddFilter = () => {
+    const filterTypes = availableFilterTypes();
+    const nextType = filterTypes[0];
+    setDraftQuery((previous) => ({
+      ...previous,
+      items: [...previous.items, changeFilterType(nextType)],
+    }));
+  };
+
+  const handleDeleteFilter = (filterId: string) => {
+    setDraftQuery((previous) => ({
+      ...previous,
+      items: previous.items.filter((it) => it.id !== filterId),
+    }));
+  };
+
+  const handleChangeFilterType = (filterId: string, type: FilterRowType) => {
+    setDraftQuery((previous) => ({
+      ...previous,
+      items: previous.items.map((it) =>
+        it.id === filterId ? changeFilterType(type) : it,
+      ),
+    }));
+  };
+
+  const handleUpdateFilter = (filter: ModelSearchFilter) => {
+    setDraftQuery((previous) => ({
+      ...previous,
+      items: previous.items.map((it) => (it.id === filter.id ? filter : it)),
+    }));
+  };
+
   return (
     <ViewLayoutContained
       title={
@@ -120,7 +159,7 @@ export function ReportsPage() {
               }}
             >
               <div style={{ width: "100%" }}>
-                <DocumentBulletListRegular /> Report: tagged items
+                <DocumentBulletListRegular /> Report model items
               </div>
             </div>
           </ViewTitle>
@@ -131,186 +170,161 @@ export function ReportsPage() {
         <ContainedFixed>
           <div
             style={{
-              display: "flex",
-              paddingLeft: tokens.spacingHorizontalM,
-              paddingRight: tokens.spacingHorizontalM,
-              paddingTop: tokens.spacingVerticalM,
+              display: "grid",
+              rowGap: tokens.spacingVerticalM,
+              padding: tokens.spacingHorizontalM,
             }}
           >
-            <div style={{ flex: 1 }}>
-              <Input
-                style={{ width: "100%" }}
-                value={inputTags}
-                onChange={(e, data) => setInputTags(data.value)}
-                placeholder="Search with tag names, comma separated"
-              />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto auto 1fr auto",
+                rowGap: tokens.spacingVerticalM,
+                columnGap: tokens.spacingHorizontalM,
+                alignItems: "center",
+              }}
+            >
+              {draftQuery.items.map((filter, index) => (
+                <FilterRowEditor
+                  key={filter.id}
+                  filter={filter}
+                  isFirstRow={index === 0}
+                  operator={draftQuery.operator}
+                  compactDropdownClassName={styles.compactDropdown}
+                  onDelete={handleDeleteFilter}
+                  onOperatorChange={handleChangeOperator}
+                  onTypeChange={handleChangeFilterType}
+                  onChange={handleUpdateFilter}
+                />
+              ))}
             </div>
-            <div style={{ flex: 0 }}>
-              <Button
-                appearance="primary"
-                icon={<SearchFilled />}
-                onClick={handleClickSearch}
-              >
-                Search
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto auto 1fr auto",
+                columnGap: tokens.spacingHorizontalM,
+                alignItems: "center",
+              }}
+            >
+              <div style={{ gridColumn: "1 / 4" }}>
+                <ButtonBar>
+                  <Button
+                    appearance="primary"
+                    icon={<SearchFilled />}
+                    disabled={draftQuery.items.length === 0}
+                    onClick={handleClickSearch}
+                  >
+                    Show results
+                  </Button>
+                  {items.length > 0 && (
+                    <Button
+                      icon={<ArrowDownloadRegular />}
+                      onClick={() => createCsv(items)}
+                    >
+                      Download CSV
+                    </Button>
+                  )}
+                </ButtonBar>
+              </div>
+              <Button appearance="outline" icon={<AddRegular />} onClick={handleAddFilter}>
+                Add condition
               </Button>
             </div>
           </div>
-          {items.length > 0 && (
-            <div style={{ padding: tokens.spacingVerticalM }}>
-              <Button
-                icon={<ArrowDownloadRegular />}
-                onClick={() => createCsv(items)}
-              >
-                Download CSV
-              </Button>
-            </div>
-          )}
         </ContainedFixed>
         <ContainedScrollable>
-          {items.length == 0 && (
+          {!hasFilters && (
+            <div style={{ padding: tokens.spacingVerticalM }}>
+              <MissingInformation>Add at least one filter to search.</MissingInformation>
+            </div>
+          )}
+          {hasFilters && items.length === 0 && (
             <div style={{ padding: tokens.spacingVerticalM }}>
               <MissingInformation>No results.</MissingInformation>
             </div>
           )}
-          <Table>
-            <TableBody>
-              {items.map((it) => {
-                return (
-                  <TableRow key={it.id}>
-                    <TableCell>
-                      <Path key={it.id} location={it.location} />
-                    </TableCell>
-                    <TableCell>
-                      <TagGroup>
-                        {sortBy(it.tags).map((tag, index) => (
-                          <Tag key={index} appearance="outline" size="small">
-                            {tag}
-                          </Tag>
-                        ))}
-                      </TagGroup>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          {items.length > 0 && (
+            <ResultTable items={items} />
+
+          )}
         </ContainedScrollable>
       </ContainedMixedScrolling>
     </ViewLayoutContained>
   );
 }
 
-function Path({ location }: { location: SearchResultLocation }) {
-  const navigate = useNavigate();
-  const {
-    modelId,
-    modelLabel,
-    entityId,
-    entityLabel,
-    entityAttributeId,
-    entityAttributeLabel,
-    relationshipId,
-    relationshipLabel,
-    relationshipAttributeId,
-    relationshipAttributeLabel,
-  } = location;
+function FilterRowEditor({
+  filter,
+  isFirstRow,
+  operator,
+  compactDropdownClassName,
+  onDelete,
+  onOperatorChange,
+  onTypeChange,
+  onChange,
+}: {
+  filter: ModelSearchFilter;
+  isFirstRow: boolean;
+  operator: ModelSearchReq["operator"];
+  compactDropdownClassName: string;
+  onDelete: (filterId: string) => void;
+  onOperatorChange: DropdownProps["onOptionSelect"];
+  onTypeChange: (filterId: string, type: FilterRowType) => void;
+  onChange: (filter: ModelSearchFilter) => void;
+}) {
+  const handleChangeType: DropdownProps["onOptionSelect"] = (_, data) => {
+    const type = data.optionValue;
+    if (type !== "tags" && type !== "modelItemField") {
+      return;
+    }
+    onTypeChange(filter.id, type);
+  };
+
   return (
-    <Breadcrumb>
-      <BreadcrumbItem>
-        <BreadcrumbButton
-          icon={<ModelIcon />}
-          onClick={() =>
-            navigate({
-              to: "/model/$modelId",
-              params: { modelId: modelId },
-            })
-          }
+    <>
+      {isFirstRow ? (
+        <div />
+      ) : (
+        <Dropdown
+          className={compactDropdownClassName}
+          aria-label="Combine filters with"
+          value={operator.toUpperCase()}
+          selectedOptions={[operator]}
+          onOptionSelect={onOperatorChange}
+          appearance="outline"
         >
-          {modelLabel}
-        </BreadcrumbButton>
-      </BreadcrumbItem>
-
-      {entityId && entityLabel && <BreadcrumbDivider />}
-      {entityId && entityLabel && (
-        <BreadcrumbItem>
-          <BreadcrumbButton
-            icon={<EntityIcon />}
-            onClick={() =>
-              navigate({
-                to: "/model/$modelId/entity/$entityId",
-                params: { modelId: modelId, entityId: entityId },
-              })
-            }
-          >
-            {entityLabel}
-          </BreadcrumbButton>
-        </BreadcrumbItem>
+          <Option value="and">AND</Option>
+          <Option value="or">OR</Option>
+        </Dropdown>
       )}
-
-      {entityId && entityAttributeId && entityAttributeLabel && (
-        <BreadcrumbDivider />
-      )}
-      {entityId && entityAttributeId && entityAttributeLabel && (
-        <BreadcrumbItem>
-          <BreadcrumbButton
-            icon={<AttributeIcon />}
-            onClick={() =>
-              navigate({
-                to: "/model/$modelId/entity/$entityId/attribute/$attributeId",
-                params: {
-                  modelId: modelId,
-                  entityId: entityId,
-                  attributeId: entityAttributeId,
-                },
-              })
-            }
-          >
-            {entityAttributeLabel}
-          </BreadcrumbButton>
-        </BreadcrumbItem>
-      )}
-
-      {relationshipId && relationshipLabel && <BreadcrumbDivider />}
-      {relationshipId && relationshipLabel && (
-        <BreadcrumbItem>
-          <BreadcrumbButton
-            icon={<RelationshipIcon />}
-            onClick={() =>
-              navigate({
-                to: "/model/$modelId/relationship/$relationshipId",
-                params: { modelId: modelId, relationshipId: relationshipId },
-              })
-            }
-          >
-            {relationshipLabel}
-          </BreadcrumbButton>
-        </BreadcrumbItem>
-      )}
-
-      {relationshipId &&
-        relationshipAttributeId &&
-        relationshipAttributeLabel && <BreadcrumbDivider />}
-      {relationshipId &&
-        relationshipAttributeId &&
-        relationshipAttributeLabel && (
-          <BreadcrumbItem>
-            <BreadcrumbButton
-              icon={<AttributeIcon />}
-              onClick={() =>
-                navigate({
-                  to: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
-                  params: {
-                    modelId: modelId,
-                    relationshipId: relationshipId,
-                    attributeId: relationshipAttributeId,
-                  },
-                })
-              }
-            >
-              {relationshipAttributeLabel}
-            </BreadcrumbButton>
-          </BreadcrumbItem>
+      <Dropdown
+        className={compactDropdownClassName}
+        aria-label="Filter type"
+        value={filter.type === "tags" ? "Tags" : "Model item field"}
+        selectedOptions={[filter.type]}
+        onOptionSelect={handleChangeType}
+      >
+        <Option value="tags">Tags</Option>
+        {ENABLE_MODEL_ITEM_FIELD_FILTER && (
+          <Option value="modelItemField">Model item field</Option>
         )}
-    </Breadcrumb>
+      </Dropdown>
+
+      <div>
+        {filter.type === "tags" ? (
+          <FilterTagRowEditor filter={filter} onChange={onChange} />
+        ) : (
+          <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
+        )}
+      </div>
+      <Button
+        appearance="subtle"
+        icon={<DismissRegular />}
+        onClick={() => onDelete(filter.id)}
+      >
+        Remove
+      </Button>
+    </>
   );
 }

@@ -4,18 +4,69 @@ import type { SearchResults } from "./model.dto.ts";
 import { type ActionPayload, executeAction } from "../action_runner";
 import { toProblem } from "@seij/common-types";
 
-export async function modelSearch(tags: string): Promise<SearchResults> {
-  if (tags == "") return { items: [] };
+export type ModelSearchOperator = "and" | "or";
+
+export type ModelSearchTagFilterCondition =
+  | "anyOf"
+  | "allOf"
+  | "noneOf"
+  | "empty"
+  | "notEmpty";
+
+export type ModelSearchTagFilter = {
+  id: string;
+  type: "tags";
+  condition: ModelSearchTagFilterCondition;
+  tagIds: string[];
+};
+
+export type ModelSearchModelItemField = "name" | "key" | "description";
+
+export type ModelSearchModelItemFieldCondition = "contains" | "is";
+
+export type ModelSearchModelItemFieldFilter = {
+  id: string;
+  type: "modelItemField";
+  field: ModelSearchModelItemField;
+  condition: ModelSearchModelItemFieldCondition;
+  value: string;
+};
+
+export type ModelSearchFilter =
+  | ModelSearchTagFilter
+  | ModelSearchModelItemFieldFilter;
+
+export type ModelSearchReq = {
+  operator: ModelSearchOperator;
+  items: ModelSearchFilter[];
+};
+
+export async function modelSearch(req: ModelSearchReq): Promise<SearchResults> {
+  if (req.items.length === 0) return { items: [] };
   const payload = {
     filters: {
-      operator: "and",
-      items: [
-        {
-          type: "tags",
-          condition: "anyOf",
-          value: tags.split(",").map((it) => it.trim()),
-        },
-      ],
+      operator: req.operator,
+      items: req.items.map((item) => {
+        if (item.type === "tags") {
+          if (item.condition === "empty" || item.condition === "notEmpty") {
+            return {
+              type: "tags",
+              condition: item.condition,
+            };
+          }
+          return {
+            type: "tags",
+            condition: item.condition,
+            value: item.tagIds.map((tagId) => "id:" + tagId),
+          };
+        }
+        return {
+          type: "modelItemField",
+          field: item.field,
+          condition: item.condition,
+          value: item.value,
+        };
+      }),
     },
     fields: ["location"],
   };
@@ -24,10 +75,10 @@ export async function modelSearch(tags: string): Promise<SearchResults> {
     return result.json;
   } else throw toProblem("Invalid response content type");
 }
-export const useModelSearch = (tags: string) => {
+export const useModelSearch = (req: ModelSearchReq) => {
   return useQuery({
-    queryKey: ["search", tags],
-    queryFn: () => modelSearch(tags),
+    queryKey: ["search", req],
+    queryFn: () => modelSearch(req),
   });
 };
 
