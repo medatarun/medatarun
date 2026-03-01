@@ -1,14 +1,18 @@
-import {createContext} from "react";
-import type {ActionPerformerFormData, ActionPerformerRequest, ActionPerformerState} from "./ActionPerformer.tsx";
+import { createContext } from "react";
+import type {
+  ActionPerformerFormData,
+  ActionPerformerRequest,
+  ActionPerformerState,
+} from "./ActionPerformer.tsx";
 import { type ActionResp } from "@/business/action_runner";
 
 export interface ActionPerformerContextValue {
   state: ActionPerformerState;
-  performAction: (req:ActionPerformerRequest) => void
+  performAction: (req: ActionPerformerRequest) => void;
   confirmAction: (formData: ActionPerformerFormData) => Promise<ActionResp>;
   cancelAction: (reason?: unknown) => void;
-  finishAction: () => void
+  finishAction: () => void;
 }
 
-
-export const ActionPerformerContext = createContext<ActionPerformerContextValue | null>(null);
+export const ActionPerformerContext =
+  createContext<ActionPerformerContextValue | null>(null);

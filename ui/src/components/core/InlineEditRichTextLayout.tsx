@@ -1,8 +1,8 @@
-import {type ReactNode, useEffect, useState} from "react";
-import {type Problem, toProblem} from "@seij/common-types";
-import {makeStyles, tokens, Tooltip} from "@fluentui/react-components";
-import {Icon} from "@seij/common-ui-icons";
-import {Button, ButtonBar, ErrorBox} from "@seij/common-ui";
+import { type ReactNode, useEffect, useState } from "react";
+import { type Problem, toProblem } from "@seij/common-types";
+import { makeStyles, tokens, Tooltip } from "@fluentui/react-components";
+import { Icon } from "@seij/common-ui-icons";
+import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -13,30 +13,30 @@ const useStyles = makeStyles({
     paddingLeft: tokens.spacingHorizontalM,
     paddingRight: tokens.spacingHorizontalM,
     "&:hover": {
-      backgroundColor: tokens.colorBrandBackground2Hover
+      backgroundColor: tokens.colorBrandBackground2Hover,
     },
     "&:hover > .editIcon": {
-      display: "block"
-    }
+      display: "block",
+    },
   },
   editIcon: {
     float: "right",
     zIndex: 0,
     position: "relative",
     right: "0",
-    opacity: 0.2
+    opacity: 0.2,
   },
   editorRoot: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
     paddingLeft: tokens.spacingHorizontalM,
     paddingRight: tokens.spacingHorizontalM,
-    backgroundColor: tokens.colorBrandBackground2
+    backgroundColor: tokens.colorBrandBackground2,
   },
   editorActionBar: {
-    borderBottom: "1px solid " + tokens.colorNeutralStroke1
-  }
-})
+    borderBottom: "1px solid " + tokens.colorNeutralStroke1,
+  },
+});
 
 export interface InlineEditRichTextLayoutProps {
   /**
@@ -77,7 +77,6 @@ export interface InlineEditRichTextLayoutProps {
   onEditCancel: () => Promise<unknown>;
 }
 
-
 /**
  * Component that switches between read and write modes inline.
  * Suitable for RichTextEditors with an OK an Cancel button on top of the editor.
@@ -86,16 +85,15 @@ export interface InlineEditRichTextLayoutProps {
  *
  * Editor must be provided
  */
-export function InlineEditRichTextLayout(
-  {
-    children,
-    editor,
-    onEditStarted,
-    onEditStart,
-    onEditOK,
-    onEditCancel,
-  }: InlineEditRichTextLayoutProps) {
-  const styles = useStyles()
+export function InlineEditRichTextLayout({
+  children,
+  editor,
+  onEditStarted,
+  onEditStart,
+  onEditOK,
+  onEditCancel,
+}: InlineEditRichTextLayoutProps) {
+  const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);
   const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
   const [error, setError] = useState<Problem | null>(null);
@@ -106,7 +104,7 @@ export function InlineEditRichTextLayout(
       setError(null);
       await onEditStart();
       setEditing(true);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
     }
@@ -119,7 +117,7 @@ export function InlineEditRichTextLayout(
       await onEditOK();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
       setPending(false);
@@ -132,7 +130,7 @@ export function InlineEditRichTextLayout(
       await onEditCancel();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err: unknown) {
       setError(toProblem(err));
       setPending(false);
@@ -141,8 +139,8 @@ export function InlineEditRichTextLayout(
 
   useEffect(() => {
     if (editing && onEditStarted && !editStartedCalled) {
-      onEditStarted()
-      setEditStartedCalled(true)
+      onEditStarted();
+      setEditStartedCalled(true);
     }
   }, [editing, onEditStarted, editStartedCalled]);
 
@@ -151,7 +149,7 @@ export function InlineEditRichTextLayout(
       <div className={styles.readRoot} onClick={handleEdit}>
         <div className={styles.editIcon}>
           <Tooltip content="Edit" relationship="label">
-            <Icon name="edit"/>
+            <Icon name="edit" />
           </Tooltip>
         </div>
         <div>{children}</div>
@@ -163,7 +161,11 @@ export function InlineEditRichTextLayout(
       <div className={styles.editorRoot}>
         <div className={styles.editorActionBar}>
           <ButtonBar variant="end">
-            <Button disabled={pending} onClick={handleEditCancel} variant="secondary">
+            <Button
+              disabled={pending}
+              onClick={handleEditCancel}
+              variant="secondary"
+            >
               Cancel
             </Button>
             <Button disabled={pending} onClick={handleEditOK} variant="primary">
@@ -173,7 +175,7 @@ export function InlineEditRichTextLayout(
         </div>
         <div>{editor}</div>
       </div>
-      {error && <ErrorBox error={error}/>}
+      {error && <ErrorBox error={error} />}
     </div>
   );
 }

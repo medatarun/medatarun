@@ -1,4 +1,4 @@
-import {useActionPerformer} from "./ActionPerformerHook.tsx";
+import { useActionPerformer } from "./ActionPerformerHook.tsx";
 import {
   Dialog,
   DialogActions,
@@ -12,74 +12,106 @@ import {
   InfoLabel,
   Input,
   type LabelProps,
-  tokens
+  tokens,
 } from "@fluentui/react-components";
 
-import {type Ref, useEffect, useRef, useState} from "react";
-import {ActionOutputBox} from "./ActionOutput.tsx";
-import {type ActionResp} from "@/business/action_runner";
-import {type FormDataType, type FormFieldType, validateForm} from "@/business/action_form";
-import {ActionDescriptor, useActionRegistry} from "@/business/action_registry";
-import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
+import { type Ref, useEffect, useRef, useState } from "react";
+import { ActionOutputBox } from "./ActionOutput.tsx";
+import { type ActionResp } from "@/business/action_runner";
+import {
+  type FormDataType,
+  type FormFieldType,
+  validateForm,
+} from "@/business/action_form";
+import {
+  ActionDescriptor,
+  useActionRegistry,
+} from "@/business/action_registry";
+import type {
+  ActionPerformerRequestParams,
+  ActionPerformerState,
+} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
-import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
-import {Button, ErrorBox} from "@seij/common-ui";
-import {formDataNormalize} from "@/business/action_form/action_form.normalize.ts";
-import {isNil, isPlainObject} from "lodash-es";
-import {toProblem} from "@seij/common-types";
-
+import {
+  combineValidationResults,
+  type ValidationResult,
+} from "@seij/common-validation";
+import { Button, ErrorBox } from "@seij/common-ui";
+import { formDataNormalize } from "@/business/action_form/action_form.normalize.ts";
+import { isNil, isPlainObject } from "lodash-es";
+import { toProblem } from "@seij/common-types";
 
 export function ActionPerformerView() {
-
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
-  const {state} = useActionPerformer();
-  const actionRegistry = useActionRegistry()
+  const { state } = useActionPerformer();
+  const actionRegistry = useActionRegistry();
 
-  if (state.kind === 'idle') return null;
+  if (state.kind === "idle") return null;
 
-  const {request} = state; // request.location, request.params
-  const action = actionRegistry.findActionOptional(request.actionGroupKey, request.actionKey)
-  if (!action) return null
+  const { request } = state; // request.location, request.params
+  const action = actionRegistry.findActionOptional(
+    request.actionGroupKey,
+    request.actionKey,
+  );
+  if (!action) return null;
 
-  const defaultFormData: FormDataType = {}
+  const defaultFormData: FormDataType = {};
   for (const actionParam of action.parameters) {
-    defaultFormData[actionParam.name] = state.request.params[actionParam.name]?.value ?? null
+    defaultFormData[actionParam.name] =
+      state.request.params[actionParam.name]?.value ?? null;
   }
 
   const formFields = createFormFields(action, state.request.params);
 
-  return <ActionPerformerViewLoaded
-    state={state}
-    action={action}
-    defaultFormData={defaultFormData}
-    formFields={formFields}/>
+  return (
+    <ActionPerformerViewLoaded
+      state={state}
+      action={action}
+      defaultFormData={defaultFormData}
+      formFields={formFields}
+    />
+  );
 }
 
-export function ActionPerformerViewLoaded({state, action, defaultFormData, formFields}: {
-  state: ActionPerformerState,
-  action: ActionDescriptor,
-  defaultFormData: FormDataType,
-  formFields: FormFieldType[]
+export function ActionPerformerViewLoaded({
+  state,
+  action,
+  defaultFormData,
+  formFields,
+}: {
+  state: ActionPerformerState;
+  action: ActionDescriptor;
+  defaultFormData: FormDataType;
+  formFields: FormFieldType[];
 }) {
+  const actionRegistry = useActionRegistry();
+  const { confirmAction, cancelAction, finishAction } = useActionPerformer();
+  const [actionResp, setActionResp] = useState<ActionResp | null>(null);
+  const [formData, setFormData] = useState<FormDataType>(defaultFormData);
+  const firstInputRef = useRef<HTMLInputElement>(null);
 
-  const actionRegistry = useActionRegistry()
-  const {confirmAction, cancelAction, finishAction} = useActionPerformer();
-  const [actionResp, setActionResp] = useState<ActionResp | null>(null)
-  const [formData, setFormData] = useState<FormDataType>(defaultFormData)
-  const firstInputRef = useRef<HTMLInputElement>(null)
+  const displayExecute = state.kind == "pendingUser" || state.kind == "error";
+  const displayCancel =
+    state.kind == "pendingUser" ||
+    state.kind == "running" ||
+    state.kind == "error";
+  const displayFinish = state.kind == "done";
 
-  const displayExecute = state.kind == "pendingUser" || state.kind == "error"
-  const displayCancel = state.kind == "pendingUser" || state.kind == "running" || state.kind == "error"
-  const displayFinish = state.kind == "done"
-
-  const validationResults = validateForm({formData, formFields})
-  const validationResult = combineValidationResults([...validationResults.values()])
-  const valid = validationResult.valid
+  const validationResults = validateForm({ formData, formFields });
+  const validationResult = combineValidationResults([
+    ...validationResults.values(),
+  ]);
+  const valid = validationResult.valid;
 
   const onValidate = async () => {
-    const payload = formDataNormalize(action.actionGroupKey, action.key, formData, actionRegistry)
+    const payload = formDataNormalize(
+      action.actionGroupKey,
+      action.key,
+      formData,
+      actionRegistry,
+    );
     const output = await confirmAction(payload);
-    setActionResp(output)
+    setActionResp(output);
   };
 
   const onCancel = () => {
@@ -87,26 +119,28 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
   };
 
   const onFinish = () => {
-    finishAction()
-  }
+    finishAction();
+  };
 
   const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
-    setFormData({...formData, [field.key]: value})
-  }
+    setFormData({ ...formData, [field.key]: value });
+  };
 
   useEffect(() => {
-    const isDone = state.kind === "done"
-    const display = hasResultToDisplay(actionResp)
+    const isDone = state.kind === "done";
+    const display = hasResultToDisplay(actionResp);
     if (isDone && !display) {
-      finishAction()
+      finishAction();
     }
   }, [state.kind, actionResp, finishAction]);
 
-  const focusedFieldKey = formFields.find(it => it.visible && !it.readonly)?.key
+  const focusedFieldKey = formFields.find(
+    (it) => it.visible && !it.readonly,
+  )?.key;
 
   useEffect(() => {
-    firstInputRef?.current?.focus()
-  }, [focusedFieldKey, action.key])
+    firstInputRef?.current?.focus();
+  }, [focusedFieldKey, action.key]);
 
   return (
     <Dialog open={true}>
@@ -114,93 +148,129 @@ export function ActionPerformerViewLoaded({state, action, defaultFormData, formF
         <DialogBody>
           <DialogTitle>{action.title}</DialogTitle>
           <DialogContent>
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              rowGap: tokens.spacingVerticalM,
-              columnGap: tokens.spacingVerticalM,
-              marginBottom: tokens.spacingVerticalM,
-
-            }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                rowGap: tokens.spacingVerticalM,
+                columnGap: tokens.spacingVerticalM,
+                marginBottom: tokens.spacingVerticalM,
+              }}
+            >
               {action.description && <div>{action.description}</div>}
-              {formFields.filter(it => it.visible).map((field) => (
+              {formFields
+                .filter((it) => it.visible)
+                .map((field) => (
+                  <FormFieldInput
+                    key={field.key}
+                    inputRef={
+                      field.key === focusedFieldKey ? firstInputRef : undefined
+                    }
+                    field={field}
+                    value={formData[field.key]}
+                    validationResult={validationResults.get(field.key)}
+                    onChange={handleChangeFormFieldInput}
+                  />
+                ))}
 
-                <FormFieldInput
-                  key={field.key}
-                  inputRef={field.key === focusedFieldKey ? firstInputRef : undefined}
-                  field={field}
-                  value={formData[field.key]}
-                  validationResult={validationResults.get(field.key)}
-                  onChange={handleChangeFormFieldInput}/>))}
-
-              {state.kind === "error" ? <ErrorBox error={toProblem(state.error)}/> : null}
-              {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
+              {state.kind === "error" ? (
+                <ErrorBox error={toProblem(state.error)} />
+              ) : null}
+              {actionResp ? <ActionOutputBox resp={actionResp} /> : null}
             </div>
           </DialogContent>
         </DialogBody>
         <DialogActions>
-          {displayExecute &&
-            <Button variant="primary" onClick={onValidate} disabled={!valid}>Execute</Button>
-          }
-          {displayCancel &&
+          {displayExecute && (
+            <Button variant="primary" onClick={onValidate} disabled={!valid}>
+              Execute
+            </Button>
+          )}
+          {displayCancel && (
             <DialogTrigger disableButtonEnhancement>
-              <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+              <Button variant="secondary" onClick={onCancel}>
+                Cancel
+              </Button>
             </DialogTrigger>
-          }
-          {displayFinish &&
+          )}
+          {displayFinish && (
             <DialogTrigger disableButtonEnhancement>
-              <Button variant="primary" onClick={onFinish}>Finish</Button>
+              <Button variant="primary" onClick={onFinish}>
+                Finish
+              </Button>
             </DialogTrigger>
-          }
+          )}
         </DialogActions>
       </DialogSurface>
-
     </Dialog>
   );
-
 }
 
-function FormFieldInput({field, value, validationResult, inputRef, onChange}: {
-  field: FormFieldType,
-  value: unknown,
-  validationResult: ValidationResult | undefined,
-  onChange: (field: FormFieldType, value: unknown) => void,
-  inputRef?: Ref<HTMLInputElement>
+function FormFieldInput({
+  field,
+  value,
+  validationResult,
+  inputRef,
+  onChange,
+}: {
+  field: FormFieldType;
+  value: unknown;
+  validationResult: ValidationResult | undefined;
+  onChange: (field: FormFieldType, value: unknown) => void;
+  inputRef?: Ref<HTMLInputElement>;
 }) {
-  const valueNormalized = (value === null || value === undefined) ? "" : "" + value
+  const valueNormalized =
+    value === null || value === undefined ? "" : "" + value;
   const validationState: FieldProps["validationState"] =
-    validationResult === undefined ? "none"
-      : validationResult.valid ? "success"
-        : validationResult.severity === "WARNING" ? "warning"
+    validationResult === undefined
+      ? "none"
+      : validationResult.valid
+        ? "success"
+        : validationResult.severity === "WARNING"
+          ? "warning"
           : "error";
-  return <div><Field
-    label={{
-      // Setting children to a render function allows you to replace the entire slot.
-      // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
-      // The second param is the props for the slot, which need to be passed to the InfoLabel.
-      children: (_: unknown, slotProps: LabelProps) => (
-        <InfoLabel
-          {...slotProps}
-          info={field.description ? <ReactMarkdown>{field.description}</ReactMarkdown> : undefined}>
-          {field.title}
-        </InfoLabel>
-      ),
-    }}
-    validationState={validationState}
-    validationMessage={validationResult?.error}
-    required={!field.optional}>
-    <Input
-      ref={inputRef}
-      disabled={field.readonly}
-      value={valueNormalized}
-      onChange={(_, data) => onChange(field, data.value)}/>
-  </Field></div>
+  return (
+    <div>
+      <Field
+        label={{
+          // Setting children to a render function allows you to replace the entire slot.
+          // The first param is the component for the slot (Label), which we're ignoring to use InfoLabel instead.
+          // The second param is the props for the slot, which need to be passed to the InfoLabel.
+          children: (_: unknown, slotProps: LabelProps) => (
+            <InfoLabel
+              {...slotProps}
+              info={
+                field.description ? (
+                  <ReactMarkdown>{field.description}</ReactMarkdown>
+                ) : undefined
+              }
+            >
+              {field.title}
+            </InfoLabel>
+          ),
+        }}
+        validationState={validationState}
+        validationMessage={validationResult?.error}
+        required={!field.optional}
+      >
+        <Input
+          ref={inputRef}
+          disabled={field.readonly}
+          value={valueNormalized}
+          onChange={(_, data) => onChange(field, data.value)}
+        />
+      </Field>
+    </div>
+  );
 }
 
-function createFormFields(action: ActionDescriptor, prefill: ActionPerformerRequestParams) {
-  const formFields: FormFieldType[] = []
-  action.parameters.forEach(param => {
-    const prefilledValue = prefill[param.name]
+function createFormFields(
+  action: ActionDescriptor,
+  prefill: ActionPerformerRequestParams,
+) {
+  const formFields: FormFieldType[] = [];
+  action.parameters.forEach((param) => {
+    const prefilledValue = prefill[param.name];
     const field: FormFieldType = {
       key: param.name,
       title: param.title ?? param.name,
@@ -209,29 +279,28 @@ function createFormFields(action: ActionDescriptor, prefill: ActionPerformerRequ
       type: param.type,
       order: param.order,
       readonly: isNil(prefilledValue) ? false : prefilledValue.readonly,
-      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly
-    }
-    formFields.push(field)
-  })
+      visible: isNil(prefilledValue) ? true : !prefilledValue.readonly,
+    };
+    formFields.push(field);
+  });
   return sortFields(formFields);
 }
 
 function sortFields(fields: FormFieldType[]): FormFieldType[] {
-  return [...fields].sort((a, b) => a.order - b.order)
+  return [...fields].sort((a, b) => a.order - b.order);
 }
 
-
 function hasResultToDisplay(actionResp: ActionResp | null): boolean {
-  if (actionResp === null) return false
-  if (actionResp.contentType === "text") return true
+  if (actionResp === null) return false;
+  if (actionResp.contentType === "text") return true;
   if (actionResp.contentType === "json") {
-    const json = actionResp.json as Record<string, unknown>
+    const json = actionResp.json as Record<string, unknown>;
     if (isPlainObject(json)) {
-      if (Object.keys(json).length === 0) return true
-      if (Object.keys(json).length > 1) return true
+      if (Object.keys(json).length === 0) return true;
+      if (Object.keys(json).length > 1) return true;
       return json["status"] !== "ok";
     }
-    return true
+    return true;
   }
-  return true
+  return true;
 }

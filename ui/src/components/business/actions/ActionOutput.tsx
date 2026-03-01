@@ -1,8 +1,12 @@
 import { type ActionResp } from "@/business/action_runner";
-import {makeStyles, tokens} from "@fluentui/react-components";
+import { makeStyles, tokens } from "@fluentui/react-components";
 
-export function ActionOutput({resp}:{resp:ActionResp|null|undefined}) {
-  const output = resp
+export function ActionOutput({
+  resp,
+}: {
+  resp: ActionResp | null | undefined;
+}) {
+  const output = resp;
   if (output === null || output === undefined) {
     return String(output);
   }
@@ -26,11 +30,19 @@ const useStyles = makeStyles({
     border: `${tokens.strokeWidthThick} solid ${tokens.colorNeutralStroke3}`,
     whiteSpace: "pre-wrap",
     overflow: "auto",
-    maxHeight: "20em"
-  }
-})
-export function ActionOutputBox({resp}:{resp:ActionResp|null|undefined}) {
+    maxHeight: "20em",
+  },
+});
+export function ActionOutputBox({
+  resp,
+}: {
+  resp: ActionResp | null | undefined;
+}) {
   const styles = useStyles();
-  if (!resp) return null
-  return <div className={styles.root}><ActionOutput resp={resp}/></div>
+  if (!resp) return null;
+  return (
+    <div className={styles.root}>
+      <ActionOutput resp={resp} />
+    </div>
+  );
 }

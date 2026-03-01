@@ -1,77 +1,76 @@
-import type {TagDto, TagGroupDto, TagScopeRef} from "./tag.dto.ts";
+import type { TagDto, TagGroupDto, TagScopeRef } from "./tag.dto.ts";
 
 export class TagGroup {
-  readonly id: string
-  readonly key: string
-  readonly name: string | null
-  readonly description: string | null
+  readonly id: string;
+  readonly key: string;
+  readonly name: string | null;
+  readonly description: string | null;
 
   constructor(dto: TagGroupDto) {
-    this.id = dto.id
-    this.key = dto.key
-    this.name = dto.name
-    this.description = dto.description
+    this.id = dto.id;
+    this.key = dto.key;
+    this.name = dto.name;
+    this.description = dto.description;
   }
 
   get label(): string {
-    return this.name ?? this.key
+    return this.name ?? this.key;
   }
 }
 
 export class Tag {
-  readonly id: string
-  readonly key: string
-  readonly groupId: string | null
-  readonly scope: TagScopeRef
-  readonly name: string | null
-  readonly description: string | null
-  readonly groupKey: string | null
-  readonly groupName: string | null
+  readonly id: string;
+  readonly key: string;
+  readonly groupId: string | null;
+  readonly scope: TagScopeRef;
+  readonly name: string | null;
+  readonly description: string | null;
+  readonly groupKey: string | null;
+  readonly groupName: string | null;
 
   constructor(dto: TagDto, tagGroup: TagGroup | undefined) {
-    this.id = dto.id
-    this.key = dto.key
-    this.groupId = dto.groupId
-    this.scope = dto.tagScopeRef
-    this.name = dto.name
-    this.description = dto.description
-    this.groupKey = tagGroup?.key ?? null
-    this.groupName = tagGroup?.name ?? null
+    this.id = dto.id;
+    this.key = dto.key;
+    this.groupId = dto.groupId;
+    this.scope = dto.tagScopeRef;
+    this.name = dto.name;
+    this.description = dto.description;
+    this.groupKey = tagGroup?.key ?? null;
+    this.groupName = tagGroup?.name ?? null;
   }
 
   get label(): string {
-    return this.name ?? this.key
+    return this.name ?? this.key;
   }
 
   get isGlobal(): boolean {
-    return this.scope.type === "global"
+    return this.scope.type === "global";
   }
 
   get isLocal(): boolean {
-    return !this.isGlobal
+    return !this.isGlobal;
   }
 
   get isManaged(): boolean {
-    return this.isGlobal
+    return this.isGlobal;
   }
 
   get isFree(): boolean {
-    return this.isLocal
+    return this.isLocal;
   }
-
 
   get scopeLabel(): string {
     if (this.isGlobal) {
-      return "Global"
+      return "Global";
     }
-    return `${this.scope.type} / ${this.scope.id}`
+    return `${this.scope.type} / ${this.scope.id}`;
   }
 
   get groupLabel(): string | null {
     if (!this.groupId) {
-      return null
+      return null;
     }
-    return this.groupName ?? this.groupKey
+    return this.groupName ?? this.groupKey;
   }
 }
 
@@ -80,46 +79,58 @@ export class Tag {
  * The UI stores ids on business objects, while screens need stable lookup and formatting helpers.
  */
 export class Tags {
-  private readonly tagsById: Map<string, Tag>
-  private readonly groupsById: Map<string, TagGroup>
-  private readonly tags: Tag[]
+  private readonly tagsById: Map<string, Tag>;
+  private readonly groupsById: Map<string, TagGroup>;
+  private readonly tags: Tag[];
 
   constructor(tags: TagDto[], groups: TagGroupDto[]) {
-    this.groupsById = new Map()
+    this.groupsById = new Map();
     for (const groupDto of groups) {
-      const group = new TagGroup(groupDto)
-      this.groupsById.set(group.id, group)
+      const group = new TagGroup(groupDto);
+      this.groupsById.set(group.id, group);
     }
 
-    this.tags = tags.map(tag => new Tag(tag, tag.groupId ? this.groupsById.get(tag.groupId) : undefined))
-    this.tagsById = new Map()
+    this.tags = tags.map(
+      (tag) =>
+        new Tag(
+          tag,
+          tag.groupId ? this.groupsById.get(tag.groupId) : undefined,
+        ),
+    );
+    this.tagsById = new Map();
     for (const tag of this.tags) {
-      this.tagsById.set(tag.id, tag)
+      this.tagsById.set(tag.id, tag);
     }
   }
 
   all(): Tag[] {
-    return this.tags
+    return this.tags;
   }
 
   listTagGroups(): TagGroup[] {
-    return [...this.groupsById.values()]
+    return [...this.groupsById.values()];
   }
 
   findTag(tagId: string): Tag | undefined {
-    return this.tagsById.get(tagId)
+    return this.tagsById.get(tagId);
   }
 
   findTagGroup(tagGroupId: string): TagGroup | undefined {
-    return this.groupsById.get(tagGroupId)
+    return this.groupsById.get(tagGroupId);
   }
 
   findTagByScopeAndKey(scope: TagScopeRef, key: string): Tag | undefined {
-    return this.tags.find(tag => tag.key === key && this.sameScope(tag.scope, scope))
+    return this.tags.find(
+      (tag) => tag.key === key && this.sameScope(tag.scope, scope),
+    );
   }
 
   findTagsByScope(scope: TagScopeRef, tagGroupId?: string): Tag[] {
-    return this.tags.filter(tag => this.sameScope(tag.scope, scope) && (tagGroupId == null || tag.groupId === tagGroupId))
+    return this.tags.filter(
+      (tag) =>
+        this.sameScope(tag.scope, scope) &&
+        (tagGroupId == null || tag.groupId === tagGroupId),
+    );
   }
 
   /**
@@ -128,14 +139,14 @@ export class Tags {
    * especially in cards and tables where a long identifier stretches the content unexpectedly.
    */
   formatLabel(tagId: string): string {
-    const tag = this.findTag(tagId)
+    const tag = this.findTag(tagId);
     if (!tag) {
-      return "..."
+      return "...";
     }
     if (!tag.groupKey) {
-      return tag.key
+      return tag.key;
     }
-    return `${tag.groupKey} / ${tag.key}`
+    return `${tag.groupKey} / ${tag.key}`;
   }
 
   /**
@@ -143,35 +154,35 @@ export class Tags {
    * tag key, optional tag name, managed group key, and optional managed group name.
    */
   search(query: string, excludedTagIds: string[]): Tag[] {
-    const normalizedQuery = query.trim().toLocaleLowerCase()
-    const excludedTagIdsSet = new Set(excludedTagIds)
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const excludedTagIdsSet = new Set(excludedTagIds);
 
-    return this.tags.filter(tag => {
+    return this.tags.filter((tag) => {
       if (excludedTagIdsSet.has(tag.id)) {
-        return false
+        return false;
       }
       if (normalizedQuery === "") {
-        return true
+        return true;
       }
-      return this.searchableText(tag).includes(normalizedQuery)
-    })
+      return this.searchableText(tag).includes(normalizedQuery);
+    });
   }
 
   private searchableText(tag: Tag): string {
-    const parts = [tag.key]
+    const parts = [tag.key];
     if (tag.name) {
-      parts.push(tag.name)
+      parts.push(tag.name);
     }
     if (tag.groupKey) {
-      parts.push(tag.groupKey)
+      parts.push(tag.groupKey);
     }
     if (tag.groupName) {
-      parts.push(tag.groupName)
+      parts.push(tag.groupName);
     }
-    return parts.join(" ").toLocaleLowerCase()
+    return parts.join(" ").toLocaleLowerCase();
   }
 
   private sameScope(left: TagScopeRef, right: TagScopeRef): boolean {
-    return left.type === right.type && left.id === right.id
+    return left.type === right.type && left.id === right.id;
   }
 }

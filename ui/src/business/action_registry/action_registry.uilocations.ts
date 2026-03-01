@@ -23,6 +23,7 @@ export const ActionUILocations = {
   tag_managed_group_list: "tag_managed_group_list",
   tag_managed_list: "tag_managed_list",
   type: "type",
-} as const
+} as const;
 
-export type ActionUILocation = (typeof ActionUILocations)[keyof typeof ActionUILocations]
+export type ActionUILocation =
+  (typeof ActionUILocations)[keyof typeof ActionUILocations];

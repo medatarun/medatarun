@@ -1,9 +1,9 @@
-import {createContext, useContext} from "react";
+import { createContext, useContext } from "react";
 import { Model } from "@/business/model";
-export const ModelContext = createContext<Model | undefined>(undefined)
+export const ModelContext = createContext<Model | undefined>(undefined);
 
 export function useModelContext(): Model {
-  const context = useContext(ModelContext)
-  if (context == null) throw Error("No ModelContext available")
-  return context
+  const context = useContext(ModelContext);
+  if (context == null) throw Error("No ModelContext available");
+  return context;
 }

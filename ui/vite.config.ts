@@ -1,6 +1,6 @@
-import {defineConfig} from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import path from 'node:path'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "node:path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,13 +13,16 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html'),
-        login: path.resolve(__dirname, 'login.html'),
+        main: path.resolve(__dirname, "index.html"),
+        login: path.resolve(__dirname, "login.html"),
       },
       output: {
         manualChunks(id) {
-          if (id.includes('@seij/common-ui') || id.includes('@seij/common-ui-auth')) {
-            return 'seij-common-ui';
+          if (
+            id.includes("@seij/common-ui") ||
+            id.includes("@seij/common-ui-auth")
+          ) {
+            return "seij-common-ui";
           }
           return undefined;
         },
@@ -29,8 +32,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:8080',
-      '/ui': 'http://localhost:8080'
-    }
-  }
-})
+      "/api": "http://localhost:8080",
+      "/ui": "http://localhost:8080",
+    },
+  },
+});
