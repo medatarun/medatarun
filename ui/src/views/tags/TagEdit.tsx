@@ -9,12 +9,12 @@ import {
   useTagManagedUpdateDescription,
   useTagManagedUpdateName,
   useModel
-} from "../../business";
-import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
-import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
+} from "@/business";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -27,14 +27,14 @@ import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
-} from "../../components/layout/Contained.tsx";
-import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
+} from "@/components/layout/Contained.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {createActionTemplateTag, detailActionLocation} from "../../components/business/tag/tag.actions.ts";
-import {TagGroupIcon, TagIcon} from "../../components/business/tag/tag.icons.tsx";
+import {createActionTemplateTag, detailActionLocation} from "@/components/business/tag/tag.actions.ts";
+import {TagGroupIcon, TagIcon} from "@/components/business/tag/tag.icons.tsx";
 
 export function TagEdit({tagId}: { tagId: string }) {
   const navigate = useNavigate()
