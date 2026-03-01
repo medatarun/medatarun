@@ -7,33 +7,33 @@ import {
   useEntityUpdateDescription,
   useEntityUpdateName,
   useModel
-} from "../../business";
-import {ModelContext, useModelContext} from "../../components/business/model/ModelContext.tsx";
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
+} from "@/business";
+import {ModelContext, useModelContext} from "@/components/business/model/ModelContext.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
-import {AttributesTable} from "../../components/business/model/AttributesTable.tsx";
-import {RelationshipsTable} from "../../components/business/model/RelationshipsTable.tsx";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
+import {AttributesTable} from "@/components/business/model/AttributesTable.tsx";
+import {RelationshipsTable} from "@/components/business/model/RelationshipsTable.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 
-import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
-import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
+import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
 import {EntityOverview} from "./EntityOverview.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
-} from "../../components/layout/Contained.tsx";
-import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {SectionTable} from "../../components/layout/SecionTable.tsx";
+} from "@/components/layout/Contained.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {SectionTable} from "@/components/layout/SecionTable.tsx";
 import {
   createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
-} from "../../components/business/model/model.actions.ts";
-import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
-import {AttributeIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
+} from "@/components/business/model/model.actions.ts";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {AttributeIcon, ModelIcon, RelationshipIcon} from "@/components/business/model/model.icons.tsx";
 
 
 export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {
@@ -153,4 +153,3 @@ export function EntityView({entity}: { entity: EntityDto }) {
     </ContainedMixedScrolling>
   </ViewLayoutContained>
 }
-

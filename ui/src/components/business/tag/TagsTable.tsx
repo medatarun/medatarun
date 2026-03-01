@@ -2,9 +2,9 @@ import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@
 import {useNavigate} from "@tanstack/react-router";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {type TagScopeRef, useActionRegistry, useTags} from "../../../business";
-import {ActionMenuButton} from "../model/TypesTable.tsx";
-import {Markdown} from "../../core/Markdown.tsx";
+import {type TagScopeRef, useActionRegistry, useTags} from "@/business";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
+import {Markdown} from "@/components/core/Markdown.tsx";
 import {createActionTemplateTag, detailActionLocation} from "./tag.actions.ts";
 
 const useStyles = makeStyles({

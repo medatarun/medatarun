@@ -7,15 +7,15 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import {CommandsPage} from "./views/CommandsPage.tsx";
-import {ModelsPage} from "./views/ModelsPage.tsx";
-import {ModelPage} from "./views/ModelPage.tsx";
-import {EntityPage} from "./views/entity/EntityPage.tsx";
-import {Layout2} from "./components/layout/layout.tsx";
-import {DashboardPage} from "./views/DashboardPage.tsx";
+import {CommandsPage} from "@/views/CommandsPage.tsx";
+import {ModelsPage} from "@/views/ModelsPage.tsx";
+import {ModelPage} from "@/views/ModelPage.tsx";
+import {EntityPage} from "@/views/entity/EntityPage.tsx";
+import {Layout2} from "@/components/layout/layout.tsx";
+import {DashboardPage} from "@/views/DashboardPage.tsx";
 import {type ConnectionConfig, defaultConnection} from "@seij/common-services";
 import {SeijUIProvider} from "@seij/common-ui";
-import {queryClient} from "./services/queryClient.ts";
+import {queryClient} from "@/services/queryClient.ts";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {
@@ -26,16 +26,16 @@ import {
   AuthenticationProvider,
   createAuthenticationConfig
 } from "@seij/common-ui-auth";
-import {getOrDefault} from "./utils/getOrDefault.ts";
-import {DetailLevelProvider} from "./components/business/DetailLevelContext.tsx";
-import {PreferencesPage} from "./views/PreferencesPage.tsx";
-import {AttributePage} from "./views/attribute/AttributePage.tsx";
-import {TypePage} from "./views/type/TypePage.tsx";
-import {RelationshipPage} from "./views/relationship/RelationshipPage.tsx";
-import {ReportsPage} from "./views/reports/ReportsPage.tsx";
-import {TagGroupsPage} from "./views/tags/TagGroupsPage.tsx";
-import {TagGroupEdit} from "./views/tags/TagGroupEdit.tsx";
-import {TagEdit} from "./views/tags/TagEdit.tsx";
+import {getOrDefault} from "@/utils/getOrDefault.ts";
+import {DetailLevelProvider} from "@/components/business/DetailLevelContext.tsx";
+import {PreferencesPage} from "@/views/PreferencesPage.tsx";
+import {AttributePage} from "@/views/attribute/AttributePage.tsx";
+import {TypePage} from "@/views/type/TypePage.tsx";
+import {RelationshipPage} from "@/views/relationship/RelationshipPage.tsx";
+import {ReportsPage} from "@/views/reports/ReportsPage.tsx";
+import {TagGroupsPage} from "@/views/tags/TagGroupsPage.tsx";
+import {TagGroupEdit} from "@/views/tags/TagGroupEdit.tsx";
+import {TagEdit} from "@/views/tags/TagEdit.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();

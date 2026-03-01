@@ -1,4 +1,4 @@
-import {ActionDescriptor, type ActionUILocation, useActionRegistry} from "../../../business";
+import {ActionDescriptor, type ActionUILocation, useActionRegistry} from "@/business";
 import {useActionPerformer} from "./ActionPerformerHook.tsx";
 import {Button, ButtonBar} from "@seij/common-ui"
 import type {ComponentProps} from "react";

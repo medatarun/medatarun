@@ -1,4 +1,4 @@
-import {type ActionDescriptor, ActionUILocations, type TypeDto, useActionRegistry} from "../../../business";
+import {type ActionDescriptor, ActionUILocations, type TypeDto, useActionRegistry} from "@/business";
 import {
   Button,
   makeStyles,
@@ -17,11 +17,11 @@ import {
 import {useModelContext} from "./ModelContext.tsx";
 
 import {Icon} from "@seij/common-ui-icons";
-import {useActionPerformer} from "../actions/ActionPerformerHook.tsx";
-import {useDetailLevelContext} from "../DetailLevelContext.tsx";
-import {Markdown} from "../../core/Markdown.tsx";
+import {useActionPerformer} from "@/components/business/actions/ActionPerformerHook.tsx";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {Markdown} from "@/components/core/Markdown.tsx";
 import {createActionTemplateType} from "./model.actions.ts";
-import type {ActionPerformerRequestParams} from "../actions/ActionPerformer.tsx";
+import type {ActionPerformerRequestParams} from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {

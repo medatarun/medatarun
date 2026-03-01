@@ -24,12 +24,12 @@ import {
   type FormFieldType,
   useActionRegistry,
   validateForm
-} from "../../../business";
+} from "@/business";
 import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, type ValidationResult} from "@seij/common-validation";
 import {Button, ErrorBox} from "@seij/common-ui";
-import {formDataNormalize} from "../../../business/action_form/action_form.normalize.ts";
+import {formDataNormalize} from "@/business/action_form/action_form.normalize.ts";
 import {isNil, isPlainObject} from "lodash-es";
 import {toProblem} from "@seij/common-types";
 

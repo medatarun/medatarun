@@ -1,5 +1,5 @@
-import {type ActionPayload, ActionRegistry, type ActionResp, executeAction} from "../../../business";
-import {queryClient} from "../../../services/queryClient.ts";
+import {type ActionPayload, ActionRegistry, type ActionResp, executeAction} from "@/business";
+import {queryClient} from "@/services/queryClient.ts";
 
 export type ActionPerformerRequestParam = {
   readonly: boolean,
@@ -93,4 +93,3 @@ export class ActionPerformer {
     return resp
   }
 }
-

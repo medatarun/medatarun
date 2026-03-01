@@ -1,7 +1,7 @@
-import type {RelationshipDto, RelationshipRoleDto} from "../../../business";
+import type {RelationshipDto, RelationshipRoleDto} from "@/business";
 import {useModelContext} from "./ModelContext.tsx";
 import {Link} from "@tanstack/react-router";
-import {Markdown} from "../../core/Markdown.tsx";
+import {Markdown} from "@/components/core/Markdown.tsx";
 
 export function RelationshipDescription(props: { rel: RelationshipDto }) {
 

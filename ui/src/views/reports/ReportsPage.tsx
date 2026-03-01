@@ -1,4 +1,4 @@
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -14,16 +14,16 @@ import {
   TagGroup,
   tokens
 } from "@fluentui/react-components";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ArrowDownloadRegular, DocumentBulletListRegular, SearchFilled} from "@fluentui/react-icons";
-import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable} from "../../components/layout/Contained.tsx";
-import {type SearchResult, type SearchResultLocation, useModelSearch} from "../../business";
+import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable} from "@/components/layout/Contained.tsx";
+import {type SearchResult, type SearchResultLocation, useModelSearch} from "@/business";
 import {useState} from "react";
 import {useNavigate} from "@tanstack/react-router";
 import {downloadCsv} from "@seij/common-ui-csv-export";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {sortBy} from "lodash-es";
-import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
+import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "@/components/business/model/model.icons.tsx";
 
 
 function createCsv(items: SearchResult[]) {

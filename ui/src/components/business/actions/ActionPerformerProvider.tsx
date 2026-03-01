@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState,} from 'react';
 import {ActionPerformer, type ActionPerformerState} from './ActionPerformer.tsx';
 import {ActionPerformerContext, type ActionPerformerContextValue} from "./ActionPerformerContext.tsx";
-import {useActionRegistry} from "../../../business";
+import {useActionRegistry} from "@/business";
 
 
 export function ActionProvider({children}: { children: React.ReactNode }) {
