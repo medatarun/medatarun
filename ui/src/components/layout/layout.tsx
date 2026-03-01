@@ -1,7 +1,7 @@
 import {Outlet, useLocation, useMatchRoute, useNavigate} from "@tanstack/react-router";
 import {MessageBar} from "@fluentui/react-components";
 import {useEffect, useState} from "react";
-import {ActionRegistry, ActionsContext, fetchActionDescriptors} from "@/business";
+import { ActionRegistry, ActionsContext, fetchActionDescriptors } from "@/business/action_registry";
 import {ActionPerformerView} from "@/components/business/actions/ActionPerformerView.tsx";
 import {ActionProvider} from "@/components/business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg"

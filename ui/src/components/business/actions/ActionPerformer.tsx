@@ -1,4 +1,5 @@
-import {type ActionPayload, ActionRegistry, type ActionResp, executeAction} from "@/business";
+import { type ActionPayload, type ActionResp, executeAction } from "@/business/action_runner";
+import { ActionRegistry } from "@/business/action_registry";
 import {queryClient} from "@/services/queryClient.ts";
 
 export type ActionPerformerRequestParam = {

@@ -1,5 +1,6 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, tokens} from "@fluentui/react-components";
-import {type ActionUILocation, type AttributeDto, useActionRegistry} from "@/business";
+import { type ActionUILocation, useActionRegistry } from "@/business/action_registry";
+import type { AttributeDto } from "@/business/model";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
 import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";

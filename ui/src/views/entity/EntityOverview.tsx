@@ -2,13 +2,7 @@ import {Text} from "@fluentui/react-components";
 import {ExternalUrl, Origin} from "../ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
 import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
-import {
-  type EntityDto,
-  useEntityAddTag,
-  useEntityDeleteTag,
-  useEntityUpdateDocumentationHome,
-  useEntityUpdateKey
-} from "@/business";
+import { type EntityDto, useEntityAddTag, useEntityDeleteTag, useEntityUpdateDocumentationHome, useEntityUpdateKey } from "@/business/model";
 import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
 import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
 import {MissingInformation} from "@/components/core/MissingInformation.tsx";

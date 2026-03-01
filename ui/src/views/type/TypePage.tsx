@@ -1,14 +1,6 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  Model,
-  type TypeDto,
-  useActionRegistry,
-  useModel,
-  useTypeUpdateDescription,
-  useTypeUpdateKey,
-  useTypeUpdateName
-} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { Model, type TypeDto, useModel, useTypeUpdateDescription, useTypeUpdateKey, useTypeUpdateName } from "@/business/model";
 import {ModelContext} from "@/components/business/model/ModelContext.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {

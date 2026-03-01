@@ -1,5 +1,5 @@
 import {Card, CardHeader, Text} from "@fluentui/react-components";
-import type {EntityDto} from "@/business";
+import { type EntityDto } from "@/business/model";
 import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
 import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
 import {useModelContext} from "./ModelContext.tsx";

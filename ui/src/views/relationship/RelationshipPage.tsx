@@ -1,16 +1,5 @@
-import {
-  ActionUILocations,
-  Model,
-  type RelationshipDto,
-  type RelationshipRoleDto,
-  useActionRegistry,
-  useModel,
-  useRelationshipAddTag,
-  useRelationshipDeleteTag,
-  useRelationshipUpdateDescription,
-  useRelationshipUpdateKey,
-  useRelationshipUpdateName
-} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { Model, type RelationshipDto, type RelationshipRoleDto, useModel, useRelationshipAddTag, useRelationshipDeleteTag, useRelationshipUpdateDescription, useRelationshipUpdateKey, useRelationshipUpdateName } from "@/business/model";
 import {ModelContext} from "@/components/business/model/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
 import {

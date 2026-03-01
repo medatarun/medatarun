@@ -17,14 +17,9 @@ import {
 
 import {type Ref, useEffect, useRef, useState} from "react";
 import {ActionOutputBox} from "./ActionOutput.tsx";
-import {
-  ActionDescriptor,
-  type ActionResp,
-  type FormDataType,
-  type FormFieldType,
-  useActionRegistry,
-  validateForm
-} from "@/business";
+import {type ActionResp} from "@/business/action_runner";
+import {type FormDataType, type FormFieldType, validateForm} from "@/business/action_form";
+import {ActionDescriptor, useActionRegistry} from "@/business/action_registry";
 import type {ActionPerformerRequestParams, ActionPerformerState} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
 import {combineValidationResults, type ValidationResult} from "@seij/common-validation";

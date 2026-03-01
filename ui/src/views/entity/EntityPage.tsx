@@ -1,13 +1,6 @@
 import {useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  type EntityDto,
-  Model,
-  useActionRegistry,
-  useEntityUpdateDescription,
-  useEntityUpdateName,
-  useModel
-} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { type EntityDto, Model, useEntityUpdateDescription, useEntityUpdateName, useModel } from "@/business/model";
 import {ModelContext, useModelContext} from "@/components/business/model/ModelContext.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";

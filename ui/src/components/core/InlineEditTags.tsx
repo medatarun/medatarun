@@ -13,7 +13,7 @@ import {
   type TagPickerProps
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
-import {Tags, useTags, type TagScopeRef} from "@/business";
+import { Tags, useTags, type TagScopeRef } from "@/business/tag";
 import {useActionPerformer} from "@/components/business/actions/ActionPerformerHook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:"

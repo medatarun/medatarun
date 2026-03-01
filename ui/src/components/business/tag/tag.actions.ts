@@ -1,4 +1,5 @@
-import {ActionUILocations, Tag} from "@/business";
+import { ActionUILocations } from "@/business/action_registry";
+import { Tag } from "@/business/tag";
 import type {ActionPerformerRequestParams} from "@/components/business/actions/ActionPerformer.tsx";
 import {refid} from "@/business/action_runner";
 

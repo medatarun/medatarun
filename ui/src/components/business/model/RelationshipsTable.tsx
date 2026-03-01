@@ -1,6 +1,7 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import {ActionUILocations, type RelationshipDto, useActionRegistry} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import type { RelationshipDto } from "@/business/model";
 import {useModelContext} from "./ModelContext.tsx";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";

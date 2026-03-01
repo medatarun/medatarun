@@ -17,7 +17,7 @@ import {
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ArrowDownloadRegular, DocumentBulletListRegular, SearchFilled} from "@fluentui/react-icons";
 import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable} from "@/components/layout/Contained.tsx";
-import {type SearchResult, type SearchResultLocation, useModelSearch} from "@/business";
+import { type SearchResult, type SearchResultLocation, useModelSearch } from "@/business/model";
 import {useState} from "react";
 import {useNavigate} from "@tanstack/react-router";
 import {downloadCsv} from "@seij/common-ui-csv-export";

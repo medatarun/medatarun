@@ -1,18 +1,6 @@
 import {useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  type ElementOrigin,
-  Model,
-  useActionRegistry,
-  useModel,
-  useModelAddTag,
-  useModelDeleteTag,
-  useModelUpdateDescription,
-  useModelUpdateDocumentationHome,
-  useModelUpdateKey,
-  useModelUpdateName,
-  useModelUpdateVersion
-} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { type ElementOrigin, Model, useModel, useModelAddTag, useModelDeleteTag, useModelUpdateDescription, useModelUpdateDocumentationHome, useModelUpdateKey, useModelUpdateName, useModelUpdateVersion } from "@/business/model";
 import {ModelContext, useModelContext} from "@/components/business/model/ModelContext.tsx";
 import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
 import {InfoLabel, Text, tokens} from "@fluentui/react-components";

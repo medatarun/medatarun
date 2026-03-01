@@ -1,4 +1,5 @@
-import {type ActionDescriptor, ActionUILocations, type TypeDto, useActionRegistry} from "@/business";
+import { type ActionDescriptor, ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import type { TypeDto } from "@/business/model";
 import {
   Button,
   makeStyles,

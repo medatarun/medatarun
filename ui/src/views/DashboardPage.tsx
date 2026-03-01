@@ -2,7 +2,7 @@ import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {tokens} from "@fluentui/react-components";
 import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
-import {ActionUILocations, useActionRegistry} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
 import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ContainedHumanReadable} from "@/components/layout/Contained.tsx";
 import {createActionTemplateGeneral} from "@/components/business/model/model.actions.ts";

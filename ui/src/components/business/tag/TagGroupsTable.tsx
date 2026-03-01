@@ -1,5 +1,6 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
-import {ActionUILocations, type TagGroup, useActionRegistry} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import type { TagGroup } from "@/business/tag";
 import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
 import {Markdown} from "@/components/core/Markdown.tsx";
 import {createActionTemplateTagGroup} from "./tag.actions.ts";

@@ -1,4 +1,4 @@
-import type {RelationshipDto, RelationshipRoleDto} from "@/business";
+import type { RelationshipDto, RelationshipRoleDto } from "@/business/model";
 import {useModelContext} from "./ModelContext.tsx";
 import {Link} from "@tanstack/react-router";
 import {Markdown} from "@/components/core/Markdown.tsx";

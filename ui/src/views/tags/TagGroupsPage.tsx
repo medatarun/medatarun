@@ -1,5 +1,6 @@
 import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, useActionRegistry, useTags} from "@/business";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { useTags } from "@/business/tag";
 import {TagGroupsTable} from "@/components/business/tag/TagGroupsTable.tsx";
 import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
