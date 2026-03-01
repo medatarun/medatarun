@@ -4,7 +4,7 @@ import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {
   AddRegular,
   ArrowDownloadRegular,
-  DeleteRegular,
+  DismissRegular,
   DocumentBulletListRegular,
   SearchFilled,
 } from "@fluentui/react-icons";
@@ -177,24 +177,6 @@ export function ReportsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr auto",
-                gap: tokens.spacingHorizontalM,
-                alignItems: "end",
-              }}
-            >
-              <div />
-              <Button
-                appearance="primary"
-                icon={<SearchFilled />}
-                onClick={handleClickSearch}
-              >
-                Search
-              </Button>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
                 gridTemplateColumns: "auto auto 1fr auto",
                 rowGap: tokens.spacingVerticalM,
                 columnGap: tokens.spacingHorizontalM,
@@ -216,9 +198,26 @@ export function ReportsPage() {
               ))}
             </div>
 
-            <div>
-              <Button icon={<AddRegular />} onClick={handleAddFilter}>
-                Add filter
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "auto auto 1fr auto",
+                columnGap: tokens.spacingHorizontalM,
+                alignItems: "center",
+              }}
+            >
+              <div style={{ gridColumn: "1 / 4" }}>
+                <Button
+                  appearance="primary"
+                  icon={<SearchFilled />}
+                  disabled={draftQuery.items.length === 0}
+                  onClick={handleClickSearch}
+                >
+                  Show results
+                </Button>
+              </div>
+              <Button appearance="outline" icon={<AddRegular />} onClick={handleAddFilter}>
+                Add condition
               </Button>
             </div>
 
@@ -321,7 +320,7 @@ function FilterRowEditor({
       </div>
       <Button
         appearance="subtle"
-        icon={<DeleteRegular />}
+        icon={<DismissRegular />}
         onClick={() => onDelete(filter.id)}
       >
         Remove
