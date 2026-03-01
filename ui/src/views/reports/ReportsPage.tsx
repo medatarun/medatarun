@@ -193,7 +193,7 @@ export function ReportsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "auto 1fr auto auto",
+                gridTemplateColumns: "auto auto 1fr auto",
                 rowGap: tokens.spacingVerticalM,
                 columnGap: tokens.spacingHorizontalM,
                 alignItems: "center",
@@ -203,7 +203,7 @@ export function ReportsPage() {
                 <FilterRowEditor
                   key={filter.id}
                   filter={filter}
-                  isLastRow={index === draftQuery.items.length - 1}
+                  isFirstRow={index === 0}
                   operator={draftQuery.operator}
                   onDelete={handleDeleteFilter}
                   onOperatorChange={handleChangeOperator}
@@ -254,7 +254,7 @@ export function ReportsPage() {
 
 function FilterRowEditor({
   filter,
-  isLastRow,
+  isFirstRow,
   operator,
   onDelete,
   onOperatorChange,
@@ -262,7 +262,7 @@ function FilterRowEditor({
   onChange,
 }: {
   filter: ModelSearchFilter;
-  isLastRow: boolean;
+  isFirstRow: boolean;
   operator: ModelSearchReq["operator"];
   onDelete: (filterId: string) => void;
   onOperatorChange: DropdownProps["onOptionSelect"];
@@ -279,6 +279,20 @@ function FilterRowEditor({
 
   return (
     <>
+      {isFirstRow ? (
+        <div />
+      ) : (
+        <Dropdown
+          aria-label="Combine filters with"
+          value={operator.toUpperCase()}
+          selectedOptions={[operator]}
+          onOptionSelect={onOperatorChange}
+          appearance="outline"
+        >
+          <Option value="and">AND</Option>
+          <Option value="or">OR</Option>
+        </Dropdown>
+      )}
       <Dropdown
         aria-label="Filter type"
         value={filter.type === "tags" ? "Tag" : "Model item field"}
@@ -298,19 +312,6 @@ function FilterRowEditor({
           <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
         )}
       </div>
-      {isLastRow ? (
-        <div />
-      ) : (
-        <Dropdown
-          aria-label="Combine filters with"
-          value={operator.toUpperCase()}
-          selectedOptions={[operator]}
-          onOptionSelect={onOperatorChange}
-        >
-          <Option value="and">AND</Option>
-          <Option value="or">OR</Option>
-        </Dropdown>
-      )}
       <Button
         appearance="subtle"
         icon={<DeleteRegular />}
