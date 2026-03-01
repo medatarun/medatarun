@@ -22,6 +22,7 @@ import {v7 as uuidv7} from "uuid";
 import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
 import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
 import {FilterModelItemFieldRowEditor} from "./components/FilterModelItemFieldRowEditor.tsx";
+import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
@@ -86,6 +87,7 @@ function changeFilterType(type: FilterRowType): ModelSearchFilter {
 }
 
 export function ReportsPage() {
+  const styles = useCompactDropdownStyles();
   const [draftQuery, setDraftQuery] = useState<ModelSearchReq>(loadStoredQuery);
   const [appliedQuery, setAppliedQuery] = useState<ModelSearchReq>(
     loadStoredQuery,
@@ -205,6 +207,7 @@ export function ReportsPage() {
                   filter={filter}
                   isFirstRow={index === 0}
                   operator={draftQuery.operator}
+                  compactDropdownClassName={styles.compactDropdown}
                   onDelete={handleDeleteFilter}
                   onOperatorChange={handleChangeOperator}
                   onTypeChange={handleChangeFilterType}
@@ -256,6 +259,7 @@ function FilterRowEditor({
   filter,
   isFirstRow,
   operator,
+  compactDropdownClassName,
   onDelete,
   onOperatorChange,
   onTypeChange,
@@ -264,6 +268,7 @@ function FilterRowEditor({
   filter: ModelSearchFilter;
   isFirstRow: boolean;
   operator: ModelSearchReq["operator"];
+  compactDropdownClassName: string;
   onDelete: (filterId: string) => void;
   onOperatorChange: DropdownProps["onOptionSelect"];
   onTypeChange: (filterId: string, type: FilterRowType) => void;
@@ -283,6 +288,7 @@ function FilterRowEditor({
         <div />
       ) : (
         <Dropdown
+          className={compactDropdownClassName}
           aria-label="Combine filters with"
           value={operator.toUpperCase()}
           selectedOptions={[operator]}
@@ -294,6 +300,7 @@ function FilterRowEditor({
         </Dropdown>
       )}
       <Dropdown
+        className={compactDropdownClassName}
         aria-label="Filter type"
         value={filter.type === "tags" ? "Tag" : "Model item field"}
         selectedOptions={[filter.type]}

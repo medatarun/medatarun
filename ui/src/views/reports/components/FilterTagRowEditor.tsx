@@ -4,8 +4,13 @@ import {
   type ModelSearchTagFilterCondition,
 } from "@/business/model";
 import { useTags } from "@/business/tag";
-import { Dropdown, Option, type DropdownProps } from "@fluentui/react-components";
+import {
+  Dropdown,
+  Option,
+  type DropdownProps,
+} from "@fluentui/react-components";
 import { FilterTagPicker } from "./FilterTagPicker.tsx";
+import { useCompactDropdownStyles } from "./Reports.styles.tsx";
 
 export function FilterTagRowEditor({
   filter,
@@ -14,6 +19,7 @@ export function FilterTagRowEditor({
   filter: ModelSearchTagFilter;
   onChange: (filter: ModelSearchFilter) => void;
 }) {
+  const styles = useCompactDropdownStyles();
   const { tags, isPending } = useTags();
 
   const handleChangeCondition: DropdownProps["onOptionSelect"] = (_, data) => {
@@ -36,6 +42,7 @@ export function FilterTagRowEditor({
   return (
     <div style={{display: "flex", columnGap: "1em"}}>
       <Dropdown
+        className={styles.compactDropdown}
         aria-label="Tag filter condition"
         value={tagConditionLabel(filter.condition)}
         selectedOptions={[filter.condition]}

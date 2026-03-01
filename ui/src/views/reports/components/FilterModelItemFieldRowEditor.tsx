@@ -9,6 +9,7 @@ import {
   Option,
   type DropdownProps,
 } from "@fluentui/react-components";
+import { useCompactDropdownStyles } from "./Reports.styles.tsx";
 
 export function FilterModelItemFieldRowEditor({
   filter,
@@ -17,6 +18,7 @@ export function FilterModelItemFieldRowEditor({
   filter: Extract<ModelSearchFilter, { type: "modelItemField" }>;
   onChange: (filter: ModelSearchFilter) => void;
 }) {
+  const styles = useCompactDropdownStyles();
   const handleChangeField: DropdownProps["onOptionSelect"] = (_, data) => {
     const field = data.optionValue as ModelSearchModelItemField | undefined;
     if (field == null) {
@@ -43,6 +45,7 @@ export function FilterModelItemFieldRowEditor({
   return (
     <>
       <Dropdown
+        className={styles.compactDropdown}
         aria-label="Model item field"
         value={modelItemFieldLabel(filter.field)}
         selectedOptions={[filter.field]}
@@ -53,6 +56,7 @@ export function FilterModelItemFieldRowEditor({
         <Option value="description">Description</Option>
       </Dropdown>
       <Dropdown
+        className={styles.compactDropdown}
         aria-label="Model item field condition"
         value={modelItemFieldConditionLabel(filter.condition)}
         selectedOptions={[filter.condition]}
