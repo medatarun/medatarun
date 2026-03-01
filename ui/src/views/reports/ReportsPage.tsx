@@ -175,20 +175,11 @@ export function ReportsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "180px 1fr auto",
+                gridTemplateColumns: "1fr auto",
                 gap: tokens.spacingHorizontalM,
                 alignItems: "end",
               }}
             >
-              <Dropdown
-                aria-label="Combine filters with"
-                value={draftQuery.operator.toUpperCase()}
-                selectedOptions={[draftQuery.operator]}
-                onOptionSelect={handleChangeOperator}
-              >
-                <Option value="and">AND</Option>
-                <Option value="or">OR</Option>
-              </Dropdown>
               <div />
               <Button
                 appearance="primary"
@@ -202,17 +193,20 @@ export function ReportsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "auto 1fr auto",
+                gridTemplateColumns: "auto 1fr auto auto",
                 rowGap: tokens.spacingVerticalM,
                 columnGap: tokens.spacingHorizontalM,
                 alignItems: "center",
               }}
             >
-              {draftQuery.items.map((filter) => (
+              {draftQuery.items.map((filter, index) => (
                 <FilterRowEditor
                   key={filter.id}
                   filter={filter}
+                  isLastRow={index === draftQuery.items.length - 1}
+                  operator={draftQuery.operator}
                   onDelete={handleDeleteFilter}
+                  onOperatorChange={handleChangeOperator}
                   onTypeChange={handleChangeFilterType}
                   onChange={handleUpdateFilter}
                 />
@@ -260,12 +254,18 @@ export function ReportsPage() {
 
 function FilterRowEditor({
   filter,
+  isLastRow,
+  operator,
   onDelete,
+  onOperatorChange,
   onTypeChange,
   onChange,
 }: {
   filter: ModelSearchFilter;
+  isLastRow: boolean;
+  operator: ModelSearchReq["operator"];
   onDelete: (filterId: string) => void;
+  onOperatorChange: DropdownProps["onOptionSelect"];
   onTypeChange: (filterId: string, type: FilterRowType) => void;
   onChange: (filter: ModelSearchFilter) => void;
 }) {
@@ -298,6 +298,19 @@ function FilterRowEditor({
           <FilterModelItemFieldRowEditor filter={filter} onChange={onChange} />
         )}
       </div>
+      {isLastRow ? (
+        <div />
+      ) : (
+        <Dropdown
+          aria-label="Combine filters with"
+          value={operator.toUpperCase()}
+          selectedOptions={[operator]}
+          onOptionSelect={onOperatorChange}
+        >
+          <Option value="and">AND</Option>
+          <Option value="or">OR</Option>
+        </Dropdown>
+      )}
       <Button
         appearance="subtle"
         icon={<DeleteRegular />}
