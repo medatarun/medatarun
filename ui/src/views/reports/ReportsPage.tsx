@@ -23,7 +23,7 @@ import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
 import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
 import {FilterTextRowEditor} from "./components/FilterTextRowEditor.tsx";
 import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
-import {ButtonBar} from "@seij/common-ui";
+import {ButtonBar, Loader} from "@seij/common-ui";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 
@@ -234,12 +234,17 @@ export function ReportsPage() {
               <MissingInformation>Add at least one filter to search.</MissingInformation>
             </div>
           )}
-          {hasFilters && items.length === 0 && (
+          {query.isPending && (
+            <div style={{ padding: tokens.spacingVerticalM }}>
+              <Loader loading={true} />
+            </div>
+          )}
+          {hasFilters && !query.isPending && items.length === 0 && (
             <div style={{ padding: tokens.spacingVerticalM }}>
               <MissingInformation>No results.</MissingInformation>
             </div>
           )}
-          {items.length > 0 && (
+          {!query.isPending && items.length > 0 && (
             <ResultTable items={items} />
 
           )}
