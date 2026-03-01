@@ -1,7 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {fetchModel, fetchModelSummaries} from "./model.api.ts";
 import type {SearchResults} from "./model.dto.ts";
-import {type ActionPayload, executeAction} from "../action_perform.api.ts";
+import {type ActionPayload, executeAction} from "../action_runner";
 import {toProblem} from "@seij/common-types";
 
 export async function modelSearch(tags: string): Promise<SearchResults> {

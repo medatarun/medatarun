@@ -1,5 +1,5 @@
-import {api} from "../services/api.ts";
-import {queryClient} from "../services/queryClient.ts";
+import {api} from "../../services/api.ts";
+import {queryClient} from "../../services/queryClient.ts";
 import {Problem} from "@seij/common-types";
 
 export type ActionResp<T = unknown> =

@@ -1,9 +1,6 @@
 import type {TagDto, TagGroupDto, TagScopeRef} from "./tag.dto.ts";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {type ActionPayload, executeAction} from "../action_perform.api.ts";
-
-
-
+import {type ActionPayload, executeAction} from "../action_runner";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null

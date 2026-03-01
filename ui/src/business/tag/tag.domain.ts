@@ -1,4 +1,3 @@
-import {ActionUILocations} from "../action_registry.uilocations.ts";
 import type {TagDto, TagGroupDto, TagScopeRef} from "./tag.dto.ts";
 
 export class TagGroup {
