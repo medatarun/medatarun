@@ -14,7 +14,7 @@ import {
 } from "@fluentui/react-components";
 import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
 import {Tags, useTags, type TagScopeRef} from "../../business";
-import {useActionPerformer} from "../business/ActionPerformerHook.tsx";
+import {useActionPerformer} from "../business/actions/ActionPerformerHook.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:"
 

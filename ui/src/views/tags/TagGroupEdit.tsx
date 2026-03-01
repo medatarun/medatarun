@@ -7,13 +7,8 @@ import {
   useTagGroupUpdateKey,
   useTagGroupUpdateName
 } from "../../business";
-import {TagGroupIcon} from "../../components/business/Icons.tsx";
-import {TagsTable} from "../../components/business/TagsTable.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {
-  createActionTemplateTagGroup,
-  createActionTemplateTagManagedList
-} from "../../components/business/actionTemplates.ts";
+import {TagsTable} from "../../components/business/tag/TagsTable.tsx";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
@@ -38,6 +33,11 @@ import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {
+  createActionTemplateTagGroup,
+  createActionTemplateTagManagedList
+} from "../../components/business/tag/tag.actions.ts";
+import {TagGroupIcon} from "../../components/business/tag/tag.icons.tsx";
 
 export function TagGroupEdit({tagGroupId}: { tagGroupId: string }) {
   const navigate = useNavigate()

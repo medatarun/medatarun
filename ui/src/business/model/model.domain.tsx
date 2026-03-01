@@ -1,71 +1,4 @@
-import type {RelationshipDto} from "./relationships.tsx";
-
-
-export interface ModelSummaryDto {
-  id: string,
-  key: string,
-  name: string | null,
-  description: string | null,
-  error: string | null,
-  countTypes: number,
-  countEntities: number,
-  countRelationships: number
-}
-
-export interface ModelDto {
-  id: string
-  key: string
-  name: string | null
-  version: string
-  documentationHome: string | null
-  tags: string[]
-  description: string | null
-  origin: ElementOrigin
-  entities: EntityDto[]
-  relationships: RelationshipDto[]
-  types: TypeDto[]
-}
-
-export interface TypeDto {
-  id: string
-  key: string
-  name: string | null
-  description: string | null
-}
-
-
-export interface ElementOrigin {
-  type: "manual" | "uri",
-  uri: string | null
-}
-
-
-export interface EntityDto {
-  id: string
-  key: string
-  name: string | null
-  description: string | null
-  documentationHome: string | null
-  tags: string[]
-  origin: EntityOriginDto
-  attributes: AttributeDto[]
-}
-
-export interface AttributeDto {
-  id: string
-  key: string
-  name: string | null
-  description: string | null
-  type: string
-  optional: boolean
-  identifierAttribute: boolean
-  tags: string[]
-}
-
-interface EntityOriginDto {
-  type: "manual" | "uri",
-  uri: string | null
-}
+import type {ModelDto, TypeDto} from "./model.dto.ts";
 
 
 export class Model {
@@ -116,6 +49,7 @@ export class Model {
   findRelationshipDto(relationshipId: string) {
     return this.dto.relationships.find(it => it.id === relationshipId)
   }
+
   findRelationshipNameOrKey(id: string): string | null {
     const e = this.dto.relationships.find(it => it.id === id)
     return e?.name ?? e?.key ?? null

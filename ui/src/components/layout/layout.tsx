@@ -2,8 +2,8 @@ import {Outlet, useLocation, useMatchRoute, useNavigate} from "@tanstack/react-r
 import {MessageBar} from "@fluentui/react-components";
 import {useEffect, useState} from "react";
 import {ActionRegistry, ActionsContext, fetchActionDescriptors} from "../../business";
-import {ActionPerformerView} from "../business/ActionPerformerView.tsx";
-import {ActionProvider} from "../business/ActionPerformerProvider.tsx";
+import {ActionPerformerView} from "../business/actions/ActionPerformerView.tsx";
+import {ActionProvider} from "../business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg"
 import {ErrorBoundary} from "./ErrorBoundary.tsx";
 import {Loader, type NavigationTreeItem} from "@seij/common-ui";

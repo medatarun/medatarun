@@ -1,11 +1,11 @@
-import {ModelCard} from "../components/business/ModelCard.tsx";
+import {ModelCard} from "../components/business/model/ModelCard.tsx";
 import {ActionUILocations, type ModelSummaryDto, useActionRegistry, useModelSummaries} from "../business";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
-import {ModelIcon} from "../components/business/Icons.tsx";
 import {tokens} from "@fluentui/react-components";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
-import {ActionMenuButton} from "../components/business/TypesTable.tsx";
-import {createActionTemplateGeneral} from "../components/business/actionTemplates.ts";
+import {ActionMenuButton} from "../components/business/model/TypesTable.tsx";
+import {createActionTemplateGeneral} from "../components/business/model/model.actions.ts";
+import {ModelIcon} from "../components/business/model/model.icons.tsx";
 
 
 export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => void }) {

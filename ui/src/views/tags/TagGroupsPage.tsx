@@ -1,9 +1,7 @@
 import {useNavigate} from "@tanstack/react-router";
 import {ActionUILocations, useActionRegistry, useTags} from "../../business";
-import {TagGroupIcon} from "../../components/business/Icons.tsx";
-import {TagGroupsTable} from "../../components/business/TagGroupsTable.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {createActionTemplateTagGroupList} from "../../components/business/actionTemplates.ts";
+import {TagGroupsTable} from "../../components/business/tag/TagGroupsTable.tsx";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {
   ContainedHumanReadable,
@@ -17,6 +15,8 @@ import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.t
 import {tokens} from "@fluentui/react-components";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {createActionTemplateTagGroupList} from "../../components/business/tag/tag.actions.ts";
+import {TagGroupIcon} from "../../components/business/tag/tag.icons.tsx";
 
 export function TagGroupsPage() {
   const navigate = useNavigate()

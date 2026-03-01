@@ -8,16 +8,15 @@ import {
   useEntityUpdateName,
   useModel
 } from "../../business";
-import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
+import {ModelContext, useModelContext} from "../../components/business/model/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens} from "@fluentui/react-components";
-import {AttributeIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
-import {AttributesTable} from "../../components/business/AttributesTable.tsx";
-import {RelationshipsTable} from "../../components/business/RelationshipsTable.tsx";
+import {AttributesTable} from "../../components/business/model/AttributesTable.tsx";
+import {RelationshipsTable} from "../../components/business/model/RelationshipsTable.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 
 import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {EntityOverview} from "./EntityOverview.tsx";
 import {
   ContainedHumanReadable,
@@ -30,10 +29,11 @@ import {
   createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships
-} from "../../components/business/actionTemplates.ts";
+} from "../../components/business/model/model.actions.ts";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
+import {AttributeIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
 
 
 export function EntityPage({modelId, entityId}: { modelId: string, entityId: string }) {

@@ -10,6 +10,4 @@ export const ModelIcon = BoxRegular
 export const EntityIcon = ClipboardBulletListRegular
 export const AttributeIcon = TextBulletListSquareRegular
 export const RelationshipIcon = LinkRegular
-export const TagGroupIcon = ClipboardBulletListRegular
-export const TagIcon = TextBulletListSquareRegular
 export const TypeIcon = ScanTypeRegular

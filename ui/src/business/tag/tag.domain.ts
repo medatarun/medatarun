@@ -1,5 +1,5 @@
-import {ActionUILocations} from "./action_registry.uilocations.ts";
-import type {TagGroupListItemDto, TagScopeRef, TagSearchItemDto} from "./action_perform.hooks.ts";
+import {ActionUILocations} from "../action_registry.uilocations.ts";
+import type {TagDto, TagGroupDto, TagScopeRef} from "./tag.dto.ts";
 
 export class TagGroup {
   readonly id: string
@@ -7,7 +7,7 @@ export class TagGroup {
   readonly name: string | null
   readonly description: string | null
 
-  constructor(dto: TagGroupListItemDto) {
+  constructor(dto: TagGroupDto) {
     this.id = dto.id
     this.key = dto.key
     this.name = dto.name
@@ -29,7 +29,7 @@ export class Tag {
   readonly groupKey: string | null
   readonly groupName: string | null
 
-  constructor(dto: TagSearchItemDto, tagGroup: TagGroup | undefined) {
+  constructor(dto: TagDto, tagGroup: TagGroup | undefined) {
     this.id = dto.id
     this.key = dto.key
     this.groupId = dto.groupId
@@ -60,9 +60,6 @@ export class Tag {
     return this.isLocal
   }
 
-  get detailActionLocation() {
-    return this.isGlobal ? ActionUILocations.tag_managed_detail : ActionUILocations.tag_free_detail
-  }
 
   get scopeLabel(): string {
     if (this.isGlobal) {
@@ -88,7 +85,7 @@ export class Tags {
   private readonly groupsById: Map<string, TagGroup>
   private readonly tags: Tag[]
 
-  constructor(tags: TagSearchItemDto[], groups: TagGroupListItemDto[]) {
+  constructor(tags: TagDto[], groups: TagGroupDto[]) {
     this.groupsById = new Map()
     for (const groupDto of groups) {
       const group = new TagGroup(groupDto)

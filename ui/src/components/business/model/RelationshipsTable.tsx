@@ -1,10 +1,10 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@fluentui/react-components";
 import {RelationshipDescription} from "./RelationshipDescription.tsx";
-import {ActionUILocations, type RelationshipDto, useActionRegistry} from "../../business";
+import {ActionUILocations, type RelationshipDto, useActionRegistry} from "../../../business";
 import {useModelContext} from "./ModelContext.tsx";
 import {ActionMenuButton} from "./TypesTable.tsx";
-import {useDetailLevelContext} from "./DetailLevelContext.tsx";
-import {createActionTemplateRelationship} from "./actionTemplates.ts";
+import {useDetailLevelContext} from "../DetailLevelContext.tsx";
+import {createActionTemplateRelationship} from "./model.actions.ts";
 
 const useStyles = makeStyles({
   titleCell: {

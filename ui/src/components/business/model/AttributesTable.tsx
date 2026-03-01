@@ -1,11 +1,11 @@
 import {makeStyles, Table, TableBody, TableCell, TableRow, tokens} from "@fluentui/react-components";
-import {type ActionUILocation, type AttributeDto, useActionRegistry} from "../../business";
+import {type ActionUILocation, type AttributeDto, useActionRegistry} from "../../../business";
 import {ActionMenuButton} from "./TypesTable.tsx";
 import {useModelContext} from "./ModelContext.tsx";
-import {useDetailLevelContext} from "./DetailLevelContext.tsx";
-import {modelTagScope, Tags} from "../core/Tag.tsx";
-import {Markdown} from "../core/Markdown.tsx";
-import type {ActionPerformerRequestParams} from "./ActionPerformer.tsx";
+import {useDetailLevelContext} from "../DetailLevelContext.tsx";
+import {modelTagScope, Tags} from "../../core/Tag.tsx";
+import {Markdown} from "../../core/Markdown.tsx";
+import type {ActionPerformerRequestParams} from "../actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {

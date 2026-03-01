@@ -10,9 +10,7 @@ import {
   useTagManagedUpdateName,
   useModel
 } from "../../business";
-import {TagGroupIcon, TagIcon} from "../../components/business/Icons.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
-import {createActionTemplateTag} from "../../components/business/actionTemplates.ts";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
@@ -35,6 +33,8 @@ import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
+import {createActionTemplateTag, detailActionLocation} from "../../components/business/tag/tag.actions.ts";
+import {TagGroupIcon, TagIcon} from "../../components/business/tag/tag.icons.tsx";
 
 export function TagEdit({tagId}: { tagId: string }) {
   const navigate = useNavigate()
@@ -53,7 +53,7 @@ export function TagEdit({tagId}: { tagId: string }) {
 
   const isGlobalTag = tag.isGlobal
 
-  const actions = actionRegistry.findActions(tag.detailActionLocation)
+  const actions = actionRegistry.findActions(detailActionLocation(tag))
 
   const handleClickTagGroups = () => {
     navigate({to: "/tag-groups"})

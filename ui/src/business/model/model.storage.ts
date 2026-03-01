@@ -1,170 +1,8 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {type ActionPayload, executeAction} from "./action_perform.api.ts";
+import {fetchModel, fetchModelSummaries} from "./model.api.ts";
+import type {SearchResults} from "./model.dto.ts";
+import {type ActionPayload, executeAction} from "../action_perform.api.ts";
 import {toProblem} from "@seij/common-types";
-
-export type TagScopeRef =
-  | {type: "global", id: null}
-  | {type: string, id: string}
-
-export type TagSearchReq = {
-  filters?: TagSearchFilters | null
-}
-
-export type TagSearchFilters = {
-  operator: "and" | "or"
-  items: TagSearchFilter[]
-}
-
-export type TagSearchFilter = {
-  type: "scopeRef"
-  condition: "is"
-  value: TagScopeRef
-}
-
-export type TagSearchItemDto = {
-  id: string
-  key: string
-  groupId: string | null
-  tagScopeRef: TagScopeRef
-  name: string | null
-  description: string | null
-}
-
-export type TagSearchResp = {
-  items: TagSearchItemDto[]
-}
-
-export type TagGroupListItemDto = {
-  id: string
-  key: string
-  name: string | null
-  description: string | null
-}
-
-export type TagGroupListResp = {
-  items: TagGroupListItemDto[]
-}
-
-export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
-  return useQuery({
-    queryKey: ["action", "tag", "tag_search", req.filters ?? null],
-    enabled: enabled,
-    queryFn: async () => {
-      const payload: ActionPayload = {}
-      if (req.filters !== undefined) {
-        payload.filters = req.filters
-      }
-      const response = await executeAction<TagSearchResp>("tag", "tag_search", payload)
-      if (response.contentType !== "json") {
-        throw Error("Expected JSON response for tag/tag_search")
-      }
-      return response.json
-    }
-  })
-}
-
-export const useTagGroupList = () => {
-  return useQuery({
-    queryKey: ["action", "tag", "tag_group_list"],
-    queryFn: async () => {
-      const response = await executeAction<TagGroupListResp>("tag", "tag_group_list", {})
-      if (response.contentType !== "json") {
-        throw Error("Expected JSON response for tag/tag_group_list")
-      }
-      return response.json
-    }
-  })
-}
-
-function useTagGroupMutation(actionKey: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (props: { tagGroupId: string, value: string }) =>
-      executeAction("tag", actionKey, {
-        tagGroupRef: "id:" + props.tagGroupId,
-        value: props.value
-      }),
-    onSuccess: () => queryClient.invalidateQueries()
-  })
-}
-
-function useManagedTagMutation(actionKey: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (props: { tagId: string, value: string }) =>
-      executeAction("tag", actionKey, {
-        tagRef: "id:" + props.tagId,
-        value: props.value
-      }),
-    onSuccess: () => queryClient.invalidateQueries()
-  })
-}
-
-function useFreeTagMutation(actionKey: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (props: { tagId: string, value: string }) =>
-      executeAction("tag", actionKey, {
-        tagRef: "id:" + props.tagId,
-        value: props.value
-      }),
-    onSuccess: () => queryClient.invalidateQueries()
-  })
-}
-
-export const useTagGroupUpdateName = () => {
-  return useTagGroupMutation("tag_group_update_name")
-}
-
-export const useTagGroupUpdateDescription = () => {
-  return useTagGroupMutation("tag_group_update_description")
-}
-
-export const useTagGroupUpdateKey = () => {
-  return useTagGroupMutation("tag_group_update_key")
-}
-
-export const useTagManagedUpdateName = () => {
-  return useManagedTagMutation("tag_managed_update_name")
-}
-
-export const useTagManagedUpdateDescription = () => {
-  return useManagedTagMutation("tag_managed_update_description")
-}
-
-export const useTagFreeUpdateName = () => {
-  return useFreeTagMutation("tag_free_update_name")
-}
-
-export const useTagFreeUpdateDescription = () => {
-  return useFreeTagMutation("tag_free_update_description")
-}
-
-export interface SearchResultLocation {
-  objectType: string
-  modelId: string
-  modelKey: string
-  modelLabel: string
-  entityId: string | undefined
-  entityKey: string | undefined
-  entityLabel: string | undefined
-  entityAttributeId: string | undefined
-  entityAttributeLabel: string | undefined
-  relationshipId: string | undefined
-  relationshipLabel: string | undefined
-  relationshipAttributeId: string | undefined
-  relationshipAttributeLabel: string | undefined
-}
-
-export interface SearchResult {
-  id: string
-  location: SearchResultLocation
-  tags: string[]
-}
-
-export interface SearchResults {
-  items: SearchResult[]
-}
 
 export async function modelSearch(tags: string): Promise<SearchResults> {
   if (tags == "") return {items:[]}
@@ -435,4 +273,18 @@ export const useRelationshipAttributeAddTag = () => {
 }
 export const useRelationshipAttributeDeleteTag = () => {
   return useRelationshipAttributeMutation<{ tag: string }>("model", "relationship_attribute_delete_tag")
+}
+
+export function useModelSummaries() {
+  return useQuery({
+    queryKey: ["model_summaries"],
+    queryFn: fetchModelSummaries
+  })
+}
+
+export function useModel(modelKey: string) {
+  return useQuery({
+    queryKey: ["model", modelKey],
+    queryFn: ()=>fetchModel(modelKey)
+  })
 }

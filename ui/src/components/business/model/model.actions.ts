@@ -1,6 +1,6 @@
-import type {ActionPerformerRequestParam, ActionPerformerRequestParams} from "./ActionPerformer.tsx";
+import type {ActionPerformerRequestParams} from "../actions/ActionPerformer.tsx";
+import {refid} from "../../../business/actions";
 
-const refid = (id: string):  ActionPerformerRequestParam => ({value: "id:" +id, readonly: true})
 
 export const createActionTemplateGeneral = () => ({})
 export const createActionTemplateEntity = (modelId: string, entityId: string): ActionPerformerRequestParams => {
@@ -54,30 +54,3 @@ export const createActionTemplateRelationshipRole = (modelId: string, relationsh
   }
 }
 
-export const createActionTemplateTagGroup = (tagGroupId: string): ActionPerformerRequestParams => {
-  return {
-    tagGroupRef: refid(tagGroupId),
-  }
-}
-
-export const createActionTemplateTagGroupList = (): ActionPerformerRequestParams => {
-  return {}
-}
-
-export const createActionTemplateTagManagedList = (tagGroupId: string): ActionPerformerRequestParams => {
-  return {
-    groupRef: refid(tagGroupId),
-  }
-}
-
-export const createActionTemplateTag = (tagId: string): ActionPerformerRequestParams => {
-  return {
-    tagRef: refid(tagId),
-  }
-}
-
-export const createActionTemplateTagFreeList = (scope: {type: string, id: string | null}): ActionPerformerRequestParams => {
-  return {
-    scopeRef: {value: scope, readonly: true},
-  }
-}

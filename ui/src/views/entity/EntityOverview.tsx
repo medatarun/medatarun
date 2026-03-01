@@ -13,7 +13,7 @@ import {useDetailLevelContext} from "../../components/business/DetailLevelContex
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {useModelContext} from "../../components/business/ModelContext.tsx";
+import {useModelContext} from "../../components/business/model/ModelContext.tsx";
 import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
 
 

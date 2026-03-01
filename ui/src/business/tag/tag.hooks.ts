@@ -1,25 +1,10 @@
 import {useMemo} from "react";
-import {useTagGroupList, useTagSearch, type TagScopeRef} from "./action_perform.hooks.ts";
-import {Tags} from "./tag.ts";
+import type {TagScopeRef} from "./tag.dto.ts";
+import {Tags} from "./tag.domain.ts";
+import {tagSearchByScope, useTagGroupList, useTagSearch} from "./tag.storage.ts";
 
 const globalTagScope: TagScopeRef = {type: "global", id: null}
 const EMPTY_TABLE: never[] = []
-
-function tagSearchByScope(scope: TagScopeRef) {
-  return {
-    filters: {
-      operator: "and" as const,
-      items: [
-        {
-          type: "scopeRef" as const,
-          condition: "is" as const,
-          value: scope
-        }
-      ]
-    }
-  }
-}
-
 /**
  * Loads the tag registry used by the UI.
  * Without a scope, it loads every known tag.

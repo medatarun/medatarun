@@ -20,10 +20,10 @@ import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable} from "../.
 import {type SearchResult, type SearchResultLocation, useModelSearch} from "../../business";
 import {useState} from "react";
 import {useNavigate} from "@tanstack/react-router";
-import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {downloadCsv} from "@seij/common-ui-csv-export";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {sortBy} from "lodash-es";
+import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
 
 
 function createCsv(items: SearchResult[]) {

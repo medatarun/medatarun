@@ -1,7 +1,7 @@
 import {Card, CardHeader, Tag, TagGroup, Text} from "@fluentui/react-components";
-import {EntityIcon, RelationshipIcon, TypeIcon} from "../business/Icons.tsx";
-import type {ModelSummaryDto} from "../../business";
-import {useDetailLevelContext} from "./DetailLevelContext.tsx";
+import type {ModelSummaryDto} from "../../../business";
+import {useDetailLevelContext} from "../DetailLevelContext.tsx";
+import {EntityIcon, RelationshipIcon, TypeIcon} from "./model.icons.tsx";
 
 export function ModelCard({model, onClick}: { model: ModelSummaryDto, onClick: (id: string) => void }) {
 

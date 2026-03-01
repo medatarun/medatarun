@@ -1,4 +1,4 @@
-import type {ActionResp} from "../../business";
+import type {ActionResp} from "../../../business";
 import {makeStyles, tokens} from "@fluentui/react-components";
 
 export function ActionOutput({resp}:{resp:ActionResp|null|undefined}) {

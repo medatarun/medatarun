@@ -2,10 +2,10 @@ import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens} from "@
 import {useNavigate} from "@tanstack/react-router";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {type TagScopeRef, useActionRegistry, useTags} from "../../business";
-import {ActionMenuButton} from "./TypesTable.tsx";
-import {Markdown} from "../core/Markdown.tsx";
-import {createActionTemplateTag} from "./actionTemplates.ts";
+import {type TagScopeRef, useActionRegistry, useTags} from "../../../business";
+import {ActionMenuButton} from "../model/TypesTable.tsx";
+import {Markdown} from "../../core/Markdown.tsx";
+import {createActionTemplateTag, detailActionLocation} from "./tag.actions.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -77,7 +77,7 @@ export function TagsTable({scope, tagGroupId}: {
             </TableCell>
             <TableCell className={styles.actionCell}>
               <ActionMenuButton
-                itemActions={actionRegistry.findActions(tag.detailActionLocation)}
+                itemActions={actionRegistry.findActions(detailActionLocation(tag))}
                 actionParams={createActionTemplateTag(tag.id)}
               />
             </TableCell>
