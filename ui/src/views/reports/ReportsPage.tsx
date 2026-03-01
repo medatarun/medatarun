@@ -1,4 +1,4 @@
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
   Avatar,
   Breadcrumb,
@@ -7,6 +7,7 @@ import {
   BreadcrumbItem,
   Button,
   Dropdown,
+  type DropdownProps,
   Field,
   Input,
   Option,
@@ -22,11 +23,10 @@ import {
   TagPickerInput,
   TagPickerList,
   TagPickerOption,
-  tokens,
-  type DropdownProps,
   type TagPickerProps,
+  tokens,
 } from "@fluentui/react-components";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {
   AddRegular,
   ArrowDownloadRegular,
@@ -34,11 +34,7 @@ import {
   DocumentBulletListRegular,
   SearchFilled,
 } from "@fluentui/react-icons";
-import {
-  ContainedFixed,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
+import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
 import {
   type ModelSearchFilter,
   type ModelSearchModelItemField,
@@ -46,84 +42,22 @@ import {
   type ModelSearchReq,
   type ModelSearchTagFilter,
   type ModelSearchTagFilterCondition,
-  type SearchResult,
   type SearchResultLocation,
   useModelSearch,
 } from "@/business/model";
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { downloadCsv } from "@seij/common-ui-csv-export";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { sortBy } from "lodash-es";
-import {
-  AttributeIcon,
-  EntityIcon,
-  ModelIcon,
-  RelationshipIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { type Tags, useTags } from "@/business/tag";
+import {useState} from "react";
+import {useNavigate} from "@tanstack/react-router";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {sortBy} from "lodash-es";
+import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon,} from "@/components/business/model/model.icons.tsx";
+import {type Tags, useTags} from "@/business/tag";
+import {createCsv} from "./ReportsPage.csvexport.tsx";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
 
 type FilterRowType = "tags" | "modelItemField";
 
-function createCsv(items: SearchResult[]) {
-  downloadCsv<SearchResult>(
-    "tag-report.csv",
-    [
-      {
-        code: "model",
-        label: "Model",
-        render: (it) => it.location.modelLabel,
-      },
-      {
-        code: "type",
-        label: "Type",
-        render: (it) => {
-          if (it.location.objectType === "model") return "Model";
-          if (it.location.objectType === "entity") return "Entity";
-          if (it.location.objectType === "entityAttribute")
-            return "Entity attribute";
-          if (it.location.objectType === "relationship") return "Relationship";
-          if (it.location.objectType === "relationshipAttribute")
-            return "Relationship attribute";
-          return "unknown";
-        },
-      },
-      {
-        code: "entity",
-        label: "Entity/Relationship",
-        render: (it) => {
-          if (it.location.entityLabel) return it.location.entityLabel;
-          if (it.location.relationshipLabel != null) {
-            return it.location.relationshipLabel;
-          }
-          return "";
-        },
-      },
-      {
-        code: "attribute",
-        label: "Attribute",
-        render: (it) => {
-          if (it.location.entityAttributeLabel) {
-            return it.location.entityAttributeLabel;
-          }
-          if (it.location.relationshipAttributeLabel) {
-            return it.location.relationshipAttributeLabel;
-          }
-          return "";
-        },
-      },
-      {
-        code: "tags",
-        label: "Tags",
-        render: (it) => (it.tags ?? []).join(" "),
-      },
-    ],
-    items,
-  );
-}
 
 function createFilterId() {
   return Math.random().toString(36).slice(2, 10);
