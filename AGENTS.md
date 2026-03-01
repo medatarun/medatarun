@@ -5,6 +5,7 @@
 - Avoid using destructuring declaration in Kotlin
 - Don't create extension functions yourself
 - For Gradle, always use `./gradlew` from the repository root
+- For the frontend in `ui/`, first read `ui/package.json` and use its `pnpm` scripts from the `ui/` directory for install/build/check tasks. Do not replace them with ad hoc commands when an existing script covers the need.
 - Throw exceptions. Don't catch unless specified. All exceptions shall extend MedatarunException. Each error produces
   a distinct exception so we can catch each error in tests by Exception class name. Don't reuse other exceptions unless
   specified

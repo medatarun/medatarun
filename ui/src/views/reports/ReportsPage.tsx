@@ -52,6 +52,7 @@ import {sortBy} from "lodash-es";
 import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon,} from "@/components/business/model/model.icons.tsx";
 import {type Tags, useTags} from "@/business/tag";
 import {createCsv} from "./ReportsPage.csvexport.tsx";
+import {v7 as uuidv7} from "uuid";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 const ENABLE_MODEL_ITEM_FIELD_FILTER = false;
@@ -60,7 +61,7 @@ type FilterRowType = "tags" | "modelItemField";
 
 
 function createFilterId() {
-  return Math.random().toString(36).slice(2, 10);
+  return uuidv7();
 }
 
 function createDefaultTagFilter(): ModelSearchTagFilter {
