@@ -2,20 +2,22 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.platform.kernel.internal.ResourceLocatorDefault
+import io.medatarun.runtime.AppRuntimeOsBridge
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
-class AppRuntimeConfigFactory (private val cli: Boolean){
+class AppRuntimeConfigFactory(
+    private val cli: Boolean,
+    private val osBridge: AppRuntimeOsBridge = AppRuntimeOsBridge.Default(),
+) {
 
-    private val fileSystem: FileSystem = FileSystems.getDefault()
+
     private val applicationHomeDir: Path = findApplicationHomeDir()
-    private val config: Config = MicroProfileConfigLoader().load(applicationHomeDir)
+    private val config: Config = MicroProfileConfigLoader().load(applicationHomeDir, osBridge.builtInConfigProperties())
 
     fun create(): AppRuntimeConfig {
         val projectDir = findProjectDir()
@@ -24,18 +26,22 @@ class AppRuntimeConfigFactory (private val cli: Boolean){
         return AppRuntimeConfig(applicationHomeDir, projectDir, config) {
             ResourceLocatorDefault(
                 rootPath = projectDir.toString(),
-                fileSystem = fileSystem
+                fileSystem = osBridge.fileSystem
             )
         }
     }
 
     private fun findApplicationHomeDir(): Path {
-        val home = System.getenv(MEDATARUN_HOME_ENV)
+        val home = osBridge.getenv(MEDATARUN_HOME_ENV)
         val homeSafe = home.trimToNull()
         if (homeSafe.isNullOrBlank()) return findProjectDirUserDir()
-        val homePath = fileSystem.getPath(homeSafe)
-        if (!homePath.exists()) {throw MedatarunHomeDoesNotExistException(homeSafe)}
-        if (!homePath.isDirectory()) {throw MedatarunHomeNotADirectoryException(homeSafe)}
+        val homePath = osBridge.fileSystem.getPath(homeSafe)
+        if (!homePath.exists()) {
+            throw MedatarunHomeDoesNotExistException(homeSafe)
+        }
+        if (!homePath.isDirectory()) {
+            throw MedatarunHomeNotADirectoryException(homeSafe)
+        }
         return homePath
     }
 
@@ -48,7 +54,7 @@ class AppRuntimeConfigFactory (private val cli: Boolean){
     fun findProjectDirApplicationData(): Path? {
         val projectDirStr = config.getOptionalValue(MEDATARUN_APPLICATION_DATA_ENV, String::class.java).orElse(null)
         val projectDirStrSafe = projectDirStr?.trimToNull() ?: return null
-        val projectDir = Path.of(projectDirStrSafe).toAbsolutePath()
+        val projectDir = osBridge.fileSystem.getPath(projectDirStrSafe).toAbsolutePath()
         if (!projectDir.exists()) {
             throw ProjectDirApplicationDataDoesNotExistException(projectDir.toString(), MEDATARUN_APPLICATION_DATA_ENV)
         }
@@ -60,14 +66,15 @@ class AppRuntimeConfigFactory (private val cli: Boolean){
     }
 
     fun findProjectDirUserDir(): Path {
-        val userDirStr = System.getProperty("user.dir")
-        val userDir = Path.of(userDirStr).toAbsolutePath()
+        val userDirStr = osBridge.getProperty(USER_DIR_PROPERTY)
+            ?: throw MedatarunUserDirUndefinedException()
+        val userDir = osBridge.fileSystem.getPath(userDirStr).toAbsolutePath()
         if (!userDir.exists()) {
             throw RootDirNotFoundException()
         }
 
         if (!userDir.isDirectory()) {
-            throw ProjectDirNotAdirectoryException(userDirStr.toString())
+            throw ProjectDirNotAdirectoryException(userDirStr)
         }
         if (!cli) logger.debug("Found user directory $userDir via System.property")
         return userDir
@@ -77,7 +84,7 @@ class AppRuntimeConfigFactory (private val cli: Boolean){
     companion object {
         const val MEDATARUN_APPLICATION_DATA_ENV = "MEDATARUN_APPLICATION_DATA"
         const val MEDATARUN_HOME_ENV = "MEDATARUN_HOME"
-
+        const val USER_DIR_PROPERTY = "user.dir"
         private val logger = LoggerFactory.getLogger(AppRuntimeConfigFactory::class.java)
     }
 }

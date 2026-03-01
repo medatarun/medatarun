@@ -236,18 +236,18 @@ class ModelActionHandler(
 
     fun modelAddTag(cmd: ModelAction.Model_AddTag) {
         dispatch(
-            ModelCmd.UpdateModelHashtagAdd(
+            ModelCmd.UpdateModelTagAdd(
                 modelRef = cmd.modelRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
 
     fun modelDeleteTag(cmd: ModelAction.Model_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateModelHashtagDelete(
+            ModelCmd.UpdateModelTagDelete(
                 modelRef = cmd.modelRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
@@ -327,8 +327,8 @@ class ModelActionHandler(
                     identityAttribute = AttributeIdentityInitializer(
                         attributeKey = cmd.identityAttributeKey,
                         type = cmd.identityAttributeType,
-                        name = cmd.name,
-                        description = cmd.description,
+                        name = cmd.identityAttributeName,
+                        description = null,
                     )
                 ),
             )
@@ -383,20 +383,20 @@ class ModelActionHandler(
 
     fun entityAddTag(cmd: ModelAction.Entity_AddTag) {
         dispatch(
-            ModelCmd.UpdateEntityHashtagAdd(
+            ModelCmd.UpdateEntityTagAdd(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
 
     fun entityDeleteTag(cmd: ModelAction.Entity_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateEntityHashtagDelete(
+            ModelCmd.UpdateEntityTagDelete(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
@@ -489,22 +489,22 @@ class ModelActionHandler(
 
     fun entityAttributeAddTag(cmd: ModelAction.EntityAttribute_AddTag) {
         dispatch(
-            ModelCmd.UpdateEntityAttributeHashtagAdd(
+            ModelCmd.UpdateEntityAttributeTagAdd(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
 
     fun entityAttributeDeleteTag(cmd: ModelAction.EntityAttribute_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateEntityAttributeHashtagDelete(
+            ModelCmd.UpdateEntityAttributeTagDelete(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
@@ -581,20 +581,20 @@ class ModelActionHandler(
 
     fun relationshipAddTag(cmd: ModelAction.Relationship_AddTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipHashtagAdd(
+            ModelCmd.UpdateRelationshipTagAdd(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
 
     fun relationshipDeleteTag(cmd: ModelAction.Relationship_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipHashtagDelete(
+            ModelCmd.UpdateRelationshipTagDelete(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
@@ -715,22 +715,22 @@ class ModelActionHandler(
 
     fun relationshipAttributeAddTag(cmd: ModelAction.RelationshipAttribute_AddTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeHashtagAdd(
+            ModelCmd.UpdateRelationshipAttributeTagAdd(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }
 
     fun relationshipAttributeDeleteTag(cmd: ModelAction.RelationshipAttribute_DeleteTag) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttributeHashtagDelete(
+            ModelCmd.UpdateRelationshipAttributeTagDelete(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                hashtag = cmd.tag
+                tagRef = cmd.tag
             )
         )
     }

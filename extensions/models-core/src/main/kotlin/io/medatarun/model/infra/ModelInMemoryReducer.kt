@@ -4,6 +4,7 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
 import io.medatarun.model.ports.needs.*
+import io.medatarun.tags.core.domain.TagId
 
 class ModelInMemoryReducer {
     fun dispatch(model: ModelInMemory, cmd: ModelRepoCmdOnModel): ModelInMemory {
@@ -14,17 +15,17 @@ class ModelInMemoryReducer {
             is ModelRepoCmd.UpdateModelName -> model.copy(name = cmd.name)
             is ModelRepoCmd.UpdateModelVersion -> model.copy(version = cmd.version)
             is ModelRepoCmd.UpdateModelDocumentationHome -> model.copy(documentationHome = cmd.url)
-            is ModelRepoCmd.UpdateModelHashtagAdd -> model.copy(
-                hashtags = hashtagAdd(
-                    model.hashtags,
-                    cmd.hashtag
+            is ModelRepoCmd.UpdateModelTagAdd -> model.copy(
+                tags = tagAdd(
+                    model.tags,
+                    cmd.tagId
                 )
             )
 
-            is ModelRepoCmd.UpdateModelHashtagDelete -> model.copy(
-                hashtags = hashtagDelete(
-                    model.hashtags,
-                    cmd.hashtag
+            is ModelRepoCmd.UpdateModelTagDelete -> model.copy(
+                tags = tagDelete(
+                    model.tags,
+                    cmd.tagId
                 )
             )
 
@@ -65,14 +66,14 @@ class ModelInMemoryReducer {
                 }
             }
 
-            is ModelRepoCmd.UpdateEntityHashtagAdd ->
+            is ModelRepoCmd.UpdateEntityTagAdd ->
                 modifyingEntity(model, cmd.entityId) { previous ->
-                    previous.copy(hashtags = hashtagAdd(previous.hashtags, cmd.hashtag))
+                    previous.copy(tags = tagAdd(previous.tags, cmd.tagId))
                 }
 
-            is ModelRepoCmd.UpdateEntityHashtagDelete ->
+            is ModelRepoCmd.UpdateEntityTagDelete ->
                 modifyingEntity(model, cmd.entityId) { previous ->
-                    previous.copy(hashtags = hashtagDelete(previous.hashtags, cmd.hashtag))
+                    previous.copy(tags = tagDelete(previous.tags, cmd.tagId))
                 }
 
             is ModelRepoCmd.DeleteEntity -> modifyingEntity(model, cmd.entityId) { null }
@@ -86,14 +87,14 @@ class ModelInMemoryReducer {
                     updateEntityAttribute(model, a, cmd)
                 }
 
-            is ModelRepoCmd.UpdateEntityAttributeHashtagAdd ->
+            is ModelRepoCmd.UpdateEntityAttributeTagAdd ->
                 modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
-                    a.copy(hashtags = hashtagAdd(a.hashtags, cmd.hashtag))
+                    a.copy(tags = tagAdd(a.tags, cmd.tagId))
                 }
 
-            is ModelRepoCmd.UpdateEntityAttributeHashtagDelete ->
+            is ModelRepoCmd.UpdateEntityAttributeTagDelete ->
                 modifyingEntityAttribute(model, cmd.entityId, cmd.attributeId) { a ->
-                    a.copy(hashtags = hashtagDelete(a.hashtags, cmd.hashtag))
+                    a.copy(tags = tagDelete(a.tags, cmd.tagId))
                 }
 
             is ModelRepoCmd.DeleteEntityAttribute ->
@@ -108,14 +109,14 @@ class ModelInMemoryReducer {
                     updateRelationship(model, rel, cmd)
                 }
 
-            is ModelRepoCmd.UpdateRelationshipHashtagAdd ->
+            is ModelRepoCmd.UpdateRelationshipTagAdd ->
                 modifyingRelationship(model, cmd.relationshipId) { rel ->
-                    rel.copy(hashtags = hashtagAdd(rel.hashtags, cmd.hashtag))
+                    rel.copy(tags = tagAdd(rel.tags, cmd.tagId))
                 }
 
-            is ModelRepoCmd.UpdateRelationshipHashtagDelete ->
+            is ModelRepoCmd.UpdateRelationshipTagDelete ->
                 modifyingRelationship(model, cmd.relationshipId) { rel ->
-                    rel.copy(hashtags = hashtagDelete(rel.hashtags, cmd.hashtag))
+                    rel.copy(tags = tagDelete(rel.tags, cmd.tagId))
                 }
 
 
@@ -136,14 +137,14 @@ class ModelInMemoryReducer {
                 }
 
 
-            is ModelRepoCmd.UpdateRelationshipAttributeHashtagAdd ->
+            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd ->
                 modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
-                    attr.copy(hashtags = hashtagAdd(attr.hashtags, cmd.hashtag))
+                    attr.copy(tags = tagAdd(attr.tags, cmd.tagId))
                 }
 
-            is ModelRepoCmd.UpdateRelationshipAttributeHashtagDelete ->
+            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete ->
                 modifyingRelationshipAttribute(model, cmd.relationshipId, cmd.attributeId) { attr ->
-                    attr.copy(hashtags = hashtagDelete(attr.hashtags, cmd.hashtag))
+                    attr.copy(tags = tagDelete(attr.tags, cmd.tagId))
                 }
 
             is ModelRepoCmd.CreateRelationshipAttribute -> model.copy(
@@ -286,12 +287,12 @@ private fun modifyingRelationship(
         })
 }
 
-private fun hashtagAdd(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
-    return if (!hashtags.contains(next)) hashtags.plus(next) else hashtags
+private fun tagAdd(tags: List<TagId>, next: TagId): List<TagId> {
+    return if (!tags.contains(next)) tags.plus(next) else tags
 }
 
-private fun hashtagDelete(hashtags: List<Hashtag>, next: Hashtag): List<Hashtag> {
-    return hashtags.filter { it != next }
+private fun tagDelete(tags: List<TagId>, next: TagId): List<TagId> {
+    return tags.filter { it != next }
 }
 
 class ModelInMemoryReducerCommandNotSupportedException(cmd: ModelRepoCmd) :

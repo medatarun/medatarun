@@ -11,13 +11,13 @@ import {
   useRelationshipUpdateKey,
   useRelationshipUpdateName
 } from "../../business";
-import {ModelContext} from "../../components/business/ModelContext.tsx";
+import {ModelContext} from "../../components/business/model/ModelContext.tsx";
 import {Link, useNavigate} from "@tanstack/react-router";
 import {
   createActionTemplateRelationship,
   createActionTemplateRelationshipAttribute,
   createActionTemplateRelationshipRole
-} from "../../components/business/actionTemplates.ts";
+} from "../../components/business/model/model.actions.ts";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
 import {
   Breadcrumb,
@@ -29,9 +29,8 @@ import {
   Text,
   tokens
 } from "@fluentui/react-components";
-import {AttributeIcon, ModelIcon} from "../../components/business/Icons.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -45,12 +44,13 @@ import {useDetailLevelContext} from "../../components/business/DetailLevelContex
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
 import {SectionTable} from "../../components/layout/SecionTable.tsx";
-import {AttributesTable} from "../../components/business/AttributesTable.tsx";
-import {Tags} from "../../components/core/Tag.tsx";
+import {AttributesTable} from "../../components/business/model/AttributesTable.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {SectionCards} from "../../components/layout/SectionCards.tsx";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
 import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
+import {AttributeIcon, ModelIcon} from "../../components/business/model/model.icons.tsx";
 
 export function RelationshipPage({modelId, relationshipId}: {
   modelId: string,
@@ -231,14 +231,14 @@ export function RelationshipOverview({relationship, model}: {
   }
 
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of relationship.hashtags) {
-      if (!value.includes(tag)) await relationshipDeleteTag.mutateAsync({modelId: model.id, relationshipId: relationship.id, tag: tag})
+    for (const tag of relationship.tags) {
+      if (!value.includes(tag)) await relationshipDeleteTag.mutateAsync({modelId: model.id, relationshipId: relationship.id, tag: "id:" + tag})
     }
     for (const tag of value) {
-      if (!relationship.hashtags.includes(tag)) await relationshipAddTag.mutateAsync({
+      if (!relationship.tags.includes(tag)) await relationshipAddTag.mutateAsync({
         modelId: model.id,
         relationshipId: relationship.id,
-        tag: tag
+        tag: "id:" + tag
       })
     }
   }
@@ -256,11 +256,11 @@ export function RelationshipOverview({relationship, model}: {
     </div>
     <div><Text>Tags</Text></div>
     <div>
-      <InlineEditTags value={relationship.hashtags} onChange={handleChangeTags}>
+      <InlineEditTags value={relationship.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
-          relationship.hashtags.length === 0
+          relationship.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={relationship.hashtags}/>
+            : <Tags tags={relationship.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>

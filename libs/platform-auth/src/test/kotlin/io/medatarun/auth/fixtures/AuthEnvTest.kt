@@ -93,7 +93,7 @@ class AuthEnvTest(
         // of any instance of this class. Using UUIDs to name in memory databases or else
         // SQLite will reuse existing bases across tests.
         this.dbConnectionFactory = object:DbConnectionFactory  {
-            val sqlite = DbProviderSqlite("file:test_${UuidUtils.generateV4String()}?mode=memory&cache=shared")
+            val sqlite = DbProviderSqlite.randomDb()
             override fun getConnection(): Connection {
                 return sqlite.getConnection()
             }

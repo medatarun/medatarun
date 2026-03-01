@@ -1,5 +1,6 @@
 package io.medatarun.model.domain
 
+import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
 /**
@@ -47,9 +48,9 @@ interface Entity {
     val documentationHome: URL?
 
     /**
-     * Hashtags used for classification
+     * Tags used for classification
      */
-    val hashtags: List<Hashtag>
+    val tags: List<TagId>
 
     val ref get() = EntityRef.ById(id)
 

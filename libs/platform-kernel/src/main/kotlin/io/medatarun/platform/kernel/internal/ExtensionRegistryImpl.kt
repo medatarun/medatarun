@@ -7,7 +7,8 @@ import kotlin.reflect.KClass
 
 class ExtensionRegistryImpl(
     private val extensions: List<MedatarunExtension>,
-    private val config: MedatarunConfig
+    private val config: MedatarunConfig,
+    private val services: MedatarunServiceRegistry
 ) : ExtensionRegistry {
 
     private val contributionPoints: MutableMap<ExtensionId, ContributionPoint<*>> = mutableMapOf()
@@ -17,19 +18,17 @@ class ExtensionRegistryImpl(
 
     fun init() {
         val counts = extensions.groupBy { it.id }.mapValues { it.value.size }.filter { it.value > 1 }
-        if (counts.size > 1) {
+        if (counts.isNotEmpty()) {
             throw ExtensionRegistryDuplicateIdException(counts.keys)
         }
 
         extensions.forEach { extension ->
             extension.init(
                 MedatarunExtensionCtxImpl(
-                    extension,
-                    ExtensionRegistrar(),
-                    MedatarunExtensionCtxConfigImpl(
-                        extension,
-                        config
-                    )
+                    extension = extension,
+                    registrar = ExtensionRegistrar(),
+                    cfg = MedatarunExtensionCtxConfigImpl(extension, config),
+                    services = services
                 )
             )
         }

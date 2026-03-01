@@ -1,10 +1,10 @@
 package io.medatarun.model.domain
 
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.type.commons.ref.Ref
 import java.util.*
 
-sealed interface ModelRef {
-
-    fun asString(): String
+sealed interface ModelRef : Ref<ModelRef> {
 
     data class ById(
         val id: ModelId
@@ -26,9 +26,11 @@ sealed interface ModelRef {
         fun modelRefKey(value: String): ModelRef.ByKey {
             return ModelRef.ByKey(ModelKey(value))
         }
+
         fun modelRefKey(value: ModelKey): ModelRef.ByKey {
             return ModelRef.ByKey(value)
         }
+
         fun modelRefId(value: UUID): ModelRef.ById {
             return ModelRef.ById(ModelId(value))
         }

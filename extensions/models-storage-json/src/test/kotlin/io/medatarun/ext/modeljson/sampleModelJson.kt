@@ -6,13 +6,13 @@ import org.intellij.lang.annotations.Language
 internal val sampleModelJson = $$"""{
   "id": "019be5cc-12e7-781c-bfdc-41ed61702cb9",
   "key": "example",
-  "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-1.1.json",
+  "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-2.0.json",
   "version": "1.0.0",
-  "hashtags": [
-    "a",
-    "b",
-    "c",
-    "d"
+  "tags": [
+    "11111111-1111-1111-1111-111111111111",
+    "22222222-2222-2222-2222-222222222222",
+    "33333333-3333-3333-3333-333333333333",
+    "44444444-4444-4444-4444-444444444444"
   ],
   "types": [
     {
@@ -36,9 +36,9 @@ internal val sampleModelJson = $$"""{
       "key": "contact",
       "name": "Contact",
       "identifierAttribute": "name",
-      "hashtags": [
-        "e1",
-        "e2"
+      "tags": [
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1",
+        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2"
       ],
       "attributes": [
         {
@@ -46,8 +46,8 @@ internal val sampleModelJson = $$"""{
           "key": "name",
           "name": "Name",
           "type": "String",
-          "hashtags": [
-            "private"
+          "tags": [
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1"
           ]
         },
         {
@@ -55,9 +55,9 @@ internal val sampleModelJson = $$"""{
           "key": "role",
           "name": "Role",
           "type": "String",
-          "hashtags": [
-            "private",
-            "rgpd"
+          "tags": [
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1",
+            "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2"
           ]
         },
         {
@@ -96,9 +96,9 @@ internal val sampleModelJson = $$"""{
         "en": "Company"
       },
       "identifierAttribute": "name",
-      "hashtags": [
-        "e3",
-        "e4"
+      "tags": [
+        "cccccccc-cccc-cccc-cccc-ccccccccccc1",
+        "cccccccc-cccc-cccc-cccc-ccccccccccc2"
       ],
       "attributes": [
         {

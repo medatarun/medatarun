@@ -7,20 +7,9 @@ import io.medatarun.model.domain.*
 import kotlinx.serialization.json.*
 
 @Suppress("ClassName")
-internal class Migration_1_1(private val files: ModelsStorageJsonFiles, private val json : Json) {
-    fun start() {
-        files.getAllModelFiles().forEach { f ->
-            val jsonObject = Json.parseToJsonElement(files.load(f.key)).jsonObject
+internal class Migration_1_1(private val files: ModelsStorageJsonFiles, private val json: Json) {
 
-            val schema = jsonObject.getOrDefault($$"$schema", null)?.jsonPrimitive?.content
-                ?: throw ModelJsonRepositoryException("Model without medatarun schema: ${f.value}. Storage corrupted. Stopping.")
-
-            if (schema.endsWith(ModelJsonSchemas.v_1_0)) {
-                Migration_1_1(files, json).start(f.key, jsonObject)
-            }
-        }
-    }
-    private fun start(key: ModelKey, jsonObject: JsonObject) {
+    fun start(key: ModelKey, jsonObject: JsonObject) {
         // Apply the schema 1.1 transformations directly on the provided JsonObject and persist it.
         val renamedRoot = renameIdToKey(jsonObject)
         val migrated = LinkedHashMap<String, JsonElement>()

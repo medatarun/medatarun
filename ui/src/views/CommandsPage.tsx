@@ -1,6 +1,6 @@
 import {Fragment, useMemo, useState} from "react";
 import {ActionRegistry, type ActionResp, executeAction, useActionRegistry} from "../business";
-import {ActionOutput} from "../components/business/ActionOutput.tsx";
+import {ActionOutput} from "../components/business/actions/ActionOutput.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {Field, Textarea} from "@fluentui/react-components";

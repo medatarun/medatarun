@@ -1,14 +1,14 @@
 package io.medatarun.model.domain
 
-sealed interface EntityRef {
+import io.medatarun.type.commons.ref.Ref
 
-    fun asString():String
+sealed interface EntityRef : Ref<EntityRef> {
 
     data class ById(
         val id: EntityId
     ) : EntityRef {
         override fun asString(): String {
-            return "id:"+id.value
+            return "id:" + id.value
         }
     }
 
@@ -16,7 +16,7 @@ sealed interface EntityRef {
         val key: EntityKey,
     ) : EntityRef {
         override fun asString(): String {
-            return "key:"+key.value
+            return "key:" + key.value
         }
     }
 }

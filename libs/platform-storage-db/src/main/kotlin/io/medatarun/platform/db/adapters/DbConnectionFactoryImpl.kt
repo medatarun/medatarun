@@ -1,21 +1,20 @@
 package io.medatarun.platform.db.adapters
 
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbProvider
-import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.platform.kernel.internal.ExtensionRegistryImpl
+import io.medatarun.platform.db.adapters.internal.DbTxBoundConnection
 import java.sql.Connection
 
-class DbConnectionFactoryImpl(val extensionRegistry: ExtensionRegistry): DbConnectionFactory {
-
-    private val dbProvider = lazy {
-        extensionRegistry.findContributionsFlat(DbProvider::class).firstOrNull() ?: throw DbConnectionFactoryNoDbProviderFoundException()
-    }
+class DbConnectionFactoryImpl(
+    private val dbProvider: DbProvider,
+    private val txManager: DbTransactionManagerImpl
+): DbConnectionFactory {
 
     override fun getConnection(): Connection {
-        return dbProvider.value.getConnection()
+        val txConnection = txManager.currentTransactionConnectionOrNull()
+        if (txConnection != null) {
+            return DbTxBoundConnection(txConnection)
+        }
+        return dbProvider.getConnection()
     }
-
-    class DbConnectionFactoryNoDbProviderFoundException : MedatarunException("No database provider found. Please provide a plugin with a DbProvider contribution like 'platform-storage-db-sqlite'")
 }

@@ -1,6 +1,7 @@
 package io.medatarun.runtime.internal
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.USER_DIR_PROPERTY
 
 
 class RootDirNotFoundException:
@@ -14,3 +15,4 @@ class ProjectDirNotAdirectoryException(path: String) :
 
 class MedatarunHomeDoesNotExistException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' does not exist.")
 class MedatarunHomeNotADirectoryException(path: String) : MedatarunException("MEDATARUN_HOME directory '$path' is not a directory.")
+class MedatarunUserDirUndefinedException(): MedatarunException("Property $USER_DIR_PROPERTY is not defined.")

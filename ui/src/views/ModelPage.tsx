@@ -13,13 +13,13 @@ import {
   useModelUpdateName,
   useModelUpdateVersion
 } from "../business";
-import {ModelContext, useModelContext} from "../components/business/ModelContext.tsx";
-import {Tags} from "../components/core/Tag.tsx";
+import {ModelContext, useModelContext} from "../components/business/model/ModelContext.tsx";
+import {modelTagScope, Tags} from "../components/core/Tag.tsx";
 import {InfoLabel, Text, tokens} from "@fluentui/react-components";
-import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/Icons.tsx";
-import {EntityCard} from "../components/business/EntityCard.tsx";
-import {RelationshipsTable} from "../components/business/RelationshipsTable.tsx";
-import {ActionMenuButton, TypesTable} from "../components/business/TypesTable.tsx";
+import {EntityCard} from "../components/business/model/EntityCard.tsx";
+import {RelationshipsTable} from "../components/business/model/RelationshipsTable.tsx";
+import {ActionMenuButton, TypesTable} from "../components/business/model/TypesTable.tsx";
+import {TagsTable} from "../components/business/tag/TagsTable.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
@@ -30,10 +30,12 @@ import {SectionPaper} from "../components/layout/SectionPaper.tsx";
 import {SectionCards} from "../components/layout/SectionCards.tsx";
 import {SectionTable} from "../components/layout/SecionTable.tsx";
 import {PropertiesForm} from "../components/layout/PropertiesForm.tsx";
-import {createActionTemplateModel} from "../components/business/actionTemplates.ts";
+import {createActionTemplateModel} from "../components/business/model/model.actions.ts";
 import {InlineEditDescription} from "../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../components/core/InlineEditSingleLine.tsx";
 import {InlineEditTags} from "../components/core/InlineEditTags.tsx";
+import {createActionTemplateTagFreeList} from "../components/business/tag/tag.actions.ts";
+import {EntityIcon, RelationshipIcon, TypeIcon} from "../components/business/model/model.icons.tsx";
 
 
 export function ModelPage({modelId}: { modelId: string }) {
@@ -140,6 +142,19 @@ export function ModelView() {
           {model.types.length > 0 &&
             <SectionTable><TypesTable onClick={handleClickType} types={model.types}/></SectionTable>}
 
+          <SectionTitle
+            icon={<TypeIcon/>}
+            actionParams={createActionTemplateTagFreeList(modelTagScope(model.id))}
+            location={ActionUILocations.tag_free_list}>
+            Local tags
+          </SectionTitle>
+
+          <SectionTable>
+            <TagsTable
+              scope={modelTagScope(model.id)}
+            />
+          </SectionTable>
+
         </ContainedHumanReadable>
       </ContainedScrollable>
     </ContainedMixedScrolling>
@@ -166,11 +181,11 @@ export function ModelOverview() {
     return modelUpdateDocumentationHome.mutateAsync({modelId: model.id, value: value})
   }
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of model.hashtags) {
-      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: tag})
+    for (const tag of model.tags) {
+      if (!value.includes(tag)) await modelUpdateDeleteTag.mutateAsync({modelId: model.id, tag: "id:" + tag})
     }
     for (const tag of value) {
-      if (!model.hashtags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: tag})
+      if (!model.tags.includes(tag)) await modelUpdateAddTag.mutateAsync({modelId: model.id, tag: "id:" + tag})
     }
   }
   return <PropertiesForm>
@@ -205,11 +220,11 @@ export function ModelOverview() {
 
     <div>Tags</div>
     <div>
-      <InlineEditTags value={model.hashtags} onChange={handleChangeTags}>
+      <InlineEditTags value={model.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
-          model.hashtags.length === 0
+          model.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={model.hashtags}/>
+            : <Tags tags={model.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>
@@ -264,5 +279,3 @@ export function ExternalUrl({
   if (!url) return null
   return <a href={url} target="_blank">{url}</a>;
 }
-
-

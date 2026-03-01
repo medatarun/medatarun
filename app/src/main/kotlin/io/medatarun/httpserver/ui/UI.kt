@@ -1,46 +1,56 @@
 package io.medatarun.httpserver.ui
 
 import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
-import io.medatarun.runtime.AppRuntime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import org.jetbrains.annotations.ApiStatus
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.util.*
 
-class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
+class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
 
     val modelQueries = runtime.services.getService<ModelQueries>()
 
     fun modelListJson(locale: Locale): String {
-        val data = modelQueries.findAllModelSummaries(locale)
-        return buildJsonArray {
-            data.forEach { m ->
-                addJsonObject {
-                    put("id", m.id.value.toString())
-                    put("key", m.key.value)
-                    put("name", m.name)
-                    put("description", m.description)
-                    put("error", m.error)
-                    put("countTypes", m.countTypes)
-                    put("countEntities", m.countEntities)
-                    put("countRelationships", m.countRelationships)
+        try {
+            val data = modelQueries.findAllModelSummaries(locale)
+            return buildJsonArray {
+                data.forEach { m ->
+                    addJsonObject {
+                        put("id", m.id.asString())
+                        put("key", m.key.asString())
+                        put("name", m.name)
+                        put("description", m.description)
+                        put("error", m.error)
+                        put("countTypes", m.countTypes)
+                        put("countEntities", m.countEntities)
+                        put("countRelationships", m.countRelationships)
+                    }
                 }
-            }
-        }.toString()
+            }.toString()
+        } catch(e: Exception) {
+            logger.error("Impossible to read models", e)
+            throw MedatarunException("Could not get list of models", StatusCode.INTERNAL_SERVER_ERROR)
+        }
     }
 
     fun modelJson(modelId: ModelId, locale: Locale): String {
         val model = modelQueries.findModelById(modelId)
 
         return buildJsonObject {
-            put("id", model.id.value.toString())
-            put("key", model.key.value)
+            put("id", model.id.asString())
+            put("key", model.key.asString())
             put("name", model.name?.get(locale))
             put("version", model.version.value)
             put("documentationHome", model.documentationHome?.toExternalForm())
-            put("hashtags", JsonArray(model.hashtags.map { JsonPrimitive(it.value) }))
+            put("tags", JsonArray(model.tags.map { JsonPrimitive(it.value.toString()) }))
             put("description", model.description?.get(locale))
             val origin = model.origin
             put(
@@ -87,16 +97,16 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         locale: Locale
     ): JsonObject {
         val relationshipJson = buildJsonObject {
-            put("id", relationship.id.value.toString())
-            put("key", relationship.key.value)
+            put("id", relationship.id.asString())
+            put("key", relationship.key.asString())
             put("name", relationship.name?.get(locale))
             put("description", relationship.description?.get(locale))
-            put("hashtags", JsonArray(relationship.hashtags.map { JsonPrimitive(it.value) }))
+            put("tags", JsonArray(relationship.tags.map { JsonPrimitive(it.value.toString()) }))
             putJsonArray("roles") {
                 relationship.roles.forEach { role ->
                     addJsonObject {
-                        put("id", role.id.value.toString())
-                        put("key", role.key.value)
+                        put("id", role.id.asString())
+                        put("key", role.key.asString())
                         put("name", role.name?.get(locale))
                         put("entityId", role.entityId.value.toString())
                         put("cardinality", role.cardinality.code)
@@ -105,15 +115,15 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             }
             putJsonArray("attributes") { relationship.attributes.forEach { attr ->
                 addJsonObject {
-                    put("id", attr.id.value.toString())
-                    put("key", attr.key.value)
+                    put("id", attr.id.asString())
+                    put("key", attr.key.asString())
                     put("name", attr.name?.get(locale))
                     put("description", attr.description?.get(locale))
                     put("type", attr.typeId.value.toString())
                     put("optional", attr.optional)
                     put("identifierAttribute", false)
-                    putJsonArray("hashtags") {
-                        attr.hashtags.forEach { add(it.value) }
+                    putJsonArray("tags") {
+                        attr.tags.forEach { add(it.value.toString()) }
                     }
                 }
             } }
@@ -131,17 +141,13 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
         val origin = e.origin
         val documentationHome = e.documentationHome
         return buildJsonObject {
-            put("id", e.id.value.toString())
-            put("key", e.key.value)
+            put("id", e.id.asString())
+            put("key", e.key.asString())
             put("name", name)
             put("description", description)
             put("documentationHome", documentationHome?.toExternalForm())
-            putJsonArray("hashtags") {
-                e.hashtags.forEach { add(it.value) }
-            }
-            putJsonObject("model") {
-                put("id", model.key.value)
-                put("name", model.name?.get(locale))
+            putJsonArray("tags") {
+                e.tags.forEach { add(it.value.toString()) }
             }
             put(
                 "origin", when {
@@ -159,15 +165,15 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
                 val attributes = model.findEntityAttributes(e.ref)
                 attributes.forEach { attr ->
                     addJsonObject {
-                        put("id", attr.id.value.toString())
-                        put("key", attr.key.value)
+                        put("id", attr.id.asString())
+                        put("key", attr.key.asString())
                         put("name", attr.name?.get(locale))
                         put("description", attr.description?.get(locale))
                         put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
                         put("identifierAttribute", e.identifierAttributeId == attr.id)
-                        putJsonArray("hashtags") {
-                            attr.hashtags.forEach { add(it.value) }
+                        putJsonArray("tags") {
+                            attr.tags.forEach { add(it.value.toString()) }
                         }
                     }
                 }
@@ -198,6 +204,10 @@ class UI(runtime: AppRuntime, private val actionRegistry: ActionRegistry) {
             )
         }
     }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(UI::class.java)
+    }
 }
 
 
@@ -220,5 +230,4 @@ data class ActionParamDescriptorDto(
     val description: String?,
     val order: Int
 )
-
 

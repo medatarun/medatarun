@@ -1,11 +1,6 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.internal.KeyValidation
+import io.medatarun.type.commons.key.Key
 
 @JvmInline
-value class AttributeKey(val value: String) {
-    fun validated(): AttributeKey {
-        KeyValidation.validate(value)
-        return this
-    }
-}
+value class AttributeKey(override val value: String) : Key<AttributeKey>

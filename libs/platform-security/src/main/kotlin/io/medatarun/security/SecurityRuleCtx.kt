@@ -4,4 +4,5 @@ interface SecurityRuleCtx {
     fun isSignedIn(): Boolean
     fun isAdmin(): Boolean
     fun getRoles(): List<AppPrincipalRole>
+    fun ensureRole(wantedRole: AppPrincipalRole): SecurityRuleEvaluatorResult
 }

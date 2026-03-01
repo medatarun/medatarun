@@ -7,13 +7,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
-import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.runtime.*
-import io.medatarun.auth.ports.exposed.ActorService
-import io.medatarun.auth.ports.exposed.OidcService
-import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.httpserver.cli.installCLI
-import io.medatarun.httpserver.commons.AppPrincipalFactory
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
 import io.medatarun.httpserver.commons.installJwtSecurity
@@ -24,10 +19,6 @@ import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
 import io.medatarun.httpserver.rest.installActionsApi
 import io.medatarun.httpserver.ui.*
-import io.medatarun.platform.kernel.getService
-import io.medatarun.runtime.AppRuntime
-import io.medatarun.security.SecurityRulesProvider
-import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -42,46 +33,20 @@ import java.net.URI
  * - OIDC endpoints
  */
 class AppHttpServer(
-    private val runtime: AppRuntime,
     private val publicBaseUrl: URI,
+    private val services: AppHttpServerServices
 ) {
 
-    private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(
-        runtime.extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
-            .flatMap { it.getRules() }
-    )
-    private val actionTypesRegistry = ActionTypesRegistry(
-        runtime.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
-    )
-    private val actionRegistry = ActionRegistry(
-        actionSecurityRuleEvaluators,
-        actionTypesRegistry,
-        runtime.extensionRegistry.findContributionsFlat(ActionProvider::class)
-    )
-
-    private val actionInvoker = ActionInvoker(
-        actionRegistry,
-        actionTypesRegistry,
-        actionSecurityRuleEvaluators
-    )
-
-    private val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
-
     private val mcpServerBuilder = McpServerBuilder(
-        actionRegistry = actionRegistry,
+        actionRegistry = services.actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
-        actionCtxFactory = actionCtxFactory,
-        actionInvoker = actionInvoker,
+        actionCtxFactory = services.actionCtxFactory,
+        actionInvoker = services.actionInvoker,
     )
-    private val restApiDoc = RestApiDoc(actionRegistry)
-    private val restCommandInvocation = RestCommandInvocation(actionInvoker, actionCtxFactory)
+    private val restApiDoc = RestApiDoc(services.actionRegistry)
+    private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionCtxFactory)
 
     private val uiIndexTemplate = UIIndexTemplate()
-
-    val userService = runtime.services.getService<UserService>()
-    val oidcService = runtime.services.getService<OidcService>()
-    val actorService = runtime.services.getService<ActorService>()
-    private val principalFactory = AppPrincipalFactory(actorService)
 
 
     @Volatile
@@ -129,8 +94,8 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
-        val oidcAuthority = oidcService.oidcAuthority(publicBaseUrl)
-        val oidcClientId = oidcService.oidcClientId()
+        val oidcAuthority = services.oidcService.oidcAuthority(publicBaseUrl)
+        val oidcClientId = services.oidcService.oidcClientId()
 
         install(ContentNegotiation) { json() }
         install(SSE)
@@ -141,22 +106,22 @@ class AppHttpServer(
             oidcAuthority,
             oidcClientId
         )
-        installJwtSecurity(oidcService)
+        installJwtSecurity(services.oidcService)
 
         routing {
 
             installUIStaticResources()
             installUIHomepage(uiIndexTemplate, oidcAuthority, oidcClientId)
-            installUIApis(runtime, actionRegistry)
+            installUIApis(services.runtime, services.actionRegistry)
 
-            installActionsApi(restApiDoc, restCommandInvocation, principalFactory)
+            installActionsApi(restApiDoc, restCommandInvocation, services.principalFactory)
 
-            installCLI(actionRegistry)
+            installCLI(services.actionRegistry)
 
-            installOidc(oidcService, userService, publicBaseUrl)
+            installOidc(services.oidcService, services.userService, publicBaseUrl)
 
 
-            installMcp(mcpServerBuilder, principalFactory = principalFactory)
+            installMcp(mcpServerBuilder, principalFactory = services.principalFactory)
 
 
             installHealth()
@@ -165,7 +130,7 @@ class AppHttpServer(
     }
 
     fun bootstrapMessage() {
-        userService.loadOrCreateBootstrapSecret { secret ->
+        services.userService.loadOrCreateBootstrapSecret { secret ->
             logger.warn("----------------------------------------------------------")
             logger.warn("⚠️ This message disappear once the secret is used.")
             logger.warn("")

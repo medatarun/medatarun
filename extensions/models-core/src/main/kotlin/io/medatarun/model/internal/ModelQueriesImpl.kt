@@ -5,11 +5,13 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelStorages
+import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.tags.core.domain.TagId
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*
 
-class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
+class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolver: ModelTagResolver) : ModelQueries {
 
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
@@ -17,7 +19,8 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        return storage.findAllModelIds().map { id ->
+        val modelIds = storage.findAllModelIds()
+        return modelIds.map { id ->
             try {
                 val model = storage.findModelById(id)
                 ModelSummary(
@@ -138,24 +141,24 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
                     }
 
                     is SearchFilterTags.AllOf -> {
-                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
                         searchedTags.all(indexedItem.tags::contains)
                     }
 
                     is SearchFilterTags.NoneOf -> {
-                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
                         searchedTags.none { indexedItem.tags.contains(it) }
                     }
 
                     is SearchFilterTags.AnyOf -> {
-                        val searchedTags = filter.names.map { tagName -> Hashtag(tagName) }
+                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
                         searchedTags.any { indexedItem.tags.contains(it) }
                     }
                 }
             }
         }
 
-        val predicateChain = query.filters.filters.map { toQueryItemPredicate(it) }
+        val predicateChain = query.filters.items.map { toQueryItemPredicate(it) }
         val filteredItems = when (query.filters.operator) {
             SearchFiltersLogicalOperator.AND -> {
                 index.items.filter {
@@ -181,24 +184,24 @@ class ModelQueriesImpl(private val storage: ModelStorages) : ModelQueries {
     }
 
     class QueryIndex(val items: List<QueryIndexItem>)
-    class QueryIndexItem(val location: DomainLocation, val tags: List<Hashtag>)
+    class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>)
 
     class QueryIndexBuilder(private val storage: ModelStorages) {
         fun build(): QueryIndex {
             val index = mutableListOf<QueryIndexItem>()
             storage.findAllModelIds().forEach { modelId ->
                 val model = storage.findModelById(modelId)
-                index.add(QueryIndexItem(createModelLocation(model), model.hashtags))
+                index.add(QueryIndexItem(createModelLocation(model), model.tags))
                 model.entities.forEach { entity ->
-                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.hashtags))
+                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags))
                     entity.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.hashtags))
+                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags))
                     }
                 }
                 model.relationships.forEach { rel ->
-                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.hashtags))
+                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags))
                     rel.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.hashtags))
+                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags))
                     }
                 }
             }

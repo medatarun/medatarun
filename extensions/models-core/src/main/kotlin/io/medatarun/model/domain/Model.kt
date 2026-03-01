@@ -1,5 +1,6 @@
 package io.medatarun.model.domain
 
+import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
 /**
@@ -60,9 +61,9 @@ interface Model {
     val documentationHome: URL?
 
     /**
-     * Hashtags used as classifiers for the model
+     * Tags used as classifiers for the model
      */
-    val hashtags: List<Hashtag>
+    val tags: List<TagId>
 
     fun findTypeOptional(typeKey: TypeKey): ModelType? = types.firstOrNull { it.key == typeKey }
     fun findTypeOptional(typeId: TypeId): ModelType? = types.firstOrNull { it.id == typeId }
@@ -197,4 +198,3 @@ interface Model {
     }
 
 }
-

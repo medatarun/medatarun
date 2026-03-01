@@ -1,11 +1,6 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.internal.KeyValidation
+import io.medatarun.type.commons.key.Key
 
 @JvmInline
-value class RelationshipRoleKey(val value: String) {
-    fun validated(): RelationshipRoleKey {
-        KeyValidation.validate(value)
-        return this
-    }
-}
+value class RelationshipRoleKey(override val value: String) : Key<RelationshipRoleKey>

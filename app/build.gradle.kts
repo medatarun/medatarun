@@ -12,20 +12,22 @@ plugins {
 
 dependencies {
     // Project "app" depends on project "utils". (Project paths are separated with ":", so ":utils" refers to the top-level "utils" project.)
-    implementation(project(":utils"))
-    implementation(project(":libs:lang"))
     implementation(project(":extensions:models-core"))
+    implementation(project(":extensions:models-import-frictionlessdata"))
+    implementation(project(":extensions:models-import-jdbc"))
+    implementation(project(":extensions:models-storage-json"))
+    implementation(project(":extensions:sysops-config-inspector"))
+    implementation(project(":extensions:tags-core"))
+    implementation(project(":libs:lang"))
     implementation(project(":libs:platform-actions"))
     implementation(project(":libs:platform-auth"))
     implementation(project(":libs:platform-kernel"))
     implementation(project(":libs:platform-security"))
     implementation(project(":libs:platform-storage-db"))
     implementation(project(":libs:platform-storage-db-sqlite"))
+    implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-type-system"))
-    implementation(project(":extensions:sysops-config-inspector"))
-    implementation(project(":extensions:models-storage-json"))
-    implementation(project(":extensions:models-import-jdbc"))
-    implementation(project(":extensions:models-import-frictionlessdata"))
+    implementation(project(":utils"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.ktorServerAuth)
@@ -47,6 +49,7 @@ dependencies {
     implementation(libs.microprofileConfigApi)
     implementation(libs.smallryeConfig)
     testImplementation(kotlin("test"))
+    testImplementation(libs.jimfs)
 }
 
 application {

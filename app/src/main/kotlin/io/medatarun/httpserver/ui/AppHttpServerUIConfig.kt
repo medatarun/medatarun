@@ -14,7 +14,7 @@ import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_J
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.ModelId
-import io.medatarun.runtime.AppRuntime
+import io.medatarun.platform.kernel.PlatformRuntime
 import java.net.URI
 
 /**
@@ -106,7 +106,7 @@ fun Routing.installUIHomepage(
 /**
  * UI specific APIs, not meant for general API usages
  */
-fun Routing.installUIApis(runtime: AppRuntime, actionRegistry: ActionRegistry) {
+fun Routing.installUIApis(runtime: PlatformRuntime, actionRegistry: ActionRegistry) {
 
     get("/ui/api/action-registry") {
         // Authentication: the action registry for UI is public (otherwise no help on UI)

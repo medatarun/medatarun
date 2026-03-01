@@ -22,7 +22,7 @@ import {
   useRelationshipAttributeUpdateOptional,
   useRelationshipAttributeUpdateType
 } from "../../business";
-import {ModelContext, useModelContext} from "../../components/business/ModelContext.tsx";
+import {ModelContext, useModelContext} from "../../components/business/model/ModelContext.tsx";
 import {ViewTitle} from "../../components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
@@ -32,9 +32,8 @@ import {
   Text,
   tokens
 } from "@fluentui/react-components";
-import {EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/Icons.tsx";
 import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
-import {ActionMenuButton} from "../../components/business/TypesTable.tsx";
+import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
@@ -46,15 +45,16 @@ import {
   createActionTemplateEntityAttribute,
   createActionTemplateModel,
   createActionTemplateRelationshipAttribute
-} from "../../components/business/actionTemplates.ts";
+} from "../../components/business/model/model.actions.ts";
 import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {Tags} from "../../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
 import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
 import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
+import {EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
 
 
 export function AttributePage({modelId, parentType, parentId, attributeId}: {
@@ -325,21 +325,21 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
   }
 
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of attribute.hashtags) {
+    for (const tag of attribute.tags) {
       if (!value.includes(tag)) {
         if (parentAsEntity) {
           await entityAttributeDeleteTag.mutateAsync({
             modelId: model.id,
             entityId: parentAsEntity.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else if (parentAsRelationship) {
           await relationshipAttributeDeleteTag.mutateAsync({
             modelId: model.id,
             relationshipId: parentAsRelationship.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         }else {
           throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
@@ -347,20 +347,20 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
       }
     }
     for (const tag of value) {
-      if (!attribute.hashtags.includes(tag)) {
+      if (!attribute.tags.includes(tag)) {
         if (parentAsEntity) {
           await entityAttributeAddTag.mutateAsync({
             modelId: model.id,
             entityId: parentAsEntity.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else if (parentAsRelationship) {
           await relationshipAttributeAddTag.mutateAsync({
             modelId: model.id,
             relationshipId: parentAsRelationship.id,
             attributeId: attribute.id,
-            tag: tag
+            tag: "id:" + tag
           })
         } else {
           throw toProblem("Attribute is neither a relationship attribute or an entity attribute")
@@ -384,11 +384,11 @@ export function AttributeOverview({attribute, model, parentAsEntity, parentAsRel
     </div>
 
     <div><Text>Tags</Text></div>
-    <div><InlineEditTags value={attribute.hashtags} onChange={handleChangeTags}>
+    <div><InlineEditTags value={attribute.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
       {
-        attribute.hashtags.length === 0
+        attribute.tags.length === 0
           ? <MissingInformation>add tags</MissingInformation>
-          : <Tags tags={attribute.hashtags}/>
+          : <Tags tags={attribute.tags} scope={modelTagScope(model.id)}/>
       }
     </InlineEditTags></div>
 

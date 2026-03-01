@@ -1,7 +1,7 @@
 import {Text} from "@fluentui/react-components";
 import {ExternalUrl, Origin} from "../ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
-import {Tags} from "../../components/core/Tag.tsx";
+import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
 import {
   type EntityDto,
   useEntityAddTag,
@@ -13,7 +13,7 @@ import {useDetailLevelContext} from "../../components/business/DetailLevelContex
 import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
 import {MissingInformation} from "../../components/core/MissingInformation.tsx";
 import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {useModelContext} from "../../components/business/ModelContext.tsx";
+import {useModelContext} from "../../components/business/model/ModelContext.tsx";
 import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
 
 
@@ -32,14 +32,14 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
     return entityUpdateDocumentationHome.mutateAsync({modelId: model.id, entityId: entity.id, value: value})
   }
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of entity.hashtags) {
-      if (!value.includes(tag)) await entityDeleteTag.mutateAsync({modelId: model.id, entityId: entity.id, tag: tag})
+    for (const tag of entity.tags) {
+      if (!value.includes(tag)) await entityDeleteTag.mutateAsync({modelId: model.id, entityId: entity.id, tag: "id:" + tag})
     }
     for (const tag of value) {
-      if (!entity.hashtags.includes(tag)) await entityAddTag.mutateAsync({
+      if (!entity.tags.includes(tag)) await entityAddTag.mutateAsync({
         modelId: model.id,
         entityId: entity.id,
-        tag: tag
+        tag: "id:" + tag
       })
     }
   }
@@ -51,7 +51,7 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
       </InlineEditSingleLine>
     </div>}
     <div><Text>From&nbsp;model</Text></div>
-    <div><Link to="/model/$modelId" params={{modelId: entity.model.id}}>{entity.model.name ?? entity.model.id}</Link>
+    <div><Link to="/model/$modelId" params={{modelId: model.id}}>{model.nameOrKey}</Link>
     </div>
 
     <div><Text>External&nbsp;link</Text></div>
@@ -66,11 +66,11 @@ export function EntityOverview({entity}: { entity: EntityDto }) {
 
     <div><Text>Tags</Text></div>
     <div>
-      <InlineEditTags value={entity.hashtags} onChange={handleChangeTags}>
+      <InlineEditTags value={entity.tags} scope={modelTagScope(model.id)} onChange={handleChangeTags}>
         {
-          entity.hashtags.length === 0
+          entity.tags.length === 0
             ? <MissingInformation>add tags</MissingInformation>
-            : <Tags tags={entity.hashtags}/>
+            : <Tags tags={entity.tags} scope={modelTagScope(model.id)}/>
         }
       </InlineEditTags>
     </div>

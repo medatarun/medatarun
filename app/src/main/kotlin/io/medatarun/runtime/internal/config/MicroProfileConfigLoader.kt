@@ -10,7 +10,7 @@ import kotlin.io.path.exists
 
 class MicroProfileConfigLoader {
 
-    fun load(applicationDir: Path): Config {
+    fun load(applicationDir: Path, builtInProperties: Map<String,String>): Config {
 
         val builder = ConfigProviderResolver.instance().builder
         builder.addDefaultSources()
@@ -26,7 +26,12 @@ class MicroProfileConfigLoader {
                     MEDATARUN_PROPERTIES_ORDINAL
                 )
             )
+
         }
+
+        sources.add(PropertiesConfigSource(
+            builtInProperties, "built-in-properties", MEDATARUN_BUILTIN_PROPERTIES_ORDINAL
+        ))
 
         if (sources.isNotEmpty()) {
             builder.withSources(*sources.toTypedArray())
@@ -41,6 +46,7 @@ class MicroProfileConfigLoader {
 
         // Keep project files above classpath defaults, but below env/system properties.
         private const val MEDATARUN_PROPERTIES_ORDINAL = 200
+        private const val MEDATARUN_BUILTIN_PROPERTIES_ORDINAL = 0
 
 
     }

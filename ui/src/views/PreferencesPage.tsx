@@ -2,11 +2,11 @@ import {SwitchButton} from "@seij/common-ui";
 import {useDetailLevelContext} from "../components/business/DetailLevelContext.tsx";
 import {ViewTitle} from "../components/core/ViewTitle.tsx";
 import {tokens} from "@fluentui/react-components";
-import {ActionMenuButton} from "../components/business/TypesTable.tsx";
+import {ActionMenuButton} from "../components/business/model/TypesTable.tsx";
 import {ContainedHumanReadable} from "../components/layout/Contained.tsx";
 import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
 import {ActionUILocations, useActionRegistry} from "../business";
-import {createActionTemplateGeneral} from "../components/business/actionTemplates.ts";
+import {createActionTemplateGeneral} from "../components/business/model/model.actions.ts";
 
 export function PreferencesPage() {
   const {isDetailLevelTech, toggle} = useDetailLevelContext()

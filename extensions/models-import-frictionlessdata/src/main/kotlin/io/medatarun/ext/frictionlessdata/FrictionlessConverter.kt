@@ -7,10 +7,23 @@ import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.platform.kernel.ResourceLocator
+import io.medatarun.tags.core.domain.TagId
 import org.slf4j.LoggerFactory
 import java.net.URI
 
-class FrictionlessConverter {
+interface FrictionlessTagImporter {
+    fun importModelScopeTags(modelId: ModelId, keywords: List<String>): List<TagId>
+}
+
+object NoopFrictionlessTagImporter : FrictionlessTagImporter {
+    override fun importModelScopeTags(modelId: ModelId, keywords: List<String>): List<TagId> {
+        return emptyList()
+    }
+}
+
+class FrictionlessConverter(
+    private val tagImporter: FrictionlessTagImporter
+) {
     val ser = DataPackageSerializer()
 
     fun isCompatible(path: String, resourceLocator: ResourceLocator): Boolean {
@@ -64,8 +77,9 @@ class FrictionlessConverter {
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
     ): ModelInMemory {
+        val modelId = ModelId.generate()
         val model = ModelInMemory(
-            id = ModelId.generate(),
+            id = modelId,
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
@@ -86,12 +100,15 @@ class FrictionlessConverter {
                     entityDescription = subresource.datapackage?.description ?: resource.description,
                     documentationHome = subresource.datapackage?.homepage ?: resource.homepage,
                     schema = subresource.schema,
-                    hashtags = (subresource.datapackage?.keywords ?: datapackage.keywords).map { Hashtag(it) },
+                    tags = tagImporter.importModelScopeTags(
+                        modelId,
+                        subresource.datapackage?.keywords ?: datapackage.keywords
+                    ),
                     types = types
                 )
             },
             relationships = emptyList(),
-            hashtags = datapackage.keywords.map { Hashtag(it) },
+            tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
             documentationHome = toURLSafe(datapackage.homepage)
         )
         return model
@@ -105,10 +122,10 @@ class FrictionlessConverter {
         schema: TableSchema,
 
         ): ModelInMemory {
-
+        val modelId = ModelId.generate()
 
         val model = ModelInMemory(
-            id = ModelId.generate(),
+            id = modelId,
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
             description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
@@ -123,13 +140,13 @@ class FrictionlessConverter {
                     entityDescription = datapackage.description,
                     documentationHome = datapackage.homepage,
                     schema = schema,
-                    hashtags = datapackage.keywords.map { Hashtag(it) },
+                    tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
                     types = types
                 )
             ),
             relationships = emptyList(),
             documentationHome = toURLSafe(datapackage.homepage),
-            hashtags = datapackage.keywords.map { Hashtag(it) },
+            tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
         )
         return model
     }
@@ -143,7 +160,7 @@ class FrictionlessConverter {
         entityDescription: String?,
         documentationHome: String?,
         schema: TableSchema,
-        hashtags: List<Hashtag>,
+        tags: List<TagId>,
         types: List<ModelTypeInMemory>,
     ): EntityInMemory {
 
@@ -160,7 +177,7 @@ class FrictionlessConverter {
                 typeId = types.firstOrNull { it.key == TypeKey(field.type) }?.id
                     ?: throw FrictionlessConverterTypeNotFound(field.name, field.type),
                 optional = field.isOptional(),
-                hashtags = emptyList()
+                tags = emptyList()
             )
         }
 
@@ -175,7 +192,7 @@ class FrictionlessConverter {
             attributes = attributes,
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
-            hashtags = hashtags,
+            tags = tags,
             identifierAttributeId = identifierAttribute.id
         )
         return entity

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 class MedatarunServiceRegistryImpl(
-    val config: MedatarunConfig
+
 ) : MedatarunServiceRegistry {
 
     private val services: MutableMap<KClass<*>, Any> = mutableMapOf()

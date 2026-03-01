@@ -7,6 +7,6 @@ interface MedatarunExtensionCtx: MedatarunExtensionCtxConfig {
 
     fun <CONTRIB : Any> registerContributionPoint(id: ContributionPointId, api: KClass<CONTRIB>)
     fun <INTERFACE : Any, IMPL : INTERFACE> register(api: KClass<INTERFACE>, instance: IMPL)
-
+    fun <T:Any> getService(clazz: KClass<T>):T
 
 }
