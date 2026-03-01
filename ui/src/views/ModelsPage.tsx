@@ -1,48 +1,77 @@
-import {ModelCard} from "@/components/business/model/ModelCard.tsx";
-import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { ModelCard } from "@/components/business/model/ModelCard.tsx";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
 import { type ModelSummaryDto, useModelSummaries } from "@/business/model";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
-import {tokens} from "@fluentui/react-components";
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
-import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
-import {createActionTemplateGeneral} from "@/components/business/model/model.actions.ts";
-import {ModelIcon} from "@/components/business/model/model.icons.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { tokens } from "@fluentui/react-components";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
+import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 
+export function ModelsPage({
+  onClickModel,
+}: {
+  onClickModel: (modelId: string) => void;
+}) {
+  const { data = [] } = useModelSummaries();
+  const actionRegistry = useActionRegistry();
+  const actions = actionRegistry.findActions(ActionUILocations.models);
 
-export function ModelsPage({onClickModel}: { onClickModel: (modelId: string) => void }) {
-  const {data = []} = useModelSummaries()
-  const actionRegistry = useActionRegistry()
-  const actions = actionRegistry.findActions(ActionUILocations.models)
-
-  return <ViewLayoutContained title={
-    <div>
-      <ViewTitle>
-        <div style={{display: "flex", justifyContent: "space-between", paddingRight: tokens.spacingHorizontalL}}>
-          <div><span><ModelIcon/></span> {" "} Models {" "}</div>
-          <div>
-            <ActionMenuButton label="Actions"
-                              itemActions={actions}
-                              actionParams={createActionTemplateGeneral()}/>
-          </div>
+  return (
+    <ViewLayoutContained
+      title={
+        <div>
+          <ViewTitle>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                paddingRight: tokens.spacingHorizontalL,
+              }}
+            >
+              <div>
+                <span>
+                  <ModelIcon />
+                </span>{" "}
+                Models{" "}
+              </div>
+              <div>
+                <ActionMenuButton
+                  label="Actions"
+                  itemActions={actions}
+                  actionParams={createActionTemplateGeneral()}
+                />
+              </div>
+            </div>
+          </ViewTitle>
         </div>
-      </ViewTitle>
-    </div>
-  }>
-    <div style={{
-      paddingLeft: tokens.spacingHorizontalM,
-      paddingRight: tokens.spacingHorizontalM,
-    }}>
-      {data.length == 0 ? "No models found" : null}
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        columnGap: tokens.spacingVerticalM,
-        rowGap: tokens.spacingVerticalM,
-        flexWrap: "wrap",
-        marginTop: tokens.spacingVerticalM
-      }}>
-        {data.map((model: ModelSummaryDto) => <ModelCard key={model.id} model={model} onClick={onClickModel}/>)}
+      }
+    >
+      <div
+        style={{
+          paddingLeft: tokens.spacingHorizontalM,
+          paddingRight: tokens.spacingHorizontalM,
+        }}
+      >
+        {data.length == 0 ? "No models found" : null}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            columnGap: tokens.spacingVerticalM,
+            rowGap: tokens.spacingVerticalM,
+            flexWrap: "wrap",
+            marginTop: tokens.spacingVerticalM,
+          }}
+        >
+          {data.map((model: ModelSummaryDto) => (
+            <ModelCard key={model.id} model={model} onClick={onClickModel} />
+          ))}
+        </div>
       </div>
-    </div>
-  </ViewLayoutContained>
+    </ViewLayoutContained>
+  );
 }

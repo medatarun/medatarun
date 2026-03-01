@@ -1,9 +1,9 @@
 declare global {
   interface MedatarunConfig {
-    username?:string;
+    username?: string;
     auth_ctx?: string;
     error?: string;
   }
 }
 
-export {}
+export {};

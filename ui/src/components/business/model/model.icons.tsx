@@ -3,11 +3,11 @@ import {
   ClipboardBulletListRegular,
   LinkRegular,
   ScanTypeRegular,
-  TextBulletListSquareRegular
+  TextBulletListSquareRegular,
 } from "@fluentui/react-icons";
 
-export const ModelIcon = BoxRegular
-export const EntityIcon = ClipboardBulletListRegular
-export const AttributeIcon = TextBulletListSquareRegular
-export const RelationshipIcon = LinkRegular
-export const TypeIcon = ScanTypeRegular
+export const ModelIcon = BoxRegular;
+export const EntityIcon = ClipboardBulletListRegular;
+export const AttributeIcon = TextBulletListSquareRegular;
+export const RelationshipIcon = LinkRegular;
+export const TypeIcon = ScanTypeRegular;

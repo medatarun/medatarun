@@ -1,6 +1,6 @@
-import type {PropsWithChildren} from "react";
-import {type ReactNode} from "react";
-import {makeStyles, tokens} from "@fluentui/react-components";
+import type { PropsWithChildren } from "react";
+import { type ReactNode } from "react";
+import { makeStyles, tokens } from "@fluentui/react-components";
 
 const useStyles = makeStyles({
   root: {
@@ -21,8 +21,7 @@ const useStyles = makeStyles({
     display: "flex",
     justifyContent: "start",
     alignItems: "center",
-    paddingTop: tokens.spacingVerticalM
-
+    paddingTop: tokens.spacingVerticalM,
   },
   title: {
     width: "60rem",
@@ -30,18 +29,23 @@ const useStyles = makeStyles({
   },
   main: {
     flex: 1,
-    overflowY: "auto"
-  }
-})
+    overflowY: "auto",
+  },
+});
 
-export function ViewLayoutContained({title, children}: { title?: ReactNode } & PropsWithChildren) {
-  const styles = useStyles()
-  return <div className={styles.root}>
-    {title &&
-    <div className={styles.titleBar}>
-      <div className={styles.title}>{title}</div>
+export function ViewLayoutContained({
+  title,
+  children,
+}: { title?: ReactNode } & PropsWithChildren) {
+  const styles = useStyles();
+  return (
+    <div className={styles.root}>
+      {title && (
+        <div className={styles.titleBar}>
+          <div className={styles.title}>{title}</div>
+        </div>
+      )}
+      <div className={styles.main}>{children}</div>
     </div>
-    }
-    <div className={styles.main}>{children}</div>
-  </div>
+  );
 }

@@ -1,8 +1,15 @@
-import {type ReactElement, type ReactNode, useEffect, useState} from "react";
-import {type Problem, toProblem} from "@seij/common-types";
-import {makeStyles, Popover, PopoverSurface, PopoverTrigger, tokens, Tooltip} from "@fluentui/react-components";
-import {EditRegular as EditIcon} from "@fluentui/react-icons";
-import {Button, ButtonBar, ErrorBox} from "@seij/common-ui";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
+import { type Problem, toProblem } from "@seij/common-types";
+import {
+  makeStyles,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  tokens,
+  Tooltip,
+} from "@fluentui/react-components";
+import { EditRegular as EditIcon } from "@fluentui/react-icons";
+import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -11,7 +18,7 @@ const useStyles = makeStyles({
     boxSizing: "border-box",
     width: "100%",
     "&:hover": {
-      backgroundColor: tokens.colorBrandBackground2Hover
+      backgroundColor: tokens.colorBrandBackground2Hover,
     },
     "&:hover [data-edit-icon]": {
       opacity: 0.5,
@@ -19,8 +26,8 @@ const useStyles = makeStyles({
       verticalAlign: "middle",
       position: "absolute",
       top: 0,
-      right: tokens.spacingHorizontalM
-    }
+      right: tokens.spacingHorizontalM,
+    },
   },
   editIcon: {
     display: "inline-block",
@@ -35,7 +42,7 @@ const useStyles = makeStyles({
   },
   editorRoot: {
     position: "relative",
-    backgroundColor: tokens.colorBrandBackground2
+    backgroundColor: tokens.colorBrandBackground2,
   },
   editorActionBar: {
     borderBottom: "1px solid " + tokens.colorNeutralStroke1,
@@ -49,8 +56,8 @@ const useStyles = makeStyles({
     borderRadius: tokens.borderRadiusMedium,
     padding: tokens.spacingHorizontalS,
     zIndex: 10,
-  }
-})
+  },
+});
 
 export interface InlineEditSingleLineLayoutProps {
   /**
@@ -60,7 +67,11 @@ export interface InlineEditSingleLineLayoutProps {
   /**
    * Editor to display in EditMode
    */
-  editor: (intents: { commit: () => void, cancel: () => void, pending: boolean }) => ReactElement;
+  editor: (intents: {
+    commit: () => void;
+    cancel: () => void;
+    pending: boolean;
+  }) => ReactElement;
   /**
    * Called before the editor mode is switched to "on" (prepare data)
    * If the promise rejects, we will display an error before the editor
@@ -99,115 +110,123 @@ export interface InlineEditSingleLineLayoutProps {
  *
  * Editor must be provided
  */
-export const InlineEditSingleLineLayout = (
-  {
-    children,
-    editor,
-    onEditStarted,
-    onEditStart,
-    onEditOK,
-    onEditCancel,
-  }: InlineEditSingleLineLayoutProps) => {
-  const styles = useStyles()
+export const InlineEditSingleLineLayout = ({
+  children,
+  editor,
+  onEditStarted,
+  onEditStart,
+  onEditOK,
+  onEditCancel,
+}: InlineEditSingleLineLayoutProps) => {
+  const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);
   const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
   const [error, setError] = useState<Problem | null>(null);
   const [pending, setPending] = useState<boolean>(false);
-
 
   const handleEdit = async () => {
     try {
       setError(null);
       await onEditStart();
       setEditing(true);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
     }
   };
 
   const handleEditOK = async () => {
-    console.log("handleEditOK")
+    console.log("handleEditOK");
     try {
       setError(null);
       setPending(true);
       await onEditOK();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err) {
       setError(toProblem(err));
       setPending(false);
     }
   };
   const handleEditCancel = async () => {
-    console.log("handleEditCancel")
+    console.log("handleEditCancel");
     try {
       setError(null);
       setPending(true);
       await onEditCancel();
       setEditing(false);
       setPending(false);
-      setEditStartedCalled(false)
+      setEditStartedCalled(false);
     } catch (err: unknown) {
       setError(toProblem(err));
       setPending(false);
     }
   };
 
-
   useEffect(() => {
     if (editing && onEditStarted && !editStartedCalled) {
-      onEditStarted()
-      setEditStartedCalled(true)
+      onEditStarted();
+      setEditStartedCalled(true);
     }
   }, [editing, onEditStarted, editStartedCalled]);
 
   if (!editing)
     return (
       <div className={styles.readRoot} onClick={handleEdit}>
-        <div>{children}
+        <div>
+          {children}
           <div className={styles.editIcon} data-edit-icon>
             <Tooltip content="Edit" relationship="label">
-              <EditIcon name="edit"/>
+              <EditIcon name="edit" />
             </Tooltip>
           </div>
         </div>
-
-
       </div>
     );
 
-  const Editor = editor({commit: handleEditOK, cancel: handleEditCancel, pending: pending})
+  const Editor = editor({
+    commit: handleEditOK,
+    cancel: handleEditCancel,
+    pending: pending,
+  });
 
   return (
     <div>
       <div className={styles.editorRoot}>
         <div className={styles.editorField}>
-
-          <Popover open={true} unstable_disableAutoFocus={true} positioning={"below-start"} size={"small"}
-                   withArrow={true}>
-            <PopoverTrigger>
-              {Editor}
-            </PopoverTrigger>
+          <Popover
+            open={true}
+            unstable_disableAutoFocus={true}
+            positioning={"below-start"}
+            size={"small"}
+            withArrow={true}
+          >
+            <PopoverTrigger>{Editor}</PopoverTrigger>
             <PopoverSurface tabIndex={-1}>
               <div id="editor-action-bar">
-                {error && <ErrorBox error={toProblem(error)}/>}
+                {error && <ErrorBox error={toProblem(error)} />}
                 <ButtonBar variant="end">
-                  <Button disabled={pending} onClick={handleEditCancel} variant="secondary">
+                  <Button
+                    disabled={pending}
+                    onClick={handleEditCancel}
+                    variant="secondary"
+                  >
                     Cancel
                   </Button>
-                  <Button disabled={pending} onClick={handleEditOK} variant="primary">
+                  <Button
+                    disabled={pending}
+                    onClick={handleEditOK}
+                    variant="primary"
+                  >
                     OK
                   </Button>
                 </ButtonBar>
               </div>
             </PopoverSurface>
           </Popover>
-
         </div>
       </div>
-
     </div>
   );
-}
+};
