@@ -1,15 +1,7 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {
-  Model,
-  useActionRegistry,
-  type Tag,
-  useTags,
-  useTagFreeUpdateDescription,
-  useTagFreeUpdateName,
-  useTagManagedUpdateDescription,
-  useTagManagedUpdateName,
-  useModel
-} from "@/business";
+import { useActionRegistry } from "@/business/action_registry";
+import { Model, useModel } from "@/business/model";
+import { type Tag, useTags, useTagFreeUpdateDescription, useTagFreeUpdateName, useTagManagedUpdateDescription, useTagManagedUpdateName } from "@/business/tag";
 import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {MissingInformation} from "@/components/core/MissingInformation.tsx";

@@ -1,18 +1,12 @@
 import {useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-  useTags,
-  useTagGroupUpdateDescription,
-  useTagGroupUpdateKey,
-  useTagGroupUpdateName
-} from "../../business";
-import {TagsTable} from "../../components/business/tag/TagsTable.tsx";
-import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
-import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { useTags, useTagGroupUpdateDescription, useTagGroupUpdateKey, useTagGroupUpdateName } from "@/business/tag";
+import {TagsTable} from "@/components/business/tag/TagsTable.tsx";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -25,19 +19,19 @@ import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
-} from "../../components/layout/Contained.tsx";
-import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {SectionTable} from "../../components/layout/SecionTable.tsx";
-import {SectionTitle} from "../../components/layout/SectionTitle.tsx";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
+} from "@/components/layout/Contained.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {SectionTable} from "@/components/layout/SecionTable.tsx";
+import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
 import {
   createActionTemplateTagGroup,
   createActionTemplateTagManagedList
-} from "../../components/business/tag/tag.actions.ts";
-import {TagGroupIcon} from "../../components/business/tag/tag.icons.tsx";
+} from "@/components/business/tag/tag.actions.ts";
+import {TagGroupIcon} from "@/components/business/tag/tag.icons.tsx";
 
 export function TagGroupEdit({tagGroupId}: { tagGroupId: string }) {
   const navigate = useNavigate()

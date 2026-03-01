@@ -1,8 +1,9 @@
 import {Fragment, useMemo, useState} from "react";
-import {ActionRegistry, type ActionResp, executeAction, useActionRegistry} from "../business";
-import {ActionOutput} from "../components/business/actions/ActionOutput.tsx";
-import {ViewLayoutContained} from "../components/layout/ViewLayoutContained.tsx";
-import {ViewTitle} from "../components/core/ViewTitle.tsx";
+import { type ActionResp, executeAction } from "@/business/action_runner";
+import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
+import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {Field, Textarea} from "@fluentui/react-components";
 import {Button, InputCombobox} from "@seij/common-ui";
 
@@ -160,4 +161,3 @@ export function CommandsPageLoaded({actionRegistry}: { actionRegistry: ActionReg
     </div>
   </ViewLayoutContained>
 }
-

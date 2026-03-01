@@ -1,29 +1,8 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  type AttributeDto,
-  type EntityDto,
-  Model,
-  type RelationshipDto,
-  useActionRegistry,
-  useEntityAttributeAddTag,
-  useEntityAttributeDeleteTag,
-  useEntityAttributeUpdateDescription,
-  useEntityAttributeUpdateKey,
-  useEntityAttributeUpdateName,
-  useEntityAttributeUpdateOptional,
-  useEntityAttributeUpdateType,
-  useModel,
-  useRelationshipAttributeAddTag,
-  useRelationshipAttributeDeleteTag,
-  useRelationshipAttributeUpdateDescription,
-  useRelationshipAttributeUpdateKey,
-  useRelationshipAttributeUpdateName,
-  useRelationshipAttributeUpdateOptional,
-  useRelationshipAttributeUpdateType
-} from "../../business";
-import {ModelContext, useModelContext} from "../../components/business/model/ModelContext.tsx";
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { type AttributeDto, type EntityDto, Model, type RelationshipDto, useEntityAttributeAddTag, useEntityAttributeDeleteTag, useEntityAttributeUpdateDescription, useEntityAttributeUpdateKey, useEntityAttributeUpdateName, useEntityAttributeUpdateOptional, useEntityAttributeUpdateType, useModel, useRelationshipAttributeAddTag, useRelationshipAttributeDeleteTag, useRelationshipAttributeUpdateDescription, useRelationshipAttributeUpdateKey, useRelationshipAttributeUpdateName, useRelationshipAttributeUpdateOptional, useRelationshipAttributeUpdateType } from "@/business/model";
+import {ModelContext, useModelContext} from "@/components/business/model/ModelContext.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -32,29 +11,29 @@ import {
   Text,
   tokens
 } from "@fluentui/react-components";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
-import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
-} from "../../components/layout/Contained.tsx";
-import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
+} from "@/components/layout/Contained.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
 import {
   createActionTemplateEntityAttribute,
   createActionTemplateModel,
   createActionTemplateRelationshipAttribute
-} from "../../components/business/model/model.actions.ts";
-import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
-import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
+} from "@/components/business/model/model.actions.ts";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
-import {EntityIcon, ModelIcon, RelationshipIcon} from "../../components/business/model/model.icons.tsx";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
+import {EntityIcon, ModelIcon, RelationshipIcon} from "@/components/business/model/model.icons.tsx";
 
 
 export function AttributePage({modelId, parentType, parentId, attributeId}: {

@@ -1,16 +1,8 @@
 import {Link, useNavigate} from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  Model,
-  type TypeDto,
-  useActionRegistry,
-  useModel,
-  useTypeUpdateDescription,
-  useTypeUpdateKey,
-  useTypeUpdateName
-} from "../../business";
-import {ModelContext} from "../../components/business/model/ModelContext.tsx";
-import {ViewTitle} from "../../components/core/ViewTitle.tsx";
+import { ActionUILocations, useActionRegistry } from "@/business/action_registry";
+import { Model, type TypeDto, useModel, useTypeUpdateDescription, useTypeUpdateKey, useTypeUpdateName } from "@/business/model";
+import {ModelContext} from "@/components/business/model/ModelContext.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -19,23 +11,23 @@ import {
   Text,
   tokens
 } from "@fluentui/react-components";
-import {ViewLayoutContained} from "../../components/layout/ViewLayoutContained.tsx";
-import {ActionMenuButton} from "../../components/business/model/TypesTable.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable
-} from "../../components/layout/Contained.tsx";
-import {SectionPaper} from "../../components/layout/SectionPaper.tsx";
-import {createActionTemplateType} from "../../components/business/model/model.actions.ts";
-import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
-import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
+} from "@/components/layout/Contained.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {createActionTemplateType} from "@/components/business/model/model.actions.ts";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
 import {ErrorBox} from "@seij/common-ui";
 import {toProblem} from "@seij/common-types";
-import {InlineEditDescription} from "../../components/core/InlineEditDescription.tsx";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
 import {useMemo} from "react";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {ModelIcon} from "../../components/business/model/model.icons.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {ModelIcon} from "@/components/business/model/model.icons.tsx";
 
 
 export function TypePage({modelId, typeId}: {

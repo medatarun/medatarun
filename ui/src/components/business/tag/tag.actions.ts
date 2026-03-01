@@ -1,6 +1,7 @@
-import {ActionUILocations, Tag} from "../../../business";
-import type {ActionPerformerRequestParams} from "../actions/ActionPerformer.tsx";
-import {refid} from "../../../business/action_runner";
+import { ActionUILocations } from "@/business/action_registry";
+import { Tag } from "@/business/tag";
+import type {ActionPerformerRequestParams} from "@/components/business/actions/ActionPerformer.tsx";
+import {refid} from "@/business/action_runner";
 
 /**
  * Given a tag, gives the filter name for actions so we can display only actions

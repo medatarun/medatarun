@@ -1,4 +1,4 @@
-import {api} from "../../services/api.ts";
+import {api} from "@/services/api.ts";
 import type {ModelDto, ModelSummaryDto} from "./model.dto.ts";
 
 export async function fetchModelSummaries(): Promise<ModelSummaryDto[]> {

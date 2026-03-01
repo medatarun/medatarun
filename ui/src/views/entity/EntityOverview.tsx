@@ -1,20 +1,14 @@
 import {Text} from "@fluentui/react-components";
 import {ExternalUrl, Origin} from "../ModelPage.tsx";
 import {Link} from "@tanstack/react-router";
-import {modelTagScope, Tags} from "../../components/core/Tag.tsx";
-import {
-  type EntityDto,
-  useEntityAddTag,
-  useEntityDeleteTag,
-  useEntityUpdateDocumentationHome,
-  useEntityUpdateKey
-} from "../../business";
-import {useDetailLevelContext} from "../../components/business/DetailLevelContext.tsx";
-import {PropertiesForm} from "../../components/layout/PropertiesForm.tsx";
-import {MissingInformation} from "../../components/core/MissingInformation.tsx";
-import {InlineEditSingleLine} from "../../components/core/InlineEditSingleLine.tsx";
-import {useModelContext} from "../../components/business/model/ModelContext.tsx";
-import {InlineEditTags} from "../../components/core/InlineEditTags.tsx";
+import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
+import { type EntityDto, useEntityAddTag, useEntityDeleteTag, useEntityUpdateDocumentationHome, useEntityUpdateKey } from "@/business/model";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {useModelContext} from "@/components/business/model/ModelContext.tsx";
+import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
 
 
 export function EntityOverview({entity}: { entity: EntityDto }) {

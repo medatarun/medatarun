@@ -1,5 +1,5 @@
-import type {ActionPerformerRequestParams} from "../actions/ActionPerformer.tsx";
-import {refid} from "../../../business/action_runner";
+import type {ActionPerformerRequestParams} from "@/components/business/actions/ActionPerformer.tsx";
+import {refid} from "@/business/action_runner";
 
 
 
@@ -54,4 +54,3 @@ export const createActionTemplateRelationshipRole = (modelId: string, relationsh
     relationshipRoleRef: refid(roleId),
   }
 }
-

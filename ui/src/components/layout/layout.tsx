@@ -1,14 +1,14 @@
 import {Outlet, useLocation, useMatchRoute, useNavigate} from "@tanstack/react-router";
 import {MessageBar} from "@fluentui/react-components";
 import {useEffect, useState} from "react";
-import {ActionRegistry, ActionsContext, fetchActionDescriptors} from "../../business";
-import {ActionPerformerView} from "../business/actions/ActionPerformerView.tsx";
-import {ActionProvider} from "../business/actions/ActionPerformerProvider.tsx";
+import { ActionRegistry, ActionsContext, fetchActionDescriptors } from "@/business/action_registry";
+import {ActionPerformerView} from "@/components/business/actions/ActionPerformerView.tsx";
+import {ActionProvider} from "@/components/business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg"
 import {ErrorBoundary} from "./ErrorBoundary.tsx";
 import {Loader, type NavigationTreeItem} from "@seij/common-ui";
 import {ApplicationShellSecured} from "@seij/common-ui-auth";
-import {useDetailLevelContext} from "../business/DetailLevelContext.tsx";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
 
 
 export function Layout2() {
