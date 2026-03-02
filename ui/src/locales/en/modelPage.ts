@@ -1,0 +1,23 @@
+import { type ModelPageMessages } from "../contracts/ModelPageMessages";
+
+export const modelPageMessages = {
+  modelPage_eyebrow: "Model",
+  modelPage_actions: "Actions",
+  modelPage_descriptionPlaceholder: "add description",
+  modelPage_entitiesTitle: "Entities",
+  modelPage_entitiesEmpty: "add entities",
+  modelPage_relationshipsTitle: "Relationships",
+  modelPage_relationshipsEmpty: "add relationships",
+  modelPage_dataTypesTitle: "Data Types",
+  modelPage_dataTypesEmpty: "add data types",
+  modelPage_localTagsTitle: "Local tags",
+  modelPage_keyLabel: "Model key",
+  modelPage_versionLabel: "Version",
+  modelPage_externalLinkLabel: "External link",
+  modelPage_externalLinkEmpty: "add external link",
+  modelPage_tagsLabel: "Tags",
+  modelPage_tagsEmpty: "add tags",
+  modelPage_originLabel: "Origin",
+  modelPage_identifierLabel: "Identifier",
+  modelPage_manualOrigin: "Medatarun (manual)",
+} satisfies ModelPageMessages;

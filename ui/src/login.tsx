@@ -11,6 +11,7 @@ import {
   Title3,
 } from "@fluentui/react-components";
 import logoUrl from "../public/favicon/favicon.svg";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   page: {
@@ -53,6 +54,7 @@ const useStyles = makeStyles({
 
 function LoginForm() {
   const styles = useStyles();
+  const { t } = useAppI18n();
   const config = window.__MEDATARUN_CONFIG__ ?? {};
   const errorMessage = config.error ?? "";
   const authCtx = config.auth_ctx ?? "";
@@ -70,7 +72,7 @@ function LoginForm() {
         </div>
         <div className={styles.fields}>
           <div>
-            <Field label="Username">
+            <Field label={t("loginPage_usernameLabel")}>
               <Input
                 id="login-username"
                 name="username"
@@ -83,7 +85,7 @@ function LoginForm() {
             </Field>
           </div>
           <div>
-            <Field label="Password">
+            <Field label={t("loginPage_passwordLabel")}>
               <Input
                 id="login-password"
                 name="password"
@@ -102,7 +104,7 @@ function LoginForm() {
           </div>
           <div className={styles.submitRow}>
             <Button appearance="primary" type="submit">
-              Sign in
+              {t("loginPage_submitButton")}
             </Button>
           </div>
         </div>

@@ -1,7 +1,12 @@
 import { type Messages } from "./Messages";
+import { entityPageMessages } from "./fr/entityPage";
+import { loginPageMessages } from "./fr/loginPage";
+import { modelPageMessages } from "./fr/modelPage";
+import { sessionMessages } from "./fr/session";
 
-export const messages: Messages = {
-  sessionExpired: "Session expirée",
-  sessionExpiredPleaseReconnect: "Votre session a expiré. Reconnectez-vous pour reprendre l'utilisation de l'application.",
-  sessionExpiredReconnectButton: "Se reconnecter",
-}
+export const messages = {
+  ...sessionMessages,
+  ...modelPageMessages,
+  ...entityPageMessages,
+  ...loginPageMessages,
+} satisfies Messages;
