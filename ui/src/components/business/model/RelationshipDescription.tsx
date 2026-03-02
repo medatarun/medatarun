@@ -2,11 +2,17 @@ import type { RelationshipDto, RelationshipRoleDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { Link } from "@tanstack/react-router";
 import { Markdown } from "@/components/core/Markdown.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function RelationshipDescription(props: { rel: RelationshipDto }) {
+  const { t } = useAppI18n();
   const { rel } = props;
   if (rel.roles.length !== 2) {
-    return <div>{rel.roles.length}-ary relationship.</div>;
+    return (
+      <div>
+        {t("relationshipDescription_nAry", { count: rel.roles.length })}
+      </div>
+    );
   }
 
   const [r1, r2] = rel.roles;
@@ -16,35 +22,41 @@ export function RelationshipDescription(props: { rel: RelationshipDto }) {
       case "one":
         return (
           <div>
-            <EntityLink id={role.entityId} /> can be associated with exactly one{" "}
+            <EntityLink id={role.entityId} />
+            {t("relationshipDescription_exactlyOneBetween")}
             <EntityLink id={other.entityId} />.
           </div>
         );
       case "zeroOrOne":
         return (
           <div>
-            <EntityLink id={role.entityId} /> can be associated with at most one{" "}
+            <EntityLink id={role.entityId} />
+            {t("relationshipDescription_atMostOneBetween")}
             <EntityLink id={other.entityId} />.
           </div>
         );
       case "many":
         return (
           <div>
-            <EntityLink id={role.entityId} /> can be associated with one or more{" "}
+            <EntityLink id={role.entityId} />
+            {t("relationshipDescription_oneOrMoreBetween")}
             <EntityLink id={other.entityId} />.
           </div>
         );
       case "unknown":
         return (
           <div>
-            <EntityLink id={role.entityId} /> can be associated with{" "}
-            <EntityLink id={other.entityId} />, with no defined maximum.
+            <EntityLink id={role.entityId} />
+            {t("relationshipDescription_withoutMaximumPrefix")}
+            <EntityLink id={other.entityId} />
+            {t("relationshipDescription_withoutMaximumSuffix")}
           </div>
         );
       default:
         return (
           <div>
-            <EntityLink id={role.entityId} /> can be associated with{" "}
+            <EntityLink id={role.entityId} />
+            {t("relationshipDescription_genericBetween")}
             <EntityLink id={other.entityId} />.
           </div>
         );

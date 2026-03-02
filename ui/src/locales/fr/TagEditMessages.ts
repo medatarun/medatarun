@@ -7,8 +7,8 @@ export const tagEditMessages: TagEditMessages = {
   tagEdit_actions: "Actions",
   tagEdit_descriptionPlaceholder: "ajouter une description",
   tagEdit_breadcrumbTagGroups: "Groupes de tags",
-  tagEdit_localModelFallback: "modele",
-  tagEdit_scopeLabel: "Portee",
-  tagEdit_keyLabel: "Cle",
+  tagEdit_localModelFallback: "modèle",
+  tagEdit_scopeLabel: "Portée",
+  tagEdit_keyLabel: "Clé",
   tagEdit_identifierLabel: "Identifiant",
 };

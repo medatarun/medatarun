@@ -5,6 +5,6 @@ export const tagGroupsPageMessages: TagGroupsPageMessages = {
   tagGroupsPage_title: "Groupes de tags",
   tagGroupsPage_actions: "Actions",
   tagGroupsPage_description:
-    "Les groupes de tags de portee globale centralisent les vocabulaires geres partages dans Medatarun.",
+    "Les groupes de tags de portée globale centralisent les vocabulaires gérés partagés dans Medatarun.",
   tagGroupsPage_sectionTitle: "Groupes de tags",
 };

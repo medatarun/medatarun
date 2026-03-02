@@ -20,7 +20,7 @@ Relationship page sections,ui/src/views/relationship/RelationshipPage.tsx,Relati
 Relationship page overview,ui/src/views/relationship/RelationshipPage.tsx,RelationshipPageMessages,RelationshipPageMessages,done,"Labels Relationship key, From model, Tags, Relationship id, empty tags."
 Relationship page role cardinality,ui/src/views/relationship/RelationshipPage.tsx,RelationshipPageMessages,RelationshipPageMessages,done,"Strings maybe one, many, one, unknown number of."
 Relationship page displayed errors,ui/src/views/relationship/RelationshipPage.tsx,RelationshipPageMessages,RelationshipPageMessages,done,"ErrorBox 'Relationship not found'."
-Relationship description component,ui/src/components/business/model/RelationshipDescription.tsx,RelationshipDescriptionMessages,,todo,"Descriptions generees pour cardinalites et relation n-aire."
+Relationship description component,ui/src/components/business/model/RelationshipDescription.tsx,RelationshipDescriptionMessages,RelationshipDescriptionMessages,done,"Descriptions generees pour cardinalites et relation n-aire."
 Type page header,ui/src/views/type/TypePage.tsx,TypePageMessages,TypePageMessages,done,"Eyebrow Data type, action button label, description placeholder."
 Type page overview,ui/src/views/type/TypePage.tsx,TypePageMessages,TypePageMessages,done,"Labels Type key, From model, Type Id."
 Type page displayed errors,ui/src/views/type/TypePage.tsx,TypePageMessages,TypePageMessages,done,"ErrorBox 'Type not found'."

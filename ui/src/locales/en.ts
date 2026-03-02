@@ -8,6 +8,7 @@ import { loginPageMessages } from "./en/LoginPageMessages";
 import { modelPageMessages } from "./en/ModelPageMessages";
 import { modelsPageMessages } from "./en/ModelsPageMessages";
 import { preferencesPageMessages } from "./en/PreferencesPageMessages";
+import { relationshipDescriptionMessages } from "./en/RelationshipDescriptionMessages";
 import { relationshipPageMessages } from "./en/RelationshipPageMessages";
 import { sessionMessages } from "./en/SessionMessages";
 import { tagEditMessages } from "./en/TagEditMessages";
@@ -20,6 +21,7 @@ export const messages = {
   ...attributePageMessages,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
+  ...relationshipDescriptionMessages,
   ...errorBoundaryMessages,
   ...layoutMessages,
   ...modelsPageMessages,

@@ -8,7 +8,7 @@ export const tagGroupEditMessages: TagGroupEditMessages = {
   tagGroupEdit_actions: "Actions",
   tagGroupEdit_descriptionPlaceholder: "ajouter une description",
   tagGroupEdit_tagsTitle: "Tags",
-  tagGroupEdit_groupKeyLabel: "Cle du groupe",
+  tagGroupEdit_groupKeyLabel: "Clé du groupe",
   tagGroupEdit_identifierLabel: "Identifiant",
   tagGroupEdit_emptyTagGroups: "Aucun groupe de tags global.",
 };

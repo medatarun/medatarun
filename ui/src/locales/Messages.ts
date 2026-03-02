@@ -7,6 +7,7 @@ import { type LoginPageMessages } from "./contracts/LoginPageMessages";
 import { type ModelPageMessages } from "./contracts/ModelPageMessages";
 import { type ModelsPageMessages } from "./contracts/ModelsPageMessages";
 import { type PreferencesPageMessages } from "./contracts/PreferencesPageMessages";
+import { type RelationshipDescriptionMessages } from "./contracts/RelationshipDescriptionMessages";
 import { type RelationshipPageMessages } from "./contracts/RelationshipPageMessages";
 import { type SessionMessages } from "./contracts/SessionMessages";
 import { type TagEditMessages } from "./contracts/TagEditMessages";
@@ -18,6 +19,7 @@ export type Messages = SessionMessages &
   AttributePageMessages &
   DashboardPageMessages &
   PreferencesPageMessages &
+  RelationshipDescriptionMessages &
   ErrorBoundaryMessages &
   LayoutMessages &
   ModelsPageMessages &
