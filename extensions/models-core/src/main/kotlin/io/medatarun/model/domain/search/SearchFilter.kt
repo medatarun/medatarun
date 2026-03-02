@@ -28,3 +28,7 @@ sealed class SearchFilterTags : SearchFilter(SearchFilterType("tags")) {
     data class NoneOf(val names: List<TagRef>) : SearchFilterTags()
     data class AllOf(val names: List<TagRef>) : SearchFilterTags()
 }
+
+sealed class SearchFilterText : SearchFilter(SearchFilterType("text")) {
+    data class Contains(val value: String) : SearchFilterText()
+}

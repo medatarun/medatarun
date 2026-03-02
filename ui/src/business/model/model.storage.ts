@@ -20,21 +20,14 @@ export type ModelSearchTagFilter = {
   tagIds: string[];
 };
 
-export type ModelSearchModelItemField = "name" | "key" | "description";
-
-export type ModelSearchModelItemFieldCondition = "contains" | "is";
-
-export type ModelSearchModelItemFieldFilter = {
+export type ModelSearchTextFilter = {
   id: string;
-  type: "modelItemField";
-  field: ModelSearchModelItemField;
-  condition: ModelSearchModelItemFieldCondition;
+  type: "text";
+  condition: "contains";
   value: string;
 };
 
-export type ModelSearchFilter =
-  | ModelSearchTagFilter
-  | ModelSearchModelItemFieldFilter;
+export type ModelSearchFilter = ModelSearchTagFilter | ModelSearchTextFilter;
 
 export type ModelSearchReq = {
   operator: ModelSearchOperator;
@@ -61,8 +54,7 @@ export async function modelSearch(req: ModelSearchReq): Promise<SearchResults> {
           };
         }
         return {
-          type: "modelItemField",
-          field: item.field,
+          type: "text",
           condition: item.condition,
           value: item.value,
         };
