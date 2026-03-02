@@ -1,6 +1,6 @@
 import { type ModelPageMessages } from "../contracts/ModelPageMessages";
 
-export const modelPageMessages = {
+export const modelPageMessages: ModelPageMessages = {
   modelPage_eyebrow: "Modèle",
   modelPage_actions: "Actions",
   modelPage_descriptionPlaceholder: "ajouter une description",
@@ -20,4 +20,4 @@ export const modelPageMessages = {
   modelPage_originLabel: "Origine",
   modelPage_identifierLabel: "Identifiant",
   modelPage_manualOrigin: "Medatarun (manuel)",
-} satisfies ModelPageMessages;
+};

@@ -5,6 +5,7 @@ import {
   type ReactNode,
 } from "react";
 import { toProblem } from "@seij/common-types";
+import { appT } from "@/services/appI18n.tsx";
 
 type ErrorBoundaryProps = PropsWithChildren;
 type ErrorBoundaryState = {
@@ -33,7 +34,7 @@ export class ErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <div>
-          <div style={{ color: "red" }}>An error occurred.</div>
+          <div style={{ color: "red" }}>{appT("errorBoundary_fallbackMessage")}</div>
           <pre>{JSON.stringify(toProblem(this.state.error))}</pre>
         </div>
       );
