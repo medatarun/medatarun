@@ -26,6 +26,7 @@ import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.*
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.lang.uuid.UuidUtils
@@ -55,6 +56,8 @@ class AuthEnvTest(
     private val createAdmin: Boolean = true,
     private val otherRoles: Set<String> = emptySet(),
 ) {
+    private class AuthEnvTestExposedTransactionUnavailableException :
+        MedatarunException("Exposed transaction bridge is not available in this hand-wired auth test fixture")
 
 
     val authClock: ClockTester
@@ -98,6 +101,7 @@ class AuthEnvTest(
                 return sqlite.getConnection()
             }
 
+            override fun currentExposedTransactionOrNull() = throw AuthEnvTestExposedTransactionUnavailableException()
         }
         dbConnectionKeeper = dbConnectionFactory.getConnection()
 
