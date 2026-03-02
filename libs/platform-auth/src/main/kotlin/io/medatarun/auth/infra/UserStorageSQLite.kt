@@ -4,6 +4,10 @@ import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import io.medatarun.platform.db.DbConnectionFactory
 import org.intellij.lang.annotations.Language
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
@@ -22,98 +26,82 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         bootstrap: Boolean,
         disabledDate: Instant?
     ) {
-
-
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                """
-                INSERT INTO users(id, login, full_name, password_hash, admin, bootstrap, disabled_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """
-            ).use { ps ->
-                ps.setString(1, id.value.toString())
-                ps.setString(2, login.value)
-                ps.setString(3, fullname.value)
-                ps.setString(4, password.value)
-                ps.setInt(5, if (admin) 1 else 0)
-                ps.setInt(6, if (bootstrap) 1 else 0)
-                ps.setString(7, disabledDate?.let { InstantSql.toSql(it) })
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            UsersTable.insert { row ->
+                row[idColumn] = id.value.toString()
+                row[loginColumn] = login.value
+                row[fullNameColumn] = fullname.value
+                row[passwordHashColumn] = password.value
+                row[adminColumn] = admin
+                row[bootstrapColumn] = bootstrap
+                row[disabledDateColumn] = disabledDate?.let { InstantSql.toSql(it) }
             }
         }
     }
 
     override fun findByLogin(login: Username): User? =
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "SELECT id, login, full_name, password_hash, admin, bootstrap, disabled_date FROM users WHERE login = ?"
-            ).use { ps ->
-                ps.setString(1, login.value)
-                val rs = ps.executeQuery()
-                if (!rs.next()) {
-                    null
-                } else {
-                    User(
-                        id = UserId.fromString(rs.getString("id")),
-                        username = Username(rs.getString("login")),
-                        fullname = Fullname(rs.getString("full_name")),
-                        passwordHash = PasswordHash(rs.getString("password_hash")),
-                        admin = rs.getInt("admin") == 1,
-                        bootstrap = rs.getInt("bootstrap") == 1,
-                        disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date")
-                    )
-                }
-            }
+        dbConnectionFactory.withExposed {
+            UsersTable.selectAll()
+                .where { UsersTable.loginColumn eq login.value }
+                .singleOrNull()
+                ?.let { readUser(it) }
         }
 
     override fun updatePassword(login: Username, newPassword: PasswordHash) {
-
-
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE users SET password_hash = ? WHERE login = ?"
-            ).use { ps ->
-                ps.setString(1, newPassword.value)
-                ps.setString(2, login.value)
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            UsersTable.update(where = { UsersTable.loginColumn eq login.value }) { row ->
+                row[passwordHashColumn] = newPassword.value
             }
         }
     }
 
     override fun disable(login: Username, at: Instant) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE users SET disabled_date = ? WHERE login = ?"
-            ).use { ps ->
-                ps.setString(1, InstantSql.toSql(at))
-                ps.setString(2, login.value)
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            UsersTable.update(where = { UsersTable.loginColumn eq login.value }) { row ->
+                row[disabledDateColumn] = InstantSql.toSql(at)
             }
         }
     }
 
     override fun enable(login: Username) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE users SET disabled_date = NULL WHERE login = ?"
-            ).use { ps ->
-                ps.setString(1, login.value)
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            UsersTable.update(where = { UsersTable.loginColumn eq login.value }) { row ->
+                row[disabledDateColumn] = null
             }
         }
     }
 
     override fun updateFullname(username: Username, fullname: Fullname) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->
-                ps.setString(1, fullname.value)
-                ps.setString(2, username.value)
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            UsersTable.update(where = { UsersTable.loginColumn eq username.value }) { row ->
+                row[fullNameColumn] = fullname.value
             }
         }
     }
 
+    private fun readUser(row: ResultRow): User {
+        return User(
+            id = UserId.fromString(row[UsersTable.idColumn]),
+            username = Username(row[UsersTable.loginColumn]),
+            fullname = Fullname(row[UsersTable.fullNameColumn]),
+            passwordHash = PasswordHash(row[UsersTable.passwordHashColumn]),
+            admin = row[UsersTable.adminColumn],
+            bootstrap = row[UsersTable.bootstrapColumn],
+            disabledDate = row[UsersTable.disabledDateColumn]?.let { Instant.parse(it) }
+        )
+    }
+
     companion object {
+        private object UsersTable : Table("users") {
+            val idColumn = text("id")
+            val loginColumn = text("login")
+            val fullNameColumn = text("full_name")
+            val passwordHashColumn = text("password_hash")
+            val adminColumn = bool("admin")
+            val bootstrapColumn = bool("bootstrap")
+            val disabledDateColumn = text("disabled_date").nullable()
+        }
+
         @Language("SQLite")
         private const val SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (

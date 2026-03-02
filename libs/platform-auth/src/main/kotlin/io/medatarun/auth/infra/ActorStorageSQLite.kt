@@ -9,6 +9,10 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.intellij.lang.annotations.Language
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
 class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
@@ -37,33 +41,17 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         createdAt: Instant,
         lastSeenAt: Instant
     ) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                """
-                INSERT INTO actors(
-                    id,
-                    issuer,
-                    subject,
-                    full_name,
-                    email,
-                    roles_json,
-                    disabled_date,
-                    created_at,
-                    last_seen_at
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """
-            ).use { ps ->
-                ps.setString(1, toSql(id))
-                ps.setString(2, issuer)
-                ps.setString(3, subject)
-                ps.setString(4, fullname)
-                ps.setString(5, email)
-                ps.setString(6, encodeRoles(roles))
-                ps.setString(7, disabled?.let { InstantSql.toSql(it) })
-                ps.setString(8, InstantSql.toSql(createdAt))
-                ps.setString(9, InstantSql.toSql(lastSeenAt))
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            ActorsTable.insert { row ->
+                row[idColumn] = toSql(id)
+                row[issuerColumn] = issuer
+                row[subjectColumn] = subject
+                row[fullNameColumn] = fullname
+                row[emailColumn] = email
+                row[rolesJsonColumn] = encodeRoles(roles)
+                row[disabledDateColumn] = disabled?.let { InstantSql.toSql(it) }
+                row[createdAtColumn] = InstantSql.toSql(createdAt)
+                row[lastSeenAtColumn] = InstantSql.toSql(lastSeenAt)
             }
         }
     }
@@ -74,121 +62,82 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         email: String?,
         lastSeenAt: Instant
     ) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                """
-                UPDATE actors
-                SET full_name = ?, email = ?, last_seen_at = ?
-                WHERE id = ?
-                """
-            ).use { ps ->
-                ps.setString(1, fullname)
-                ps.setString(2, email)
-                ps.setString(3, InstantSql.toSql(lastSeenAt))
-                ps.setString(4, toSql(id))
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+                row[fullNameColumn] = fullname
+                row[emailColumn] = email
+                row[lastSeenAtColumn] = InstantSql.toSql(lastSeenAt)
             }
         }
     }
 
     override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE actors SET roles_json = ? WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, encodeRoles(roles))
-                ps.setString(2, toSql(id))
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+                row[rolesJsonColumn] = encodeRoles(roles)
             }
         }
     }
 
     override fun disable(id: ActorId, at: Instant) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE actors SET disabled_date = ? WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, InstantSql.toSql(at))
-                ps.setString(2, toSql(id))
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+                row[disabledDateColumn] = InstantSql.toSql(at)
             }
         }
     }
 
     override fun enable(id: ActorId,) {
-        dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "UPDATE actors SET disabled_date = NULL WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, toSql(id))
-                ps.executeUpdate()
+        dbConnectionFactory.withExposed {
+            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+                row[disabledDateColumn] = null
             }
         }
     }
 
     override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
-        return dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "SELECT * FROM actors WHERE issuer = ? AND subject = ?"
-            ).use { ps ->
-                ps.setString(1, issuer)
-                ps.setString(2, subject)
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) {
-                        null
-                    } else {
-                        readActor(rs)
-                    }
+        return dbConnectionFactory.withExposed {
+            ActorsTable.selectAll()
+                .where {
+                    (ActorsTable.issuerColumn eq issuer) and
+                        (ActorsTable.subjectColumn eq subject)
                 }
-            }
+                .singleOrNull()
+                ?.let { readActor(it) }
         }
     }
 
     override fun findByIdOptional(id: ActorId): Actor? {
-        return dbConnectionFactory.withConnection { c ->
-            c.prepareStatement(
-                "SELECT * FROM actors WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, toSql(id))
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) {
-                        null
-                    } else {
-                        readActor(rs)
-                    }
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            ActorsTable.selectAll()
+                .where { ActorsTable.idColumn eq toSql(id) }
+                .singleOrNull()
+                ?.let { readActor(it) }
         }
     }
 
     override fun listAll(): List<Actor> {
-        return dbConnectionFactory.withConnection { c ->
-            c.prepareStatement("SELECT * FROM actors ORDER BY created_at DESC").use { ps ->
-                ps.executeQuery().use { rs ->
-                    val actors = ArrayList<Actor>()
-                    while (rs.next()) {
-                        actors.add(readActor(rs))
-                    }
-                    actors
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            ActorsTable.selectAll()
+                .orderBy(ActorsTable.createdAtColumn to SortOrder.DESC)
+                .map { readActor(it) }
         }
     }
 
     private fun toSql(actorId: ActorId): String { return actorId.value.toString() }
 
-    private fun readActor(rs: java.sql.ResultSet): Actor {
-        val rolesJson = rs.getString("roles_json")
+    private fun readActor(row: ResultRow): Actor {
+        val rolesJson = row[ActorsTable.rolesJsonColumn]
         return Actor(
-            id = ActorId.fromString(rs.getString("id")),
-            issuer = rs.getString("issuer"),
-            subject = rs.getString("subject"),
-            fullname = rs.getString("full_name"),
-            email = rs.getString("email"),
+            id = ActorId.fromString(row[ActorsTable.idColumn]),
+            issuer = row[ActorsTable.issuerColumn],
+            subject = row[ActorsTable.subjectColumn],
+            fullname = row[ActorsTable.fullNameColumn],
+            email = row[ActorsTable.emailColumn],
             roles = decodeRoles(rolesJson),
-            disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date"),
-            createdAt = InstantSql.fromSqlRequired(rs, "created_at"),
-            lastSeenAt = InstantSql.fromSqlRequired(rs, "last_seen_at")
+            disabledDate = row[ActorsTable.disabledDateColumn]?.let { Instant.parse(it) },
+            createdAt = Instant.parse(row[ActorsTable.createdAtColumn]),
+            lastSeenAt = Instant.parse(row[ActorsTable.lastSeenAtColumn])
         )
     }
 
@@ -202,6 +151,18 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     companion object {
+        private object ActorsTable : Table("actors") {
+            val idColumn = text("id")
+            val issuerColumn = text("issuer")
+            val subjectColumn = text("subject")
+            val fullNameColumn = text("full_name")
+            val emailColumn = text("email").nullable()
+            val rolesJsonColumn = text("roles_json")
+            val disabledDateColumn = text("disabled_date").nullable()
+            val createdAtColumn = text("created_at")
+            val lastSeenAtColumn = text("last_seen_at")
+        }
+
         @Language("SQLite")
         private const val SCHEMA = """
 CREATE TABLE IF NOT EXISTS actors (

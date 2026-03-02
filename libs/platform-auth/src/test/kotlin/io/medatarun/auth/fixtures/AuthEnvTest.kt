@@ -26,12 +26,13 @@ import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.*
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.nio.file.Files
 import java.sql.Connection
 import kotlin.test.assertEquals
@@ -56,10 +57,6 @@ class AuthEnvTest(
     private val createAdmin: Boolean = true,
     private val otherRoles: Set<String> = emptySet(),
 ) {
-    private class AuthEnvTestExposedTransactionUnavailableException :
-        MedatarunException("Exposed transaction bridge is not available in this hand-wired auth test fixture")
-
-
     val authClock: ClockTester
     val userService: UserService
     val oidcService: OidcService
@@ -96,6 +93,9 @@ class AuthEnvTest(
         // of any instance of this class. Using UUIDs to name in memory databases or else
         // SQLite will reuse existing bases across tests.
         val sqlite = DbProviderSqlite.randomDb()
+        val database = Database.connect(
+            getNewConnection = { sqlite.getConnection() }
+        )
         this.dbConnectionFactory = object:DbConnectionFactory  {
             override fun <T> withConnection(block: (Connection) -> T): T {
                 val connection = sqlite.getConnection()
@@ -106,7 +106,7 @@ class AuthEnvTest(
                 }
             }
 
-            override fun <T> withExposed(block: () -> T): T = throw AuthEnvTestExposedTransactionUnavailableException()
+            override fun <T> withExposed(block: () -> T): T = transaction(database) { block() }
         }
         dbConnectionKeeper = sqlite.getConnection()
 
