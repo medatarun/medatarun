@@ -1,32 +1,39 @@
 import {type SearchResult} from "@/business/model";
 import {downloadCsv} from "@seij/common-ui-csv-export";
+import { type AppMessageKey } from "@/services/appI18n.tsx";
 
-export function createCsv(items: SearchResult[]) {
+export function createCsv(
+  items: SearchResult[],
+  t: (key: AppMessageKey, values?: Record<string, unknown>) => string,
+) {
   downloadCsv<SearchResult>(
-    "tag-report.csv",
+    t("modelReportsCsv_filename"),
     [
       {
         code: "model",
-        label: "Model",
+        label: t("modelReportsCsv_modelLabel"),
         render: (it) => it.location.modelLabel,
       },
       {
         code: "type",
-        label: "Type",
+        label: t("modelReportsCsv_typeLabel"),
         render: (it) => {
-          if (it.location.objectType === "model") return "Model";
-          if (it.location.objectType === "entity") return "Entity";
+          if (it.location.objectType === "model")
+            return t("modelReportsCsv_typeModel");
+          if (it.location.objectType === "entity")
+            return t("modelReportsCsv_typeEntity");
           if (it.location.objectType === "entityAttribute")
-            return "Entity attribute";
-          if (it.location.objectType === "relationship") return "Relationship";
+            return t("modelReportsCsv_typeEntityAttribute");
+          if (it.location.objectType === "relationship")
+            return t("modelReportsCsv_typeRelationship");
           if (it.location.objectType === "relationshipAttribute")
-            return "Relationship attribute";
-          return "unknown";
+            return t("modelReportsCsv_typeRelationshipAttribute");
+          return t("modelReportsCsv_typeUnknown");
         },
       },
       {
         code: "entity",
-        label: "Entity/Relationship",
+        label: t("modelReportsCsv_entityRelationshipLabel"),
         render: (it) => {
           if (it.location.entityLabel) return it.location.entityLabel;
           if (it.location.relationshipLabel != null) {
@@ -37,7 +44,7 @@ export function createCsv(items: SearchResult[]) {
       },
       {
         code: "attribute",
-        label: "Attribute",
+        label: t("modelReportsCsv_attributeLabel"),
         render: (it) => {
           if (it.location.entityAttributeLabel) {
             return it.location.entityAttributeLabel;
@@ -50,7 +57,7 @@ export function createCsv(items: SearchResult[]) {
       },
       {
         code: "tags",
-        label: "Tags",
+        label: t("modelReportsCsv_tagsLabel"),
         render: (it) => (it.tags ?? []).join(" "),
       },
     ],

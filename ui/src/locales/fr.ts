@@ -7,6 +7,7 @@ import { errorBoundaryMessages } from "./fr/ErrorBoundaryMessages";
 import { layoutMessages } from "./fr/LayoutMessages";
 import { loginPageMessages } from "./fr/LoginPageMessages";
 import { modelPageMessages } from "./fr/ModelPageMessages";
+import { modelReportsPageMessages } from "./fr/ModelReportsPageMessages";
 import { modelsPageMessages } from "./fr/ModelsPageMessages";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
 import { relationshipDescriptionMessages } from "./fr/RelationshipDescriptionMessages";
@@ -28,6 +29,7 @@ export const messages = {
   ...layoutMessages,
   ...modelsPageMessages,
   ...modelPageMessages,
+  ...modelReportsPageMessages,
   ...entityPageMessages,
   ...loginPageMessages,
   ...relationshipPageMessages,
