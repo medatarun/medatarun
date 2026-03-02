@@ -64,6 +64,7 @@ import {
   ModelIcon,
   RelationshipIcon,
 } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function AttributePage({
   modelId,
@@ -76,11 +77,14 @@ export function AttributePage({
   parentId: string;
   attributeId: string;
 }) {
+  const { t } = useAppI18n();
   const { data: modelDto } = useModel(modelId);
 
   if (!modelDto)
     return (
-      <ErrorBox error={toProblem(`Can not find model with id [${modelId}]`)} />
+      <ErrorBox
+        error={toProblem(t("attributePage_modelNotFound", { modelId }))}
+      />
     );
   const model = new Model(modelDto);
 
@@ -102,7 +106,11 @@ export function AttributePage({
     return (
       <ErrorBox
         error={toProblem(
-          `Can not find attribute [${attributeId}]'s parent parentType=[${parentType}] and parentId=[${parentId}]`,
+          t("attributePage_parentNotFound", {
+            attributeId,
+            parentType,
+            parentId,
+          }),
         )}
       />
     );
@@ -110,7 +118,11 @@ export function AttributePage({
     return (
       <ErrorBox
         error={toProblem(
-          `Can not find attribute [${attributeId}] with parentType=[${parentType}] and parentId=[${parentId}]`,
+          t("attributePage_attributeNotFound", {
+            attributeId,
+            parentType,
+            parentId,
+          }),
         )}
       />
     );
@@ -146,6 +158,7 @@ export function AttributeView({
   const relationshipAttributeUpdateName = useRelationshipAttributeUpdateName();
   const relationshipAttributeUpdateDescription =
     useRelationshipAttributeUpdateDescription();
+  const { t } = useAppI18n();
 
   const actions = actionRegistry.findActions(
     parentType == "entity"
@@ -273,8 +286,8 @@ export function AttributeView({
           <ViewTitle
             eyebrow={
               parentType === "entity"
-                ? "Attribute of entity"
-                : "Attribute of relationship"
+                ? t("attributePage_entityEyebrow")
+                : t("attributePage_relationshipEyebrow")
             }
           >
             <div
@@ -298,7 +311,7 @@ export function AttributeView({
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("attributePage_actions")}
                   itemActions={actions}
                   actionParams={actionParams}
                 />
@@ -322,7 +335,7 @@ export function AttributeView({
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={attribute.description}
-                placeholder={"add description"}
+                placeholder={t("attributePage_descriptionPlaceholder")}
                 onChange={handleUpdateDescription}
               />
             </SectionPaper>
@@ -345,6 +358,7 @@ export function AttributeOverview({
   parentAsRelationship: RelationshipDto | null;
 }) {
   const { isDetailLevelTech } = useDetailLevelContext();
+  const { t } = useAppI18n();
 
   const entityAttributeUpdateKey = useEntityAttributeUpdateKey();
   const entityAttributeUpdateType = useEntityAttributeUpdateType();
@@ -478,7 +492,7 @@ export function AttributeOverview({
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>Attribute&nbsp;code</Text>
+          <Text>{t("attributePage_keyLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -494,7 +508,7 @@ export function AttributeOverview({
         </div>
       )}
       <div>
-        <Text>From&nbsp;model</Text>
+        <Text>{t("attributePage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -503,7 +517,7 @@ export function AttributeOverview({
       </div>
 
       <div>
-        <Text>Tags</Text>
+        <Text>{t("attributePage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -512,7 +526,7 @@ export function AttributeOverview({
           onChange={handleChangeTags}
         >
           {attribute.tags.length === 0 ? (
-            <MissingInformation>add tags</MissingInformation>
+            <MissingInformation>{t("attributePage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
           )}
@@ -520,7 +534,7 @@ export function AttributeOverview({
       </div>
 
       <div>
-        <Text>Type</Text>
+        <Text>{t("attributePage_typeLabel")}</Text>
       </div>
       <div>
         <InlineEditSingleLine
@@ -533,19 +547,27 @@ export function AttributeOverview({
           >
             {model.findTypeNameOrKey(attribute.type)}
           </Link>{" "}
-          <Text>{attribute.identifierAttribute ? "🔑 Identifier" : ""}</Text>
+          <Text>
+            {attribute.identifierAttribute
+              ? "🔑 " + t("attributePage_identifierBadge")
+              : ""}
+          </Text>
         </InlineEditSingleLine>
       </div>
 
       <div>
-        <Text>Required</Text>
+        <Text>{t("attributePage_requiredLabel")}</Text>
       </div>
       <div>
         <InlineEditSingleLine
           value={attribute.optional ? "false" : "true"}
           onChange={handleChangeRequired}
         >
-          <Text>{attribute.optional ? "Not required" : "Yes, required"}</Text>
+          <Text>
+            {attribute.optional
+              ? t("attributePage_requiredNo")
+              : t("attributePage_requiredYes")}
+          </Text>
         </InlineEditSingleLine>
       </div>
     </PropertiesForm>

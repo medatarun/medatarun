@@ -1,4 +1,5 @@
 import { type Messages } from "./Messages";
+import { attributePageMessages } from "./fr/AttributePageMessages";
 import { dashboardPageMessages } from "./fr/DashboardPageMessages";
 import { entityPageMessages } from "./fr/EntityPageMessages";
 import { errorBoundaryMessages } from "./fr/ErrorBoundaryMessages";
@@ -8,9 +9,11 @@ import { modelPageMessages } from "./fr/ModelPageMessages";
 import { modelsPageMessages } from "./fr/ModelsPageMessages";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
 import { sessionMessages } from "./fr/SessionMessages";
+import { typePageMessages } from "./fr/TypePageMessages";
 
 export const messages = {
   ...sessionMessages,
+  ...attributePageMessages,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
   ...errorBoundaryMessages,
@@ -19,4 +22,5 @@ export const messages = {
   ...modelPageMessages,
   ...entityPageMessages,
   ...loginPageMessages,
+  ...typePageMessages,
 } satisfies Messages;
