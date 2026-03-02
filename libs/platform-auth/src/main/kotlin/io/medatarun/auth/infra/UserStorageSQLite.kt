@@ -9,7 +9,7 @@ import java.time.Instant
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
     fun initSchema() {
-        dbConnectionFactory.getConnection().use { it.createStatement().execute(SCHEMA) }
+        dbConnectionFactory.withConnection { it.createStatement().execute(SCHEMA) }
     }
 
 
@@ -24,7 +24,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     ) {
 
 
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 """
                 INSERT INTO users(id, login, full_name, password_hash, admin, bootstrap, disabled_date)
@@ -44,30 +44,32 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     }
 
     override fun findByLogin(login: Username): User? =
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "SELECT id, login, full_name, password_hash, admin, bootstrap, disabled_date FROM users WHERE login = ?"
             ).use { ps ->
                 ps.setString(1, login.value)
                 val rs = ps.executeQuery()
-                if (!rs.next()) return null
-
-                User(
-                    id = UserId.fromString(rs.getString("id")),
-                    username = Username(rs.getString("login")),
-                    fullname = Fullname(rs.getString("full_name")),
-                    passwordHash = PasswordHash(rs.getString("password_hash")),
-                    admin = rs.getInt("admin") == 1,
-                    bootstrap = rs.getInt("bootstrap") == 1,
-                    disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date")
-                )
+                if (!rs.next()) {
+                    null
+                } else {
+                    User(
+                        id = UserId.fromString(rs.getString("id")),
+                        username = Username(rs.getString("login")),
+                        fullname = Fullname(rs.getString("full_name")),
+                        passwordHash = PasswordHash(rs.getString("password_hash")),
+                        admin = rs.getInt("admin") == 1,
+                        bootstrap = rs.getInt("bootstrap") == 1,
+                        disabledDate = InstantSql.fromSqlOptional(rs, "disabled_date")
+                    )
+                }
             }
         }
 
     override fun updatePassword(login: Username, newPassword: PasswordHash) {
 
 
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE users SET password_hash = ? WHERE login = ?"
             ).use { ps ->
@@ -79,7 +81,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     }
 
     override fun disable(login: Username, at: Instant) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE users SET disabled_date = ? WHERE login = ?"
             ).use { ps ->
@@ -91,7 +93,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     }
 
     override fun enable(login: Username) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE users SET disabled_date = NULL WHERE login = ?"
             ).use { ps ->
@@ -102,7 +104,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     }
 
     override fun updateFullname(username: Username, fullname: Fullname) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement("UPDATE users SET full_name = ? WHERE login = ?").use { ps ->
                 ps.setString(1, fullname.value)
                 ps.setString(2, username.value)

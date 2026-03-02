@@ -3,10 +3,10 @@ package io.medatarun.platform.db.sqlite
 import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
 import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import io.medatarun.lang.exceptions.MedatarunException
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
@@ -28,7 +28,7 @@ class ExposedTransactionBridgeSqliteTest {
      * transaction instead of opening their own one.
      *
      * We prove it in two ways:
-     * - the current Exposed transaction is visible from the connection factory during the block
+     * - a nested call to [DbConnectionFactoryImpl.withExposed] reuses the exact same Exposed transaction
      * - data inserted through one JDBC connection is immediately readable through another JDBC connection
      *   obtained in the same transactional block, then remains committed after the outer transaction ends
      */
@@ -38,17 +38,17 @@ class ExposedTransactionBridgeSqliteTest {
         val txManager = DbTransactionManagerImpl(dbProvider)
         val connectionFactory = DbConnectionFactoryImpl(dbProvider, txManager)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("CREATE TABLE test_item(id TEXT PRIMARY KEY, name TEXT NOT NULL)")
             }
         }
 
         txManager.runInTransaction {
-            val currentTransaction = connectionFactory.currentExposedTransactionOrNull()
+            val currentTransaction = TransactionManager.currentOrNull()
             assertNotNull(currentTransaction)
 
-            connectionFactory.getConnection().use { firstConnection ->
+            connectionFactory.withConnection { firstConnection ->
                 firstConnection.prepareStatement(
                     "INSERT INTO test_item(id, name) VALUES (?, ?)"
                 ).use { ps ->
@@ -58,13 +58,13 @@ class ExposedTransactionBridgeSqliteTest {
                 }
             }
 
-            val nestedTransaction = txManager.runInTransaction {
-                connectionFactory.currentExposedTransactionOrNull()
+            val nestedTransaction = connectionFactory.withExposed {
+                TransactionManager.currentOrNull()
             }
 
             assertSame(currentTransaction, nestedTransaction)
 
-            connectionFactory.getConnection().use { secondConnection ->
+            connectionFactory.withConnection { secondConnection ->
                 secondConnection.prepareStatement(
                     "SELECT COUNT(*) FROM test_item"
                 ).use { ps ->
@@ -76,9 +76,7 @@ class ExposedTransactionBridgeSqliteTest {
             }
         }
 
-        assertNull(connectionFactory.currentExposedTransactionOrNull())
-
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.prepareStatement("SELECT COUNT(*) FROM test_item").use { ps ->
                 ps.executeQuery().use { rs ->
                     rs.next()
@@ -101,7 +99,7 @@ class ExposedTransactionBridgeSqliteTest {
         val txManager = DbTransactionManagerImpl(dbProvider)
         val connectionFactory = DbConnectionFactoryImpl(dbProvider, txManager)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("CREATE TABLE test_item(id TEXT PRIMARY KEY, name TEXT NOT NULL)")
             }
@@ -109,7 +107,7 @@ class ExposedTransactionBridgeSqliteTest {
 
         assertFailsWith<IllegalStateException> {
             txManager.runInTransaction {
-                connectionFactory.getConnection().use { connection ->
+                connectionFactory.withConnection { connection ->
                     connection.prepareStatement(
                         "INSERT INTO test_item(id, name) VALUES (?, ?)"
                     ).use { ps ->
@@ -123,7 +121,7 @@ class ExposedTransactionBridgeSqliteTest {
             }
         }
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.prepareStatement("SELECT COUNT(*) FROM test_item").use { ps ->
                 ps.executeQuery().use { rs ->
                     rs.next()
@@ -147,7 +145,7 @@ class ExposedTransactionBridgeSqliteTest {
         val txManager = DbTransactionManagerImpl(dbProvider)
         val connectionFactory = DbConnectionFactoryImpl(dbProvider, txManager)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("CREATE TABLE test_item(id TEXT PRIMARY KEY, name TEXT NOT NULL)")
             }
@@ -155,7 +153,7 @@ class ExposedTransactionBridgeSqliteTest {
 
         val failure = assertFailsWith<ExposedTransactionBridgeOriginalNestedException> {
             txManager.runInTransaction {
-                connectionFactory.getConnection().use { connection ->
+                connectionFactory.withConnection { connection ->
                     connection.prepareStatement(
                         "INSERT INTO test_item(id, name) VALUES (?, ?)"
                     ).use { ps ->
@@ -166,7 +164,7 @@ class ExposedTransactionBridgeSqliteTest {
                 }
 
                 txManager.runInTransaction {
-                    connectionFactory.getConnection().use { connection ->
+                    connectionFactory.withConnection { connection ->
                         connection.prepareStatement(
                             "INSERT INTO test_item(id, name) VALUES (?, ?)"
                         ).use { ps ->
@@ -181,7 +179,7 @@ class ExposedTransactionBridgeSqliteTest {
         }
         assertEquals("Original nested transaction failure", failure.message)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.prepareStatement("SELECT COUNT(*) FROM test_item").use { ps ->
                 ps.executeQuery().use { rs ->
                     rs.next()
@@ -206,7 +204,7 @@ class ExposedTransactionBridgeSqliteTest {
         val txManager = DbTransactionManagerImpl(dbProvider)
         val connectionFactory = DbConnectionFactoryImpl(dbProvider, txManager)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.createStatement().use { statement ->
                 statement.execute("CREATE TABLE test_item(id TEXT PRIMARY KEY, name TEXT NOT NULL)")
             }
@@ -214,7 +212,7 @@ class ExposedTransactionBridgeSqliteTest {
 
         val failure = assertFailsWith<ExposedTransactionBridgeRethrownNestedException> {
             txManager.runInTransaction {
-                connectionFactory.getConnection().use { connection ->
+                connectionFactory.withConnection { connection ->
                     connection.prepareStatement(
                         "INSERT INTO test_item(id, name) VALUES (?, ?)"
                     ).use { ps ->
@@ -226,7 +224,7 @@ class ExposedTransactionBridgeSqliteTest {
 
                 try {
                     txManager.runInTransaction {
-                        connectionFactory.getConnection().use { connection ->
+                        connectionFactory.withConnection { connection ->
                             connection.prepareStatement(
                                 "INSERT INTO test_item(id, name) VALUES (?, ?)"
                             ).use { ps ->
@@ -246,7 +244,7 @@ class ExposedTransactionBridgeSqliteTest {
         assertNotNull(failure.cause)
         assertSame(ExposedTransactionBridgeOriginalNestedException::class, failure.cause!!::class)
 
-        connectionFactory.getConnection().use { connection ->
+        connectionFactory.withConnection { connection ->
             connection.prepareStatement("SELECT COUNT(*) FROM test_item").use { ps ->
                 ps.executeQuery().use { rs ->
                     rs.next()

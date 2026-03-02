@@ -16,7 +16,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     private val json = Json { encodeDefaults = true }
 
     fun initSchema() {
-        dbConnectionFactory.getConnection().use { connection ->
+        dbConnectionFactory.withConnection { connection ->
             SCHEMA.split(";")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
@@ -37,7 +37,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         createdAt: Instant,
         lastSeenAt: Instant
     ) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 """
                 INSERT INTO actors(
@@ -74,7 +74,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         email: String?,
         lastSeenAt: Instant
     ) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 """
                 UPDATE actors
@@ -92,7 +92,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE actors SET roles_json = ? WHERE id = ?"
             ).use { ps ->
@@ -104,7 +104,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     override fun disable(id: ActorId, at: Instant) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE actors SET disabled_date = ? WHERE id = ?"
             ).use { ps ->
@@ -116,7 +116,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     override fun enable(id: ActorId,) {
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "UPDATE actors SET disabled_date = NULL WHERE id = ?"
             ).use { ps ->
@@ -127,43 +127,49 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
-        dbConnectionFactory.getConnection().use { c ->
+        return dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "SELECT * FROM actors WHERE issuer = ? AND subject = ?"
             ).use { ps ->
                 ps.setString(1, issuer)
                 ps.setString(2, subject)
                 ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-                    return readActor(rs)
+                    if (!rs.next()) {
+                        null
+                    } else {
+                        readActor(rs)
+                    }
                 }
             }
         }
     }
 
     override fun findByIdOptional(id: ActorId): Actor? {
-        dbConnectionFactory.getConnection().use { c ->
+        return dbConnectionFactory.withConnection { c ->
             c.prepareStatement(
                 "SELECT * FROM actors WHERE id = ?"
             ).use { ps ->
                 ps.setString(1, toSql(id))
                 ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-                    return readActor(rs)
+                    if (!rs.next()) {
+                        null
+                    } else {
+                        readActor(rs)
+                    }
                 }
             }
         }
     }
 
     override fun listAll(): List<Actor> {
-        dbConnectionFactory.getConnection().use { c ->
+        return dbConnectionFactory.withConnection { c ->
             c.prepareStatement("SELECT * FROM actors ORDER BY created_at DESC").use { ps ->
                 ps.executeQuery().use { rs ->
                     val actors = ArrayList<Actor>()
                     while (rs.next()) {
                         actors.add(readActor(rs))
                     }
-                    return actors
+                    actors
                 }
             }
         }

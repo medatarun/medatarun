@@ -22,6 +22,15 @@ class DbTransactionManagerImpl(
         return TransactionManager.currentOrNull() as? JdbcTransaction
     }
 
+    internal fun <T> withExposed(block: () -> T): T {
+        if (currentTransactionOrNull() != null) {
+            return block()
+        }
+        return transaction(database) {
+            block()
+        }
+    }
+
     override fun <T> runInTransaction(block: () -> T): T {
         return transaction(database) {
             block()

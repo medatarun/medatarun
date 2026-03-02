@@ -1,16 +1,22 @@
 package io.medatarun.platform.db
 
-import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import java.sql.Connection
 
 interface DbConnectionFactory {
-    fun getConnection(): Connection
 
     /**
-     * Returns the current Exposed JDBC transaction when one is active on this thread.
+     * Runs [block] with a JDBC connection obtained from the transaction bridge.
      *
-     * Repositories still using raw JDBC can keep using [getConnection], while repositories migrated
-     * to Exposed can join the same transaction through this bridge.
+     * When a global transaction is active, the block receives the transaction-bound connection.
+     * Otherwise it receives a short-lived raw connection owned by the infrastructure.
      */
-    fun currentExposedTransactionOrNull(): JdbcTransaction?
+    fun <T> withConnection(block: (Connection) -> T): T
+
+    /**
+     * Runs [block] inside the current Exposed transaction when one already exists on this thread.
+     * Otherwise it opens a short Exposed transaction in the infrastructure so storage adapters never
+     * have to manage transaction scopes themselves.
+     */
+    fun <T> withExposed(block: () -> T): T
+
 }

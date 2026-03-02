@@ -10,16 +10,18 @@ import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import org.intellij.lang.annotations.Language
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
-import java.sql.ResultSet
-import java.sql.Types
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
     private class TagStorageSQLiteInvalidLookupException(message: String) : MedatarunException(message)
-    private class TagStorageSQLiteInvalidRowException(message: String) : MedatarunException(message)
 
     fun initSchema() {
-        dbConnectionFactory.getConnection().use { connection ->
+        dbConnectionFactory.withConnection { connection ->
             SCHEMA.split(";")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
@@ -30,268 +32,198 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
     }
 
     override fun findAllTag(): List<Tag> {
-        dbConnectionFactory.getConnection().use { c ->
-            c.prepareStatement(
-                "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag"
-            ).use { ps ->
-                ps.executeQuery().use { rs ->
-                    val items = mutableListOf<Tag>()
-                    while (rs.next()) {
-                        items.add(tagFromRow(rs))
-                    }
-                    return items
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            TagTable.selectAll()
+                .map { tagFromRow(it) }
         }
     }
 
     override fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
-        dbConnectionFactory.getConnection().use { c ->
+        return dbConnectionFactory.withExposed {
             when (scope) {
                 is TagScopeRef.Local -> {
-                    c.prepareStatement(
-                        "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id = ? AND tag_group_id IS NULL AND key = ?"
-                    ).use { ps ->
-                        ps.setString(1, scope.type.value)
-                        ps.setString(2, scope.localScopeId.asString())
-                        ps.setString(3, key.value)
-                        ps.executeQuery().use { rs ->
-                            if (!rs.next()) return null
-                            return tagFromRow(rs)
-                        }
-                    }
+                    TagTable.selectAll().where {
+                        (TagTable.scopeType eq scope.type.value) and
+                            (TagTable.scopeId eq scope.localScopeId.asString()) and
+                            TagTable.tagGroupId.isNull() and
+                            (TagTable.key eq key.value)
+                    }.singleOrNull()?.let { tagFromRow(it) }
                 }
 
                 is TagScopeRef.Global -> {
                     val effectiveGroupId = groupId
                         ?: throw TagStorageSQLiteInvalidLookupException("Global tag lookup requires groupId")
-                    c.prepareStatement(
-                        "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE scope_type = ? AND scope_id IS NULL AND tag_group_id = ? AND key = ?"
-                    ).use { ps ->
-                        ps.setString(1, scope.type.value)
-                        ps.setString(2, effectiveGroupId.asString())
-                        ps.setString(3, key.value)
-                        ps.executeQuery().use { rs ->
-                            if (!rs.next()) return null
-                            return tagFromRow(rs)
-                        }
-                    }
+                    TagTable.selectAll().where {
+                        (TagTable.scopeType eq scope.type.value) and
+                            TagTable.scopeId.isNull() and
+                            (TagTable.tagGroupId eq effectiveGroupId.asString()) and
+                            (TagTable.key eq key.value)
+                    }.singleOrNull()?.let { tagFromRow(it) }
                 }
             }
         }
     }
 
     override fun findTagByIdOptional(id: TagId): Tag? {
-        dbConnectionFactory.getConnection().use { c ->
-            c.prepareStatement(
-                "SELECT id, scope_type, scope_id, tag_group_id, key, name, description FROM tag WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, id.asString())
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-                    return tagFromRow(rs)
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            TagTable.selectAll().where { TagTable.id eq id.asString() }
+                .singleOrNull()
+                ?.let { tagFromRow(it) }
         }
     }
 
     override fun findAllTagGroup(): List<TagGroup> {
-        dbConnectionFactory.getConnection().use { c ->
-            c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_group"
-            ).use { ps ->
-                ps.executeQuery().use { rs ->
-                    val items = mutableListOf<TagGroup>()
-                    while (rs.next()) {
-                        items.add(tagGroupFromRow(rs))
-                    }
-                    return items
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            TagGroupTable.selectAll()
+                .map { tagGroupFromRow(it) }
         }
     }
+
     override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
-        dbConnectionFactory.getConnection().use { c ->
-            c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_group WHERE id = ?"
-            ).use { ps ->
-                ps.setString(1, id.asString())
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-                    return tagGroupFromRow(rs)
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            TagGroupTable.selectAll().where { TagGroupTable.id eq id.asString() }
+                .singleOrNull()
+                ?.let { tagGroupFromRow(it) }
         }
     }
 
     override fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup? {
-        dbConnectionFactory.getConnection().use { c ->
-            c.prepareStatement(
-                "SELECT id, key, name, description FROM tag_group WHERE key = ?"
-            ).use { ps ->
-                ps.setString(1, key.value)
-                ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-                    return tagGroupFromRow(rs)
-                }
-            }
+        return dbConnectionFactory.withExposed {
+            TagGroupTable.selectAll().where { TagGroupTable.key eq key.value }
+                .singleOrNull()
+                ?.let { tagGroupFromRow(it) }
         }
     }
 
     override fun dispatch(cmd: TagRepoCmd) {
         logger.debug(cmd.toString())
-        dbConnectionFactory.getConnection().use { c ->
+        dbConnectionFactory.withExposed {
             when (cmd) {
                 is TagRepoCmd.TagCreate -> {
-                    c.prepareStatement(
-                        "INSERT INTO tag(id, scope_type, scope_id, tag_group_id, key, name, description) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                    ).use { ps ->
-                        ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.scope.type.value)
+                    TagTable.insert { row ->
+                        row[id] = cmd.item.id.asString()
+                        row[scopeType] = cmd.item.scope.type.value
                         when (val scope = cmd.item.scope) {
-                            is TagScopeRef.Global -> ps.setNull(3, Types.VARCHAR)
-                            is TagScopeRef.Local -> ps.setString(3, scope.localScopeId.asString())
+                            is TagScopeRef.Global -> row[scopeId] = null
+                            is TagScopeRef.Local -> row[scopeId] = scope.localScopeId.asString()
                         }
-                        val itemGroupId = cmd.item.groupId
-                        if (itemGroupId == null) {
-                            ps.setNull(4, Types.VARCHAR)
-                        } else {
-                            ps.setString(4, itemGroupId.asString())
-                        }
-                        ps.setString(5, cmd.item.key.asString())
-                        ps.setString(6, cmd.item.name)
-                        ps.setString(7, cmd.item.description)
-                        ps.executeUpdate()
+                        row[tagGroupId] = cmd.item.groupId?.asString()
+                        row[key] = cmd.item.key.asString()
+                        row[name] = cmd.item.name
+                        row[description] = cmd.item.description
                     }
                 }
 
                 is TagRepoCmd.TagUpdateKey -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET key = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value.asString())
-                        ps.setString(2, cmd.tagId.asString())
-                        ps.executeUpdate()
+                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                        row[key] = cmd.value.asString()
                     }
                 }
 
                 is TagRepoCmd.TagUpdateName -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET name = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagId.asString())
-                        ps.executeUpdate()
+                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                        row[name] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagUpdateDescription -> {
-                    c.prepareStatement(
-                        "UPDATE tag SET description = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagId.asString())
-                        ps.executeUpdate()
+                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                        row[description] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagDelete -> {
-                    c.prepareStatement(
-                        "DELETE FROM tag WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.tagId.asString())
-                        ps.executeUpdate()
-                    }
+                    TagTable.deleteWhere { id eq cmd.tagId.asString() }
                 }
 
                 is TagRepoCmd.TagGroupCreate -> {
-                    c.prepareStatement(
-                        "INSERT INTO tag_group(id, key, name, description) VALUES (?, ?, ?, ?)"
-                    ).use { ps ->
-                        ps.setString(1, cmd.item.id.asString())
-                        ps.setString(2, cmd.item.key.asString())
-                        ps.setString(3, cmd.item.name)
-                        ps.setString(4, cmd.item.description)
-                        ps.executeUpdate()
+                    TagGroupTable.insert { row ->
+                        row[id] = cmd.item.id.asString()
+                        row[key] = cmd.item.key.asString()
+                        row[name] = cmd.item.name
+                        row[description] = cmd.item.description
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateKey -> {
-                    c.prepareStatement(
-                        "UPDATE tag_group SET key = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value.asString())
-                        ps.setString(2, cmd.tagGroupId.asString())
-                        ps.executeUpdate()
+                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                        row[key] = cmd.value.asString()
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateName -> {
-                    c.prepareStatement(
-                        "UPDATE tag_group SET name = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagGroupId.asString())
-                        ps.executeUpdate()
+                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                        row[name] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateDescription -> {
-                    c.prepareStatement(
-                        "UPDATE tag_group SET description = ? WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.value)
-                        ps.setString(2, cmd.tagGroupId.asString())
-                        ps.executeUpdate()
+                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                        row[description] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagGroupDelete -> {
-                    c.prepareStatement(
-                        "DELETE FROM tag_group WHERE id = ?"
-                    ).use { ps ->
-                        ps.setString(1, cmd.tagGroupId.asString())
-                        ps.executeUpdate()
-                    }
+                    TagGroupTable.deleteWhere { id eq cmd.tagGroupId.asString() }
                 }
-
             }
         }
     }
 
-
-    private fun tagGroupFromRow(rs: ResultSet): TagGroup {
+    private fun tagGroupFromRow(row: ResultRow): TagGroup {
         return TagGroupInMemory(
-            id = Id.fromString(rs.getString("id"), ::TagGroupId),
-            key = Key.fromString(rs.getString("key"), ::TagGroupKey),
-            name = rs.getString("name"),
-            description = rs.getString("description")
+            id = Id.fromString(row[TagGroupTable.id], ::TagGroupId),
+            key = Key.fromString(row[TagGroupTable.key], ::TagGroupKey),
+            name = row[TagGroupTable.name],
+            description = row[TagGroupTable.description]
         )
     }
 
-    private fun tagFromRow(rs: ResultSet): Tag {
-        val scopeType = TagScopeType(rs.getString("scope_type"))
-        val scopeIdString = rs.getString("scope_id")
+    private fun tagFromRow(row: ResultRow): Tag {
+        val scopeType = TagScopeType(row[TagTable.scopeType])
+        val scopeIdString = row[TagTable.scopeId]
         val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
             TagScopeRef.Global
         } else {
-            val localScopeId = scopeIdString
-                ?: throw TagStorageSQLiteInvalidRowException("Local tag row missing scope_id")
+            val localScopeId = requireNotNull(scopeIdString) {
+                "Local tag row missing scope_id"
+            }
             TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
         }
-        val groupIdString = rs.getString("tag_group_id")
+        val groupIdString = row[TagTable.tagGroupId]
         val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)
         return TagInMemory(
-            id = Id.fromString(rs.getString("id"), ::TagId),
+            id = Id.fromString(row[TagTable.id], ::TagId),
             scope = scope,
             groupId = groupId,
-            key = Key.fromString(rs.getString("key"), ::TagKey),
-            name = rs.getString("name"),
-            description = rs.getString("description")
+            key = Key.fromString(row[TagTable.key], ::TagKey),
+            name = row[TagTable.name],
+            description = row[TagTable.description]
         )
     }
 
     companion object {
+        private object TagGroupTable : Table("tag_group") {
+            val id = text("id")
+            val key = text("key")
+            val name = text("name").nullable()
+            val description = text("description").nullable()
+
+            override val primaryKey = PrimaryKey(id)
+        }
+
+        private object TagTable : Table("tag") {
+            val id = text("id")
+            val scopeType = text("scope_type")
+            val scopeId = text("scope_id").nullable()
+            val tagGroupId = text("tag_group_id").nullable()
+            val key = text("key")
+            val name = text("name").nullable()
+            val description = text("description").nullable()
+
+            override val primaryKey = PrimaryKey(id)
+        }
+
         @Language("SQLite")
         private const val SCHEMA = """
 CREATE TABLE IF NOT EXISTS tag_group (

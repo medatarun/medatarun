@@ -95,15 +95,20 @@ class AuthEnvTest(
         // In memory database. Be sure to keep one connection alive during the lifecycle
         // of any instance of this class. Using UUIDs to name in memory databases or else
         // SQLite will reuse existing bases across tests.
+        val sqlite = DbProviderSqlite.randomDb()
         this.dbConnectionFactory = object:DbConnectionFactory  {
-            val sqlite = DbProviderSqlite.randomDb()
-            override fun getConnection(): Connection {
-                return sqlite.getConnection()
+            override fun <T> withConnection(block: (Connection) -> T): T {
+                val connection = sqlite.getConnection()
+                try {
+                    return block(connection)
+                } finally {
+                    connection.close()
+                }
             }
 
-            override fun currentExposedTransactionOrNull() = throw AuthEnvTestExposedTransactionUnavailableException()
+            override fun <T> withExposed(block: () -> T): T = throw AuthEnvTestExposedTransactionUnavailableException()
         }
-        dbConnectionKeeper = dbConnectionFactory.getConnection()
+        dbConnectionKeeper = sqlite.getConnection()
 
         // Fake clock that always give the same point in time. Used to tests instant.now()
         this.authClock = ClockTester()
@@ -191,8 +196,8 @@ class AuthEnvTest(
 
         if (createAdmin) {
             userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
-        }
     }
+}
 
 
     fun verifyToken(

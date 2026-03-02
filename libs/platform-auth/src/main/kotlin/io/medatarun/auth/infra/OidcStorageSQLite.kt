@@ -24,7 +24,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
-        dbConnectionFactory.getConnection().use { conn ->
+        dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, oidcAuthorizeCtx.authCtxCode)
                 ps.setString(2, oidcAuthorizeCtx.clientId)
@@ -48,7 +48,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             WHERE authorize_ctx_code = ?
         """.trimIndent()
 
-        dbConnectionFactory.getConnection().use { conn ->
+        return dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, authCtxId)
                 ps.executeQuery().use { rs ->
@@ -56,7 +56,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                         throw NoSuchElementException("auth_ctx not found: $authCtxId")
                     }
 
-                    return OidcAuthorizeCtx(
+                    OidcAuthorizeCtx(
                         authCtxCode = rs.getString("authorize_ctx_code"),
                         clientId = rs.getString("client_id"),
                         redirectUri = rs.getString("redirect_uri"),
@@ -89,7 +89,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
-        dbConnectionFactory.getConnection().use { conn ->
+        dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, oidcAuthorizeCode.code)
                 ps.setString(2, oidcAuthorizeCode.clientId)
@@ -113,24 +113,26 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             WHERE code = ?
         """.trimIndent()
 
-        dbConnectionFactory.getConnection().use { conn ->
+        return dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, authCode)
                 ps.executeQuery().use { rs ->
-                    if (!rs.next()) return null
-
-                    return OidcAuthorizeCode(
-                        code = rs.getString("code"),
-                        clientId = rs.getString("client_id"),
-                        redirectUri = rs.getString("redirect_uri"),
-                        subject = rs.getString("subject"),
-                        scope = rs.getString("scope"),
-                        codeChallenge = rs.getString("code_challenge"),
-                        codeChallengeMethod = rs.getString("code_challenge_method"),
-                        nonce = rs.getString("nonce"),
-                        authTime = InstantSql.fromSqlRequired(rs, "auth_time"),
-                        expiresAt = InstantSql.fromSqlRequired(rs, "expires_at")
-                    )
+                    if (!rs.next()) {
+                        null
+                    } else {
+                        OidcAuthorizeCode(
+                            code = rs.getString("code"),
+                            clientId = rs.getString("client_id"),
+                            redirectUri = rs.getString("redirect_uri"),
+                            subject = rs.getString("subject"),
+                            scope = rs.getString("scope"),
+                            codeChallenge = rs.getString("code_challenge"),
+                            codeChallengeMethod = rs.getString("code_challenge_method"),
+                            nonce = rs.getString("nonce"),
+                            authTime = InstantSql.fromSqlRequired(rs, "auth_time"),
+                            expiresAt = InstantSql.fromSqlRequired(rs, "expires_at")
+                        )
+                    }
                 }
             }
         }
@@ -139,7 +141,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     override fun deleteAuthCode(authCode: String) {
         val sql = "DELETE FROM auth_code WHERE code = ?"
 
-        dbConnectionFactory.getConnection().use { conn ->
+        dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, authCode)
                 ps.executeUpdate()
@@ -150,7 +152,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     override fun deleteAuthCtx(authorizeCtxCode: String) {
         val sql = "DELETE FROM auth_ctx WHERE authorize_ctx_code = ?"
 
-        dbConnectionFactory.getConnection().use { conn ->
+        dbConnectionFactory.withConnection { conn ->
             conn.prepareStatement(sql).use { ps ->
                 ps.setString(1, authorizeCtxCode)
                 ps.executeUpdate()
@@ -162,7 +164,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         val purgeAuthCtx = "DELETE FROM auth_ctx WHERE expires_at < ?"
         val purgeAuthCode = "DELETE FROM auth_code WHERE expires_at < ?"
 
-        dbConnectionFactory.getConnection().use { conn ->
+        dbConnectionFactory.withConnection { conn ->
             conn.autoCommit = false
             try {
                 conn.prepareStatement(purgeAuthCtx).use { ps ->
@@ -186,7 +188,7 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     }
 
     fun initSchema() {
-        dbConnectionFactory.getConnection().use { connection ->
+        dbConnectionFactory.withConnection { connection ->
             SCHEMA.split(";")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
