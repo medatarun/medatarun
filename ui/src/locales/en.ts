@@ -1,4 +1,5 @@
 import { type Messages } from "./Messages";
+import { actionPerformerViewMessages } from "./en/ActionPerformerViewMessages";
 import { attributePageMessages } from "./en/AttributePageMessages";
 import { commandsPageMessages } from "./en/CommandsPageMessages";
 import { dashboardPageMessages } from "./en/DashboardPageMessages";
@@ -12,19 +13,24 @@ import { modelsPageMessages } from "./en/ModelsPageMessages";
 import { preferencesPageMessages } from "./en/PreferencesPageMessages";
 import { relationshipDescriptionMessages } from "./en/RelationshipDescriptionMessages";
 import { relationshipPageMessages } from "./en/RelationshipPageMessages";
+import { relationshipsTableMessages } from "./en/RelationshipsTableMessages";
 import { sessionMessages } from "./en/SessionMessages";
 import { tagEditMessages } from "./en/TagEditMessages";
 import { tagGroupEditMessages } from "./en/TagGroupEditMessages";
 import { tagGroupsPageMessages } from "./en/TagGroupsPageMessages";
+import { tagsTableMessages } from "./en/TagsTableMessages";
 import { typePageMessages } from "./en/TypePageMessages";
+import { typesTableMessages } from "./en/TypesTableMessages";
 
 export const messages = {
   ...sessionMessages,
   ...attributePageMessages,
+  ...actionPerformerViewMessages,
   ...commandsPageMessages,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
   ...relationshipDescriptionMessages,
+  ...relationshipsTableMessages,
   ...errorBoundaryMessages,
   ...layoutMessages,
   ...modelsPageMessages,
@@ -36,5 +42,7 @@ export const messages = {
   ...tagGroupsPageMessages,
   ...tagGroupEditMessages,
   ...tagEditMessages,
+  ...tagsTableMessages,
   ...typePageMessages,
+  ...typesTableMessages,
 } satisfies Messages;

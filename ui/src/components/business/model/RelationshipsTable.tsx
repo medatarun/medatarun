@@ -17,6 +17,7 @@ import { useModelContext } from "./ModelContext.tsx";
 import { ActionMenuButton } from "./TypesTable.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { createActionTemplateRelationship } from "./model.actions.ts";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -54,6 +55,7 @@ export function RelationshipsTable({
   relationships: RelationshipDto[];
   onClick: (relationshipId: string) => void;
 }) {
+  const { t } = useAppI18n();
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions(
@@ -65,7 +67,7 @@ export function RelationshipsTable({
     <div>
       {relationships.length == 0 ? (
         <p style={{ paddingTop: tokens.spacingVerticalM }}>
-          <Text italic>No relationships in this model.</Text>
+          <Text italic>{t("relationshipsTable_empty")}</Text>
         </p>
       ) : null}
       <div>

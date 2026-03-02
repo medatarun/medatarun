@@ -27,6 +27,7 @@ import { useDetailLevelContext } from "@/components/business/DetailLevelContext.
 import { Markdown } from "@/components/core/Markdown.tsx";
 import { createActionTemplateType } from "./model.actions.ts";
 import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -75,6 +76,7 @@ export function TypesTable({
   types: TypeDto[];
   onClick: (typeId: string) => void;
 }) {
+  const { t } = useAppI18n();
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions(ActionUILocations.type);
@@ -84,7 +86,7 @@ export function TypesTable({
     <div>
       {types.length == 0 ? (
         <p style={{ paddingTop: tokens.spacingVerticalL }}>
-          <Text italic>No data types in this model.</Text>
+          <Text italic>{t("typesTable_empty")}</Text>
         </p>
       ) : null}
       <div style={{ paddingTop: tokens.spacingVerticalM }}>

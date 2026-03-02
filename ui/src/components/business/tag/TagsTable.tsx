@@ -18,6 +18,7 @@ import {
   createActionTemplateTag,
   detailActionLocation,
 } from "./tag.actions.ts";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -54,6 +55,7 @@ export function TagsTable({
   scope: TagScopeRef;
   tagGroupId?: string;
 }) {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags(scope);
@@ -77,8 +79,8 @@ export function TagsTable({
         <p style={{ paddingTop: tokens.spacingVerticalM }}>
           <Text italic>
             {tagGroupId == null
-              ? "No tags in this scope."
-              : "No tags in this group."}
+              ? t("tagsTable_emptyScope")
+              : t("tagsTable_emptyGroup")}
           </Text>
         </p>
       ) : null}
