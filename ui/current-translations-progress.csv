@@ -42,7 +42,7 @@ Tag group edit displayed errors,ui/src/views/tags/TagGroupEdit.tsx,TagGroupEditM
 Tag edit page,ui/src/views/tags/TagEdit.tsx,TagEditMessages,TagEditMessages,done,"Eyebrow Global tag / Local tag, action button label, description placeholder."
 Tag edit breadcrumb and overview,ui/src/views/tags/TagEdit.tsx,TagEditMessages,TagEditMessages,done,"Breadcrumb Tag groups, fallback model label, Scope, Key, Identifier."
 Tag edit displayed errors,ui/src/views/tags/TagEdit.tsx,TagEditMessages,TagEditMessages,done,"ErrorBox 'Can not find tag ...'."
-Tag groups table,ui/src/components/business/tag/TagGroupsTable.tsx,TagGroupsTableMessages,,todo,"Empty state No global tag groups."
+Tag groups table,ui/src/views/tags/TagGroupsTable.tsx,TagGroupEditMessages,TagGroupEditMessages,done,"Sous-composant de views/tags uniquement; etat vide No global tag groups."
 Tags table,ui/src/components/business/tag/TagsTable.tsx,TagsTableMessages,,todo,"Empty states No tags in this scope / group."
 Relationships table,ui/src/components/business/model/RelationshipsTable.tsx,RelationshipsTableMessages,,todo,"Empty state No relationships in this model."
 Types table,ui/src/components/business/model/TypesTable.tsx,TypesTableMessages,,todo,"Empty state No data types in this model."

@@ -9,4 +9,5 @@ export const tagGroupEditMessages: TagGroupEditMessages = {
   tagGroupEdit_tagsTitle: "Tags",
   tagGroupEdit_groupKeyLabel: "Group key",
   tagGroupEdit_identifierLabel: "Identifier",
+  tagGroupEdit_emptyTagGroups: "No global tag groups.",
 };

@@ -7,4 +7,5 @@ export interface TagGroupEditMessages {
   tagGroupEdit_tagsTitle: string;
   tagGroupEdit_groupKeyLabel: string;
   tagGroupEdit_identifierLabel: string;
+  tagGroupEdit_emptyTagGroups: string;
 }

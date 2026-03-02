@@ -10,4 +10,5 @@ export const tagGroupEditMessages: TagGroupEditMessages = {
   tagGroupEdit_tagsTitle: "Tags",
   tagGroupEdit_groupKeyLabel: "Cle du groupe",
   tagGroupEdit_identifierLabel: "Identifiant",
+  tagGroupEdit_emptyTagGroups: "Aucun groupe de tags global.",
 };
