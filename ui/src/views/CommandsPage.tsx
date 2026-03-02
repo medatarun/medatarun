@@ -6,6 +6,7 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { Field, Textarea } from "@fluentui/react-components";
 import { Button, InputCombobox } from "@seij/common-ui";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function CommandsPage() {
   const commandRegistryDto = useActionRegistry();
@@ -17,6 +18,7 @@ export function CommandsPageLoaded({
 }: {
   actionRegistry: ActionRegistry;
 }) {
+  const { t } = useAppI18n();
   const defaultGroupKey = actionRegistry.findFirstGroupKey();
   const defaultActionKey = defaultGroupKey
     ? actionRegistry.findFirstActionKey(defaultGroupKey)
@@ -59,7 +61,7 @@ export function CommandsPageLoaded({
 
   const handleSubmit = () => {
     if (!selectedGroupKey || !selectedActionKey) {
-      setErrorMessage("Sélect a resource and an action.");
+      setErrorMessage(t("commandsPage_selectResourceAndActionError"));
       return;
     }
     let parsedPayload;
@@ -67,8 +69,10 @@ export function CommandsPageLoaded({
       parsedPayload = JSON.parse(payload);
     } catch (e) {
       setErrorMessage(
-        "Invalid payload: " +
-          (e instanceof Error ? e.message : "unknown error"),
+        t("commandsPage_invalidPayloadError", {
+          details:
+            e instanceof Error ? e.message : t("commandsPage_unknownError"),
+        }),
       );
       return;
     }
@@ -132,8 +136,10 @@ export function CommandsPageLoaded({
   );
 
   return (
-    <ViewLayoutContained title={"Command panel"}>
-      <ViewTitle eyebrow="Command panel">Run commands</ViewTitle>
+    <ViewLayoutContained title={t("commandsPage_title")}>
+      <ViewTitle eyebrow={t("commandsPage_eyebrow")}>
+        {t("commandsPage_title")}
+      </ViewTitle>
       <div>
         <div>
           <div></div>
@@ -152,9 +158,9 @@ export function CommandsPageLoaded({
                   columnGap: "1em",
                 }}
               >
-                <Field label="Group">
+                <Field label={t("commandsPage_groupLabel")}>
                   <InputCombobox
-                    placeholder="Select a action group"
+                    placeholder={t("commandsPage_groupPlaceholder")}
                     disabled={actionGroupKeys.length === 0}
                     onValueChangeQuery={setSelectedGroupSearch}
                     searchQuery={selectedGroupSearch}
@@ -162,9 +168,9 @@ export function CommandsPageLoaded({
                     options={actionGroupOptions}
                   />
                 </Field>
-                <Field label="Action">
+                <Field label={t("commandsPage_actionLabel")}>
                   <InputCombobox
-                    placeholder="Select an action"
+                    placeholder={t("commandsPage_actionPlaceholder")}
                     disabled={!selectedGroupKey || actionsInGroup.length === 0}
                     onValueChangeQuery={setSelectedActionSearch}
                     searchQuery={selectedActionSearch}
@@ -197,13 +203,13 @@ export function CommandsPageLoaded({
                   </div>
                 </div>
               ) : (
-                <div>Aucune action sélectionnée</div>
+                <div>{t("commandsPage_noActionSelected")}</div>
               )}
             </div>
             <div>
-              <Field label="Payload">
+              <Field label={t("commandsPage_payloadLabel")}>
                 <Textarea
-                  placeholder="Enter a payload"
+                  placeholder={t("commandsPage_payloadPlaceholder")}
                   value={payload}
                   onChange={(e) => setPayload(e.target.value)}
                   rows={6}
@@ -212,10 +218,10 @@ export function CommandsPageLoaded({
 
               <div>
                 <Button variant="primary" onClick={handleSubmit}>
-                  Submit
+                  {t("commandsPage_submit")}
                 </Button>
                 <Button variant="secondary" onClick={handleClear}>
-                  Clear
+                  {t("commandsPage_clear")}
                 </Button>
               </div>
               {errorMessage ? (

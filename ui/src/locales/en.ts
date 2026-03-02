@@ -1,5 +1,6 @@
 import { type Messages } from "./Messages";
 import { attributePageMessages } from "./en/AttributePageMessages";
+import { commandsPageMessages } from "./en/CommandsPageMessages";
 import { dashboardPageMessages } from "./en/DashboardPageMessages";
 import { entityPageMessages } from "./en/EntityPageMessages";
 import { errorBoundaryMessages } from "./en/ErrorBoundaryMessages";
@@ -19,6 +20,7 @@ import { typePageMessages } from "./en/TypePageMessages";
 export const messages = {
   ...sessionMessages,
   ...attributePageMessages,
+  ...commandsPageMessages,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
   ...relationshipDescriptionMessages,
