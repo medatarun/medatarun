@@ -5,6 +5,9 @@ import { commandsPageMessages } from "./en/CommandsPageMessages";
 import { dashboardPageMessages } from "./en/DashboardPageMessages";
 import { entityPageMessages } from "./en/EntityPageMessages";
 import { errorBoundaryMessages } from "./en/ErrorBoundaryMessages";
+import { inlineEditRichTextLayoutMessages } from "./en/InlineEditRichTextLayoutMessages";
+import { inlineEditSingleLineLayoutMessages } from "./en/InlineEditSingleLineLayoutMessages";
+import { inlineEditTagsMessages } from "./en/InlineEditTagsMessages";
 import { layoutMessages } from "./en/LayoutMessages";
 import { loginPageMessages } from "./en/LoginPageMessages";
 import { modelPageMessages } from "./en/ModelPageMessages";
@@ -32,6 +35,9 @@ export const messages = {
   ...relationshipDescriptionMessages,
   ...relationshipsTableMessages,
   ...errorBoundaryMessages,
+  ...inlineEditRichTextLayoutMessages,
+  ...inlineEditSingleLineLayoutMessages,
+  ...inlineEditTagsMessages,
   ...layoutMessages,
   ...modelsPageMessages,
   ...modelPageMessages,

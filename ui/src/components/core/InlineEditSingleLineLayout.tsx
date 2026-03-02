@@ -10,6 +10,7 @@ import {
 } from "@fluentui/react-components";
 import { EditRegular as EditIcon } from "@fluentui/react-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -118,6 +119,7 @@ export const InlineEditSingleLineLayout = ({
   onEditOK,
   onEditCancel,
 }: InlineEditSingleLineLayoutProps) => {
+  const { t } = useAppI18n();
   const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);
   const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
@@ -177,7 +179,10 @@ export const InlineEditSingleLineLayout = ({
         <div>
           {children}
           <div className={styles.editIcon} data-edit-icon>
-            <Tooltip content="Edit" relationship="label">
+            <Tooltip
+              content={t("inlineEditSingleLineLayout_editTooltip")}
+              relationship="label"
+            >
               <EditIcon name="edit" />
             </Tooltip>
           </div>
@@ -212,14 +217,14 @@ export const InlineEditSingleLineLayout = ({
                     onClick={handleEditCancel}
                     variant="secondary"
                   >
-                    Cancel
+                    {t("inlineEditSingleLineLayout_cancel")}
                   </Button>
                   <Button
                     disabled={pending}
                     onClick={handleEditOK}
                     variant="primary"
                   >
-                    OK
+                    {t("inlineEditSingleLineLayout_confirm")}
                   </Button>
                 </ButtonBar>
               </div>

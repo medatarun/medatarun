@@ -3,6 +3,9 @@ import { type EntityPageMessages } from "./contracts/EntityPageMessages";
 import { type AttributePageMessages } from "./contracts/AttributePageMessages";
 import { type CommandsPageMessages } from "./contracts/CommandsPageMessages";
 import { type ErrorBoundaryMessages } from "./contracts/ErrorBoundaryMessages";
+import { type InlineEditRichTextLayoutMessages } from "./contracts/InlineEditRichTextLayoutMessages";
+import { type InlineEditSingleLineLayoutMessages } from "./contracts/InlineEditSingleLineLayoutMessages";
+import { type InlineEditTagsMessages } from "./contracts/InlineEditTagsMessages";
 import { type DashboardPageMessages } from "./contracts/DashboardPageMessages";
 import { type LayoutMessages } from "./contracts/LayoutMessages";
 import { type LoginPageMessages } from "./contracts/LoginPageMessages";
@@ -30,6 +33,9 @@ export type Messages = SessionMessages &
   RelationshipDescriptionMessages &
   RelationshipsTableMessages &
   ErrorBoundaryMessages &
+  InlineEditRichTextLayoutMessages &
+  InlineEditSingleLineLayoutMessages &
+  InlineEditTagsMessages &
   LayoutMessages &
   ModelsPageMessages &
   ModelPageMessages &

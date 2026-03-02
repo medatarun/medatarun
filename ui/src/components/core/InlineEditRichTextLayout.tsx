@@ -3,6 +3,7 @@ import { type Problem, toProblem } from "@seij/common-types";
 import { makeStyles, tokens, Tooltip } from "@fluentui/react-components";
 import { Icon } from "@seij/common-ui-icons";
 import { Button, ButtonBar, ErrorBox } from "@seij/common-ui";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
   readRoot: {
@@ -93,6 +94,7 @@ export function InlineEditRichTextLayout({
   onEditOK,
   onEditCancel,
 }: InlineEditRichTextLayoutProps) {
+  const { t } = useAppI18n();
   const styles = useStyles();
   const [editing, setEditing] = useState<boolean>(false);
   const [editStartedCalled, setEditStartedCalled] = useState<boolean>(false);
@@ -148,7 +150,10 @@ export function InlineEditRichTextLayout({
     return (
       <div className={styles.readRoot} onClick={handleEdit}>
         <div className={styles.editIcon}>
-          <Tooltip content="Edit" relationship="label">
+          <Tooltip
+            content={t("inlineEditRichTextLayout_editTooltip")}
+            relationship="label"
+          >
             <Icon name="edit" />
           </Tooltip>
         </div>
@@ -166,10 +171,10 @@ export function InlineEditRichTextLayout({
               onClick={handleEditCancel}
               variant="secondary"
             >
-              Cancel
+              {t("inlineEditRichTextLayout_cancel")}
             </Button>
             <Button disabled={pending} onClick={handleEditOK} variant="primary">
-              OK
+              {t("inlineEditRichTextLayout_confirm")}
             </Button>
           </ButtonBar>
         </div>

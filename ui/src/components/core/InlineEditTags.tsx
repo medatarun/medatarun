@@ -21,6 +21,7 @@ import {
 import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
 import { Tags, useTags, type TagScopeRef } from "@/business/tag";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
@@ -158,6 +159,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
     },
     ref,
   ) => {
+    const { t } = useAppI18n();
     // Input value is what the user currently types in the input field
     const [inputValue, setInputValue] = useState("");
     // Some keyboards used to compose characters in languages as Japaneses send and event
@@ -230,7 +232,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
           selectedOptions={values}
         >
           <TagPickerControl>
-            <TagPickerGroup aria-label="Selected tags">
+            <TagPickerGroup aria-label={t("inlineEditTags_selectedAriaLabel")}>
               {values.map((option, index) => (
                 <Tag
                   key={index}
@@ -252,7 +254,7 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
               ref={ref}
               value={inputValue}
               //style={{width: "100%"}}
-              aria-label="Add Tags"
+              aria-label={t("inlineEditTags_inputAriaLabel")}
               disabled={disabled}
               onFocus={() => setIsOptionSelectOpen(true)}
               onCompositionStart={() => setIsComposing(true)}
@@ -269,16 +271,18 @@ const InputWithKeys = forwardRef<HTMLInputElement, InputWithKeysProps>(
                   color: "var(--colorNeutralForeground3)",
                 }}
               >
-                No matching tags
+                {t("inlineEditTags_empty")}
               </div>
             )}
             {canCreateTag && (
               <TagPickerOption
                 key={CREATE_OPTION_PREFIX + trimmedInputValue}
                 value={CREATE_OPTION_PREFIX + trimmedInputValue}
-                text={`Create "${trimmedInputValue}"`}
+                text={t("inlineEditTags_createOption", {
+                  value: trimmedInputValue,
+                })}
               >
-                Create "{trimmedInputValue}"
+                {t("inlineEditTags_createOption", { value: trimmedInputValue })}
               </TagPickerOption>
             )}
             {options.map((option) => (
