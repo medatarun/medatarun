@@ -5,6 +5,7 @@ import { errorBoundaryMessages } from "./en/ErrorBoundaryMessages";
 import { layoutMessages } from "./en/LayoutMessages";
 import { loginPageMessages } from "./en/LoginPageMessages";
 import { modelPageMessages } from "./en/ModelPageMessages";
+import { modelsPageMessages } from "./en/ModelsPageMessages";
 import { preferencesPageMessages } from "./en/PreferencesPageMessages";
 import { sessionMessages } from "./en/SessionMessages";
 
@@ -14,6 +15,7 @@ export const messages = {
   ...preferencesPageMessages,
   ...errorBoundaryMessages,
   ...layoutMessages,
+  ...modelsPageMessages,
   ...modelPageMessages,
   ...entityPageMessages,
   ...loginPageMessages,

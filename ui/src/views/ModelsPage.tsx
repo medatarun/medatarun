@@ -10,6 +10,7 @@ import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function ModelsPage({
   onClickModel,
@@ -19,6 +20,7 @@ export function ModelsPage({
   const { data = [] } = useModelSummaries();
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.models);
+  const { t } = useAppI18n();
 
   return (
     <ViewLayoutContained
@@ -36,11 +38,11 @@ export function ModelsPage({
                 <span>
                   <ModelIcon />
                 </span>{" "}
-                Models{" "}
+                {t("modelsPage_title")}{" "}
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("modelsPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
                 />
@@ -56,7 +58,7 @@ export function ModelsPage({
           paddingRight: tokens.spacingHorizontalM,
         }}
       >
-        {data.length == 0 ? "No models found" : null}
+        {data.length == 0 ? t("modelsPage_empty") : null}
         <div
           style={{
             display: "flex",
