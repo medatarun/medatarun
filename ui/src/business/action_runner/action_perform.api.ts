@@ -1,6 +1,7 @@
 import { api } from "@/services/api.ts";
 import { queryClient } from "@/services/queryClient.ts";
 import { Problem } from "@seij/common-types";
+import { notifyUnauthorized } from "@/services/unauthorized.ts";
 
 export type ActionResp<T = unknown> =
   | { contentType: "text"; text: string }
@@ -22,6 +23,9 @@ export async function executeAction<T = unknown>(
     .then(async (res) => {
       const isError = res.status >= 400;
       if (isError) {
+        if (res.status === 401) {
+          notifyUnauthorized();
+        }
         const errorPayload = await res.json();
         throw new Problem(errorPayload);
       } else {

@@ -18,6 +18,7 @@ import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { Loader, type NavigationTreeItem } from "@seij/common-ui";
 import { ApplicationShellSecured } from "@seij/common-ui-auth";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
 
 export function Layout2() {
   const [actions, setActions] = useState<ActionRegistry>();
@@ -108,44 +109,47 @@ export function Layout2() {
   );
 
   return (
-    <ApplicationShellSecured
-      applicationName={"Medatarun"}
-      applicationIcon={
-        <img
-          src={logo}
-          alt="Medatarun logo"
-          style={{
-            width: "2em",
-            height: "2em",
-          }}
-        />
-      }
-      pathname={pathname}
-      outlet={
-        <>
-          {actions && (
-            <ActionsContext value={actions}>
-              <ActionProvider>
-                <ErrorBoundary>
-                  <Outlet />
-                  <ActionPerformerView />
-                </ErrorBoundary>
-              </ActionProvider>
-            </ActionsContext>
-          )}
-          {!actions && <Loader loading={true} />}
-          {error && (
-            <div>
-              <p>Sorry, we could not load this page.</p>
-              <MessageBar intent="error">{JSON.stringify(error)}</MessageBar>
-            </div>
-          )}
-        </>
-      }
-      navigate={(path) => navigate({ to: path })}
-      onClickHome={() => navigate({ to: "/" })}
-      navigationItems={nav}
-      matchPath={matchPath}
-    ></ApplicationShellSecured>
+    <>
+      <UnauthorizedHandler />
+      <ApplicationShellSecured
+        applicationName={"Medatarun"}
+        applicationIcon={
+          <img
+            src={logo}
+            alt="Medatarun logo"
+            style={{
+              width: "2em",
+              height: "2em",
+            }}
+          />
+        }
+        pathname={pathname}
+        outlet={
+          <>
+            {actions && (
+              <ActionsContext value={actions}>
+                <ActionProvider>
+                  <ErrorBoundary>
+                    <Outlet />
+                    <ActionPerformerView />
+                  </ErrorBoundary>
+                </ActionProvider>
+              </ActionsContext>
+            )}
+            {!actions && <Loader loading={true} />}
+            {error && (
+              <div>
+                <p>Sorry, we could not load this page.</p>
+                <MessageBar intent="error">{JSON.stringify(error)}</MessageBar>
+              </div>
+            )}
+          </>
+        }
+        navigate={(path) => navigate({ to: path })}
+        onClickHome={() => navigate({ to: "/" })}
+        navigationItems={nav}
+        matchPath={matchPath}
+      ></ApplicationShellSecured>
+    </>
   );
 }
