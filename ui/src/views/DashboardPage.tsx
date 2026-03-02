@@ -9,15 +9,17 @@ import {
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.global);
+  const { t } = useAppI18n();
   return (
     <ViewLayoutContained
       title={
         <div>
-          <ViewTitle eyebrow="Dashboard">
+          <ViewTitle eyebrow={t("dashboardPage_eyebrow")}>
             <div
               style={{
                 display: "flex",
@@ -25,10 +27,10 @@ export function DashboardPage() {
                 paddingRight: tokens.spacingHorizontalL,
               }}
             >
-              <div>Dashboard</div>
+              <div>{t("dashboardPage_title")}</div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("dashboardPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
                 />
@@ -40,9 +42,7 @@ export function DashboardPage() {
     >
       <ContainedHumanReadable>
         <div>
-          <MissingInformation>
-            Currently creating the Dashboard
-          </MissingInformation>
+          <MissingInformation>{t("dashboardPage_placeholder")}</MissingInformation>
         </div>
       </ContainedHumanReadable>
     </ViewLayoutContained>

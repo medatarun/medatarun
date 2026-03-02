@@ -24,6 +24,7 @@ import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
 import {FilterTextRowEditor} from "./components/FilterTextRowEditor.tsx";
 import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
 import {ButtonBar, Loader} from "@seij/common-ui";
+import {useAppI18n} from "@/services/appI18n.tsx";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 
@@ -83,6 +84,7 @@ function changeFilterType(type: FilterRowType): ModelSearchFilter {
 }
 
 export function ReportsPage() {
+  const { t } = useAppI18n();
   const styles = useCompactDropdownStyles();
   const [draftQuery, setDraftQuery] = useState<ModelSearchReq>(loadStoredQuery);
   const [appliedQuery, setAppliedQuery] = useState<ModelSearchReq>(
@@ -154,7 +156,7 @@ export function ReportsPage() {
               }}
             >
               <div style={{ width: "100%" }}>
-                <DocumentBulletListRegular /> Report model items
+                <DocumentBulletListRegular /> {t("modelReportsPage_title")}
               </div>
             </div>
           </ViewTitle>
@@ -210,20 +212,20 @@ export function ReportsPage() {
                     disabled={draftQuery.items.length === 0}
                     onClick={handleClickSearch}
                   >
-                    Show results
+                    {t("modelReportsPage_showResults")}
                   </Button>
                   {items.length > 0 && (
                     <Button
                       icon={<ArrowDownloadRegular />}
-                      onClick={() => createCsv(items)}
+                      onClick={() => createCsv(items, t)}
                     >
-                      Download CSV
+                      {t("modelReportsPage_downloadCsv")}
                     </Button>
                   )}
                 </ButtonBar>
               </div>
               <Button appearance="outline" icon={<AddRegular />} onClick={handleAddFilter}>
-                Add condition
+                {t("modelReportsPage_addCondition")}
               </Button>
             </div>
           </div>
@@ -231,7 +233,7 @@ export function ReportsPage() {
         <ContainedScrollable>
           {!hasFilters && (
             <div style={{ padding: tokens.spacingVerticalM }}>
-              <MissingInformation>Add at least one filter to search.</MissingInformation>
+              <MissingInformation>{t("modelReportsPage_emptySearch")}</MissingInformation>
             </div>
           )}
           {query.isPending && (
@@ -241,7 +243,7 @@ export function ReportsPage() {
           )}
           {hasFilters && !query.isPending && items.length === 0 && (
             <div style={{ padding: tokens.spacingVerticalM }}>
-              <MissingInformation>No results.</MissingInformation>
+              <MissingInformation>{t("modelReportsPage_emptyResults")}</MissingInformation>
             </div>
           )}
           {!query.isPending && items.length > 0 && (
@@ -273,6 +275,7 @@ function FilterRowEditor({
   onTypeChange: (filterId: string, type: FilterRowType) => void;
   onChange: (filter: ModelSearchFilter) => void;
 }) {
+  const { t } = useAppI18n();
   const handleChangeType: DropdownProps["onOptionSelect"] = (_, data) => {
     const type = data.optionValue;
     if (type !== "tags" && type !== "text") {
@@ -288,25 +291,35 @@ function FilterRowEditor({
       ) : (
         <Dropdown
           className={compactDropdownClassName}
-          aria-label="Combine filters with"
-          value={operator.toUpperCase()}
+          aria-label={t("modelReportsPage_operatorAriaLabel")}
+          value={
+            operator === "and"
+              ? t("modelReportsPage_operatorAnd")
+              : t("modelReportsPage_operatorOr")
+          }
           selectedOptions={[operator]}
           onOptionSelect={onOperatorChange}
           appearance="outline"
         >
-          <Option value="and">AND</Option>
-          <Option value="or">OR</Option>
+          <Option value="and">{t("modelReportsPage_operatorAnd")}</Option>
+          <Option value="or">{t("modelReportsPage_operatorOr")}</Option>
         </Dropdown>
       )}
       <Dropdown
         className={compactDropdownClassName}
-        aria-label="Filter type"
-        value={filter.type === "tags" ? "Tags" : "Text contains"}
+        aria-label={t("modelReportsPage_filterTypeAriaLabel")}
+        value={
+          filter.type === "tags"
+            ? t("modelReportsPage_filterTypeTags")
+            : t("modelReportsPage_filterTypeTextContains")
+        }
         selectedOptions={[filter.type]}
         onOptionSelect={handleChangeType}
       >
-        <Option value="tags">Tags</Option>
-        <Option value="text">Text contains</Option>
+        <Option value="tags">{t("modelReportsPage_filterTypeTags")}</Option>
+        <Option value="text">
+          {t("modelReportsPage_filterTypeTextContains")}
+        </Option>
       </Dropdown>
 
       <div>
@@ -321,7 +334,7 @@ function FilterRowEditor({
         icon={<DismissRegular />}
         onClick={() => onDelete(filter.id)}
       >
-        Remove
+        {t("modelReportsPage_removeCondition")}
       </Button>
     </>
   );

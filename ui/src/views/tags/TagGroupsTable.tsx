@@ -7,14 +7,15 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
+import { useAppI18n } from "@/services/appI18n.tsx";
 import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
 import type { TagGroup } from "@/business/tag";
+import { createActionTemplateTagGroup } from "@/components/business/tag/tag.actions.ts";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
-import { createActionTemplateTagGroup } from "./tag.actions.ts";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -51,6 +52,7 @@ export function TagGroupsTable({
   tagGroups: TagGroup[];
   onClick: (tagGroupId: string) => void;
 }) {
+  const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions(
     ActionUILocations.tag_managed_group_detail,
@@ -61,7 +63,7 @@ export function TagGroupsTable({
     <div>
       {tagGroups.length === 0 ? (
         <p style={{ paddingTop: tokens.spacingVerticalM }}>
-          <Text italic>No global tag groups.</Text>
+          <Text italic>{t("tagGroupEdit_emptyTagGroups")}</Text>
         </p>
       ) : null}
       <Table>

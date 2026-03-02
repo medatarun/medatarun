@@ -38,6 +38,7 @@ import { InlineEditDescription } from "@/components/core/InlineEditDescription.t
 import { useMemo } from "react";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function TypePage({
   modelId,
@@ -46,6 +47,7 @@ export function TypePage({
   modelId: string;
   typeId: string;
 }) {
+  const { t } = useAppI18n();
   const { data: modelDto } = useModel(modelId);
   const model = useMemo(
     () => (modelDto ? new Model(modelDto) : null),
@@ -56,7 +58,7 @@ export function TypePage({
   if (!model) return null;
 
   const type = model.findTypeDto(typeId);
-  if (!type) return <ErrorBox error={toProblem("Type not found")} />;
+  if (!type) return <ErrorBox error={toProblem(t("typePage_notFound"))} />;
 
   return (
     <ModelContext value={model}>
@@ -71,6 +73,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   const actions = actionRegistry.findActions(ActionUILocations.type);
   const typeUpdateName = useTypeUpdateName();
   const typeUpdateDescription = useTypeUpdateDescription();
+  const { t } = useAppI18n();
 
   const handleClickModel = () => {
     navigate({
@@ -106,7 +109,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
             </Breadcrumb>
           </div>
           <div>
-            <ViewTitle eyebrow={"Data type"}>
+            <ViewTitle eyebrow={t("typePage_eyebrow")}>
               <div
                 style={{
                   display: "flex",
@@ -135,7 +138,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
                 </div>
                 <div>
                   <ActionMenuButton
-                    label="Actions"
+                    label={t("typePage_actions")}
                     itemActions={actions}
                     actionParams={actionParams}
                   />
@@ -155,7 +158,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={type.description}
-                placeholder={"add description"}
+                placeholder={t("typePage_descriptionPlaceholder")}
                 onChange={(v) =>
                   typeUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -175,6 +178,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
 export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
   const typeUpdateKey = useTypeUpdateKey();
   const { isDetailLevelTech } = useDetailLevelContext();
+  const { t } = useAppI18n();
 
   const handleChangeKey = (value: string) => {
     return typeUpdateKey.mutateAsync({
@@ -188,7 +192,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>Type&nbsp;key</Text>
+          <Text>{t("typePage_keyLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -199,7 +203,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
         </InlineEditSingleLine>
       )}
       <div>
-        <Text>From&nbsp;model</Text>
+        <Text>{t("typePage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -208,7 +212,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
       </div>
       {isDetailLevelTech && (
         <div>
-          <Text>Type&nbsp;Id</Text>
+          <Text>{t("typePage_identifierLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (

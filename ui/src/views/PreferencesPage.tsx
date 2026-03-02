@@ -10,11 +10,16 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function PreferencesPage() {
   const { isDetailLevelTech, toggle } = useDetailLevelContext();
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.preferences);
+  const { t } = useAppI18n();
+  const mode = isDetailLevelTech
+    ? t("preferencesPage_modeTech")
+    : t("preferencesPage_modeBusiness");
   return (
     <ViewLayoutContained
       title={
@@ -27,10 +32,10 @@ export function PreferencesPage() {
                 paddingRight: tokens.spacingHorizontalL,
               }}
             >
-              <div>Preferences</div>
+              <div>{t("preferencesPage_title")}</div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("preferencesPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
                 />
@@ -44,19 +49,15 @@ export function PreferencesPage() {
         <div>
           <div>
             <p>
-              You are currently in {isDetailLevelTech ? "tech" : "business"}{" "}
-              mode.
+              {t("preferencesPage_currentMode", { mode })}
             </p>
-            <p>
-              Switching modes allow you to show or hide technical details in the
-              models.
-            </p>
+            <p>{t("preferencesPage_modeDescription")}</p>
           </div>
           <SwitchButton
             value={isDetailLevelTech}
             onValueChange={toggle}
-            labelTrue={"Switch to business mode"}
-            labelFalse={"Switch to technical mode"}
+            labelTrue={t("preferencesPage_switchToBusinessMode")}
+            labelFalse={t("preferencesPage_switchToTechnicalMode")}
           />
         </div>
       </ContainedHumanReadable>

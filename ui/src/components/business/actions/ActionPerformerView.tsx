@@ -40,6 +40,7 @@ import { Button, ErrorBox } from "@seij/common-ui";
 import { formDataNormalize } from "@/business/action_form/action_form.normalize.ts";
 import { isNil, isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
@@ -84,6 +85,7 @@ export function ActionPerformerViewLoaded({
   defaultFormData: FormDataType;
   formFields: FormFieldType[];
 }) {
+  const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const { confirmAction, cancelAction, finishAction } = useActionPerformer();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
@@ -183,20 +185,20 @@ export function ActionPerformerViewLoaded({
         <DialogActions>
           {displayExecute && (
             <Button variant="primary" onClick={onValidate} disabled={!valid}>
-              Execute
+              {t("actionPerformerView_execute")}
             </Button>
           )}
           {displayCancel && (
             <DialogTrigger disableButtonEnhancement>
               <Button variant="secondary" onClick={onCancel}>
-                Cancel
+                {t("actionPerformerView_cancel")}
               </Button>
             </DialogTrigger>
           )}
           {displayFinish && (
             <DialogTrigger disableButtonEnhancement>
               <Button variant="primary" onClick={onFinish}>
-                Finish
+                {t("actionPerformerView_finish")}
               </Button>
             </DialogTrigger>
           )}

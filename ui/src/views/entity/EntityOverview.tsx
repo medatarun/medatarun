@@ -15,6 +15,7 @@ import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function EntityOverview({ entity }: { entity: EntityDto }) {
   const model = useModelContext();
@@ -23,6 +24,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
   const entityUpdateDocumentationHome = useEntityUpdateDocumentationHome();
   const entityAddTag = useEntityAddTag();
   const entityDeleteTag = useEntityDeleteTag();
+  const { t } = useAppI18n();
 
   const handleChangeKey = (value: string) => {
     return entityUpdateKey.mutateAsync({
@@ -60,7 +62,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>Entity&nbsp;key</Text>
+          <Text>{t("entityPage_keyLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -73,7 +75,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
         </div>
       )}
       <div>
-        <Text>From&nbsp;model</Text>
+        <Text>{t("entityPage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -82,7 +84,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>External&nbsp;link</Text>
+        <Text>{t("entityPage_externalLinkLabel")}</Text>
       </div>
       <div>
         <InlineEditSingleLine
@@ -90,7 +92,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           onChange={handleChangeDocumentationHome}
         >
           {!entity.documentationHome ? (
-            <MissingInformation>add external link</MissingInformation>
+            <MissingInformation>{t("entityPage_externalLinkEmpty")}</MissingInformation>
           ) : (
             <ExternalUrl url={entity.documentationHome} />
           )}
@@ -98,7 +100,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>Tags</Text>
+        <Text>{t("entityPage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -107,7 +109,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           onChange={handleChangeTags}
         >
           {entity.tags.length === 0 ? (
-            <MissingInformation>add tags</MissingInformation>
+            <MissingInformation>{t("entityPage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={entity.tags} scope={modelTagScope(model.id)} />
           )}
@@ -115,14 +117,14 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>Origin</Text>
+        <Text>{t("entityPage_originLabel")}</Text>
       </div>
       <div>
         <Origin value={entity.origin} />
       </div>
       {isDetailLevelTech && (
         <div>
-          <Text>Identifier</Text>
+          <Text>{t("entityPage_identifierLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (

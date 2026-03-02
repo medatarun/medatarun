@@ -11,6 +11,7 @@ import {
   type TagPickerProps,
 } from "@fluentui/react-components";
 import { useState } from "react";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function FilterTagPicker({
   disabled,
@@ -23,6 +24,7 @@ export function FilterTagPicker({
   tags: Tags;
   onChange: (tagIds: string[]) => void;
 }) {
+  const { t } = useAppI18n();
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
   const options = tags.search(inputValue, selectedTagIds);
@@ -41,7 +43,7 @@ export function FilterTagPicker({
       onOptionSelect={handleOptionSelect}
     >
       <TagPickerControl>
-        <TagPickerGroup aria-label="Selected tags">
+        <TagPickerGroup aria-label={t("modelReportsTagPicker_selectedAriaLabel")}>
           {selectedTagIds.map((tagId) => (
             <Tag
               key={tagId}
@@ -61,7 +63,7 @@ export function FilterTagPicker({
         </TagPickerGroup>
         <TagPickerInput
           value={inputValue}
-          aria-label="Search tags"
+          aria-label={t("modelReportsTagPicker_searchAriaLabel")}
           disabled={disabled}
           onFocus={() => setOpen(true)}
           onChange={(event) => {
@@ -78,7 +80,7 @@ export function FilterTagPicker({
               color: "var(--colorNeutralForeground3)",
             }}
           >
-            No matching tags
+            {t("modelReportsTagPicker_empty")}
           </div>
         )}
         {options.map((option) => (

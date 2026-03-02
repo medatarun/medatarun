@@ -49,6 +49,7 @@ import {
   ModelIcon,
   RelationshipIcon,
 } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function EntityPage({
   modelId,
@@ -75,6 +76,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const entityUpdateName = useEntityUpdateName();
+  const { t } = useAppI18n();
 
   const actions = actionRegistry.findActions(ActionUILocations.entity);
   const relationshipsInvolved = model.dto.relationships.filter((it) =>
@@ -125,7 +127,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             </BreadcrumbItem>
             <BreadcrumbDivider />
           </Breadcrumb>
-          <ViewTitle eyebrow={"Entity"}>
+          <ViewTitle eyebrow={t("entityPage_eyebrow")}>
             <div
               style={{
                 display: "flex",
@@ -149,7 +151,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("entityPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateEntity(model.id, entity.id)}
                 />
@@ -168,7 +170,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={entity.description}
-                placeholder={"add description"}
+                placeholder={t("entityPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   entityUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -184,7 +186,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               actionParams={createActionTemplateEntity(model.id, entity.id)}
               location={ActionUILocations.entity_attributes}
             >
-              Attributes
+              {t("entityPage_attributesTitle")}
             </SectionTitle>
 
             <SectionTable>
@@ -210,7 +212,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               )}
               location={ActionUILocations.entity_relationships}
             >
-              Relationships
+              {t("entityPage_relationshipsTitle")}
             </SectionTitle>
 
             <SectionTable>

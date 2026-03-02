@@ -56,6 +56,7 @@ import {
   AttributeIcon,
   ModelIcon,
 } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n, type AppMessageKey } from "@/services/appI18n.tsx";
 
 export function RelationshipPage({
   modelId,
@@ -64,6 +65,7 @@ export function RelationshipPage({
   modelId: string;
   relationshipId: string;
 }) {
+  const { t } = useAppI18n();
   const { data: modelDto } = useModel(modelId);
 
   if (!modelDto) return null;
@@ -71,7 +73,7 @@ export function RelationshipPage({
 
   const relationship = model.findRelationshipDto(relationshipId);
   if (!relationship)
-    return <ErrorBox error={toProblem("Relationship not found")} />;
+    return <ErrorBox error={toProblem(t("relationshipPage_notFound"))} />;
 
   return (
     <ModelContext value={model}>
@@ -87,6 +89,7 @@ export function RelationshipView({
   model: Model;
   relationship: RelationshipDto;
 }) {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.relationship);
@@ -143,7 +146,7 @@ export function RelationshipView({
             </Breadcrumb>
           </div>
           <div>
-            <ViewTitle eyebrow={"Relationship"}>
+            <ViewTitle eyebrow={t("relationshipPage_eyebrow")}>
               <div
                 style={{
                   display: "flex",
@@ -172,7 +175,7 @@ export function RelationshipView({
                 </div>
                 <div>
                   <ActionMenuButton
-                    label="Actions"
+                    label={t("relationshipPage_actions")}
                     itemActions={actions}
                     actionParams={actionParams}
                   />
@@ -192,7 +195,7 @@ export function RelationshipView({
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={relationship.description}
-                placeholder={"add description"}
+                placeholder={t("relationshipPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   relationshipUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -211,13 +214,13 @@ export function RelationshipView({
               )}
               location={ActionUILocations.relationship_roles}
             >
-              Roles
+              {t("relationshipPage_rolesTitle")}
             </SectionTitle>
 
             {relationship.roles.length === 0 && (
               <p>
                 <MissingInformation>
-                  add roles in this relationship
+                  {t("relationshipPage_rolesEmpty")}
                 </MissingInformation>
               </p>
             )}
@@ -245,7 +248,7 @@ export function RelationshipView({
                               </Text>
                             </div>
                             <Text>
-                              {roleCardinalityLabel(role.cardinality)}
+                              {roleCardinalityLabel(role.cardinality, t)}
                             </Text>
                           </div>
                         }
@@ -287,12 +290,14 @@ export function RelationshipView({
               )}
               location={ActionUILocations.relationship_attributes}
             >
-              Attributes
+              {t("relationshipPage_attributesTitle")}
             </SectionTitle>
 
             {relationship.attributes.length === 0 && (
               <p>
-                <MissingInformation>add attributes</MissingInformation>
+                <MissingInformation>
+                  {t("relationshipPage_attributesEmpty")}
+                </MissingInformation>
               </p>
             )}
             {relationship.attributes.length > 0 && (
@@ -325,6 +330,7 @@ export function RelationshipOverview({
   relationship: RelationshipDto;
   model: Model;
 }) {
+  const { t } = useAppI18n();
   const { isDetailLevelTech } = useDetailLevelContext();
   const relationshipUpdateKey = useRelationshipUpdateKey();
   const relationshipAddTag = useRelationshipAddTag();
@@ -359,7 +365,7 @@ export function RelationshipOverview({
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>Relationship&nbsp;key</Text>
+          <Text>{t("relationshipPage_keyLabel")}</Text>
         </div>
       )}
 
@@ -374,7 +380,7 @@ export function RelationshipOverview({
         </InlineEditSingleLine>
       )}
       <div>
-        <Text>From&nbsp;model</Text>
+        <Text>{t("relationshipPage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -382,7 +388,7 @@ export function RelationshipOverview({
         </Link>
       </div>
       <div>
-        <Text>Tags</Text>
+        <Text>{t("relationshipPage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -391,7 +397,7 @@ export function RelationshipOverview({
           onChange={handleChangeTags}
         >
           {relationship.tags.length === 0 ? (
-            <MissingInformation>add tags</MissingInformation>
+            <MissingInformation>{t("relationshipPage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={relationship.tags} scope={modelTagScope(model.id)} />
           )}
@@ -399,7 +405,7 @@ export function RelationshipOverview({
       </div>
       {isDetailLevelTech && (
         <div>
-          <Text>Relationship&nbsp;id</Text>
+          <Text>{t("relationshipPage_identifierLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -413,9 +419,12 @@ export function RelationshipOverview({
   );
 }
 
-function roleCardinalityLabel(c: RelationshipRoleDto["cardinality"]) {
-  if (c === "zeroOrOne") return "maybe one";
-  if (c === "many") return "many";
-  if (c === "one") return "one";
-  if (c === "unknown") return "unknown number of";
+function roleCardinalityLabel(
+  c: RelationshipRoleDto["cardinality"],
+  t: (key: AppMessageKey, values?: Record<string, unknown>) => string,
+) {
+  if (c === "zeroOrOne") return t("relationshipPage_cardinalityMaybeOne");
+  if (c === "many") return t("relationshipPage_cardinalityMany");
+  if (c === "one") return t("relationshipPage_cardinalityOne");
+  if (c === "unknown") return t("relationshipPage_cardinalityUnknown");
 }

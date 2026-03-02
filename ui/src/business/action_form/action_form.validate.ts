@@ -1,5 +1,9 @@
 import { invalid, valid, type ValidationResult } from "@seij/common-validation";
+import { appT, type AppMessageKey } from "@/services/appI18n.tsx";
 import type { FormDataType, FormFieldType } from "./action_form.types.ts";
+
+const t = (key: AppMessageKey, values?: Record<string, unknown>) =>
+  appT(key, values);
 
 export function validateForm({
   formData,
@@ -58,7 +62,10 @@ export function validateForm({
       result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "RelationshipCardinality")
       result = validateString(formField, formData[formField.key]);
-    else result = invalid("Unsupported type: " + formField.type);
+    else
+      result = invalid(
+        t("formValidation_unsupportedType", { type: formField.type }),
+      );
     validationResults.set(formField.key, result);
   }
   return validationResults;
@@ -72,9 +79,10 @@ function validateKey(field: FormFieldType, formDatum: unknown) {
     (formDatum === null || formDatum === undefined || formDatum === "")
   )
     return valid;
-  if (typeof formDatum !== "string") return invalid("Must be a string");
-  if (formDatum.length > 255) return invalid("Too long");
-  if (formDatum.length < 1) return invalid("Too short");
+  if (typeof formDatum !== "string")
+    return invalid(t("formValidation_mustBeString"));
+  if (formDatum.length > 255) return invalid(t("formValidation_tooLong"));
+  if (formDatum.length < 1) return invalid(t("formValidation_tooShort"));
   return valid;
 }
 
@@ -86,35 +94,38 @@ function validateRef(field: FormFieldType, formDatum: unknown) {
     (formDatum === null || formDatum === undefined || formDatum === "")
   )
     return valid;
-  if (typeof formDatum !== "string") return invalid("Must be a string");
-  if (formDatum.length > 255) return invalid("Too long");
-  if (formDatum.length < 1) return invalid("Too short");
+  if (typeof formDatum !== "string")
+    return invalid(t("formValidation_mustBeString"));
+  if (formDatum.length > 255) return invalid(t("formValidation_tooLong"));
+  if (formDatum.length < 1) return invalid(t("formValidation_tooShort"));
   return valid;
 }
 
 function validateBoolean(field: FormFieldType, formDatum: unknown) {
   if (formDatum === null || formDatum === undefined) {
     if (field.optional) return valid;
-    else return invalid("Required");
+    else return invalid(t("formValidation_required"));
   }
   if (typeof formDatum === "string") {
     if (formDatum === "true" || formDatum === "false") return valid;
     if (formDatum === "") return valid;
-    return invalid("Must be true or false or empty");
+    return invalid(t("formValidation_mustBeTrueFalseOrEmpty"));
   }
-  if (typeof formDatum !== "boolean") return invalid("Must be a boolean");
+  if (typeof formDatum !== "boolean")
+    return invalid(t("formValidation_mustBeBoolean"));
   else return valid;
 }
 
 function validateString(field: FormFieldType, formDatum: unknown) {
   if (formDatum === null || formDatum === undefined) {
     if (field.optional) return valid;
-    else return invalid("Required");
+    else return invalid(t("formValidation_required"));
   }
-  if (typeof formDatum !== "string") return invalid("Must be a string");
+  if (typeof formDatum !== "string")
+    return invalid(t("formValidation_mustBeString"));
   if (formDatum.length === 0) {
     if (field.optional) return valid;
-    else return invalid("Required");
+    else return invalid(t("formValidation_required"));
   }
   return valid;
 }

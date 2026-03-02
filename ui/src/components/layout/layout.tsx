@@ -19,6 +19,7 @@ import { Loader, type NavigationTreeItem } from "@seij/common-ui";
 import { ApplicationShellSecured } from "@seij/common-ui-auth";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function Layout2() {
   const [actions, setActions] = useState<ActionRegistry>();
@@ -27,6 +28,7 @@ export function Layout2() {
   const matchRoute = useMatchRoute();
   const { pathname } = useLocation();
   const { isDetailLevelTech } = useDetailLevelContext();
+  const { t } = useAppI18n();
 
   useEffect(() => {
     fetchActionDescriptors()
@@ -48,7 +50,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/",
-      label: "Home",
+      label: t("layout_homeLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -58,7 +60,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/models",
-      label: "Models",
+      label: t("layout_modelsLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -68,7 +70,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/commands",
-      label: "Commands",
+      label: t("layout_commandsLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -78,7 +80,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/reports",
-      label: "Reports",
+      label: t("layout_reportsLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -88,7 +90,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/tag-groups",
-      label: "Tag groups",
+      label: t("layout_tagGroupsLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -98,7 +100,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/preferences",
-      label: "Preferences",
+      label: t("layout_preferencesLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -139,7 +141,7 @@ export function Layout2() {
             {!actions && <Loader loading={true} />}
             {error && (
               <div>
-                <p>Sorry, we could not load this page.</p>
+                <p>{t("layout_loadingErrorMessage")}</p>
                 <MessageBar intent="error">{JSON.stringify(error)}</MessageBar>
               </div>
             )}

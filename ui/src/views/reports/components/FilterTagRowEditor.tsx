@@ -9,6 +9,7 @@ import {
   Option,
   type DropdownProps,
 } from "@fluentui/react-components";
+import { useAppI18n, type AppMessageKey } from "@/services/appI18n.tsx";
 import { FilterTagPicker } from "./FilterTagPicker.tsx";
 import { useCompactDropdownStyles } from "./Reports.styles.tsx";
 
@@ -19,6 +20,7 @@ export function FilterTagRowEditor({
   filter: ModelSearchTagFilter;
   onChange: (filter: ModelSearchFilter) => void;
 }) {
+  const { t } = useAppI18n();
   const styles = useCompactDropdownStyles();
   const { tags, isPending } = useTags();
 
@@ -43,16 +45,16 @@ export function FilterTagRowEditor({
     <div style={{display: "flex", columnGap: "1em"}}>
       <Dropdown
         className={styles.compactDropdown}
-        aria-label="Tag filter condition"
-        value={tagConditionLabel(filter.condition)}
+        aria-label={t("modelReportsFilterTag_conditionAriaLabel")}
+        value={tagConditionLabel(filter.condition, t)}
         selectedOptions={[filter.condition]}
         onOptionSelect={handleChangeCondition}
       >
-        <Option value="anyOf">{tagConditionLabel("anyOf")}</Option>
-        <Option value="allOf">{tagConditionLabel("allOf")}</Option>
-        <Option value="noneOf">{tagConditionLabel("noneOf")}</Option>
-        <Option value="empty">{tagConditionLabel("empty")}</Option>
-        <Option value="notEmpty">{tagConditionLabel("notEmpty")}</Option>
+        <Option value="anyOf">{tagConditionLabel("anyOf", t)}</Option>
+        <Option value="allOf">{tagConditionLabel("allOf", t)}</Option>
+        <Option value="noneOf">{tagConditionLabel("noneOf", t)}</Option>
+        <Option value="empty">{tagConditionLabel("empty", t)}</Option>
+        <Option value="notEmpty">{tagConditionLabel("notEmpty", t)}</Option>
       </Dropdown>
 
       {isTagConditionUsingTags(filter.condition) && (
@@ -82,10 +84,13 @@ function isTagConditionUsingTags(condition: ModelSearchTagFilterCondition) {
   );
 }
 
-function tagConditionLabel(condition: ModelSearchTagFilterCondition) {
-  if (condition === "anyOf") return "has any of";
-  if (condition === "allOf") return "has all of";
-  if (condition === "noneOf") return "has none of";
-  if (condition === "empty") return "not tagged";
-  return "with tags";
+function tagConditionLabel(
+  condition: ModelSearchTagFilterCondition,
+  t: (key: AppMessageKey, values?: Record<string, unknown>) => string,
+) {
+  if (condition === "anyOf") return t("modelReportsFilterTag_conditionAnyOf");
+  if (condition === "allOf") return t("modelReportsFilterTag_conditionAllOf");
+  if (condition === "noneOf") return t("modelReportsFilterTag_conditionNoneOf");
+  if (condition === "empty") return t("modelReportsFilterTag_conditionEmpty");
+  return t("modelReportsFilterTag_conditionNotEmpty");
 }

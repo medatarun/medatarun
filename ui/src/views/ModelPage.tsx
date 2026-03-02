@@ -52,6 +52,7 @@ import {
   RelationshipIcon,
   TypeIcon,
 } from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function ModelPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -73,6 +74,7 @@ export function ModelView() {
   const navigate = useNavigate();
   const modelUpdateDescription = useModelUpdateDescription();
   const modelUpdateName = useModelUpdateName();
+  const { t } = useAppI18n();
 
   const displayName = model.name ?? model.id;
 
@@ -105,7 +107,7 @@ export function ModelView() {
     <ViewLayoutContained
       title={
         <div>
-          <ViewTitle eyebrow={<span>Model</span>}>
+          <ViewTitle eyebrow={<span>{t("modelPage_eyebrow")}</span>}>
             <div
               style={{
                 display: "flex",
@@ -123,7 +125,7 @@ export function ModelView() {
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("modelPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateModel(model.id)}
                 />
@@ -142,7 +144,7 @@ export function ModelView() {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={model.description}
-                placeholder={"add description"}
+                placeholder={t("modelPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   modelUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -157,12 +159,12 @@ export function ModelView() {
               actionParams={createActionTemplateModel(model.id)}
               location={ActionUILocations.model_entities}
             >
-              Entities
+              {t("modelPage_entitiesTitle")}
             </SectionTitle>
 
             {model.entities.length === 0 && (
               <p>
-                <MissingInformation>add entities</MissingInformation>
+                <MissingInformation>{t("modelPage_entitiesEmpty")}</MissingInformation>
               </p>
             )}
             {model.entities.length > 0 && (
@@ -176,12 +178,12 @@ export function ModelView() {
               actionParams={createActionTemplateModel(model.id)}
               location={ActionUILocations.model_relationships}
             >
-              Relationships
+              {t("modelPage_relationshipsTitle")}
             </SectionTitle>
 
             {model.relationships.length === 0 && (
               <p>
-                <MissingInformation>add relationships</MissingInformation>
+                <MissingInformation>{t("modelPage_relationshipsEmpty")}</MissingInformation>
               </p>
             )}
             {model.relationships.length > 0 && (
@@ -198,12 +200,12 @@ export function ModelView() {
               actionParams={createActionTemplateModel(model.id)}
               location={ActionUILocations.model_types}
             >
-              Data Types
+              {t("modelPage_dataTypesTitle")}
             </SectionTitle>
 
             {model.types.length === 0 && (
               <p>
-                <MissingInformation>add data types</MissingInformation>
+                <MissingInformation>{t("modelPage_dataTypesEmpty")}</MissingInformation>
               </p>
             )}
             {model.types.length > 0 && (
@@ -219,7 +221,7 @@ export function ModelView() {
               )}
               location={ActionUILocations.tag_free_list}
             >
-              Local tags
+              {t("modelPage_localTagsTitle")}
             </SectionTitle>
 
             <SectionTable>
@@ -240,6 +242,7 @@ export function ModelOverview() {
   const modelUpdateDocumentationHome = useModelUpdateDocumentationHome();
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
+  const { t } = useAppI18n();
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
@@ -273,7 +276,7 @@ export function ModelOverview() {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <InfoLabel>Model&nbsp;key</InfoLabel>
+          <InfoLabel>{t("modelPage_keyLabel")}</InfoLabel>
         </div>
       )}
       {isDetailLevelTech && (
@@ -286,7 +289,7 @@ export function ModelOverview() {
         </div>
       )}
 
-      <div>Version</div>
+      <div>{t("modelPage_versionLabel")}</div>
       <div>
         <InlineEditSingleLine
           value={model.version}
@@ -296,21 +299,21 @@ export function ModelOverview() {
         </InlineEditSingleLine>
       </div>
 
-      <div>External&nbsp;link</div>
+      <div>{t("modelPage_externalLinkLabel")}</div>
       <div>
         <InlineEditSingleLine
           value={model.documentationHome ?? ""}
           onChange={handleChangeDocumentationHome}
         >
           {!model.documentationHome ? (
-            <MissingInformation>add external link</MissingInformation>
+            <MissingInformation>{t("modelPage_externalLinkEmpty")}</MissingInformation>
           ) : (
             <ExternalUrl url={model.documentationHome} />
           )}
         </InlineEditSingleLine>
       </div>
 
-      <div>Tags</div>
+      <div>{t("modelPage_tagsLabel")}</div>
       <div>
         <InlineEditTags
           value={model.tags}
@@ -318,19 +321,19 @@ export function ModelOverview() {
           onChange={handleChangeTags}
         >
           {model.tags.length === 0 ? (
-            <MissingInformation>add tags</MissingInformation>
+            <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={model.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
       </div>
-      {isDetailLevelTech && <div>Origin</div>}
+      {isDetailLevelTech && <div>{t("modelPage_originLabel")}</div>}
       {isDetailLevelTech && (
         <div>
           <Origin value={model.origin} />
         </div>
       )}
-      {isDetailLevelTech && <div>Identifier</div>}
+      {isDetailLevelTech && <div>{t("modelPage_identifierLabel")}</div>}
       {isDetailLevelTech && (
         <div>
           <code>{model.id}</code>
@@ -374,7 +377,8 @@ export function EntitiesCardList({
 }
 
 export function Origin({ value }: { value: ElementOrigin }) {
-  if (value.type == "manual") return "Medatarun (manual)";
+  const { t } = useAppI18n();
+  if (value.type == "manual") return t("modelPage_manualOrigin");
   return <ExternalUrl url={value.uri} />;
 }
 
