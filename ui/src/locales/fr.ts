@@ -8,7 +8,11 @@ import { loginPageMessages } from "./fr/LoginPageMessages";
 import { modelPageMessages } from "./fr/ModelPageMessages";
 import { modelsPageMessages } from "./fr/ModelsPageMessages";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
+import { relationshipPageMessages } from "./fr/RelationshipPageMessages";
 import { sessionMessages } from "./fr/SessionMessages";
+import { tagEditMessages } from "./fr/TagEditMessages";
+import { tagGroupEditMessages } from "./fr/TagGroupEditMessages";
+import { tagGroupsPageMessages } from "./fr/TagGroupsPageMessages";
 import { typePageMessages } from "./fr/TypePageMessages";
 
 export const messages = {
@@ -22,5 +26,9 @@ export const messages = {
   ...modelPageMessages,
   ...entityPageMessages,
   ...loginPageMessages,
+  ...relationshipPageMessages,
+  ...tagGroupsPageMessages,
+  ...tagGroupEditMessages,
+  ...tagEditMessages,
   ...typePageMessages,
 } satisfies Messages;

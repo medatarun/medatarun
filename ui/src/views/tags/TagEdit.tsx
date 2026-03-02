@@ -37,8 +37,10 @@ import {
   detailActionLocation,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function TagEdit({ tagId }: { tagId: string }) {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
@@ -52,7 +54,7 @@ export function TagEdit({ tagId }: { tagId: string }) {
 
   const tag = tagsResult.tags.findTag(tagId);
   if (!tag)
-    return <ErrorBox error={toProblem(`Can not find tag [${tagId}]`)} />;
+    return <ErrorBox error={toProblem(t("tagEdit_notFound", { tagId }))} />;
 
   const isGlobalTag = tag.isGlobal;
 
@@ -105,7 +107,13 @@ export function TagEdit({ tagId }: { tagId: string }) {
               />
             </Breadcrumb>
           </div>
-          <ViewTitle eyebrow={isGlobalTag ? "Global tag" : "Local tag"}>
+          <ViewTitle
+            eyebrow={
+              isGlobalTag
+                ? t("tagEdit_globalEyebrow")
+                : t("tagEdit_localEyebrow")
+            }
+          >
             <div
               style={{
                 display: "flex",
@@ -127,7 +135,7 @@ export function TagEdit({ tagId }: { tagId: string }) {
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("tagEdit_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateTag(tag.id)}
                 />
@@ -146,7 +154,7 @@ export function TagEdit({ tagId }: { tagId: string }) {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={tag.description}
-                placeholder={"add description"}
+                placeholder={t("tagEdit_descriptionPlaceholder")}
                 onChange={handleChangeDescription}
               />
             </SectionPaper>
@@ -166,6 +174,7 @@ function TagEditBreadcrumb({
   onClickTagGroups: () => void;
   onClickTagGroup: () => void;
 }) {
+  const { t } = useAppI18n();
   const modelId = tag.scope.type === "model" ? tag.scope.id : null;
 
   if (tag.isGlobal) {
@@ -173,7 +182,7 @@ function TagEditBreadcrumb({
       <>
         <BreadcrumbItem>
           <BreadcrumbButton icon={<TagGroupIcon />} onClick={onClickTagGroups}>
-            Tag groups
+            {t("tagEdit_breadcrumbTagGroups")}
           </BreadcrumbButton>
         </BreadcrumbItem>
         <BreadcrumbDivider />
@@ -206,6 +215,7 @@ function TagEditBreadcrumb({
 }
 
 function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
+  const { t } = useAppI18n();
   const { data: modelDto } = useModel(modelId);
   const model = modelDto ? new Model(modelDto) : null;
 
@@ -213,7 +223,7 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
     return (
       <>
         <BreadcrumbItem>
-          <Text>model</Text>
+          <Text>{t("tagEdit_localModelFallback")}</Text>
         </BreadcrumbItem>
         <BreadcrumbDivider />
       </>
@@ -233,17 +243,18 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
 }
 
 function TagOverview({ tag }: { tag: Tag }) {
+  const { t } = useAppI18n();
   return (
     <PropertiesForm>
       <div>
-        <Text>Scope</Text>
+        <Text>{t("tagEdit_scopeLabel")}</Text>
       </div>
       <div>
         <Text>{tag.scopeLabel}</Text>
       </div>
 
       <div>
-        <Text>Key</Text>
+        <Text>{t("tagEdit_keyLabel")}</Text>
       </div>
       <div>
         <Text>
@@ -252,7 +263,7 @@ function TagOverview({ tag }: { tag: Tag }) {
       </div>
 
       <div>
-        <Text>Identifier</Text>
+        <Text>{t("tagEdit_identifierLabel")}</Text>
       </div>
       <div>
         <Text>

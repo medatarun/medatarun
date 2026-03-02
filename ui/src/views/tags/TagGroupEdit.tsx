@@ -40,8 +40,10 @@ import {
   createActionTemplateTagManagedList,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
@@ -55,7 +57,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
   const tagGroup = tagsResult.tags.findTagGroup(tagGroupId);
   if (!tagGroup)
     return (
-      <ErrorBox error={toProblem(`Can not find tag group [${tagGroupId}]`)} />
+      <ErrorBox error={toProblem(t("tagGroupEdit_notFound", { tagGroupId }))} />
     );
 
   const actions = actionRegistry.findActions(
@@ -98,13 +100,13 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
                   icon={<TagGroupIcon />}
                   onClick={handleClickTagGroups}
                 >
-                  Tag groups
+                  {t("tagGroupEdit_breadcrumb")}
                 </BreadcrumbButton>
               </BreadcrumbItem>
               <BreadcrumbDivider />
             </Breadcrumb>
           </div>
-          <ViewTitle eyebrow={"Global tag group"}>
+          <ViewTitle eyebrow={t("tagGroupEdit_eyebrow")}>
             <div
               style={{
                 display: "flex",
@@ -126,7 +128,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
               </div>
               <div>
                 <ActionMenuButton
-                  label="Actions"
+                  label={t("tagGroupEdit_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateTagGroup(tagGroup.id)}
                 />
@@ -149,7 +151,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={tagGroup.description}
-                placeholder={"add description"}
+                placeholder={t("tagGroupEdit_descriptionPlaceholder")}
                 onChange={handleChangeDescription}
               />
             </SectionPaper>
@@ -159,7 +161,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
               location={ActionUILocations.tag_managed_list}
               actionParams={createActionTemplateTagManagedList(tagGroup.id)}
             >
-              Tags
+              {t("tagGroupEdit_tagsTitle")}
             </SectionTitle>
 
             <SectionTable>
@@ -184,10 +186,11 @@ function TagGroupOverview({
   tagGroupKey: string;
   onChangeKey: (value: string) => Promise<unknown>;
 }) {
+  const { t } = useAppI18n();
   return (
     <PropertiesForm>
       <div>
-        <Text>Group&nbsp;key</Text>
+        <Text>{t("tagGroupEdit_groupKeyLabel")}</Text>
       </div>
       <div>
         <InlineEditSingleLine value={tagGroupKey} onChange={onChangeKey}>
@@ -198,7 +201,7 @@ function TagGroupOverview({
       </div>
 
       <div>
-        <Text>Identifier</Text>
+        <Text>{t("tagGroupEdit_identifierLabel")}</Text>
       </div>
       <div>
         <Text>

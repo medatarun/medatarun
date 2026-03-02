@@ -21,8 +21,10 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function TagGroupsPage() {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
@@ -43,7 +45,7 @@ export function TagGroupsPage() {
   return (
     <ViewLayoutContained
       title={
-        <ViewTitle eyebrow={"Global tags"}>
+        <ViewTitle eyebrow={t("tagGroupsPage_eyebrow")}>
           <div
             style={{
               display: "flex",
@@ -51,10 +53,10 @@ export function TagGroupsPage() {
               paddingRight: tokens.spacingHorizontalL,
             }}
           >
-            <div>Tag groups</div>
+            <div>{t("tagGroupsPage_title")}</div>
             <div>
               <ActionMenuButton
-                label="Actions"
+                label={t("tagGroupsPage_actions")}
                 itemActions={actions}
                 actionParams={createActionTemplateTagGroupList()}
               />
@@ -67,8 +69,7 @@ export function TagGroupsPage() {
         <ContainedScrollable>
           <ContainedHumanReadable>
             <SectionPaper>
-              Global scope tag groups centralize the managed vocabularies shared
-              across Medatarun.
+              {t("tagGroupsPage_description")}
             </SectionPaper>
 
             <SectionTitle
@@ -76,7 +77,7 @@ export function TagGroupsPage() {
               location={ActionUILocations.tag_managed_group_list}
               actionParams={createActionTemplateTagGroupList()}
             >
-              Tag groups
+              {t("tagGroupsPage_sectionTitle")}
             </SectionTitle>
 
             <SectionTable>
