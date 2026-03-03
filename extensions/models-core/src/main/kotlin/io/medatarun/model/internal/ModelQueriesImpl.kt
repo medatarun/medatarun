@@ -4,25 +4,28 @@ import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
-import io.medatarun.model.ports.needs.ModelStorages
+import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.tags.core.domain.TagId
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*
 
-class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolver: ModelTagResolver) : ModelQueries {
+class ModelQueriesImpl(
+    private val repository: ModelStorage,
+    private val tagResolver: ModelTagResolver
+) : ModelQueries {
 
     override fun findAllModelIds(): List<ModelId> {
-        return storage.findAllModelIds()
+        return repository.findAllModelIds()
     }
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        val modelIds = storage.findAllModelIds()
+        val modelIds = repository.findAllModelIds()
         return modelIds.map { id ->
             try {
-                val model = storage.findModelById(id)
+                val model = findModelById(id)
                 ModelSummary(
                     id = model.id,
                     key = model.key,
@@ -85,11 +88,13 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
     }
 
     override fun findModelByKey(modelKey: ModelKey): Model {
-        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
+        return repository.findModelByKeyOptional(modelKey)
+            ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
     override fun findModelById(modelId: ModelId): Model {
-        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
+        return repository.findModelByIdOptional(modelId)
+            ?: throw ModelNotFoundByIdException(modelId)
     }
 
     override fun findModel(modelRef: ModelRef): Model {
@@ -101,8 +106,8 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
 
     override fun findModelOptional(modelRef: ModelRef): Model? {
         return when (modelRef) {
-            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
-            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
+            is ModelRef.ById -> repository.findModelByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> repository.findModelByKeyOptional(modelRef.key)
         }
     }
 
@@ -128,7 +133,7 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
 
 
     override fun search(query: SearchQuery): SearchResults {
-        val index = QueryIndexBuilder(storage).build()
+        val index = QueryIndexBuilder(repository).build()
         fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
             return { indexedItem ->
                 when (filter) {
@@ -195,11 +200,12 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
     class QueryIndex(val items: List<QueryIndexItem>)
     class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>, val searchText: String)
 
-    class QueryIndexBuilder(private val storage: ModelStorages) {
+    class QueryIndexBuilder(private val repository: ModelStorage) {
         fun build(): QueryIndex {
             val index = mutableListOf<QueryIndexItem>()
-            storage.findAllModelIds().forEach { modelId ->
-                val model = storage.findModelById(modelId)
+            repository.findAllModelIds().forEach { modelId ->
+                val model = repository.findModelByIdOptional(modelId)
+                    ?: return@forEach
                 index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
                 model.entities.forEach { entity ->
                     index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
@@ -230,7 +236,6 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
             )
         }
     }
-
 
 }
 

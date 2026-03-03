@@ -8,7 +8,7 @@ import io.medatarun.model.infra.ModelInMemory
 import io.medatarun.model.infra.ModelInMemoryReducer
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
-import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonPrimitive
@@ -19,10 +19,10 @@ import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 
 
-internal class ModelsStorageJsonRepository(
+internal class ModelsStorageJsonStorage(
     private val files: ModelsStorageJsonFiles,
     private val modelJsonConverter: ModelJsonConverter
-) : ModelRepository {
+) : ModelStorage {
 
     /**
      * This repository currently handles only one storage.
@@ -55,6 +55,14 @@ internal class ModelsStorageJsonRepository(
 
     override fun findAllModelIds(): List<ModelId> {
         return index.findAllModelIds()
+    }
+
+    override fun existsModelByKey(key: ModelKey): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun existsModelById(id: ModelId): Boolean {
+        TODO("Not yet implemented")
     }
 
     private fun createModel(model: Model) {
@@ -140,7 +148,7 @@ internal class ModelsStorageJsonRepository(
 
     companion object {
         val REPOSITORY_ID = ModelRepositoryId("json")
-        val logger: Logger = LoggerFactory.getLogger(ModelsStorageJsonRepository::class.java)
+        val logger: Logger = LoggerFactory.getLogger(ModelsStorageJsonStorage::class.java)
     }
 
 }

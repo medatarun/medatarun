@@ -7,9 +7,10 @@ import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbTransactionManager
 
 class ModelCmdsImpl(
-    val storage: ModelStorages,
-    val auditor: ModelAuditor,
-    val tagResolver: ModelTagResolver,
+    private val storage: ModelStorage,
+    private val modelValidation: ModelValidation,
+    private val auditor: ModelAuditor,
+    private val tagResolver: ModelTagResolver,
     private val txManager: DbTransactionManager
 ) : ModelCmds {
 
@@ -150,22 +151,21 @@ class ModelCmdsImpl(
             documentationHome = null,
             tags = emptyList(),
         )
-        storage.dispatch(ModelRepoCmd.CreateModel(model), cmd.repositoryRef)
+        storage.dispatch(ModelRepoCmd.CreateModel(model))
     }
 
 
     private fun copyModel(cmd: ModelCmd.CopyModel) {
         val model = findModel(cmd.modelRef)
-        val existing = storage.findModelByKeyOptional(cmd.modelNewKey)
-        if (existing != null) throw ModelDuplicateIdException(cmd.modelNewKey)
+        if (storage.existsModelByKey(cmd.modelNewKey)) throw ModelDuplicateIdException(cmd.modelNewKey)
         val next = ModelCmdCopyImpl().copy(model, cmd.modelNewKey)
-        storage.dispatch(ModelRepoCmd.CreateModel(next), cmd.repositoryRef)
+        storage.dispatch(ModelRepoCmd.CreateModel(next))
     }
 
     private fun importModel(cmd: ModelCmd.ImportModel) {
-        val existing = storage.findModelByKeyOptional(cmd.model.key)
-        if (existing != null) throw ModelDuplicateIdException(cmd.model.key)
-        storage.dispatch(ModelRepoCmd.CreateModel(cmd.model), cmd.repositoryRef)
+        if (storage.existsModelByKey(cmd.model.key)) throw ModelDuplicateIdException(cmd.model.key)
+        ensureImportedModelIsValid(cmd.model)
+        storage.dispatch(ModelRepoCmd.CreateModel(cmd.model))
     }
 
 
@@ -670,6 +670,13 @@ class ModelCmdsImpl(
             is ModelRef.ById -> storage.existsModelById(modelRef.id)
         }
         if (!exists) throw ModelNotFoundException(modelRef)
+    }
+
+    private fun ensureImportedModelIsValid(model: Model) {
+        when (val validation = modelValidation.validate(model)) {
+            is ModelValidationState.Ok -> return
+            is ModelValidationState.Error -> throw ModelInvalidException(model.id, validation.errors)
+        }
     }
 
 

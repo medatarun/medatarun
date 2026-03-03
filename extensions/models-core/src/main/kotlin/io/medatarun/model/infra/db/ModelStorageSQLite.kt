@@ -5,7 +5,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
-import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
@@ -16,7 +16,7 @@ import java.net.URI
 
 class ModelStorageSQLite(
     private val dbConnectionFactory: DbConnectionFactory
-) : ModelRepository {
+) : ModelStorage {
 
     override fun matchesId(id: ModelRepositoryId): Boolean {
         return id == REPOSITORY_ID
@@ -26,6 +26,24 @@ class ModelStorageSQLite(
         return dbConnectionFactory.withExposed {
             ModelTable.selectAll()
                 .map { ModelId.fromString(it[ModelTable.id]) }
+        }
+    }
+
+    override fun existsModelByKey(key: ModelKey): Boolean {
+        return dbConnectionFactory.withExposed {
+            ModelTable.select(ModelTable.id)
+                .where { ModelTable.key eq key.value }
+                .limit(1)
+                .any()
+        }
+    }
+
+    override fun existsModelById(id: ModelId): Boolean {
+        return dbConnectionFactory.withExposed {
+            ModelTable.select(ModelTable.id)
+                .where { ModelTable.id eq id.asString() }
+                .limit(1)
+                .any()
         }
     }
 

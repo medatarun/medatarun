@@ -1,23 +1,18 @@
 package io.medatarun.model.ports.needs
 
 /**
- * Strategy to choose a repository when operations need to perform
- * (for example, when we need to create a model)
+ * Repository selection kept in the command API for compatibility.
+ *
+ * The current runtime exposes a single native SQL repository, so this selector is effectively ignored there.
  */
 sealed interface RepositoryRef {
     /**
-     * Indicates that we must take the default repository.
-     *
-     * If that is ambiguous, the default repository will be chosen.
-     *
-     * It also means that if more repositories exists, and we don't specify in which one we want to store the data,
-     * an exception will be raised
+     * Indicates that the runtime should use its default repository.
      */
     object Auto : RepositoryRef
 
     /**
-     * Indicates to use a repository identified by its name.
-     * If this repository can not be found an exception is raised.
+     * Indicates to use a repository identified by its name when the runtime supports it.
      */
     data class Id(val id: ModelRepositoryId) : RepositoryRef
 

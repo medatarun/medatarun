@@ -6,7 +6,6 @@ import io.medatarun.model.adapters.descriptors.*
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
-import io.medatarun.model.infra.ModelStoragesSingle
 import io.medatarun.model.infra.db.ModelStorageSQLite
 import io.medatarun.model.infra.db.ModelsCoreDbMigration
 import io.medatarun.model.internal.ModelAuditor
@@ -19,6 +18,7 @@ import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
@@ -49,12 +49,11 @@ open class ModelExtension : MedatarunExtension {
         }
 
         val validation = ModelValidationImpl()
-        val repository = ModelStorageSQLite(dbConnectionFactory)
-        val storage = ModelStoragesSingle(repository, validation)
+        val storage: ModelStorage = ModelStorageSQLite(dbConnectionFactory)
 
         val tagResolver = ModelTagResolverWithQueries(tagQueries)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
-        val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver, dbTransactionManager)
+        val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
 
 

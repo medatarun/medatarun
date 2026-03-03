@@ -3,7 +3,7 @@ package io.medatarun.ext.modeljson
 import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.ext.modeljson.internal.ModelJsonRepositoryDuplicateModelIdException
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
-import io.medatarun.ext.modeljson.internal.ModelsStorageJsonRepository
+import io.medatarun.ext.modeljson.internal.ModelsStorageJsonStorage
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.ports.needs.ModelRepoCmd
@@ -19,7 +19,7 @@ class ModelJsonRepositoryTest {
         val fs = ModelJsonFilesystemFixture()
         val repositoryPath = fs.modelsDirectory()
         val files = ModelsStorageJsonFiles(repositoryPath)
-        val repo: ModelsStorageJsonRepository = ModelsStorageJsonRepository(files, converter)
+        val repo: ModelsStorageJsonStorage = ModelsStorageJsonStorage(files, converter)
         val sampleModel = converter.fromJson(sampleModelJson)
         val sampleModel2 = sampleModel.copy(id = ModelId.generate(), key = ModelKey(sampleModel.key.value + "-2"))
         fun importSample() {
@@ -39,7 +39,7 @@ class ModelJsonRepositoryTest {
     fun testMatches() {
         val env = TestEnv()
         assertFalse(env.repo.matchesId(ModelRepositoryId("abc")))
-        assertTrue(env.repo.matchesId(ModelsStorageJsonRepository.REPOSITORY_ID))
+        assertTrue(env.repo.matchesId(ModelsStorageJsonStorage.REPOSITORY_ID))
     }
 
     // ------------------------------------------------------------------------
@@ -116,7 +116,7 @@ class ModelJsonRepositoryTest {
         env.importSample()
         env.files.save("broken", "{ not-json")
 
-        val repo = ModelsStorageJsonRepository(env.files, converter)
+        val repo = ModelsStorageJsonStorage(env.files, converter)
         val ids = repo.findAllModelIds()
 
         assertEquals(listOf(env.sampleModel.id), ids)
@@ -135,7 +135,7 @@ class ModelJsonRepositoryTest {
         )
 
         assertFailsWith<ModelJsonRepositoryDuplicateModelIdException> {
-            ModelsStorageJsonRepository(env.files, converter)
+            ModelsStorageJsonStorage(env.files, converter)
         }
     }
 

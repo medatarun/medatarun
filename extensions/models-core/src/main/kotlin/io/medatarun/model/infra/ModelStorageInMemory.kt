@@ -7,13 +7,13 @@ import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
-import io.medatarun.model.ports.needs.ModelRepository
+import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelRepositoryId
 
 /**
  * A model repository suitable in memory, mostly used in tests
  */
-class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
+class ModelRepositoryInMemory(val identifier: String) : ModelStorage {
     val repositoryId = ModelRepositoryId(identifier)
 
     val models = mutableMapOf<ModelId, ModelInMemory>()
@@ -26,12 +26,20 @@ class ModelRepositoryInMemory(val identifier: String) : ModelRepository {
         return models.values.firstOrNull {it.key == key }
     }
 
+    override fun existsModelByKey(key: ModelKey): Boolean {
+        return models.values.any { it.key == key }
+    }
+
     override fun findAllModelIds(): List<ModelId> {
         return models.keys.toList()
     }
 
     override fun findModelByIdOptional(id: ModelId): ModelInMemory? {
         return models[id]
+    }
+
+    override fun existsModelById(id: ModelId): Boolean {
+        return models.containsKey(id)
     }
 
     fun findModelOptional(ref: ModelRef): ModelInMemory? {
