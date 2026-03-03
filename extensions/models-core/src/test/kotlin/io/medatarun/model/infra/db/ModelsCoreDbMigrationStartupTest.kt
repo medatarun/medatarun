@@ -18,6 +18,8 @@ class ModelsCoreDbMigrationStartupTest {
         assertTrue(dbMigrationChecker.tableExists("relationship"))
         assertTrue(dbMigrationChecker.tableExists("relationship_role"))
         assertTrue(dbMigrationChecker.tableExists("relationship_attribute"))
+        assertTrue(dbMigrationChecker.tableExists("denorm_model_search_item"))
+        assertTrue(dbMigrationChecker.tableExists("denorm_model_search_item_tag"))
         assertEquals(1, dbMigrationChecker.migrationCount("models-core"))
         assertEquals(1, dbMigrationChecker.currentVersion("models-core"))
     }

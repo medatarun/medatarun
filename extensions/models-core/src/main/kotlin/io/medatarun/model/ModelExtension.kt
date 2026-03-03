@@ -49,9 +49,8 @@ open class ModelExtension : MedatarunExtension {
         }
 
         val validation = ModelValidationImpl()
-        val storage: ModelStorage = ModelStorageSQLite(dbConnectionFactory)
-
         val tagResolver = ModelTagResolverWithQueries(tagQueries)
+        val storage: ModelStorage = ModelStorageSQLite(dbConnectionFactory)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()

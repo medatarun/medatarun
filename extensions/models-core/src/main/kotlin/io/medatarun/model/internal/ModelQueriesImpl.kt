@@ -1,15 +1,16 @@
 package io.medatarun.model.internal
 
-import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.search.*
+import io.medatarun.model.domain.search.SearchQuery
+import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.model.infra.db.ModelStorageSQLite
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver
-import io.medatarun.tags.core.domain.TagId
 import java.text.Collator
 import java.text.Normalizer
-import java.util.*
+import java.util.Comparator
+import java.util.Locale
 
 class ModelQueriesImpl(
     private val storage: ModelStorage,
@@ -130,123 +131,16 @@ class ModelQueriesImpl(
 
         }
     }
-
-
     override fun search(query: SearchQuery): SearchResults {
-        val index = QueryIndexBuilder(storage).build()
-        fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
-            return { indexedItem ->
-                when (filter) {
-                    is SearchFilterTags.Empty -> {
-                        indexedItem.tags.isEmpty()
-                    }
-
-                    is SearchFilterTags.NotEmpty -> {
-                        indexedItem.tags.isNotEmpty()
-                    }
-
-                    is SearchFilterTags.AllOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.all(indexedItem.tags::contains)
-                    }
-
-                    is SearchFilterTags.NoneOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.none { indexedItem.tags.contains(it) }
-                    }
-
-                    is SearchFilterTags.AnyOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.any { indexedItem.tags.contains(it) }
-                    }
-
-                    is SearchFilterText.Contains -> {
-                        val searchedText = normalizeSearchText(filter.value)
-                        if (searchedText.isBlank()) {
-                            true
-                        } else {
-                            indexedItem.searchText.contains(searchedText)
-                        }
-                    }
-                }
-            }
-        }
-
-        val predicateChain = query.filters.items.map { toQueryItemPredicate(it) }
-        val filteredItems = when (query.filters.operator) {
-            SearchFiltersLogicalOperator.AND -> {
-                index.items.filter {
-                    predicateChain.all { pred -> pred(it) }
-                }
-            }
-
-            SearchFiltersLogicalOperator.OR -> {
-                index.items.filter {
-                    predicateChain.any { pred -> pred(it) }
-                }
-            }
-        }
-        return SearchResults(
-            filteredItems.map {
-                SearchResultItem(
-                    id = UuidUtils.generateV7().toString(),
-                    location = it.location,
-                    fields = emptyMap()
-                )
-            }
-        )
-    }
-
-    class QueryIndex(val items: List<QueryIndexItem>)
-    class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>, val searchText: String)
-
-    class QueryIndexBuilder(private val storage: ModelStorage) {
-        fun build(): QueryIndex {
-            val index = mutableListOf<QueryIndexItem>()
-            for (modelId in storage.findAllModelIds()) {
-                val model = storage.findModelByIdOptional(modelId)
-                if (model != null) {
-                    index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
-                    model.entities.forEach { entity ->
-                        index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
-                        entity.attributes.forEach { attr ->
-                            index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
-                        }
-                    }
-                    model.relationships.forEach { rel ->
-                        index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags, buildSearchText(rel.key.value, rel.name, rel.description)))
-                        rel.attributes.forEach { attr ->
-                            index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
-                        }
-                    }
-                }
-            }
-            return QueryIndex(index)
-        }
-
-        /**
-         * Search compares normalized key, name and description text the same way for every indexed object.
-         */
-        private fun buildSearchText(key: String, name: LocalizedTextBase?, description: LocalizedMarkdown?): String {
-            return normalizeSearchText(
-                listOfNotNull(
-                    key,
-                    name?.name,
-                    description?.name
-                ).joinToString(" ")
-            )
-        }
+        val sqliteStorage = storage as? ModelStorageSQLite
+            ?: throw ModelQueriesImplSearchStorageNotSupportedException(storage::class.qualifiedName ?: storage::class.simpleName ?: "unknown")
+        return sqliteStorage.search(query, tagResolver)
     }
 
 }
 
-private fun normalizeSearchText(value: String): String {
-    val normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
-    return normalized
-        .replace("\\p{M}+".toRegex(), "")
-        .lowercase(Locale.ROOT)
-        .trim()
-}
+class ModelQueriesImplSearchStorageNotSupportedException(storageType: String) :
+    io.medatarun.lang.exceptions.MedatarunException("Search requires ModelStorageSQLite but got [$storageType]")
 
 fun createModelLocation(model: Model): ModelLocation {
     return ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)

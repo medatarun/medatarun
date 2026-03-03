@@ -2,9 +2,12 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchQuery
+import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
+import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
@@ -16,6 +19,12 @@ import java.net.URI
 class ModelStorageSQLite(
     private val dbConnectionFactory: DbConnectionFactory
 ) : ModelStorage {
+    private val searchRead = ModelStorageSearchSQLiteRead(dbConnectionFactory)
+    private val searchWrite = ModelStorageSearchSQLiteWrite(dbConnectionFactory)
+
+    fun search(query: SearchQuery, tagResolver: ModelTagResolver): SearchResults {
+        return searchRead.search(query, tagResolver)
+    }
 
     override fun findAllModelIds(): List<ModelId> {
         return dbConnectionFactory.withExposed {
@@ -123,11 +132,13 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             insertModel(inMemoryModel)
             insertModelTags(inMemoryModel.id, inMemoryModel.tags)
+            searchWrite.upsertModelSearchItem(inMemoryModel.id)
         }
     }
 
     private fun deleteModel(modelId: ModelId) {
         dbConnectionFactory.withExposed {
+            searchWrite.deleteModelBranch(modelId)
             ModelTable.deleteWhere { id eq modelId.asString() }
         }
     }
@@ -137,6 +148,7 @@ class ModelStorageSQLite(
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.name] = localizedTextToString(name)
             }
+            searchWrite.upsertModelSearchItem(modelId)
         }
     }
 
@@ -145,6 +157,7 @@ class ModelStorageSQLite(
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.description] = localizedMarkdownToString(description)
             }
+            searchWrite.upsertModelSearchItem(modelId)
         }
     }
 
@@ -179,6 +192,7 @@ class ModelStorageSQLite(
                     row[ModelTagTable.tagId] = tagId.asString()
                 }
             }
+            searchWrite.upsertModelSearchItem(modelId)
         }
     }
 
@@ -188,6 +202,7 @@ class ModelStorageSQLite(
                 (ModelTagTable.modelId eq modelId.asString()) and
                         (ModelTagTable.tagId eq tagId.asString())
             }
+            searchWrite.upsertModelSearchItem(modelId)
         }
     }
 
@@ -267,6 +282,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityTable.key] = value.asString()
             }
+            searchWrite.upsertEntitySearchItem(entityId)
         }
     }
 
@@ -280,6 +296,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityTable.name] = localizedTextToString(value)
             }
+            searchWrite.upsertEntitySearchItem(entityId)
         }
     }
 
@@ -293,6 +310,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityTable.description] = localizedMarkdownToString(value)
             }
+            searchWrite.upsertEntitySearchItem(entityId)
         }
     }
 
@@ -337,6 +355,7 @@ class ModelStorageSQLite(
                     row[EntityTagTable.tagId] = tagId.asString()
                 }
             }
+            searchWrite.upsertEntitySearchItem(entityId)
         }
     }
 
@@ -346,11 +365,13 @@ class ModelStorageSQLite(
                 (EntityTagTable.entityId eq entityId.asString()) and
                         (EntityTagTable.tagId eq tagId.asString())
             }
+            searchWrite.upsertEntitySearchItem(entityId)
         }
     }
 
     private fun deleteEntity(modelId: ModelId, entityId: EntityId) {
         dbConnectionFactory.withExposed {
+            searchWrite.deleteEntityBranch(entityId)
             EntityTable.deleteWhere {
                 (EntityTable.id eq entityId.asString()) and
                         (EntityTable.modelId eq modelId.asString())
@@ -374,6 +395,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityAttributeTable.key] = value.asString()
             }
+            searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
     }
 
@@ -387,6 +409,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityAttributeTable.name] = localizedTextToString(value)
             }
+            searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
     }
 
@@ -404,6 +427,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[EntityAttributeTable.description] = localizedMarkdownToString(value)
             }
+            searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
     }
 
@@ -448,6 +472,7 @@ class ModelStorageSQLite(
                     row[EntityAttributeTagTable.tagId] = tagId.asString()
                 }
             }
+            searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
     }
 
@@ -457,11 +482,13 @@ class ModelStorageSQLite(
                 (EntityAttributeTagTable.attributeId eq attributeId.asString()) and
                         (EntityAttributeTagTable.tagId eq tagId.asString())
             }
+            searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
     }
 
     private fun deleteEntityAttribute(entityId: EntityId, attributeId: AttributeId) {
         dbConnectionFactory.withExposed {
+            searchWrite.deleteEntityAttributeSearchItem(attributeId)
             EntityAttributeTable.deleteWhere {
                 (EntityAttributeTable.id eq attributeId.asString()) and
                         (EntityAttributeTable.entityId eq entityId.asString())
@@ -511,6 +538,7 @@ class ModelStorageSQLite(
         EntityTable.update(where = { EntityTable.id eq entity.id.asString() }) { row ->
             row[EntityTable.identifierAttributeId] = entity.identifierAttributeId.asString()
         }
+        searchWrite.upsertEntitySearchItem(entity.id)
     }
 
     private fun insertEntityTags(entityId: EntityId, tags: List<TagId>) {
@@ -534,6 +562,7 @@ class ModelStorageSQLite(
         }
 
         insertEntityAttributeTags(attribute.id, attribute.tags)
+        searchWrite.upsertEntityAttributeSearchItem(attribute.id)
     }
 
     private fun insertEntityAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
@@ -556,6 +585,7 @@ class ModelStorageSQLite(
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.key] = value.asString()
             }
+            searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
     }
 
@@ -564,6 +594,7 @@ class ModelStorageSQLite(
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.name] = localizedTextToString(value)
             }
+            searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
     }
 
@@ -572,6 +603,7 @@ class ModelStorageSQLite(
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.description] = localizedMarkdownToString(value)
             }
+            searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
     }
 
@@ -625,6 +657,7 @@ class ModelStorageSQLite(
                     row[RelationshipTagTable.tagId] = tagId.asString()
                 }
             }
+            searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
     }
 
@@ -634,11 +667,13 @@ class ModelStorageSQLite(
                 (RelationshipTagTable.relationshipId eq relationshipId.asString()) and
                         (RelationshipTagTable.tagId eq tagId.asString())
             }
+            searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
     }
 
     private fun deleteRelationship(modelId: ModelId, relationshipId: RelationshipId) {
         dbConnectionFactory.withExposed {
+            searchWrite.deleteRelationshipBranch(relationshipId)
             RelationshipTable.deleteWhere {
                 (RelationshipTable.id eq relationshipId.asString()) and
                         (RelationshipTable.modelId eq modelId.asString())
@@ -666,6 +701,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[RelationshipAttributeTable.key] = value.asString()
             }
+            searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
     }
 
@@ -683,6 +719,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[RelationshipAttributeTable.name] = localizedTextToString(value)
             }
+            searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
     }
 
@@ -700,6 +737,7 @@ class ModelStorageSQLite(
             ) { row ->
                 row[RelationshipAttributeTable.description] = localizedMarkdownToString(value)
             }
+            searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
     }
 
@@ -752,6 +790,7 @@ class ModelStorageSQLite(
                     row[RelationshipAttributeTagTable.tagId] = tagId.asString()
                 }
             }
+            searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
     }
 
@@ -761,11 +800,13 @@ class ModelStorageSQLite(
                 (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and
                         (RelationshipAttributeTagTable.tagId eq tagId.asString())
             }
+            searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
     }
 
     private fun deleteRelationshipAttribute(relationshipId: RelationshipId, attributeId: AttributeId) {
         dbConnectionFactory.withExposed {
+            searchWrite.deleteRelationshipAttributeSearchItem(attributeId)
             RelationshipAttributeTable.deleteWhere {
                 (RelationshipAttributeTable.id eq attributeId.asString()) and
                         (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -798,6 +839,7 @@ class ModelStorageSQLite(
         for (attribute in relationship.attributes) {
             insertRelationshipAttribute(relationship.id, attribute)
         }
+        searchWrite.upsertRelationshipSearchItem(relationship.id)
     }
 
     private fun insertRelationshipTags(relationshipId: RelationshipId, tags: List<TagId>) {
@@ -821,6 +863,7 @@ class ModelStorageSQLite(
         }
 
         insertRelationshipAttributeTags(attribute.id, attribute.tags)
+        searchWrite.upsertRelationshipAttributeSearchItem(attribute.id)
     }
 
     private fun insertRelationshipAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
