@@ -4,10 +4,6 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
-import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
-import io.medatarun.model.ports.needs.ModelRepoCmdAttributeUpdate
-import io.medatarun.model.ports.needs.ModelRepoCmdEntityUpdate
-import io.medatarun.model.ports.needs.ModelRepoCmdRelationshipUpdate
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelRepositoryId
@@ -80,39 +76,48 @@ class ModelStorageSQLite(
             is ModelRepoCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
             is ModelRepoCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
             is ModelRepoCmd.CreateType -> createType(cmd.modelId, cmd.initializer)
-            is ModelRepoCmd.UpdateType -> updateType(cmd.modelId, cmd.typeId, cmd.cmd)
+            is ModelRepoCmd.UpdateTypeKey -> updateTypeKey(cmd.modelId, cmd.typeId, cmd.value)
+            is ModelRepoCmd.UpdateTypeName -> updateTypeName(cmd.modelId, cmd.typeId, cmd.value)
+            is ModelRepoCmd.UpdateTypeDescription -> updateTypeDescription(cmd.modelId, cmd.typeId, cmd.value)
             is ModelRepoCmd.DeleteType -> deleteType(cmd.modelId, cmd.typeId)
             is ModelRepoCmd.CreateEntity -> createEntity(cmd.modelId, cmd.entity)
-            is ModelRepoCmd.UpdateEntity -> updateEntity(cmd.modelId, cmd.entityId, cmd.cmd)
+            is ModelRepoCmd.UpdateEntityKey -> updateEntityKey(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelRepoCmd.UpdateEntityName -> updateEntityName(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelRepoCmd.UpdateEntityDescription -> updateEntityDescription(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelRepoCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelRepoCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmd.modelId, cmd.entityId, cmd.value)
             is ModelRepoCmd.UpdateEntityTagAdd -> addEntityTag(cmd.entityId, cmd.tagId)
             is ModelRepoCmd.UpdateEntityTagDelete -> deleteEntityTag(cmd.entityId, cmd.tagId)
             is ModelRepoCmd.DeleteEntity -> deleteEntity(cmd.modelId, cmd.entityId)
             is ModelRepoCmd.CreateEntityAttribute -> createEntityAttribute(cmd.entityId, cmd.attribute)
-            is ModelRepoCmd.UpdateEntityAttribute -> updateEntityAttribute(cmd.entityId, cmd.attributeId, cmd.cmd)
+            is ModelRepoCmd.UpdateEntityAttributeKey -> updateEntityAttributeKey(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateEntityAttributeName -> updateEntityAttributeName(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateEntityAttributeDescription -> updateEntityAttributeDescription(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateEntityAttributeType -> updateEntityAttributeType(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateEntityAttributeOptional -> updateEntityAttributeOptional(cmd.entityId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateEntityAttributeTagAdd -> addEntityAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.UpdateEntityAttributeTagDelete -> deleteEntityAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd.entityId, cmd.attributeId)
             is ModelRepoCmd.CreateRelationship -> createRelationship(cmd.modelId, cmd.initializer)
-            is ModelRepoCmd.UpdateRelationship -> updateRelationship(cmd.relationshipId, cmd.cmd)
+            is ModelRepoCmd.UpdateRelationshipKey -> updateRelationshipKey(cmd.relationshipId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipName -> updateRelationshipName(cmd.relationshipId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipDescription -> updateRelationshipDescription(cmd.relationshipId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipRoleKey -> updateRelationshipRoleKey(cmd.relationshipRoleId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipRoleName -> updateRelationshipRoleName(cmd.relationshipRoleId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipRoleEntity -> updateRelationshipRoleEntity(cmd.relationshipRoleId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipRoleCardinality -> updateRelationshipRoleCardinality(cmd.relationshipRoleId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
             is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd.relationshipId, cmd.attr)
-            is ModelRepoCmd.UpdateRelationshipAttribute -> {
-                updateRelationshipAttribute(cmd.relationshipId, cmd.attributeId, cmd.cmd)
-            }
-
-            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd -> {
-                addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
-            }
-
-            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete -> {
-                deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
-            }
-
-            is ModelRepoCmd.DeleteRelationshipAttribute -> {
-                deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
-            }
+            is ModelRepoCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipAttributeDescription -> updateRelationshipAttributeDescription(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipAttributeType -> updateRelationshipAttributeType(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipAttributeOptional -> updateRelationshipAttributeOptional(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd -> addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelRepoCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
         }
     }
 
@@ -201,7 +206,7 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateType(modelId: ModelId, typeId: TypeId, cmd: ModelTypeUpdateCmd) {
+    private fun updateTypeKey(modelId: ModelId, typeId: TypeId, value: TypeKey) {
         dbConnectionFactory.withExposed {
             ModelTypeTable.update(
                 where = {
@@ -209,19 +214,33 @@ class ModelStorageSQLite(
                         (ModelTypeTable.modelId eq modelId.asString())
                 }
             ) { row ->
-                when (cmd) {
-                    is ModelTypeUpdateCmd.Name -> {
-                        row[ModelTypeTable.name] = localizedTextToString(cmd.value)
-                    }
+                row[ModelTypeTable.key] = value.asString()
+            }
+        }
+    }
 
-                    is ModelTypeUpdateCmd.Description -> {
-                        row[ModelTypeTable.description] = localizedMarkdownToString(cmd.value)
-                    }
-
-                    is ModelTypeUpdateCmd.Key -> {
-                        row[ModelTypeTable.key] = cmd.value.asString()
-                    }
+    private fun updateTypeName(modelId: ModelId, typeId: TypeId, value: LocalizedText?) {
+        dbConnectionFactory.withExposed {
+            ModelTypeTable.update(
+                where = {
+                    (ModelTypeTable.id eq typeId.asString()) and
+                        (ModelTypeTable.modelId eq modelId.asString())
                 }
+            ) { row ->
+                row[ModelTypeTable.name] = localizedTextToString(value)
+            }
+        }
+    }
+
+    private fun updateTypeDescription(modelId: ModelId, typeId: TypeId, value: LocalizedMarkdown?) {
+        dbConnectionFactory.withExposed {
+            ModelTypeTable.update(
+                where = {
+                    (ModelTypeTable.id eq typeId.asString()) and
+                        (ModelTypeTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                row[ModelTypeTable.description] = localizedMarkdownToString(value)
             }
         }
     }
@@ -241,7 +260,7 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateEntity(modelId: ModelId, entityId: EntityId, cmd: ModelRepoCmdEntityUpdate) {
+    private fun updateEntityKey(modelId: ModelId, entityId: EntityId, value: EntityKey) {
         dbConnectionFactory.withExposed {
             EntityTable.update(
                 where = {
@@ -249,21 +268,59 @@ class ModelStorageSQLite(
                         (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
-                when (cmd) {
-                    is ModelRepoCmdEntityUpdate.Key -> row[EntityTable.key] = cmd.value.asString()
-                    is ModelRepoCmdEntityUpdate.Name -> row[EntityTable.name] = localizedTextToString(cmd.value)
-                    is ModelRepoCmdEntityUpdate.Description -> {
-                        row[EntityTable.description] = localizedMarkdownToString(cmd.value)
-                    }
+                row[EntityTable.key] = value.asString()
+            }
+        }
+    }
 
-                    is ModelRepoCmdEntityUpdate.IdentifierAttribute -> {
-                        row[EntityTable.identifierAttributeId] = cmd.value.asString()
-                    }
-
-                    is ModelRepoCmdEntityUpdate.DocumentationHome -> {
-                        row[EntityTable.documentationHome] = cmd.value?.toExternalForm()
-                    }
+    private fun updateEntityName(modelId: ModelId, entityId: EntityId, value: LocalizedText?) {
+        dbConnectionFactory.withExposed {
+            EntityTable.update(
+                where = {
+                    (EntityTable.id eq entityId.asString()) and
+                        (EntityTable.modelId eq modelId.asString())
                 }
+            ) { row ->
+                row[EntityTable.name] = localizedTextToString(value)
+            }
+        }
+    }
+
+    private fun updateEntityDescription(modelId: ModelId, entityId: EntityId, value: LocalizedMarkdown?) {
+        dbConnectionFactory.withExposed {
+            EntityTable.update(
+                where = {
+                    (EntityTable.id eq entityId.asString()) and
+                        (EntityTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                row[EntityTable.description] = localizedMarkdownToString(value)
+            }
+        }
+    }
+
+    private fun updateEntityIdentifierAttribute(modelId: ModelId, entityId: EntityId, value: AttributeId) {
+        dbConnectionFactory.withExposed {
+            EntityTable.update(
+                where = {
+                    (EntityTable.id eq entityId.asString()) and
+                        (EntityTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                row[EntityTable.identifierAttributeId] = value.asString()
+            }
+        }
+    }
+
+    private fun updateEntityDocumentationHome(modelId: ModelId, entityId: EntityId, value: java.net.URL?) {
+        dbConnectionFactory.withExposed {
+            EntityTable.update(
+                where = {
+                    (EntityTable.id eq entityId.asString()) and
+                        (EntityTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                row[EntityTable.documentationHome] = value?.toExternalForm()
             }
         }
     }
@@ -310,7 +367,7 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateEntityAttribute(entityId: EntityId, attributeId: AttributeId, cmd: ModelRepoCmdAttributeUpdate) {
+    private fun updateEntityAttributeKey(entityId: EntityId, attributeId: AttributeId, value: AttributeKey) {
         dbConnectionFactory.withExposed {
             EntityAttributeTable.update(
                 where = {
@@ -318,16 +375,59 @@ class ModelStorageSQLite(
                         (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
-                when (cmd) {
-                    is ModelRepoCmdAttributeUpdate.Key -> row[EntityAttributeTable.key] = cmd.value.asString()
-                    is ModelRepoCmdAttributeUpdate.Name -> row[EntityAttributeTable.name] = localizedTextToString(cmd.value)
-                    is ModelRepoCmdAttributeUpdate.Description -> {
-                        row[EntityAttributeTable.description] = localizedMarkdownToString(cmd.value)
-                    }
+                row[EntityAttributeTable.key] = value.asString()
+            }
+        }
+    }
 
-                    is ModelRepoCmdAttributeUpdate.Type -> row[EntityAttributeTable.typeId] = cmd.value.asString()
-                    is ModelRepoCmdAttributeUpdate.Optional -> row[EntityAttributeTable.optional] = cmd.value
+    private fun updateEntityAttributeName(entityId: EntityId, attributeId: AttributeId, value: LocalizedText?) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.update(
+                where = {
+                    (EntityAttributeTable.id eq attributeId.asString()) and
+                        (EntityAttributeTable.entityId eq entityId.asString())
                 }
+            ) { row ->
+                row[EntityAttributeTable.name] = localizedTextToString(value)
+            }
+        }
+    }
+
+    private fun updateEntityAttributeDescription(entityId: EntityId, attributeId: AttributeId, value: LocalizedMarkdown?) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.update(
+                where = {
+                    (EntityAttributeTable.id eq attributeId.asString()) and
+                        (EntityAttributeTable.entityId eq entityId.asString())
+                }
+            ) { row ->
+                row[EntityAttributeTable.description] = localizedMarkdownToString(value)
+            }
+        }
+    }
+
+    private fun updateEntityAttributeType(entityId: EntityId, attributeId: AttributeId, value: TypeId) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.update(
+                where = {
+                    (EntityAttributeTable.id eq attributeId.asString()) and
+                        (EntityAttributeTable.entityId eq entityId.asString())
+                }
+            ) { row ->
+                row[EntityAttributeTable.typeId] = value.asString()
+            }
+        }
+    }
+
+    private fun updateEntityAttributeOptional(entityId: EntityId, attributeId: AttributeId, value: Boolean) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.update(
+                where = {
+                    (EntityAttributeTable.id eq attributeId.asString()) and
+                        (EntityAttributeTable.entityId eq entityId.asString())
+                }
+            ) { row ->
+                row[EntityAttributeTable.optional] = value
             }
         }
     }
@@ -450,50 +550,61 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateRelationship(relationshipId: RelationshipId, cmd: ModelRepoCmdRelationshipUpdate) {
+    private fun updateRelationshipKey(relationshipId: RelationshipId, value: RelationshipKey) {
         dbConnectionFactory.withExposed {
-            when (cmd) {
-                is ModelRepoCmdRelationshipUpdate.Key -> {
-                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
-                        row[RelationshipTable.key] = cmd.value.asString()
-                    }
-                }
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                row[RelationshipTable.key] = value.asString()
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.Name -> {
-                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
-                        row[RelationshipTable.name] = localizedTextToString(cmd.value)
-                    }
-                }
+    private fun updateRelationshipName(relationshipId: RelationshipId, value: LocalizedText?) {
+        dbConnectionFactory.withExposed {
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                row[RelationshipTable.name] = localizedTextToString(value)
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.Description -> {
-                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
-                        row[RelationshipTable.description] = localizedMarkdownToString(cmd.value)
-                    }
-                }
+    private fun updateRelationshipDescription(relationshipId: RelationshipId, value: LocalizedMarkdown?) {
+        dbConnectionFactory.withExposed {
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                row[RelationshipTable.description] = localizedMarkdownToString(value)
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.RoleKey -> {
-                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
-                        row[RelationshipRoleTable.key] = cmd.value.asString()
-                    }
-                }
+    private fun updateRelationshipRoleKey(relationshipRoleId: RelationshipRoleId, value: RelationshipRoleKey) {
+        dbConnectionFactory.withExposed {
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+                row[RelationshipRoleTable.key] = value.asString()
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.RoleName -> {
-                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
-                        row[RelationshipRoleTable.name] = localizedTextToString(cmd.value)
-                    }
-                }
+    private fun updateRelationshipRoleName(relationshipRoleId: RelationshipRoleId, value: LocalizedText?) {
+        dbConnectionFactory.withExposed {
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+                row[RelationshipRoleTable.name] = localizedTextToString(value)
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.RoleEntity -> {
-                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
-                        row[RelationshipRoleTable.entityId] = cmd.value.asString()
-                    }
-                }
+    private fun updateRelationshipRoleEntity(relationshipRoleId: RelationshipRoleId, value: EntityId) {
+        dbConnectionFactory.withExposed {
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+                row[RelationshipRoleTable.entityId] = value.asString()
+            }
+        }
+    }
 
-                is ModelRepoCmdRelationshipUpdate.RoleCardinality -> {
-                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
-                        row[RelationshipRoleTable.cardinality] = cmd.value.code
-                    }
-                }
+    private fun updateRelationshipRoleCardinality(
+        relationshipRoleId: RelationshipRoleId,
+        value: RelationshipCardinality
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+                row[RelationshipRoleTable.cardinality] = value.code
             }
         }
     }
@@ -540,10 +651,10 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateRelationshipAttribute(
+    private fun updateRelationshipAttributeKey(
         relationshipId: RelationshipId,
         attributeId: AttributeId,
-        cmd: ModelRepoCmdAttributeUpdate
+        value: AttributeKey
     ) {
         dbConnectionFactory.withExposed {
             RelationshipAttributeTable.update(
@@ -552,16 +663,75 @@ class ModelStorageSQLite(
                         (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
-                when (cmd) {
-                    is ModelRepoCmdAttributeUpdate.Key -> row[RelationshipAttributeTable.key] = cmd.value.asString()
-                    is ModelRepoCmdAttributeUpdate.Name -> row[RelationshipAttributeTable.name] = localizedTextToString(cmd.value)
-                    is ModelRepoCmdAttributeUpdate.Description -> {
-                        row[RelationshipAttributeTable.description] = localizedMarkdownToString(cmd.value)
-                    }
+                row[RelationshipAttributeTable.key] = value.asString()
+            }
+        }
+    }
 
-                    is ModelRepoCmdAttributeUpdate.Type -> row[RelationshipAttributeTable.typeId] = cmd.value.asString()
-                    is ModelRepoCmdAttributeUpdate.Optional -> row[RelationshipAttributeTable.optional] = cmd.value
+    private fun updateRelationshipAttributeName(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        value: LocalizedText?
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.update(
+                where = {
+                    (RelationshipAttributeTable.id eq attributeId.asString()) and
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
+            ) { row ->
+                row[RelationshipAttributeTable.name] = localizedTextToString(value)
+            }
+        }
+    }
+
+    private fun updateRelationshipAttributeDescription(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        value: LocalizedMarkdown?
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.update(
+                where = {
+                    (RelationshipAttributeTable.id eq attributeId.asString()) and
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                }
+            ) { row ->
+                row[RelationshipAttributeTable.description] = localizedMarkdownToString(value)
+            }
+        }
+    }
+
+    private fun updateRelationshipAttributeType(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        value: TypeId
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.update(
+                where = {
+                    (RelationshipAttributeTable.id eq attributeId.asString()) and
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                }
+            ) { row ->
+                row[RelationshipAttributeTable.typeId] = value.asString()
+            }
+        }
+    }
+
+    private fun updateRelationshipAttributeOptional(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        value: Boolean
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.update(
+                where = {
+                    (RelationshipAttributeTable.id eq attributeId.asString()) and
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                }
+            ) { row ->
+                row[RelationshipAttributeTable.optional] = value
             }
         }
     }

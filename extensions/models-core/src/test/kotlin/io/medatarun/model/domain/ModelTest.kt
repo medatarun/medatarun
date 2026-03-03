@@ -2,7 +2,6 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.ports.exposed.AttributeUpdateCmd
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
@@ -1086,42 +1085,57 @@ class ModelTest {
             return reloaded
         }
 
-        fun updateAttribute(
-            attributeRef: EntityAttributeRef = EntityAttributeRef.ByKey(AttributeKey("myattribute")),
-            command: AttributeUpdateCmd,
-            reloadId: EntityAttributeRef? = null
+        private fun reloadAttribute(
+            attributeRef: EntityAttributeRef,
+            reloadId: EntityAttributeRef?
         ): Attribute {
-
-            // TODO supprimer ca et réintégrer dans chaque test
-
-            when (command) {
-                is AttributeUpdateCmd.Key -> runtime.dispatch(
-                    ModelAction.EntityAttribute_UpdateId(sampleModelRef, sampleEntityRef, attributeRef, command.value)
-                )
-
-                is AttributeUpdateCmd.Name -> runtime.dispatch(
-                    ModelAction.EntityAttribute_UpdateName(sampleModelRef, sampleEntityRef, attributeRef, command.value)
-                )
-
-                is AttributeUpdateCmd.Description -> runtime.dispatch(
-                    ModelAction.EntityAttribute_UpdateDescription(
-                        sampleModelRef,
-                        sampleEntityRef,
-                        attributeRef,
-                        command.value
-                    )
-                )
-
-                is AttributeUpdateCmd.Type -> runtime.dispatch(
-                    ModelAction.EntityAttribute_UpdateType(sampleModelRef, sampleEntityRef, attributeRef, command.value)
-                )
-
-                is AttributeUpdateCmd.Optional -> runtime.dispatch(
-                    ModelAction.EntityAttribute_UpdateOptional(sampleModelRef, sampleEntityRef, attributeRef, command.value)
-                )
-            }
             val reloaded = query.findEntityAttribute(sampleModelRef, sampleEntityRef, reloadId ?: attributeRef)
             return reloaded
+        }
+
+        fun updateAttributeKey(
+            attributeRef: EntityAttributeRef,
+            value: AttributeKey,
+            reloadId: EntityAttributeRef?
+        ): Attribute {
+            runtime.dispatch(ModelAction.EntityAttribute_UpdateId(sampleModelRef, sampleEntityRef, attributeRef, value))
+            return reloadAttribute(attributeRef, reloadId)
+        }
+
+        fun updateAttributeName(
+            attributeRef: EntityAttributeRef,
+            value: LocalizedText?
+        ): Attribute {
+            runtime.dispatch(ModelAction.EntityAttribute_UpdateName(sampleModelRef, sampleEntityRef, attributeRef, value))
+            return reloadAttribute(attributeRef, null)
+        }
+
+        fun updateAttributeDescription(
+            attributeRef: EntityAttributeRef,
+            value: LocalizedMarkdown?
+        ): Attribute {
+            runtime.dispatch(
+                ModelAction.EntityAttribute_UpdateDescription(sampleModelRef, sampleEntityRef, attributeRef, value)
+            )
+            return reloadAttribute(attributeRef, null)
+        }
+
+        fun updateAttributeType(
+            attributeRef: EntityAttributeRef,
+            value: TypeRef
+        ): Attribute {
+            runtime.dispatch(ModelAction.EntityAttribute_UpdateType(sampleModelRef, sampleEntityRef, attributeRef, value))
+            return reloadAttribute(attributeRef, null)
+        }
+
+        fun updateAttributeOptional(
+            attributeRef: EntityAttributeRef,
+            value: Boolean
+        ): Attribute {
+            runtime.dispatch(
+                ModelAction.EntityAttribute_UpdateOptional(sampleModelRef, sampleEntityRef, attributeRef, value)
+            )
+            return reloadAttribute(attributeRef, null)
         }
 
     }
@@ -1262,9 +1276,10 @@ class ModelTest {
         env.createAttribute(attributeKey = AttributeKey("firstname"))
         assertFailsWith<UpdateAttributeDuplicateKeyException> {
             // Rename firstname to lastname causes exception because lastname already exists
-            env.updateAttribute(
+            env.updateAttributeKey(
                 attributeRef = entityAttributeRef("firstname"),
-                AttributeUpdateCmd.Key(AttributeKey("lastname"))
+                value = AttributeKey("lastname"),
+                reloadId = entityAttributeRef("firstname")
             )
         }
     }
@@ -1275,10 +1290,10 @@ class ModelTest {
         env.addSampleEntity()
         env.createAttribute(AttributeKey("lastname"))
         env.createAttribute(AttributeKey("firstname"))
-        val reloaded = env.updateAttribute(
+        val reloaded = env.updateAttributeKey(
             entityAttributeRef("firstname"),
-            AttributeUpdateCmd.Key(AttributeKey("nextname")),
-            entityAttributeRef("nextname"),
+            AttributeKey("nextname"),
+            entityAttributeRef("nextname")
         )
         assertEquals(AttributeKey("nextname"), reloaded.key)
     }
@@ -1291,9 +1306,9 @@ class ModelTest {
         val attrId = e.identifierAttributeId
         val newKey = AttributeKey("id_next")
         // Be careful to specify "reloadId" because the attribute's id changed
-        env.updateAttribute(
+        env.updateAttributeKey(
             attributeRef = entityAttributeRef(attrId),
-            command = AttributeUpdateCmd.Key(newKey),
+            value = newKey,
             reloadId = entityAttributeRef(newKey)
         )
         val reloadedEntity = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
@@ -1308,7 +1323,7 @@ class ModelTest {
         env.addSampleEntity()
         val attr = env.createAttribute(name = null)
         val nextValue = LocalizedTextNotLocalized("New name")
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Name(nextValue))
+        val reloaded = env.updateAttributeName(entityAttributeRef(attr.key), nextValue)
         assertEquals(nextValue, reloaded.name)
     }
 
@@ -1317,7 +1332,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(name = LocalizedTextNotLocalized("Name"))
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Name(null))
+        val reloaded = env.updateAttributeName(entityAttributeRef(attr.key), null)
         assertNull(reloaded.name)
     }
 
@@ -1328,8 +1343,7 @@ class ModelTest {
         env.addSampleEntity()
         val attr = env.createAttribute(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
-        val reloaded =
-            env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Description(nextValue))
+        val reloaded = env.updateAttributeDescription(entityAttributeRef(attr.key), nextValue)
         assertEquals(nextValue, reloaded.description)
     }
 
@@ -1338,7 +1352,7 @@ class ModelTest {
         val env = TestEnvAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(description = LocalizedMarkdownNotLocalized("New description"))
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Description(null))
+        val reloaded = env.updateAttributeDescription(entityAttributeRef(attr.key), null)
         assertNull(reloaded.description)
     }
 
@@ -1353,7 +1367,7 @@ class ModelTest {
         val attr = env.createAttribute(type = typeRef(type.id))
 
 
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Type(typeRef(typeMarkdownKey)))
+        val reloaded = env.updateAttributeType(entityAttributeRef(attr.key), typeRef(typeMarkdownKey))
         assertEquals(typeMarkdownId, reloaded.typeId)
     }
 
@@ -1381,7 +1395,7 @@ class ModelTest {
         env.addSampleEntity()
         val attr = env.createAttribute(optional = true)
         val nextValue = false
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Optional(nextValue))
+        val reloaded = env.updateAttributeOptional(entityAttributeRef(attr.key), nextValue)
         assertEquals(nextValue, reloaded.optional)
     }
 
@@ -1391,7 +1405,7 @@ class ModelTest {
         env.addSampleEntity()
         val attr = env.createAttribute(optional = false)
         val nextValue = true
-        val reloaded = env.updateAttribute(entityAttributeRef(attr.key), AttributeUpdateCmd.Optional(nextValue))
+        val reloaded = env.updateAttributeOptional(entityAttributeRef(attr.key), nextValue)
         assertEquals(nextValue, reloaded.optional)
     }
 

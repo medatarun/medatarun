@@ -3,7 +3,6 @@ package io.medatarun.model.ports.needs
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
-import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
@@ -65,10 +64,22 @@ sealed interface ModelRepoCmd {
         val initializer: ModelTypeInitializer
     ) : ModelRepoCmdOnModel
 
-    data class UpdateType(
+    data class UpdateTypeKey(
         override val modelId: ModelId,
         val typeId: TypeId,
-        val cmd: ModelTypeUpdateCmd
+        val value: TypeKey
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateTypeName(
+        override val modelId: ModelId,
+        val typeId: TypeId,
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateTypeDescription(
+        override val modelId: ModelId,
+        val typeId: TypeId,
+        val value: LocalizedMarkdown?
     ) : ModelRepoCmdOnModel
 
     data class DeleteType(
@@ -85,10 +96,34 @@ sealed interface ModelRepoCmd {
         val entity: EntityInMemory
     ) : ModelRepoCmdOnModel
 
-    data class UpdateEntity(
+    data class UpdateEntityKey(
         override val modelId: ModelId,
         val entityId: EntityId,
-        val cmd: ModelRepoCmdEntityUpdate
+        val value: EntityKey
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateEntityName(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateEntityDescription(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val value: LocalizedMarkdown?
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateEntityIdentifierAttribute(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val value: AttributeId
+    ) : ModelRepoCmdOnModel
+
+    data class UpdateEntityDocumentationHome(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val value: URL?
     ) : ModelRepoCmdOnModel
 
     data class UpdateEntityTagAdd(
@@ -124,11 +159,39 @@ sealed interface ModelRepoCmd {
         val attributeId: AttributeId
     ) : ModelRepoCmdOnModel
 
-    class UpdateEntityAttribute(
+    class UpdateEntityAttributeKey(
         override val modelId: ModelId,
         val entityId: EntityId,
         val attributeId: AttributeId,
-        val cmd: ModelRepoCmdAttributeUpdate
+        val value: AttributeKey
+    ) : ModelRepoCmdOnModel
+
+    class UpdateEntityAttributeName(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val attributeId: AttributeId,
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateEntityAttributeDescription(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val attributeId: AttributeId,
+        val value: LocalizedMarkdown?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateEntityAttributeType(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val attributeId: AttributeId,
+        val value: TypeId
+    ) : ModelRepoCmdOnModel
+
+    class UpdateEntityAttributeOptional(
+        override val modelId: ModelId,
+        val entityId: EntityId,
+        val attributeId: AttributeId,
+        val value: Boolean
     ) : ModelRepoCmdOnModel
 
     data class UpdateEntityAttributeTagAdd(
@@ -155,10 +218,50 @@ sealed interface ModelRepoCmd {
         val initializer: Relationship
     ) : ModelRepoCmdOnModel
 
-    class UpdateRelationship(
+    class UpdateRelationshipKey(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
-        val cmd: ModelRepoCmdRelationshipUpdate
+        val value: RelationshipKey
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipName(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipDescription(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val value: LocalizedMarkdown?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipRoleKey(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId,
+        val value: RelationshipRoleKey
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipRoleName(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId,
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipRoleEntity(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId,
+        val value: EntityId
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipRoleCardinality(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId,
+        val value: RelationshipCardinality
     ) : ModelRepoCmdOnModel
 
     data class UpdateRelationshipTagAdd(
@@ -184,11 +287,39 @@ sealed interface ModelRepoCmd {
         val attr: Attribute
     ) : ModelRepoCmdOnModel
 
-    class UpdateRelationshipAttribute(
+    class UpdateRelationshipAttributeName(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
         val attributeId: AttributeId,
-        val cmd: ModelRepoCmdAttributeUpdate
+        val value: LocalizedText?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipAttributeDescription(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val attributeId: AttributeId,
+        val value: LocalizedMarkdown?
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipAttributeKey(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val attributeId: AttributeId,
+        val value: AttributeKey
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipAttributeType(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val attributeId: AttributeId,
+        val value: TypeId
+    ) : ModelRepoCmdOnModel
+
+    class UpdateRelationshipAttributeOptional(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val attributeId: AttributeId,
+        val value: Boolean
     ) : ModelRepoCmdOnModel
 
     data class UpdateRelationshipAttributeTagAdd(

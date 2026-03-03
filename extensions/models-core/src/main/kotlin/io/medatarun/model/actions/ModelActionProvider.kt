@@ -82,7 +82,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.Entity_Create -> handler.entityCreate(cmd)
-            is ModelAction.Entity_UpdateKey -> handler.entityUpdateId(cmd)
+            is ModelAction.Entity_UpdateKey -> handler.entityUpdateKey(cmd)
             is ModelAction.Entity_UpdateName -> handler.entityUpdateName(cmd)
             is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(cmd)
             is ModelAction.Entity_UpdateDocumentationHome -> handler.entityUpdateDocumentationHome(cmd)
@@ -275,30 +275,30 @@ class ModelActionHandler(
 
     fun typeUpdateKey(cmd: ModelAction.Type_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateType(
+            ModelCmd.UpdateTypeKey(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Key(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun typeUpdateName(cmd: ModelAction.Type_UpdateName) {
         dispatch(
-            ModelCmd.UpdateType(
+            ModelCmd.UpdateTypeName(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Name(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun typeUpdateDescription(cmd: ModelAction.Type_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateType(
+            ModelCmd.UpdateTypeDescription(
                 modelRef = cmd.modelRef,
                 typeRef = cmd.typeRef,
-                cmd = ModelTypeUpdateCmd.Description(cmd.value)
+                value = cmd.value
             )
         )
     }
@@ -335,32 +335,32 @@ class ModelActionHandler(
         )
     }
 
-    fun entityUpdateId(cmd: ModelAction.Entity_UpdateKey) {
+    fun entityUpdateKey(cmd: ModelAction.Entity_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateEntity(
+            ModelCmd.UpdateEntityKey(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityUpdateCmd.Key(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun entityUpdateName(cmd: ModelAction.Entity_UpdateName) {
         dispatch(
-            ModelCmd.UpdateEntity(
+            ModelCmd.UpdateEntityName(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityUpdateCmd.Name(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun entityUpdateDescription(cmd: ModelAction.Entity_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateEntity(
+            ModelCmd.UpdateEntityDescription(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityUpdateCmd.Description(cmd.value)
+                value = cmd.value
             )
         )
     }
@@ -373,10 +373,10 @@ class ModelActionHandler(
             throw MedatarunException("Should be an URL", StatusCode.BAD_REQUEST)
         }
         dispatch(
-            ModelCmd.UpdateEntity(
+            ModelCmd.UpdateEntityDocumentationHome(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
-                cmd = EntityUpdateCmd.DocumentationHome(value)
+                value = value
             )
         )
     }
@@ -432,22 +432,22 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateId(cmd: ModelAction.EntityAttribute_UpdateId) {
         dispatch(
-            ModelCmd.UpdateEntityAttribute(
+            ModelCmd.UpdateEntityAttributeKey(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Key(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun entityAttributeUpdateName(cmd: ModelAction.EntityAttribute_UpdateName) {
         dispatch(
-            ModelCmd.UpdateEntityAttribute(
+            ModelCmd.UpdateEntityAttributeName(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Name(cmd.value)
+                value = cmd.value
             )
         )
     }
@@ -455,33 +455,33 @@ class ModelActionHandler(
 
     fun entityAttributeUpdateDescription(cmd: ModelAction.EntityAttribute_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateEntityAttribute(
+            ModelCmd.UpdateEntityAttributeDescription(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Description(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun entityAttributeUpdateType(cmd: ModelAction.EntityAttribute_UpdateType) {
         dispatch(
-            ModelCmd.UpdateEntityAttribute(
+            ModelCmd.UpdateEntityAttributeType(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Type(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun entityAttributeUpdateOptional(cmd: ModelAction.EntityAttribute_UpdateOptional) {
         dispatch(
-            ModelCmd.UpdateEntityAttribute(
+            ModelCmd.UpdateEntityAttributeOptional(
                 modelRef = cmd.modelRef,
                 entityRef = cmd.entityRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Optional(cmd.value)
+                value = cmd.value
             )
         )
     }
@@ -551,30 +551,30 @@ class ModelActionHandler(
 
     fun relationshipUpdateKey(cmd: ModelAction.Relationship_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateRelationship(
+            ModelCmd.UpdateRelationshipKey(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipUpdateCmd.Key(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipUpdateName(cmd: ModelAction.Relationship_UpdateName) {
         dispatch(
-            ModelCmd.UpdateRelationship(
+            ModelCmd.UpdateRelationshipName(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipUpdateCmd.Name(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipUpdateDescription(cmd: ModelAction.Relationship_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateRelationship(
+            ModelCmd.UpdateRelationshipDescription(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
-                cmd = RelationshipUpdateCmd.Description(cmd.value)
+                value = cmd.value
             )
         )
     }
@@ -650,55 +650,55 @@ class ModelActionHandler(
 
     fun relationshipAttributeUpdateName(cmd: ModelAction.RelationshipAttribute_UpdateName) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttribute(
+            ModelCmd.UpdateRelationshipAttributeName(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Name(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipAttributeUpdateDescription(cmd: ModelAction.RelationshipAttribute_UpdateDescription) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttribute(
+            ModelCmd.UpdateRelationshipAttributeDescription(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Description(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipAttributeUpdateId(cmd: ModelAction.RelationshipAttribute_UpdateKey) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttribute(
+            ModelCmd.UpdateRelationshipAttributeKey(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Key(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipAttributeUpdateType(cmd: ModelAction.RelationshipAttribute_UpdateType) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttribute(
+            ModelCmd.UpdateRelationshipAttributeType(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Type(cmd.value)
+                value = cmd.value
             )
         )
     }
 
     fun relationshipAttributeUpdateOptional(cmd: ModelAction.RelationshipAttribute_UpdateOptional) {
         dispatch(
-            ModelCmd.UpdateRelationshipAttribute(
+            ModelCmd.UpdateRelationshipAttributeOptional(
                 modelRef = cmd.modelRef,
                 relationshipRef = cmd.relationshipRef,
                 attributeRef = cmd.attributeRef,
-                cmd = AttributeUpdateCmd.Optional(cmd.value)
+                value = cmd.value
             )
         )
     }
