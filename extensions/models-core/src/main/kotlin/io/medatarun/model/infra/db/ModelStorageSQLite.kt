@@ -3,6 +3,10 @@ package io.medatarun.model.infra.db
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.ports.exposed.ModelTypeInitializer
+import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
+import io.medatarun.model.ports.needs.ModelRepoCmdAttributeUpdate
+import io.medatarun.model.ports.needs.ModelRepoCmdEntityUpdate
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
 import io.medatarun.model.ports.needs.ModelStorage
@@ -52,8 +56,7 @@ class ModelStorageSQLite(
             val row = ModelTable.selectAll()
                 .where { ModelTable.key eq key.value }
                 .singleOrNull()
-                ?: return@withExposed null
-            loadModel(row)
+            if (row == null) null else loadModel(row)
         }
     }
 
@@ -62,8 +65,7 @@ class ModelStorageSQLite(
             val row = ModelTable.selectAll()
                 .where { ModelTable.id eq id.asString() }
                 .singleOrNull()
-                ?: return@withExposed null
-            loadModel(row)
+            if (row == null) null else loadModel(row)
         }
     }
 
@@ -77,6 +79,19 @@ class ModelStorageSQLite(
             is ModelRepoCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
             is ModelRepoCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
             is ModelRepoCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
+            is ModelRepoCmd.CreateType -> createType(cmd.modelId, cmd.initializer)
+            is ModelRepoCmd.UpdateType -> updateType(cmd.modelId, cmd.typeId, cmd.cmd)
+            is ModelRepoCmd.DeleteType -> deleteType(cmd.modelId, cmd.typeId)
+            is ModelRepoCmd.CreateEntity -> createEntity(cmd.modelId, cmd.entity)
+            is ModelRepoCmd.UpdateEntity -> updateEntity(cmd.modelId, cmd.entityId, cmd.cmd)
+            is ModelRepoCmd.UpdateEntityTagAdd -> addEntityTag(cmd.entityId, cmd.tagId)
+            is ModelRepoCmd.UpdateEntityTagDelete -> deleteEntityTag(cmd.entityId, cmd.tagId)
+            is ModelRepoCmd.DeleteEntity -> deleteEntity(cmd.modelId, cmd.entityId)
+            is ModelRepoCmd.CreateEntityAttribute -> createEntityAttribute(cmd.entityId, cmd.attribute)
+            is ModelRepoCmd.UpdateEntityAttribute -> updateEntityAttribute(cmd.entityId, cmd.attributeId, cmd.cmd)
+            is ModelRepoCmd.UpdateEntityAttributeTagAdd -> addEntityAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelRepoCmd.UpdateEntityAttributeTagDelete -> deleteEntityAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelRepoCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd.entityId, cmd.attributeId)
             is ModelRepoCmdOnModel -> updateModel(cmd.modelId) { model ->
                 ModelInMemoryReducer().dispatch(model, cmd)
             }
@@ -144,10 +159,11 @@ class ModelStorageSQLite(
                 }
                 .limit(1)
                 .any()
-            if (exists) return@withExposed
-            ModelTagTable.insert { row ->
-                row[ModelTagTable.modelId] = modelId.asString()
-                row[ModelTagTable.tagId] = tagId.asString()
+            if (!exists) {
+                ModelTagTable.insert { row ->
+                    row[ModelTagTable.modelId] = modelId.asString()
+                    row[ModelTagTable.tagId] = tagId.asString()
+                }
             }
         }
     }
@@ -157,6 +173,185 @@ class ModelStorageSQLite(
             ModelTagTable.deleteWhere {
                 (ModelTagTable.modelId eq modelId.asString()) and
                     (ModelTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
+    private fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+        dbConnectionFactory.withExposed {
+            ModelTypeTable.insert { row ->
+                row[ModelTypeTable.id] = TypeId.generate().asString()
+                row[ModelTypeTable.modelId] = modelId.asString()
+                row[ModelTypeTable.key] = initializer.id.asString()
+                row[ModelTypeTable.name] = localizedTextToString(initializer.name)
+                row[ModelTypeTable.description] = localizedMarkdownToString(initializer.description)
+            }
+        }
+    }
+
+    private fun updateType(modelId: ModelId, typeId: TypeId, cmd: ModelTypeUpdateCmd) {
+        dbConnectionFactory.withExposed {
+            ModelTypeTable.update(
+                where = {
+                    (ModelTypeTable.id eq typeId.asString()) and
+                        (ModelTypeTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                when (cmd) {
+                    is ModelTypeUpdateCmd.Name -> {
+                        row[ModelTypeTable.name] = localizedTextToString(cmd.value)
+                    }
+
+                    is ModelTypeUpdateCmd.Description -> {
+                        row[ModelTypeTable.description] = localizedMarkdownToString(cmd.value)
+                    }
+
+                    is ModelTypeUpdateCmd.Key -> {
+                        row[ModelTypeTable.key] = cmd.value.asString()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteType(modelId: ModelId, typeId: TypeId) {
+        dbConnectionFactory.withExposed {
+            ModelTypeTable.deleteWhere {
+                (ModelTypeTable.id eq typeId.asString()) and
+                    (ModelTypeTable.modelId eq modelId.asString())
+            }
+        }
+    }
+
+    private fun createEntity(modelId: ModelId, entity: EntityInMemory) {
+        dbConnectionFactory.withExposed {
+            insertEntity(modelId, entity)
+        }
+    }
+
+    private fun updateEntity(modelId: ModelId, entityId: EntityId, cmd: ModelRepoCmdEntityUpdate) {
+        dbConnectionFactory.withExposed {
+            EntityTable.update(
+                where = {
+                    (EntityTable.id eq entityId.asString()) and
+                        (EntityTable.modelId eq modelId.asString())
+                }
+            ) { row ->
+                when (cmd) {
+                    is ModelRepoCmdEntityUpdate.Key -> row[EntityTable.key] = cmd.value.asString()
+                    is ModelRepoCmdEntityUpdate.Name -> row[EntityTable.name] = localizedTextToString(cmd.value)
+                    is ModelRepoCmdEntityUpdate.Description -> {
+                        row[EntityTable.description] = localizedMarkdownToString(cmd.value)
+                    }
+
+                    is ModelRepoCmdEntityUpdate.IdentifierAttribute -> {
+                        row[EntityTable.identifierAttributeId] = cmd.value.asString()
+                    }
+
+                    is ModelRepoCmdEntityUpdate.DocumentationHome -> {
+                        row[EntityTable.documentationHome] = cmd.value?.toExternalForm()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addEntityTag(entityId: EntityId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            val exists = EntityTagTable.select(EntityTagTable.entityId)
+                .where {
+                    (EntityTagTable.entityId eq entityId.asString()) and
+                        (EntityTagTable.tagId eq tagId.asString())
+                }
+                .limit(1)
+                .any()
+            if (!exists) {
+                EntityTagTable.insert { row ->
+                    row[EntityTagTable.entityId] = entityId.asString()
+                    row[EntityTagTable.tagId] = tagId.asString()
+                }
+            }
+        }
+    }
+
+    private fun deleteEntityTag(entityId: EntityId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            EntityTagTable.deleteWhere {
+                (EntityTagTable.entityId eq entityId.asString()) and
+                    (EntityTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
+    private fun deleteEntity(modelId: ModelId, entityId: EntityId) {
+        dbConnectionFactory.withExposed {
+            EntityTable.deleteWhere {
+                (EntityTable.id eq entityId.asString()) and
+                    (EntityTable.modelId eq modelId.asString())
+            }
+        }
+    }
+
+    private fun createEntityAttribute(entityId: EntityId, attribute: Attribute) {
+        dbConnectionFactory.withExposed {
+            insertEntityAttribute(entityId, AttributeInMemory.of(attribute))
+        }
+    }
+
+    private fun updateEntityAttribute(entityId: EntityId, attributeId: AttributeId, cmd: ModelRepoCmdAttributeUpdate) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.update(
+                where = {
+                    (EntityAttributeTable.id eq attributeId.asString()) and
+                        (EntityAttributeTable.entityId eq entityId.asString())
+                }
+            ) { row ->
+                when (cmd) {
+                    is ModelRepoCmdAttributeUpdate.Key -> row[EntityAttributeTable.key] = cmd.value.asString()
+                    is ModelRepoCmdAttributeUpdate.Name -> row[EntityAttributeTable.name] = localizedTextToString(cmd.value)
+                    is ModelRepoCmdAttributeUpdate.Description -> {
+                        row[EntityAttributeTable.description] = localizedMarkdownToString(cmd.value)
+                    }
+
+                    is ModelRepoCmdAttributeUpdate.Type -> row[EntityAttributeTable.typeId] = cmd.value.asString()
+                    is ModelRepoCmdAttributeUpdate.Optional -> row[EntityAttributeTable.optional] = cmd.value
+                }
+            }
+        }
+    }
+
+    private fun addEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeId)
+                .where {
+                    (EntityAttributeTagTable.attributeId eq attributeId.asString()) and
+                        (EntityAttributeTagTable.tagId eq tagId.asString())
+                }
+                .limit(1)
+                .any()
+            if (!exists) {
+                EntityAttributeTagTable.insert { row ->
+                    row[EntityAttributeTagTable.attributeId] = attributeId.asString()
+                    row[EntityAttributeTagTable.tagId] = tagId.asString()
+                }
+            }
+        }
+    }
+
+    private fun deleteEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTagTable.deleteWhere {
+                (EntityAttributeTagTable.attributeId eq attributeId.asString()) and
+                    (EntityAttributeTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
+    private fun deleteEntityAttribute(entityId: EntityId, attributeId: AttributeId) {
+        dbConnectionFactory.withExposed {
+            EntityAttributeTable.deleteWhere {
+                (EntityAttributeTable.id eq attributeId.asString()) and
+                    (EntityAttributeTable.entityId eq entityId.asString())
             }
         }
     }
@@ -271,45 +466,61 @@ class ModelStorageSQLite(
 
     private fun replaceEntities(model: ModelInMemory) {
         for (entity in model.entities) {
-            EntityTable.insert { row ->
-                row[EntityTable.id] = entity.id.asString()
-                row[EntityTable.modelId] = model.id.asString()
-                row[EntityTable.key] = entity.key.asString()
-                row[EntityTable.name] = localizedTextToString(entity.name)
-                row[EntityTable.description] = localizedMarkdownToString(entity.description)
-                row[EntityTable.identifierAttributeId] = null
-                row[EntityTable.origin] = entityOriginToString(entity.origin)
-                row[EntityTable.documentationHome] = entity.documentationHome?.toExternalForm()
+            insertEntity(model.id, entity)
+        }
+    }
+
+    private fun insertEntity(modelId: ModelId, entity: EntityInMemory) {
+        EntityTable.insert { row ->
+            row[EntityTable.id] = entity.id.asString()
+            row[EntityTable.modelId] = modelId.asString()
+            row[EntityTable.key] = entity.key.asString()
+            row[EntityTable.name] = localizedTextToString(entity.name)
+            row[EntityTable.description] = localizedMarkdownToString(entity.description)
+            row[EntityTable.identifierAttributeId] = null
+            row[EntityTable.origin] = entityOriginToString(entity.origin)
+            row[EntityTable.documentationHome] = entity.documentationHome?.toExternalForm()
+        }
+
+        insertEntityTags(entity.id, entity.tags)
+
+        for (attribute in entity.attributes) {
+            insertEntityAttribute(entity.id, attribute)
+        }
+
+        EntityTable.update(where = { EntityTable.id eq entity.id.asString() }) { row ->
+            row[EntityTable.identifierAttributeId] = entity.identifierAttributeId.asString()
+        }
+    }
+
+    private fun insertEntityTags(entityId: EntityId, tags: List<TagId>) {
+        for (tagId in tags) {
+            EntityTagTable.insert { row ->
+                row[EntityTagTable.entityId] = entityId.asString()
+                row[EntityTagTable.tagId] = tagId.asString()
             }
+        }
+    }
 
-            for (tagId in entity.tags) {
-                EntityTagTable.insert { row ->
-                    row[EntityTagTable.entityId] = entity.id.asString()
-                    row[EntityTagTable.tagId] = tagId.asString()
-                }
-            }
+    private fun insertEntityAttribute(entityId: EntityId, attribute: AttributeInMemory) {
+        EntityAttributeTable.insert { row ->
+            row[EntityAttributeTable.id] = attribute.id.asString()
+            row[EntityAttributeTable.entityId] = entityId.asString()
+            row[EntityAttributeTable.key] = attribute.key.asString()
+            row[EntityAttributeTable.name] = localizedTextToString(attribute.name)
+            row[EntityAttributeTable.description] = localizedMarkdownToString(attribute.description)
+            row[EntityAttributeTable.typeId] = attribute.typeId.asString()
+            row[EntityAttributeTable.optional] = attribute.optional
+        }
 
-            for (attribute in entity.attributes) {
-                EntityAttributeTable.insert { row ->
-                    row[EntityAttributeTable.id] = attribute.id.asString()
-                    row[EntityAttributeTable.entityId] = entity.id.asString()
-                    row[EntityAttributeTable.key] = attribute.key.asString()
-                    row[EntityAttributeTable.name] = localizedTextToString(attribute.name)
-                    row[EntityAttributeTable.description] = localizedMarkdownToString(attribute.description)
-                    row[EntityAttributeTable.typeId] = attribute.typeId.asString()
-                    row[EntityAttributeTable.optional] = attribute.optional
-                }
+        insertEntityAttributeTags(attribute.id, attribute.tags)
+    }
 
-                for (tagId in attribute.tags) {
-                    EntityAttributeTagTable.insert { row ->
-                        row[EntityAttributeTagTable.attributeId] = attribute.id.asString()
-                        row[EntityAttributeTagTable.tagId] = tagId.asString()
-                    }
-                }
-            }
-
-            EntityTable.update(where = { EntityTable.id eq entity.id.asString() }) { row ->
-                row[EntityTable.identifierAttributeId] = entity.identifierAttributeId.asString()
+    private fun insertEntityAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
+        for (tagId in tags) {
+            EntityAttributeTagTable.insert { row ->
+                row[EntityAttributeTagTable.attributeId] = attributeId.asString()
+                row[EntityAttributeTagTable.tagId] = tagId.asString()
             }
         }
     }

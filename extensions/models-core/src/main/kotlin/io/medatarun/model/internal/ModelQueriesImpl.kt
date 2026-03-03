@@ -203,20 +203,21 @@ class ModelQueriesImpl(
     class QueryIndexBuilder(private val repository: ModelStorage) {
         fun build(): QueryIndex {
             val index = mutableListOf<QueryIndexItem>()
-            repository.findAllModelIds().forEach { modelId ->
+            for (modelId in repository.findAllModelIds()) {
                 val model = repository.findModelByIdOptional(modelId)
-                    ?: return@forEach
-                index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
-                model.entities.forEach { entity ->
-                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
-                    entity.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
+                if (model != null) {
+                    index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
+                    model.entities.forEach { entity ->
+                        index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
+                        entity.attributes.forEach { attr ->
+                            index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
+                        }
                     }
-                }
-                model.relationships.forEach { rel ->
-                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags, buildSearchText(rel.key.value, rel.name, rel.description)))
-                    rel.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
+                    model.relationships.forEach { rel ->
+                        index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags, buildSearchText(rel.key.value, rel.name, rel.description)))
+                        rel.attributes.forEach { attr ->
+                            index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
+                        }
                     }
                 }
             }
