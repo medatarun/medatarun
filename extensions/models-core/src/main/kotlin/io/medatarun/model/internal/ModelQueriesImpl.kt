@@ -12,17 +12,17 @@ import java.text.Normalizer
 import java.util.*
 
 class ModelQueriesImpl(
-    private val repository: ModelStorage,
+    private val storage: ModelStorage,
     private val tagResolver: ModelTagResolver
 ) : ModelQueries {
 
     override fun findAllModelIds(): List<ModelId> {
-        return repository.findAllModelIds()
+        return storage.findAllModelIds()
     }
 
     override fun findAllModelSummaries(locale: Locale): List<ModelSummary> {
         val textComparator = TextComparator(locale)
-        val modelIds = repository.findAllModelIds()
+        val modelIds = storage.findAllModelIds()
         return modelIds.map { id ->
             try {
                 val model = findModelById(id)
@@ -88,12 +88,12 @@ class ModelQueriesImpl(
     }
 
     override fun findModelByKey(modelKey: ModelKey): Model {
-        return repository.findModelByKeyOptional(modelKey)
+        return storage.findModelByKeyOptional(modelKey)
             ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
     override fun findModelById(modelId: ModelId): Model {
-        return repository.findModelByIdOptional(modelId)
+        return storage.findModelByIdOptional(modelId)
             ?: throw ModelNotFoundByIdException(modelId)
     }
 
@@ -106,8 +106,8 @@ class ModelQueriesImpl(
 
     override fun findModelOptional(modelRef: ModelRef): Model? {
         return when (modelRef) {
-            is ModelRef.ById -> repository.findModelByIdOptional(modelRef.id)
-            is ModelRef.ByKey -> repository.findModelByKeyOptional(modelRef.key)
+            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
         }
     }
 
@@ -133,7 +133,7 @@ class ModelQueriesImpl(
 
 
     override fun search(query: SearchQuery): SearchResults {
-        val index = QueryIndexBuilder(repository).build()
+        val index = QueryIndexBuilder(storage).build()
         fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
             return { indexedItem ->
                 when (filter) {
@@ -200,11 +200,11 @@ class ModelQueriesImpl(
     class QueryIndex(val items: List<QueryIndexItem>)
     class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>, val searchText: String)
 
-    class QueryIndexBuilder(private val repository: ModelStorage) {
+    class QueryIndexBuilder(private val storage: ModelStorage) {
         fun build(): QueryIndex {
             val index = mutableListOf<QueryIndexItem>()
-            for (modelId in repository.findAllModelIds()) {
-                val model = repository.findModelByIdOptional(modelId)
+            for (modelId in storage.findAllModelIds()) {
+                val model = storage.findModelByIdOptional(modelId)
                 if (model != null) {
                     index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
                     model.entities.forEach { entity ->

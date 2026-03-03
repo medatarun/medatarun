@@ -11,16 +11,6 @@ import io.medatarun.model.domain.ModelKey
  */
 interface ModelStorage {
 
-    // Queries
-
-    /**
-     * Returns true if the storage matches this id.
-     *
-     * Storage ids stay in the API because callers can still name the target storage explicitly.
-     * The current SQL runtime exposes a single storage, but the id contract remains part of the port.
-     */
-    fun matchesId(id: ModelRepositoryId): Boolean
-
     fun findAllModelIds(): List<ModelId>
 
     fun existsModelByKey(key: ModelKey): Boolean
@@ -34,8 +24,9 @@ interface ModelStorage {
     // Commands
 
     /**
-     * Process this command. See [io.medatarun.model.ports. in.ModelRepositoryCmd] to have the list of all available commands to implement
-     * to have a compatible repository.
+     * Process one model storage command.
+     *
+     * See [ModelRepoCmd] for the list of supported write operations.
      */
     fun dispatch(cmd: ModelRepoCmd)
 

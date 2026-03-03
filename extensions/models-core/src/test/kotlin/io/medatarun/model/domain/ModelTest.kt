@@ -1087,7 +1087,7 @@ class ModelTest {
 
         private fun reloadAttribute(
             attributeRef: EntityAttributeRef,
-            reloadId: EntityAttributeRef?
+            reloadId: EntityAttributeRef? = null
         ): Attribute {
             val reloaded = query.findEntityAttribute(sampleModelRef, sampleEntityRef, reloadId ?: attributeRef)
             return reloaded
@@ -1107,7 +1107,7 @@ class ModelTest {
             value: LocalizedText?
         ): Attribute {
             runtime.dispatch(ModelAction.EntityAttribute_UpdateName(sampleModelRef, sampleEntityRef, attributeRef, value))
-            return reloadAttribute(attributeRef, null)
+            return reloadAttribute(attributeRef)
         }
 
         fun updateAttributeDescription(
@@ -1117,7 +1117,7 @@ class ModelTest {
             runtime.dispatch(
                 ModelAction.EntityAttribute_UpdateDescription(sampleModelRef, sampleEntityRef, attributeRef, value)
             )
-            return reloadAttribute(attributeRef, null)
+            return reloadAttribute(attributeRef)
         }
 
         fun updateAttributeType(
@@ -1125,7 +1125,7 @@ class ModelTest {
             value: TypeRef
         ): Attribute {
             runtime.dispatch(ModelAction.EntityAttribute_UpdateType(sampleModelRef, sampleEntityRef, attributeRef, value))
-            return reloadAttribute(attributeRef, null)
+            return reloadAttribute(attributeRef)
         }
 
         fun updateAttributeOptional(
@@ -1135,7 +1135,7 @@ class ModelTest {
             runtime.dispatch(
                 ModelAction.EntityAttribute_UpdateOptional(sampleModelRef, sampleEntityRef, attributeRef, value)
             )
-            return reloadAttribute(attributeRef, null)
+            return reloadAttribute(attributeRef)
         }
 
     }

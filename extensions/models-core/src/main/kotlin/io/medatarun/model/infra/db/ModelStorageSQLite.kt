@@ -6,7 +6,6 @@ import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelStorage
-import io.medatarun.model.ports.needs.ModelRepositoryId
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
@@ -17,10 +16,6 @@ import java.net.URI
 class ModelStorageSQLite(
     private val dbConnectionFactory: DbConnectionFactory
 ) : ModelStorage {
-
-    override fun matchesId(id: ModelRepositoryId): Boolean {
-        return id == REPOSITORY_ID
-    }
 
     override fun findAllModelIds(): List<ModelId> {
         return dbConnectionFactory.withExposed {
@@ -67,6 +62,7 @@ class ModelStorageSQLite(
 
     override fun dispatch(cmd: ModelRepoCmd) {
         when (cmd) {
+            //@formatter:off
             is ModelRepoCmd.CreateModel -> createModel(cmd.model)
             is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
             is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
@@ -118,6 +114,7 @@ class ModelStorageSQLite(
             is ModelRepoCmd.UpdateRelationshipAttributeTagAdd -> addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
+            //@formatter:on
         }
     }
 
@@ -172,7 +169,7 @@ class ModelStorageSQLite(
             val exists = ModelTagTable.select(ModelTagTable.modelId)
                 .where {
                     (ModelTagTable.modelId eq modelId.asString()) and
-                        (ModelTagTable.tagId eq tagId.asString())
+                            (ModelTagTable.tagId eq tagId.asString())
                 }
                 .limit(1)
                 .any()
@@ -189,7 +186,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             ModelTagTable.deleteWhere {
                 (ModelTagTable.modelId eq modelId.asString()) and
-                    (ModelTagTable.tagId eq tagId.asString())
+                        (ModelTagTable.tagId eq tagId.asString())
             }
         }
     }
@@ -211,7 +208,7 @@ class ModelStorageSQLite(
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and
-                        (ModelTypeTable.modelId eq modelId.asString())
+                            (ModelTypeTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[ModelTypeTable.key] = value.asString()
@@ -224,7 +221,7 @@ class ModelStorageSQLite(
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and
-                        (ModelTypeTable.modelId eq modelId.asString())
+                            (ModelTypeTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[ModelTypeTable.name] = localizedTextToString(value)
@@ -237,7 +234,7 @@ class ModelStorageSQLite(
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and
-                        (ModelTypeTable.modelId eq modelId.asString())
+                            (ModelTypeTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[ModelTypeTable.description] = localizedMarkdownToString(value)
@@ -249,7 +246,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             ModelTypeTable.deleteWhere {
                 (ModelTypeTable.id eq typeId.asString()) and
-                    (ModelTypeTable.modelId eq modelId.asString())
+                        (ModelTypeTable.modelId eq modelId.asString())
             }
         }
     }
@@ -265,7 +262,7 @@ class ModelStorageSQLite(
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and
-                        (EntityTable.modelId eq modelId.asString())
+                            (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[EntityTable.key] = value.asString()
@@ -278,7 +275,7 @@ class ModelStorageSQLite(
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and
-                        (EntityTable.modelId eq modelId.asString())
+                            (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[EntityTable.name] = localizedTextToString(value)
@@ -291,7 +288,7 @@ class ModelStorageSQLite(
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and
-                        (EntityTable.modelId eq modelId.asString())
+                            (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[EntityTable.description] = localizedMarkdownToString(value)
@@ -304,7 +301,7 @@ class ModelStorageSQLite(
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and
-                        (EntityTable.modelId eq modelId.asString())
+                            (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[EntityTable.identifierAttributeId] = value.asString()
@@ -317,7 +314,7 @@ class ModelStorageSQLite(
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and
-                        (EntityTable.modelId eq modelId.asString())
+                            (EntityTable.modelId eq modelId.asString())
                 }
             ) { row ->
                 row[EntityTable.documentationHome] = value?.toExternalForm()
@@ -330,7 +327,7 @@ class ModelStorageSQLite(
             val exists = EntityTagTable.select(EntityTagTable.entityId)
                 .where {
                     (EntityTagTable.entityId eq entityId.asString()) and
-                        (EntityTagTable.tagId eq tagId.asString())
+                            (EntityTagTable.tagId eq tagId.asString())
                 }
                 .limit(1)
                 .any()
@@ -347,7 +344,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             EntityTagTable.deleteWhere {
                 (EntityTagTable.entityId eq entityId.asString()) and
-                    (EntityTagTable.tagId eq tagId.asString())
+                        (EntityTagTable.tagId eq tagId.asString())
             }
         }
     }
@@ -356,7 +353,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             EntityTable.deleteWhere {
                 (EntityTable.id eq entityId.asString()) and
-                    (EntityTable.modelId eq modelId.asString())
+                        (EntityTable.modelId eq modelId.asString())
             }
         }
     }
@@ -372,7 +369,7 @@ class ModelStorageSQLite(
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and
-                        (EntityAttributeTable.entityId eq entityId.asString())
+                            (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
                 row[EntityAttributeTable.key] = value.asString()
@@ -385,7 +382,7 @@ class ModelStorageSQLite(
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and
-                        (EntityAttributeTable.entityId eq entityId.asString())
+                            (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
                 row[EntityAttributeTable.name] = localizedTextToString(value)
@@ -393,12 +390,16 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun updateEntityAttributeDescription(entityId: EntityId, attributeId: AttributeId, value: LocalizedMarkdown?) {
+    private fun updateEntityAttributeDescription(
+        entityId: EntityId,
+        attributeId: AttributeId,
+        value: LocalizedMarkdown?
+    ) {
         dbConnectionFactory.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and
-                        (EntityAttributeTable.entityId eq entityId.asString())
+                            (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
                 row[EntityAttributeTable.description] = localizedMarkdownToString(value)
@@ -411,7 +412,7 @@ class ModelStorageSQLite(
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and
-                        (EntityAttributeTable.entityId eq entityId.asString())
+                            (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
                 row[EntityAttributeTable.typeId] = value.asString()
@@ -424,7 +425,7 @@ class ModelStorageSQLite(
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and
-                        (EntityAttributeTable.entityId eq entityId.asString())
+                            (EntityAttributeTable.entityId eq entityId.asString())
                 }
             ) { row ->
                 row[EntityAttributeTable.optional] = value
@@ -437,7 +438,7 @@ class ModelStorageSQLite(
             val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeId)
                 .where {
                     (EntityAttributeTagTable.attributeId eq attributeId.asString()) and
-                        (EntityAttributeTagTable.tagId eq tagId.asString())
+                            (EntityAttributeTagTable.tagId eq tagId.asString())
                 }
                 .limit(1)
                 .any()
@@ -454,7 +455,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             EntityAttributeTagTable.deleteWhere {
                 (EntityAttributeTagTable.attributeId eq attributeId.asString()) and
-                    (EntityAttributeTagTable.tagId eq tagId.asString())
+                        (EntityAttributeTagTable.tagId eq tagId.asString())
             }
         }
     }
@@ -463,7 +464,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             EntityAttributeTable.deleteWhere {
                 (EntityAttributeTable.id eq attributeId.asString()) and
-                    (EntityAttributeTable.entityId eq entityId.asString())
+                        (EntityAttributeTable.entityId eq entityId.asString())
             }
         }
     }
@@ -614,7 +615,7 @@ class ModelStorageSQLite(
             val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipId)
                 .where {
                     (RelationshipTagTable.relationshipId eq relationshipId.asString()) and
-                        (RelationshipTagTable.tagId eq tagId.asString())
+                            (RelationshipTagTable.tagId eq tagId.asString())
                 }
                 .limit(1)
                 .any()
@@ -631,7 +632,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             RelationshipTagTable.deleteWhere {
                 (RelationshipTagTable.relationshipId eq relationshipId.asString()) and
-                    (RelationshipTagTable.tagId eq tagId.asString())
+                        (RelationshipTagTable.tagId eq tagId.asString())
             }
         }
     }
@@ -640,7 +641,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             RelationshipTable.deleteWhere {
                 (RelationshipTable.id eq relationshipId.asString()) and
-                    (RelationshipTable.modelId eq modelId.asString())
+                        (RelationshipTable.modelId eq modelId.asString())
             }
         }
     }
@@ -660,7 +661,7 @@ class ModelStorageSQLite(
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and
-                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                            (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
                 row[RelationshipAttributeTable.key] = value.asString()
@@ -677,7 +678,7 @@ class ModelStorageSQLite(
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and
-                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                            (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
                 row[RelationshipAttributeTable.name] = localizedTextToString(value)
@@ -694,7 +695,7 @@ class ModelStorageSQLite(
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and
-                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                            (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
                 row[RelationshipAttributeTable.description] = localizedMarkdownToString(value)
@@ -711,7 +712,7 @@ class ModelStorageSQLite(
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and
-                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                            (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
                 row[RelationshipAttributeTable.typeId] = value.asString()
@@ -728,7 +729,7 @@ class ModelStorageSQLite(
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and
-                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                            (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
                 }
             ) { row ->
                 row[RelationshipAttributeTable.optional] = value
@@ -741,7 +742,7 @@ class ModelStorageSQLite(
             val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeId)
                 .where {
                     (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and
-                        (RelationshipAttributeTagTable.tagId eq tagId.asString())
+                            (RelationshipAttributeTagTable.tagId eq tagId.asString())
                 }
                 .limit(1)
                 .any()
@@ -758,7 +759,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             RelationshipAttributeTagTable.deleteWhere {
                 (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and
-                    (RelationshipAttributeTagTable.tagId eq tagId.asString())
+                        (RelationshipAttributeTagTable.tagId eq tagId.asString())
             }
         }
     }
@@ -767,7 +768,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             RelationshipAttributeTable.deleteWhere {
                 (RelationshipAttributeTable.id eq attributeId.asString()) and
-                    (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
             }
         }
     }
@@ -930,7 +931,8 @@ class ModelStorageSQLite(
                     roles = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList()).map { roleRow ->
                         relationshipRoleFromRow(roleRow)
                     },
-                    attributes = (attributeRowsByRelationshipId[relationshipId.asString()] ?: emptyList()).map { attrRow ->
+                    attributes = (attributeRowsByRelationshipId[relationshipId.asString()]
+                        ?: emptyList()).map { attrRow ->
                         relationshipAttributeFromRow(attrRow)
                     },
                     tags = loadRelationshipTags(relationshipId)
@@ -1048,7 +1050,6 @@ class ModelStorageSQLite(
     }
 
     companion object {
-        val REPOSITORY_ID = ModelRepositoryId("sql")
 
         object ModelTable : Table("model") {
             val id = text("id")
@@ -1157,8 +1158,5 @@ class ModelStorageSQLite(
     }
 }
 
-class ModelStorageSQLiteModelNotFoundException(modelId: ModelId) :
-    MedatarunException("Model not found in sqlite repository ${modelId.value}")
-
 class ModelStorageSQLiteInvalidIdentifierAttributeException(entityId: String) :
-    MedatarunException("Entity $entityId has no identifier attribute in sqlite repository")
+    MedatarunException("Entity $entityId has no identifier attribute in sqlite storage")
