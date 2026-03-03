@@ -1,6 +1,7 @@
 package io.medatarun.auth
 
 import com.auth0.jwt.JWT
+import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.AuthUnauthorizedException
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.user.PasswordClear
@@ -66,7 +67,13 @@ class OAuthServiceTest {
             audience = "custom-audience",
             ttlSeconds = 60
         )
-        val env = AuthEnvTest(customConfig)
+        val env = AuthEnvTest(
+            extraProps = mapOf(
+                ConfigProperties.JwtDefaultIssuer.key to customConfig.issuer,
+                ConfigProperties.JwtDefaultAudience.key to customConfig.audience,
+                ConfigProperties.JwtDefaultTtlSeconds.key to customConfig.ttlSeconds.toString()
+            )
+        )
         val sub = "custom-sub"
 
         val token = env.oauthService.issueAccessToken(sub, emptyMap())

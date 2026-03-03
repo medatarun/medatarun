@@ -1,6 +1,6 @@
 package io.medatarun.auth.infra.db
 
-import io.medatarun.auth.fixtures.AuthEnvPlatformTest
+import io.medatarun.auth.fixtures.AuthEnvTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -14,7 +14,7 @@ class AuthDbMigrationStartupTest {
      */
     @Test
     fun `auth startup applies contributed db migrations`() {
-        val env = AuthEnvPlatformTest()
+        val env = AuthEnvTest()
         assertTrue(env.dbMigrationChecker.tableExists("users"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_ctx"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_code"))

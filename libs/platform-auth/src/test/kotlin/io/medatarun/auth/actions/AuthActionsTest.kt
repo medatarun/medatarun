@@ -402,8 +402,8 @@ class AuthActionsTest {
         assertEquals(env.env.adminFullname.value, adminActor.fullname)
         assertEquals(env.env.oidcService.oidcIssuer(), adminActor.issuer)
         assertDoesNotThrow { UuidUtils.fromString(adminActor.id) }
-        assertEquals(env.env.authClock.staticNow, adminActor.createdAt)
-        assertEquals(env.env.authClock.staticNow, adminActor.lastSeenAt)
+        assertEquals(env.env.authClockTests.staticNow, adminActor.createdAt)
+        assertEquals(env.env.authClockTests.staticNow, adminActor.lastSeenAt)
 
         val johnActor = actors.first { actor -> actor.subject == Username("john.doe").value }
         assertEquals("john.doe", johnActor.subject)

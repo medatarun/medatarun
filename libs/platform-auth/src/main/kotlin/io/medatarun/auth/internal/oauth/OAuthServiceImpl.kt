@@ -50,7 +50,7 @@ class OAuthServiceImpl(
     }
 
 
-    fun issueAccessToken(sub: String, claims: Map<String, Any?>): String {
+    override fun issueAccessToken(sub: String, claims: Map<String, Any?>): String {
         val alg = Algorithm.RSA256(keys.publicKey, keys.privateKey)
         val now = Instant.now()
 
