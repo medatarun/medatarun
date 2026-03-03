@@ -71,6 +71,12 @@ class ModelStorageSQLite(
         when (cmd) {
             is ModelRepoCmd.CreateModel -> createModel(cmd.model)
             is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
+            is ModelRepoCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
+            is ModelRepoCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
+            is ModelRepoCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
+            is ModelRepoCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
+            is ModelRepoCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
             is ModelRepoCmdOnModel -> updateModel(cmd.modelId) { model ->
                 ModelInMemoryReducer().dispatch(model, cmd)
             }
@@ -78,7 +84,11 @@ class ModelStorageSQLite(
     }
 
     private fun createModel(model: Model) {
-        persistModelSnapshot(ModelInMemory.of(model))
+        val inMemoryModel = ModelInMemory.of(model)
+        dbConnectionFactory.withExposed {
+            insertModel(inMemoryModel)
+            insertModelTags(inMemoryModel.id, inMemoryModel.tags)
+        }
     }
 
     private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
@@ -93,6 +103,64 @@ class ModelStorageSQLite(
         }
     }
 
+    private fun updateModelName(modelId: ModelId, name: LocalizedText) {
+        dbConnectionFactory.withExposed {
+            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+                row[ModelTable.name] = localizedTextToString(name)
+            }
+        }
+    }
+
+    private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
+        dbConnectionFactory.withExposed {
+            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+                row[ModelTable.description] = localizedMarkdownToString(description)
+            }
+        }
+    }
+
+    private fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
+        dbConnectionFactory.withExposed {
+            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+                row[ModelTable.version] = version.value
+            }
+        }
+    }
+
+    private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
+        dbConnectionFactory.withExposed {
+            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+                row[ModelTable.documentationHome] = documentationHome?.toExternalForm()
+            }
+        }
+    }
+
+    private fun addModelTag(modelId: ModelId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            val exists = ModelTagTable.select(ModelTagTable.modelId)
+                .where {
+                    (ModelTagTable.modelId eq modelId.asString()) and
+                        (ModelTagTable.tagId eq tagId.asString())
+                }
+                .limit(1)
+                .any()
+            if (exists) return@withExposed
+            ModelTagTable.insert { row ->
+                row[ModelTagTable.modelId] = modelId.asString()
+                row[ModelTagTable.tagId] = tagId.asString()
+            }
+        }
+    }
+
+    private fun deleteModelTag(modelId: ModelId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            ModelTagTable.deleteWhere {
+                (ModelTagTable.modelId eq modelId.asString()) and
+                    (ModelTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
     /**
      * Writes the full relational snapshot for one model.
      *
@@ -103,7 +171,7 @@ class ModelStorageSQLite(
         dbConnectionFactory.withExposed {
             upsertModel(model)
             clearModelSnapshot(model.id)
-            replaceModelTags(model)
+            insertModelTags(model.id, model.tags)
             replaceTypes(model)
             replaceEntities(model)
             replaceRelationships(model)
@@ -155,15 +223,7 @@ class ModelStorageSQLite(
             .count()
 
         if (existingCount == 0L) {
-            ModelTable.insert { row ->
-                row[ModelTable.id] = model.id.asString()
-                row[ModelTable.key] = model.key.asString()
-                row[ModelTable.name] = localizedTextToString(model.name)
-                row[ModelTable.description] = localizedMarkdownToString(model.description)
-                row[ModelTable.version] = model.version.value
-                row[ModelTable.origin] = modelOriginToString(model.origin)
-                row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
-            }
+            insertModel(model)
         } else {
             ModelTable.update(where = { ModelTable.id eq model.id.asString() }) { row ->
                 row[ModelTable.key] = model.key.asString()
@@ -176,10 +236,22 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun replaceModelTags(model: ModelInMemory) {
-        for (tagId in model.tags) {
+    private fun insertModel(model: ModelInMemory) {
+        ModelTable.insert { row ->
+            row[ModelTable.id] = model.id.asString()
+            row[ModelTable.key] = model.key.asString()
+            row[ModelTable.name] = localizedTextToString(model.name)
+            row[ModelTable.description] = localizedMarkdownToString(model.description)
+            row[ModelTable.version] = model.version.value
+            row[ModelTable.origin] = modelOriginToString(model.origin)
+            row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
+        }
+    }
+
+    private fun insertModelTags(modelId: ModelId, tags: List<TagId>) {
+        for (tagId in tags) {
             ModelTagTable.insert { row ->
-                row[ModelTagTable.modelId] = model.id.asString()
+                row[ModelTagTable.modelId] = modelId.asString()
                 row[ModelTagTable.tagId] = tagId.asString()
             }
         }
