@@ -1,10 +1,10 @@
 package io.medatarun.platform.db
 
 import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
-import io.medatarun.platform.db.internal.DbMigrationRunner
 import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import io.medatarun.platform.db.adapters.ExtensionRegistryDbProvider
 import io.medatarun.platform.db.internal.DbMigrationCheckerImpl
+import io.medatarun.platform.db.internal.DbMigrationRunner
 import io.medatarun.platform.kernel.*
 
 class PlatformStorageDbExtension : MedatarunExtension {

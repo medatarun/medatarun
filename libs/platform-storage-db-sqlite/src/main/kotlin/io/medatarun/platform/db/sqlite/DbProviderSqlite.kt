@@ -4,7 +4,6 @@ import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbProvider
 import java.sql.Connection
 import java.sql.DriverManager
-import kotlin.system.exitProcess
 
 class DbProviderSqlite(private val url: String) : DbProvider {
 
