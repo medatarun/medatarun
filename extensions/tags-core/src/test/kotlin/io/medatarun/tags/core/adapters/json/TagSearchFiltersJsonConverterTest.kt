@@ -1,12 +1,6 @@
 package io.medatarun.tags.core.adapters.json
 
-import io.medatarun.tags.core.adapters.TypeJsonInvalidTagSearchFiltersSyntaxException
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
-import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
-import io.medatarun.tags.core.domain.TagSearchFilters
-import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
+import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import kotlinx.serialization.json.Json
 import kotlin.test.Test

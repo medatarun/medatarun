@@ -1,4 +1,4 @@
-package io.medatarun.auth.infra
+package io.medatarun.auth.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import java.sql.ResultSet

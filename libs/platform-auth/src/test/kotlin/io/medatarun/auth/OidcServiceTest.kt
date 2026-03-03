@@ -3,6 +3,7 @@ package io.medatarun.auth
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
+import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
@@ -10,19 +11,14 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwksAdapter
-import io.medatarun.auth.internal.jwk.JwtExternalProvidersEmpty
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.OidcClientRegistry
-import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.JWKS_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
-import io.medatarun.auth.ports.needs.OidcProviderConfig
 import io.medatarun.lang.uuid.UuidUtils
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -191,20 +187,16 @@ class OidcServiceTest {
          */
         val configuredAuthority = URI("https://issuer.example.test")
         val configuredClientId = "client-oidc"
-        val providerConfig = OidcProviderConfig(configuredAuthority, configuredClientId)
 
-        val service = OidcServiceImpl(
-            oidcAuthCodeStorage = OidcStorageSQLite(env.dbConnectionFactory),
-            actorClaimsAdapter = ActorClaimsAdapter(),
-            oauthService = env.oauthService,
-            authEmbeddedKeys = env.jwtKeyMaterial,
-            jwtCfg = env.jwtConfig,
-            clock = env.authClock,
-            actorService = env.actorService,
-            authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalProviders = JwtExternalProvidersEmpty(),
-            oidcProviderConfig = providerConfig
+
+        val env = AuthEnvTest(
+            extraProps = mapOf(
+                ConfigProperties.UIOidcAuthority.key to configuredAuthority.toString(),
+                ConfigProperties.UiOidcClientId.key to configuredClientId
+            )
         )
+
+        val service = env.oidcService
 
         val authority = service.oidcAuthority(URI("https://public.example.test"))
         assertEquals(configuredAuthority, authority)
@@ -548,7 +540,7 @@ class OidcServiceTest {
              * Why: OIDC requires redirecting back to the client with code + state after user login.
              * How: Create an auth context, exchange it for a code, and verify redirect parameters and token exchange.
              */
-            val fixedNow = env.authClock.now()
+            val fixedNow = env.authClockTests.now()
             val actor = createUserActor()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
@@ -588,7 +580,7 @@ class OidcServiceTest {
             val decoded = verifier.verify(token.idToken)
 
             assertEquals("nonce-123", decoded.getClaim("nonce").asString())
-            assertEquals(env.authClock.staticNow.epochSecond, decoded.getClaim("auth_time").asLong())
+            assertEquals(env.authClockTests.staticNow.epochSecond, decoded.getClaim("auth_time").asLong())
             assertEquals(actor.fullname, decoded.getClaim("name").asString())
             assertEquals(actor.id.value.toString(), decoded.getClaim("mid").asString())
             assertEquals(fixedNow.epochSecond, decoded.issuedAt.toInstant().epochSecond)
@@ -720,8 +712,8 @@ class OidcServiceTest {
              */
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val fixture = createAuthorizationCodeFixture(codeVerifier)
-            val originalNow = env.authClock.staticNow
-            env.authClock.staticNow = env.authClock.staticNow.plusSeconds(60 * 60)
+            val originalNow = env.authClockTests.staticNow
+            env.authClockTests.staticNow = env.authClockTests.staticNow.plusSeconds(60 * 60)
 
             val response = try {
                 env.oidcService.oidcToken(
@@ -734,7 +726,7 @@ class OidcServiceTest {
                     )
                 )
             } finally {
-                env.authClock.staticNow = originalNow
+                env.authClockTests.staticNow = originalNow
             }
 
             assertIs<OIDCTokenResponseOrError.Error>(response)

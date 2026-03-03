@@ -1,4 +1,4 @@
-package io.medatarun.tags.core.adapters
+package io.medatarun.tags.core.adapters.types
 
 import io.medatarun.tags.core.adapters.json.TagScopeRefJsonConverter
 import io.medatarun.tags.core.domain.TagScopeRef

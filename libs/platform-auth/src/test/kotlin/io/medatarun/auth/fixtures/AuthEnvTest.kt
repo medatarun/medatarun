@@ -3,36 +3,28 @@ package io.medatarun.auth.fixtures
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
-import com.google.common.jimfs.Configuration
 import com.google.common.jimfs.Jimfs
+import io.medatarun.actions.ActionsExtension
 import io.medatarun.auth.AuthExtension
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.AuthExtensionConfig
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.infra.UserStorageSQLite
-import io.medatarun.auth.internal.actors.ActorClaimsAdapter
-import io.medatarun.auth.internal.actors.ActorServiceImpl
-import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
-import io.medatarun.auth.internal.jwk.JwtExternalProvidersEmpty
-import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
-import io.medatarun.auth.internal.oauth.OAuthServiceImpl
-import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
-import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
-import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.*
-import io.medatarun.auth.ports.needs.ActorRolesRegistry
-import io.medatarun.auth.ports.needs.OidcStorage
+import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.lang.uuid.UuidUtils
-import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigrationChecker
+import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
-import java.nio.file.Files
-import java.sql.Connection
+import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.kernel.*
+import io.medatarun.security.AppPrincipalRole
+import io.medatarun.security.SecurityExtension
+import io.medatarun.security.SecurityRolesProvider
+import io.medatarun.types.TypeSystemExtension
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -51,13 +43,11 @@ import kotlin.test.assertTrue
  * (including the number of iterations for password encryption, or else tests are too slow).
  */
 class AuthEnvTest(
-    private val overrideJwtConfig: JwtConfig? = null,
     private val createAdmin: Boolean = true,
     private val otherRoles: Set<String> = emptySet(),
+    private val extraProps: Map<String, String> = emptyMap(),
 ) {
 
-
-    val authClock: ClockTester
     val userService: UserService
     val oidcService: OidcService
     val actorService: ActorService
@@ -65,128 +55,71 @@ class AuthEnvTest(
 
     // We provide impl and not only the interface because some tests are trick and focus only
     // on JWT Generation. Could be better but for now it's ok.
-    val oauthService: OAuthServiceImpl
+    val oauthService: OAuthService
 
     val adminUsername: Username = Username("admin")
     val adminFullname: Fullname = Fullname("Admin")
     val adminPassword: PasswordClear = PasswordClear("admin." + UuidUtils.generateV4String())
-    val dbConnectionFactory: DbConnectionFactory
+
     val jwtKeyMaterial: JwtKeyMaterial
     val jwtConfig: JwtConfig
     var bootstrapSecretKeeper = ""
 
-    // Keeps connection alive until this class lifecycle ends
-    private val dbConnectionKeeper: Connection
+    val config = MedatarunConfig.createTempConfig(
+        fs = Jimfs.newFileSystem(),
+        appDir = "/opt/medatarun",
+        props = buildMap {
+            put(PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY, DbProviderSqlite.randomDbUrl())
+            putAll(extraProps)
+        }
+    )
+
+    // Fake clock that always give the same point in time. Used to tests instant.now()
+    val authClockTests = ClockTester()
+
+    val runtime = PlatformBuilder(
+        config,
+        listOf(
+            TypeSystemExtension(),
+            ActionsExtension(),
+            SecurityExtension(),
+            PlatformStorageDbExtension(),
+            PlatformStorageDbSqliteExtension(),
+            AuthExtension(object : AuthExtensionConfig {
+                override val authClock: AuthClock
+                    get() = authClockTests
+
+                // Reduce number of iterations needed for password encryption (from 31_0000 to 1000)
+                override val passwordEncryptionDefaultIterations: Int
+                    get() = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
+            }),
+            OtherRolesExtension(otherRoles)
+        )
+    ).buildAndStart()
+
+    val dbMigrationChecker = runtime.services.getService<DbMigrationChecker>()
+
 
     init {
-
-        // Virtual filesystem in memory
-        val fs = Jimfs.newFileSystem(Configuration.unix())
-        val home = fs.getPath("/opt/medatarun")
-        Files.createDirectories(home)
-
-        val cfgBootstrapSecretPath =
-            home.resolve(BootstrapSecretLifecycle.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
-        val cfgKeyStorePath = home.resolve(JwtInternalSigninKeyRegistry.DEFAULT_KEYSTORE_PATH_NAME)
-
-        // In memory database. Be sure to keep one connection alive during the lifecycle
-        // of any instance of this class. Using UUIDs to name in memory databases or else
-        // SQLite will reuse existing bases across tests.
-        this.dbConnectionFactory = object:DbConnectionFactory  {
-            val sqlite = DbProviderSqlite.randomDb()
-            override fun getConnection(): Connection {
-                return sqlite.getConnection()
-            }
-
-        }
-        dbConnectionKeeper = dbConnectionFactory.getConnection()
-
-        // Fake clock that always give the same point in time. Used to tests instant.now()
-        this.authClock = ClockTester()
-
-        // Reduce number of iterations needed for password encryption (from 31_0000 to 1000)
-        val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
-
-        // No bootstrap secret in configuration, it will be random
-        val cfgBootstrapSecret = null
-
-        // -----------------------------------------------------------
-        // Same as in extension, mutualization for later
-        // -----------------------------------------------------------
-
-        val userStorage = UserStorageSQLite(dbConnectionFactory)
-            .also { it.initSchema() }
-        val authStorage: OidcStorage = OidcStorageSQLite(dbConnectionFactory)
-            .also { it.initSchema() }
-        val actorStorage = ActorStorageSQLite(dbConnectionFactory)
-            .also { it.initSchema() }
-
-        val actorClaimsAdapter = ActorClaimsAdapter()
-        val authEmbeddedKeyRegistry = JwtInternalInternalSigninKeyRegistryImpl(cfgKeyStorePath)
-        val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
-
-        val jwtCfg = overrideJwtConfig ?: JwtConfig(
-            issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
-            audience = "medatarun",
-            ttlSeconds = 3600
-        )
-        val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
-
-        val actorService = ActorServiceImpl(actorStorage, authClock, object : ActorRolesRegistry {
-            override fun isKnownRole(key: String): Boolean {
-                return key == ActorRole.ADMIN.key || otherRoles.contains(key)
-            }
-
-        })
-
-        val userService: UserService = UserServiceImpl(
-            userStorage = userStorage,
-            clock = authClock,
-            passwordEncryptionIterations = passwordEncryptionDefaultIterations,
-            bootstrapper = bootstrapper,
-            userEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
-        )
-
-        val oauthService = OAuthServiceImpl(
-            userService = userService,
-            keys = authEmbeddedKeys,
-            jwtConfig = jwtCfg,
-            actorClaimsAdapter = actorClaimsAdapter,
-            actorService = actorService
-        )
-
-
-        val oidcService: OidcService = OidcServiceImpl(
-            oidcAuthCodeStorage = authStorage,
-            actorClaimsAdapter = actorClaimsAdapter,
-            oauthService = oauthService,
-            authEmbeddedKeys = authEmbeddedKeys,
-            jwtCfg = jwtCfg,
-            clock = authClock,
-            actorService = actorService,
-            authCtxDurationSeconds = AuthExtension.DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            externalProviders = JwtExternalProvidersEmpty(),
-            oidcProviderConfig = null
-        )
-
         // ----------------------------------------------------------------
         // End of initialization block
         // Back to the tests
         // ----------------------------------------------------------------
 
-        this.userService = userService
-        this.oidcService = oidcService
-        this.oauthService = oauthService
-        this.jwtKeyMaterial = authEmbeddedKeys
-        this.jwtConfig = jwtCfg
-        this.actorService = actorService
-        this.bootstrapSecretLifecycle = bootstrapper
+        this.userService = runtime.services.getService<UserService>()
+        this.oidcService = runtime.services.getService<OidcService>()
+        this.oauthService = runtime.services.getService<OAuthService>()
+        this.actorService = runtime.services.getService<ActorService>()
+        this.jwtKeyMaterial = runtime.services.getService<JwtKeyMaterial>()
+        this.jwtConfig = runtime.services.getService<JwtConfig>()
+
+        this.bootstrapSecretLifecycle = runtime.services.getService<BootstrapSecretLifecycle>()
         this.bootstrapSecretKeeper = ""
 
-        userService.loadOrCreateBootstrapSecret { bootstrapSecret -> bootstrapSecretKeeper = bootstrapSecret }
+        this.userService.loadOrCreateBootstrapSecret { bootstrapSecret -> bootstrapSecretKeeper = bootstrapSecret }
 
         if (createAdmin) {
-            userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
+            this.userService.adminBootstrap(bootstrapSecretKeeper, adminUsername, adminFullname, adminPassword)
         }
     }
 
@@ -222,6 +155,25 @@ class AuthEnvTest(
         }
 
         return decodedJWT
+    }
+
+    class OtherRolesExtension(val otherRoles: Set<String>) : MedatarunExtension {
+        override val id: ExtensionId = "other-roles"
+        override fun init(ctx: MedatarunExtensionCtx) {
+            ctx.register(SecurityRolesProvider::class, object : SecurityRolesProvider {
+                override fun getRoles(): List<AppPrincipalRole> {
+                    return otherRoles.map {
+                        object : AppPrincipalRole {
+                            override val key: String
+                                get() = it
+
+                        }
+                    }
+                }
+
+            })
+        }
+
     }
 
 }

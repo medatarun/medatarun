@@ -17,7 +17,7 @@ class ActorServiceTest {
     fun `create stores actor and finds it by issuer and subject`() {
         val env = AuthEnvTest(createAdmin = false)
         val now = Instant.parse("2024-01-03T12:00:00Z")
-        env.authClock.staticNow = now
+        env.authClockTests.staticNow = now
 
         val actor = env.actorService.create(
             issuer = "issuer-a",
@@ -144,7 +144,7 @@ class ActorServiceTest {
         val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-x"))
         val initialTime = Instant.parse("2024-02-01T00:00:00Z")
         val updatedTime = Instant.parse("2024-02-02T00:00:00Z")
-        env.authClock.staticNow = initialTime
+        env.authClockTests.staticNow = initialTime
 
         val created = env.actorService.create(
             issuer = "issuer-x",
@@ -155,7 +155,7 @@ class ActorServiceTest {
             disabled = null
         )
 
-        env.authClock.staticNow = updatedTime
+        env.authClockTests.staticNow = updatedTime
         val updated = env.actorService.syncFromJwtExternalPrincipal(
             createPrincipal(
                 issuer = "issuer-x",
@@ -223,7 +223,7 @@ class ActorServiceTest {
         val env = AuthEnvTest(createAdmin = false)
         val initialTime = Instant.parse("2024-04-01T09:00:00Z")
         val laterTime = Instant.parse("2024-04-02T09:00:00Z")
-        env.authClock.staticNow = initialTime
+        env.authClockTests.staticNow = initialTime
 
         val actor = env.actorService.create(
             issuer = "issuer-name",
@@ -234,7 +234,7 @@ class ActorServiceTest {
             disabled = null
         )
 
-        env.authClock.staticNow = laterTime
+        env.authClockTests.staticNow = laterTime
         env.actorService.updateFullname(actor.id, "Updated Name")
         val updated = env.actorService.findByIssuerAndSubjectOptional("issuer-name", "subject-name")
         assertNotNull(updated)

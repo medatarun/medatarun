@@ -10,11 +10,19 @@ class DbConnectionFactoryImpl(
     private val txManager: DbTransactionManagerImpl
 ): DbConnectionFactory {
 
-    override fun getConnection(): Connection {
-        val txConnection = txManager.currentTransactionConnectionOrNull()
-        if (txConnection != null) {
-            return DbTxBoundConnection(txConnection)
+    override fun <T> withConnection(block: (Connection) -> T): T {
+        val tx = txManager.currentTransactionOrNull()
+        if (tx != null) {
+            return block(DbTxBoundConnection(tx.connection.connection as Connection))
         }
-        return dbProvider.getConnection()
+
+        val connection = dbProvider.getConnection()
+        try {
+            return block(connection)
+        } finally {
+            connection.close()
+        }
     }
+
+    override fun <T> withExposed(block: () -> T): T = txManager.withExposed(block)
 }

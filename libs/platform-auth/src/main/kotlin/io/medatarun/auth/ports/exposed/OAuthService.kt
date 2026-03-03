@@ -4,6 +4,7 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.User
 import io.medatarun.auth.domain.user.Username
+import java.io.Serializable
 
 /**
  * Issue an OAuth token response containing an OAuth token (also known
@@ -41,4 +42,9 @@ interface OAuthService {
      * an actor (from any IdP source).
      */
     fun createOAuthAccessTokenForActor(actor: Actor): OAuthTokenResponse
+
+    /**
+     * TODO find another way to not expose that to public API , it's just for testing
+     */
+    fun issueAccessToken(sub: String, claims: Map<String, Any?>): String
 }

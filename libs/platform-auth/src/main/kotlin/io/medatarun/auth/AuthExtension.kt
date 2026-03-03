@@ -7,12 +7,14 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.jwt.JwtConfig
+import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.infra.UserStorageSQLite
+import io.medatarun.auth.infra.db.ActorStorageSQLite
+import io.medatarun.auth.infra.db.AuthDbMigration
+import io.medatarun.auth.infra.db.OidcStorageSQLite
+import io.medatarun.auth.infra.db.UserStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.actors.ActorServiceImpl
 import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
@@ -25,6 +27,7 @@ import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
 import io.medatarun.auth.ports.exposed.ActorService
+import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
 import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
 import io.medatarun.auth.ports.exposed.OAuthService
@@ -32,13 +35,11 @@ import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.ExtensionId
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.PlatformStartedCtx
-import io.medatarun.platform.kernel.PlatformStartedListener
-import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -47,7 +48,9 @@ import io.medatarun.types.TypeJsonEquiv
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class AuthExtension : MedatarunExtension {
+class AuthExtension(
+    val config:AuthExtensionConfig = AuthExtensionConfigProd()
+) : MedatarunExtension {
     override val id: ExtensionId = "platform-auth"
     override fun init(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
@@ -62,14 +65,7 @@ class AuthExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.register(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.register(PlatformStartedListener::class, object: PlatformStartedListener {
-            override fun onPlatformStarted(ctx: PlatformStartedCtx) {
-                val db = ctx.services.getService<DbConnectionFactory>()
-                UserStorageSQLite(db).initSchema()
-                OidcStorageSQLite(db).initSchema()
-                ActorStorageSQLite(db).initSchema()
-            }
-        })
+        ctx.register(DbMigration::class, AuthDbMigration())
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -117,10 +113,8 @@ class AuthExtension : MedatarunExtension {
         val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
-        val authClock = object : AuthClock {
-            override fun now(): Instant = Instant.now()
-        }
-        val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
+
+
         val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
         val actorRolesRegistry = object : ActorRolesRegistry {
             override fun isKnownRole(key: String): Boolean {
@@ -141,21 +135,34 @@ class AuthExtension : MedatarunExtension {
         val authEmbeddedKeyRegistry = JwtInternalInternalSigninKeyRegistryImpl(cfgKeyStorePath)
         val authEmbeddedKeys = authEmbeddedKeyRegistry.loadOrCreateKeys()
 
+        val jwtIssuer = ctx.getConfigProperty(
+            ConfigProperties.JwtDefaultIssuer.key,
+            "urn:medatarun:${authEmbeddedKeys.kid}"
+        )
+        val jwtAudience = ctx.getConfigProperty(
+            ConfigProperties.JwtDefaultAudience.key,
+            ConfigProperties.JwtDefaultAudience.defaultValue
+        )
+        val jwtTtlSeconds = ctx.getConfigProperty(
+            ConfigProperties.JwtDefaultTtlSeconds.key,
+            ConfigProperties.JwtDefaultTtlSeconds.defaultValue
+        ).toLong()
+
         val jwtCfg = JwtConfig(
-            issuer = "urn:medatarun:${authEmbeddedKeys.kid}",  // stable tant que tes fichiers sont là
-            audience = "medatarun",
-            ttlSeconds = 3600
+            issuer = jwtIssuer,
+            audience = jwtAudience,
+            ttlSeconds = jwtTtlSeconds
         )
 
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
-        val actorService: ActorService = ActorServiceImpl(actorStorage, authClock, actorRolesRegistry)
+        val actorService: ActorService = ActorServiceImpl(actorStorage, config.authClock, actorRolesRegistry)
         val userEvents: UserServiceEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
 
         val userService: UserService = UserServiceImpl(
             userStorage = userStorage,
-            clock = authClock,
-            passwordEncryptionIterations = passwordEncryptionDefaultIterations,
+            clock = config.authClock,
+            passwordEncryptionIterations = config.passwordEncryptionDefaultIterations,
             bootstrapper = bootstrapper,
             userEvents = userEvents
         )
@@ -174,7 +181,7 @@ class AuthExtension : MedatarunExtension {
             oauthService = oauthService,
             authEmbeddedKeys = authEmbeddedKeys,
             jwtCfg = jwtCfg,
-            clock = authClock,
+            clock = config.authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
             externalProviders = createJwtExternalProvidersFromConfigProperties(
@@ -201,6 +208,11 @@ class AuthExtension : MedatarunExtension {
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
 
+        // For testing only
+        ctx.register(BootstrapSecretLifecycle::class, bootstrapper)
+        ctx.register(JwtConfig::class, jwtCfg)
+        ctx.register(JwtKeyMaterial::class, authEmbeddedKeys)
+
     }
 
     companion object {
@@ -208,4 +220,15 @@ class AuthExtension : MedatarunExtension {
     }
 
 
+}
+
+interface AuthExtensionConfig {
+    val authClock: AuthClock
+    val passwordEncryptionDefaultIterations: Int
+}
+class AuthExtensionConfigProd: AuthExtensionConfig {
+    override val authClock = object : AuthClock {
+        override fun now(): Instant = Instant.now()
+    }
+    override val passwordEncryptionDefaultIterations = UserPasswordEncrypter.DEFAULT_ITERATIONS
 }
