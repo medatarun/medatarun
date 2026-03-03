@@ -2,12 +2,22 @@ package io.medatarun.tags.core
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.actions.TagSecurityRuleNames
-import io.medatarun.tags.core.adapters.*
+import io.medatarun.tags.core.infra.db.TagStorageSQLite
+import io.medatarun.tags.core.infra.db.TagsCoreDbMigration
+import io.medatarun.tags.core.adapters.security.TagSecurityRolesProvider
+import io.medatarun.tags.core.adapters.security.TagSecurityRulesprovider
+import io.medatarun.tags.core.adapters.types.TagGroupKeyTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagGroupRefTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagIdTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagKeyTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagRefTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagScopeRefTypeDescriptor
+import io.medatarun.tags.core.adapters.types.TagSearchFiltersDescriptor
 import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
@@ -15,21 +25,6 @@ import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
-
-object TagFreeManageRole : AppPrincipalRole {
-    override val key: String
-        get() = "tag_free_manage"
-}
-
-object TagManagedManageRole : AppPrincipalRole {
-    override val key: String
-        get() = "tag_managed_manage"
-}
-
-object TagGroupManageRole : AppPrincipalRole {
-    override val key: String
-        get() = "tag_group_manage"
-}
 
 class TagsCoreExtension : MedatarunExtension {
     override val id = "tags-core"
@@ -62,36 +57,8 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, TagGroupRefTypeDescriptor())
         ctx.register(TypeDescriptor::class, TagSearchFiltersDescriptor())
         ctx.register(ActionProvider::class, TagActionProvider())
-        ctx.register(SecurityRolesProvider::class, object : SecurityRolesProvider {
-            override fun getRoles(): List<AppPrincipalRole> {
-                return listOf(TagFreeManageRole, TagManagedManageRole, TagGroupManageRole)
-            }
-        })
-        ctx.register(SecurityRulesProvider::class, object : SecurityRulesProvider {
-            override fun getRules(): List<SecurityRuleEvaluator> {
-                return listOf(
-                    object : SecurityRuleEvaluator {
-                        override val key: String = TagSecurityRuleNames.TAG_MANAGED_MANAGE
-                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
-                    },
-                    object : SecurityRuleEvaluator {
-                        override val key: String = TagSecurityRuleNames.TAG_FREE_MANAGE
-                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagFreeManageRole)
-                    },
-                    object : SecurityRuleEvaluator {
-                        override val key: String = TagSecurityRuleNames.TAG_GROUP_MANAGE
-                        override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
-                    }
-                )
-            }
-
-        })
-
-        ctx.register(PlatformStartedListener::class, object : PlatformStartedListener {
-            override fun onPlatformStarted(ctx: PlatformStartedCtx) {
-                val db = ctx.services.getService<DbConnectionFactory>()
-                TagStorageSQLite(db).initSchema()
-            }
-        })
+        ctx.register(SecurityRolesProvider::class, TagSecurityRolesProvider())
+        ctx.register(SecurityRulesProvider::class, TagSecurityRulesprovider())
+        ctx.register(DbMigration::class, TagsCoreDbMigration(id))
     }
 }

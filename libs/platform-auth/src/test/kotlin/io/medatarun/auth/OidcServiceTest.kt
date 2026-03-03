@@ -10,7 +10,7 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthEnvTest
-import io.medatarun.auth.infra.OidcStorageSQLite
+import io.medatarun.auth.infra.db.OidcStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtExternalProvidersEmpty

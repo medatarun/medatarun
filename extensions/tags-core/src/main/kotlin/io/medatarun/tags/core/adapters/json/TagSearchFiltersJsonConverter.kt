@@ -1,6 +1,5 @@
 package io.medatarun.tags.core.adapters.json
 
-import io.medatarun.tags.core.adapters.TypeJsonInvalidTagSearchFiltersSyntaxException
 import io.medatarun.tags.core.domain.TagSearchFilter
 import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
 import io.medatarun.tags.core.domain.TagSearchFilters
@@ -45,4 +44,6 @@ class TagSearchFiltersJsonConverter : TypeJsonConverter<TagSearchFilters> {
         }
         throw TypeJsonInvalidTagSearchFiltersSyntaxException(json)
     }
+
+
 }

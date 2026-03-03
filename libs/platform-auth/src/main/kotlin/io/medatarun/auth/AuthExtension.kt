@@ -10,9 +10,10 @@ import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.infra.UserStorageSQLite
+import io.medatarun.auth.infra.db.ActorStorageSQLite
+import io.medatarun.auth.infra.db.AuthDbMigration
+import io.medatarun.auth.infra.db.OidcStorageSQLite
+import io.medatarun.auth.infra.db.UserStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.actors.ActorServiceImpl
 import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
@@ -32,13 +33,11 @@ import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.ExtensionId
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.PlatformStartedCtx
-import io.medatarun.platform.kernel.PlatformStartedListener
-import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -62,14 +61,7 @@ class AuthExtension : MedatarunExtension {
         ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.register(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.register(PlatformStartedListener::class, object: PlatformStartedListener {
-            override fun onPlatformStarted(ctx: PlatformStartedCtx) {
-                val db = ctx.services.getService<DbConnectionFactory>()
-                UserStorageSQLite(db).initSchema()
-                OidcStorageSQLite(db).initSchema()
-                ActorStorageSQLite(db).initSchema()
-            }
-        })
+        ctx.register(DbMigration::class, AuthDbMigration())
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {

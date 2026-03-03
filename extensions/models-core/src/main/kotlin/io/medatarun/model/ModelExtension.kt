@@ -55,12 +55,12 @@ open class ModelExtension : MedatarunExtension {
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
-        val securityRolesRegistry = SecurityRolesRegistryImpl(extensionRegistry)
+
 
         ctx.register(ModelCmds::class, modelCmdsImpl)
         ctx.register(ModelQueries::class, modelQueriesImpl)
         ctx.register(ModelHumanPrinter::class, modelHumanPrinterEmoji)
-        ctx.register(SecurityRolesRegistry::class, securityRolesRegistry)
+
     }
     override fun init(ctx: MedatarunExtensionCtx) {
         val modelQueries = ctx.getService(ModelQueries::class)

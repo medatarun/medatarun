@@ -1,9 +1,9 @@
-package io.medatarun.auth.infra
+package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import org.intellij.lang.annotations.Language
+import io.medatarun.platform.db.DbSqlResources
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -13,7 +13,7 @@ import java.time.Instant
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
     fun initSchema() {
-        dbConnectionFactory.withConnection { it.createStatement().execute(SCHEMA) }
+        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v000__init_users_sqlite)
     }
 
 
@@ -101,19 +101,6 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val bootstrapColumn = bool("bootstrap")
             val disabledDateColumn = text("disabled_date").nullable()
         }
-
-        @Language("SQLite")
-        private const val SCHEMA = """
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY UNIQUE,
-  login TEXT NOT NULL UNIQUE,
-  full_name TEXT NOT NULL,
-  password_hash TEXT NOT NULL,
-  admin INTEGER NOT NULL,
-  bootstrap INTEGER NOT NULL,
-  disabled_date TEXT
-);
-"""
 
     }
 

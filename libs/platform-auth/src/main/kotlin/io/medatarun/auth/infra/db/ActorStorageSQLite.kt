@@ -1,14 +1,14 @@
-package io.medatarun.auth.infra
+package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbSqlResources
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import org.intellij.lang.annotations.Language
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -20,14 +20,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     private val json = Json { encodeDefaults = true }
 
     fun initSchema() {
-        dbConnectionFactory.withConnection { connection ->
-            SCHEMA.split(";")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .forEach { stmt ->
-                    connection.createStatement().execute(stmt)
-                }
-        }
+        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v000__init_actors_sqlite)
     }
 
     override fun insert(
@@ -162,24 +155,6 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             val createdAtColumn = text("created_at")
             val lastSeenAtColumn = text("last_seen_at")
         }
-
-        @Language("SQLite")
-        private const val SCHEMA = """
-CREATE TABLE IF NOT EXISTS actors (
-  id TEXT PRIMARY KEY UNIQUE,
-  issuer TEXT NOT NULL,
-  subject TEXT NOT NULL,
-  full_name TEXT NOT NULL,
-  email TEXT,
-  roles_json TEXT NOT NULL,
-  disabled_date TEXT,
-  created_at TEXT NOT NULL,
-  last_seen_at TEXT NOT NULL,
-  UNIQUE(issuer, subject)
-);
-CREATE INDEX IF NOT EXISTS idx_actors_issuer_subject ON actors(issuer, subject);
-CREATE INDEX IF NOT EXISTS idx_actors_created_at ON actors(created_at);
-"""
 
         private val listStringSerializer = ListSerializer(String.serializer())
     }

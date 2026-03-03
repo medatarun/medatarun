@@ -12,9 +12,9 @@ import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.infra.ActorStorageSQLite
-import io.medatarun.auth.infra.OidcStorageSQLite
-import io.medatarun.auth.infra.UserStorageSQLite
+import io.medatarun.auth.infra.db.ActorStorageSQLite
+import io.medatarun.auth.infra.db.OidcStorageSQLite
+import io.medatarun.auth.infra.db.UserStorageSQLite
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.actors.ActorServiceImpl
 import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl

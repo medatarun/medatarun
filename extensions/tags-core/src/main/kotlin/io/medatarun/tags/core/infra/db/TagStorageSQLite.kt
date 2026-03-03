@@ -1,16 +1,27 @@
-package io.medatarun.tags.core.adapters
+package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.domain.Tag
+import io.medatarun.tags.core.domain.TagGroup
+import io.medatarun.tags.core.domain.TagGroupId
+import io.medatarun.tags.core.domain.TagGroupKey
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
 import io.medatarun.tags.core.ports.needs.TagRepoCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
-import org.intellij.lang.annotations.Language
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -18,18 +29,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
-    private class TagStorageSQLiteInvalidLookupException(message: String) : MedatarunException(message)
-
-    fun initSchema() {
-        dbConnectionFactory.withConnection { connection ->
-            SCHEMA.split(";")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .forEach { stmt ->
-                    connection.createStatement().execute(stmt)
-                }
-        }
-    }
+    private class TagStorageSQLiteInvalidLookupException() : MedatarunException("Global tag lookup requires groupId")
 
     override fun findAllTag(): List<Tag> {
         return dbConnectionFactory.withExposed {
@@ -52,7 +52,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagScopeRef.Global -> {
                     val effectiveGroupId = groupId
-                        ?: throw TagStorageSQLiteInvalidLookupException("Global tag lookup requires groupId")
+                        ?: throw TagStorageSQLiteInvalidLookupException()
                     TagTable.selectAll().where {
                         (TagTable.scopeType eq scope.type.value) and
                             TagTable.scopeId.isNull() and
@@ -101,34 +101,34 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             when (cmd) {
                 is TagRepoCmd.TagCreate -> {
                     TagTable.insert { row ->
-                        row[id] = cmd.item.id.asString()
-                        row[scopeType] = cmd.item.scope.type.value
+                        row[TagTable.id] = cmd.item.id.asString()
+                        row[TagTable.scopeType] = cmd.item.scope.type.value
                         when (val scope = cmd.item.scope) {
-                            is TagScopeRef.Global -> row[scopeId] = null
-                            is TagScopeRef.Local -> row[scopeId] = scope.localScopeId.asString()
+                            is TagScopeRef.Global -> row[TagTable.scopeId] = null
+                            is TagScopeRef.Local -> row[TagTable.scopeId] = scope.localScopeId.asString()
                         }
-                        row[tagGroupId] = cmd.item.groupId?.asString()
-                        row[key] = cmd.item.key.asString()
-                        row[name] = cmd.item.name
-                        row[description] = cmd.item.description
+                        row[TagTable.tagGroupId] = cmd.item.groupId?.asString()
+                        row[TagTable.key] = cmd.item.key.asString()
+                        row[TagTable.name] = cmd.item.name
+                        row[TagTable.description] = cmd.item.description
                     }
                 }
 
                 is TagRepoCmd.TagUpdateKey -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[key] = cmd.value.asString()
+                        row[TagTable.key] = cmd.value.asString()
                     }
                 }
 
                 is TagRepoCmd.TagUpdateName -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[name] = cmd.value
+                        row[TagTable.name] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagUpdateDescription -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[description] = cmd.value
+                        row[TagTable.description] = cmd.value
                     }
                 }
 
@@ -138,28 +138,28 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
                 is TagRepoCmd.TagGroupCreate -> {
                     TagGroupTable.insert { row ->
-                        row[id] = cmd.item.id.asString()
-                        row[key] = cmd.item.key.asString()
-                        row[name] = cmd.item.name
-                        row[description] = cmd.item.description
+                        row[TagGroupTable.id] = cmd.item.id.asString()
+                        row[TagGroupTable.key] = cmd.item.key.asString()
+                        row[TagGroupTable.name] = cmd.item.name
+                        row[TagGroupTable.description] = cmd.item.description
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateKey -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[key] = cmd.value.asString()
+                        row[TagGroupTable.key] = cmd.value.asString()
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateName -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[name] = cmd.value
+                        row[TagGroupTable.name] = cmd.value
                     }
                 }
 
                 is TagRepoCmd.TagGroupUpdateDescription -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[description] = cmd.value
+                        row[TagGroupTable.description] = cmd.value
                     }
                 }
 
@@ -172,8 +172,8 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     private fun tagGroupFromRow(row: ResultRow): TagGroup {
         return TagGroupInMemory(
-            id = Id.fromString(row[TagGroupTable.id], ::TagGroupId),
-            key = Key.fromString(row[TagGroupTable.key], ::TagGroupKey),
+            id = Id.Companion.fromString(row[TagGroupTable.id], ::TagGroupId),
+            key = Key.Companion.fromString(row[TagGroupTable.key], ::TagGroupKey),
             name = row[TagGroupTable.name],
             description = row[TagGroupTable.description]
         )
@@ -188,15 +188,15 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             val localScopeId = requireNotNull(scopeIdString) {
                 "Local tag row missing scope_id"
             }
-            TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
+            TagScopeRef.Local(scopeType, Id.Companion.fromString(localScopeId, ::TagScopeId))
         }
         val groupIdString = row[TagTable.tagGroupId]
-        val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)
+        val groupId = if (groupIdString == null) null else Id.Companion.fromString(groupIdString, ::TagGroupId)
         return TagInMemory(
-            id = Id.fromString(row[TagTable.id], ::TagId),
+            id = Id.Companion.fromString(row[TagTable.id], ::TagId),
             scope = scope,
             groupId = groupId,
-            key = Key.fromString(row[TagTable.key], ::TagKey),
+            key = Key.Companion.fromString(row[TagTable.key], ::TagKey),
             name = row[TagTable.name],
             description = row[TagTable.description]
         )
@@ -223,34 +223,6 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
             override val primaryKey = PrimaryKey(id)
         }
-
-        @Language("SQLite")
-        private const val SCHEMA = """
-CREATE TABLE IF NOT EXISTS tag_group (
-  id TEXT PRIMARY KEY UNIQUE,
-  key TEXT NOT NULL UNIQUE,
-  name TEXT,
-  description TEXT
-);
-
-CREATE TABLE IF NOT EXISTS tag (
-  id TEXT PRIMARY KEY UNIQUE,
-  scope_type TEXT NOT NULL,
-  scope_id TEXT,
-  tag_group_id TEXT,
-  key TEXT NOT NULL,
-  name TEXT,
-  description TEXT,
-  FOREIGN KEY (tag_group_id) REFERENCES tag_group(id) ON DELETE CASCADE
-);
-
-CREATE INDEX IF NOT EXISTS idx_tag_scope_key
-ON tag(scope_type, scope_id, key);
-
-CREATE INDEX IF NOT EXISTS idx_tag_group_key
-ON tag(tag_group_id, key);
-
-"""
 
         private val logger = LoggerFactory.getLogger(TagStorageSQLite::class.java)
     }

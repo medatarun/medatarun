@@ -1,7 +1,8 @@
-package io.medatarun.tags.core.adapters
+package io.medatarun.tags.core.adapters.types
 
 import io.medatarun.tags.core.adapters.json.TagRefJsonConverter
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
@@ -17,8 +18,8 @@ class TagRefTypeDescriptor : TypeDescriptor<TagRef> {
             is TagRef.ById -> value
             is TagRef.ByKey -> {
                 when (val scopeRef = value.scopeRef) {
-                    is io.medatarun.tags.core.domain.TagScopeRef.Global -> scopeRef
-                    is io.medatarun.tags.core.domain.TagScopeRef.Local -> scopeRef
+                    is TagScopeRef.Global -> scopeRef
+                    is TagScopeRef.Local -> scopeRef
                 }
                 val localGroupKey = value.groupKey
                 if (localGroupKey != null) {

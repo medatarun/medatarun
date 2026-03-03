@@ -5,6 +5,7 @@ import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
@@ -92,8 +93,8 @@ class ExtraExtension(
 
 
 class TagTestEnv(
-    val extraScopeManagers: List<TagScopeManager> = emptyList(),
-    val extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
+    extraScopeManagers: List<TagScopeManager> = emptyList(),
+    extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
 ) {
 
     val extensions = listOf(
@@ -118,6 +119,7 @@ class TagTestEnv(
     val tagQueries get() = platform.services.getService<TagQueries>()
     val vehicleService get() = platform.services.getService<VehicleService>()
     val recipeService get() = platform.services.getService<RecipeService>()
+    val dbMigrationChecker get() = platform.services.getService<DbMigrationChecker>()
 
     private val provider = TagActionProvider()
 

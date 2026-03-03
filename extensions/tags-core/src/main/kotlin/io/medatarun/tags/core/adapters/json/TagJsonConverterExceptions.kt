@@ -1,4 +1,4 @@
-package io.medatarun.tags.core.adapters
+package io.medatarun.tags.core.adapters.json
 
 import io.medatarun.types.TypeJsonConverterBadFormatException
 import kotlinx.serialization.json.JsonElement

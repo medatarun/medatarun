@@ -1,4 +1,4 @@
-package io.medatarun.tags.core.adapters
+package io.medatarun.tags.core.adapters.types
 
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.types.TypeDescriptor

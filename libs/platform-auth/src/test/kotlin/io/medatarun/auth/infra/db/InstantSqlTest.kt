@@ -1,4 +1,4 @@
-package io.medatarun.auth.infra
+package io.medatarun.auth.infra.db
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
