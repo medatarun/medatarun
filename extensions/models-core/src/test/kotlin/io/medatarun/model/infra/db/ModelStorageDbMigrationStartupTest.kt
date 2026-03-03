@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ModelsCoreDbMigrationStartupTest {
+class ModelStorageDbMigrationStartupTest {
     @Test
     fun `models startup applies contributed db migrations`() {
         val env = ModelTestEnv()

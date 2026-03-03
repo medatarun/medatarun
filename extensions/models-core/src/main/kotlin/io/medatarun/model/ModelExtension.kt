@@ -6,8 +6,8 @@ import io.medatarun.model.adapters.descriptors.*
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
-import io.medatarun.model.infra.db.ModelStorageSQLite
-import io.medatarun.model.infra.db.ModelsCoreDbMigration
+import io.medatarun.model.infra.db.ModelStorageDb
+import io.medatarun.model.infra.db.ModelStorageDbMigration
 import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
@@ -50,7 +50,7 @@ open class ModelExtension : MedatarunExtension {
 
         val validation = ModelValidationImpl()
         val tagResolver = ModelTagResolverWithQueries(tagQueries)
-        val storage: ModelStorage = ModelStorageSQLite(dbConnectionFactory)
+        val storage: ModelStorage = ModelStorageDb(dbConnectionFactory)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
@@ -76,7 +76,7 @@ open class ModelExtension : MedatarunExtension {
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
         ctx.register(TagScopeManager::class, modelTagScopeManager)
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
-        ctx.register(DbMigration::class, ModelsCoreDbMigration(id))
+        ctx.register(DbMigration::class, ModelStorageDbMigration(id))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityRefDescriptor())

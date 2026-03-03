@@ -3,7 +3,7 @@ package io.medatarun.model.infra.db
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
 
-class ModelsCoreDbMigration(override val pluginId: String) : DbMigration {
+class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
 
     override fun install(ctx: DbMigrationContext) {
         ctx.applySqlResource(V000_INIT_DB_SQLITE)

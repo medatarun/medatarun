@@ -1,10 +1,28 @@
 package io.medatarun.model.infra.db
 
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.db.records.EntityAttributeRecord
+import io.medatarun.model.infra.db.records.EntityRecord
+import io.medatarun.model.infra.db.records.ModelRecord
+import io.medatarun.model.infra.db.records.ModelTypeRecord
+import io.medatarun.model.infra.db.records.RelationshipAttributeRecord
+import io.medatarun.model.infra.db.records.RelationshipRecord
+import io.medatarun.model.infra.db.records.RelationshipRoleRecord
+import io.medatarun.model.infra.db.tables.EntityAttributeTable
+import io.medatarun.model.infra.db.tables.EntityAttributeTagTable
+import io.medatarun.model.infra.db.tables.EntityTable
+import io.medatarun.model.infra.db.tables.EntityTagTable
+import io.medatarun.model.infra.db.tables.ModelTable
+import io.medatarun.model.infra.db.tables.ModelTagTable
+import io.medatarun.model.infra.db.tables.ModelTypeTable
+import io.medatarun.model.infra.db.tables.RelationshipAttributeTable
+import io.medatarun.model.infra.db.tables.RelationshipAttributeTagTable
+import io.medatarun.model.infra.db.tables.RelationshipRoleTable
+import io.medatarun.model.infra.db.tables.RelationshipTable
+import io.medatarun.model.infra.db.tables.RelationshipTagTable
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelTagResolver
@@ -16,11 +34,11 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import java.net.URI
 
-class ModelStorageSQLite(
+class ModelStorageDb(
     private val dbConnectionFactory: DbConnectionFactory
 ) : ModelStorage {
-    private val searchRead = ModelStorageSearchSQLiteRead(dbConnectionFactory)
-    private val searchWrite = ModelStorageSearchSQLiteWrite(dbConnectionFactory)
+    private val searchRead = ModelStorageDbSearchRead(dbConnectionFactory)
+    private val searchWrite = ModelStorageDbSearchWrite(dbConnectionFactory)
 
     fun search(query: SearchQuery, tagResolver: ModelTagResolver): SearchResults {
         return searchRead.search(query, tagResolver)
@@ -876,22 +894,23 @@ class ModelStorageSQLite(
     }
 
     private fun loadModel(row: ResultRow): ModelInMemory {
-        val modelId = ModelId.fromString(row[ModelTable.id])
+        val record = ModelRecord.read(row)
+        val modelId = ModelId.fromString(record.id)
         val types = loadTypes(modelId)
         val entities = loadEntities(modelId)
         val relationships = loadRelationships(modelId)
 
         return ModelInMemory(
             id = modelId,
-            key = ModelKey(row[ModelTable.key]),
-            name = stringToLocalizedText(row[ModelTable.name]),
-            description = stringToLocalizedMarkdown(row[ModelTable.description]),
-            version = ModelVersion(row[ModelTable.version]),
-            origin = stringToModelOrigin(row[ModelTable.origin]),
+            key = ModelKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            version = ModelVersion(record.version),
+            origin = stringToModelOrigin(record.origin),
             types = types,
             entities = entities,
             relationships = relationships,
-            documentationHome = row[ModelTable.documentationHome]?.let { URI(it).toURL() },
+            documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = loadModelTags(modelId)
         )
     }
@@ -901,11 +920,12 @@ class ModelStorageSQLite(
             .where { ModelTypeTable.modelId eq modelId.asString() }
             .orderBy(ModelTypeTable.key to SortOrder.ASC)
             .map { row ->
+                val record = ModelTypeRecord.read(row)
                 ModelTypeInMemory(
-                    id = TypeId.fromString(row[ModelTypeTable.id]),
-                    key = TypeKey(row[ModelTypeTable.key]),
-                    name = stringToLocalizedText(row[ModelTypeTable.name]),
-                    description = stringToLocalizedMarkdown(row[ModelTypeTable.description])
+                    id = TypeId.fromString(record.id),
+                    key = TypeKey(record.key),
+                    name = stringToLocalizedText(record.name),
+                    description = stringToLocalizedMarkdown(record.description)
                 )
             }
     }
@@ -924,22 +944,23 @@ class ModelStorageSQLite(
             .where { EntityTable.modelId eq modelId.asString() }
             .orderBy(EntityTable.key to SortOrder.ASC)
             .map { row ->
-                val entityId = EntityId.fromString(row[EntityTable.id])
+                val record = EntityRecord.read(row)
+                val entityId = EntityId.fromString(record.id)
                 val attributes = (attributeRowsByEntityId[entityId.asString()] ?: emptyList()).map { attrRow ->
                     entityAttributeFromRow(attrRow)
                 }
-                val identifierAttributeIdString = row[EntityTable.identifierAttributeId]
-                    ?: throw ModelStorageSQLiteInvalidIdentifierAttributeException(entityId.asString())
+                val identifierAttributeIdString = record.identifierAttributeId
+                    ?: throw ModelStorageDbInvalidIdentifierAttributeException(entityId.asString())
 
                 EntityInMemory(
                     id = entityId,
-                    key = EntityKey(row[EntityTable.key]),
-                    name = stringToLocalizedText(row[EntityTable.name]),
-                    description = stringToLocalizedMarkdown(row[EntityTable.description]),
+                    key = EntityKey(record.key),
+                    name = stringToLocalizedText(record.name),
+                    description = stringToLocalizedMarkdown(record.description),
                     identifierAttributeId = AttributeId.fromString(identifierAttributeIdString),
-                    origin = stringToEntityOrigin(row[EntityTable.origin]),
+                    origin = stringToEntityOrigin(record.origin),
                     attributes = attributes,
-                    documentationHome = row[EntityTable.documentationHome]?.let { URI(it).toURL() },
+                    documentationHome = record.documentationHome?.let { URI(it).toURL() },
                     tags = loadEntityTags(entityId)
                 )
             }
@@ -965,12 +986,13 @@ class ModelStorageSQLite(
             .where { RelationshipTable.modelId eq modelId.asString() }
             .orderBy(RelationshipTable.key to SortOrder.ASC)
             .map { row ->
-                val relationshipId = RelationshipId.fromString(row[RelationshipTable.id])
+                val record = RelationshipRecord.read(row)
+                val relationshipId = RelationshipId.fromString(record.id)
                 RelationshipInMemory(
                     id = relationshipId,
-                    key = RelationshipKey(row[RelationshipTable.key]),
-                    name = stringToLocalizedText(row[RelationshipTable.name]),
-                    description = stringToLocalizedMarkdown(row[RelationshipTable.description]),
+                    key = RelationshipKey(record.key),
+                    name = stringToLocalizedText(record.name),
+                    description = stringToLocalizedMarkdown(record.description),
                     roles = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList()).map { roleRow ->
                         relationshipRoleFromRow(roleRow)
                     },
@@ -984,38 +1006,41 @@ class ModelStorageSQLite(
     }
 
     private fun entityAttributeFromRow(row: ResultRow): AttributeInMemory {
-        val attributeId = AttributeId.fromString(row[EntityAttributeTable.id])
+        val record = EntityAttributeRecord.read(row)
+        val attributeId = AttributeId.fromString(record.id)
         return AttributeInMemory(
             id = attributeId,
-            key = AttributeKey(row[EntityAttributeTable.key]),
-            name = stringToLocalizedText(row[EntityAttributeTable.name]),
-            description = stringToLocalizedMarkdown(row[EntityAttributeTable.description]),
-            typeId = TypeId.fromString(row[EntityAttributeTable.typeId]),
-            optional = row[EntityAttributeTable.optional],
+            key = AttributeKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            typeId = TypeId.fromString(record.typeId),
+            optional = record.optional,
             tags = loadEntityAttributeTags(attributeId)
         )
     }
 
     private fun relationshipAttributeFromRow(row: ResultRow): AttributeInMemory {
-        val attributeId = AttributeId.fromString(row[RelationshipAttributeTable.id])
+        val record = RelationshipAttributeRecord.read(row)
+        val attributeId = AttributeId.fromString(record.id)
         return AttributeInMemory(
             id = attributeId,
-            key = AttributeKey(row[RelationshipAttributeTable.key]),
-            name = stringToLocalizedText(row[RelationshipAttributeTable.name]),
-            description = stringToLocalizedMarkdown(row[RelationshipAttributeTable.description]),
-            typeId = TypeId.fromString(row[RelationshipAttributeTable.typeId]),
-            optional = row[RelationshipAttributeTable.optional],
+            key = AttributeKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            typeId = TypeId.fromString(record.typeId),
+            optional = record.optional,
             tags = loadRelationshipAttributeTags(attributeId)
         )
     }
 
     private fun relationshipRoleFromRow(row: ResultRow): RelationshipRoleInMemory {
+        val record = RelationshipRoleRecord.read(row)
         return RelationshipRoleInMemory(
-            id = RelationshipRoleId.fromString(row[RelationshipRoleTable.id]),
-            key = RelationshipRoleKey(row[RelationshipRoleTable.key]),
-            entityId = EntityId.fromString(row[RelationshipRoleTable.entityId]),
-            name = stringToLocalizedText(row[RelationshipRoleTable.name]),
-            cardinality = RelationshipCardinality.valueOfCode(row[RelationshipRoleTable.cardinality])
+            id = RelationshipRoleId.fromString(record.id),
+            key = RelationshipRoleKey(record.key),
+            entityId = EntityId.fromString(record.entityId),
+            name = stringToLocalizedText(record.name),
+            cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
         )
     }
 
@@ -1092,114 +1117,4 @@ class ModelStorageSQLite(
         return if (origin == null) EntityOrigin.Manual else EntityOrigin.Uri(URI(origin))
     }
 
-    companion object {
-
-        object ModelTable : Table("model") {
-            val id = text("id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-            val version = text("version")
-            val origin = text("origin").nullable()
-            val documentationHome = text("documentation_home").nullable()
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object ModelTagTable : Table("model_tag") {
-            val modelId = text("model_id")
-            val tagId = text("tag_id")
-        }
-
-        object ModelTypeTable : Table("model_type") {
-            val id = text("id")
-            val modelId = text("model_id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object EntityTable : Table("entity") {
-            val id = text("id")
-            val modelId = text("model_id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-            val identifierAttributeId = text("identifier_attribute_id").nullable()
-            val origin = text("origin").nullable()
-            val documentationHome = text("documentation_home").nullable()
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object EntityTagTable : Table("entity_tag") {
-            val entityId = text("entity_id")
-            val tagId = text("tag_id")
-        }
-
-        object EntityAttributeTable : Table("entity_attribute") {
-            val id = text("id")
-            val entityId = text("entity_id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-            val typeId = text("type_id")
-            val optional = bool("optional")
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object EntityAttributeTagTable : Table("entity_attribute_tag") {
-            val attributeId = text("attribute_id")
-            val tagId = text("tag_id")
-        }
-
-        object RelationshipTable : Table("relationship") {
-            val id = text("id")
-            val modelId = text("model_id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object RelationshipTagTable : Table("relationship_tag") {
-            val relationshipId = text("relationship_id")
-            val tagId = text("tag_id")
-        }
-
-        object RelationshipRoleTable : Table("relationship_role") {
-            val id = text("id")
-            val relationshipId = text("relationship_id")
-            val key = text("key")
-            val entityId = text("entity_id")
-            val name = text("name").nullable()
-            val cardinality = text("cardinality")
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object RelationshipAttributeTable : Table("relationship_attribute") {
-            val id = text("id")
-            val relationshipId = text("relationship_id")
-            val key = text("key")
-            val name = text("name").nullable()
-            val description = text("description").nullable()
-            val typeId = text("type_id")
-            val optional = bool("optional")
-
-            override val primaryKey = PrimaryKey(id)
-        }
-
-        object RelationshipAttributeTagTable : Table("relationship_attribute_tag") {
-            val attributeId = text("attribute_id")
-            val tagId = text("tag_id")
-        }
-    }
 }
-
-class ModelStorageSQLiteInvalidIdentifierAttributeException(entityId: String) :
-    MedatarunException("Entity $entityId has no identifier attribute in sqlite storage")
