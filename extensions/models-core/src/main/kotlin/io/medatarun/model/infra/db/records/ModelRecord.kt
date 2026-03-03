@@ -1,0 +1,28 @@
+package io.medatarun.model.infra.db.records
+
+import io.medatarun.model.infra.db.tables.ModelTable
+import org.jetbrains.exposed.v1.core.ResultRow
+
+data class ModelRecord(
+    val id: String,
+    val key: String,
+    val name: String?,
+    val description: String?,
+    val version: String,
+    val origin: String?,
+    val documentationHome: String?
+) {
+    companion object {
+        fun read(row: ResultRow): ModelRecord {
+            return ModelRecord(
+                id = row[ModelTable.id],
+                key = row[ModelTable.key],
+                name = row[ModelTable.name],
+                description = row[ModelTable.description],
+                version = row[ModelTable.version],
+                origin = row[ModelTable.origin],
+                documentationHome = row[ModelTable.documentationHome]
+            )
+        }
+    }
+}

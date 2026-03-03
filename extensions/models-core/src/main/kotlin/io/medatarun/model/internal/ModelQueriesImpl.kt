@@ -3,7 +3,7 @@ package io.medatarun.model.internal
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
-import io.medatarun.model.infra.db.ModelStorageSQLite
+import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver
@@ -132,7 +132,7 @@ class ModelQueriesImpl(
         }
     }
     override fun search(query: SearchQuery): SearchResults {
-        val sqliteStorage = storage as? ModelStorageSQLite
+        val sqliteStorage = storage as? ModelStorageDb
             ?: throw ModelQueriesImplSearchStorageNotSupportedException(storage::class.qualifiedName ?: storage::class.simpleName ?: "unknown")
         return sqliteStorage.search(query, tagResolver)
     }
