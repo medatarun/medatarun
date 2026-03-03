@@ -6,7 +6,9 @@ import io.medatarun.model.adapters.descriptors.*
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.infra.ModelHumanPrinterEmoji
-import io.medatarun.model.infra.ModelStoragesComposite
+import io.medatarun.model.infra.ModelStoragesSingle
+import io.medatarun.model.infra.db.ModelStorageSQLite
+import io.medatarun.model.infra.db.ModelsCoreDbMigration
 import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
@@ -17,8 +19,9 @@ import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
-import io.medatarun.model.ports.needs.ModelRepository
-import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigration
+import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
@@ -35,8 +38,9 @@ import org.slf4j.LoggerFactory
 open class ModelExtension : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
-        val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val tagQueries = ctx.getService(TagQueries::class)
+        val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
+        val dbTransactionManager = ctx.getService(DbTransactionManager::class)
 
         val auditor: ModelAuditor = object : ModelAuditor {
             override fun onCmdProcessed(cmd: ModelCmd) {
@@ -45,13 +49,12 @@ open class ModelExtension : MedatarunExtension {
         }
 
         val validation = ModelValidationImpl()
-        val storage = ModelStoragesComposite({
-            extensionRegistry.findContributionsFlat(ModelRepository::class)
-        }, validation)
+        val repository = ModelStorageSQLite(dbConnectionFactory)
+        val storage = ModelStoragesSingle(repository, validation)
 
         val tagResolver = ModelTagResolverWithQueries(tagQueries)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
-        val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
+        val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver, dbTransactionManager)
         val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
 
 
@@ -71,11 +74,11 @@ open class ModelExtension : MedatarunExtension {
             }
         }
 
-        ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
         ctx.register(TagScopeManager::class, modelTagScopeManager)
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
+        ctx.register(DbMigration::class, ModelsCoreDbMigration(id))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityRefDescriptor())

@@ -4,52 +4,55 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.*
+import io.medatarun.platform.db.DbTransactionManager
 
 class ModelCmdsImpl(
     val storage: ModelStorages,
     val auditor: ModelAuditor,
-    val tagResolver: ModelTagResolver
+    val tagResolver: ModelTagResolver,
+    private val txManager: DbTransactionManager
 ) : ModelCmds {
 
     override fun dispatch(cmd: ModelCmd) {
-        if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelRef)
-        when (cmd) {
-            is ModelCmd.CreateModel -> createModel(cmd)
-            is ModelCmd.CopyModel -> copyModel(cmd)
-            is ModelCmd.ImportModel -> importModel(cmd)
-            is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
-            is ModelCmd.UpdateModelName -> updateModelName(cmd)
-            is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
-            is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
-            is ModelCmd.UpdateModelTagAdd -> updateModelTagAdd(cmd)
-            is ModelCmd.UpdateModelTagDelete -> updateModelTagDelete(cmd)
-            is ModelCmd.DeleteModel -> deleteModel(cmd)
-            is ModelCmd.CreateType -> createType(cmd)
-            is ModelCmd.UpdateType -> updateType(cmd)
-            is ModelCmd.DeleteType -> deleteType(cmd)
-            is ModelCmd.CreateEntity -> createEntity(cmd)
-            is ModelCmd.UpdateEntity -> updateEntity(cmd)
-            is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmd)
-            is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmd)
-            is ModelCmd.DeleteEntity -> deleteEntity(cmd)
-            is ModelCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
-            is ModelCmd.UpdateEntityAttribute -> updateEntityAttribute(cmd)
-            is ModelCmd.UpdateEntityAttributeTagAdd -> updateEntityAttributeTagAdd(cmd)
-            is ModelCmd.UpdateEntityAttributeTagDelete -> updateEntityAttributeTagDelete(cmd)
-            is ModelCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd)
-            is ModelCmd.CreateRelationship -> createRelationship(cmd)
-            is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
-            is ModelCmd.UpdateRelationship -> updateRelationship(cmd)
-            is ModelCmd.UpdateRelationshipTagAdd -> updateRelationshipTagAdd(cmd)
-            is ModelCmd.UpdateRelationshipTagDelete -> updateRelationshipTagDelete(cmd)
-            is ModelCmd.DeleteRelationship -> deleteRelationship(cmd)
-            is ModelCmd.UpdateRelationshipAttribute -> updateRelationshipAttribute(cmd)
-            is ModelCmd.UpdateRelationshipAttributeTagAdd -> updateRelationshipAttributeTagAdd(cmd)
-            is ModelCmd.UpdateRelationshipAttributeTagDelete -> updateRelationshipAttributeTagDelete(cmd)
-            is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd)
-
+        return txManager.runInTransaction {
+            if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelRef)
+            when (cmd) {
+                is ModelCmd.CreateModel -> createModel(cmd)
+                is ModelCmd.CopyModel -> copyModel(cmd)
+                is ModelCmd.ImportModel -> importModel(cmd)
+                is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
+                is ModelCmd.UpdateModelName -> updateModelName(cmd)
+                is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
+                is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
+                is ModelCmd.UpdateModelTagAdd -> updateModelTagAdd(cmd)
+                is ModelCmd.UpdateModelTagDelete -> updateModelTagDelete(cmd)
+                is ModelCmd.DeleteModel -> deleteModel(cmd)
+                is ModelCmd.CreateType -> createType(cmd)
+                is ModelCmd.UpdateType -> updateType(cmd)
+                is ModelCmd.DeleteType -> deleteType(cmd)
+                is ModelCmd.CreateEntity -> createEntity(cmd)
+                is ModelCmd.UpdateEntity -> updateEntity(cmd)
+                is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmd)
+                is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmd)
+                is ModelCmd.DeleteEntity -> deleteEntity(cmd)
+                is ModelCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
+                is ModelCmd.UpdateEntityAttribute -> updateEntityAttribute(cmd)
+                is ModelCmd.UpdateEntityAttributeTagAdd -> updateEntityAttributeTagAdd(cmd)
+                is ModelCmd.UpdateEntityAttributeTagDelete -> updateEntityAttributeTagDelete(cmd)
+                is ModelCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd)
+                is ModelCmd.CreateRelationship -> createRelationship(cmd)
+                is ModelCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
+                is ModelCmd.UpdateRelationship -> updateRelationship(cmd)
+                is ModelCmd.UpdateRelationshipTagAdd -> updateRelationshipTagAdd(cmd)
+                is ModelCmd.UpdateRelationshipTagDelete -> updateRelationshipTagDelete(cmd)
+                is ModelCmd.DeleteRelationship -> deleteRelationship(cmd)
+                is ModelCmd.UpdateRelationshipAttribute -> updateRelationshipAttribute(cmd)
+                is ModelCmd.UpdateRelationshipAttributeTagAdd -> updateRelationshipAttributeTagAdd(cmd)
+                is ModelCmd.UpdateRelationshipAttributeTagDelete -> updateRelationshipAttributeTagDelete(cmd)
+                is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd)
+            }
+            auditor.onCmdProcessed(cmd)
         }
-        return auditor.onCmdProcessed(cmd)
     }
 
     private fun findModelByIdOptional(id: ModelId): Model? {

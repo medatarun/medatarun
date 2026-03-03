@@ -2,21 +2,11 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.infra.*
-import io.medatarun.model.internal.ModelValidationImpl
-import io.medatarun.model.ports.exposed.*
+import io.medatarun.model.ports.exposed.AttributeUpdateCmd
+import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.tags.core.actions.TagAction
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.Tag
-import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.net.URI
 import kotlin.test.*
@@ -54,52 +44,9 @@ class ModelTest {
         return env.tagQueries.findTagByRef(tagRef)
     }
 
-    @Test
-    fun `can not instantiate storages without repositories`() {
-        assertFailsWith(ModelStoragesCompositeNoRepositoryException::class) {
-            val c = ModelStoragesComposite({ emptyList() }, ModelValidationImpl())
-            c.findAllModelIds()
-        }
-    }
-
     // ------------------------------------------------------------------------
     // Create models
     // ------------------------------------------------------------------------
-
-    @Test
-    fun `create model fail with ambiguous storage`() {
-        val repo1 = ModelRepositoryInMemory("repo1")
-        val repo2 = ModelRepositoryInMemory("repo2")
-        val env = createEnv(repositories = listOf(repo1, repo2))
-        assertFailsWith(ModelStoragesAmbiguousRepositoryException::class) {
-            env.dispatch(
-                ModelAction.Model_Create(
-                    modelKey = ModelKey("m1"),
-                    name = LocalizedTextNotLocalized("M1"),
-                    description = null,
-                    version = ModelVersion("1.0.0")
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `create model ok with one storage mode auto`() {
-        val repo1 = ModelRepositoryInMemory("repo1")
-        val env = createEnv(repositories = listOf(repo1))
-        val modelKey = ModelKey("m1")
-        assertDoesNotThrow {
-            env.dispatch(
-                ModelAction.Model_Create(
-                    modelKey = modelKey,
-                    name = LocalizedTextNotLocalized("M1"),
-                    description = null,
-                    version = ModelVersion("1.0.0")
-                )
-            )
-        }
-        assertNotNull(repo1.findModelByKeyOptional(modelKey))
-    }
 
     @Test
     fun `create model with name description and version when present`() {
@@ -1823,82 +1770,6 @@ class ModelTest {
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(ModelAction.RelationshipAttribute_AddTag(env.modelRef, relationshipRef, attributeRef, foreignTag.ref))
         }
-    }
-
-    // ------------------------------------------------------------------------
-    // Validation process
-    // ------------------------------------------------------------------------
-
-    class TestEnvInvalidModel {
-        val runtime = createEnv()
-        val dispatch = runtime::dispatch
-        val query = runtime.queries
-        private val modelKey = ModelKey("test")
-        val modelRef = modelRefKey(modelKey)
-
-        val typeStringId = TypeId.generate()
-
-        fun createInvalidModel() {
-            val invalidModel = ModelInMemory.builder(
-                key = modelKey,
-                version = ModelVersion("0.0.1"),
-            ) {
-                name = null
-                description = null
-                types = mutableListOf(
-                    ModelTypeInMemory(
-                        id = typeStringId,
-                        key = TypeKey("String"),
-                        name = null,
-                        description = null
-                    )
-                )
-                addEntity(
-                    key = EntityKey("Contact"),
-                    // Error is here
-                    identifierAttributeId = AttributeId.generate(),
-                ) {
-                    addAttribute(
-                        AttributeInMemory(
-                            id = AttributeId.generate(),
-                            key = AttributeKey("id"),
-                            typeId = typeStringId,
-                            name = null,
-                            description = null,
-                            optional = false,
-                            tags = emptyList()
-                        )
-                    )
-                }
-
-            }
-            runtime.repositories.first().push(invalidModel)
-        }
-    }
-
-    @Test
-    fun `can not load model with errors`() {
-
-        // This test only checks loading and basic behaviour of model operations
-
-        // Each method that needs checking shall be checked independently
-        // as some methods can effectively work on invalid models (for example to be able
-        // to correct them)
-
-        val env = TestEnvInvalidModel()
-        env.createInvalidModel()
-
-        // Getting a model that has error shall fail with invalid exception
-        assertThrows<ModelInvalidException> { env.query.findModel(env.modelRef) }
-
-        // Find all model ids shall not validate models, just give their ids
-        assertDoesNotThrow { env.query.findAllModelIds() }
-
-        // Creating or trying to modify something in invalid model shall throw error
-        assertThrows<ModelInvalidException> {
-            env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Markdown"), null, null))
-        }
-
     }
 
 }

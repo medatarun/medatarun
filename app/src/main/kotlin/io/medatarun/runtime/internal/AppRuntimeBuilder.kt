@@ -4,7 +4,6 @@ import io.medatarun.actions.ActionsExtension
 import io.medatarun.auth.AuthExtension
 import io.medatarun.ext.db.ModelsImportJdbcExtension
 import io.medatarun.ext.frictionlessdata.FrictionlessdataExtension
-import io.medatarun.ext.modeljson.ModelJsonExtension
 import io.medatarun.model.ModelExtension
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
@@ -32,7 +31,6 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
             TagsCoreExtension(),
             ModelExtension(),
             SysopsConfigInspectorExtension(),
-            ModelJsonExtension(),
             ModelsImportJdbcExtension(),
             FrictionlessdataExtension()
         )
