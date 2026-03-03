@@ -7,8 +7,8 @@ import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.exposed.ModelTypeUpdateCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdAttributeUpdate
 import io.medatarun.model.ports.needs.ModelRepoCmdEntityUpdate
+import io.medatarun.model.ports.needs.ModelRepoCmdRelationshipUpdate
 import io.medatarun.model.ports.needs.ModelRepoCmd
-import io.medatarun.model.ports.needs.ModelRepoCmdOnModel
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelRepositoryId
 import io.medatarun.platform.db.DbConnectionFactory
@@ -92,8 +92,26 @@ class ModelStorageSQLite(
             is ModelRepoCmd.UpdateEntityAttributeTagAdd -> addEntityAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.UpdateEntityAttributeTagDelete -> deleteEntityAttributeTag(cmd.attributeId, cmd.tagId)
             is ModelRepoCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd.entityId, cmd.attributeId)
-            is ModelRepoCmdOnModel -> updateModel(cmd.modelId) { model ->
-                ModelInMemoryReducer().dispatch(model, cmd)
+            is ModelRepoCmd.CreateRelationship -> createRelationship(cmd.modelId, cmd.initializer)
+            is ModelRepoCmd.UpdateRelationship -> updateRelationship(cmd.relationshipId, cmd.cmd)
+            is ModelRepoCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
+            is ModelRepoCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
+            is ModelRepoCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
+            is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd.relationshipId, cmd.attr)
+            is ModelRepoCmd.UpdateRelationshipAttribute -> {
+                updateRelationshipAttribute(cmd.relationshipId, cmd.attributeId, cmd.cmd)
+            }
+
+            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd -> {
+                addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            }
+
+            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete -> {
+                deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            }
+
+            is ModelRepoCmd.DeleteRelationshipAttribute -> {
+                deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
             }
         }
     }
@@ -104,12 +122,6 @@ class ModelStorageSQLite(
             insertModel(inMemoryModel)
             insertModelTags(inMemoryModel.id, inMemoryModel.tags)
         }
-    }
-
-    private fun updateModel(modelId: ModelId, block: (model: ModelInMemory) -> ModelInMemory) {
-        val model = findModelByIdOptional(modelId) as? ModelInMemory
-            ?: throw ModelStorageSQLiteModelNotFoundException(modelId)
-        persistModelSnapshot(block(model))
     }
 
     private fun deleteModel(modelId: ModelId) {
@@ -356,81 +368,6 @@ class ModelStorageSQLite(
         }
     }
 
-    /**
-     * Writes the full relational snapshot for one model.
-     *
-     * Commands still operate as incremental domain mutations, but persistence stays simple and consistent by
-     * rewriting the model subtree inside the current transaction.
-     */
-    private fun persistModelSnapshot(model: ModelInMemory) {
-        dbConnectionFactory.withExposed {
-            upsertModel(model)
-            clearModelSnapshot(model.id)
-            insertModelTags(model.id, model.tags)
-            replaceTypes(model)
-            replaceEntities(model)
-            replaceRelationships(model)
-        }
-    }
-
-    private fun clearModelSnapshot(modelId: ModelId) {
-        val entityIds = EntityTable.select(EntityTable.id)
-            .where { EntityTable.modelId eq modelId.asString() }
-        val relationshipIds = RelationshipTable.select(RelationshipTable.id)
-            .where { RelationshipTable.modelId eq modelId.asString() }
-        val entityAttributeIds = EntityAttributeTable.select(EntityAttributeTable.id)
-            .where { EntityAttributeTable.entityId inSubQuery entityIds }
-        val relationshipAttributeIds = RelationshipAttributeTable.select(RelationshipAttributeTable.id)
-            .where { RelationshipAttributeTable.relationshipId inSubQuery relationshipIds }
-
-        RelationshipAttributeTagTable.deleteWhere {
-            RelationshipAttributeTagTable.attributeId inSubQuery relationshipAttributeIds
-        }
-        RelationshipAttributeTable.deleteWhere {
-            RelationshipAttributeTable.relationshipId inSubQuery relationshipIds
-        }
-        RelationshipRoleTable.deleteWhere {
-            RelationshipRoleTable.relationshipId inSubQuery relationshipIds
-        }
-        RelationshipTagTable.deleteWhere {
-            RelationshipTagTable.relationshipId inSubQuery relationshipIds
-        }
-        RelationshipTable.deleteWhere { RelationshipTable.modelId eq modelId.asString() }
-
-        EntityAttributeTagTable.deleteWhere {
-            EntityAttributeTagTable.attributeId inSubQuery entityAttributeIds
-        }
-        EntityAttributeTable.deleteWhere {
-            EntityAttributeTable.entityId inSubQuery entityIds
-        }
-        EntityTagTable.deleteWhere {
-            EntityTagTable.entityId inSubQuery entityIds
-        }
-        EntityTable.deleteWhere { EntityTable.modelId eq modelId.asString() }
-
-        ModelTypeTable.deleteWhere { ModelTypeTable.modelId eq modelId.asString() }
-        ModelTagTable.deleteWhere { ModelTagTable.modelId eq modelId.asString() }
-    }
-
-    private fun upsertModel(model: ModelInMemory) {
-        val existingCount = ModelTable.selectAll()
-            .where { ModelTable.id eq model.id.asString() }
-            .count()
-
-        if (existingCount == 0L) {
-            insertModel(model)
-        } else {
-            ModelTable.update(where = { ModelTable.id eq model.id.asString() }) { row ->
-                row[ModelTable.key] = model.key.asString()
-                row[ModelTable.name] = localizedTextToString(model.name)
-                row[ModelTable.description] = localizedMarkdownToString(model.description)
-                row[ModelTable.version] = model.version.value
-                row[ModelTable.origin] = modelOriginToString(model.origin)
-                row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
-            }
-        }
-    }
-
     private fun insertModel(model: ModelInMemory) {
         ModelTable.insert { row ->
             row[ModelTable.id] = model.id.asString()
@@ -449,24 +386,6 @@ class ModelStorageSQLite(
                 row[ModelTagTable.modelId] = modelId.asString()
                 row[ModelTagTable.tagId] = tagId.asString()
             }
-        }
-    }
-
-    private fun replaceTypes(model: ModelInMemory) {
-        for (type in model.types) {
-            ModelTypeTable.insert { row ->
-                row[ModelTypeTable.id] = type.id.asString()
-                row[ModelTypeTable.modelId] = model.id.asString()
-                row[ModelTypeTable.key] = type.key.asString()
-                row[ModelTypeTable.name] = localizedTextToString(type.name)
-                row[ModelTypeTable.description] = localizedMarkdownToString(type.description)
-            }
-        }
-    }
-
-    private fun replaceEntities(model: ModelInMemory) {
-        for (entity in model.entities) {
-            insertEntity(model.id, entity)
         }
     }
 
@@ -525,51 +444,219 @@ class ModelStorageSQLite(
         }
     }
 
-    private fun replaceRelationships(model: ModelInMemory) {
-        for (relationship in model.relationships) {
-            RelationshipTable.insert { row ->
-                row[RelationshipTable.id] = relationship.id.asString()
-                row[RelationshipTable.modelId] = model.id.asString()
-                row[RelationshipTable.key] = relationship.key.asString()
-                row[RelationshipTable.name] = localizedTextToString(relationship.name)
-                row[RelationshipTable.description] = localizedMarkdownToString(relationship.description)
-            }
+    private fun createRelationship(modelId: ModelId, relationship: Relationship) {
+        dbConnectionFactory.withExposed {
+            insertRelationship(modelId, RelationshipInMemory.of(relationship))
+        }
+    }
 
-            for (tagId in relationship.tags) {
+    private fun updateRelationship(relationshipId: RelationshipId, cmd: ModelRepoCmdRelationshipUpdate) {
+        dbConnectionFactory.withExposed {
+            when (cmd) {
+                is ModelRepoCmdRelationshipUpdate.Key -> {
+                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                        row[RelationshipTable.key] = cmd.value.asString()
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.Name -> {
+                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                        row[RelationshipTable.name] = localizedTextToString(cmd.value)
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.Description -> {
+                    RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+                        row[RelationshipTable.description] = localizedMarkdownToString(cmd.value)
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.RoleKey -> {
+                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
+                        row[RelationshipRoleTable.key] = cmd.value.asString()
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.RoleName -> {
+                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
+                        row[RelationshipRoleTable.name] = localizedTextToString(cmd.value)
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.RoleEntity -> {
+                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
+                        row[RelationshipRoleTable.entityId] = cmd.value.asString()
+                    }
+                }
+
+                is ModelRepoCmdRelationshipUpdate.RoleCardinality -> {
+                    RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq cmd.relationshipRoleId.asString() }) { row ->
+                        row[RelationshipRoleTable.cardinality] = cmd.value.code
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipId)
+                .where {
+                    (RelationshipTagTable.relationshipId eq relationshipId.asString()) and
+                        (RelationshipTagTable.tagId eq tagId.asString())
+                }
+                .limit(1)
+                .any()
+            if (!exists) {
                 RelationshipTagTable.insert { row ->
-                    row[RelationshipTagTable.relationshipId] = relationship.id.asString()
+                    row[RelationshipTagTable.relationshipId] = relationshipId.asString()
                     row[RelationshipTagTable.tagId] = tagId.asString()
                 }
             }
+        }
+    }
 
-            for (role in relationship.roles) {
-                RelationshipRoleTable.insert { row ->
-                    row[RelationshipRoleTable.id] = role.id.asString()
-                    row[RelationshipRoleTable.relationshipId] = relationship.id.asString()
-                    row[RelationshipRoleTable.key] = role.key.asString()
-                    row[RelationshipRoleTable.entityId] = role.entityId.asString()
-                    row[RelationshipRoleTable.name] = localizedTextToString(role.name)
-                    row[RelationshipRoleTable.cardinality] = role.cardinality.code
+    private fun deleteRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            RelationshipTagTable.deleteWhere {
+                (RelationshipTagTable.relationshipId eq relationshipId.asString()) and
+                    (RelationshipTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
+    private fun deleteRelationship(modelId: ModelId, relationshipId: RelationshipId) {
+        dbConnectionFactory.withExposed {
+            RelationshipTable.deleteWhere {
+                (RelationshipTable.id eq relationshipId.asString()) and
+                    (RelationshipTable.modelId eq modelId.asString())
+            }
+        }
+    }
+
+    private fun createRelationshipAttribute(relationshipId: RelationshipId, attribute: Attribute) {
+        dbConnectionFactory.withExposed {
+            insertRelationshipAttribute(relationshipId, AttributeInMemory.of(attribute))
+        }
+    }
+
+    private fun updateRelationshipAttribute(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        cmd: ModelRepoCmdAttributeUpdate
+    ) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.update(
+                where = {
+                    (RelationshipAttributeTable.id eq attributeId.asString()) and
+                        (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                }
+            ) { row ->
+                when (cmd) {
+                    is ModelRepoCmdAttributeUpdate.Key -> row[RelationshipAttributeTable.key] = cmd.value.asString()
+                    is ModelRepoCmdAttributeUpdate.Name -> row[RelationshipAttributeTable.name] = localizedTextToString(cmd.value)
+                    is ModelRepoCmdAttributeUpdate.Description -> {
+                        row[RelationshipAttributeTable.description] = localizedMarkdownToString(cmd.value)
+                    }
+
+                    is ModelRepoCmdAttributeUpdate.Type -> row[RelationshipAttributeTable.typeId] = cmd.value.asString()
+                    is ModelRepoCmdAttributeUpdate.Optional -> row[RelationshipAttributeTable.optional] = cmd.value
                 }
             }
+        }
+    }
 
-            for (attribute in relationship.attributes) {
-                RelationshipAttributeTable.insert { row ->
-                    row[RelationshipAttributeTable.id] = attribute.id.asString()
-                    row[RelationshipAttributeTable.relationshipId] = relationship.id.asString()
-                    row[RelationshipAttributeTable.key] = attribute.key.asString()
-                    row[RelationshipAttributeTable.name] = localizedTextToString(attribute.name)
-                    row[RelationshipAttributeTable.description] = localizedMarkdownToString(attribute.description)
-                    row[RelationshipAttributeTable.typeId] = attribute.typeId.asString()
-                    row[RelationshipAttributeTable.optional] = attribute.optional
+    private fun addRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeId)
+                .where {
+                    (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and
+                        (RelationshipAttributeTagTable.tagId eq tagId.asString())
                 }
+                .limit(1)
+                .any()
+            if (!exists) {
+                RelationshipAttributeTagTable.insert { row ->
+                    row[RelationshipAttributeTagTable.attributeId] = attributeId.asString()
+                    row[RelationshipAttributeTagTable.tagId] = tagId.asString()
+                }
+            }
+        }
+    }
 
-                for (tagId in attribute.tags) {
-                    RelationshipAttributeTagTable.insert { row ->
-                        row[RelationshipAttributeTagTable.attributeId] = attribute.id.asString()
-                        row[RelationshipAttributeTagTable.tagId] = tagId.asString()
-                    }
-                }
+    private fun deleteRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTagTable.deleteWhere {
+                (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and
+                    (RelationshipAttributeTagTable.tagId eq tagId.asString())
+            }
+        }
+    }
+
+    private fun deleteRelationshipAttribute(relationshipId: RelationshipId, attributeId: AttributeId) {
+        dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.deleteWhere {
+                (RelationshipAttributeTable.id eq attributeId.asString()) and
+                    (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+            }
+        }
+    }
+
+    private fun insertRelationship(modelId: ModelId, relationship: RelationshipInMemory) {
+        RelationshipTable.insert { row ->
+            row[RelationshipTable.id] = relationship.id.asString()
+            row[RelationshipTable.modelId] = modelId.asString()
+            row[RelationshipTable.key] = relationship.key.asString()
+            row[RelationshipTable.name] = localizedTextToString(relationship.name)
+            row[RelationshipTable.description] = localizedMarkdownToString(relationship.description)
+        }
+
+        insertRelationshipTags(relationship.id, relationship.tags)
+
+        for (role in relationship.roles) {
+            RelationshipRoleTable.insert { row ->
+                row[RelationshipRoleTable.id] = role.id.asString()
+                row[RelationshipRoleTable.relationshipId] = relationship.id.asString()
+                row[RelationshipRoleTable.key] = role.key.asString()
+                row[RelationshipRoleTable.entityId] = role.entityId.asString()
+                row[RelationshipRoleTable.name] = localizedTextToString(role.name)
+                row[RelationshipRoleTable.cardinality] = role.cardinality.code
+            }
+        }
+
+        for (attribute in relationship.attributes) {
+            insertRelationshipAttribute(relationship.id, attribute)
+        }
+    }
+
+    private fun insertRelationshipTags(relationshipId: RelationshipId, tags: List<TagId>) {
+        for (tagId in tags) {
+            RelationshipTagTable.insert { row ->
+                row[RelationshipTagTable.relationshipId] = relationshipId.asString()
+                row[RelationshipTagTable.tagId] = tagId.asString()
+            }
+        }
+    }
+
+    private fun insertRelationshipAttribute(relationshipId: RelationshipId, attribute: AttributeInMemory) {
+        RelationshipAttributeTable.insert { row ->
+            row[RelationshipAttributeTable.id] = attribute.id.asString()
+            row[RelationshipAttributeTable.relationshipId] = relationshipId.asString()
+            row[RelationshipAttributeTable.key] = attribute.key.asString()
+            row[RelationshipAttributeTable.name] = localizedTextToString(attribute.name)
+            row[RelationshipAttributeTable.description] = localizedMarkdownToString(attribute.description)
+            row[RelationshipAttributeTable.typeId] = attribute.typeId.asString()
+            row[RelationshipAttributeTable.optional] = attribute.optional
+        }
+
+        insertRelationshipAttributeTags(attribute.id, attribute.tags)
+    }
+
+    private fun insertRelationshipAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
+        for (tagId in tags) {
+            RelationshipAttributeTagTable.insert { row ->
+                row[RelationshipAttributeTagTable.attributeId] = attributeId.asString()
+                row[RelationshipAttributeTagTable.tagId] = tagId.asString()
             }
         }
     }
