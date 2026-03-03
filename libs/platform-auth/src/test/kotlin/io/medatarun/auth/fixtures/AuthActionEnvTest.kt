@@ -10,8 +10,6 @@ import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.ports.exposed.*
-import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
@@ -50,14 +48,7 @@ class AuthActionEnvTest(
         this.actionCtx = ActionCtxWithActor(this, actor)
     }
 
-    fun <T : Any> getService(type: KClass<T>): T {
-        if (type == OidcService::class) return env.oidcService as T
-        if (type == UserService::class) return env.userService as T
-        if (type == OAuthService::class) return env.oauthService as T
-        if (type == ActorService::class) return env.actorService as T
-        if (type == BootstrapSecretLifecycle::class) return env.bootstrapSecretLifecycle as T
-        throw IllegalStateException("Unknown service " + type)
-    }
+    fun <T : Any> getService(type: KClass<T>): T = env.runtime.services.getService(type)
 
     class ActionCtxWithActor(
         private val closure: AuthActionEnvTest,
@@ -68,8 +59,8 @@ class AuthActionEnvTest(
         private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
 
 
-        override val extensionRegistry: ExtensionRegistry
-            get() = throw IllegalStateException("Should not be called")
+        override val extensionRegistry
+            get() = closure.env.runtime.extensions
 
         override fun dispatchAction(req: ActionRequest): Any? {
             throw IllegalStateException("Should not be called")
