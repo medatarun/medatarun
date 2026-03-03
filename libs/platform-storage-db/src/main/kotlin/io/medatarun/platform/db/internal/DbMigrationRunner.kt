@@ -94,6 +94,7 @@ VALUES (?, ?, ?)
             val context = DbMigrationContextImpl(
                 pluginId = migration.pluginId,
                 currentVersion = 0,
+                versionToApply = 0,
                 dbConnectionFactory = dbConnectionFactory
             )
             logger.info("Installing database schema for {} up to version {}", migration.pluginId, latestVersion)
@@ -109,6 +110,7 @@ VALUES (?, ?, ?)
             val context = DbMigrationContextImpl(
                 pluginId = migration.pluginId,
                 currentVersion = currentVersion,
+                versionToApply = versionToApply,
                 dbConnectionFactory = dbConnectionFactory
             )
             logger.info("Applying database migration {} version {}", migration.pluginId, versionToApply)
@@ -122,7 +124,8 @@ VALUES (?, ?, ?)
     private inner class DbMigrationContextImpl(
         override val pluginId: String,
         override val currentVersion: Int,
-        private val dbConnectionFactory: DbConnectionFactory
+        private val dbConnectionFactory: DbConnectionFactory,
+        private val versionToApply: Int
     ) : DbMigrationContext {
         override val dialect: DbDialect = dbConnectionFactory.withConnection { connection ->
             resolveDialect(connection)
@@ -137,7 +140,7 @@ VALUES (?, ?, ?)
         }
 
         override fun throwUnknownVersionException() {
-            throw DbMigrationRunnerUnknownVersionException(pluginId, currentVersion)
+            throw DbMigrationRunnerUnknownVersionException(pluginId, versionToApply)
         }
     }
 

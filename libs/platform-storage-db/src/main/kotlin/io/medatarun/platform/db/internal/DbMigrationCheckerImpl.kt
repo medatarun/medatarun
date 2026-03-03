@@ -1,23 +1,15 @@
 package io.medatarun.platform.db.internal
 
+import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
-import io.medatarun.platform.db.adapters.DbConnectionFactoryImpl
+import java.sql.Connection
 
-class DbMigrationCheckerImpl(val connectionFactory: DbConnectionFactoryImpl) : DbMigrationChecker {
+class DbMigrationCheckerImpl(private val connectionFactory: DbConnectionFactory) : DbMigrationChecker {
 
     override fun tableExists(tableName: String): Boolean {
         return connectionFactory.withConnection { connection ->
-            connection.prepareStatement(
-                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
-            ).use { statement ->
-                statement.setString(1, tableName)
-                statement.executeQuery().use { resultSet ->
-                    resultSet.next()
-                    resultSet.getInt(1) == 1
-                }
-            }
+            tableExists(connection, tableName)
         }
-
     }
 
     override fun migrationCount(pluginId: String): Int {
@@ -32,7 +24,6 @@ class DbMigrationCheckerImpl(val connectionFactory: DbConnectionFactoryImpl) : D
                 }
             }
         }
-
     }
 
     override fun currentVersion(pluginId: String): Int {
@@ -47,7 +38,26 @@ class DbMigrationCheckerImpl(val connectionFactory: DbConnectionFactoryImpl) : D
                 }
             }
         }
-
     }
 
+    /**
+     * JDBC metadata is the portable way to check table presence across SQLite, PostgreSQL and the next
+     * supported vendors. Different drivers normalize identifiers differently, so we probe the original,
+     * lower-case and upper-case names before declaring the table missing.
+     */
+    private fun tableExists(connection: Connection, tableName: String): Boolean {
+        val candidateNames = listOf(tableName, tableName.lowercase(), tableName.uppercase()).distinct()
+        val metadata = connection.metaData
+        val tableTypes = arrayOf("TABLE")
+
+        candidateNames.forEach { candidateName ->
+            metadata.getTables(null, null, candidateName, tableTypes).use { resultSet ->
+                if (resultSet.next()) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
 }
