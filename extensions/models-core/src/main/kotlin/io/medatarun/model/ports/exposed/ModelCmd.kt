@@ -1,7 +1,6 @@
 package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.ports.needs.RepositoryRef
 import io.medatarun.tags.core.domain.TagRef
 import java.net.URL
 
@@ -22,13 +21,11 @@ sealed interface ModelCmd {
         val modelKey: ModelKey,
         val name: LocalizedText,
         val description: LocalizedMarkdown?,
-        val version: ModelVersion,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val version: ModelVersion
     ) : ModelCmd
 
     data class ImportModel(
-        val model: Model,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val model: Model
     ) : ModelCmd
 
     data class UpdateModelName(
@@ -53,8 +50,7 @@ sealed interface ModelCmd {
 
     class CopyModel(
         override val modelRef: ModelRef,
-        val modelNewKey: ModelKey,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val modelNewKey: ModelKey
     ) : ModelCmdOnModel
 
     data class DeleteModel(
