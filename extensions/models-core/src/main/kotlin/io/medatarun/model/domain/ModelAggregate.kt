@@ -8,38 +8,12 @@ import java.net.URL
  *
  * Think of it as a Domain Model in DDD in a bounded context
  */
-interface ModelAggregate {
+interface ModelAggregate: Model {
 
     /**
-     * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
+     * Base model
      */
-    val id: ModelId
-
-    /**
-     * Unique key of the model accros all models managed by the current application instance
-     */
-    val key: ModelKey
-
-    /**
-     * Display name of the model
-     */
-    val name: LocalizedText?
-
-    /**
-     * Display description of the model
-     */
-    val description: LocalizedMarkdown?
-
-    /**
-     * Version of the model
-     */
-    val version: ModelVersion
-
-    /**
-     * Origin of the model, either created by the application or imported from another source
-     */
-    val origin: ModelOrigin
-
+    val model: Model
     /**
      * Lists types known by the model
      */
@@ -54,11 +28,6 @@ interface ModelAggregate {
      * Relationship definitions in this model
      */
     val relationships: List<Relationship>
-
-    /**
-     * Documentation home
-     */
-    val documentationHome: URL?
 
     /**
      * Tags used as classifiers for the model

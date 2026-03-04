@@ -1,6 +1,7 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
@@ -8,32 +9,20 @@ import java.net.URL
  * Default implementation of Model
  */
 data class ModelAggregateInMemory(
-    override val id: ModelId,
-    override val key: ModelKey,
-    override val name: LocalizedText?,
-    override val description: LocalizedMarkdown?,
-    override val version: ModelVersion,
-    override val origin: ModelOrigin,
+    override val model: ModelInMemory,
     override val types: List<ModelTypeInMemory>,
     override val entities: List<EntityInMemory>,
     override val relationships: List<RelationshipInMemory>,
-    override val documentationHome: URL?,
     override val tags: List<TagId>,
-) : ModelAggregate {
+) : ModelAggregate, Model by model {
 
     companion object {
         fun of(other: ModelAggregate): ModelAggregateInMemory {
             return ModelAggregateInMemory(
-                id = other.id,
-                key = other.key,
-                name = other.name,
-                description = other.description,
-                version = other.version,
-                origin = other.origin,
+                model = ModelInMemory.of(other),
                 types = other.types.map(ModelTypeInMemory::of),
                 entities = other.entities.map(EntityInMemory::of),
                 relationships = other.relationships.map(RelationshipInMemory::of),
-                documentationHome = other.documentationHome,
                 tags = other.tags,
             )
         }
@@ -53,16 +42,18 @@ data class ModelAggregateInMemory(
         ) {
             fun build(): ModelAggregateInMemory {
                 return ModelAggregateInMemory(
-                    id = id,
-                    key = key,
-                    name = name,
-                    description = description,
-                    version = version,
-                    origin = origin,
+                    model = ModelInMemory(
+                        id = id,
+                        key = key,
+                        name = name,
+                        description = description,
+                        version = version,
+                        origin = origin,
+                        documentationHome = documentationHome,
+                    ),
                     types = types,
                     entities = entities,
                     relationships = relationships,
-                    documentationHome = documentationHome,
                     tags = tags,
                 )
             }

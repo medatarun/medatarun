@@ -2,6 +2,7 @@ package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 
 class ModelCmdCopyImpl {
 
@@ -60,8 +61,10 @@ class ModelCmdCopyImpl {
         }
         val next = ModelAggregateInMemory.of(model)
             .copy(
-                id = ModelId.generate(),
-                key = modelNewKey,
+                model = ModelInMemory.of(model).copy(
+                    id = ModelId.generate(),
+                    key = modelNewKey,
+                ),
                 types = newTypes,
                 entities = newEntities,
                 relationships = newRelationships

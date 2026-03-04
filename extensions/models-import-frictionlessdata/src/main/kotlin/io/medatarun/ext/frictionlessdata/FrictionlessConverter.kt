@@ -6,6 +6,7 @@ import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.tags.core.domain.TagId
 import org.slf4j.LoggerFactory
@@ -51,8 +52,10 @@ class FrictionlessConverter(
         val finalKey = modelKey?.value?.trimToNull()?.let{ ModelKey(it) } ?: model.key
         val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
         return model.copy(
-            key = finalKey,
-            name = finalName
+            model = ModelInMemory.of(model.model).copy(
+                key = finalKey,
+                name = finalName
+            ),
         )
     }
 
@@ -79,16 +82,19 @@ class FrictionlessConverter(
     ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
         val model = ModelAggregateInMemory(
-            id = modelId,
-            key = ModelKey(datapackage.name ?: "unknown"),
-            name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-            description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
-            version = try {
-                ModelVersion(datapackage.version ?: "0.0.0").validate()
-            } catch (_:Exception) {
-                ModelVersion("0.0.0")
-            },
-            origin = ModelOrigin.Uri(uri),
+            model = ModelInMemory(
+                id = modelId,
+                key = ModelKey(datapackage.name ?: "unknown"),
+                name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
+                description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
+                version = try {
+                    ModelVersion(datapackage.version ?: "0.0.0").validate()
+                } catch (_:Exception) {
+                    ModelVersion("0.0.0")
+                },
+                origin = ModelOrigin.Uri(uri),
+                documentationHome = toURLSafe(datapackage.homepage)
+            ),
             types = types,
             entities = datapackage.resources.mapNotNull { resource ->
                 val schemaOrString = resource.schema
@@ -109,7 +115,7 @@ class FrictionlessConverter(
             },
             relationships = emptyList(),
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
-            documentationHome = toURLSafe(datapackage.homepage)
+
         )
         return model
     }
@@ -125,13 +131,16 @@ class FrictionlessConverter(
         val modelId = ModelId.generate()
 
         val model = ModelAggregateInMemory(
-            id = modelId,
-            key = ModelKey(datapackage.name ?: "unknown"),
-            name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
-            description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
-            version = ModelVersion(datapackage.version ?: "0.0.0"),
+            model = ModelInMemory(
+                id = modelId,
+                key = ModelKey(datapackage.name ?: "unknown"),
+                name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
+                description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
+                version = ModelVersion(datapackage.version ?: "0.0.0"),
+                origin = ModelOrigin.Uri(uri),
+                documentationHome = toURLSafe(datapackage.homepage),
+            ),
             types = types,
-            origin = ModelOrigin.Uri(uri),
             entities = listOf(
                 toEntity(
                     uri = uri,
@@ -145,7 +154,7 @@ class FrictionlessConverter(
                 )
             ),
             relationships = emptyList(),
-            documentationHome = toURLSafe(datapackage.homepage),
+
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
         )
         return model

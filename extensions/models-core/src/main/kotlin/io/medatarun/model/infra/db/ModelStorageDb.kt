@@ -5,6 +5,7 @@ import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelStorage
@@ -883,16 +884,18 @@ class ModelStorageDb(
         val relationships = loadRelationships(modelId)
 
         return ModelAggregateInMemory(
-            id = modelId,
-            key = ModelKey(record.key),
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
-            version = ModelVersion(record.version),
-            origin = stringToModelOrigin(record.origin),
+            model = ModelInMemory(
+                id = modelId,
+                key = ModelKey(record.key),
+                name = stringToLocalizedText(record.name),
+                description = stringToLocalizedMarkdown(record.description),
+                version = ModelVersion(record.version),
+                origin = stringToModelOrigin(record.origin),
+                documentationHome = record.documentationHome?.let { URI(it).toURL() },
+            ),
             types = types,
             entities = entities,
             relationships = relationships,
-            documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = loadModelTags(modelId)
         )
     }

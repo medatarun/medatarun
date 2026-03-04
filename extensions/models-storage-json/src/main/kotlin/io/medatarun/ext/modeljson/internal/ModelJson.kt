@@ -3,6 +3,7 @@ package io.medatarun.ext.modeljson.internal
 import io.medatarun.ext.modeljson.ModelJsonSchemas
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
 import kotlinx.serialization.*
@@ -189,15 +190,18 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             ?: throw ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey, roleJsonKey, entityKey.value)
 
         val model = ModelAggregateInMemory(
-            id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
-            key = ModelKey(modelJson.key),
-            version = ModelVersion(modelJson.version),
-            origin = when (modelJson.origin) {
-                null -> ModelOrigin.Manual
-                else -> ModelOrigin.Uri(URI(modelJson.origin))
-            },
-            name = modelJson.name,
-            description = modelJson.description,
+            model = ModelInMemory(
+                id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
+                key = ModelKey(modelJson.key),
+                version = ModelVersion(modelJson.version),
+                origin = when (modelJson.origin) {
+                    null -> ModelOrigin.Manual
+                    else -> ModelOrigin.Uri(URI(modelJson.origin))
+                },
+                name = modelJson.name,
+                description = modelJson.description,
+                documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
+            ),
             types = types,
             entities = entities,
             relationships = modelJson.relationships.map { relationJson ->
@@ -219,7 +223,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     tags = relationJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
                 )
             },
-            documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
+
             tags = modelJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
         )
         return model

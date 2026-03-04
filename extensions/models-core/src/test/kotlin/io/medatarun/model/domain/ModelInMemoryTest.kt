@@ -4,6 +4,7 @@ import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -154,16 +155,18 @@ class ModelInMemoryTest {
         }
 
         return ModelAggregateInMemory(
-            id = ModelId.generate(),
-            key = ModelKey("test-model"),
-            name = LocalizedTextNotLocalized("Test Model"),
-            description = null,
-            version = ModelVersion("1.0.0"),
+            model = ModelInMemory(
+                id = ModelId.generate(),
+                key = ModelKey("test-model"),
+                name = LocalizedTextNotLocalized("Test Model"),
+                description = null,
+                version = ModelVersion("1.0.0"),
+                documentationHome = null,
+                origin = ModelOrigin.Manual,
+            ),
             types = listOf(typeString, typeMarkdown),
             entities = listOf(personEntity, companyEntity),
             relationships = emptyList(), // TODO tests on model in memory relationships
-            documentationHome = null,
-            origin = ModelOrigin.Manual,
             tags = emptyList()
         )
     }

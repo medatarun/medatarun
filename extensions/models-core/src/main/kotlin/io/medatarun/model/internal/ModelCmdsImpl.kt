@@ -2,6 +2,7 @@ package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdOnModel
 import io.medatarun.model.ports.exposed.ModelCmds
@@ -163,16 +164,18 @@ class ModelCmdsImpl(
 
     private fun createModel(cmd: ModelCmd.CreateModel) {
         val model = ModelAggregateInMemory(
-            id = ModelId.generate(),
-            key = cmd.modelKey,
-            name = cmd.name,
-            description = cmd.description,
-            version = cmd.version,
-            origin = ModelOrigin.Manual,
+            model = ModelInMemory(
+                id = ModelId.generate(),
+                key = cmd.modelKey,
+                name = cmd.name,
+                description = cmd.description,
+                version = cmd.version,
+                origin = ModelOrigin.Manual,
+                documentationHome = null,
+            ),
             types = emptyList(),
             entities = emptyList(),
             relationships = emptyList(),
-            documentationHome = null,
             tags = emptyList(),
         )
         storage.dispatch(ModelRepoCmd.CreateModel(model))

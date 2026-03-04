@@ -10,6 +10,7 @@ import io.medatarun.lang.strings.trimToNull
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
@@ -118,16 +119,18 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             }
         }
         val model = ModelAggregateInMemory(
-            id = ModelId.generate(),
-            key = ModelKey(modelKeyOrGenerated),
-            name = LocalizedTextNotLocalized(modelNameOrGenerated),
-            version = ModelVersion("0.0.1"),
-            description = null,
-            origin = ModelOrigin.Uri(URI(path)),
+            model = ModelInMemory(
+                id = ModelId.generate(),
+                key = ModelKey(modelKeyOrGenerated),
+                name = LocalizedTextNotLocalized(modelNameOrGenerated),
+                version = ModelVersion("0.0.1"),
+                description = null,
+                origin = ModelOrigin.Uri(URI(path)),
+                documentationHome = null,
+            ),
             types = types,
             entities = entities,
             relationships = relationships.flatten(),
-            documentationHome = null,
             tags = emptyList(),
         )
         return model
