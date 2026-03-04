@@ -81,6 +81,20 @@ class ModelCmdsImpl(
         }
     }
 
+    private fun findModelByKeyOptional(key: ModelKey): Model? {
+        return storage.findModelByKeyOptional(key)
+    }
+    private fun findModelByIdOptional(id: ModelId): Model? {
+        return storage.findModelByIdOptional(id)
+    }
+    private fun findModel(ref: ModelRef): Model {
+        return when (ref) {
+            is ModelRef.ByKey -> findModelByKeyOptional(ref.key)
+            is ModelRef.ById -> findModelByIdOptional(ref.id)
+        } ?: throw ModelNotFoundException(ref)
+    }
+
+
     private fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
         return storage.findModelAggregateByIdOptional(id)
     }
@@ -88,13 +102,14 @@ class ModelCmdsImpl(
     private fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
         return storage.findModelAggregateByKeyOptional(key)
     }
-
     private fun findModelAggregate(ref: ModelRef): ModelAggregate {
         return when (ref) {
             is ModelRef.ByKey -> findModelAggregateByKeyOptional(ref.key)
             is ModelRef.ById -> findModelAggregateByIdOptional(ref.id)
         } ?: throw ModelNotFoundException(ref)
     }
+
+
 
     private fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType {
         val model = findModelAggregate(modelRef)
@@ -197,32 +212,32 @@ class ModelCmdsImpl(
 
 
     private fun deleteModel(cmd: ModelCmd.DeleteModel) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.DeleteModel(model.id))
     }
 
     private fun updateModelName(cmd: ModelCmd.UpdateModelName) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelName(model.id, cmd.name))
     }
 
     private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelDescription(model.id, cmd.description))
     }
 
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelVersion(model.id, cmd.version))
     }
 
     private fun updateDocumentationHome(cmd: ModelCmd.UpdateModelDocumentationHome) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelDocumentationHome(model.id, cmd.url))
     }
 
     private fun updateModelTagAdd(cmd: ModelCmd.UpdateModelTagAdd) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(
             ModelRepoCmd.UpdateModelTagAdd(
                 model.id,
@@ -232,7 +247,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateModelTagDelete(cmd: ModelCmd.UpdateModelTagDelete) {
-        val model = findModelAggregate(cmd.modelRef)
+        val model = findModel(cmd.modelRef)
         storage.dispatch(
             ModelRepoCmd.UpdateModelTagDelete(
                 model.id,
@@ -248,8 +263,8 @@ class ModelCmdsImpl(
     private fun createType(cmd: ModelCmd.CreateType) {
         // Cannot create a type if another type already has the same key in the model
         val model = findModelAggregate(cmd.modelRef)
-        val existing = model.findTypeOptional(cmd.initializer.id)
-        if (existing != null) throw TypeCreateDuplicateException(model.key, cmd.initializer.id)
+        val existing = model.findTypeOptional(cmd.initializer.key)
+        if (existing != null) throw TypeCreateDuplicateException(model.key, cmd.initializer.key)
         storage.dispatch(ModelRepoCmd.CreateType(model.id, cmd.initializer))
     }
 

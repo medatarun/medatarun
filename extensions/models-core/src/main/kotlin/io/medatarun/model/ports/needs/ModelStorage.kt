@@ -1,5 +1,6 @@
 package io.medatarun.model.ports.needs
 
+import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
@@ -17,6 +18,10 @@ interface ModelStorage {
     fun existsModelByKey(key: ModelKey): Boolean
 
     fun existsModelById(id: ModelId): Boolean
+
+    fun findModelByKeyOptional(key: ModelKey): Model?
+
+    fun findModelByIdOptional(id: ModelId): Model?
 
     fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate?
 

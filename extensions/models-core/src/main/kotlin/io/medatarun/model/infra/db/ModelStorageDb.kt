@@ -70,6 +70,24 @@ class ModelStorageDb(
         }
     }
 
+    override fun findModelByKeyOptional(key: ModelKey): Model? {
+        return dbConnectionFactory.withExposed {
+            val row = ModelTable.selectAll()
+                .where { ModelTable.key eq key.value }
+                .singleOrNull()
+            if (row == null) null else loadModel(row)
+        }
+    }
+
+    override fun findModelByIdOptional(id: ModelId): Model? {
+        return dbConnectionFactory.withExposed {
+            val row = ModelTable.selectAll()
+                .where { ModelTable.id eq id.asString() }
+                .singleOrNull()
+            if (row == null) null else loadModel(row)
+        }
+    }
+
     override fun dispatch(cmd: ModelRepoCmd) {
         when (cmd) {
             //@formatter:off
@@ -212,7 +230,7 @@ class ModelStorageDb(
             ModelTypeTable.insert { row ->
                 row[ModelTypeTable.id] = TypeId.generate().asString()
                 row[ModelTypeTable.modelId] = modelId.asString()
-                row[ModelTypeTable.key] = initializer.id.asString()
+                row[ModelTypeTable.key] = initializer.key.asString()
                 row[ModelTypeTable.name] = localizedTextToString(initializer.name)
                 row[ModelTypeTable.description] = localizedMarkdownToString(initializer.description)
             }
@@ -897,6 +915,20 @@ class ModelStorageDb(
             entities = entities,
             relationships = relationships,
             tags = loadModelTags(modelId)
+        )
+    }
+
+    private fun loadModel(row: ResultRow): ModelInMemory {
+        val record = ModelRecord.read(row)
+        val modelId = ModelId.fromString(record.id)
+        return ModelInMemory(
+            id = modelId,
+            key = ModelKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            version = ModelVersion(record.version),
+            origin = stringToModelOrigin(record.origin),
+            documentationHome = record.documentationHome?.let { URI(it).toURL() },
         )
     }
 

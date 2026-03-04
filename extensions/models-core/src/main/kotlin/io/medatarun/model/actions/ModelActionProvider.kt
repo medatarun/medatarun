@@ -265,7 +265,7 @@ class ModelActionHandler(
             ModelCmd.CreateType(
                 modelRef = cmd.modelRef,
                 initializer = ModelTypeInitializer(
-                    id = cmd.typeKey,
+                    key = cmd.typeKey,
                     name = cmd.name,
                     description = cmd.description,
                 )
