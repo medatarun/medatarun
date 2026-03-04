@@ -1,13 +1,11 @@
 package io.medatarun.model.infra.db
 
-import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
 import io.medatarun.model.domain.search.SearchResultItem
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.DenormModelSearchItemRecord
 import io.medatarun.model.infra.db.records.DenormModelSearchItemTagRecord
-import io.medatarun.model.infra.db.records.SearchItemType
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTagTable
 import io.medatarun.model.ports.needs.ModelStorageSearchFilter
@@ -53,7 +51,7 @@ internal class ModelStorageDbSearchRead(
             rows.map { item ->
                 SearchResultItem(
                     id = item.id,
-                    location = searchLocationFromRecord(item),
+                    location = item.toDomainLocation(),
                     fields = emptyMap()
                 )
             }
@@ -199,77 +197,6 @@ internal class ModelStorageDbSearchRead(
     }
 
 
-    private fun searchLocationFromRecord(item: DenormModelSearchItemRecord): DomainLocation {
-        return when (item.itemType) {
-            SearchItemType.MODEL -> {
-                ModelLocation(
-                    id = ModelId.fromString(item.modelId),
-                    key = ModelKey(item.modelKey),
-                    label = item.modelLabel
-                )
-            }
-
-            SearchItemType.ENTITY -> {
-                EntityLocation(
-                    model = modelLocationFromRecord(item),
-                    id = EntityId.fromString(requiredValue(item.entityId, "entity_id")),
-                    key = EntityKey(requiredValue(item.entityKey, "entity_key")),
-                    label = requiredValue(item.entityLabel, "entity_label")
-                )
-            }
-
-            SearchItemType.ENTITY_ATTRIBUTE -> {
-                EntityAttributeLocation(
-                    entity = EntityLocation(
-                        model = modelLocationFromRecord(item),
-                        id = EntityId.fromString(requiredValue(item.entityId, "entity_id")),
-                        key = EntityKey(requiredValue(item.entityKey, "entity_key")),
-                        label = requiredValue(item.entityLabel, "entity_label")
-                    ),
-                    id = AttributeId.fromString(requiredValue(item.attributeId, "attribute_id")),
-                    key = AttributeKey(requiredValue(item.attributeKey, "attribute_key")),
-                    label = requiredValue(item.attributeLabel, "attribute_label")
-                )
-            }
-
-            SearchItemType.RELATIONSHIP -> {
-                RelationshipLocation(
-                    model = modelLocationFromRecord(item),
-                    id = RelationshipId.fromString(requiredValue(item.relationshipId, "relationship_id")),
-                    key = RelationshipKey(requiredValue(item.relationshipKey, "relationship_key")),
-                    label = requiredValue(item.relationshipLabel, "relationship_label")
-                )
-            }
-
-            SearchItemType.RELATIONSHIP_ATTRIBUTE -> {
-                RelationshipAttributeLocation(
-                    relationship = RelationshipLocation(
-                        model = modelLocationFromRecord(item),
-                        id = RelationshipId.fromString(requiredValue(item.relationshipId, "relationship_id")),
-                        key = RelationshipKey(requiredValue(item.relationshipKey, "relationship_key")),
-                        label = requiredValue(item.relationshipLabel, "relationship_label")
-                    ),
-                    id = AttributeId.fromString(requiredValue(item.attributeId, "attribute_id")),
-                    key = AttributeKey(requiredValue(item.attributeKey, "attribute_key")),
-                    label = requiredValue(item.attributeLabel, "attribute_label")
-                )
-            }
-
-
-        }
-    }
-
-    private fun modelLocationFromRecord(item: DenormModelSearchItemRecord): ModelLocation {
-        return ModelLocation(
-            id = ModelId.fromString(item.modelId),
-            key = ModelKey(item.modelKey),
-            label = item.modelLabel
-        )
-    }
-
-    private fun requiredValue(value: String?, columnName: String): String {
-        return value ?: throw ModelStorageDbSearchMissingProjectionReferenceException(columnName)
-    }
 
     private fun escapeLikePattern(value: String): String {
         return value
