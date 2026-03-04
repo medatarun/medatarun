@@ -19,10 +19,6 @@ data class EntityInMemory(
     override val tags: List<TagId>,
 ) : Entity {
 
-    private val map = attributes.associateBy { it.key }
-
-
-
     fun countAttributes(): Int {
         return attributes.size
     }

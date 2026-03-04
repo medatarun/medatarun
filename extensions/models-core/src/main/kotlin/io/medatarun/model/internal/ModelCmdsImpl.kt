@@ -2,8 +2,12 @@ package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
-import io.medatarun.model.ports.exposed.*
-import io.medatarun.model.ports.needs.*
+import io.medatarun.model.ports.exposed.ModelCmd
+import io.medatarun.model.ports.exposed.ModelCmdOnModel
+import io.medatarun.model.ports.exposed.ModelCmds
+import io.medatarun.model.ports.needs.ModelRepoCmd
+import io.medatarun.model.ports.needs.ModelStorage
+import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.db.DbTransactionManager
 
 class ModelCmdsImpl(
@@ -216,16 +220,22 @@ class ModelCmdsImpl(
 
     private fun updateModelTagAdd(cmd: ModelCmd.UpdateModelTagAdd) {
         val model = findModel(cmd.modelRef)
-        storage.dispatch(ModelRepoCmd.UpdateModelTagAdd(model.id,
-            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
-        ))
+        storage.dispatch(
+            ModelRepoCmd.UpdateModelTagAdd(
+                model.id,
+                tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+            )
+        )
     }
 
     private fun updateModelTagDelete(cmd: ModelCmd.UpdateModelTagDelete) {
         val model = findModel(cmd.modelRef)
-        storage.dispatch(ModelRepoCmd.UpdateModelTagDelete(model.id,
-            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
-        ))
+        storage.dispatch(
+            ModelRepoCmd.UpdateModelTagDelete(
+                model.id,
+                tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+            )
+        )
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -311,24 +321,30 @@ class ModelCmdsImpl(
     private fun updateEntityDocumentationHome(cmd: ModelCmd.UpdateEntityDocumentationHome) {
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
-        if (entity.documentationHome == cmd.value) return
+        if (entity.documentationHome?.toExternalForm() == cmd.value?.toExternalForm()) return
         storage.dispatch(ModelRepoCmd.UpdateEntityDocumentationHome(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityTagAdd(cmd: ModelCmd.UpdateEntityTagAdd) {
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
-        storage.dispatch(ModelRepoCmd.UpdateEntityTagAdd(model.id, entity.id,
-            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
-        ))
+        storage.dispatch(
+            ModelRepoCmd.UpdateEntityTagAdd(
+                model.id, entity.id,
+                tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+            )
+        )
     }
 
     private fun updateEntityTagDelete(cmd: ModelCmd.UpdateEntityTagDelete) {
         val model = findModel(cmd.modelRef)
         val entity = findEntity(cmd.modelRef, cmd.entityRef)
-        storage.dispatch(ModelRepoCmd.UpdateEntityTagDelete(model.id, entity.id,
-            tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
-        ))
+        storage.dispatch(
+            ModelRepoCmd.UpdateEntityTagDelete(
+                model.id, entity.id,
+                tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
+            )
+        )
     }
 
 
@@ -512,7 +528,12 @@ class ModelCmdsImpl(
         val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
         val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         if (rel.attributes.any { it.key == cmd.value && it.key != attr.key }) {
-            throw RelationshipAttributeUpdateDuplicateKeyException(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef, cmd.value)
+            throw RelationshipAttributeUpdateDuplicateKeyException(
+                cmd.modelRef,
+                cmd.relationshipRef,
+                cmd.attributeRef,
+                cmd.value
+            )
         }
         storage.dispatch(
             ModelRepoCmd.UpdateRelationshipAttributeKey(model.id, rel.id, attr.id, cmd.value)

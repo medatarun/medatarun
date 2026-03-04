@@ -1,7 +1,7 @@
 package io.medatarun.model.domain.search
 
 import java.text.Normalizer
-import java.util.Locale
+import java.util.*
 
 /**
  * Search stores one normalized text per indexed object so SQL search uses the same comparison rule everywhere.

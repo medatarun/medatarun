@@ -594,6 +594,7 @@ sealed interface ModelAction {
         )
         val value: String?
     ) : ModelAction
+
     @ActionDoc(
         key = "entity_add_tag",
         title = "Add entity tag",
@@ -1131,10 +1132,10 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
-        key="search",
-        title="search",
-        description="Search",
-        uiLocations=[ActionUILocation.global],
+        key = "search",
+        title = "search",
+        description = "Search",
+        uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Search(

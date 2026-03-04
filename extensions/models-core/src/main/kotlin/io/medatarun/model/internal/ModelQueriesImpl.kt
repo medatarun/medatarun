@@ -1,11 +1,7 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.search.SearchFilter
-import io.medatarun.model.domain.search.SearchFilterTags
-import io.medatarun.model.domain.search.SearchFilterText
-import io.medatarun.model.domain.search.SearchQuery
-import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.*
 import io.medatarun.tags.core.domain.TagId

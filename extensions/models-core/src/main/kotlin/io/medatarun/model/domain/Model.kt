@@ -193,6 +193,7 @@ interface Model {
     fun findEntityAttributes(ref: EntityRef): List<Attribute> {
         return findEntity(ref).attributes
     }
+
     fun findRelationshipAttributes(ref: RelationshipRef): List<Attribute> {
         return findRelationship(ref).attributes
     }

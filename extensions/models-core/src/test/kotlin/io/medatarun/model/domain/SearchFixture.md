@@ -6,10 +6,12 @@
 - ui-search: local to "crm", indicates a search criterion
 - imported: local to "cooking", indicates data imported from another system
 - gdpr/personal-data: global, GDPR personal data
-- gdpr/special-category-data: global, GDPR special category data (art. 9: health, religion, political opinions, biometrics, etc.)
+- gdpr/special-category-data: global, GDPR special category data (art. 9:
+  health, religion, political opinions, biometrics, etc.)
 - security/public: intentionally public data outside the company
 - security/internal: internal company data, not public
-- security/confidential: data with limited or hidden visibility (passwords, PINs, etc.)
+- security/confidential: data with limited or hidden visibility (passwords,
+  PINs, etc.)
 
 # Models
 

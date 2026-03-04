@@ -52,7 +52,7 @@ class ModelInMemoryTest {
 
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
-        val personIdentifierAttributeId=  AttributeId.generate()
+        val personIdentifierAttributeId = AttributeId.generate()
         val personEntity = EntityInMemory.builder(
             key = EntityKey("person"),
             identifierAttributeId = personIdentifierAttributeId,
@@ -106,7 +106,7 @@ class ModelInMemoryTest {
                 )
             )
         }
-        val companyIdentifierAttributeId =  AttributeId.generate()
+        val companyIdentifierAttributeId = AttributeId.generate()
         val companyEntity = EntityInMemory.builder(
             key = EntityKey("company"),
             identifierAttributeId = companyIdentifierAttributeId,

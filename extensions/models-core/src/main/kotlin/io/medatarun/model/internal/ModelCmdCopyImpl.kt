@@ -17,6 +17,7 @@ class ModelCmdCopyImpl {
             return map[old] ?: throw CopyModelIdConversionFailedException(name, old.toString())
         }
     }
+
     fun copy(model: Model, modelNewKey: ModelKey): Model {
         val typeIds = IdConv("type") { TypeId.generate() }
         val entityIds = IdConv("entity") { EntityId.generate() }

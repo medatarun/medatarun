@@ -32,7 +32,8 @@ Il gère:
 - la recherche sur les objets du modèle
 - les tags attachés aux objets du modèle
 
-Ce module expose les actions `ModelAction` et les traduit en commandes métier via
+Ce module expose les actions `ModelAction` et les traduit en commandes métier
+via
 `ModelActionProvider`.
 
 ## Principe de `Model`
@@ -50,7 +51,8 @@ grâce aux méthodes `find*`.
 
 ## Actions exposées (`ModelAction`)
 
-`ModelActionProvider` route les actions déclarées dans `ModelAction` vers `ModelCmds` / `ModelQueries`.
+`ModelActionProvider` route les actions déclarées dans `ModelAction` vers
+`ModelCmds` / `ModelQueries`.
 
 `ModelAction` regroupe, entre autres:
 
@@ -83,23 +85,24 @@ Les paramètres de tags dans `ModelAction` sont toujours des `TagRef`.
   `ModelTagResolverWithQueries`
 - les objets `Model`, `Entity`, `Relationship`, `Attribute` stockent des
   `TagId`
-- la recherche de `models-core` accepte des filtres tags en `TagRef`, si un tag spécifié n'existe pas, une erreur de type NotFound est levée. 
+- la recherche de `models-core` accepte des filtres tags en `TagRef`, si un tag
+  spécifié n'existe pas, une erreur de type NotFound est levée.
 - règle `models-core` de compatibilité des tags:
-  - `resolveTagIdCompatible(modelId, tagRef)` accepte:
-    - tags globaux (managed)
-    - tags locaux du scope `model/<modelId>`
-  - rejette un tag local d'un autre scope avec
-    `TagAttachScopeMismatchException`
+    - `resolveTagIdCompatible(modelId, tagRef)` accepte:
+        - tags globaux (managed)
+        - tags locaux du scope `model/<modelId>`
+    - rejette un tag local d'un autre scope avec
+      `TagAttachScopeMismatchException`
 
 Le détail des règles de tags (types de tags, format des refs, cycle de vie,
 permissions, événements) est documenté dans
 `extensions/tags-core/README.md`.
 
-
-
 ## Références source
 
 - `README.md` (racine projet)
 - `extensions/models-core/src/main/kotlin/io/medatarun/model/domain/Model.kt`
-- `extensions/models-core/src/main/kotlin/io/medatarun/model/actions/ModelAction.kt`
-- `extensions/models-core/src/main/kotlin/io/medatarun/model/actions/ModelActionProvider.kt`
+-
+`extensions/models-core/src/main/kotlin/io/medatarun/model/actions/ModelAction.kt`
+-
+`extensions/models-core/src/main/kotlin/io/medatarun/model/actions/ModelActionProvider.kt`

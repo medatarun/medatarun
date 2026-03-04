@@ -23,8 +23,13 @@ interface ModelQueries {
     fun findAllModelIds(): List<ModelId>
     fun findAllModelSummaries(locale: Locale): List<ModelSummary>
     fun findEntityAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute
-    fun findEntityAttributeOptional(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute?
+    fun findEntityAttributeOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): Attribute?
+
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
-    
+
     fun search(query: SearchQuery): SearchResults
 }

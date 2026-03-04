@@ -2,13 +2,7 @@ package io.medatarun.model
 
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.needs.ModelTagResolver
-import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 
 internal class ModelTagResolverWithQueries(
     private val tagQueries: TagQueries
@@ -18,7 +12,7 @@ internal class ModelTagResolverWithQueries(
     }
 
     override fun resolveTagIdUnsafe(tagRef: TagRef): TagId {
-        return when(tagRef) {
+        return when (tagRef) {
             is TagRef.ById -> tagRef.id
             is TagRef.ByKey -> resolveTagId(tagRef)
         }

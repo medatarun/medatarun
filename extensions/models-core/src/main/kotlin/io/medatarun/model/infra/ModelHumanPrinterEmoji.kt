@@ -3,7 +3,7 @@ package io.medatarun.model.infra
 import io.medatarun.model.domain.Model
 import io.medatarun.model.ports.exposed.ModelHumanPrinter
 
-class ModelHumanPrinterEmoji: ModelHumanPrinter {
+class ModelHumanPrinterEmoji : ModelHumanPrinter {
 
     fun tabs(number: Int): String = "   ".repeat(number)
 

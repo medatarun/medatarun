@@ -12,13 +12,13 @@ class EntityAttributeRefDescriptor : TypeDescriptor<EntityAttributeRef> {
     override val equivMultiplatorm: String = "EntityAttributeRef"
     override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
     override fun validate(value: EntityAttributeRef): EntityAttributeRef {
-       return when (value) {
-           is EntityAttributeRef.ById -> value
-           is EntityAttributeRef.ByKey -> {
-               value.key.validated()
-               value
-           }
-       }
+        return when (value) {
+            is EntityAttributeRef.ById -> value
+            is EntityAttributeRef.ByKey -> {
+                value.key.validated()
+                value
+            }
+        }
     }
 
     override val jsonConverter: TypeJsonConverter<EntityAttributeRef> = EntityAttributeRefTypeJsonConverter()

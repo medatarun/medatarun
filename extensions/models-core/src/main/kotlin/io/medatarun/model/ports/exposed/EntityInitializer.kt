@@ -13,9 +13,14 @@ data class EntityInitializer(
     val documentationHome: URL?
 ) {
     companion object {
-        fun build(entityKey: EntityKey, identityAttribute: AttributeIdentityInitializer, block: Builder.() -> Unit = {}): EntityInitializer {
+        fun build(
+            entityKey: EntityKey,
+            identityAttribute: AttributeIdentityInitializer,
+            block: Builder.() -> Unit = {}
+        ): EntityInitializer {
             return Builder(entityKey, identityAttribute).apply(block).build()
         }
+
         class Builder(var entityKey: EntityKey, var identityAttribute: AttributeIdentityInitializer) {
             var name: LocalizedText? = null
             var description: LocalizedMarkdown? = null

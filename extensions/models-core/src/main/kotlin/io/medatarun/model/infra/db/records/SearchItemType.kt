@@ -10,10 +10,11 @@ enum class SearchItemType(val code: String) {
     RELATIONSHIP_ATTRIBUTE("relationship_attribute")
 
     ;
+
     companion object {
         val codes = entries.associateBy { it.code }
         fun valueOfCode(code: String): SearchItemType {
-        return     codes[code] ?: throw ModelStorageDbSearchUnknownItemTypeException(code)
+            return codes[code] ?: throw ModelStorageDbSearchUnknownItemTypeException(code)
         }
     }
 }

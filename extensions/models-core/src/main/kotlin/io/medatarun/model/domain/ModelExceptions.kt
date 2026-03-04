@@ -15,19 +15,42 @@ class TypeNotFoundException(modelRef: ModelRef, typeRef: TypeRef) :
     MedatarunException("Type [${typeRef.asString()}] not found in model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
 
 class EntityNotFoundException(modelRef: ModelRef, entityRef: EntityRef) :
-    MedatarunException("Entity [${entityRef.asString()}] not found in model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+    MedatarunException(
+        "Entity [${entityRef.asString()}] not found in model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
 
 class EntityAttributeNotFoundException(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef) :
-    MedatarunException("Attribute [${attributeRef.asString()}] not found in entity [${entityRef.asString()}] and model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+    MedatarunException(
+        "Attribute [${attributeRef.asString()}] not found in entity [${entityRef.asString()}] and model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
 
 class RelationshipNotFoundException(modelRef: ModelRef, relationshipRef: RelationshipRef) :
-    MedatarunException("Relationship [${relationshipRef.asString()}] not found in model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+    MedatarunException(
+        "Relationship [${relationshipRef.asString()}] not found in model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
 
-class RelationshipRoleNotFoundException(modelRef: ModelRef, relationshipRef: RelationshipRef, roleRef: RelationshipRoleRef) :
-    MedatarunException("Relationship role [${roleRef.asString()}] not found relationship [${relationshipRef.asString()}] and model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+class RelationshipRoleNotFoundException(
+    modelRef: ModelRef,
+    relationshipRef: RelationshipRef,
+    roleRef: RelationshipRoleRef
+) :
+    MedatarunException(
+        "Relationship role [${roleRef.asString()}] not found relationship [${relationshipRef.asString()}] and model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
 
-class RelationshipAttributeNotFoundException(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef) :
-    MedatarunException("Attribute [${attributeRef.asString()}] not found in relationship [${relationshipRef.asString()}] and model [${modelRef.asString()}]", StatusCode.NOT_FOUND)
+class RelationshipAttributeNotFoundException(
+    modelRef: ModelRef,
+    relationshipRef: RelationshipRef,
+    attributeRef: RelationshipAttributeRef
+) :
+    MedatarunException(
+        "Attribute [${attributeRef.asString()}] not found in relationship [${relationshipRef.asString()}] and model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -59,13 +82,15 @@ class ModelVersionPreReleaseLeadingZeroException :
     )
 
 
-
-
 class LocalizedTextMapEmptyException :
     MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")
 
 
-class UpdateAttributeDuplicateKeyException(entityRef: EntityRef, attributeRef: EntityAttributeRef, newKey: AttributeKey) :
+class UpdateAttributeDuplicateKeyException(
+    entityRef: EntityRef,
+    attributeRef: EntityAttributeRef,
+    newKey: AttributeKey
+) :
     MedatarunException("Can not change attribute [${attributeRef.asString()}] key to [${newKey.value}] because it is already used for another attribute in entity [${entityRef.asString()}]")
 
 class EntityUpdateIdDuplicateIdException(entityKey: EntityKey) :
@@ -112,8 +137,9 @@ class RelationshipAttributeUpdateDuplicateKeyException(
 ) :
     MedatarunException("Cannot change key of attribute [${attributeRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to value [${newKey.value}] because it is already used by another attribute.")
 
-class ModelExportNoPluginFoundException(): MedatarunException("No model exporters found in extensions")
-class CopyModelIdConversionFailedException(name: String, oldId: String):
-        MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
+class ModelExportNoPluginFoundException() : MedatarunException("No model exporters found in extensions")
+class CopyModelIdConversionFailedException(name: String, oldId: String) :
+    MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
 
-class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef): MedatarunException("Could not resolve tag reference [${tagRef.asString()}")
+class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
+    MedatarunException("Could not resolve tag reference [${tagRef.asString()}")

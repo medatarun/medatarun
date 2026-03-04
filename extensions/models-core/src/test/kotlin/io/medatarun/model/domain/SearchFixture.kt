@@ -3,13 +3,7 @@ package io.medatarun.model.domain
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.tags.core.actions.TagAction
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 
 @Suppress("ClassName")
 internal object refs {

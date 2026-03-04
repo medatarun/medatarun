@@ -1,5 +1,5 @@
 package io.medatarun.model.domain
 
 interface ModelValidation {
-    fun validate(model:Model): ModelValidationState
+    fun validate(model: Model): ModelValidationState
 }

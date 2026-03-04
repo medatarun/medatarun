@@ -23,7 +23,7 @@ data class RelationshipInMemory(
                 attributes = other.attributes.map(AttributeInMemory::of),
                 tags = other.tags,
 
-            )
+                )
         }
     }
 }

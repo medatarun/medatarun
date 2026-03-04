@@ -12,10 +12,15 @@ data class AttributeIdentityInitializer(
     val description: LocalizedMarkdown?
 ) {
     companion object {
-        fun build(attributeKey: AttributeKey, type: TypeRef, block: Builder.() -> Unit = {}):AttributeIdentityInitializer {
+        fun build(
+            attributeKey: AttributeKey,
+            type: TypeRef,
+            block: Builder.() -> Unit = {}
+        ): AttributeIdentityInitializer {
             return Builder(attributeKey, type).apply(block).build()
         }
-        class Builder(var  attributeKey: AttributeKey, var type: TypeRef) {
+
+        class Builder(var attributeKey: AttributeKey, var type: TypeRef) {
             var name: LocalizedText? = null
             var description: LocalizedMarkdown? = null
             fun build(): AttributeIdentityInitializer {

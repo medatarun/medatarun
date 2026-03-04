@@ -71,6 +71,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         val attributes = model.findEntityAttributes(entityRef)
         return toAttributesJson(attributes, model)
     }
+
     private fun toAttributesJson(model: Model, relationshipRef: RelationshipRef): JsonArray {
         val attributes = model.findRelationshipAttributes(relationshipRef)
         return toAttributesJson(attributes, model)

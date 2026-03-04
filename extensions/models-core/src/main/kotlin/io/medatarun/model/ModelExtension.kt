@@ -61,6 +61,7 @@ open class ModelExtension : MedatarunExtension {
         ctx.register(ModelHumanPrinter::class, modelHumanPrinterEmoji)
 
     }
+
     override fun init(ctx: MedatarunExtensionCtx) {
         val modelQueries = ctx.getService(ModelQueries::class)
         val modelTagScopeManager = object : TagScopeManager {
