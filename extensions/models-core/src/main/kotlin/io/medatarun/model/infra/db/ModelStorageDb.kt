@@ -1,32 +1,14 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.infra.*
-import io.medatarun.model.infra.db.records.EntityAttributeRecord
-import io.medatarun.model.infra.db.records.EntityRecord
-import io.medatarun.model.infra.db.records.ModelRecord
-import io.medatarun.model.infra.db.records.ModelTypeRecord
-import io.medatarun.model.infra.db.records.RelationshipAttributeRecord
-import io.medatarun.model.infra.db.records.RelationshipRecord
-import io.medatarun.model.infra.db.records.RelationshipRoleRecord
-import io.medatarun.model.infra.db.tables.EntityAttributeTable
-import io.medatarun.model.infra.db.tables.EntityAttributeTagTable
-import io.medatarun.model.infra.db.tables.EntityTable
-import io.medatarun.model.infra.db.tables.EntityTagTable
-import io.medatarun.model.infra.db.tables.ModelTable
-import io.medatarun.model.infra.db.tables.ModelTagTable
-import io.medatarun.model.infra.db.tables.ModelTypeTable
-import io.medatarun.model.infra.db.tables.RelationshipAttributeTable
-import io.medatarun.model.infra.db.tables.RelationshipAttributeTagTable
-import io.medatarun.model.infra.db.tables.RelationshipRoleTable
-import io.medatarun.model.infra.db.tables.RelationshipTable
-import io.medatarun.model.infra.db.tables.RelationshipTagTable
+import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
-import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelStorage
+import io.medatarun.model.ports.needs.ModelStorageSearchQuery
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
@@ -40,8 +22,8 @@ class ModelStorageDb(
     private val searchRead = ModelStorageDbSearchRead(dbConnectionFactory)
     private val searchWrite = ModelStorageDbSearchWrite(dbConnectionFactory)
 
-    fun search(query: SearchQuery, tagResolver: ModelTagResolver): SearchResults {
-        return searchRead.search(query, tagResolver)
+    override fun search(query: ModelStorageSearchQuery): SearchResults {
+        return searchRead.search(query)
     }
 
     override fun findAllModelIds(): List<ModelId> {

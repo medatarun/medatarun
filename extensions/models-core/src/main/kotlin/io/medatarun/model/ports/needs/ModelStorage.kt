@@ -3,6 +3,7 @@ package io.medatarun.model.ports.needs
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.search.SearchResults
 
 /**
  * Model storage allows accessing and modifying stored models.
@@ -20,6 +21,8 @@ interface ModelStorage {
     fun findModelByKeyOptional(key: ModelKey): Model?
 
     fun findModelByIdOptional(id: ModelId): Model?
+
+    fun search(query: ModelStorageSearchQuery): SearchResults
 
     // Commands
 

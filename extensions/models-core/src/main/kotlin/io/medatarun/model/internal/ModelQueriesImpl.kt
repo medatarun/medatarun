@@ -1,16 +1,18 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.search.SearchFilter
+import io.medatarun.model.domain.search.SearchFilterTags
+import io.medatarun.model.domain.search.SearchFilterText
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
-import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
-import io.medatarun.model.ports.needs.ModelStorage
-import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.ports.needs.*
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagRef
 import java.text.Collator
 import java.text.Normalizer
-import java.util.Comparator
-import java.util.Locale
+import java.util.*
 
 class ModelQueriesImpl(
     private val storage: ModelStorage,
@@ -131,57 +133,49 @@ class ModelQueriesImpl(
 
         }
     }
+
     override fun search(query: SearchQuery): SearchResults {
-        val sqliteStorage = storage as? ModelStorageDb
-            ?: throw ModelQueriesImplSearchStorageNotSupportedException(storage::class.qualifiedName ?: storage::class.simpleName ?: "unknown")
-        return sqliteStorage.search(query, tagResolver)
+
+        // Transforms the SearchQuery into a storage search query.
+        // We need to resolve tag refs into tag ids.
+
+        val collectedTagRef = query.filters.items.flatMap {
+            when (it) {
+                is SearchFilterTags.AllOf -> it.names
+                is SearchFilterTags.AnyOf -> it.names
+                is SearchFilterTags.NoneOf -> it.names
+                else -> emptyList()
+            }
+        }.associateWith { tagResolver.resolveTagId(it) }
+
+        fun toTagId(tagRef: TagRef): TagId {
+            return collectedTagRef[tagRef] ?: throw ModelQuerySearchCouldNotResolveTagRef(tagRef)
+        }
+
+        fun toTagIds(tagRefs: List<TagRef>): List<TagId> {
+            return tagRefs.map { toTagId(it) }.distinct()
+        }
+
+        fun toStorageSearchFilter(filter: SearchFilter): ModelStorageSearchFilter {
+            val storageFilter: ModelStorageSearchFilter = when (filter) {
+                is SearchFilterText.Contains -> ModelStorageSearchFilterText.Contains(filter.value)
+                is SearchFilterTags.AllOf -> ModelStorageSearchFilterTags.AllOf(toTagIds(filter.names))
+                is SearchFilterTags.AnyOf -> ModelStorageSearchFilterTags.AnyOf(toTagIds(filter.names))
+                SearchFilterTags.Empty -> ModelStorageSearchFilterTags.Empty
+                is SearchFilterTags.NoneOf -> ModelStorageSearchFilterTags.NoneOf(toTagIds(filter.names))
+                SearchFilterTags.NotEmpty -> ModelStorageSearchFilterTags.NotEmpty
+            }
+            return storageFilter
+        }
+
+        val storageQuery = ModelStorageSearchQuery(
+            filters = ModelStorageSearchFilters(
+                operator = query.filters.operator,
+                items = query.filters.items.map { filter -> toStorageSearchFilter(filter) }
+            ),
+            fields = query.fields
+        )
+        return storage.search(storageQuery)
     }
 
-}
-
-class ModelQueriesImplSearchStorageNotSupportedException(storageType: String) :
-    io.medatarun.lang.exceptions.MedatarunException("Search requires ModelStorageSQLite but got [$storageType]")
-
-fun createModelLocation(model: Model): ModelLocation {
-    return ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)
-}
-
-fun createEntityLocation(model: Model, entity: Entity): EntityLocation {
-    return EntityLocation(
-        createModelLocation(model),
-        id = entity.id,
-        key = entity.key,
-        label = entity.name?.name ?: entity.key.value
-    )
-}
-
-fun createEntityAttributeLocation(model: Model, entity: Entity, attr: Attribute): EntityAttributeLocation {
-    return EntityAttributeLocation(
-        createEntityLocation(model, entity),
-        id = attr.id,
-        key = attr.key,
-        label = attr.name?.name ?: attr.key.value
-    )
-}
-
-fun createRelationshipLocation(model: Model, rel: Relationship): RelationshipLocation {
-    return RelationshipLocation(
-        createModelLocation(model),
-        id = rel.id,
-        key = rel.key,
-        label = rel.name?.name ?: rel.key.value
-    )
-}
-
-fun createRelationshipAttributeLocation(
-    model: Model,
-    rel: Relationship,
-    attr: Attribute
-): RelationshipAttributeLocation {
-    return RelationshipAttributeLocation(
-        createRelationshipLocation(model, rel),
-        id = attr.id,
-        key = attr.key,
-        label = attr.name?.name ?: attr.key.value
-    )
 }

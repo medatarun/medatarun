@@ -2,6 +2,7 @@ package io.medatarun.model.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
+import io.medatarun.tags.core.domain.TagRef
 
 // ----------------------------------------------------------------------------
 // Not founds
@@ -115,3 +116,4 @@ class ModelExportNoPluginFoundException(): MedatarunException("No model exporter
 class CopyModelIdConversionFailedException(name: String, oldId: String):
         MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
 
+class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef): MedatarunException("Could not resolve tag reference [${tagRef.asString()}")
