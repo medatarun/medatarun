@@ -1,7 +1,6 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
@@ -93,7 +92,19 @@ sealed interface ModelRepoCmd {
 
     data class CreateEntity(
         override val modelId: ModelId,
-        val entity: EntityInMemory
+        val entityId: EntityId,
+        val key: EntityKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val documentationHome: URL?,
+        val origin: EntityOrigin,
+        val identityAttributeId: AttributeId,
+        val identityAttributeKey: AttributeKey,
+        val identityAttributeTypeId: TypeId,
+        val identityAttributeName: LocalizedText?,
+        val identityAttributeDescription: LocalizedMarkdown?,
+        val identityAttributeIdOptional: Boolean,
+
     ) : ModelRepoCmdOnModel
 
     data class UpdateEntityKey(
@@ -220,8 +231,20 @@ sealed interface ModelRepoCmd {
 
     class CreateRelationship(
         override val modelId: ModelId,
-        val initializer: Relationship
+        val relationshipId: RelationshipId,
+        val key: RelationshipKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val roles: List<RelationshipRoleInitializer>,
     ) : ModelRepoCmdOnModel
+
+    data class RelationshipRoleInitializer(
+        val id: RelationshipRoleId,
+        val key: RelationshipRoleKey,
+        val entityId: EntityId,
+        val name: LocalizedText?,
+        val cardinality: RelationshipCardinality,
+    )
 
     class UpdateRelationshipKey(
         override val modelId: ModelId,

@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS entity
     key                     TEXT NOT NULL,
     name                    TEXT,
     description             TEXT,
-    identifier_attribute_id TEXT,
+    identifier_attribute_id TEXT NOT NULL,
     origin                  TEXT,
     documentation_home      TEXT,
     FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,

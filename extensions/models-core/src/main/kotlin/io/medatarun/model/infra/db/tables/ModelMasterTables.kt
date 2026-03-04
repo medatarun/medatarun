@@ -52,7 +52,7 @@ object EntityTable : Table("entity") {
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
-    val identifierAttributeId = text("identifier_attribute_id").nullable()
+    val identifierAttributeId = text("identifier_attribute_id")
     val origin = text("origin").nullable()
     val documentationHome = text("documentation_home").nullable()
 

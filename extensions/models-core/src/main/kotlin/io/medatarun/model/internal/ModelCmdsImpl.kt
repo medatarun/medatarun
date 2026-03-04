@@ -1,7 +1,7 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.*
+import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdOnModel
@@ -394,30 +394,23 @@ class ModelCmdsImpl(
     private fun createEntity(c: ModelCmd.CreateEntity) {
         val model = findModelAggregate(c.modelRef)
         val type = findType(c.modelRef, c.entityInitializer.identityAttribute.type)
-        val identityAttribute = AttributeInMemory(
-            id = AttributeId.generate(),
-            key = c.entityInitializer.identityAttribute.attributeKey,
-            name = c.entityInitializer.identityAttribute.name,
-            description = c.entityInitializer.identityAttribute.description,
-            typeId = type.id,
-            optional = false, // because it's identity, can never be optional
-            tags = emptyList(),
-        )
-        val attributes = listOf(identityAttribute)
+        val identityAttributeId = AttributeId.generate()
         storage.dispatch(
             ModelRepoCmd.CreateEntity(
-                model.id,
-                EntityInMemory(
-                    id = EntityId.generate(),
-                    key = c.entityInitializer.entityKey,
-                    name = c.entityInitializer.name,
-                    description = c.entityInitializer.description,
-                    identifierAttributeId = identityAttribute.id,
-                    origin = EntityOrigin.Manual,
-                    documentationHome = c.entityInitializer.documentationHome,
-                    tags = emptyList(),
-                    attributes = attributes
-                )
+                modelId = model.id,
+                entityId = EntityId.generate(),
+                key = c.entityInitializer.entityKey,
+                name = c.entityInitializer.name,
+                description = c.entityInitializer.description,
+                origin = EntityOrigin.Manual,
+                documentationHome = c.entityInitializer.documentationHome,
+                identityAttributeId = identityAttributeId,
+                identityAttributeKey = c.entityInitializer.identityAttribute.attributeKey,
+                identityAttributeName = c.entityInitializer.identityAttribute.name,
+                identityAttributeDescription = c.entityInitializer.identityAttribute.description,
+                identityAttributeTypeId = type.id,
+                identityAttributeIdOptional = false, // because it's identity, can never be optional
+
             )
         )
     }
@@ -759,27 +752,23 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateRelationship(
                 modelId = model.id,
-                initializer = RelationshipInMemory(
-                    id = RelationshipId.generate(),
-                    name = cmd.initializer.name,
-                    description = cmd.initializer.description,
-                    key = cmd.initializer.key,
-                    roles = cmd.initializer.roles.map {
-                        val entity = model.findEntityOptional(it.entityRef) ?: throw EntityNotFoundException(
-                            cmd.modelRef,
-                            it.entityRef
-                        )
-                        RelationshipRoleInMemory(
-                            id = RelationshipRoleId.generate(),
-                            key = it.key,
-                            entityId = entity.id,
-                            name = it.name,
-                            cardinality = it.cardinality
-                        )
-                    },
-                    tags = emptyList(),
-                    attributes = emptyList(),
-                )
+                relationshipId = RelationshipId.generate(),
+                name = cmd.initializer.name,
+                description = cmd.initializer.description,
+                key = cmd.initializer.key,
+                roles = cmd.initializer.roles.map {
+                    val entity = model.findEntityOptional(it.entityRef) ?: throw EntityNotFoundException(
+                        cmd.modelRef,
+                        it.entityRef
+                    )
+                    ModelRepoCmd.RelationshipRoleInitializer(
+                        id = RelationshipRoleId.generate(),
+                        key = it.key,
+                        entityId = entity.id,
+                        name = it.name,
+                        cardinality = it.cardinality
+                    )
+                }
             )
         )
     }

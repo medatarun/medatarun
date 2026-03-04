@@ -125,14 +125,14 @@ sealed interface ModelAction {
             name = "Description",
             description = "Provide a comprehensive description of your model, what is its purpose and usage."
         )
-        val description: LocalizedMarkdown? = null,
+        val description: LocalizedMarkdown?,
 
         @ActionParamDoc(
             order = 4,
             name = "Version",
             description = "Initial version number, using semantic-version format."
         )
-        val version: ModelVersion? = null
+        val version: ModelVersion?
     ) : ModelAction
 
     @ActionDoc(
@@ -449,13 +449,13 @@ sealed interface ModelAction {
             description = "Display name of entity.",
             order = 30
         )
-        val name: LocalizedText? = null,
+        val name: LocalizedText?,
         @ActionParamDoc(
             name = "Description",
             description = "Entity's description",
             order = 40
         )
-        val description: LocalizedMarkdown? = null,
+        val description: LocalizedMarkdown?,
         @ActionParamDoc(
             name = "Identity attribute key",
             description = "Key of the attribute that will be created that acts as the entity's identifier.",
@@ -473,13 +473,13 @@ sealed interface ModelAction {
             description = "Display name of the attribute that will be created that acts as the entity's identifier.",
             order = 70
         )
-        val identityAttributeName: LocalizedText? = null,
+        val identityAttributeName: LocalizedText?,
         @ActionParamDoc(
             name = "External documentation",
             description = "Link to an external documentation.",
             order = 80
         )
-        val documentationHome: String? = null
+        val documentationHome: String?
     ) : ModelAction
 
     @ActionDoc(
@@ -693,8 +693,8 @@ sealed interface ModelAction {
         val attributeKey: AttributeKey,
         val type: TypeRef,
         val optional: Boolean = false,
-        val name: LocalizedText? = null,
-        val description: LocalizedMarkdown? = null
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?
     ) : ModelAction
 
 
