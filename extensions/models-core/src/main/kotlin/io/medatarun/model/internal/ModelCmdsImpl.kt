@@ -278,6 +278,7 @@ class ModelCmdsImpl(
     }
 
     data class ModelAndType(val model: Model, val type: ModelType)
+
     fun findModelAndType(modelRef: ModelRef, typeRef: TypeRef): ModelAndType {
         val model = findModel(modelRef)
         val type = findTypeOptional(model.id, typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
@@ -327,6 +328,7 @@ class ModelCmdsImpl(
     // -----------------------------------------------------------------------------------------------------------------
 
     data class ModelAndEntity(val model: Model, val entity: Entity)
+
     fun findModelAndEntity(modelRef: ModelRef, entityRef: EntityRef): ModelAndEntity {
         val model = findModel(modelRef)
         val entity = findEntity(modelRef, entityRef)
@@ -443,15 +445,12 @@ class ModelCmdsImpl(
             ModelRepoCmd.CreateEntityAttribute(
                 modelId = model.id,
                 entityId = entity.id,
-                attribute = AttributeInMemory(
-                    id = AttributeId.generate(),
-                    key = cmd.attributeInitializer.attributeKey,
-                    name = cmd.attributeInitializer.name,
-                    description = cmd.attributeInitializer.description,
-                    typeId = type.id,
-                    optional = cmd.attributeInitializer.optional,
-                    tags = emptyList(),
-                )
+                attributeId = AttributeId.generate(),
+                key = cmd.attributeInitializer.attributeKey,
+                name = cmd.attributeInitializer.name,
+                description = cmd.attributeInitializer.description,
+                typeId = type.id,
+                optional = cmd.attributeInitializer.optional,
             )
         )
     }
@@ -736,16 +735,13 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateRelationshipAttribute(
                 modelId = model.id,
-                attr = AttributeInMemory(
-                    id = AttributeId.generate(),
-                    key = cmd.attr.attributeKey,
-                    name = cmd.attr.name,
-                    description = cmd.attr.description,
-                    typeId = type.id,
-                    optional = cmd.attr.optional,
-                    tags = emptyList(),
-                ),
-                relationshipId = rel.id
+                relationshipId = rel.id,
+                attributeId = AttributeId.generate(),
+                key = cmd.attr.attributeKey,
+                name = cmd.attr.name,
+                description = cmd.attr.description,
+                typeId = type.id,
+                optional = cmd.attr.optional,
             )
         )
     }

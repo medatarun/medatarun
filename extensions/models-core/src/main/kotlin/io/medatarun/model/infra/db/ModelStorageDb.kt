@@ -158,7 +158,7 @@ class ModelStorageDb(
             is ModelRepoCmd.UpdateEntityTagAdd -> addEntityTag(cmd.entityId, cmd.tagId)
             is ModelRepoCmd.UpdateEntityTagDelete -> deleteEntityTag(cmd.entityId, cmd.tagId)
             is ModelRepoCmd.DeleteEntity -> deleteEntity(cmd.modelId, cmd.entityId)
-            is ModelRepoCmd.CreateEntityAttribute -> createEntityAttribute(cmd.entityId, cmd.attribute)
+            is ModelRepoCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
             is ModelRepoCmd.UpdateEntityAttributeKey -> updateEntityAttributeKey(cmd.entityId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateEntityAttributeName -> updateEntityAttributeName(cmd.entityId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateEntityAttributeDescription -> updateEntityAttributeDescription(cmd.entityId, cmd.attributeId, cmd.value)
@@ -178,7 +178,7 @@ class ModelStorageDb(
             is ModelRepoCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
-            is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd.relationshipId, cmd.attr)
+            is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
             is ModelRepoCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd.relationshipId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd.relationshipId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipAttributeDescription -> updateRelationshipAttributeDescription(cmd.relationshipId, cmd.attributeId, cmd.value)
@@ -415,9 +415,17 @@ class ModelStorageDb(
         }
     }
 
-    private fun createEntityAttribute(entityId: EntityId, attribute: Attribute) {
+    private fun createEntityAttribute(cmd: ModelRepoCmd.CreateEntityAttribute) {
         dbConnectionFactory.withExposed {
-            insertEntityAttribute(entityId, AttributeInMemory.of(attribute))
+            insertEntityAttribute(
+                attributeId = cmd.attributeId,
+                entityId = cmd.entityId,
+                key = cmd.key,
+                name = cmd.name,
+                description = cmd.description,
+                typeId = cmd.typeId,
+                optional = cmd.optional
+            )
         }
     }
 
@@ -550,7 +558,15 @@ class ModelStorageDb(
         insertEntityTags(entity.id, entity.tags)
 
         for (attribute in entity.attributes) {
-            insertEntityAttribute(entity.id, attribute)
+            insertEntityAttribute(
+                attributeId = attribute.id,
+                entityId = entity.id,
+                key = attribute.key,
+                name = attribute.name,
+                description = attribute.description,
+                typeId = attribute.typeId,
+                optional = attribute.optional
+            )
         }
 
         EntityTable.update(where = { EntityTable.id eq entity.id.asString() }) { row ->
@@ -568,28 +584,25 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertEntityAttribute(entityId: EntityId, attribute: AttributeInMemory) {
+    private fun insertEntityAttribute(
+        attributeId: AttributeId,
+        entityId: EntityId,
+        key: AttributeKey,
+        name: LocalizedText?,
+        description: LocalizedMarkdown?,
+        typeId: TypeId,
+        optional: Boolean
+    ) {
         EntityAttributeTable.insert { row ->
-            row[EntityAttributeTable.id] = attribute.id.asString()
+            row[EntityAttributeTable.id] = attributeId.asString()
             row[EntityAttributeTable.entityId] = entityId.asString()
-            row[EntityAttributeTable.key] = attribute.key.asString()
-            row[EntityAttributeTable.name] = localizedTextToString(attribute.name)
-            row[EntityAttributeTable.description] = localizedMarkdownToString(attribute.description)
-            row[EntityAttributeTable.typeId] = attribute.typeId.asString()
-            row[EntityAttributeTable.optional] = attribute.optional
+            row[EntityAttributeTable.key] = key.asString()
+            row[EntityAttributeTable.name] = localizedTextToString(name)
+            row[EntityAttributeTable.description] = localizedMarkdownToString(description)
+            row[EntityAttributeTable.typeId] = typeId.asString()
+            row[EntityAttributeTable.optional] = optional
         }
-
-        insertEntityAttributeTags(attribute.id, attribute.tags)
-        searchWrite.upsertEntityAttributeSearchItem(attribute.id)
-    }
-
-    private fun insertEntityAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
-        for (tagId in tags) {
-            EntityAttributeTagTable.insert { row ->
-                row[EntityAttributeTagTable.attributeId] = attributeId.asString()
-                row[EntityAttributeTagTable.tagId] = tagId.asString()
-            }
-        }
+        searchWrite.upsertEntityAttributeSearchItem(attributeId)
     }
 
     private fun createRelationship(modelId: ModelId, relationship: Relationship) {
@@ -692,9 +705,17 @@ class ModelStorageDb(
         }
     }
 
-    private fun createRelationshipAttribute(relationshipId: RelationshipId, attribute: Attribute) {
+    private fun createRelationshipAttribute(cmd: ModelRepoCmd.CreateRelationshipAttribute) {
         dbConnectionFactory.withExposed {
-            insertRelationshipAttribute(relationshipId, AttributeInMemory.of(attribute))
+            insertRelationshipAttribute(
+                relationshipId = cmd.relationshipId,
+                attributeId = cmd.attributeId,
+                name = cmd.name,
+                key = cmd.key,
+                description = cmd.description,
+                typeId = cmd.typeId,
+                optional = cmd.optional
+            )
         }
     }
 
@@ -822,7 +843,15 @@ class ModelStorageDb(
         }
 
         for (attribute in relationship.attributes) {
-            insertRelationshipAttribute(relationship.id, attribute)
+            insertRelationshipAttribute(
+                relationshipId = relationship.id,
+                attributeId = attribute.id,
+                key = attribute.key,
+                name = attribute.name,
+                description = attribute.description,
+                typeId = attribute.typeId,
+                optional = attribute.optional
+            )
         }
         searchWrite.upsertRelationshipSearchItem(relationship.id)
     }
@@ -836,28 +865,25 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertRelationshipAttribute(relationshipId: RelationshipId, attribute: AttributeInMemory) {
+    private fun insertRelationshipAttribute(
+        relationshipId: RelationshipId,
+        attributeId: AttributeId,
+        key: AttributeKey,
+        name: LocalizedText?,
+        description: LocalizedMarkdown?,
+        typeId: TypeId,
+        optional: Boolean
+    ) {
         RelationshipAttributeTable.insert { row ->
-            row[RelationshipAttributeTable.id] = attribute.id.asString()
+            row[RelationshipAttributeTable.id] = attributeId.asString()
             row[RelationshipAttributeTable.relationshipId] = relationshipId.asString()
-            row[RelationshipAttributeTable.key] = attribute.key.asString()
-            row[RelationshipAttributeTable.name] = localizedTextToString(attribute.name)
-            row[RelationshipAttributeTable.description] = localizedMarkdownToString(attribute.description)
-            row[RelationshipAttributeTable.typeId] = attribute.typeId.asString()
-            row[RelationshipAttributeTable.optional] = attribute.optional
+            row[RelationshipAttributeTable.key] = key.asString()
+            row[RelationshipAttributeTable.name] = localizedTextToString(name)
+            row[RelationshipAttributeTable.description] = localizedMarkdownToString(description)
+            row[RelationshipAttributeTable.typeId] = typeId.asString()
+            row[RelationshipAttributeTable.optional] = optional
         }
-
-        insertRelationshipAttributeTags(attribute.id, attribute.tags)
-        searchWrite.upsertRelationshipAttributeSearchItem(attribute.id)
-    }
-
-    private fun insertRelationshipAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
-        for (tagId in tags) {
-            RelationshipAttributeTagTable.insert { row ->
-                row[RelationshipAttributeTagTable.attributeId] = attributeId.asString()
-                row[RelationshipAttributeTagTable.tagId] = tagId.asString()
-            }
-        }
+        searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
     }
 
     private fun loadModelAggregate(row: ResultRow): ModelAggregateInMemory {

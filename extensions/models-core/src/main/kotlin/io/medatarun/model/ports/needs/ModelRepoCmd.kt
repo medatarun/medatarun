@@ -150,7 +150,12 @@ sealed interface ModelRepoCmd {
     class CreateEntityAttribute(
         override val modelId: ModelId,
         val entityId: EntityId,
-        val attribute: Attribute
+        val attributeId: AttributeId,
+        val key: AttributeKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val typeId: TypeId,
+        val optional: Boolean
     ) : ModelRepoCmdOnModel
 
     class DeleteEntityAttribute(
@@ -284,7 +289,12 @@ sealed interface ModelRepoCmd {
     class CreateRelationshipAttribute(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
-        val attr: Attribute
+        val attributeId: AttributeId,
+        val key: AttributeKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val typeId: TypeId,
+        val optional: Boolean,
     ) : ModelRepoCmdOnModel
 
     class UpdateRelationshipAttributeName(
