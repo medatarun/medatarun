@@ -146,13 +146,15 @@ class ModelQueriesImpl(
                 is SearchFilterTags.NoneOf -> it.names
                 else -> emptyList()
             }
-        }.associateWith { tagResolver.resolveTagId(it) }
+        }.associateWith { tagResolver.resolveTagIdUnsafe(it) }
 
         fun toTagId(tagRef: TagRef): TagId {
             return collectedTagRef[tagRef] ?: throw ModelQuerySearchCouldNotResolveTagRef(tagRef)
         }
 
         fun toTagIds(tagRefs: List<TagRef>): List<TagId> {
+            // Please note the distinct here, which is a business rule that says:
+            // if the same tag is given twice, we need to deduplicate (there are unit tests about this)
             return tagRefs.map { toTagId(it) }.distinct()
         }
 

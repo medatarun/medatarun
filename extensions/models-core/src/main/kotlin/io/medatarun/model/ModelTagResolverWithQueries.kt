@@ -17,6 +17,13 @@ internal class ModelTagResolverWithQueries(
         return tagQueries.findTagByRef(tagRef).id
     }
 
+    override fun resolveTagIdUnsafe(tagRef: TagRef): TagId {
+        return when(tagRef) {
+            is TagRef.ById -> tagRef.id
+            is TagRef.ByKey -> resolveTagId(tagRef)
+        }
+    }
+
     override fun resolveTagIdCompatible(
         modelId: ModelId,
         tagRef: TagRef

@@ -11,9 +11,22 @@ import io.medatarun.tags.core.domain.TagRef
 interface ModelTagResolver {
 
     /**
-     * Resolves this [tagRef] as a [TagId] whatever the tag scope is
+     * Resolves this [tagRef] as a [TagId] whatever the tag scope is.
+     *
+     * Error is thrown if the tagRef doesn't match an existing tag
      */
     fun resolveTagId(tagRef: TagRef): TagId
+
+    /**
+     * Resolves this [tagRef] as a [TagId] whatever the tag scope is.
+     *
+     * When the [tagRef] is already a [TagRef.ById], no lookup is done. It means the tag may not exist at all, which can be
+     * helpful where performance is preferred to consistency.
+     *
+     * When the [tagRef] is a [TagRef.ByKey] the key must be resolved, so an error will be thrown if the key doesn't
+     * exist, because we cannot guess the id otherwise.
+     */
+    fun resolveTagIdUnsafe(tagRef: TagRef): TagId
 
     /**
      * Resolves the [tagRef] as a [TagId]
