@@ -22,37 +22,42 @@ import org.jetbrains.exposed.v1.core.notInSubQuery
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
+/**
+ * Cleary not good at all, need to redo this properly to get everything in one query
+ */
 internal class ModelStorageDbSearchRead(
     private val dbConnectionFactory: DbConnectionFactory
 ) {
     fun search(query: ModelStorageSearchQuery): SearchResults {
-        return dbConnectionFactory.withExposed {
-            val matchingIds = resolveMatchingSearchItemIds(query)
-            if (matchingIds.isEmpty()) {
-                return@withExposed SearchResults(emptyList())
-            }
+        return dbConnectionFactory.withExposed { searchT(query) }
+    }
 
-            val rows = DenormModelSearchItemTable.selectAll()
-                .where { DenormModelSearchItemTable.id inList matchingIds.toList() }
-                .orderBy(
-                    DenormModelSearchItemTable.attributeLabel to SortOrder.ASC,
-                    DenormModelSearchItemTable.relationshipLabel to SortOrder.ASC,
-                    DenormModelSearchItemTable.entityLabel to SortOrder.ASC,
-                    DenormModelSearchItemTable.modelLabel to SortOrder.ASC
-                )
-                .toList()
-                .map { DenormModelSearchItemRecord.read(it) }
-
-            SearchResults(
-                rows.map { item ->
-                    SearchResultItem(
-                        id = item.id,
-                        location = searchLocationFromRecord(item),
-                        fields = emptyMap()
-                    )
-                }
-            )
+    private fun searchT(query: ModelStorageSearchQuery): SearchResults {
+        val matchingIds = resolveMatchingSearchItemIds(query)
+        if (matchingIds.isEmpty()) {
+            return SearchResults(emptyList())
         }
+
+        val rows = DenormModelSearchItemTable.selectAll()
+            .where { DenormModelSearchItemTable.id inList matchingIds.toList() }
+            .orderBy(
+                DenormModelSearchItemTable.attributeLabel to SortOrder.ASC,
+                DenormModelSearchItemTable.relationshipLabel to SortOrder.ASC,
+                DenormModelSearchItemTable.entityLabel to SortOrder.ASC,
+                DenormModelSearchItemTable.modelLabel to SortOrder.ASC
+            )
+            .toList()
+            .map { DenormModelSearchItemRecord.read(it) }
+
+        return SearchResults(
+            rows.map { item ->
+                SearchResultItem(
+                    id = item.id,
+                    location = searchLocationFromRecord(item),
+                    fields = emptyMap()
+                )
+            }
+        )
     }
 
     private fun resolveMatchingSearchItemIds(query: ModelStorageSearchQuery): Set<String> {
