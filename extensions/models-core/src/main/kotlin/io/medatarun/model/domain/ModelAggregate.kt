@@ -8,7 +8,7 @@ import java.net.URL
  *
  * Think of it as a Domain Model in DDD in a bounded context
  */
-interface Model {
+interface ModelAggregate {
 
     /**
      * Unique identifier in the application instance and more generally across all instances since it is backed by UUID

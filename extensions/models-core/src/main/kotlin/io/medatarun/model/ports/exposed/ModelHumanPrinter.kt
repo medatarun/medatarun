@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.exposed
 
-import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelAggregate
 
 interface ModelHumanPrinter {
-    fun print(model: Model): String
+    fun print(model: ModelAggregate): String
 }

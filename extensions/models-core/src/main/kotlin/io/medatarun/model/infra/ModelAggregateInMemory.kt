@@ -7,7 +7,7 @@ import java.net.URL
 /**
  * Default implementation of Model
  */
-data class ModelInMemory(
+data class ModelAggregateInMemory(
     override val id: ModelId,
     override val key: ModelKey,
     override val name: LocalizedText?,
@@ -19,11 +19,11 @@ data class ModelInMemory(
     override val relationships: List<RelationshipInMemory>,
     override val documentationHome: URL?,
     override val tags: List<TagId>,
-) : Model {
+) : ModelAggregate {
 
     companion object {
-        fun of(other: Model): ModelInMemory {
-            return ModelInMemory(
+        fun of(other: ModelAggregate): ModelAggregateInMemory {
+            return ModelAggregateInMemory(
                 id = other.id,
                 key = other.key,
                 name = other.name,
@@ -51,8 +51,8 @@ data class ModelInMemory(
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),
         ) {
-            fun build(): ModelInMemory {
-                return ModelInMemory(
+            fun build(): ModelAggregateInMemory {
+                return ModelAggregateInMemory(
                     id = id,
                     key = key,
                     name = name,
@@ -78,7 +78,7 @@ data class ModelInMemory(
             }
         }
 
-        fun builder(key: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelInMemory {
+        fun builder(key: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelAggregateInMemory {
             return Builder(key = key, version = version).apply(block).build()
         }
 

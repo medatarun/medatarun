@@ -18,7 +18,7 @@ sealed interface ModelRepoCmd {
     // ------------------------------------------------------------------------
 
     data class CreateModel(
-        val model: Model
+        val model: ModelAggregate
     ) : ModelRepoCmd
 
     data class UpdateModelName(

@@ -1,6 +1,6 @@
 package io.medatarun.model.ports.needs
 
-import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.search.SearchResults
@@ -18,9 +18,9 @@ interface ModelStorage {
 
     fun existsModelById(id: ModelId): Boolean
 
-    fun findModelByKeyOptional(key: ModelKey): Model?
+    fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate?
 
-    fun findModelByIdOptional(id: ModelId): Model?
+    fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate?
 
     fun search(query: ModelStorageSearchQuery): SearchResults
 

@@ -378,7 +378,7 @@ class ModelTest {
             )
         }
 
-        val model: Model
+        val model: ModelAggregate
             get() {
                 return query.findModelByKey(modelKey)
             }

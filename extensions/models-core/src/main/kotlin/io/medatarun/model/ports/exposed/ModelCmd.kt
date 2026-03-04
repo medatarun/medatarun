@@ -25,7 +25,7 @@ sealed interface ModelCmd {
     ) : ModelCmd
 
     data class ImportModel(
-        val model: Model
+        val model: ModelAggregate
     ) : ModelCmd
 
     data class UpdateModelName(

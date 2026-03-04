@@ -83,7 +83,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         }
     }
 
-    fun toModelJson(model: Model): ModelJson {
+    fun toModelJson(model: ModelAggregate): ModelJson {
         val modelJson = ModelJson(
             id = model.id.value.toString(),
             key = model.key.value,
@@ -143,12 +143,12 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         return modelJson
     }
 
-    fun toJsonString(model: Model): String {
+    fun toJsonString(model: ModelAggregate): String {
         val modelJson = toModelJson(model)
         return this.json.encodeToString(ModelJson.serializer(), modelJson)
     }
 
-    fun toJsonObject(model: Model): JsonObject {
+    fun toJsonObject(model: ModelAggregate): JsonObject {
         val modelJson = toModelJson(model)
         return this.json.encodeToJsonElement(ModelJson.serializer(), modelJson).jsonObject
     }
@@ -172,7 +172,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     }
 
 
-    fun fromJson(@Language("json") jsonString: String): ModelInMemory {
+    fun fromJson(@Language("json") jsonString: String): ModelAggregateInMemory {
         val modelJson = this.json.decodeFromString(ModelJson.serializer(), jsonString)
         val types = modelJson.types.map { typeJson ->
             ModelTypeInMemory(
@@ -188,7 +188,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             .firstOrNull { it.key == entityKey }
             ?: throw ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey, roleJsonKey, entityKey.value)
 
-        val model = ModelInMemory(
+        val model = ModelAggregateInMemory(
             id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
             key = ModelKey(modelJson.key),
             version = ModelVersion(modelJson.version),
@@ -247,7 +247,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     }
 
     companion object {
-        private fun toAttributeJsonList(model: Model, attrs: Collection<Attribute>): List<ModelAttributeJson> {
+        private fun toAttributeJsonList(model: ModelAggregate, attrs: Collection<Attribute>): List<ModelAttributeJson> {
             return attrs.map { it ->
                 ModelAttributeJson(
                     id = it.id.value.toString(),

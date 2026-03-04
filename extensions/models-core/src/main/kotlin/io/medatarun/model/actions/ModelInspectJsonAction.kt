@@ -67,19 +67,19 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
         return jsonPretty.encodeToString(root)
     }
 
-    private fun toAttributesJson(model: Model, entityRef: EntityRef): JsonArray {
+    private fun toAttributesJson(model: ModelAggregate, entityRef: EntityRef): JsonArray {
         val attributes = model.findEntityAttributes(entityRef)
         return toAttributesJson(attributes, model)
     }
 
-    private fun toAttributesJson(model: Model, relationshipRef: RelationshipRef): JsonArray {
+    private fun toAttributesJson(model: ModelAggregate, relationshipRef: RelationshipRef): JsonArray {
         val attributes = model.findRelationshipAttributes(relationshipRef)
         return toAttributesJson(attributes, model)
     }
 
     private fun toAttributesJson(
         attributes: List<Attribute>,
-        model: Model
+        model: ModelAggregate
     ): JsonArray {
         return buildJsonArray {
             attributes.forEach { attribute ->

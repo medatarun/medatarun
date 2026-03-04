@@ -2,7 +2,7 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
-import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,7 +48,7 @@ class ModelInMemoryTest {
         assertTrue(attrWebsite.optional)
     }
 
-    private fun createModel(): ModelInMemory {
+    private fun createModel(): ModelAggregateInMemory {
 
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
@@ -153,7 +153,7 @@ class ModelInMemoryTest {
 
         }
 
-        return ModelInMemory(
+        return ModelAggregateInMemory(
             id = ModelId.generate(),
             key = ModelKey("test-model"),
             name = LocalizedTextNotLocalized("Test Model"),

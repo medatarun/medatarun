@@ -86,27 +86,27 @@ class ModelQueriesImpl(
         return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
-    override fun findModelByKey(modelKey: ModelKey): Model {
-        return storage.findModelByKeyOptional(modelKey)
+    override fun findModelByKey(modelKey: ModelKey): ModelAggregate {
+        return storage.findModelAggregateByKeyOptional(modelKey)
             ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
-    override fun findModelById(modelId: ModelId): Model {
-        return storage.findModelByIdOptional(modelId)
+    override fun findModelById(modelId: ModelId): ModelAggregate {
+        return storage.findModelAggregateByIdOptional(modelId)
             ?: throw ModelNotFoundByIdException(modelId)
     }
 
-    override fun findModel(modelRef: ModelRef): Model {
+    override fun findModel(modelRef: ModelRef): ModelAggregate {
         return when (modelRef) {
             is ModelRef.ById -> findModelById(modelRef.id)
             is ModelRef.ByKey -> findModelByKey(modelRef.key)
         }
     }
 
-    override fun findModelOptional(modelRef: ModelRef): Model? {
+    override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {
         return when (modelRef) {
-            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
-            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
+            is ModelRef.ById -> storage.findModelAggregateByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> storage.findModelAggregateByKeyOptional(modelRef.key)
         }
     }
 

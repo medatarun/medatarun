@@ -13,7 +13,7 @@ interface Entity {
     val id: EntityId
 
     /**
-     * Unique key of this [Entity] in the [Model]
+     * Unique key of this [Entity] in the [ModelAggregate]
      */
     val key: EntityKey
 

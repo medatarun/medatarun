@@ -18,7 +18,7 @@ class ModelCmdCopyImpl {
         }
     }
 
-    fun copy(model: Model, modelNewKey: ModelKey): Model {
+    fun copy(model: ModelAggregate, modelNewKey: ModelKey): ModelAggregate {
         val typeIds = IdConv("type") { TypeId.generate() }
         val entityIds = IdConv("entity") { EntityId.generate() }
         val attributeIds = IdConv("attribute") { AttributeId.generate() }
@@ -58,7 +58,7 @@ class ModelCmdCopyImpl {
                 }
             )
         }
-        val next = ModelInMemory.of(model)
+        val next = ModelAggregateInMemory.of(model)
             .copy(
                 id = ModelId.generate(),
                 key = modelNewKey,

@@ -4,7 +4,7 @@ import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
-import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.tags.core.domain.TagId
@@ -35,7 +35,7 @@ class FrictionlessConverter(
         }
     }
 
-    fun readString(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): Model {
+    fun readString(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): ModelAggregate {
         val types = FrictionlessTypes().generateAll()
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
@@ -76,9 +76,9 @@ class FrictionlessConverter(
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         resourceLocator: ResourceLocator
-    ): ModelInMemory {
+    ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
-        val model = ModelInMemory(
+        val model = ModelAggregateInMemory(
             id = modelId,
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
@@ -121,10 +121,10 @@ class FrictionlessConverter(
         datapackage: DataPackage,
         schema: TableSchema,
 
-        ): ModelInMemory {
+        ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
 
-        val model = ModelInMemory(
+        val model = ModelAggregateInMemory(
             id = modelId,
             key = ModelKey(datapackage.name ?: "unknown"),
             name = datapackage.title?.let { LocalizedTextNotLocalized(it) },

@@ -1,13 +1,13 @@
 package io.medatarun.model.infra
 
-import io.medatarun.model.domain.Model
+import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.ports.exposed.ModelHumanPrinter
 
 class ModelHumanPrinterEmoji : ModelHumanPrinter {
 
     fun tabs(number: Int): String = "   ".repeat(number)
 
-    override fun print(model: Model): String {
+    override fun print(model: ModelAggregate): String {
         val buf = StringBuffer()
         buf.appendLine("🌐 ${model.key.value}")
         val modelName = model.name

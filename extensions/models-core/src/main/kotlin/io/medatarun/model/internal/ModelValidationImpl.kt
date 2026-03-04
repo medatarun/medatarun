@@ -4,7 +4,7 @@ import io.medatarun.model.domain.*
 
 class ModelValidationImpl : ModelValidation {
 
-    override fun validate(model: Model): ModelValidationState {
+    override fun validate(model: ModelAggregate): ModelValidationState {
         val errors = ensureEachAttributeHasKnownType(model) + ensureIdentityAttributeExists(model)
         return if (errors.isEmpty()) ModelValidationState.Ok() else ModelValidationState.Error(errors)
     }
@@ -12,7 +12,7 @@ class ModelValidationImpl : ModelValidation {
     /**
      * each attribute must have a known type
      */
-    private fun ensureEachAttributeHasKnownType(model: Model): List<ModelValidationError> {
+    private fun ensureEachAttributeHasKnownType(model: ModelAggregate): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
         // each attribute must have a known type
         model.entities.forEach { e ->
@@ -28,7 +28,7 @@ class ModelValidationImpl : ModelValidation {
     /**
      * each entity identity attribute must exist
      */
-    private fun ensureIdentityAttributeExists(model: Model): List<ModelValidationError> {
+    private fun ensureIdentityAttributeExists(model: ModelAggregate): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
 
         model.entities.forEach { e ->

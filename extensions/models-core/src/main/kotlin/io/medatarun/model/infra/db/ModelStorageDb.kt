@@ -51,21 +51,21 @@ class ModelStorageDb(
         }
     }
 
-    override fun findModelByKeyOptional(key: ModelKey): Model? {
+    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
         return dbConnectionFactory.withExposed {
             val row = ModelTable.selectAll()
                 .where { ModelTable.key eq key.value }
                 .singleOrNull()
-            if (row == null) null else loadModel(row)
+            if (row == null) null else loadModelAggregate(row)
         }
     }
 
-    override fun findModelByIdOptional(id: ModelId): Model? {
+    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
         return dbConnectionFactory.withExposed {
             val row = ModelTable.selectAll()
                 .where { ModelTable.id eq id.asString() }
                 .singleOrNull()
-            if (row == null) null else loadModel(row)
+            if (row == null) null else loadModelAggregate(row)
         }
     }
 
@@ -127,8 +127,8 @@ class ModelStorageDb(
         }
     }
 
-    private fun createModel(model: Model) {
-        val inMemoryModel = ModelInMemory.of(model)
+    private fun createModel(model: ModelAggregate) {
+        val inMemoryModel = ModelAggregateInMemory.of(model)
         dbConnectionFactory.withExposed {
             insertModel(inMemoryModel)
             insertModelTags(inMemoryModel.id, inMemoryModel.tags)
@@ -496,7 +496,7 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertModel(model: ModelInMemory) {
+    private fun insertModel(model: ModelAggregateInMemory) {
         ModelTable.insert { row ->
             row[ModelTable.id] = model.id.asString()
             row[ModelTable.key] = model.key.asString()
@@ -875,14 +875,14 @@ class ModelStorageDb(
         }
     }
 
-    private fun loadModel(row: ResultRow): ModelInMemory {
+    private fun loadModelAggregate(row: ResultRow): ModelAggregateInMemory {
         val record = ModelRecord.read(row)
         val modelId = ModelId.fromString(record.id)
         val types = loadTypes(modelId)
         val entities = loadEntities(modelId)
         val relationships = loadRelationships(modelId)
 
-        return ModelInMemory(
+        return ModelAggregateInMemory(
             id = modelId,
             key = ModelKey(record.key),
             name = stringToLocalizedText(record.name),

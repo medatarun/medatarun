@@ -1,7 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.ModelInMemory
+import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.internal.ModelValidationImpl
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,7 +13,7 @@ class ModelValidationTest {
 
     @Test
     fun `model with bad entity identifier`() {
-        val model = ModelInMemory.builder(
+        val model = ModelAggregateInMemory.builder(
             key = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {
@@ -57,7 +57,7 @@ class ModelValidationTest {
         val identifierAttribute = AttributeId.generate()
         val typeIdString = TypeId.generate()
         val typeIdInvalid = TypeId.generate()
-        val model = ModelInMemory.builder(
+        val model = ModelAggregateInMemory.builder(
             key = ModelKey("test"),
             version = ModelVersion("0.0.1"),
         ) {

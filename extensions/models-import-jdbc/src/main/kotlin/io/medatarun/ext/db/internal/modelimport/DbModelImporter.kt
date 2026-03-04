@@ -34,7 +34,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         resourceLocator: ResourceLocator,
         modelKey: ModelKey?,
         modelName: String?
-    ): Model {
+    ): ModelAggregate {
         val connectionName = path.split(":").last()
         val connection = dbConnectionRegistry.findByNameOptional(connectionName)
             ?: throw DbConnectionNotFoundException(connectionName)
@@ -117,7 +117,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                 )
             }
         }
-        val model = ModelInMemory(
+        val model = ModelAggregateInMemory(
             id = ModelId.generate(),
             key = ModelKey(modelKeyOrGenerated),
             name = LocalizedTextNotLocalized(modelNameOrGenerated),
