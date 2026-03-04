@@ -4,6 +4,9 @@ import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelType
+import io.medatarun.model.domain.TypeId
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.search.SearchResults
 
 /**
@@ -27,7 +30,14 @@ interface ModelStorage {
 
     fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate?
 
+    fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType?
+
+    fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?
+
     fun search(query: ModelStorageSearchQuery): SearchResults
+
+    fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean
+    fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean
 
     // Commands
 
@@ -37,5 +47,7 @@ interface ModelStorage {
      * See [ModelRepoCmd] for the list of supported write operations.
      */
     fun dispatch(cmd: ModelRepoCmd)
+
+
 
 }

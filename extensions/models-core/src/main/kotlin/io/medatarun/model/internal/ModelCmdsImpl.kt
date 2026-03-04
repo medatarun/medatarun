@@ -84,9 +84,11 @@ class ModelCmdsImpl(
     private fun findModelByKeyOptional(key: ModelKey): Model? {
         return storage.findModelByKeyOptional(key)
     }
+
     private fun findModelByIdOptional(id: ModelId): Model? {
         return storage.findModelByIdOptional(id)
     }
+
     private fun findModel(ref: ModelRef): Model {
         return when (ref) {
             is ModelRef.ByKey -> findModelByKeyOptional(ref.key)
@@ -102,13 +104,13 @@ class ModelCmdsImpl(
     private fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
         return storage.findModelAggregateByKeyOptional(key)
     }
+
     private fun findModelAggregate(ref: ModelRef): ModelAggregate {
         return when (ref) {
             is ModelRef.ByKey -> findModelAggregateByKeyOptional(ref.key)
             is ModelRef.ById -> findModelAggregateByIdOptional(ref.id)
         } ?: throw ModelNotFoundException(ref)
     }
-
 
 
     private fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType {
@@ -260,43 +262,62 @@ class ModelCmdsImpl(
     // Types
     // -----------------------------------------------------------------------------------------------------------------
 
+    fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? {
+        return storage.findTypeByKeyOptional(modelId, key)
+    }
+
+    fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType? {
+        return storage.findTypeByIdOptional(modelId, typeId)
+    }
+
+    fun findTypeOptional(modelId: ModelId, typeRef: TypeRef): ModelType? {
+        return when (typeRef) {
+            is TypeRef.ById -> findTypeByIdOptional(modelId, typeRef.id)
+            is TypeRef.ByKey -> findTypeByKeyOptional(modelId, typeRef.key)
+        }
+    }
+
+    data class ModelAndType(val model: Model, val type: ModelType)
+    fun findModelAndType(modelRef: ModelRef, typeRef: TypeRef): ModelAndType {
+        val model = findModel(modelRef)
+        val type = findTypeOptional(model.id, typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+        return ModelAndType(model, type)
+    }
+
     private fun createType(cmd: ModelCmd.CreateType) {
         // Cannot create a type if another type already has the same key in the model
-        val model = findModelAggregate(cmd.modelRef)
-        val existing = model.findTypeOptional(cmd.initializer.key)
+        val model = findModel(cmd.modelRef)
+        val existing = findTypeByKeyOptional(model.id, cmd.initializer.key)
         if (existing != null) throw TypeCreateDuplicateException(model.key, cmd.initializer.key)
         storage.dispatch(ModelRepoCmd.CreateType(model.id, cmd.initializer))
     }
 
     private fun updateTypeKey(cmd: ModelCmd.UpdateTypeKey) {
-        val model = findModelAggregate(cmd.modelRef)
-        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+        val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
         if (type.key == cmd.value) return
-        val found = model.findTypeOptional(cmd.value)
+        val found = findTypeByKeyOptional(model.id, cmd.value)
         if (found != null) throw TypeUpdateDuplicateKeyException(cmd.value)
         storage.dispatch(ModelRepoCmd.UpdateTypeKey(model.id, type.id, cmd.value))
     }
 
     private fun updateTypeName(cmd: ModelCmd.UpdateTypeName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+        val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
         if (type.name == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateTypeName(model.id, type.id, cmd.value))
     }
 
     private fun updateTypeDescription(cmd: ModelCmd.UpdateTypeDescription) {
-        val model = findModelAggregate(cmd.modelRef)
-        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+        val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
         if (type.description == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateTypeDescription(model.id, type.id, cmd.value))
     }
 
     private fun deleteType(cmd: ModelCmd.DeleteType) {
-        // Cannot delete type used in any entity
-        val model = findModelAggregate(cmd.modelRef)
-        val type = model.findTypeOptional(cmd.typeRef) ?: throw TypeNotFoundException(cmd.modelRef, cmd.typeRef)
+        val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
 
-        val used = model.entities.any { entity -> entity.attributes.any { attr -> attr.typeId == type.id } }
+        val used = storage.isTypeUsedInEntityAttributes(model.id, type.id)
+                || storage.isTypeUsedInRelationshipAttributes(model.id, type.id)
+
         if (used) throw ModelTypeDeleteUsedException(type.key)
 
         storage.dispatch(ModelRepoCmd.DeleteType(model.id, type.id))
@@ -304,6 +325,13 @@ class ModelCmdsImpl(
     // -----------------------------------------------------------------------------------------------------------------
     // Entities
     // -----------------------------------------------------------------------------------------------------------------
+
+    data class ModelAndEntity(val model: Model, val entity: Entity)
+    fun findModelAndEntity(modelRef: ModelRef, entityRef: EntityRef): ModelAndEntity {
+        val model = findModel(modelRef)
+        val entity = findEntity(modelRef, entityRef)
+        return ModelAndEntity(model, entity)
+    }
 
     private fun updateEntityKey(cmd: ModelCmd.UpdateEntityKey) {
         val model = findModelAggregate(cmd.modelRef)
@@ -315,15 +343,13 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityName(cmd: ModelCmd.UpdateEntityName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.name == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityName(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityDescription(cmd: ModelCmd.UpdateEntityDescription) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.description == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
     }
@@ -337,15 +363,13 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityDocumentationHome(cmd: ModelCmd.UpdateEntityDocumentationHome) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.documentationHome?.toExternalForm() == cmd.value?.toExternalForm()) return
         storage.dispatch(ModelRepoCmd.UpdateEntityDocumentationHome(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityTagAdd(cmd: ModelCmd.UpdateEntityTagAdd) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityTagAdd(
                 model.id, entity.id,
@@ -355,8 +379,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityTagDelete(cmd: ModelCmd.UpdateEntityTagDelete) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityTagDelete(
                 model.id, entity.id,
@@ -397,26 +420,24 @@ class ModelCmdsImpl(
         )
     }
 
-    private fun deleteEntity(c: ModelCmd.DeleteEntity) {
-        val model = findModelAggregate(c.modelRef)
-        val entity = findEntity(c.modelRef, c.entityRef)
+    private fun deleteEntity(cmd: ModelCmd.DeleteEntity) {
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         storage.dispatch(ModelRepoCmd.DeleteEntity(model.id, entity.id))
     }
 
-    private fun createEntityAttribute(c: ModelCmd.CreateEntityAttribute) {
-        val model = findModelAggregate(c.modelRef)
-        val entity = findEntity(c.modelRef, c.entityRef)
+    private fun createEntityAttribute(cmd: ModelCmd.CreateEntityAttribute) {
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val duplicate = findEntityAttributeOptional(
-            c.modelRef,
-            c.entityRef,
-            EntityAttributeRef.ByKey(c.attributeInitializer.attributeKey)
+            cmd.modelRef,
+            cmd.entityRef,
+            EntityAttributeRef.ByKey(cmd.attributeInitializer.attributeKey)
         )
         if (duplicate != null)
-            throw CreateAttributeDuplicateIdException(entity.key, c.attributeInitializer.attributeKey)
+            throw CreateAttributeDuplicateIdException(entity.key, cmd.attributeInitializer.attributeKey)
 
         // Makes sure the type reference exists, even if now, the type is referenced by a key only
-        val typeRef = c.attributeInitializer.type
-        val type = findType(c.modelRef, typeRef)
+        val typeRef = cmd.attributeInitializer.type
+        val type = findType(cmd.modelRef, typeRef)
 
         storage.dispatch(
             ModelRepoCmd.CreateEntityAttribute(
@@ -424,11 +445,11 @@ class ModelCmdsImpl(
                 entityId = entity.id,
                 attribute = AttributeInMemory(
                     id = AttributeId.generate(),
-                    key = c.attributeInitializer.attributeKey,
-                    name = c.attributeInitializer.name,
-                    description = c.attributeInitializer.description,
+                    key = cmd.attributeInitializer.attributeKey,
+                    name = cmd.attributeInitializer.name,
+                    description = cmd.attributeInitializer.description,
                     typeId = type.id,
-                    optional = c.attributeInitializer.optional,
+                    optional = cmd.attributeInitializer.optional,
                     tags = emptyList(),
                 )
             )
@@ -436,8 +457,7 @@ class ModelCmdsImpl(
     }
 
     private fun deleteEntityAttribute(cmd: ModelCmd.DeleteEntityAttribute) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attr = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (entity.identifierAttributeId == attr.id)
             throw DeleteAttributeIdentifierException(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
@@ -451,8 +471,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeKey(cmd: ModelCmd.UpdateEntityAttributeKey) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (entity.attributes.any { it.key == cmd.value && it.key != attribute.key }) {
             throw UpdateAttributeDuplicateKeyException(cmd.entityRef, cmd.attributeRef, cmd.value)
@@ -463,24 +482,21 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeName(cmd: ModelCmd.UpdateEntityAttributeName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.name == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeName(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeDescription(cmd: ModelCmd.UpdateEntityAttributeDescription) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.description == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeDescription(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeType(cmd: ModelCmd.UpdateEntityAttributeType) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         val type = findType(cmd.modelRef, cmd.value)
         if (attribute.typeId == type.id) return
@@ -488,16 +504,14 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeOptional(cmd: ModelCmd.UpdateEntityAttributeOptional) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.optional == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeOptional(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeTagAdd(cmd: ModelCmd.UpdateEntityAttributeTagAdd) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityAttributeTagAdd(
@@ -510,8 +524,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeTagDelete(cmd: ModelCmd.UpdateEntityAttributeTagDelete) {
-        val model = findModelAggregate(cmd.modelRef)
-        val entity = findEntity(cmd.modelRef, cmd.entityRef)
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityAttributeTagDelete(

@@ -568,13 +568,16 @@ class ModelTest {
     }
 
     @Test
-    fun `delete type used in attributes then error`() {
+    fun `delete type used in entity or relationship attributes then error`() {
         val env = TestEnvTypes()
         env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Markdown"), null, null))
+        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("PhoneNumber"), null, null))
         env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("Int"), null, null))
         val entityKey = EntityKey("contact")
         val entityRef = EntityRef.ByKey(entityKey)
+        val relationshipKey = RelationshipKey("rel")
+        val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         env.dispatch(
             ModelAction.Entity_Create(
                 modelRef = env.modelRef,
@@ -598,11 +601,43 @@ class ModelTest {
                 description = null
             )
         )
+        env.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef  = env.modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = RelationshipRoleKey("a"),
+                roleAEntityRef = entityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = RelationshipRoleKey("b"),
+                roleBEntityRef = entityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.One,
+            )
+        )
+
+        env.dispatch(
+            ModelAction.RelationshipAttribute_Create(
+                modelRef = env.modelRef,
+                relationshipRef = relationshipRef,
+                attributeKey = AttributeKey("attr"),
+                optional = true,
+                type = TypeRef.ByKey(TypeKey("PhoneNumber")),
+                name = null,
+                description = null
+            )
+        )
+
         assertThrows<ModelTypeDeleteUsedException> {
             env.dispatch(ModelAction.Type_Delete(env.modelRef, typeRef("String")))
         }
         assertThrows<ModelTypeDeleteUsedException> {
             env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Markdown"))))
+        }
+        assertThrows<ModelTypeDeleteUsedException> {
+            env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("PhoneNumber"))))
         }
         env.dispatch(ModelAction.Type_Delete(env.modelRef, TypeRef.ByKey(TypeKey("Int"))))
 
