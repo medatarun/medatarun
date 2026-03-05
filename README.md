@@ -1,10 +1,10 @@
 # medatarun
 
-**Medatarun** gives the business, developers, ops, data governance, security teams and AI agents a single place to work
-on the same living domain models : the actual structures of your domain—multiple models with their entities, relationships, attributes, types, tags and the documentation that ties them together.
+**Medatarun** gives the business, developers, ops, data governance, security teams, and AI agents a single place to work
+on the same living domain models : the actual structures of your domain—multiple models with their entities, relationships, attributes, types, tags, and the documentation that ties them together.
 
 You import the schemas you already have, or create new ones, express the business meaning where it
-belongs, add tags for governance and sensitivity, enrich types, and keep everything versioned, navigable and consistent.
+belongs, add tags for governance and sensitivity, enrich types, and keep everything versioned, navigable, and consistent.
 
 Humans and agents use the same operations, so the model is not just documented — it’s operational.
 
@@ -16,11 +16,11 @@ Humans and agents use the same operations, so the model is not just documented �
 
 That matters because today each group works with a different slice of the domain: schemas for devs, documents for
 business, controls for governance, conventions for ops, and guesses for AI. The model changes faster than these views
-can stay aligned, and everyone loses time reconstruing meaning, checking impact or asking again “what does this field
-really represent?”. Medatarun makes the domain explicit, shared and stable across all teams, so alignment doesn’t depend
+can stay aligned, and everyone loses time reconstruing meaning, checking impact, or asking again “what does this field
+really represent?”. Medatarun makes the domain explicit, shared, and stable across all teams, so alignment doesn’t depend
 on scattered artifacts or interpretation.
 
-Moreover, in the age of AI, relying on the model to be guessed __is no longer tenable__. Agents **need** a clear, documented and
+Moreover, in the age of AI, relying on the model to be guessed __is no longer tenable__. Agents **need** a clear, documented, and
 structured domain to operate safely and accurately. A central, explicit model becomes the only solid ground you can
 expect them to act on.
 
@@ -30,16 +30,16 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 
 - **Web UI for large, evolving models**.
 
-  Enables browsing, inspecting, updating and annotating complex structures at scale.
+  Enables browsing, inspecting, updating, and annotating complex structures at scale.
   Business users can understand and adjust the model directly, which turns it into a shared workspace
   instead of an engineering artefact.
 
 - **Rich, in-model documentation** without breaking structure
 
   Medatarun is made to carry real explanations: names, descriptions and long-form texts (Markdown) live directly on
-  models, entities, relationships and attributes, so business meaning and context are written where they apply.
+  models, entities, relationships, and attributes, so business meaning and context are written where they apply.
 
-  At the same time, text does not define identity. Operations, automation and model comparisons rely on explicit
+  At the same time, text does not define identity. Operations, automation, and model comparisons rely on explicit
   structural keys, so structural changes (including renamed columns/tables on import) surface as real diffs that can’t
   be hidden by wording, and can be reviewed alongside the documentation they impact.
 
@@ -49,11 +49,11 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 
 - **Extended and customizable type system** (Email, PhoneNumber, URL, RichText…)
 
-  Adds explicit semantics that improve validation, cross-team understanding and AI reasoning.
+  Adds explicit semantics that improve validation, cross-team understanding, and AI reasoning.
 
 - **Free tagging on every element (models, entities, relationships, attributes)**
 
-  Lets teams express semantics, organisational constraints and regulatory obligations directly
+  Lets teams express semantics, organisational constraints, and regulatory obligations directly
   inside the model instead of in scattered documents.
 
   Tagging is free, choose your own vocabulary to adjust to your governance needs.
@@ -61,12 +61,12 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 - **Tag based search**.
 
   Gives immediate visibility on cross-cutting concerns such as personal data, sensitivity, compliance scope, data
-  quality or business rules.
+  quality, or business rules.
 
-- **Unified operations for UI, CLI, APIs and AI Agents**
+- **Unified operations for UI, CLI, APIs, and AI Agents**
 
-  The same operations are exposed everywhere: user interface, command line, REST APIs and AI Agents via MCP Protocol.
-  Humans and automation act on the exact same primitives, ensuring consistency, traceability and no divergence
+  The same operations are exposed everywhere: user interface, command line, REST APIs, and AI Agents via MCP Protocol.
+  Humans and automation act on the exact same primitives, ensuring consistency, traceability, and no divergence
   between workflows: no glue code, no custom API surface, no bespoke parsing layer... and a linear learning curve for you.
 
   Builtin commands allow to view and manipulate
@@ -75,24 +75,24 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
     - their types
     - entities (with descriptions, tags, origins, credits)
     - relationships (cardinalities, tags, attributes).
-    - attributes (for entities and relationships, with tags, rich types and descriptions)
+    - attributes (for entities and relationships, with tags, rich types, and descriptions)
 
-  Built-in plugins allow model raw imports so you can get a quick start on your
-  assets: [Frictionless TableSchema or Data Packages](./extensions/frictionlessdata/README.md) today, Croissant in
-  development, [JDBC support](./extensions/db/README.md) in development.
-  After import, you obtain the structure that the importer could infer from the source. Medatarun operations let you
+ - **Import models**
+
+  Quickly start by importing your existing schemas from [your existing databases with JDBC support](https://docs.medatarun.com/docs/installation/databases) or from [Frictionless TableSchema or Data Packages](./extensions/models-import-frictionlessdata/README.md).
+  After import, you get the structure that the importer inferred from the source. Then, you can
   refine it: adjust types and relationships, add tags and descriptions, and reshape entities or attributes when the
   import didn’t capture enough information.
 
 - **Action-level traceability with explicit actors (humans and non-humans)**
 
-  Every operation is executed by an identified actor, whether it is a human user, an external identity, an automation, a CI/CD pipeline or an AI agent.
+  Every operation is executed by an identified actor, whether it is a human user, an external identity, an automation, a CI/CD pipeline, or an AI agent.
   Authentication (local users or external OIDC providers) and JWT validation are used to establish identity, but never blur authorship.
   This makes all changes attributable and auditable: you can know who or what modified which part of a model, when, and through which operation, across all channels.
 
 - **Extension system**.
 
-  Lets teams add imports, connectors, validations or commands to UI/CLI/API/MCP without forking.
+  Lets teams add imports, connectors, validations, or commands to UI/CLI/API/MCP without forking.
   Our extensions kernel allow extensions to extend each other via a strongly typed contribution system (Java/Kotlin
   interfaces).
   Build your own ecosystem over it.
@@ -114,32 +114,34 @@ Not built-in per-se but as a consequence of how Medatarun is build
 
 - **AI-driven advanced operations without dedicated features**.
 
-  Because the model is unified, structured and versioned, an agent can import SQL schemas, reconcile them with
+  Because the model is unified, structured, and versioned, an agent can import SQL schemas, reconcile them with
   reference models, detect inconsistencies, propose refactors, annotate risky fields, generate multilingual
   documentation, or apply compliance tags — all via generic model primitives.
   This is the capability that shifts the tool from “modeller” to “platform for model-level automation”.
 
-- **Model import and reconstruction from existing assets**
+- **Model imports outside built-in features**
 
-  Agents or extensions can ingest [SQL schemas](./extensions/db/README.md), JSON structures, CSV samples or
-  documentation and rebuild a coherent domain model through generic primitives. This removes the need for dedicated
-  import features and makes the tool usable even when no clean model exists yet.
+  Besides our JDBC and Frictionless imports, you can ask agents to ingest 
+  other SQL schemas files, JSON structures, CSV samples, or even Word or 
+  Confluence documentation to build a coherent domain model through our generic
+  primitives. This mostly removes the need for dedicated import features 
+  and makes Medatarun usable even when no clean model exists yet.
 
 ## What you can do with it
 
 Combining our built-in features and AI, here is a sample of use-cases:
 
 - Documenting legacy databases by importing their schema, enriching it with real business meaning, implicit rules, field
-  usage and historical context, turning an opaque structure into an understandable model.
-- Aligning teams around a single domain model where descriptions, tags and constraints accumulate incrementally instead
+  usage, and historical context, turning an opaque structure into an understandable model.
+- Aligning teams around a single domain model where descriptions, tags, and constraints accumulate incrementally instead
   of being scattered across documents.
-- Enabling AI to generate correct SQL, transformations or explanations by operating on the explicit model rather than
+- Enabling AI to generate correct SQL, transformations, or explanations by operating on the explicit model rather than
   guessing from ambiguous table and column names.
 - Reconciling multiple heterogeneous sources by importing their schemas and reconstructing a coherent target model that
   captures shared business concepts.
 - Preparing refactoring or modernization by clarifying the domain first in the model, then gradually adapting the
   underlying systems.
-- Understanding impact by navigating relationships, attributes and tags to see what a change affects before making it.
+- Understanding impact by navigating relationships, attributes, and tags to see what a change affects before making it.
 - Handling compliance and governance (e.g., personal data, sensitivity, retention rules) through systematic tagging and
   tag-based search.
 - Generating consistent, multilingual documentation directly from the model, avoiding outdated or duplicated

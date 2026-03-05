@@ -193,5 +193,10 @@ Foreign keys
   the referencing column must contain a value, but it does not specify how many rows in the referenced table may
   point to the same value. Database schemas do not store this information.
   Because of this, the import sets the cardinality on the referencing side to 0 or 1 and marks the opposite side cardinality as undefined.
+- The relationship created from the foreign key gets its `key` from the foreign key name. 
+  Because some databses may allow multiple foreign keys with the same name to exist, we had to suffix your 
+  relationships with a number when collision is detected (_0, _1, ...) 
+  This keeps relationship keys unique in the models.  
 
-These rules provide a consistent starting point. You can then adjust the resulting model as needed inside Medatarun.
+These rules provide a consistent starting point. You can then adjust the 
+resulting model as needed inside Medatarun or with API or the CLI.
