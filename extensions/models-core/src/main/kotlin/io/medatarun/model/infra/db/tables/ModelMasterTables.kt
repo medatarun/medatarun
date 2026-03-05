@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.core.Table
 
 object ModelTable : Table("model") {
     val id = text("id").transform(IdTransformer(::ModelId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::ModelKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
     val version = text("version")
@@ -24,7 +24,7 @@ object ModelTagTable : Table("model_tag") {
 object ModelTypeTable : Table("model_type") {
     val id = text("id").transform(IdTransformer(::TypeId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::TypeKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
 
@@ -34,7 +34,7 @@ object ModelTypeTable : Table("model_type") {
 object EntityTable : Table("entity") {
     val id = text("id").transform(IdTransformer(::EntityId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::EntityKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
     val identifierAttributeId = text("identifier_attribute_id").transform(IdTransformer(::AttributeId))
@@ -52,7 +52,7 @@ object EntityTagTable : Table("entity_tag") {
 object EntityAttributeTable : Table("entity_attribute") {
     val id = text("id").transform(IdTransformer(::AttributeId))
     val entityId = text("entity_id").transform(IdTransformer(::EntityId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
     val typeId = text("type_id").transform(IdTransformer(::TypeId))
@@ -69,7 +69,7 @@ object EntityAttributeTagTable : Table("entity_attribute_tag") {
 object RelationshipTable : Table("relationship") {
     val id = text("id").transform(IdTransformer(::RelationshipId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::RelationshipKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
     override val primaryKey = PrimaryKey(id)
@@ -83,7 +83,7 @@ object RelationshipTagTable : Table("relationship_tag") {
 object RelationshipRoleTable : Table("relationship_role") {
     val id = text("id").transform(IdTransformer(::RelationshipRoleId))
     val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::RelationshipRoleKey))
     val entityId = text("entity_id").transform(IdTransformer(::EntityId))
     val name = text("name").nullable()
     val cardinality = text("cardinality")
@@ -98,7 +98,7 @@ object RelationshipAttributeTagTable : Table("relationship_attribute_tag") {
 object RelationshipAttributeTable : Table("relationship_attribute") {
     val id = text("id").transform(IdTransformer(::AttributeId))
     val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
-    val key = text("key")
+    val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").nullable()
     val description = text("description").nullable()
     val typeId = text("type_id").transform(IdTransformer(::TypeId))

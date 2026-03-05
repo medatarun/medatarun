@@ -9,6 +9,7 @@ import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -342,28 +343,28 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    private fun buildSearchText(key: String, name: String?, description: String?): String {
+    private fun buildSearchText(key: Key<*>, name: String?, description: String?): String {
         return normalizeModelSearchText(listOfNotNull(key, name, description).joinToString(" "))
     }
 
     private fun modelLabelFromRecord(record: ModelRecord): String {
-        return record.name ?: record.key
+        return record.name ?: record.key.value
     }
 
     private fun entityLabelFromRecord(record: EntityRecord): String {
-        return record.name ?: record.key
+        return record.name ?: record.key.value
     }
 
     private fun entityAttributeLabelFromRecord(record: EntityAttributeRecord): String {
-        return record.name ?: record.key
+        return record.name ?: record.key.value
     }
 
     private fun relationshipLabelFromRecord(record: RelationshipRecord): String {
-        return record.name ?: record.key
+        return record.name ?: record.key.value
     }
 
     private fun relationshipAttributeLabelFromRecord(record: RelationshipAttributeRecord): String {
-        return record.name ?: record.key
+        return record.name ?: record.key.value
     }
 
     private fun loadModelRecord(modelId: ModelId): ModelRecord {

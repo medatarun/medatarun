@@ -2,13 +2,14 @@ package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.TypeId
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.infra.db.tables.ModelTypeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelTypeRecord(
     val id: TypeId,
     val modelId: ModelId,
-    val key: String,
+    val key: TypeKey,
     val name: String?,
     val description: String?
 ) {

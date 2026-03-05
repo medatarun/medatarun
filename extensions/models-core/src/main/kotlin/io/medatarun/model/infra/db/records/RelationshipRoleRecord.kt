@@ -3,13 +3,14 @@ package io.medatarun.model.infra.db.records
 import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipRoleId
+import io.medatarun.model.domain.RelationshipRoleKey
 import io.medatarun.model.infra.db.tables.RelationshipRoleTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipRoleRecord(
     val id: RelationshipRoleId,
     val relationshipId: RelationshipId,
-    val key: String,
+    val key: RelationshipRoleKey,
     val entityId: EntityId,
     val name: String?,
     val cardinality: String

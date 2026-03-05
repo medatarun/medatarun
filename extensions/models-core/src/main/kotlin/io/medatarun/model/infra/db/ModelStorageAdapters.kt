@@ -12,7 +12,7 @@ object ModelStorageAdapters {
     fun toModel(record: ModelRecord): ModelInMemory {
         return ModelInMemory(
             id = record.id,
-            key = ModelKey(record.key),
+            key = record.key,
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
             version = ModelVersion(record.version),
@@ -23,7 +23,7 @@ object ModelStorageAdapters {
 
     fun toType(record: ModelTypeRecord): ModelTypeInMemory = ModelTypeInMemory(
         id = record.id,
-        key = TypeKey(record.key),
+        key = record.key,
         name = stringToLocalizedText(record.name),
         description = stringToLocalizedMarkdown(record.description)
     )
@@ -34,7 +34,7 @@ object ModelStorageAdapters {
 
         return EntityInMemory(
             id = entityId,
-            key = EntityKey(record.key),
+            key = record.key,
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
             identifierAttributeId = identifierAttributeIdString,
@@ -47,7 +47,7 @@ object ModelStorageAdapters {
     fun toEntityAttribute(record: EntityAttributeRecord, tags: List<TagId>): AttributeInMemory {
         return AttributeInMemory(
             id = record.id,
-            key = AttributeKey(record.key),
+            key = record.key,
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
             typeId = record.typeId,
@@ -64,7 +64,7 @@ object ModelStorageAdapters {
     ): RelationshipInMemory {
         return RelationshipInMemory(
             id = record.id,
-            key = RelationshipKey(record.key),
+            key = record.key,
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
             roles = roles.map { toRelationshipRole(it) },
@@ -77,7 +77,7 @@ object ModelStorageAdapters {
 
         return RelationshipRoleInMemory(
             id = record.id,
-            key = RelationshipRoleKey(record.key),
+            key = record.key,
             entityId = record.entityId,
             name = stringToLocalizedText(record.name),
             cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
@@ -90,7 +90,7 @@ object ModelStorageAdapters {
     ): AttributeInMemory {
         return AttributeInMemory(
             id = record.id,
-            key = AttributeKey(record.key),
+            key = record.key,
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
             typeId = record.typeId,

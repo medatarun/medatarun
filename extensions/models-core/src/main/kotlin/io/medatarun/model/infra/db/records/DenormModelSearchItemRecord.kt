@@ -10,16 +10,16 @@ data class DenormModelSearchItemRecord(
     val id: String,
     val itemType: SearchItemType,
     val modelId: ModelId,
-    val modelKey: String,
+    val modelKey: ModelKey,
     val modelLabel: String,
     val entityId: EntityId?,
-    val entityKey: String?,
+    val entityKey: EntityKey?,
     val entityLabel: String?,
     val relationshipId: RelationshipId?,
-    val relationshipKey: String?,
+    val relationshipKey: RelationshipKey?,
     val relationshipLabel: String?,
     val attributeId: AttributeId?,
-    val attributeKey: String?,
+    val attributeKey: AttributeKey?,
     val attributeLabel: String?,
     val searchText: String
 ) {
@@ -29,7 +29,7 @@ data class DenormModelSearchItemRecord(
             SearchItemType.MODEL -> {
                 ModelLocation(
                     id = modelId,
-                    key = ModelKey(modelKey),
+                    key = modelKey,
                     label = modelLabel
                 )
             }
@@ -38,7 +38,7 @@ data class DenormModelSearchItemRecord(
                 EntityLocation(
                     model = modelLocationFromRecord(this),
                     id = requiredValue(entityId, DenormModelSearchItemTable.entityId),
-                    key = EntityKey(requiredValue(entityKey, DenormModelSearchItemTable.entityKey)),
+                    key = requiredValue(entityKey, DenormModelSearchItemTable.entityKey),
                     label = requiredValue(entityLabel, DenormModelSearchItemTable.entityLabel)
                 )
             }
@@ -48,11 +48,11 @@ data class DenormModelSearchItemRecord(
                     entity = EntityLocation(
                         model = modelLocationFromRecord(this),
                         id = requiredValue(entityId, DenormModelSearchItemTable.entityId),
-                        key = EntityKey(requiredValue(entityKey, DenormModelSearchItemTable.entityKey)),
+                        key = requiredValue(entityKey, DenormModelSearchItemTable.entityKey),
                         label = requiredValue(entityLabel, DenormModelSearchItemTable.entityLabel)
                     ),
                     id = requiredValue(attributeId, DenormModelSearchItemTable.attributeId),
-                    key = AttributeKey(requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey)),
+                    key = requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey),
                     label = requiredValue(attributeLabel, DenormModelSearchItemTable.attributeLabel)
                 )
             }
@@ -61,7 +61,7 @@ data class DenormModelSearchItemRecord(
                 RelationshipLocation(
                     model = modelLocationFromRecord(this),
                     id = requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId),
-                    key = RelationshipKey(requiredValue(relationshipKey, DenormModelSearchItemTable.relationshipKey)),
+                    key = requiredValue(relationshipKey, DenormModelSearchItemTable.relationshipKey),
                     label = requiredValue(relationshipLabel, DenormModelSearchItemTable.relationshipLabel)
                 )
             }
@@ -71,16 +71,11 @@ data class DenormModelSearchItemRecord(
                     relationship = RelationshipLocation(
                         model = modelLocationFromRecord(this),
                         id = requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId),
-                        key = RelationshipKey(
-                            requiredValue(
-                                relationshipKey,
-                                DenormModelSearchItemTable.relationshipKey
-                            )
-                        ),
+                        key = requiredValue(relationshipKey, DenormModelSearchItemTable.relationshipKey),
                         label = requiredValue(relationshipLabel, DenormModelSearchItemTable.relationshipLabel)
                     ),
                     id = requiredValue(attributeId, DenormModelSearchItemTable.attributeId),
-                    key = AttributeKey(requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey)),
+                    key = requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey),
                     label = requiredValue(attributeLabel, DenormModelSearchItemTable.attributeLabel)
                 )
             }
@@ -114,7 +109,7 @@ data class DenormModelSearchItemRecord(
         private fun modelLocationFromRecord(item: DenormModelSearchItemRecord): ModelLocation {
             return ModelLocation(
                 id = item.modelId,
-                key = ModelKey(item.modelKey),
+                key = item.modelKey,
                 label = item.modelLabel
             )
         }
