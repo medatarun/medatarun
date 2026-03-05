@@ -7,7 +7,7 @@ import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
 import kotlin.reflect.KClass
 
-class SearchFiltersDescriptor: TypeDescriptor<SearchFilters> {
+class SearchFiltersDescriptor : TypeDescriptor<SearchFilters> {
     override val target: KClass<SearchFilters> = SearchFilters::class
 
     override fun validate(value: SearchFilters): SearchFilters {

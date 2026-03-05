@@ -6,10 +6,17 @@ import io.medatarun.tags.core.domain.TagId
  * Attribute definition for an [Entity]
  */
 interface Attribute {
+
+
     /**
      * Unique identifier in the application instance and more generally across all instances since it is backed by UUID
      */
     val id: AttributeId
+
+    /**
+     * Tells if attribute is owned by an entity or a relationship and its id
+     */
+    val ownerId: AttributeOwnerId
 
     /**
      * Unique key of the attribute in its [Entity]
@@ -40,4 +47,13 @@ interface Attribute {
      * Tags added to this attribute for categorization
      */
     val tags: List<TagId>
+
+    fun ownedBy(id: EntityId): Boolean {
+        val ownerIdSafe = ownerId
+        return ownerIdSafe is AttributeOwnerId.OwnerEntityId && ownerIdSafe.id == id
+    }
+    fun ownedBy(id: RelationshipId): Boolean {
+        val ownerIdSafe = ownerId
+        return ownerIdSafe is AttributeOwnerId.OwnerRelationshipId && ownerIdSafe.id == id
+    }
 }

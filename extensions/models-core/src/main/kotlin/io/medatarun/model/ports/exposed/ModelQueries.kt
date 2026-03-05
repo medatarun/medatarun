@@ -10,10 +10,10 @@ interface ModelQueries {
     /**
      * Find a model by its id or throw [io.medatarun.model.domain.ModelNotFoundByKeyException]
      */
-    fun findModelByKey(modelKey: ModelKey): Model
-    fun findModelById(modelId: ModelId): Model
-    fun findModel(modelRef: ModelRef): Model
-    fun findModelOptional(modelRef: ModelRef): Model?
+    fun findModelByKey(modelKey: ModelKey): ModelAggregate
+    fun findModelById(modelId: ModelId): ModelAggregate
+    fun findModel(modelRef: ModelRef): ModelAggregate
+    fun findModelOptional(modelRef: ModelRef): ModelAggregate?
 
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
 
@@ -23,8 +23,13 @@ interface ModelQueries {
     fun findAllModelIds(): List<ModelId>
     fun findAllModelSummaries(locale: Locale): List<ModelSummary>
     fun findEntityAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute
-    fun findEntityAttributeOptional(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute?
+    fun findEntityAttributeOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef,
+        attributeRef: EntityAttributeRef
+    ): Attribute?
+
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
-    
+
     fun search(query: SearchQuery): SearchResults
 }

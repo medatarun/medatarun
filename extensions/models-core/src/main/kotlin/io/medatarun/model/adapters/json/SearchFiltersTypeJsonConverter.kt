@@ -1,11 +1,7 @@
 package io.medatarun.model.adapters.json
 
 import io.medatarun.model.adapters.TypeJsonInvalidSearchFiltersSyntaxException
-import io.medatarun.model.domain.search.SearchFilter
-import io.medatarun.model.domain.search.SearchFilterTags
-import io.medatarun.model.domain.search.SearchFilterText
-import io.medatarun.model.domain.search.SearchFilters
-import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
+import io.medatarun.model.domain.search.*
 import io.medatarun.tags.core.adapters.json.TagRefJsonConverter
 import io.medatarun.types.TypeJsonConverter
 import kotlinx.serialization.json.*
@@ -27,7 +23,7 @@ class SearchFiltersTypeJsonConverter : TypeJsonConverter<SearchFilters> {
                 operator = operator,
                 items = filters
             )
-        } catch(_: Exception) {
+        } catch (_: Exception) {
             throw TypeJsonInvalidSearchFiltersSyntaxException(json)
         }
 
@@ -36,23 +32,30 @@ class SearchFiltersTypeJsonConverter : TypeJsonConverter<SearchFilters> {
     private fun toFilter(json: JsonObject): SearchFilter {
         val type = json["type"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Filter type is missing")
         if (type == "tags") {
-            val conditionStr = json["condition"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Filter tag condition missing")
-            return when(conditionStr) {
+            val conditionStr = json["condition"]?.jsonPrimitive?.content
+                ?: throw IllegalArgumentException("Filter tag condition missing")
+            return when (conditionStr) {
                 "empty" -> SearchFilterTags.Empty
                 "notEmpty" -> SearchFilterTags.NotEmpty
-                "anyOf" -> SearchFilterTags.AnyOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
-                "noneOf" -> SearchFilterTags.NoneOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
-                "allOf" -> SearchFilterTags.AllOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) } ?: emptyList())
+                "anyOf" -> SearchFilterTags.AnyOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) }
+                    ?: emptyList())
+
+                "noneOf" -> SearchFilterTags.NoneOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) }
+                    ?: emptyList())
+
+                "allOf" -> SearchFilterTags.AllOf(json["value"]?.jsonArray?.map { TagRefJsonConverter().deserialize(it) }
+                    ?: emptyList())
+
                 else -> throw IllegalArgumentException("Unknown filter tag condition: $conditionStr")
             }
         }
         if (type == "text") {
-            val conditionStr = json["condition"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Filter text condition missing")
-            return when(conditionStr) {
+            val conditionStr = json["condition"]?.jsonPrimitive?.content
+                ?: throw IllegalArgumentException("Filter text condition missing")
+            return when (conditionStr) {
                 "contains" -> SearchFilterText.Contains(json["value"]?.jsonPrimitive?.content ?: "")
                 else -> throw IllegalArgumentException("Unknown filter text condition: $conditionStr")
             }
-        }
-        else throw IllegalArgumentException("Unknown filter type: $type")
+        } else throw IllegalArgumentException("Unknown filter type: $type")
     }
 }

@@ -21,10 +21,10 @@ class TagRefJsonConverterTest {
         assertEquals(TagRef.ById(TagId(id)), idRef)
 
         val localScopeId = UuidUtils.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
-        val freeKeyRef = converter.deserialize(JsonPrimitive("key:model/$localScopeId/Release_2026"))
+        val freeKeyRef = converter.deserialize(JsonPrimitive("key:vehicle/$localScopeId/Release_2026"))
         assertEquals(
             TagRef.ByKey(
-                scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(localScopeId)),
+                scopeRef = TagScopeRef.Local(TagScopeType("vehicle"), TagScopeId(localScopeId)),
                 groupKey = null,
                 key = TagKey("Release_2026")
             ),

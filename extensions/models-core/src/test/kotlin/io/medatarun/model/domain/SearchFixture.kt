@@ -2,14 +2,9 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.*
 
 @Suppress("ClassName")
 internal object refs {
@@ -76,7 +71,7 @@ internal object refs {
                 object ui_result {
                     val key = TagKey("ui-result")
                     fun ref(modelId: ModelId): TagRef = TagRef.ByKey(
-                        scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(modelId.value)),
+                        scopeRef = modelTagScopeRef(modelId),
                         groupKey = null,
                         key = key
                     )
@@ -85,7 +80,7 @@ internal object refs {
                 object ui_search {
                     val key = TagKey("ui-search")
                     fun ref(modelId: ModelId): TagRef = TagRef.ByKey(
-                        scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(modelId.value)),
+                        scopeRef = modelTagScopeRef(modelId),
                         groupKey = null,
                         key = key
                     )
@@ -96,7 +91,7 @@ internal object refs {
                 object imported {
                     val key = TagKey("imported")
                     fun ref(modelId: ModelId): TagRef = TagRef.ByKey(
-                        scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(modelId.value)),
+                        scopeRef = modelTagScopeRef(modelId),
                         groupKey = null,
                         key = key
                     )
@@ -491,10 +486,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         private fun createLocalTag(modelId: ModelId, key: TagKey, name: String, description: String) {
-            val scopeRef = TagScopeRef.Local(
-                type = TagScopeType("model"),
-                localScopeId = TagScopeId(modelId.value)
-            )
+            val scopeRef = modelTagScopeRef(modelId)
             fixture.env.dispatchTag(
                 TagAction.TagFreeCreate(
                     scopeRef = scopeRef,

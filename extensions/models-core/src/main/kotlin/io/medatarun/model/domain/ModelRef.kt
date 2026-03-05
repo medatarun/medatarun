@@ -1,6 +1,5 @@
 package io.medatarun.model.domain
 
-import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.type.commons.ref.Ref
 import java.util.*
 
@@ -23,16 +22,16 @@ sealed interface ModelRef : Ref<ModelRef> {
     }
 
     companion object {
-        fun modelRefKey(value: String): ModelRef.ByKey {
-            return ModelRef.ByKey(ModelKey(value))
+        fun modelRefKey(value: String): ByKey {
+            return ByKey(ModelKey(value))
         }
 
-        fun modelRefKey(value: ModelKey): ModelRef.ByKey {
-            return ModelRef.ByKey(value)
+        fun modelRefKey(value: ModelKey): ByKey {
+            return ByKey(value)
         }
 
-        fun modelRefId(value: UUID): ModelRef.ById {
-            return ModelRef.ById(ModelId(value))
+        fun modelRefId(value: UUID): ById {
+            return ById(ModelId(value))
         }
     }
 }

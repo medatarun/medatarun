@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.ports.needs.RepositoryRef
+import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagRef
 import java.net.URL
 
@@ -22,13 +22,12 @@ sealed interface ModelCmd {
         val modelKey: ModelKey,
         val name: LocalizedText,
         val description: LocalizedMarkdown?,
-        val version: ModelVersion,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val version: ModelVersion
     ) : ModelCmd
 
     data class ImportModel(
-        val model: Model,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val model: ModelAggregate,
+        val tags: List<Tag>
     ) : ModelCmd
 
     data class UpdateModelName(
@@ -53,8 +52,7 @@ sealed interface ModelCmd {
 
     class CopyModel(
         override val modelRef: ModelRef,
-        val modelNewKey: ModelKey,
-        val repositoryRef: RepositoryRef = RepositoryRef.Auto
+        val modelNewKey: ModelKey
     ) : ModelCmdOnModel
 
     data class DeleteModel(
@@ -70,10 +68,22 @@ sealed interface ModelCmd {
         val initializer: ModelTypeInitializer
     ) : ModelCmdOnModel
 
-    data class UpdateType(
+    data class UpdateTypeKey(
         override val modelRef: ModelRef,
         val typeRef: TypeRef,
-        val cmd: ModelTypeUpdateCmd
+        val value: TypeKey
+    ) : ModelCmdOnModel
+
+    data class UpdateTypeName(
+        override val modelRef: ModelRef,
+        val typeRef: TypeRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    data class UpdateTypeDescription(
+        override val modelRef: ModelRef,
+        val typeRef: TypeRef,
+        val value: LocalizedMarkdown?
     ) : ModelCmdOnModel
 
     data class DeleteType(
@@ -90,10 +100,34 @@ sealed interface ModelCmd {
         val entityInitializer: EntityInitializer
     ) : ModelCmdOnModel
 
-    data class UpdateEntity(
+    data class UpdateEntityKey(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
-        val cmd: EntityUpdateCmd
+        val value: EntityKey
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityName(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityDescription(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityIdentifierAttribute(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val value: EntityAttributeRef
+    ) : ModelCmdOnModel
+
+    data class UpdateEntityDocumentationHome(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val value: URL?
     ) : ModelCmdOnModel
 
     data class UpdateEntityTagAdd(
@@ -129,11 +163,39 @@ sealed interface ModelCmd {
         val attributeRef: EntityAttributeRef,
     ) : ModelCmdOnModel
 
-    class UpdateEntityAttribute(
+    class UpdateEntityAttributeKey(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
-        val cmd: AttributeUpdateCmd
+        val value: AttributeKey
+    ) : ModelCmdOnModel
+
+    class UpdateEntityAttributeName(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    class UpdateEntityAttributeDescription(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    class UpdateEntityAttributeType(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val value: TypeRef
+    ) : ModelCmdOnModel
+
+    class UpdateEntityAttributeOptional(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val attributeRef: EntityAttributeRef,
+        val value: Boolean
     ) : ModelCmdOnModel
 
     data class UpdateEntityAttributeTagAdd(
@@ -159,10 +221,50 @@ sealed interface ModelCmd {
         val initializer: RelationshipInitializer
     ) : ModelCmdOnModel
 
-    class UpdateRelationship(
+    class UpdateRelationshipKey(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val cmd: RelationshipUpdateCmd
+        val value: RelationshipKey
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipName(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipDescription(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipRoleKey(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
+        val value: RelationshipRoleKey
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipRoleName(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipRoleEntity(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
+        val value: EntityRef
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipRoleCardinality(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef,
+        val value: RelationshipCardinality
     ) : ModelCmdOnModel
 
     class UpdateRelationshipTagAdd(
@@ -189,11 +291,39 @@ sealed interface ModelCmd {
         val attr: AttributeInitializer
     ) : ModelCmdOnModel
 
-    class UpdateRelationshipAttribute(
+    class UpdateRelationshipAttributeName(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
         val attributeRef: RelationshipAttributeRef,
-        val cmd: AttributeUpdateCmd
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeDescription(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeKey(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val value: AttributeKey
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeType(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val value: TypeRef
+    ) : ModelCmdOnModel
+
+    class UpdateRelationshipAttributeOptional(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val attributeRef: RelationshipAttributeRef,
+        val value: Boolean
     ) : ModelCmdOnModel
 
     class UpdateRelationshipAttributeTagAdd(

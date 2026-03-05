@@ -9,7 +9,6 @@ import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
-import org.jetbrains.annotations.ApiStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -74,7 +73,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
             }
             putJsonArray("relationships", {
                 model.relationships.forEach { relationship ->
-                    val relationshipJson = toRelationshipJson(relationship, locale)
+                    val relationshipJson = toRelationshipJson(model, relationship, locale)
                     add(relationshipJson)
                 }
             })
@@ -93,6 +92,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
     }
 
     private fun toRelationshipJson(
+        modelAggregate: ModelAggregate,
         relationship: Relationship,
         locale: Locale
     ): JsonObject {
@@ -113,7 +113,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
                     }
                 }
             }
-            putJsonArray("attributes") { relationship.attributes.forEach { attr ->
+            putJsonArray("attributes") { modelAggregate.findRelationshipAttributes(relationship.ref).forEach { attr ->
                 addJsonObject {
                     put("id", attr.id.asString())
                     put("key", attr.key.asString())
@@ -134,7 +134,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
     private fun entityJson(
         e: Entity,
         locale: Locale,
-        model: Model
+        model: ModelAggregate
     ): JsonObject {
         val name = e.name?.get(locale)
         val description = e.description?.get(locale)

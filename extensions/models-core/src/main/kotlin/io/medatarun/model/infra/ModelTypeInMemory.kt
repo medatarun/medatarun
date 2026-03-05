@@ -15,8 +15,9 @@ data class ModelTypeInMemory(
         fun of(key: String): ModelTypeInMemory {
             return ModelTypeInMemory(TypeId.generate(), TypeKey(key), null, null)
         }
+
         fun of(other: ModelType): ModelTypeInMemory {
-            return ModelTypeInMemory(id=other.id, key = other.key, name = other.name, description = other.description)
+            return ModelTypeInMemory(id = other.id, key = other.key, name = other.name, description = other.description)
         }
     }
 }

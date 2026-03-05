@@ -10,7 +10,9 @@ import io.medatarun.lang.strings.trimToNull
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
 import java.time.Instant
@@ -34,7 +36,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         resourceLocator: ResourceLocator,
         modelKey: ModelKey?,
         modelName: String?
-    ): Model {
+    ): ModelImporterData {
         val connectionName = path.split(":").last()
         val connection = dbConnectionRegistry.findByNameOptional(connectionName)
             ?: throw DbConnectionNotFoundException(connectionName)
@@ -43,13 +45,12 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UuidUtils.generateV4String())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) }
+        val attributesCollector = mutableListOf<AttributeInMemory>()
         val entities = result.tables.map { table ->
-
+            val entityId = EntityId.generate()
             val attributeFromColumns = table.columns.map {
-
                 val type = types.firstOrNull { type -> type.key == TypeKey(it.typeName) }
                     ?: throw DbImportTypeNotFoundException(table.tableName, it.typeName)
-
                 AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey(it.columnName),
@@ -58,17 +59,19 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                     typeId = type.id,
                     optional = it.isNullable != false,
                     tags = emptyList(),
+                    ownerId = AttributeOwnerId.OwnerEntityId(entityId)
                 )
             }
             val pkAttributeKey = table.pkNameOrFirstColumn()
             val pkAttribute = attributeFromColumns.firstOrNull { it.key == pkAttributeKey }
                 ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
 
+            attributesCollector.addAll(attributeFromColumns)
+
             EntityInMemory(
-                id = EntityId.generate(),
+                id = entityId,
                 key = EntityKey(table.tableName),
                 name = null,
-                attributes = attributeFromColumns,
                 description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
                 identifierAttributeId = pkAttribute.id,
                 origin = EntityOrigin.Uri(URI(path)),
@@ -82,10 +85,12 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             .firstOrNull { it.key == EntityKey(tableName) }
             ?: throw DbImportCouldNotFindEntityForRelationship(tableName)
 
-        val relationships = result.tables.map { table ->
-            table.foreignKeys.map { fk ->
-                val idStr =
-                    fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
+        val relationships = mutableListOf<RelationshipInMemory>()
+
+        var duplicateCount = 0
+        for (table in result.tables) {
+            for (fk in table.foreignKeys) {
+                val key = fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
                 val roles = listOf(
                     RelationshipRoleInMemory(
                         id = RelationshipRoleId.generate(),
@@ -106,31 +111,40 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         name = null
                     ),
                 )
-                RelationshipInMemory(
+                val fkKeySafe = if (relationships.any { it.key.value == key }) {
+                        key + "_" + (duplicateCount++)
+                } else key
+                relationships.add(RelationshipInMemory(
                     id = RelationshipId.generate(),
-                    key = RelationshipKey(idStr),
+                    key = RelationshipKey(fkKeySafe),
                     name = null,
                     description = null,
-                    attributes = emptyList(),
                     roles = roles,
                     tags = emptyList(),
-                )
+                ))
             }
         }
-        val model = ModelInMemory(
-            id = ModelId.generate(),
-            key = ModelKey(modelKeyOrGenerated),
-            name = LocalizedTextNotLocalized(modelNameOrGenerated),
-            version = ModelVersion("0.0.1"),
-            description = null,
-            origin = ModelOrigin.Uri(URI(path)),
+
+        val model = ModelAggregateInMemory(
+            model = ModelInMemory(
+                id = ModelId.generate(),
+                key = ModelKey(modelKeyOrGenerated),
+                name = LocalizedTextNotLocalized(modelNameOrGenerated),
+                version = ModelVersion("0.0.1"),
+                description = null,
+                origin = ModelOrigin.Uri(URI(path)),
+                documentationHome = null,
+            ),
             types = types,
             entities = entities,
-            relationships = relationships.flatten(),
-            documentationHome = null,
+            relationships = relationships,
             tags = emptyList(),
+            attributes = attributesCollector
         )
-        return model
+        return ModelImporterData(
+            model,
+            emptyList() // No tags from databases anyway
+        )
     }
 
 }

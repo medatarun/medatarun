@@ -17,15 +17,18 @@ class LocalizedTextTypeJsonConverter : TypeJsonConverter<LocalizedText> {
             is JsonObject -> {
                 try {
                     LocalizedTextMap(json.entries.associate { it.key to it.value.jsonPrimitive.content })
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     throw TypeJsonConverterBadFormatException("Could not parse JSON object. ${e.message}: $json")
                 }
             }
+
             is JsonPrimitive -> {
                 if (json.isString) {
                     val content = json.contentOrNull ?: throw TypeJsonConverterIllegalNullException()
                     val contentTrimmed = content.trimToNull()
-                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty") else LocalizedTextNotLocalized(content)
+                    if (contentTrimmed == null) throw TypeJsonConverterBadFormatException("Can not be empty") else LocalizedTextNotLocalized(
+                        content
+                    )
                 } else {
                     throw TypeJsonConverterBadFormatException("expected a JsonObject or a JsonString")
                 }

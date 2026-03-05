@@ -15,6 +15,7 @@ class LocalizedMarkdownDescriptor : TypeDescriptor<LocalizedMarkdown> {
     override fun validate(value: LocalizedMarkdown): LocalizedMarkdown {
         return value.validate()
     }
+
     override val description: String = LOCALIZED_MARKDOWN_DESCRIPTION
     override val jsonConverter: TypeJsonConverter<LocalizedMarkdown> = LocalizedMarkdownTypeJsonConverter()
 }

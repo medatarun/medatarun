@@ -31,8 +31,8 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
             AuthExtension(),
             TagsCoreExtension(),
             ModelExtension(),
-            SysopsConfigInspectorExtension(),
             ModelJsonExtension(),
+            SysopsConfigInspectorExtension(),
             ModelsImportJdbcExtension(),
             FrictionlessdataExtension()
         )

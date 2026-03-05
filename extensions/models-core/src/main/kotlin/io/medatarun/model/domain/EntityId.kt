@@ -5,7 +5,7 @@ import io.medatarun.type.commons.id.Id
 import java.util.*
 
 @JvmInline
-value class EntityId(override val value: UUID): Id<EntityId>{
+value class EntityId(override val value: UUID) : Id<EntityId> {
 
     companion object {
         fun generate(): EntityId {

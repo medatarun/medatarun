@@ -1,22 +1,14 @@
 package io.medatarun.model.domain
 
 import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.search.SearchFields
-import io.medatarun.model.domain.search.SearchFilterTags
-import io.medatarun.model.domain.search.SearchFilterText
-import io.medatarun.model.domain.search.SearchFilters
-import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagNotFoundException
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
-import org.junit.jupiter.api.Test
+import io.medatarun.model.domain.search.*
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
+import io.medatarun.tags.core.domain.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -55,11 +47,23 @@ class ModelSearchTest {
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.password.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.name.key
+                ),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.description.key
+                ),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key),
-                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)
             ),
@@ -126,10 +130,22 @@ class ModelSearchTest {
             allHits - setOf(
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.name.key
+                ),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
-                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.description.key
+                ),
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)
             ),
@@ -192,17 +208,33 @@ class ModelSearchTest {
 
                 Hit.Model(refs.cooking.key),
                 Hit.Entity(refs.cooking.key, refs.cooking.ingredient.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.code.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.name.key
+                ),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.code.key
+                ),
                 Hit.Entity(refs.cooking.key, refs.cooking.recipe.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.description.key
+                ),
                 Hit.Entity(refs.cooking.key, refs.cooking.chef.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.name.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.email.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.usage.key),
-                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.author.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
@@ -305,14 +337,30 @@ class ModelSearchTest {
             setOf(
                 Hit.Model(refs.cooking.key),
                 Hit.Entity(refs.cooking.key, refs.cooking.ingredient.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.code.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.name.key
+                ),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.code.key
+                ),
                 Hit.Entity(refs.cooking.key, refs.cooking.recipe.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.description.key
+                ),
                 Hit.Entity(refs.cooking.key, refs.cooking.chef.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.usage.key),
-                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.author.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
@@ -354,10 +402,7 @@ class ModelSearchTest {
             .build()
         val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
         val unknownLocalTag = TagRef.ByKey(
-            scopeRef = TagScopeRef.Local(
-                type = TagScopeType("model"),
-                localScopeId = TagScopeId(crmModelId.value)
-            ),
+            scopeRef = modelTagScopeRef(crmModelId),
             groupKey = null,
             key = TagKey("missing-local-tag")
         )
@@ -388,17 +433,37 @@ class ModelSearchTest {
                 operator = SearchFiltersLogicalOperator.AND,
                 items = listOf(
                     SearchFilterTags.AnyOf(listOf(refs.tags.global.security.public.ref)),
-                    SearchFilterTags.AnyOf(listOf(refs.tags.local.cooking.imported.ref(fixture.env.queries.findModel(refs.cooking.ref).id)))
+                    SearchFilterTags.AnyOf(
+                        listOf(
+                            refs.tags.local.cooking.imported.ref(
+                                fixture.env.queries.findModel(
+                                    refs.cooking.ref
+                                ).id
+                            )
+                        )
+                    )
                 )
             )
         )
 
         assertEquals(
             setOf(
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.name.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.name.key
+                ),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.name.key),
-                Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.description.key),
-                Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.quantity.key),
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.description.key
+                ),
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
             ),
@@ -423,7 +488,8 @@ class ModelSearchTest {
                 operator = SearchFiltersLogicalOperator.OR,
                 items = listOf(
                     SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_result.ref(fixture.env.queries.findModel(refs.crm.ref).id))),
-                    SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref)))
+                    SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref))
+                )
             )
         )
 
@@ -673,9 +739,25 @@ class ModelSearchTest {
 
         assertTrue(hits.contains(Hit.Model(refs.cooking.key)))
         assertTrue(hits.contains(Hit.Entity(refs.crm.key, refs.crm.person.key)))
-        assertTrue(hits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key)))
+        assertTrue(
+            hits.contains(
+                Hit.EntityAttribute(
+                    refs.crm.key,
+                    refs.crm.person.key,
+                    refs.crm.person.attr.email.key
+                )
+            )
+        )
         assertTrue(hits.contains(Hit.Relationship(refs.crm.key, refs.crm.employment.key)))
-        assertTrue(hits.contains(Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key)))
+        assertTrue(
+            hits.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.unit.key
+                )
+            )
+        )
     }
 
     /**
@@ -690,11 +772,51 @@ class ModelSearchTest {
 
         val emptyHits = resultHits(search(fixture, SearchFilterTags.Empty))
 
-        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.id.key)))
-        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.id.key)))
-        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.id.key)))
-        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.id.key)))
-        assertTrue(emptyHits.contains(Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.id.key)))
+        assertTrue(
+            emptyHits.contains(
+                Hit.EntityAttribute(
+                    refs.crm.key,
+                    refs.crm.person.key,
+                    refs.crm.person.attr.id.key
+                )
+            )
+        )
+        assertTrue(
+            emptyHits.contains(
+                Hit.EntityAttribute(
+                    refs.crm.key,
+                    refs.crm.company.key,
+                    refs.crm.company.attr.id.key
+                )
+            )
+        )
+        assertTrue(
+            emptyHits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.ingredient.key,
+                    refs.cooking.ingredient.attr.id.key
+                )
+            )
+        )
+        assertTrue(
+            emptyHits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.recipe.key,
+                    refs.cooking.recipe.attr.id.key
+                )
+            )
+        )
+        assertTrue(
+            emptyHits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.id.key
+                )
+            )
+        )
     }
 
     @Test
@@ -740,12 +862,18 @@ class ModelSearchTest {
         val hits = resultHits(search(fixture, SearchFilterText.Contains("calendar")))
 
         assertEquals(
-            setOf(Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)),
+            setOf(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.author.key,
+                    refs.cooking.author.attr.date.key
+                )
+            ),
             hits
         )
     }
 
-    private fun search(fixture: SearchFixture, filter: io.medatarun.model.domain.search.SearchFilter): JsonObject {
+    private fun search(fixture: SearchFixture, filter: SearchFilter): JsonObject {
         return search(
             fixture,
             SearchFilters(
@@ -766,7 +894,7 @@ class ModelSearchTest {
 
     private fun allIndexedHits(fixture: SearchFixture): Set<Hit> {
         return resultHits(search(fixture, SearchFilterTags.Empty)) +
-            resultHits(search(fixture, SearchFilterTags.NotEmpty))
+                resultHits(search(fixture, SearchFilterTags.NotEmpty))
     }
 
     private fun resultHits(results: JsonObject): Set<Hit> {
@@ -776,24 +904,29 @@ class ModelSearchTest {
                 "model" -> Hit.Model(
                     modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content)
                 )
+
                 "entity" -> Hit.Entity(
                     modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
                     entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content)
                 )
+
                 "entityAttribute" -> Hit.EntityAttribute(
                     modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
                     entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content),
                     attributeKey = AttributeKey(location.getValue("entityAttributeKey").jsonPrimitive.content)
                 )
+
                 "relationship" -> Hit.Relationship(
                     modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
                     relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content)
                 )
+
                 "relationshipAttribute" -> Hit.RelationshipAttribute(
                     modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
                     relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content),
                     attributeKey = AttributeKey(location.getValue("relationshipAttributeKey").jsonPrimitive.content)
                 )
+
                 else -> error("Unexpected location objectType in model search tests: $objectType")
             }
         }.toSet()
@@ -807,6 +940,7 @@ class ModelSearchTest {
             val entityKey: EntityKey,
             val attributeKey: AttributeKey
         ) : Hit
+
         data class Relationship(val modelKey: ModelKey, val relationshipKey: RelationshipKey) : Hit
         data class RelationshipAttribute(
             val modelKey: ModelKey,

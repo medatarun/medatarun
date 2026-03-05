@@ -5,23 +5,26 @@ import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.adapters.descriptors.*
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
-import io.medatarun.model.infra.ModelHumanPrinterEmoji
-import io.medatarun.model.infra.ModelStoragesComposite
+import io.medatarun.model.infra.db.ModelStorageDb
+import io.medatarun.model.infra.db.ModelStorageDbMigration
 import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmds
-import io.medatarun.model.ports.exposed.ModelHumanPrinter
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
-import io.medatarun.model.ports.needs.ModelRepository
-import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.model.ports.needs.ModelStorage
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
+import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.DbMigration
+import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
@@ -35,8 +38,10 @@ import org.slf4j.LoggerFactory
 open class ModelExtension : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
-        val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val tagQueries = ctx.getService(TagQueries::class)
+        val tagCmds = ctx.getService(TagCmds::class)
+        val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
+        val dbTransactionManager = ctx.getService(DbTransactionManager::class)
 
         val auditor: ModelAuditor = object : ModelAuditor {
             override fun onCmdProcessed(cmd: ModelCmd) {
@@ -45,25 +50,23 @@ open class ModelExtension : MedatarunExtension {
         }
 
         val validation = ModelValidationImpl()
-        val storage = ModelStoragesComposite({
-            extensionRegistry.findContributionsFlat(ModelRepository::class)
-        }, validation)
-
-        val tagResolver = ModelTagResolverWithQueries(tagQueries)
+        val tagResolver = ModelTagResolverWithQueries(tagQueries, tagCmds)
+        val storage: ModelStorage = ModelStorageDb(dbConnectionFactory)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
-        val modelCmdsImpl = ModelCmdsImpl(storage, auditor, tagResolver)
-        val modelHumanPrinterEmoji = ModelHumanPrinterEmoji()
+        val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
+
 
 
         ctx.register(ModelCmds::class, modelCmdsImpl)
         ctx.register(ModelQueries::class, modelQueriesImpl)
-        ctx.register(ModelHumanPrinter::class, modelHumanPrinterEmoji)
+
 
     }
+
     override fun init(ctx: MedatarunExtensionCtx) {
         val modelQueries = ctx.getService(ModelQueries::class)
         val modelTagScopeManager = object : TagScopeManager {
-            override val type: TagScopeType = TagScopeType("model")
+            override val type: TagScopeType = modelTagScopeType
 
             override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
                 val modelId = ModelId(scopeRef.localScopeId.value)
@@ -71,11 +74,11 @@ open class ModelExtension : MedatarunExtension {
             }
         }
 
-        ctx.registerContributionPoint(this.id + ".repositories", ModelRepository::class)
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
         ctx.register(TagScopeManager::class, modelTagScopeManager)
         ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
+        ctx.register(DbMigration::class, ModelStorageDbMigration(id))
         ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
         ctx.register(TypeDescriptor::class, EntityRefDescriptor())

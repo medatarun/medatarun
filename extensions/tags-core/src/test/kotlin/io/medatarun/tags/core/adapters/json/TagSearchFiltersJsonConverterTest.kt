@@ -36,7 +36,7 @@ class TagSearchFiltersJsonConverterTest {
                       "type": "scopeRef",
                       "condition": "is",
                       "value": {
-                        "type": "model",
+                        "type": "vehicle",
                         "id": "11111111-2222-3333-4444-555555555555"
                       }
                     }
@@ -52,7 +52,7 @@ class TagSearchFiltersJsonConverterTest {
                 items = listOf(
                     TagSearchFilterScopeRef.Is(
                         TagScopeRef.Local(
-                            type = TagScopeType("model"),
+                            type = TagScopeType("vehicle"),
                             localScopeId = Id.fromString(
                                 "11111111-2222-3333-4444-555555555555",
                                 ::TagScopeId

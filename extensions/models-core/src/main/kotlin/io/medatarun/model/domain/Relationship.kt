@@ -47,23 +47,6 @@ interface Relationship {
     val roles: List<RelationshipRole>
 
     /**
-     * Attributes that belong to the relationship itself.
-     * These describe properties *of the relationship* (e.g. startDate, salary, conditions),
-     * not properties of the participating entities.
-     *
-     * When a relationship has its own attributes, it becomes a "join entity":
-     * a relationship treated as an entity in its own right, rather than a simple link.
-     * This remains purely declarative — it defines structure, not behavior.
-     *
-     * Examples:
-     * - The 'Employment' relationship links a 'Person' and a 'Company'
-     *   and carries attributes such as startDate or salary → it acts as a join entity.
-     * - The 'CarHasWheel' relationship links 'Car' and 'Wheel'
-     *   but has no attributes of its own → it remains a simple link.
-     */
-    val attributes: List<Attribute>
-
-    /**
      * Tags added to relationship for classification
      */
     val tags: List<TagId>

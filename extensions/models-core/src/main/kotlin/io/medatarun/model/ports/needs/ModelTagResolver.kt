@@ -2,7 +2,11 @@ package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.ModelId
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 
 /**
  * Port used by model commands to resolve tags and validate attachment rules
@@ -11,9 +15,22 @@ import io.medatarun.tags.core.domain.TagRef
 interface ModelTagResolver {
 
     /**
-     * Resolves this [tagRef] as a [TagId] whatever the tag scope is
+     * Resolves this [tagRef] as a [TagId] whatever the tag scope is.
+     *
+     * Error is thrown if the tagRef doesn't match an existing tag
      */
     fun resolveTagId(tagRef: TagRef): TagId
+
+    /**
+     * Resolves this [tagRef] as a [TagId] whatever the tag scope is.
+     *
+     * When the [tagRef] is already a [TagRef.ById], no lookup is done. It means the tag may not exist at all, which can be
+     * helpful where performance is preferred to consistency.
+     *
+     * When the [tagRef] is a [TagRef.ByKey] the key must be resolved, so an error will be thrown if the key doesn't
+     * exist, because we cannot guess the id otherwise.
+     */
+    fun resolveTagIdUnsafe(tagRef: TagRef): TagId
 
     /**
      * Resolves the [tagRef] as a [TagId]
@@ -21,4 +38,19 @@ interface ModelTagResolver {
      * or either a local tag for specified [modelId]
      */
     fun resolveTagIdCompatible(modelId: ModelId, tagRef: TagRef): TagId
+
+    /**
+     * Create a new tag in the local scope of the model
+     */
+    fun create(modelId: ModelId, key: TagKey, name: String?, description: String?)
+
+    companion object {
+        val modelTagScopeType = TagScopeType("model")
+        fun modelTagScopeRef(modelId: ModelId) = TagScopeRef.Local(
+            type = modelTagScopeType,
+            localScopeId = TagScopeId(modelId.value)
+        )
+    }
+
+
 }

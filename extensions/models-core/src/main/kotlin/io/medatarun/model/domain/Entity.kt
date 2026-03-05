@@ -13,7 +13,7 @@ interface Entity {
     val id: EntityId
 
     /**
-     * Unique key of this [Entity] in the [Model]
+     * Unique key of this [Entity] in the [ModelAggregate]
      */
     val key: EntityKey
 
@@ -26,11 +26,6 @@ interface Entity {
      * Display description
      */
     val description: LocalizedMarkdown?
-
-    /**
-     * Attributes contained in this [Entity]
-     */
-    val attributes: List<Attribute>
 
     /**
      * Tells which attribute acts as entities' identifier

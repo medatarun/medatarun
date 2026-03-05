@@ -1,17 +1,19 @@
 package io.medatarun.model.internal
 
-import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
-import io.medatarun.model.ports.needs.ModelStorages
-import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.ports.needs.*
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagRef
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*
 
-class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolver: ModelTagResolver) : ModelQueries {
+class ModelQueriesImpl(
+    private val storage: ModelStorage,
+    private val tagResolver: ModelTagResolver
+) : ModelQueries {
 
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
@@ -22,7 +24,7 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
         val modelIds = storage.findAllModelIds()
         return modelIds.map { id ->
             try {
-                val model = storage.findModelById(id)
+                val model = findModelById(id)
                 ModelSummary(
                     id = model.id,
                     key = model.key,
@@ -84,25 +86,27 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
         return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
-    override fun findModelByKey(modelKey: ModelKey): Model {
-        return storage.findModelByKeyOptional(modelKey) ?: throw ModelNotFoundByKeyException(modelKey)
+    override fun findModelByKey(modelKey: ModelKey): ModelAggregate {
+        return storage.findModelAggregateByKeyOptional(modelKey)
+            ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
-    override fun findModelById(modelId: ModelId): Model {
-        return storage.findModelByIdOptional(modelId) ?: throw ModelNotFoundByIdException(modelId)
+    override fun findModelById(modelId: ModelId): ModelAggregate {
+        return storage.findModelAggregateByIdOptional(modelId)
+            ?: throw ModelNotFoundByIdException(modelId)
     }
 
-    override fun findModel(modelRef: ModelRef): Model {
+    override fun findModel(modelRef: ModelRef): ModelAggregate {
         return when (modelRef) {
             is ModelRef.ById -> findModelById(modelRef.id)
             is ModelRef.ByKey -> findModelByKey(modelRef.key)
         }
     }
 
-    override fun findModelOptional(modelRef: ModelRef): Model? {
+    override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {
         return when (modelRef) {
-            is ModelRef.ById -> storage.findModelByIdOptional(modelRef.id)
-            is ModelRef.ByKey -> storage.findModelByKeyOptional(modelRef.key)
+            is ModelRef.ById -> storage.findModelAggregateByIdOptional(modelRef.id)
+            is ModelRef.ByKey -> storage.findModelAggregateByKeyOptional(modelRef.key)
         }
     }
 
@@ -126,162 +130,50 @@ class ModelQueriesImpl(private val storage: ModelStorages, private val tagResolv
         }
     }
 
-
     override fun search(query: SearchQuery): SearchResults {
-        val index = QueryIndexBuilder(storage).build()
-        fun toQueryItemPredicate(filter: SearchFilter): (QueryIndexItem) -> Boolean {
-            return { indexedItem ->
-                when (filter) {
-                    is SearchFilterTags.Empty -> {
-                        indexedItem.tags.isEmpty()
-                    }
 
-                    is SearchFilterTags.NotEmpty -> {
-                        indexedItem.tags.isNotEmpty()
-                    }
+        // Transforms the SearchQuery into a storage search query.
+        // We need to resolve tag refs into tag ids.
 
-                    is SearchFilterTags.AllOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.all(indexedItem.tags::contains)
-                    }
-
-                    is SearchFilterTags.NoneOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.none { indexedItem.tags.contains(it) }
-                    }
-
-                    is SearchFilterTags.AnyOf -> {
-                        val searchedTags = filter.names.map { tagResolver.resolveTagId(it) }
-                        searchedTags.any { indexedItem.tags.contains(it) }
-                    }
-
-                    is SearchFilterText.Contains -> {
-                        val searchedText = normalizeSearchText(filter.value)
-                        if (searchedText.isBlank()) {
-                            true
-                        } else {
-                            indexedItem.searchText.contains(searchedText)
-                        }
-                    }
-                }
+        val collectedTagRef = query.filters.items.flatMap {
+            when (it) {
+                is SearchFilterTags.AllOf -> it.names
+                is SearchFilterTags.AnyOf -> it.names
+                is SearchFilterTags.NoneOf -> it.names
+                else -> emptyList()
             }
+        }.associateWith { tagResolver.resolveTagIdUnsafe(it) }
+
+        fun toTagId(tagRef: TagRef): TagId {
+            return collectedTagRef[tagRef] ?: throw ModelQuerySearchCouldNotResolveTagRef(tagRef)
         }
 
-        val predicateChain = query.filters.items.map { toQueryItemPredicate(it) }
-        val filteredItems = when (query.filters.operator) {
-            SearchFiltersLogicalOperator.AND -> {
-                index.items.filter {
-                    predicateChain.all { pred -> pred(it) }
-                }
-            }
-
-            SearchFiltersLogicalOperator.OR -> {
-                index.items.filter {
-                    predicateChain.any { pred -> pred(it) }
-                }
-            }
+        fun toTagIds(tagRefs: List<TagRef>): List<TagId> {
+            // Please note the distinct here, which is a business rule that says:
+            // if the same tag is given twice, we need to deduplicate (there are unit tests about this)
+            return tagRefs.map { toTagId(it) }.distinct()
         }
-        return SearchResults(
-            filteredItems.map {
-                SearchResultItem(
-                    id = UuidUtils.generateV7().toString(),
-                    location = it.location,
-                    fields = emptyMap()
-                )
+
+        fun toStorageSearchFilter(filter: SearchFilter): ModelStorageSearchFilter {
+            val storageFilter: ModelStorageSearchFilter = when (filter) {
+                is SearchFilterText.Contains -> ModelStorageSearchFilterText.Contains(filter.value)
+                is SearchFilterTags.AllOf -> ModelStorageSearchFilterTags.AllOf(toTagIds(filter.names))
+                is SearchFilterTags.AnyOf -> ModelStorageSearchFilterTags.AnyOf(toTagIds(filter.names))
+                SearchFilterTags.Empty -> ModelStorageSearchFilterTags.Empty
+                is SearchFilterTags.NoneOf -> ModelStorageSearchFilterTags.NoneOf(toTagIds(filter.names))
+                SearchFilterTags.NotEmpty -> ModelStorageSearchFilterTags.NotEmpty
             }
+            return storageFilter
+        }
+
+        val storageQuery = ModelStorageSearchQuery(
+            filters = ModelStorageSearchFilters(
+                operator = query.filters.operator,
+                items = query.filters.items.map { filter -> toStorageSearchFilter(filter) }
+            ),
+            fields = query.fields
         )
+        return storage.search(storageQuery)
     }
 
-    class QueryIndex(val items: List<QueryIndexItem>)
-    class QueryIndexItem(val location: DomainLocation, val tags: List<TagId>, val searchText: String)
-
-    class QueryIndexBuilder(private val storage: ModelStorages) {
-        fun build(): QueryIndex {
-            val index = mutableListOf<QueryIndexItem>()
-            storage.findAllModelIds().forEach { modelId ->
-                val model = storage.findModelById(modelId)
-                index.add(QueryIndexItem(createModelLocation(model), model.tags, buildSearchText(model.key.value, model.name, model.description)))
-                model.entities.forEach { entity ->
-                    index.add(QueryIndexItem(createEntityLocation(model, entity), entity.tags, buildSearchText(entity.key.value, entity.name, entity.description)))
-                    entity.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createEntityAttributeLocation(model, entity, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
-                    }
-                }
-                model.relationships.forEach { rel ->
-                    index.add(QueryIndexItem(createRelationshipLocation(model, rel), rel.tags, buildSearchText(rel.key.value, rel.name, rel.description)))
-                    rel.attributes.forEach { attr ->
-                        index.add(QueryIndexItem(createRelationshipAttributeLocation(model, rel, attr), attr.tags, buildSearchText(attr.key.value, attr.name, attr.description)))
-                    }
-                }
-            }
-            return QueryIndex(index)
-        }
-
-        /**
-         * Search compares normalized key, name and description text the same way for every indexed object.
-         */
-        private fun buildSearchText(key: String, name: LocalizedTextBase?, description: LocalizedMarkdown?): String {
-            return normalizeSearchText(
-                listOfNotNull(
-                    key,
-                    name?.name,
-                    description?.name
-                ).joinToString(" ")
-            )
-        }
-    }
-
-
-}
-
-private fun normalizeSearchText(value: String): String {
-    val normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
-    return normalized
-        .replace("\\p{M}+".toRegex(), "")
-        .lowercase(Locale.ROOT)
-        .trim()
-}
-
-fun createModelLocation(model: Model): ModelLocation {
-    return ModelLocation(model.id, model.key, model.name?.name ?: model.key.value)
-}
-
-fun createEntityLocation(model: Model, entity: Entity): EntityLocation {
-    return EntityLocation(
-        createModelLocation(model),
-        id = entity.id,
-        key = entity.key,
-        label = entity.name?.name ?: entity.key.value
-    )
-}
-
-fun createEntityAttributeLocation(model: Model, entity: Entity, attr: Attribute): EntityAttributeLocation {
-    return EntityAttributeLocation(
-        createEntityLocation(model, entity),
-        id = attr.id,
-        key = attr.key,
-        label = attr.name?.name ?: attr.key.value
-    )
-}
-
-fun createRelationshipLocation(model: Model, rel: Relationship): RelationshipLocation {
-    return RelationshipLocation(
-        createModelLocation(model),
-        id = rel.id,
-        key = rel.key,
-        label = rel.name?.name ?: rel.key.value
-    )
-}
-
-fun createRelationshipAttributeLocation(
-    model: Model,
-    rel: Relationship,
-    attr: Attribute
-): RelationshipAttributeLocation {
-    return RelationshipAttributeLocation(
-        createRelationshipLocation(model, rel),
-        id = attr.id,
-        key = attr.key,
-        label = attr.name?.name ?: attr.key.value
-    )
 }

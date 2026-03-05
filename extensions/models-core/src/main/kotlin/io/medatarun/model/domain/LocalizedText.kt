@@ -42,8 +42,10 @@ sealed interface LocalizedTextBase {
  * Base type for all localizable texts.
  * Wrapper around some texts.
  */
-sealed interface LocalizedText: LocalizedTextBase {
-    fun validate(): LocalizedText { return this }
+sealed interface LocalizedText : LocalizedTextBase {
+    fun validate(): LocalizedText {
+        return this
+    }
 }
 
 /**
@@ -73,8 +75,10 @@ data class LocalizedTextMap(val values: Map<String, String>) : LocalizedText {
 
 // Markdown -------------------------------------------------------------------
 
-sealed interface LocalizedMarkdown: LocalizedTextBase {
-    fun validate(): LocalizedMarkdown { return this }
+sealed interface LocalizedMarkdown : LocalizedTextBase {
+    fun validate(): LocalizedMarkdown {
+        return this
+    }
 }
 
 /**
@@ -103,11 +107,7 @@ data class LocalizedMarkdownMap(val values: Map<String, String>) : LocalizedMark
 }
 
 
-
-
-
-
-
 const val LOCALIZED_MARKDOWN_DESCRIPTION = """A rich formatted text. Can be translated in multiple languages."""
-const val LOCALIZED_TEXT_DESCRIPTION = """A text on a single line, that doesn't exceed 200 characters long. Can be translated in multiple languages."""
+const val LOCALIZED_TEXT_DESCRIPTION =
+    """A text on a single line, that doesn't exceed 200 characters long. Can be translated in multiple languages."""
 

@@ -5,7 +5,7 @@ import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.TypeKey
 
 data class ModelTypeInitializer(
-    val id: TypeKey,
+    val key: TypeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?
 )
