@@ -399,6 +399,19 @@ class ModelStorageDb(
 
         insertModel(model.model)
         insertModelTags(model.id, model.tags)
+
+        for (type in model.types) {
+            insertType(
+                ModelTypeRecord(
+                    id = type.id,
+                    modelId = model.id,
+                    key = type.key,
+                    name = type.name,
+                    description = type.description
+                )
+            )
+        }
+
         for (entity in model.entities) {
             insertEntity(
                 EntityRecord(
@@ -412,6 +425,8 @@ class ModelStorageDb(
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
             )
+            insertEntityTags(entity.id, entity.tags)
+            searchWrite.upsertEntitySearchItem(entity.id)
 
             for (attr in model.attributes.filter { it.ownedBy(entity.id) }) {
                 insertEntityAttribute(
@@ -425,8 +440,51 @@ class ModelStorageDb(
                         optional = attr.optional
                     )
                 )
+                insertEntityAttributeTags(attr.id, attr.tags)
+                searchWrite.upsertEntityAttributeSearchItem(attr.id)
             }
         }
+
+        for (relationship in model.relationships) {
+            insertRelationship(
+                record = RelationshipRecord(
+                    id = relationship.id,
+                    modelId = model.id,
+                    key = relationship.key,
+                    name = relationship.name,
+                    description = relationship.description
+                ),
+                roles = relationship.roles.map { role ->
+                    RelationshipRoleRecord(
+                        id = role.id,
+                        relationshipId = relationship.id,
+                        key = role.key,
+                        entityId = role.entityId,
+                        name = role.name,
+                        cardinality = role.cardinality.code
+                    )
+                }
+            )
+            insertRelationshipTags(relationship.id, relationship.tags)
+            searchWrite.upsertRelationshipSearchItem(relationship.id)
+
+            for (attr in model.attributes.filter { it.ownedBy(relationship.id) }) {
+                insertRelationshipAttribute(
+                    RelationshipAttributeRecord(
+                        id = attr.id,
+                        relationshipId = relationship.id,
+                        key = attr.key,
+                        name = attr.name,
+                        description = attr.description,
+                        typeId = attr.typeId,
+                        optional = attr.optional
+                    )
+                )
+                insertRelationshipAttributeTags(attr.id, attr.tags)
+                searchWrite.upsertRelationshipAttributeSearchItem(attr.id)
+            }
+        }
+
         searchWrite.upsertModelSearchItem(inMemoryModel.id)
 
     }
@@ -515,12 +573,23 @@ class ModelStorageDb(
     }
 
     private fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+        val record = ModelTypeRecord(
+            id = TypeId.generate(),
+            modelId = modelId,
+            key = initializer.key,
+            name = initializer.name,
+            description = initializer.description
+        )
+        insertType(record)
+    }
+
+    private fun insertType(record: ModelTypeRecord) {
         ModelTypeTable.insert { row ->
-            row[ModelTypeTable.id] = TypeId.generate()
-            row[ModelTypeTable.modelId] = modelId
-            row[ModelTypeTable.key] = initializer.key
-            row[ModelTypeTable.name] = initializer.name
-            row[ModelTypeTable.description] = initializer.description
+            row[ModelTypeTable.id] = record.id
+            row[ModelTypeTable.modelId] = record.modelId
+            row[ModelTypeTable.key] = record.key
+            row[ModelTypeTable.name] = record.name
+            row[ModelTypeTable.description] = record.description
         }
     }
 
@@ -583,9 +652,8 @@ class ModelStorageDb(
     }
 
     private fun createEntity(cmd: ModelRepoCmd.CreateEntity) {
-        db.withExposed {
-            insertEntity(cmd)
-        }
+        insertEntity(cmd)
+        searchWrite.upsertEntitySearchItem(cmd.entityId)
     }
 
     private fun updateEntityKey(modelId: ModelId, entityId: EntityId, value: EntityKey) {
@@ -646,6 +714,12 @@ class ModelStorageDb(
         searchWrite.upsertEntitySearchItem(entityId)
     }
 
+    private fun insertEntityTags(entityId: EntityId, tags: List<TagId>) {
+        for (tag in tags) {
+            insertEntityTag(entityId, tag)
+        }
+    }
+
     private fun insertEntityTag(entityId: EntityId, tagId: TagId) {
         EntityTagTable.insert { row ->
             row[EntityTagTable.entityId] = entityId
@@ -693,8 +767,6 @@ class ModelStorageDb(
                 optional = cmd.identityAttributeIdOptional
             )
         )
-
-        searchWrite.upsertEntitySearchItem(cmd.entityId)
     }
 
     private fun insertEntity(record: EntityRecord) {
@@ -823,12 +895,22 @@ class ModelStorageDb(
             (EntityAttributeTagTable.attributeId eq attributeId) and (EntityAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            EntityAttributeTagTable.insert { row ->
-                row[EntityAttributeTagTable.attributeId] = attributeId
-                row[EntityAttributeTagTable.tagId] = tagId
-            }
+            insertEntityAttributeTag(attributeId, tagId)
         }
         searchWrite.upsertEntityAttributeSearchItem(attributeId)
+    }
+
+    private fun insertEntityAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
+        for (tag in tags) {
+            insertEntityAttributeTag(attributeId, tag)
+        }
+    }
+
+    private fun insertEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        EntityAttributeTagTable.insert { row ->
+            row[EntityAttributeTagTable.attributeId] = attributeId
+            row[EntityAttributeTagTable.tagId] = tagId
+        }
     }
 
     private fun deleteEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
@@ -876,7 +958,25 @@ class ModelStorageDb(
     }
 
     private fun createRelationship(cmd: ModelRepoCmd.CreateRelationship) {
-        insertRelationship(cmd)
+        val record = RelationshipRecord(
+            id = cmd.relationshipId,
+            modelId = cmd.modelId,
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description
+        )
+        val roles = cmd.roles.map { role ->
+            RelationshipRoleRecord(
+                id = role.id,
+                relationshipId = cmd.relationshipId,
+                key = role.key,
+                name = role.name,
+                entityId = role.entityId,
+                cardinality = role.cardinality.code
+            )
+        }
+        insertRelationship(record, roles)
+        searchWrite.upsertRelationshipSearchItem(cmd.relationshipId)
     }
 
     private fun updateRelationshipKey(relationshipId: RelationshipId, value: RelationshipKey) {
@@ -931,34 +1031,51 @@ class ModelStorageDb(
             (RelationshipTagTable.relationshipId eq relationshipId) and (RelationshipTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            RelationshipTagTable.insert { row ->
-                row[RelationshipTagTable.relationshipId] = relationshipId
-                row[RelationshipTagTable.tagId] = tagId
-            }
+            insertRelationshipTag(relationshipId, tagId)
         }
         searchWrite.upsertRelationshipSearchItem(relationshipId)
     }
 
-    private fun insertRelationship(cmd: ModelRepoCmd.CreateRelationship) {
-        RelationshipTable.insert { row ->
-            row[RelationshipTable.id] = cmd.relationshipId
-            row[RelationshipTable.modelId] = cmd.modelId
-            row[RelationshipTable.key] = cmd.key
-            row[RelationshipTable.name] = cmd.name
-            row[RelationshipTable.description] = cmd.description
+    private fun insertRelationshipTags(
+        relationshipId: RelationshipId,
+        tags: List<TagId>
+    ) {
+        for (tag in tags) {
+            insertRelationshipTag(relationshipId, tag)
         }
-        for (role in cmd.roles) {
+    }
+
+    private fun insertRelationshipTag(
+        relationshipId: RelationshipId,
+        tagId: TagId
+    ) {
+        RelationshipTagTable.insert { row ->
+            row[RelationshipTagTable.relationshipId] = relationshipId
+            row[RelationshipTagTable.tagId] = tagId
+        }
+    }
+
+    private fun insertRelationship(record: RelationshipRecord, roles: List<RelationshipRoleRecord>) {
+
+        RelationshipTable.insert { row ->
+            row[RelationshipTable.id] = record.id
+            row[RelationshipTable.modelId] = record.modelId
+            row[RelationshipTable.key] = record.key
+            row[RelationshipTable.name] = record.name
+            row[RelationshipTable.description] = record.description
+        }
+        for (roleRecord in roles) {
             RelationshipRoleTable.insert { row ->
-                row[RelationshipRoleTable.id] = role.id
-                row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
-                row[RelationshipRoleTable.key] = role.key
-                row[RelationshipRoleTable.entityId] = role.entityId
-                row[RelationshipRoleTable.name] = role.name
-                row[RelationshipRoleTable.cardinality] = role.cardinality.code
+                row[RelationshipRoleTable.id] = roleRecord.id
+                row[RelationshipRoleTable.relationshipId] = roleRecord.relationshipId
+                row[RelationshipRoleTable.key] = roleRecord.key
+                row[RelationshipRoleTable.entityId] = roleRecord.entityId
+                row[RelationshipRoleTable.name] = roleRecord.name
+                row[RelationshipRoleTable.cardinality] = roleRecord.cardinality
             }
         }
 
-        searchWrite.upsertRelationshipSearchItem(cmd.relationshipId)
+
     }
 
     private fun deleteRelationship(modelId: ModelId, relationshipId: RelationshipId) {
@@ -998,17 +1115,17 @@ class ModelStorageDb(
     }
 
     private fun createRelationshipAttribute(cmd: ModelRepoCmd.CreateRelationshipAttribute) {
-        insertRelationshipAttribute(
-            RelationshipAttributeRecord(
-                id = cmd.attributeId,
-                relationshipId = cmd.relationshipId,
-                name = cmd.name,
-                key = cmd.key,
-                description = cmd.description,
-                typeId = cmd.typeId,
-                optional = cmd.optional
-            )
+        val record = RelationshipAttributeRecord(
+            id = cmd.attributeId,
+            relationshipId = cmd.relationshipId,
+            name = cmd.name,
+            key = cmd.key,
+            description = cmd.description,
+            typeId = cmd.typeId,
+            optional = cmd.optional
         )
+        insertRelationshipAttribute(record)
+        searchWrite.upsertRelationshipAttributeSearchItem(record.id)
     }
 
     private fun updateRelationshipAttributeKey(
@@ -1074,12 +1191,21 @@ class ModelStorageDb(
             (RelationshipAttributeTagTable.attributeId eq attributeId) and (RelationshipAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            RelationshipAttributeTagTable.insert { row ->
-                row[RelationshipAttributeTagTable.attributeId] = attributeId
-                row[RelationshipAttributeTagTable.tagId] = tagId
-            }
+            insertRelationshipAttributeTag(attributeId, tagId)
         }
         searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
+    }
+
+    private fun insertRelationshipAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
+        for (tag in tags) {
+            insertRelationshipAttributeTag(attributeId, tag)
+        }
+    }
+    private fun insertRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
+        RelationshipAttributeTagTable.insert { row ->
+            row[RelationshipAttributeTagTable.attributeId] = attributeId
+            row[RelationshipAttributeTagTable.tagId] = tagId
+        }
     }
 
     private fun insertRelationshipAttribute(
@@ -1094,7 +1220,7 @@ class ModelStorageDb(
             row[RelationshipAttributeTable.typeId] = record.typeId
             row[RelationshipAttributeTable.optional] = record.optional
         }
-        searchWrite.upsertRelationshipAttributeSearchItem(record.id)
+
     }
 
     private fun deleteRelationshipAttribute(relationshipId: RelationshipId, attributeId: AttributeId) {
