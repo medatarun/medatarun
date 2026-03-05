@@ -34,10 +34,10 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 
         val modelCmds = actionCtx.getService<ModelCmds>()
         val modelQueries = actionCtx.getService<ModelQueries>()
-        val modelHumanPrinter = actionCtx.getService<ModelHumanPrinter>()
+
         val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries, modelHumanPrinter, resourceLocator, locale, actionCtx)
+        val handler = ModelActionHandler(modelCmds, modelQueries,  resourceLocator, locale, actionCtx)
 
         logger.info(cmd.toString())
 
@@ -49,7 +49,6 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.Import -> handler.modelImport(cmd)
-            is ModelAction.Inspect_Human -> handler.modelInspectHuman()
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
             is ModelAction.Search -> handler.search(cmd)
 
@@ -144,7 +143,6 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
 class ModelActionHandler(
     private val modelCmds: ModelCmds,
     private val modelQueries: ModelQueries,
-    private val modelHumanPrinter: ModelHumanPrinter,
     private val resourceLocator: ResourceLocator,
     private val locale: Locale,
     private val actionCtx: ActionCtx
@@ -168,7 +166,7 @@ class ModelActionHandler(
         modelCmds.dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
     }
 
-    fun modelInspectHuman(): String = ModelInspectAction(modelQueries, modelHumanPrinter).process()
+
 
     fun modelInspectJson(): String = ModelInspectJsonAction(modelQueries).process()
 

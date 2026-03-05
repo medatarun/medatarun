@@ -55,16 +55,6 @@ sealed interface ModelAction {
     // ------------------------------------------------------------------------
 
     @ActionDoc(
-        key = "inspect_models_text",
-        title = "Inspect models",
-        description = "Produces a tree view of registered models, entities, and attributes.",
-        uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.SIGNED_IN
-
-    )
-    class Inspect_Human : ModelAction
-
-    @ActionDoc(
         key = "inspect_models_json",
         title = "Inspect models (JSON)",
         description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
