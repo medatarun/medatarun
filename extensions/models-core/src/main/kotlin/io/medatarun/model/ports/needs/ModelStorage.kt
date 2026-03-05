@@ -1,14 +1,19 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.Attribute
+import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.Entity
 import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelType
+import io.medatarun.model.domain.Relationship
 import io.medatarun.model.domain.RelationshipId
+import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.domain.TypeId
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.search.SearchResults
@@ -38,8 +43,21 @@ interface ModelStorage {
 
     fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?
 
+    fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?
+
+    fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity?
+
+    fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?
+
     fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute?
+
+    fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship?
+
+    fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship?
+
     fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?
+
+
 
     fun search(query: ModelStorageSearchQuery): SearchResults
 

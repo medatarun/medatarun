@@ -18,56 +18,56 @@ import org.jetbrains.exposed.v1.jdbc.*
 import java.net.URI
 
 class ModelStorageDb(
-    private val dbConnectionFactory: DbConnectionFactory
+    private val db: DbConnectionFactory
 ) : ModelStorage {
-    private val searchRead = ModelStorageDbSearchRead(dbConnectionFactory)
-    private val searchWrite = ModelStorageDbSearchWrite(dbConnectionFactory)
+    private val searchRead = ModelStorageDbSearchRead(db)
+    private val searchWrite = ModelStorageDbSearchWrite(db)
 
     override fun search(query: ModelStorageSearchQuery): SearchResults {
         return searchRead.search(query)
     }
 
     override fun findAllModelIds(): List<ModelId> {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             ModelTable.selectAll().map { ModelId.fromString(it[ModelTable.id]) }
         }
     }
 
     override fun existsModelByKey(key: ModelKey): Boolean {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             ModelTable.select(ModelTable.id).where { ModelTable.key eq key.value }.limit(1).any()
         }
     }
 
     override fun existsModelById(id: ModelId): Boolean {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             ModelTable.select(ModelTable.id).where { ModelTable.id eq id.asString() }.limit(1).any()
         }
     }
 
     override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             val row = ModelTable.selectAll().where { ModelTable.key eq key.value }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
         }
     }
 
     override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             val row = ModelTable.selectAll().where { ModelTable.id eq id.asString() }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
         }
     }
 
     override fun findModelByKeyOptional(key: ModelKey): Model? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             val row = ModelTable.selectAll().where { ModelTable.key eq key.value }.singleOrNull()
             if (row == null) null else loadModel(row)
         }
     }
 
     override fun findModelByIdOptional(id: ModelId): Model? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             val row = ModelTable.selectAll().where { ModelTable.id eq id.asString() }.singleOrNull()
             if (row == null) null else loadModel(row)
         }
@@ -76,7 +76,7 @@ class ModelStorageDb(
     override fun findTypeByKeyOptional(
         modelId: ModelId, key: TypeKey
     ): ModelType? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             ModelTypeTable.selectAll().where {
                 (ModelTypeTable.modelId eq modelId.asString()) and (ModelTypeTable.key eq key.value)
             }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
@@ -87,10 +87,52 @@ class ModelStorageDb(
         modelId: ModelId,
         typeId: TypeId
     ): ModelType? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             ModelTypeTable.selectAll().where {
                 (ModelTypeTable.modelId eq modelId.asString()) and (ModelTypeTable.id eq typeId.asString())
             }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
+        }
+    }
+
+    override fun findEntityByIdOptional(
+        modelId: ModelId,
+        entityId: EntityId
+    ): Entity? {
+        return db.withExposed {
+            EntityTable.selectAll().where {
+                (EntityTable.modelId eq modelId.asString()) and
+                        (EntityTable.id eq entityId.asString())
+            }.singleOrNull()?.let { row -> toEntity(EntityRecord.read(row)) }
+        }
+    }
+
+    override fun findEntityByKeyOptional(
+        modelId: ModelId,
+        entityKey: EntityKey
+    ): Entity? {
+        return db.withExposed {
+            EntityTable.selectAll().where {
+                (EntityTable.modelId eq modelId.asString()) and
+                        (EntityTable.key eq entityKey.asString())
+            }.singleOrNull()?.let { row -> toEntity(EntityRecord.read(row)) }
+        }
+    }
+
+    override fun findEntityAttributeByIdOptional(
+        modelId: ModelId,
+        entityId: EntityId,
+        attributeId: AttributeId
+    ): Attribute? {
+        return db.withExposed {
+            EntityAttributeTable.join(
+                EntityTable,
+                JoinType.INNER,
+                EntityAttributeTable.entityId,
+                EntityTable.id
+            ).selectAll()
+                .where { (EntityTable.modelId eq modelId.asString()) and (EntityAttributeTable.entityId eq entityId.asString()) and (EntityAttributeTable.id eq attributeId.asString()) }
+                .singleOrNull()
+                ?.let { row -> entityAttributeFromRow(row) }
         }
     }
 
@@ -99,7 +141,7 @@ class ModelStorageDb(
         entityId: EntityId,
         key: AttributeKey
     ): Attribute? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             EntityAttributeTable.join(
                 EntityTable,
                 JoinType.INNER,
@@ -112,12 +154,33 @@ class ModelStorageDb(
         }
     }
 
+    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? {
+        return findRelationshipByOptional(modelId, RelationshipTable.id eq relationshipId.asString())
+    }
+
+    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? {
+        return findRelationshipByOptional(modelId, RelationshipTable.key eq relationshipKey.asString())
+    }
+
+    private fun findRelationshipByOptional(modelId: ModelId, criterion: Expression<Boolean>): Relationship? {
+        return db.withExposed {
+            val roleRecords = RelationshipRoleTable.join(RelationshipTable, JoinType.INNER, onColumn = RelationshipRoleTable.relationshipId, otherColumn = RelationshipTable.id)
+                .selectAll()
+                .where { (RelationshipTable.modelId eq modelId.asString()) and criterion }
+                .map { RelationshipRoleRecord.read(it) }
+            RelationshipTable.selectAll()
+                .where { (RelationshipTable.modelId eq modelId.asString()) and criterion }
+                .singleOrNull()
+                ?.let { row -> toRelationship(RelationshipRecord.read(row), roleRecords) }
+        }
+    }
+
     override fun findRelationshipAttributeByKeyOptional(
         modelId: ModelId,
         relationshipId: RelationshipId,
         key: AttributeKey
     ): Attribute? {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             RelationshipAttributeTable.join(
                 RelationshipTable,
                 JoinType.INNER,
@@ -134,7 +197,7 @@ class ModelStorageDb(
         modelId: ModelId,
         typeId: TypeId
     ): Boolean {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             EntityAttributeTable.join(
                 EntityTable,
                 JoinType.INNER,
@@ -153,7 +216,7 @@ class ModelStorageDb(
         modelId: ModelId,
         typeId: TypeId
     ): Boolean {
-        return dbConnectionFactory.withExposed {
+        return db.withExposed {
             RelationshipAttributeTable.join(
                 RelationshipTable,
                 JoinType.INNER,
@@ -229,7 +292,7 @@ class ModelStorageDb(
 
     private fun createModel(model: ModelAggregate) {
         val inMemoryModel = ModelAggregateInMemory.of(model)
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             insertModel(inMemoryModel)
             insertModelTags(inMemoryModel.id, inMemoryModel.tags)
             searchWrite.upsertModelSearchItem(inMemoryModel.id)
@@ -237,14 +300,14 @@ class ModelStorageDb(
     }
 
     private fun deleteModel(modelId: ModelId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             searchWrite.deleteModelBranch(modelId)
             ModelTable.deleteWhere { id eq modelId.asString() }
         }
     }
 
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.name] = localizedTextToString(name)
             }
@@ -253,7 +316,7 @@ class ModelStorageDb(
     }
 
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.description] = localizedMarkdownToString(description)
             }
@@ -262,7 +325,7 @@ class ModelStorageDb(
     }
 
     private fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.version] = version.value
             }
@@ -270,7 +333,7 @@ class ModelStorageDb(
     }
 
     private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
                 row[ModelTable.documentationHome] = documentationHome?.toExternalForm()
             }
@@ -278,7 +341,7 @@ class ModelStorageDb(
     }
 
     private fun addModelTag(modelId: ModelId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             val exists = ModelTagTable.select(ModelTagTable.modelId).where {
                 (ModelTagTable.modelId eq modelId.asString()) and (ModelTagTable.tagId eq tagId.asString())
             }.limit(1).any()
@@ -293,7 +356,7 @@ class ModelStorageDb(
     }
 
     private fun deleteModelTag(modelId: ModelId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTagTable.deleteWhere {
                 (ModelTagTable.modelId eq modelId.asString()) and (ModelTagTable.tagId eq tagId.asString())
             }
@@ -302,7 +365,7 @@ class ModelStorageDb(
     }
 
     private fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTypeTable.insert { row ->
                 row[ModelTypeTable.id] = TypeId.generate().asString()
                 row[ModelTypeTable.modelId] = modelId.asString()
@@ -314,7 +377,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeKey(modelId: ModelId, typeId: TypeId, value: TypeKey) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
@@ -325,7 +388,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeName(modelId: ModelId, typeId: TypeId, value: LocalizedText?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
@@ -336,7 +399,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeDescription(modelId: ModelId, typeId: TypeId, value: LocalizedMarkdown?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTypeTable.update(
                 where = {
                     (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
@@ -347,7 +410,7 @@ class ModelStorageDb(
     }
 
     private fun deleteType(modelId: ModelId, typeId: TypeId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             ModelTypeTable.deleteWhere {
                 (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
             }
@@ -355,13 +418,13 @@ class ModelStorageDb(
     }
 
     private fun createEntity(cmd: ModelRepoCmd.CreateEntity) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             insertEntity(cmd)
         }
     }
 
     private fun updateEntityKey(modelId: ModelId, entityId: EntityId, value: EntityKey) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -373,7 +436,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityName(modelId: ModelId, entityId: EntityId, value: LocalizedText?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -385,7 +448,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityDescription(modelId: ModelId, entityId: EntityId, value: LocalizedMarkdown?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -397,7 +460,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityIdentifierAttribute(modelId: ModelId, entityId: EntityId, value: AttributeId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -408,7 +471,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityDocumentationHome(modelId: ModelId, entityId: EntityId, value: java.net.URL?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTable.update(
                 where = {
                     (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -419,7 +482,7 @@ class ModelStorageDb(
     }
 
     private fun addEntityTag(entityId: EntityId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             val exists = EntityTagTable.select(EntityTagTable.entityId).where {
                 (EntityTagTable.entityId eq entityId.asString()) and (EntityTagTable.tagId eq tagId.asString())
             }.limit(1).any()
@@ -434,7 +497,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntityTag(entityId: EntityId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityTagTable.deleteWhere {
                 (EntityTagTable.entityId eq entityId.asString()) and (EntityTagTable.tagId eq tagId.asString())
             }
@@ -443,7 +506,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntity(modelId: ModelId, entityId: EntityId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             searchWrite.deleteEntityBranch(entityId)
             EntityTable.deleteWhere {
                 (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
@@ -452,7 +515,7 @@ class ModelStorageDb(
     }
 
     private fun createEntityAttribute(cmd: ModelRepoCmd.CreateEntityAttribute) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             insertEntityAttribute(
                 attributeId = cmd.attributeId,
                 entityId = cmd.entityId,
@@ -466,7 +529,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityAttributeKey(entityId: EntityId, attributeId: AttributeId, value: AttributeKey) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -478,7 +541,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityAttributeName(entityId: EntityId, attributeId: AttributeId, value: LocalizedText?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -492,7 +555,7 @@ class ModelStorageDb(
     private fun updateEntityAttributeDescription(
         entityId: EntityId, attributeId: AttributeId, value: LocalizedMarkdown?
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -504,7 +567,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityAttributeType(entityId: EntityId, attributeId: AttributeId, value: TypeId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -515,7 +578,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityAttributeOptional(entityId: EntityId, attributeId: AttributeId, value: Boolean) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTable.update(
                 where = {
                     (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -526,7 +589,7 @@ class ModelStorageDb(
     }
 
     private fun addEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeId).where {
                 (EntityAttributeTagTable.attributeId eq attributeId.asString()) and (EntityAttributeTagTable.tagId eq tagId.asString())
             }.limit(1).any()
@@ -541,7 +604,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             EntityAttributeTagTable.deleteWhere {
                 (EntityAttributeTagTable.attributeId eq attributeId.asString()) and (EntityAttributeTagTable.tagId eq tagId.asString())
             }
@@ -550,7 +613,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntityAttribute(entityId: EntityId, attributeId: AttributeId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             searchWrite.deleteEntityAttributeSearchItem(attributeId)
             EntityAttributeTable.deleteWhere {
                 (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
@@ -626,13 +689,13 @@ class ModelStorageDb(
     }
 
     private fun createRelationship(cmd: ModelRepoCmd.CreateRelationship) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             insertRelationship(cmd)
         }
     }
 
     private fun updateRelationshipKey(relationshipId: RelationshipId, value: RelationshipKey) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.key] = value.asString()
             }
@@ -641,7 +704,7 @@ class ModelStorageDb(
     }
 
     private fun updateRelationshipName(relationshipId: RelationshipId, value: LocalizedText?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.name] = localizedTextToString(value)
             }
@@ -650,7 +713,7 @@ class ModelStorageDb(
     }
 
     private fun updateRelationshipDescription(relationshipId: RelationshipId, value: LocalizedMarkdown?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
                 row[RelationshipTable.description] = localizedMarkdownToString(value)
             }
@@ -659,7 +722,7 @@ class ModelStorageDb(
     }
 
     private fun updateRelationshipRoleKey(relationshipRoleId: RelationshipRoleId, value: RelationshipRoleKey) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
                 row[RelationshipRoleTable.key] = value.asString()
             }
@@ -667,7 +730,7 @@ class ModelStorageDb(
     }
 
     private fun updateRelationshipRoleName(relationshipRoleId: RelationshipRoleId, value: LocalizedText?) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
                 row[RelationshipRoleTable.name] = localizedTextToString(value)
             }
@@ -675,7 +738,7 @@ class ModelStorageDb(
     }
 
     private fun updateRelationshipRoleEntity(relationshipRoleId: RelationshipRoleId, value: EntityId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
                 row[RelationshipRoleTable.entityId] = value.asString()
             }
@@ -685,7 +748,7 @@ class ModelStorageDb(
     private fun updateRelationshipRoleCardinality(
         relationshipRoleId: RelationshipRoleId, value: RelationshipCardinality
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
                 row[RelationshipRoleTable.cardinality] = value.code
             }
@@ -693,7 +756,7 @@ class ModelStorageDb(
     }
 
     private fun addRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipId).where {
                 (RelationshipTagTable.relationshipId eq relationshipId.asString()) and (RelationshipTagTable.tagId eq tagId.asString())
             }.limit(1).any()
@@ -708,7 +771,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipTagTable.deleteWhere {
                 (RelationshipTagTable.relationshipId eq relationshipId.asString()) and (RelationshipTagTable.tagId eq tagId.asString())
             }
@@ -717,7 +780,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationship(modelId: ModelId, relationshipId: RelationshipId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             searchWrite.deleteRelationshipBranch(relationshipId)
             RelationshipTable.deleteWhere {
                 (RelationshipTable.id eq relationshipId.asString()) and (RelationshipTable.modelId eq modelId.asString())
@@ -726,7 +789,7 @@ class ModelStorageDb(
     }
 
     private fun createRelationshipAttribute(cmd: ModelRepoCmd.CreateRelationshipAttribute) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             insertRelationshipAttribute(
                 relationshipId = cmd.relationshipId,
                 attributeId = cmd.attributeId,
@@ -742,7 +805,7 @@ class ModelStorageDb(
     private fun updateRelationshipAttributeKey(
         relationshipId: RelationshipId, attributeId: AttributeId, value: AttributeKey
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -756,7 +819,7 @@ class ModelStorageDb(
     private fun updateRelationshipAttributeName(
         relationshipId: RelationshipId, attributeId: AttributeId, value: LocalizedText?
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -770,7 +833,7 @@ class ModelStorageDb(
     private fun updateRelationshipAttributeDescription(
         relationshipId: RelationshipId, attributeId: AttributeId, value: LocalizedMarkdown?
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -784,7 +847,7 @@ class ModelStorageDb(
     private fun updateRelationshipAttributeType(
         relationshipId: RelationshipId, attributeId: AttributeId, value: TypeId
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -797,7 +860,7 @@ class ModelStorageDb(
     private fun updateRelationshipAttributeOptional(
         relationshipId: RelationshipId, attributeId: AttributeId, value: Boolean
     ) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -808,7 +871,7 @@ class ModelStorageDb(
     }
 
     private fun addRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeId).where {
                 (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and (RelationshipAttributeTagTable.tagId eq tagId.asString())
             }.limit(1).any()
@@ -823,7 +886,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             RelationshipAttributeTagTable.deleteWhere {
                 (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and (RelationshipAttributeTagTable.tagId eq tagId.asString())
             }
@@ -832,7 +895,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationshipAttribute(relationshipId: RelationshipId, attributeId: AttributeId) {
-        dbConnectionFactory.withExposed {
+        db.withExposed {
             searchWrite.deleteRelationshipAttributeSearchItem(attributeId)
             RelationshipAttributeTable.deleteWhere {
                 (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
@@ -948,21 +1011,25 @@ class ModelStorageDb(
         return EntityTable.selectAll().where { EntityTable.modelId eq modelId.asString() }
             .orderBy(EntityTable.key to SortOrder.ASC).map { row ->
                 val record = EntityRecord.read(row)
-                val entityId = EntityId.fromString(record.id)
-                val identifierAttributeIdString = record.identifierAttributeId
-                    ?: throw ModelStorageDbInvalidIdentifierAttributeException(entityId.asString())
-
-                EntityInMemory(
-                    id = entityId,
-                    key = EntityKey(record.key),
-                    name = stringToLocalizedText(record.name),
-                    description = stringToLocalizedMarkdown(record.description),
-                    identifierAttributeId = AttributeId.fromString(identifierAttributeIdString),
-                    origin = stringToEntityOrigin(record.origin),
-                    documentationHome = record.documentationHome?.let { URI(it).toURL() },
-                    tags = loadEntityTags(entityId)
-                )
+                toEntity(record)
             }
+    }
+
+    private fun toEntity(record: EntityRecord): EntityInMemory {
+        val entityId = EntityId.fromString(record.id)
+        val identifierAttributeIdString = record.identifierAttributeId
+            ?: throw ModelStorageDbInvalidIdentifierAttributeException(entityId.asString())
+
+        return EntityInMemory(
+            id = entityId,
+            key = EntityKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            identifierAttributeId = AttributeId.fromString(identifierAttributeIdString),
+            origin = stringToEntityOrigin(record.origin),
+            documentationHome = record.documentationHome?.let { URI(it).toURL() },
+            tags = loadEntityTags(entityId)
+        )
     }
 
     private fun loadEntityAttributes(modelId: ModelId): List<AttributeInMemory> {
@@ -998,19 +1065,27 @@ class ModelStorageDb(
 
         return RelationshipTable.selectAll().where { RelationshipTable.modelId eq modelId.asString() }
             .orderBy(RelationshipTable.key to SortOrder.ASC).map { row ->
-                val record = RelationshipRecord.read(row)
-                val relationshipId = RelationshipId.fromString(record.id)
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey(record.key),
-                    name = stringToLocalizedText(record.name),
-                    description = stringToLocalizedMarkdown(record.description),
-                    roles = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList()).map { roleRow ->
-                        relationshipRoleFromRow(roleRow)
-                    },
-                    tags = loadRelationshipTags(relationshipId)
-                )
+                val relationshipRecord = RelationshipRecord.read(row)
+                val relationshipId = RelationshipId.fromString(relationshipRecord.id)
+                val roleRecords = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList())
+                    .map { RelationshipRoleRecord.read(it) }
+                toRelationship(relationshipRecord, roleRecords)
             }
+    }
+
+    private fun toRelationship(
+        record: RelationshipRecord,
+        roles: List<RelationshipRoleRecord>
+        ): RelationshipInMemory {
+        val relationshipId = RelationshipId.fromString(record.id)
+        return RelationshipInMemory(
+            id = relationshipId,
+            key = RelationshipKey(record.key),
+            name = stringToLocalizedText(record.name),
+            description = stringToLocalizedMarkdown(record.description),
+            roles = roles.map { relationshipRoleFromRow(it) },
+            tags = loadRelationshipTags(relationshipId)
+        )
     }
 
     private fun entityAttributeFromRow(row: ResultRow): AttributeInMemory {
@@ -1043,8 +1118,8 @@ class ModelStorageDb(
         )
     }
 
-    private fun relationshipRoleFromRow(row: ResultRow): RelationshipRoleInMemory {
-        val record = RelationshipRoleRecord.read(row)
+    private fun relationshipRoleFromRow(record: RelationshipRoleRecord): RelationshipRoleInMemory {
+
         return RelationshipRoleInMemory(
             id = RelationshipRoleId.fromString(record.id),
             key = RelationshipRoleKey(record.key),
