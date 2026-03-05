@@ -29,14 +29,15 @@ class FrictionlessConverter(
 
     fun isCompatible(path: String, resourceLocator: ResourceLocator): Boolean {
         try {
-            readString(path, resourceLocator, null, null)
+            convert(path, resourceLocator, null, null)
             return true
         } catch (e: Exception) {
+            logger.error("Could not guess the file", e)
             return false
         }
     }
 
-    fun readString(
+    fun convert(
         path: String,
         resourceLocator: ResourceLocator,
         modelKey: ModelKey?,

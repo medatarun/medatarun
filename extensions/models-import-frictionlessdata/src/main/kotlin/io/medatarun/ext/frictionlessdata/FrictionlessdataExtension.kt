@@ -12,7 +12,7 @@ import io.medatarun.tags.core.ports.needs.TagScopeManager
 class FrictionlessdataExtension : MedatarunExtension {
     override val id: ExtensionId = "models-import-frictionlessdata"
     override fun init(ctx: MedatarunExtensionCtx) {
-
+        ctx.register(ModelImporter::class, ctx.getService(FrictionlessdataModelImporter::class))
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
@@ -20,7 +20,7 @@ class FrictionlessdataExtension : MedatarunExtension {
         val tagQueries = ctx.getService(TagQueries::class)
         val tagImporter = FrictionlessTagImporterWithCmds(tagCmds, tagQueries)
         val importer = FrictionlessdataModelImporter(tagImporter)
-        ctx.register(ModelImporter::class, importer)
+        ctx.register(FrictionlessdataModelImporter::class, importer)
     }
 }
 

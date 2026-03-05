@@ -17,7 +17,7 @@ class FrictionlessdataModelImporter(
     }
 
     override fun toModel(path: String, resourceLocator: ResourceLocator, modelKey: ModelKey?, modelName: String?): ModelAggregate {
-        return converter.readString(path, resourceLocator, modelKey, modelName)
+        return converter.convert(path, resourceLocator, modelKey, modelName)
     }
 
 
