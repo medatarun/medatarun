@@ -12,11 +12,11 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
-import kotlin.collections.flatten
 
 class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
     ModelImporter {
@@ -36,7 +36,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         resourceLocator: ResourceLocator,
         modelKey: ModelKey?,
         modelName: String?
-    ): ModelAggregate {
+    ): ModelImporterData {
         val connectionName = path.split(":").last()
         val connection = dbConnectionRegistry.findByNameOptional(connectionName)
             ?: throw DbConnectionNotFoundException(connectionName)
@@ -141,7 +141,10 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             tags = emptyList(),
             attributes = attributesCollector
         )
-        return model
+        return ModelImporterData(
+            model,
+            emptyList() // No tags from databases anyway
+        )
     }
 
 }

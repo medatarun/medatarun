@@ -19,12 +19,14 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelStorage
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
@@ -39,6 +41,7 @@ open class ModelExtension : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val tagQueries = ctx.getService(TagQueries::class)
+        val tagCmds = ctx.getService(TagCmds::class)
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val dbTransactionManager = ctx.getService(DbTransactionManager::class)
 
@@ -49,7 +52,7 @@ open class ModelExtension : MedatarunExtension {
         }
 
         val validation = ModelValidationImpl()
-        val tagResolver = ModelTagResolverWithQueries(tagQueries)
+        val tagResolver = ModelTagResolverWithQueries(tagQueries, tagCmds)
         val storage: ModelStorage = ModelStorageDb(dbConnectionFactory)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
@@ -65,7 +68,7 @@ open class ModelExtension : MedatarunExtension {
     override fun init(ctx: MedatarunExtensionCtx) {
         val modelQueries = ctx.getService(ModelQueries::class)
         val modelTagScopeManager = object : TagScopeManager {
-            override val type: TagScopeType = TagScopeType("model")
+            override val type: TagScopeType = modelTagScopeType
 
             override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
                 val modelId = ModelId(scopeRef.localScopeId.value)

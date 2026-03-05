@@ -160,8 +160,12 @@ class ModelActionHandler(
         if (contrib == null) {
             throw ModelImportActionNotFoundException(cmd.from)
         }
-        val model = contrib.toModel(cmd.from, resourceLocator, cmd.modelKey, cmd.modelName)
-        modelCmds.dispatch(ModelCmd.ImportModel(model))
+
+        // read model
+        val modelData = contrib.toModel(cmd.from, resourceLocator, cmd.modelKey, cmd.modelName)
+
+        // Save imported model
+        modelCmds.dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
     }
 
     fun modelInspectHuman(): String = ModelInspectAction(modelQueries, modelHumanPrinter).process()

@@ -8,7 +8,11 @@ import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.platform.db.DbTransactionManager
+import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagRef.Companion.tagRefKey
 
 class ModelCmdsImpl(
     private val storage: ModelStorage,
@@ -167,9 +171,92 @@ class ModelCmdsImpl(
 
     private fun importModel(cmd: ModelCmd.ImportModel) {
         // TODO handle tags ?
-        if (storage.existsModelByKey(cmd.model.key)) throw ModelDuplicateKeyException(cmd.model.key)
-        ensureImportedModelIsValid(cmd.model)
-        storage.dispatch(ModelRepoCmd.StoreModelAggregate(cmd.model))
+
+        val model = cmd.model
+
+        if (storage.existsModelByKey(model.key)) throw ModelDuplicateKeyException(model.key)
+        ensureImportedModelIsValid(model)
+        storage.dispatch(ModelRepoCmd.StoreModelAggregate(model))
+
+        val newtags = cmd.tags
+
+        // Register each found tag
+        newtags.forEach { tag -> tagResolver.create(cmd.model.id, tag.key, tag.name, tag.description) }
+
+        // Read the model and temporary tag ids inside, then apply the tags to model elements
+        fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef.ByKey) -> Unit) {
+            for (tagId in tagIds) {
+                val tagKey = newtags.firstOrNull { it.id == tagId }?.key
+                if (tagKey != null) {
+                    val tagRef = tagRefKey(modelTagScopeRef(model.id), null, tagKey)
+                    block(tagRef)
+                }
+            }
+        }
+
+        applyTags(model.tags) { tagRef ->
+            dispatch(
+                ModelCmd.UpdateModelTagAdd(
+                    ModelRef.ById(model.id),
+                    tagRef
+                )
+            )
+        }
+
+        for (entity in model.entities) {
+            applyTags(entity.tags) { tagRef ->
+                dispatch(
+                    ModelCmd.UpdateEntityTagAdd(
+                        ModelRef.ById(model.id),
+                        EntityRef.ById(entity.id), tagRef
+                    )
+                )
+            }
+        }
+
+        for (relationship in model.relationships) {
+            applyTags(relationship.tags) { tagRef ->
+                dispatch(
+                    ModelCmd.UpdateRelationshipTagAdd(
+                        ModelRef.ById(model.id),
+                        RelationshipRef.ById(relationship.id),
+                        tagRef
+                    )
+                )
+            }
+        }
+
+        for (attribute in model.attributes) {
+            applyTags(attribute.tags) { tagRef ->
+                val owner = attribute.ownerId
+                when (owner) {
+                    is AttributeOwnerId.OwnerEntityId -> {
+                        dispatch(
+                            ModelCmd.UpdateEntityAttributeTagAdd(
+                                ModelRef.ById(model.id),
+                                EntityRef.ById(owner.id),
+                                EntityAttributeRef.ById(attribute.id),
+                                tagRef
+                            )
+                        )
+                    }
+
+                    is AttributeOwnerId.OwnerRelationshipId -> {
+                        dispatch(
+                            ModelCmd.UpdateRelationshipAttributeTagAdd(
+                                ModelRef.ById(model.id),
+                                RelationshipRef.ById(owner.id),
+                                RelationshipAttributeRef.ById(attribute.id),
+                                tagRef
+                            )
+                        )
+                    }
+                }
+
+            }
+        }
+
+
     }
 
 

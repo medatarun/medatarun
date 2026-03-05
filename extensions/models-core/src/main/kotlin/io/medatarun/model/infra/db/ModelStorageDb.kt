@@ -402,7 +402,7 @@ class ModelStorageDb(
         val inMemoryModel = ModelInMemory.of(model)
 
         insertModel(model.model)
-        insertModelTags(model.id, model.tags)
+        // insertModelTags(model.id, model.tags)
 
         for (type in model.types) {
             insertType(
@@ -429,7 +429,7 @@ class ModelStorageDb(
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
             )
-            insertEntityTags(entity.id, entity.tags)
+            // insertEntityTags(entity.id, entity.tags)
             searchWrite.upsertEntitySearchItem(entity.id)
 
             for (attr in model.attributes.filter { it.ownedBy(entity.id) }) {
@@ -444,7 +444,7 @@ class ModelStorageDb(
                         optional = attr.optional
                     )
                 )
-                insertEntityAttributeTags(attr.id, attr.tags)
+                // insertEntityAttributeTags(attr.id, attr.tags)
                 searchWrite.upsertEntityAttributeSearchItem(attr.id)
             }
         }
@@ -469,7 +469,7 @@ class ModelStorageDb(
                     )
                 }
             )
-            insertRelationshipTags(relationship.id, relationship.tags)
+            // insertRelationshipTags(relationship.id, relationship.tags)
             searchWrite.upsertRelationshipSearchItem(relationship.id)
 
             for (attr in model.attributes.filter { it.ownedBy(relationship.id) }) {
@@ -484,7 +484,7 @@ class ModelStorageDb(
                         optional = attr.optional
                     )
                 )
-                insertRelationshipAttributeTags(attr.id, attr.tags)
+                // insertRelationshipAttributeTags(attr.id, attr.tags)
                 searchWrite.upsertRelationshipAttributeSearchItem(attr.id)
             }
         }

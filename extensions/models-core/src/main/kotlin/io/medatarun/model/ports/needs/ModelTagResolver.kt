@@ -2,7 +2,11 @@ package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.ModelId
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.tags.core.domain.TagScopeId
+import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagScopeType
 
 /**
  * Port used by model commands to resolve tags and validate attachment rules
@@ -34,4 +38,19 @@ interface ModelTagResolver {
      * or either a local tag for specified [modelId]
      */
     fun resolveTagIdCompatible(modelId: ModelId, tagRef: TagRef): TagId
+
+    /**
+     * Create a new tag in the local scope of the model
+     */
+    fun create(modelId: ModelId, key: TagKey, name: String?, description: String?)
+
+    companion object {
+        val modelTagScopeType = TagScopeType("model")
+        fun modelTagScopeRef(modelId: ModelId) = TagScopeRef.Local(
+            type = modelTagScopeType,
+            localScopeId = TagScopeId(modelId.value)
+        )
+    }
+
+
 }

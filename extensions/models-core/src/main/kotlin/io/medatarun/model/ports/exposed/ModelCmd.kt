@@ -1,6 +1,7 @@
 package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
+import io.medatarun.tags.core.domain.Tag
 import io.medatarun.tags.core.domain.TagRef
 import java.net.URL
 
@@ -25,7 +26,8 @@ sealed interface ModelCmd {
     ) : ModelCmd
 
     data class ImportModel(
-        val model: ModelAggregate
+        val model: ModelAggregate,
+        val tags: List<Tag>
     ) : ModelCmd
 
     data class UpdateModelName(

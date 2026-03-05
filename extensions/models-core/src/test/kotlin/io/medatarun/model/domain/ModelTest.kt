@@ -3,6 +3,7 @@ package io.medatarun.model.domain
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
 import org.junit.jupiter.api.Test
@@ -29,10 +30,7 @@ class ModelTest {
 
     private fun createFreeTagInModelScope(env: ModelTestEnv, modelRef: ModelRef, tagKeyValue: String): Tag {
         val modelId = env.queries.findModel(modelRef).id
-        val scopeRef = TagScopeRef.Local(
-            type = TagScopeType("model"),
-            localScopeId = TagScopeId(modelId.value)
-        )
+        val scopeRef = modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(
             scopeRef = scopeRef,
@@ -768,7 +766,7 @@ class ModelTest {
             )
         )
 
-        
+
         val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
         assertNull(attributes[0].name)
         assertNull(attributes[0].description)

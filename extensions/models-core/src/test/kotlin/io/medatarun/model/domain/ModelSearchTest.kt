@@ -2,6 +2,7 @@ package io.medatarun.model.domain
 
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.search.*
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.domain.*
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
@@ -401,10 +402,7 @@ class ModelSearchTest {
             .build()
         val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
         val unknownLocalTag = TagRef.ByKey(
-            scopeRef = TagScopeRef.Local(
-                type = TagScopeType("model"),
-                localScopeId = TagScopeId(crmModelId.value)
-            ),
+            scopeRef = modelTagScopeRef(crmModelId),
             groupKey = null,
             key = TagKey("missing-local-tag")
         )

@@ -2,10 +2,13 @@ package io.medatarun.model
 
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
 import io.medatarun.tags.core.domain.*
 
 internal class ModelTagResolverWithQueries(
-    private val tagQueries: TagQueries
+    private val tagQueries: TagQueries,
+    private val tagCmds: TagCmds
 ) : ModelTagResolver {
     override fun resolveTagId(tagRef: TagRef): TagId {
         return tagQueries.findTagByRef(tagRef).id
@@ -27,7 +30,7 @@ internal class ModelTagResolverWithQueries(
             return tag.id
         }
         val targetScopeRef = TagScopeRef.Local(
-            type = TagScopeType("model"),
+            type = modelTagScopeType,
             localScopeId = TagScopeId(modelId.value)
         )
         if (tag.scope != targetScopeRef) {
@@ -38,5 +41,14 @@ internal class ModelTagResolverWithQueries(
             )
         }
         return tag.id
+    }
+
+    override fun create(modelId: ModelId, key: TagKey, name: String?, description: String?) {
+        tagCmds.dispatch(
+            TagCmd.TagFreeCreate(
+                scopeRef = modelTagScopeRef(modelId),
+                key = key, name = name, description = description
+            )
+        )
     }
 }

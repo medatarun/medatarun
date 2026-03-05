@@ -7,20 +7,11 @@ import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.tags.core.domain.TagId
 import org.slf4j.LoggerFactory
 import java.net.URI
-
-interface FrictionlessTagImporter {
-    fun importModelScopeTags(modelId: ModelId, keywords: List<String>): List<TagId>
-}
-
-object NoopFrictionlessTagImporter : FrictionlessTagImporter {
-    override fun importModelScopeTags(modelId: ModelId, keywords: List<String>): List<TagId> {
-        return emptyList()
-    }
-}
 
 class FrictionlessConverter(
     private val tagImporter: FrictionlessTagImporter
@@ -42,7 +33,7 @@ class FrictionlessConverter(
         resourceLocator: ResourceLocator,
         modelKey: ModelKey?,
         modelName: String?
-    ): ModelAggregate {
+    ): ModelImporterData {
         val types = FrictionlessTypes().generateAll()
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
@@ -57,11 +48,15 @@ class FrictionlessConverter(
 
         val finalKey = modelKey?.value?.trimToNull()?.let { ModelKey(it) } ?: model.key
         val finalName = modelName?.trimToNull()?.let { LocalizedTextNotLocalized(it) } ?: model.name
-        return model.copy(
+        val modelAggregate = model.copy(
             model = ModelInMemory.of(model.model).copy(
                 key = finalKey,
                 name = finalName
             ),
+        )
+        return ModelImporterData(
+            modelAggregate, // model aggregated
+            tagImporter.getAllCollectedTags() // all the tags we created
         )
     }
 

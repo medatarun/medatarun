@@ -6,16 +6,8 @@ import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmds
-import io.medatarun.tags.core.domain.TagCmd
-import io.medatarun.tags.core.domain.TagCmds
-import io.medatarun.tags.core.domain.TagGroupRef
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagRef
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
+import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.key.KeyStrictValidation
 import kotlinx.serialization.json.*
 
@@ -359,7 +351,7 @@ internal class Migration_2_0(
 
             is NormalizedLegacyTag.Free -> {
                 val modelId = readModelId(pending.modelKey) ?: return null
-                val scopeRef = TagScopeRef.Local(TagScopeType("model"), TagScopeId(modelId.value))
+                val scopeRef = modelTagScopeRef(modelId)
                 val tagRef = TagRef.ByKey(scopeRef, null, tag.tagKey)
                 if (tagQueries.findTagByRefOptional(tagRef) == null) {
                     tagCmds.dispatch(TagCmd.TagFreeCreate(scopeRef, tag.tagKey, null, null))

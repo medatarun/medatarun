@@ -2,9 +2,12 @@ package io.medatarun.ext.modeljson
 
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonFiles
 import io.medatarun.ext.modeljson.internal.ModelsStorageJsonMigrations
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmds
+import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.id.Id
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -362,7 +365,7 @@ class ModelsStorageJsonMigrationsTest {
 
         fun localRef(modelId: String, tagKey: String): TagRef.ByKey {
             return TagRef.ByKey(
-                TagScopeRef.Local(TagScopeType("model"), TagScopeId(UUID.fromString(modelId))),
+                modelTagScopeRef(Id.fromString(modelId, ::ModelId)),
                 null,
                 TagKey(tagKey)
             )
