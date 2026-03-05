@@ -9,7 +9,7 @@ data class EntityRecord(
     val key: String,
     val name: String?,
     val description: String?,
-    val identifierAttributeId: String?,
+    val identifierAttributeId: String,
     val origin: String?,
     val documentationHome: String?
 ) {

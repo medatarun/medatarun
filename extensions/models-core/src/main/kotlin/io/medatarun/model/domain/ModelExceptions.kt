@@ -63,8 +63,8 @@ class ModelNotFoundByIdException(id: ModelId) :
     MedatarunException("Model with id [${id.value}] was not found", StatusCode.NOT_FOUND)
 
 
-class ModelDuplicateIdException(id: ModelKey) :
-    MedatarunException("Model with id [${id.value}] already exists")
+class ModelDuplicateKeyException(key: ModelKey) :
+    MedatarunException("Model with key [${key.value}] already exists")
 
 class ModelVersionEmptyException :
     MedatarunException("Model version can not be empty", StatusCode.BAD_REQUEST)
