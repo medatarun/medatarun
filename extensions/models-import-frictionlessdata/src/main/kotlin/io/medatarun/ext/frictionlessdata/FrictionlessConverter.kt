@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 
 class FrictionlessConverter(
-    private val tagImporter: FrictionlessTagImporter
+
 ) {
     val ser = DataPackageSerializer()
 
@@ -34,14 +34,15 @@ class FrictionlessConverter(
         modelKey: ModelKey?,
         modelName: String?
     ): ModelImporterData {
+        val tagImporter: FrictionlessTagImporter = FrictionlessTagImporterInMemory()
         val types = FrictionlessTypes().generateAll()
         val location: ResourceLocator = resourceLocator.withPath(path)
         val something = readSomething(location)
         val uri = resourceLocator.resolveUri(path)
         val model = if (something.schema != null && something.datapackage != null) {
-            readAsMixedTableSchema(uri, types, something.datapackage, something.schema)
+            readAsMixedTableSchema(uri, types, something.datapackage, something.schema, tagImporter)
         } else if (something.datapackage != null) {
-            readAsDataPackage(uri, types, something.datapackage, resourceLocator)
+            readAsDataPackage(uri, types, something.datapackage, resourceLocator, tagImporter)
         } else {
             throw FrictionlessConverterUnsupportedFileFormatException(path)
         }
@@ -79,7 +80,8 @@ class FrictionlessConverter(
         uri: URI,
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
-        resourceLocator: ResourceLocator
+        resourceLocator: ResourceLocator,
+        tagImporter: FrictionlessTagImporter
     ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
         val attributesCollector = mutableListOf<AttributeInMemory>()
@@ -134,7 +136,7 @@ class FrictionlessConverter(
         types: List<ModelTypeInMemory>,
         datapackage: DataPackage,
         schema: TableSchema,
-
+        tagImporter: FrictionlessTagImporter
         ): ModelAggregateInMemory {
         val modelId = ModelId.generate()
 

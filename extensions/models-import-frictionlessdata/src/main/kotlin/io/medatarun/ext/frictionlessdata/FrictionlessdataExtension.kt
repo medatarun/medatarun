@@ -13,8 +13,7 @@ class FrictionlessdataExtension : MedatarunExtension {
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
-        val tagImporter = FrictionlessTagImporterInMemory()
-        val importer = FrictionlessdataModelImporter(tagImporter)
+        val importer = FrictionlessdataModelImporter()
         ctx.register(FrictionlessdataModelImporter::class, importer)
     }
 }

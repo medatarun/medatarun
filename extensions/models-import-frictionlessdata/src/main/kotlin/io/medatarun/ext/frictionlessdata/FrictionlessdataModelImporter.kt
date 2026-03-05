@@ -6,9 +6,9 @@ import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 
 class FrictionlessdataModelImporter(
-    tagImporter: FrictionlessTagImporter
+
 ) : ModelImporter {
-    val converter = FrictionlessConverter(tagImporter)
+    val converter = FrictionlessConverter()
     override fun accept(
         path: String,
         resourceLocator: ResourceLocator

@@ -6,7 +6,7 @@ import java.net.URI
 
 class TableSchemaTest {
 
-    val conv = FrictionlessConverter(FrictionlessTagImporterInMemory())
+    val conv = FrictionlessConverter()
 
     /**
      * Fake resource locator to map URLs to files in test resources to avoid getting files on internet during tests.
