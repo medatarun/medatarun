@@ -1,15 +1,18 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.AttributeId
+import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.db.tables.EntityTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class EntityRecord(
-    val id: String,
-    val modelId: String,
+    val id: EntityId,
+    val modelId: ModelId,
     val key: String,
     val name: String?,
     val description: String?,
-    val identifierAttributeId: String,
+    val identifierAttributeId: AttributeId,
     val origin: String?,
     val documentationHome: String?
 ) {

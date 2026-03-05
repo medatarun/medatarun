@@ -19,7 +19,6 @@ import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelStorageSearchQuery
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
-import io.medatarun.type.commons.id.Id
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 
@@ -37,7 +36,7 @@ class ModelStorageDb(
 
     override fun existsModelById(id: ModelId): Boolean {
         return db.withExposed {
-            ModelTable.select(ModelTable.id).where { ModelTable.id eq id.asString() }.limit(1).any()
+            ModelTable.select(ModelTable.id).where { ModelTable.id eq id }.limit(1).any()
         }
     }
 
@@ -49,7 +48,7 @@ class ModelStorageDb(
 
     override fun findAllModelIds(): List<ModelId> {
         return db.withExposed {
-            ModelTable.selectAll().map { ModelId.fromString(it[ModelTable.id]) }
+            ModelTable.selectAll().map { it[ModelTable.id] }
         }
     }
 
@@ -62,7 +61,7 @@ class ModelStorageDb(
 
     override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.id eq id.asString() }.singleOrNull()
+            val row = ModelTable.selectAll().where { ModelTable.id eq id }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
         }
     }
@@ -76,7 +75,7 @@ class ModelStorageDb(
 
     override fun findModelByIdOptional(id: ModelId): Model? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.id eq id.asString() }.singleOrNull()
+            val row = ModelTable.selectAll().where { ModelTable.id eq id }.singleOrNull()
             if (row == null) null else toModel(ModelRecord.read(row))
         }
     }
@@ -86,7 +85,7 @@ class ModelStorageDb(
     ): ModelType? {
         return db.withExposed {
             ModelTypeTable.selectAll().where {
-                (ModelTypeTable.modelId eq modelId.asString()) and (ModelTypeTable.key eq key.value)
+                (ModelTypeTable.modelId eq modelId) and (ModelTypeTable.key eq key.value)
             }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
         }
     }
@@ -97,7 +96,7 @@ class ModelStorageDb(
     ): ModelType? {
         return db.withExposed {
             ModelTypeTable.selectAll().where {
-                (ModelTypeTable.modelId eq modelId.asString()) and (ModelTypeTable.id eq typeId.asString())
+                (ModelTypeTable.modelId eq modelId) and (ModelTypeTable.id eq typeId)
             }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
         }
     }
@@ -108,8 +107,8 @@ class ModelStorageDb(
     ): Entity? {
         return db.withExposed {
             EntityTable.selectAll().where {
-                (EntityTable.modelId eq modelId.asString()) and
-                        (EntityTable.id eq entityId.asString())
+                (EntityTable.modelId eq modelId) and
+                        (EntityTable.id eq entityId)
             }.singleOrNull()?.let { row -> toEntity(EntityRecord.read(row), loadEntityTags(entityId)) }
         }
     }
@@ -120,11 +119,11 @@ class ModelStorageDb(
     ): Entity? {
         return db.withExposed {
             EntityTable.selectAll().where {
-                (EntityTable.modelId eq modelId.asString()) and
+                (EntityTable.modelId eq modelId) and
                         (EntityTable.key eq entityKey.asString())
             }.singleOrNull()?.let { row ->
                 val record = EntityRecord.read(row)
-                val tags = loadEntityTags(EntityId.fromString(record.id))
+                val tags = loadEntityTags(record.id)
                 toEntity(record, tags)
             }
         }
@@ -142,11 +141,11 @@ class ModelStorageDb(
                 EntityAttributeTable.entityId,
                 EntityTable.id
             ).selectAll()
-                .where { (EntityTable.modelId eq modelId.asString()) and (EntityAttributeTable.entityId eq entityId.asString()) and (EntityAttributeTable.id eq attributeId.asString()) }
+                .where { (EntityTable.modelId eq modelId) and (EntityAttributeTable.entityId eq entityId) and (EntityAttributeTable.id eq attributeId) }
                 .singleOrNull()
                 ?.let { row ->
                     val record = EntityAttributeRecord.read(row)
-                    val tags = loadEntityAttributeTags(AttributeId.fromString(record.id))
+                    val tags = loadEntityAttributeTags(record.id)
                     toEntityAttribute(record, tags)
                 }
         }
@@ -164,18 +163,18 @@ class ModelStorageDb(
                 EntityAttributeTable.entityId,
                 EntityTable.id
             ).selectAll()
-                .where { (EntityTable.modelId eq modelId.asString()) and (EntityAttributeTable.entityId eq entityId.asString()) and (EntityAttributeTable.key eq key.asString()) }
+                .where { (EntityTable.modelId eq modelId) and (EntityAttributeTable.entityId eq entityId) and (EntityAttributeTable.key eq key.asString()) }
                 .singleOrNull()
                 ?.let { row ->
                     val record = EntityAttributeRecord.read(row)
-                    val tags = loadEntityAttributeTags(AttributeId.fromString(record.id))
+                    val tags = loadEntityAttributeTags(record.id)
                     toEntityAttribute(record, tags)
                 }
         }
     }
 
     override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? {
-        return findRelationshipByOptional(modelId, RelationshipTable.id eq relationshipId.asString())
+        return findRelationshipByOptional(modelId, RelationshipTable.id eq relationshipId)
     }
 
     override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? {
@@ -191,15 +190,15 @@ class ModelStorageDb(
                 onColumn = RelationshipRoleTable.relationshipId,
                 otherColumn = RelationshipTable.id
             ).selectAll()
-                .where { (RelationshipTable.modelId eq modelId.asString()) and criterion }
+                .where { (RelationshipTable.modelId eq modelId) and criterion }
                 .map { RelationshipRoleRecord.read(it) }
 
             RelationshipTable.selectAll()
-                .where { (RelationshipTable.modelId eq modelId.asString()) and criterion }
+                .where { (RelationshipTable.modelId eq modelId) and criterion }
                 .singleOrNull()
                 ?.let { row ->
                     val record = RelationshipRecord.read(row)
-                    val tags = loadRelationshipTags(RelationshipId.fromString(record.id))
+                    val tags = loadRelationshipTags(record.id)
                     toRelationship(record, roleRecords, tags)
                 }
         }
@@ -210,7 +209,7 @@ class ModelStorageDb(
         relationshipId: RelationshipId,
         roleId: RelationshipRoleId
     ): RelationshipRole? {
-        return findRelationshipRoleByOptional(modelId, relationshipId, RelationshipRoleTable.id eq roleId.asString())
+        return findRelationshipRoleByOptional(modelId, relationshipId, RelationshipRoleTable.id eq roleId)
     }
 
     override fun findRelationshipRoleByKeyOptional(
@@ -234,8 +233,8 @@ class ModelStorageDb(
         )
             .selectAll()
             .where {
-                (RelationshipTable.modelId eq modelId.asString()) and
-                        (RelationshipTable.id eq relationshipId.asString()) and
+                (RelationshipTable.modelId eq modelId) and
+                        (RelationshipTable.id eq relationshipId) and
                         criterion
             }
             .singleOrNull()
@@ -251,7 +250,7 @@ class ModelStorageDb(
         return findRelationshipAttributeByOptional(
             modelId,
             relationshipId,
-            RelationshipAttributeTable.id eq attributeId.asString()
+            RelationshipAttributeTable.id eq attributeId
         )
     }
 
@@ -280,11 +279,11 @@ class ModelStorageDb(
                 RelationshipAttributeTable.relationshipId,
                 RelationshipTable.id
             ).selectAll()
-                .where { (RelationshipTable.modelId eq modelId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString()) and criterion }
+                .where { (RelationshipTable.modelId eq modelId) and (RelationshipAttributeTable.relationshipId eq relationshipId) and criterion }
                 .singleOrNull()
                 ?.let { row ->
                     val record = RelationshipAttributeRecord.read(row)
-                    val tags = loadRelationshipAttributeTags(AttributeId.fromString(record.id))
+                    val tags = loadRelationshipAttributeTags(record.id)
                     toRelationshipAttribute(record, tags)
                 }
         }
@@ -314,8 +313,8 @@ class ModelStorageDb(
                 otherColumn = EntityTable.id
             ).selectAll()
                 .where {
-                    (EntityAttributeTable.typeId eq typeId.asString()) and
-                            (EntityTable.modelId eq modelId.asString())
+                    (EntityAttributeTable.typeId eq typeId) and
+                            (EntityTable.modelId eq modelId)
                 }
                 .any()
         }
@@ -333,8 +332,8 @@ class ModelStorageDb(
                 otherColumn = RelationshipTable.id
             ).selectAll()
                 .where {
-                    (RelationshipAttributeTable.typeId eq typeId.asString()) and
-                            (RelationshipTable.modelId eq modelId.asString())
+                    (RelationshipAttributeTable.typeId eq typeId) and
+                            (RelationshipTable.modelId eq modelId)
                 }
                 .any()
         }
@@ -425,13 +424,13 @@ class ModelStorageDb(
     private fun deleteModel(modelId: ModelId) {
         db.withExposed {
             searchWrite.deleteModelBranch(modelId)
-            ModelTable.deleteWhere { id eq modelId.asString() }
+            ModelTable.deleteWhere { id eq modelId }
         }
     }
 
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
         db.withExposed {
-            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+            ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
                 row[ModelTable.name] = localizedTextToString(name)
             }
             searchWrite.upsertModelSearchItem(modelId)
@@ -440,7 +439,7 @@ class ModelStorageDb(
 
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
         db.withExposed {
-            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+            ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
                 row[ModelTable.description] = localizedMarkdownToString(description)
             }
             searchWrite.upsertModelSearchItem(modelId)
@@ -449,7 +448,7 @@ class ModelStorageDb(
 
     private fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
         db.withExposed {
-            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+            ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
                 row[ModelTable.version] = version.value
             }
         }
@@ -457,7 +456,7 @@ class ModelStorageDb(
 
     private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
         db.withExposed {
-            ModelTable.update(where = { ModelTable.id eq modelId.asString() }) { row ->
+            ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
                 row[ModelTable.documentationHome] = documentationHome?.toExternalForm()
             }
         }
@@ -466,12 +465,12 @@ class ModelStorageDb(
     private fun addModelTag(modelId: ModelId, tagId: TagId) {
         db.withExposed {
             val exists = ModelTagTable.select(ModelTagTable.modelId).where {
-                (ModelTagTable.modelId eq modelId.asString()) and (ModelTagTable.tagId eq tagId.asString())
+                (ModelTagTable.modelId eq modelId) and (ModelTagTable.tagId eq tagId)
             }.limit(1).any()
             if (!exists) {
                 ModelTagTable.insert { row ->
-                    row[ModelTagTable.modelId] = modelId.asString()
-                    row[ModelTagTable.tagId] = tagId.asString()
+                    row[ModelTagTable.modelId] = modelId
+                    row[ModelTagTable.tagId] = tagId
                 }
             }
             searchWrite.upsertModelSearchItem(modelId)
@@ -481,7 +480,7 @@ class ModelStorageDb(
     private fun deleteModelTag(modelId: ModelId, tagId: TagId) {
         db.withExposed {
             ModelTagTable.deleteWhere {
-                (ModelTagTable.modelId eq modelId.asString()) and (ModelTagTable.tagId eq tagId.asString())
+                (ModelTagTable.modelId eq modelId) and (ModelTagTable.tagId eq tagId)
             }
             searchWrite.upsertModelSearchItem(modelId)
         }
@@ -490,8 +489,8 @@ class ModelStorageDb(
     private fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
         db.withExposed {
             ModelTypeTable.insert { row ->
-                row[ModelTypeTable.id] = TypeId.generate().asString()
-                row[ModelTypeTable.modelId] = modelId.asString()
+                row[ModelTypeTable.id] = TypeId.generate()
+                row[ModelTypeTable.modelId] = modelId
                 row[ModelTypeTable.key] = initializer.key.asString()
                 row[ModelTypeTable.name] = localizedTextToString(initializer.name)
                 row[ModelTypeTable.description] = localizedMarkdownToString(initializer.description)
@@ -503,7 +502,7 @@ class ModelStorageDb(
         db.withExposed {
             ModelTypeTable.update(
                 where = {
-                    (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
+                    (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
                 }) { row ->
                 row[ModelTypeTable.key] = value.asString()
             }
@@ -514,7 +513,7 @@ class ModelStorageDb(
         db.withExposed {
             ModelTypeTable.update(
                 where = {
-                    (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
+                    (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
                 }) { row ->
                 row[ModelTypeTable.name] = localizedTextToString(value)
             }
@@ -525,7 +524,7 @@ class ModelStorageDb(
         db.withExposed {
             ModelTypeTable.update(
                 where = {
-                    (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
+                    (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
                 }) { row ->
                 row[ModelTypeTable.description] = localizedMarkdownToString(value)
             }
@@ -535,7 +534,7 @@ class ModelStorageDb(
     private fun deleteType(modelId: ModelId, typeId: TypeId) {
         db.withExposed {
             ModelTypeTable.deleteWhere {
-                (ModelTypeTable.id eq typeId.asString()) and (ModelTypeTable.modelId eq modelId.asString())
+                (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
             }
         }
     }
@@ -550,7 +549,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityTable.update(
                 where = {
-                    (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                    (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
                 row[EntityTable.key] = value.asString()
             }
@@ -562,7 +561,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityTable.update(
                 where = {
-                    (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                    (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
                 row[EntityTable.name] = localizedTextToString(value)
             }
@@ -574,7 +573,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityTable.update(
                 where = {
-                    (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                    (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
                 row[EntityTable.description] = localizedMarkdownToString(value)
             }
@@ -586,9 +585,9 @@ class ModelStorageDb(
         db.withExposed {
             EntityTable.update(
                 where = {
-                    (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                    (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
-                row[EntityTable.identifierAttributeId] = value.asString()
+                row[EntityTable.identifierAttributeId] = value
             }
         }
     }
@@ -597,7 +596,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityTable.update(
                 where = {
-                    (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                    (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
                 row[EntityTable.documentationHome] = value?.toExternalForm()
             }
@@ -607,12 +606,12 @@ class ModelStorageDb(
     private fun addEntityTag(entityId: EntityId, tagId: TagId) {
         db.withExposed {
             val exists = EntityTagTable.select(EntityTagTable.entityId).where {
-                (EntityTagTable.entityId eq entityId.asString()) and (EntityTagTable.tagId eq tagId.asString())
+                (EntityTagTable.entityId eq entityId) and (EntityTagTable.tagId eq tagId)
             }.limit(1).any()
             if (!exists) {
                 EntityTagTable.insert { row ->
-                    row[EntityTagTable.entityId] = entityId.asString()
-                    row[EntityTagTable.tagId] = tagId.asString()
+                    row[EntityTagTable.entityId] = entityId
+                    row[EntityTagTable.tagId] = tagId
                 }
             }
             searchWrite.upsertEntitySearchItem(entityId)
@@ -622,7 +621,7 @@ class ModelStorageDb(
     private fun deleteEntityTag(entityId: EntityId, tagId: TagId) {
         db.withExposed {
             EntityTagTable.deleteWhere {
-                (EntityTagTable.entityId eq entityId.asString()) and (EntityTagTable.tagId eq tagId.asString())
+                (EntityTagTable.entityId eq entityId) and (EntityTagTable.tagId eq tagId)
             }
             searchWrite.upsertEntitySearchItem(entityId)
         }
@@ -632,7 +631,7 @@ class ModelStorageDb(
         db.withExposed {
             searchWrite.deleteEntityBranch(entityId)
             EntityTable.deleteWhere {
-                (EntityTable.id eq entityId.asString()) and (EntityTable.modelId eq modelId.asString())
+                (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
             }
         }
     }
@@ -655,7 +654,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityAttributeTable.update(
                 where = {
-                    (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                    (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
                 row[EntityAttributeTable.key] = value.asString()
             }
@@ -667,7 +666,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityAttributeTable.update(
                 where = {
-                    (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                    (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
                 row[EntityAttributeTable.name] = localizedTextToString(value)
             }
@@ -681,7 +680,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityAttributeTable.update(
                 where = {
-                    (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                    (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
                 row[EntityAttributeTable.description] = localizedMarkdownToString(value)
             }
@@ -693,9 +692,9 @@ class ModelStorageDb(
         db.withExposed {
             EntityAttributeTable.update(
                 where = {
-                    (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                    (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
-                row[EntityAttributeTable.typeId] = value.asString()
+                row[EntityAttributeTable.typeId] = value
             }
         }
     }
@@ -704,7 +703,7 @@ class ModelStorageDb(
         db.withExposed {
             EntityAttributeTable.update(
                 where = {
-                    (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                    (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
                 row[EntityAttributeTable.optional] = value
             }
@@ -714,12 +713,12 @@ class ModelStorageDb(
     private fun addEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
         db.withExposed {
             val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeId).where {
-                (EntityAttributeTagTable.attributeId eq attributeId.asString()) and (EntityAttributeTagTable.tagId eq tagId.asString())
+                (EntityAttributeTagTable.attributeId eq attributeId) and (EntityAttributeTagTable.tagId eq tagId)
             }.limit(1).any()
             if (!exists) {
                 EntityAttributeTagTable.insert { row ->
-                    row[EntityAttributeTagTable.attributeId] = attributeId.asString()
-                    row[EntityAttributeTagTable.tagId] = tagId.asString()
+                    row[EntityAttributeTagTable.attributeId] = attributeId
+                    row[EntityAttributeTagTable.tagId] = tagId
                 }
             }
             searchWrite.upsertEntityAttributeSearchItem(attributeId)
@@ -729,7 +728,7 @@ class ModelStorageDb(
     private fun deleteEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
         db.withExposed {
             EntityAttributeTagTable.deleteWhere {
-                (EntityAttributeTagTable.attributeId eq attributeId.asString()) and (EntityAttributeTagTable.tagId eq tagId.asString())
+                (EntityAttributeTagTable.attributeId eq attributeId) and (EntityAttributeTagTable.tagId eq tagId)
             }
             searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
@@ -739,14 +738,14 @@ class ModelStorageDb(
         db.withExposed {
             searchWrite.deleteEntityAttributeSearchItem(attributeId)
             EntityAttributeTable.deleteWhere {
-                (EntityAttributeTable.id eq attributeId.asString()) and (EntityAttributeTable.entityId eq entityId.asString())
+                (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
             }
         }
     }
 
     private fun insertModel(model: Model) {
         ModelTable.insert { row ->
-            row[ModelTable.id] = model.id.asString()
+            row[ModelTable.id] = model.id
             row[ModelTable.key] = model.key.asString()
             row[ModelTable.name] = localizedTextToString(model.name)
             row[ModelTable.description] = localizedMarkdownToString(model.description)
@@ -759,20 +758,20 @@ class ModelStorageDb(
     private fun insertModelTags(modelId: ModelId, tags: List<TagId>) {
         for (tagId in tags) {
             ModelTagTable.insert { row ->
-                row[ModelTagTable.modelId] = modelId.asString()
-                row[ModelTagTable.tagId] = tagId.asString()
+                row[ModelTagTable.modelId] = modelId
+                row[ModelTagTable.tagId] = tagId
             }
         }
     }
 
     private fun insertEntity(cmd: ModelRepoCmd.CreateEntity) {
         EntityTable.insert { row ->
-            row[EntityTable.id] = cmd.entityId.asString()
-            row[EntityTable.modelId] = cmd.modelId.asString()
+            row[EntityTable.id] = cmd.entityId
+            row[EntityTable.modelId] = cmd.modelId
             row[EntityTable.key] = cmd.key.asString()
             row[EntityTable.name] = localizedTextToString(cmd.name)
             row[EntityTable.description] = localizedMarkdownToString(cmd.description)
-            row[EntityTable.identifierAttributeId] = cmd.identityAttributeId.asString()
+            row[EntityTable.identifierAttributeId] = cmd.identityAttributeId
             row[EntityTable.origin] = entityOriginToString(cmd.origin)
             row[EntityTable.documentationHome] = cmd.documentationHome?.toExternalForm()
         }
@@ -800,12 +799,12 @@ class ModelStorageDb(
         optional: Boolean
     ) {
         EntityAttributeTable.insert { row ->
-            row[EntityAttributeTable.id] = attributeId.asString()
-            row[EntityAttributeTable.entityId] = entityId.asString()
+            row[EntityAttributeTable.id] = attributeId
+            row[EntityAttributeTable.entityId] = entityId
             row[EntityAttributeTable.key] = key.asString()
             row[EntityAttributeTable.name] = localizedTextToString(name)
             row[EntityAttributeTable.description] = localizedMarkdownToString(description)
-            row[EntityAttributeTable.typeId] = typeId.asString()
+            row[EntityAttributeTable.typeId] = typeId
             row[EntityAttributeTable.optional] = optional
         }
         searchWrite.upsertEntityAttributeSearchItem(attributeId)
@@ -819,7 +818,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipKey(relationshipId: RelationshipId, value: RelationshipKey) {
         db.withExposed {
-            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId }) { row ->
                 row[RelationshipTable.key] = value.asString()
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
@@ -828,7 +827,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipName(relationshipId: RelationshipId, value: LocalizedText?) {
         db.withExposed {
-            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId }) { row ->
                 row[RelationshipTable.name] = localizedTextToString(value)
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
@@ -837,7 +836,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipDescription(relationshipId: RelationshipId, value: LocalizedMarkdown?) {
         db.withExposed {
-            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId.asString() }) { row ->
+            RelationshipTable.update(where = { RelationshipTable.id eq relationshipId }) { row ->
                 row[RelationshipTable.description] = localizedMarkdownToString(value)
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
@@ -846,7 +845,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipRoleKey(relationshipRoleId: RelationshipRoleId, value: RelationshipRoleKey) {
         db.withExposed {
-            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
                 row[RelationshipRoleTable.key] = value.asString()
             }
         }
@@ -854,7 +853,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipRoleName(relationshipRoleId: RelationshipRoleId, value: LocalizedText?) {
         db.withExposed {
-            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
                 row[RelationshipRoleTable.name] = localizedTextToString(value)
             }
         }
@@ -862,8 +861,8 @@ class ModelStorageDb(
 
     private fun updateRelationshipRoleEntity(relationshipRoleId: RelationshipRoleId, value: EntityId) {
         db.withExposed {
-            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
-                row[RelationshipRoleTable.entityId] = value.asString()
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
+                row[RelationshipRoleTable.entityId] = value
             }
         }
     }
@@ -872,7 +871,7 @@ class ModelStorageDb(
         relationshipRoleId: RelationshipRoleId, value: RelationshipCardinality
     ) {
         db.withExposed {
-            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId.asString() }) { row ->
+            RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
                 row[RelationshipRoleTable.cardinality] = value.code
             }
         }
@@ -881,12 +880,12 @@ class ModelStorageDb(
     private fun addRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
         db.withExposed {
             val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipId).where {
-                (RelationshipTagTable.relationshipId eq relationshipId.asString()) and (RelationshipTagTable.tagId eq tagId.asString())
+                (RelationshipTagTable.relationshipId eq relationshipId) and (RelationshipTagTable.tagId eq tagId)
             }.limit(1).any()
             if (!exists) {
                 RelationshipTagTable.insert { row ->
-                    row[RelationshipTagTable.relationshipId] = relationshipId.asString()
-                    row[RelationshipTagTable.tagId] = tagId.asString()
+                    row[RelationshipTagTable.relationshipId] = relationshipId
+                    row[RelationshipTagTable.tagId] = tagId
                 }
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
@@ -896,7 +895,7 @@ class ModelStorageDb(
     private fun deleteRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
         db.withExposed {
             RelationshipTagTable.deleteWhere {
-                (RelationshipTagTable.relationshipId eq relationshipId.asString()) and (RelationshipTagTable.tagId eq tagId.asString())
+                (RelationshipTagTable.relationshipId eq relationshipId) and (RelationshipTagTable.tagId eq tagId)
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
@@ -906,7 +905,7 @@ class ModelStorageDb(
         db.withExposed {
             searchWrite.deleteRelationshipBranch(relationshipId)
             RelationshipTable.deleteWhere {
-                (RelationshipTable.id eq relationshipId.asString()) and (RelationshipTable.modelId eq modelId.asString())
+                (RelationshipTable.id eq relationshipId) and (RelationshipTable.modelId eq modelId)
             }
         }
     }
@@ -931,7 +930,7 @@ class ModelStorageDb(
         db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
-                    (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                    (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
                 row[RelationshipAttributeTable.key] = value.asString()
             }
@@ -945,7 +944,7 @@ class ModelStorageDb(
         db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
-                    (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                    (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
                 row[RelationshipAttributeTable.name] = localizedTextToString(value)
             }
@@ -959,7 +958,7 @@ class ModelStorageDb(
         db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
-                    (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                    (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
                 row[RelationshipAttributeTable.description] = localizedMarkdownToString(value)
             }
@@ -973,9 +972,9 @@ class ModelStorageDb(
         db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
-                    (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                    (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
-                row[RelationshipAttributeTable.typeId] = value.asString()
+                row[RelationshipAttributeTable.typeId] = value
             }
         }
     }
@@ -986,7 +985,7 @@ class ModelStorageDb(
         db.withExposed {
             RelationshipAttributeTable.update(
                 where = {
-                    (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                    (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
                 row[RelationshipAttributeTable.optional] = value
             }
@@ -996,12 +995,12 @@ class ModelStorageDb(
     private fun addRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
         db.withExposed {
             val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeId).where {
-                (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and (RelationshipAttributeTagTable.tagId eq tagId.asString())
+                (RelationshipAttributeTagTable.attributeId eq attributeId) and (RelationshipAttributeTagTable.tagId eq tagId)
             }.limit(1).any()
             if (!exists) {
                 RelationshipAttributeTagTable.insert { row ->
-                    row[RelationshipAttributeTagTable.attributeId] = attributeId.asString()
-                    row[RelationshipAttributeTagTable.tagId] = tagId.asString()
+                    row[RelationshipAttributeTagTable.attributeId] = attributeId
+                    row[RelationshipAttributeTagTable.tagId] = tagId
                 }
             }
             searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
@@ -1011,7 +1010,7 @@ class ModelStorageDb(
     private fun deleteRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
         db.withExposed {
             RelationshipAttributeTagTable.deleteWhere {
-                (RelationshipAttributeTagTable.attributeId eq attributeId.asString()) and (RelationshipAttributeTagTable.tagId eq tagId.asString())
+                (RelationshipAttributeTagTable.attributeId eq attributeId) and (RelationshipAttributeTagTable.tagId eq tagId)
             }
             searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
@@ -1021,15 +1020,15 @@ class ModelStorageDb(
         db.withExposed {
             searchWrite.deleteRelationshipAttributeSearchItem(attributeId)
             RelationshipAttributeTable.deleteWhere {
-                (RelationshipAttributeTable.id eq attributeId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString())
+                (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
             }
         }
     }
 
     private fun insertRelationship(cmd: ModelRepoCmd.CreateRelationship) {
         RelationshipTable.insert { row ->
-            row[RelationshipTable.id] = cmd.relationshipId.asString()
-            row[RelationshipTable.modelId] = cmd.modelId.asString()
+            row[RelationshipTable.id] = cmd.relationshipId
+            row[RelationshipTable.modelId] = cmd.modelId
             row[RelationshipTable.key] = cmd.key.asString()
             row[RelationshipTable.name] = localizedTextToString(cmd.name)
             row[RelationshipTable.description] = localizedMarkdownToString(cmd.description)
@@ -1039,10 +1038,10 @@ class ModelStorageDb(
 
         for (role in cmd.roles) {
             RelationshipRoleTable.insert { row ->
-                row[RelationshipRoleTable.id] = role.id.asString()
-                row[RelationshipRoleTable.relationshipId] = cmd.relationshipId.asString()
+                row[RelationshipRoleTable.id] = role.id
+                row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
                 row[RelationshipRoleTable.key] = role.key.asString()
-                row[RelationshipRoleTable.entityId] = role.entityId.asString()
+                row[RelationshipRoleTable.entityId] = role.entityId
                 row[RelationshipRoleTable.name] = localizedTextToString(role.name)
                 row[RelationshipRoleTable.cardinality] = role.cardinality.code
             }
@@ -1061,12 +1060,12 @@ class ModelStorageDb(
         optional: Boolean
     ) {
         RelationshipAttributeTable.insert { row ->
-            row[RelationshipAttributeTable.id] = attributeId.asString()
-            row[RelationshipAttributeTable.relationshipId] = relationshipId.asString()
+            row[RelationshipAttributeTable.id] = attributeId
+            row[RelationshipAttributeTable.relationshipId] = relationshipId
             row[RelationshipAttributeTable.key] = key.asString()
             row[RelationshipAttributeTable.name] = localizedTextToString(name)
             row[RelationshipAttributeTable.description] = localizedMarkdownToString(description)
-            row[RelationshipAttributeTable.typeId] = typeId.asString()
+            row[RelationshipAttributeTable.typeId] = typeId
             row[RelationshipAttributeTable.optional] = optional
         }
         searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
@@ -1074,26 +1073,25 @@ class ModelStorageDb(
 
     private fun loadModelAggregate(row: ResultRow): ModelAggregateInMemory {
         val record = ModelRecord.read(row)
-        val modelId = ModelId.fromString(record.id)
-        val types = loadTypes(modelId)
-        val entities = loadEntities(modelId)
-        val entityAttributes = loadEntityAttributes(modelId)
-        val relationships = loadRelationships(modelId)
-        val relationshipAttributes = loadRelationshipAttributes(modelId)
+        val types = loadTypes(record.id)
+        val entities = loadEntities(record.id)
+        val entityAttributes = loadEntityAttributes(record.id)
+        val relationships = loadRelationships(record.id)
+        val relationshipAttributes = loadRelationshipAttributes(record.id)
 
         return ModelAggregateInMemory(
             model = toModel(record),
             types = types,
             entities = entities,
             relationships = relationships,
-            tags = loadModelTags(modelId),
+            tags = loadModelTags(record.id),
             attributes = entityAttributes + relationshipAttributes
         )
     }
 
 
     private fun loadTypes(modelId: ModelId): List<ModelTypeInMemory> {
-        return ModelTypeTable.selectAll().where { ModelTypeTable.modelId eq modelId.asString() }
+        return ModelTypeTable.selectAll().where { ModelTypeTable.modelId eq modelId }
             .orderBy(ModelTypeTable.key to SortOrder.ASC).map { row ->
                 toType(ModelTypeRecord.read(row))
             }
@@ -1102,10 +1100,10 @@ class ModelStorageDb(
 
     private fun loadEntities(modelId: ModelId): List<EntityInMemory> {
 
-        return EntityTable.selectAll().where { EntityTable.modelId eq modelId.asString() }
+        return EntityTable.selectAll().where { EntityTable.modelId eq modelId }
             .orderBy(EntityTable.key to SortOrder.ASC).map { row ->
                 val record = EntityRecord.read(row)
-                val tags = loadEntityTags(EntityId.fromString(record.id))
+                val tags = loadEntityTags(record.id)
                 toEntity(record, tags)
             }
     }
@@ -1117,10 +1115,10 @@ class ModelStorageDb(
             onColumn = EntityAttributeTable.entityId,
             otherColumn = EntityTable.id
         ).selectAll()
-            .where { EntityTable.modelId eq modelId.asString() }
+            .where { EntityTable.modelId eq modelId }
             .map { row ->
                 val record = EntityAttributeRecord.read(row)
-                val tags = loadEntityAttributeTags(AttributeId.fromString(record.id))
+                val tags = loadEntityAttributeTags(record.id)
                 toEntityAttribute(record, tags)
             }
     }
@@ -1132,10 +1130,10 @@ class ModelStorageDb(
             onColumn = RelationshipTable.id,
             otherColumn = RelationshipAttributeTable.relationshipId
         ).selectAll()
-            .where { RelationshipTable.modelId eq modelId.asString() }
+            .where { RelationshipTable.modelId eq modelId }
             .map { row ->
                 val record = RelationshipAttributeRecord.read(row)
-                val tags = loadRelationshipAttributeTags(AttributeId.fromString(record.id))
+                val tags = loadRelationshipAttributeTags(record.id)
                 toRelationshipAttribute(record, tags)
             }
     }
@@ -1143,7 +1141,7 @@ class ModelStorageDb(
     private fun loadRelationships(modelId: ModelId): List<RelationshipInMemory> {
         val relationshipIds =
             RelationshipTable.select(RelationshipTable.id)
-                .where { RelationshipTable.modelId eq modelId.asString() }
+                .where { RelationshipTable.modelId eq modelId }
 
         val roleRowsByRelationshipId =
             RelationshipRoleTable.selectAll()
@@ -1152,47 +1150,47 @@ class ModelStorageDb(
                 .groupBy { it[RelationshipRoleTable.relationshipId] }
 
         return RelationshipTable.selectAll()
-            .where { RelationshipTable.modelId eq modelId.asString() }
+            .where { RelationshipTable.modelId eq modelId }
             .orderBy(RelationshipTable.key to SortOrder.ASC).map { row ->
                 val relationshipRecord = RelationshipRecord.read(row)
-                val relationshipId = RelationshipId.fromString(relationshipRecord.id)
-                val roleRecords = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList())
+                val relationshipId = relationshipRecord.id
+                val roleRecords = (roleRowsByRelationshipId[relationshipId] ?: emptyList())
                     .map { RelationshipRoleRecord.read(it) }
-                val tags = loadRelationshipTags(RelationshipId.fromString(relationshipRecord.id))
+                val tags = loadRelationshipTags(relationshipRecord.id)
                 toRelationship(relationshipRecord, roleRecords, tags)
             }
     }
 
 
     private fun loadModelTags(modelId: ModelId): List<TagId> {
-        return ModelTagTable.selectAll().where { ModelTagTable.modelId eq modelId.asString() }
-            .orderBy(ModelTagTable.tagId to SortOrder.ASC).map { Id.fromString(it[ModelTagTable.tagId], ::TagId) }
+        return ModelTagTable.selectAll().where { ModelTagTable.modelId eq modelId }
+            .orderBy(ModelTagTable.tagId to SortOrder.ASC).map { it[ModelTagTable.tagId] }
     }
 
     private fun loadEntityTags(entityId: EntityId): List<TagId> {
-        return EntityTagTable.selectAll().where { EntityTagTable.entityId eq entityId.asString() }
-            .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { Id.fromString(it[EntityTagTable.tagId], ::TagId) }
+        return EntityTagTable.selectAll().where { EntityTagTable.entityId eq entityId }
+            .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { it[EntityTagTable.tagId] }
     }
 
     private fun loadEntityAttributeTags(attributeId: AttributeId): List<TagId> {
         return EntityAttributeTagTable.selectAll()
-            .where { EntityAttributeTagTable.attributeId eq attributeId.asString() }
+            .where { EntityAttributeTagTable.attributeId eq attributeId }
             .orderBy(EntityAttributeTagTable.tagId to SortOrder.ASC)
-            .map { Id.fromString(it[EntityAttributeTagTable.tagId], ::TagId) }
+            .map { it[EntityAttributeTagTable.tagId] }
     }
 
     private fun loadRelationshipTags(relationshipId: RelationshipId): List<TagId> {
         return RelationshipTagTable.selectAll()
-            .where { RelationshipTagTable.relationshipId eq relationshipId.asString() }
+            .where { RelationshipTagTable.relationshipId eq relationshipId }
             .orderBy(RelationshipTagTable.tagId to SortOrder.ASC)
-            .map { Id.fromString(it[RelationshipTagTable.tagId], ::TagId) }
+            .map { it[RelationshipTagTable.tagId] }
     }
 
     private fun loadRelationshipAttributeTags(attributeId: AttributeId): List<TagId> {
         return RelationshipAttributeTagTable.selectAll()
-            .where { RelationshipAttributeTagTable.attributeId eq attributeId.asString() }
+            .where { RelationshipAttributeTagTable.attributeId eq attributeId }
             .orderBy(RelationshipAttributeTagTable.tagId to SortOrder.ASC)
-            .map { Id.fromString(it[RelationshipAttributeTagTable.tagId], ::TagId) }
+            .map { it[RelationshipAttributeTagTable.tagId] }
     }
 
     private fun localizedTextToString(value: LocalizedText?): String? {

@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.type.commons.id.Id
 import java.util.*
 

@@ -1,6 +1,7 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.type.commons.id.Id
 
 
 class ModelStorageDbInvalidIdentifierAttributeException(entityId: String) :
@@ -13,5 +14,5 @@ class ModelStorageDbSearchUnknownItemTypeException(itemType: String) :
 class ModelStorageDbSearchMissingProjectionReferenceException(columnName: String) :
     MedatarunException("Search projection is missing required reference column [$columnName]")
 
-class ModelStorageDbSearchMissingSourceRowException(rowType: String, rowId: String) :
-    MedatarunException("Search projection update could not find source [$rowType] row [$rowId]")
+class ModelStorageDbSearchMissingSourceRowException(rowType: String, rowId: Id<*>) :
+    MedatarunException("Search projection update could not find source [$rowType] row [${rowId.asString()}]")

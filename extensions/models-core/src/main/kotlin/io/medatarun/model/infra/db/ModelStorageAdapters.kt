@@ -1,18 +1,8 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.EntityInMemory
-import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.infra.RelationshipInMemory
-import io.medatarun.model.infra.RelationshipRoleInMemory
-import io.medatarun.model.infra.db.records.EntityAttributeRecord
-import io.medatarun.model.infra.db.records.EntityRecord
-import io.medatarun.model.infra.db.records.ModelRecord
-import io.medatarun.model.infra.db.records.ModelTypeRecord
-import io.medatarun.model.infra.db.records.RelationshipAttributeRecord
-import io.medatarun.model.infra.db.records.RelationshipRecord
-import io.medatarun.model.infra.db.records.RelationshipRoleRecord
+import io.medatarun.model.infra.*
+import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
 import java.net.URI
@@ -20,9 +10,8 @@ import java.net.URI
 object ModelStorageAdapters {
 
     fun toModel(record: ModelRecord): ModelInMemory {
-        val modelId = ModelId.fromString(record.id)
         return ModelInMemory(
-            id = modelId,
+            id = record.id,
             key = ModelKey(record.key),
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
@@ -33,14 +22,14 @@ object ModelStorageAdapters {
     }
 
     fun toType(record: ModelTypeRecord): ModelTypeInMemory = ModelTypeInMemory(
-        id = TypeId.fromString(record.id),
+        id = record.id,
         key = TypeKey(record.key),
         name = stringToLocalizedText(record.name),
         description = stringToLocalizedMarkdown(record.description)
     )
 
     fun toEntity(record: EntityRecord, tags: List<TagId>): EntityInMemory {
-        val entityId = EntityId.fromString(record.id)
+        val entityId = record.id
         val identifierAttributeIdString = record.identifierAttributeId
 
         return EntityInMemory(
@@ -48,7 +37,7 @@ object ModelStorageAdapters {
             key = EntityKey(record.key),
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
-            identifierAttributeId = AttributeId.fromString(identifierAttributeIdString),
+            identifierAttributeId = identifierAttributeIdString,
             origin = stringToEntityOrigin(record.origin),
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = tags
@@ -56,17 +45,15 @@ object ModelStorageAdapters {
     }
 
     fun toEntityAttribute(record: EntityAttributeRecord, tags: List<TagId>): AttributeInMemory {
-
-        val attributeId = AttributeId.fromString(record.id)
         return AttributeInMemory(
-            id = attributeId,
+            id = record.id,
             key = AttributeKey(record.key),
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
-            typeId = TypeId.fromString(record.typeId),
+            typeId = record.typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerEntityId(EntityId.fromString(record.entityId))
+            ownerId = AttributeOwnerId.OwnerEntityId(record.entityId)
         )
     }
 
@@ -75,9 +62,8 @@ object ModelStorageAdapters {
         roles: List<RelationshipRoleRecord>,
         tags: List<TagId>
     ): RelationshipInMemory {
-        val relationshipId = RelationshipId.fromString(record.id)
         return RelationshipInMemory(
-            id = relationshipId,
+            id = record.id,
             key = RelationshipKey(record.key),
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
@@ -90,9 +76,9 @@ object ModelStorageAdapters {
     fun toRelationshipRole(record: RelationshipRoleRecord): RelationshipRoleInMemory {
 
         return RelationshipRoleInMemory(
-            id = RelationshipRoleId.fromString(record.id),
+            id = record.id,
             key = RelationshipRoleKey(record.key),
-            entityId = EntityId.fromString(record.entityId),
+            entityId = record.entityId,
             name = stringToLocalizedText(record.name),
             cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
         )
@@ -102,16 +88,15 @@ object ModelStorageAdapters {
         record: RelationshipAttributeRecord,
         tags: List<TagId>
     ): AttributeInMemory {
-        val attributeId = AttributeId.fromString(record.id)
         return AttributeInMemory(
-            id = attributeId,
+            id = record.id,
             key = AttributeKey(record.key),
             name = stringToLocalizedText(record.name),
             description = stringToLocalizedMarkdown(record.description),
-            typeId = TypeId.fromString(record.typeId),
+            typeId = record.typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerRelationshipId(RelationshipId.fromString(record.relationshipId))
+            ownerId = AttributeOwnerId.OwnerRelationshipId(record.relationshipId)
         )
     }
 

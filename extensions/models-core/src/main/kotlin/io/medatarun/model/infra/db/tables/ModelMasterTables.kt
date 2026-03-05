@@ -1,26 +1,11 @@
 package io.medatarun.model.infra.db.tables
 
+import io.medatarun.model.domain.*
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 
-object RelationshipAttributeTagTable : Table("relationship_attribute_tag") {
-    val attributeId = text("attribute_id")
-    val tagId = text("tag_id")
-}
-
-object RelationshipAttributeTable : Table("relationship_attribute") {
-    val id = text("id")
-    val relationshipId = text("relationship_id")
-    val key = text("key")
-    val name = text("name").nullable()
-    val description = text("description").nullable()
-    val typeId = text("type_id")
-    val optional = bool("optional")
-
-    override val primaryKey = PrimaryKey(id)
-}
-
 object ModelTable : Table("model") {
-    val id = text("id")
+    val id = text("id").transform(IdTransformer(::ModelId))
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
@@ -32,13 +17,13 @@ object ModelTable : Table("model") {
 }
 
 object ModelTagTable : Table("model_tag") {
-    val modelId = text("model_id")
-    val tagId = text("tag_id")
+    val modelId = text("model_id").transform(IdTransformer(::ModelId))
+    val tagId = text("tag_id").transform(IdTransformer(::TagId))
 }
 
 object ModelTypeTable : Table("model_type") {
-    val id = text("id")
-    val modelId = text("model_id")
+    val id = text("id").transform(IdTransformer(::TypeId))
+    val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
@@ -47,12 +32,12 @@ object ModelTypeTable : Table("model_type") {
 }
 
 object EntityTable : Table("entity") {
-    val id = text("id")
-    val modelId = text("model_id")
+    val id = text("id").transform(IdTransformer(::EntityId))
+    val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
-    val identifierAttributeId = text("identifier_attribute_id")
+    val identifierAttributeId = text("identifier_attribute_id").transform(IdTransformer(::AttributeId))
     val origin = text("origin").nullable()
     val documentationHome = text("documentation_home").nullable()
 
@@ -60,49 +45,65 @@ object EntityTable : Table("entity") {
 }
 
 object EntityTagTable : Table("entity_tag") {
-    val entityId = text("entity_id")
-    val tagId = text("tag_id")
+    val entityId = text("entity_id").transform(IdTransformer(::EntityId))
+    val tagId = text("tag_id").transform(IdTransformer(::TagId))
 }
 
 object EntityAttributeTable : Table("entity_attribute") {
-    val id = text("id")
-    val entityId = text("entity_id")
+    val id = text("id").transform(IdTransformer(::AttributeId))
+    val entityId = text("entity_id").transform(IdTransformer(::EntityId))
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
-    val typeId = text("type_id")
+    val typeId = text("type_id").transform(IdTransformer(::TypeId))
     val optional = bool("optional")
 
     override val primaryKey = PrimaryKey(id)
 }
 
 object EntityAttributeTagTable : Table("entity_attribute_tag") {
-    val attributeId = text("attribute_id")
-    val tagId = text("tag_id")
+    val attributeId = text("attribute_id").transform(IdTransformer(::AttributeId))
+    val tagId = text("tag_id").transform(IdTransformer(::TagId))
 }
 
 object RelationshipTable : Table("relationship") {
-    val id = text("id")
-    val modelId = text("model_id")
+    val id = text("id").transform(IdTransformer(::RelationshipId))
+    val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key")
     val name = text("name").nullable()
     val description = text("description").nullable()
-
     override val primaryKey = PrimaryKey(id)
 }
 
 object RelationshipTagTable : Table("relationship_tag") {
-    val relationshipId = text("relationship_id")
-    val tagId = text("tag_id")
+    val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
+    val tagId = text("tag_id").transform(IdTransformer(::TagId))
 }
 
 object RelationshipRoleTable : Table("relationship_role") {
-    val id = text("id")
-    val relationshipId = text("relationship_id")
+    val id = text("id").transform(IdTransformer(::RelationshipRoleId))
+    val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
     val key = text("key")
-    val entityId = text("entity_id")
+    val entityId = text("entity_id").transform(IdTransformer(::EntityId))
     val name = text("name").nullable()
     val cardinality = text("cardinality")
+    override val primaryKey = PrimaryKey(id)
+}
+
+object RelationshipAttributeTagTable : Table("relationship_attribute_tag") {
+    val attributeId = text("attribute_id").transform(IdTransformer(::AttributeId))
+    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+}
+
+object RelationshipAttributeTable : Table("relationship_attribute") {
+    val id = text("id").transform(IdTransformer(::AttributeId))
+    val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
+    val key = text("key")
+    val name = text("name").nullable()
+    val description = text("description").nullable()
+    val typeId = text("type_id").transform(IdTransformer(::TypeId))
+    val optional = bool("optional")
 
     override val primaryKey = PrimaryKey(id)
 }
+

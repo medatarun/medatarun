@@ -125,7 +125,7 @@ internal class ModelStorageDbSearchRead(
 
         return DenormModelSearchItemTagTable
             .select(DenormModelSearchItemTagTable.searchItemId)
-            .where { DenormModelSearchItemTagTable.tagId inList tagIds.map { it.asString() } }
+            .where { DenormModelSearchItemTagTable.tagId inList tagIds }
             .map { it[DenormModelSearchItemTagTable.searchItemId] }
             .toSet()
     }
@@ -147,7 +147,7 @@ internal class ModelStorageDbSearchRead(
                 DenormModelSearchItemTable.id notInSubQuery
                         DenormModelSearchItemTagTable
                             .select(DenormModelSearchItemTagTable.searchItemId)
-                            .where { DenormModelSearchItemTagTable.tagId inList tagIds.map { it.asString() } }
+                            .where { DenormModelSearchItemTagTable.tagId inList tagIds }
             }
             .map { it[DenormModelSearchItemTable.id] }
             .toSet()
@@ -165,7 +165,7 @@ internal class ModelStorageDbSearchRead(
         }
 
         val rows = DenormModelSearchItemTagTable.selectAll()
-            .where { DenormModelSearchItemTagTable.tagId inList tagIds.map { it.asString() } }
+            .where { DenormModelSearchItemTagTable.tagId inList tagIds }
             .toList()
             .map { DenormModelSearchItemTagRecord.read(it) }
 

@@ -1,11 +1,12 @@
 package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTagTable
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class DenormModelSearchItemTagRecord(
     val searchItemId: String,
-    val tagId: String
+    val tagId: TagId
 ) {
     companion object {
         fun read(row: ResultRow): DenormModelSearchItemTagRecord {

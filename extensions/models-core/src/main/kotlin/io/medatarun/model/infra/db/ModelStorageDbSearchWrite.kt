@@ -8,7 +8,9 @@ import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -79,7 +81,7 @@ internal class ModelStorageDbSearchWrite(
 
     private fun upsertModelSearchItemRow(modelId: ModelId) {
         val row = ModelTable.selectAll()
-            .where { ModelTable.id eq modelId.asString() }
+            .where { ModelTable.id eq modelId }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForModel(modelId))
@@ -91,7 +93,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForModel(modelId),
                 itemType = SearchItemType.MODEL,
-                modelId = modelId.asString(),
+                modelId = modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
                 entityId = null,
@@ -105,13 +107,15 @@ internal class ModelStorageDbSearchWrite(
                 attributeLabel = null,
                 searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
             ),
-            loadTagIds(ModelTagTable, ModelTagTable.modelId, modelId.asString(), ModelTagTable.tagId)
+            ModelTagTable.select(ModelTagTable.tagId)
+                .where { ModelTagTable.modelId eq modelId }
+                .map { it[ModelTagTable.tagId] }
         )
     }
 
     private fun upsertEntitySearchItemRow(entityId: EntityId) {
         val row = EntityTable.selectAll()
-            .where { EntityTable.id eq entityId.asString() }
+            .where { EntityTable.id eq entityId }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForEntity(entityId))
@@ -127,7 +131,7 @@ internal class ModelStorageDbSearchWrite(
                 modelId = entityRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
-                entityId = entityId.asString(),
+                entityId = entityId,
                 entityKey = entityRecord.key,
                 entityLabel = entityLabelFromRecord(entityRecord),
                 relationshipId = null,
@@ -138,13 +142,16 @@ internal class ModelStorageDbSearchWrite(
                 attributeLabel = null,
                 searchText = buildSearchText(entityRecord.key, entityRecord.name, entityRecord.description)
             ),
-            loadTagIds(EntityTagTable, EntityTagTable.entityId, entityId.asString(), EntityTagTable.tagId)
+            EntityTagTable
+                .select(EntityTagTable.tagId)
+                .where { EntityTagTable.entityId eq entityId }
+                .map { it[EntityTagTable.tagId] }
         )
     }
 
     private fun upsertEntityAttributeSearchItemRow(attributeId: AttributeId) {
         val row = EntityAttributeTable.selectAll()
-            .where { EntityAttributeTable.id eq attributeId.asString() }
+            .where { EntityAttributeTable.id eq attributeId }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
@@ -172,23 +179,21 @@ internal class ModelStorageDbSearchWrite(
                 relationshipId = null,
                 relationshipKey = null,
                 relationshipLabel = null,
-                attributeId = attributeId.asString(),
+                attributeId = attributeId,
                 attributeKey = attributeRecord.key,
                 attributeLabel = entityAttributeLabelFromRecord(attributeRecord),
                 searchText = buildSearchText(attributeRecord.key, attributeRecord.name, attributeRecord.description)
             ),
-            loadTagIds(
-                EntityAttributeTagTable,
-                EntityAttributeTagTable.attributeId,
-                attributeId.asString(),
-                EntityAttributeTagTable.tagId
-            )
+            EntityAttributeTagTable
+                .select(EntityAttributeTagTable.tagId)
+                .where { EntityAttributeTagTable.attributeId eq attributeId }
+                .map{ it[EntityAttributeTagTable.tagId] }
         )
     }
 
     private fun upsertRelationshipSearchItemRow(relationshipId: RelationshipId) {
         val row = RelationshipTable.selectAll()
-            .where { RelationshipTable.id eq relationshipId.asString() }
+            .where { RelationshipTable.id eq relationshipId }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForRelationship(relationshipId))
@@ -207,7 +212,7 @@ internal class ModelStorageDbSearchWrite(
                 entityId = null,
                 entityKey = null,
                 entityLabel = null,
-                relationshipId = relationshipId.asString(),
+                relationshipId = relationshipId,
                 relationshipKey = relationshipRecord.key,
                 relationshipLabel = relationshipLabelFromRecord(relationshipRecord),
                 attributeId = null,
@@ -219,18 +224,16 @@ internal class ModelStorageDbSearchWrite(
                     relationshipRecord.description
                 )
             ),
-            loadTagIds(
-                RelationshipTagTable,
-                RelationshipTagTable.relationshipId,
-                relationshipId.asString(),
-                RelationshipTagTable.tagId
-            )
+            RelationshipTagTable
+                .select(RelationshipTagTable.tagId)
+                .where { RelationshipTagTable.relationshipId eq relationshipId }
+                .map { it[RelationshipTagTable.tagId] }
         )
     }
 
     private fun upsertRelationshipAttributeSearchItemRow(attributeId: AttributeId) {
         val row = RelationshipAttributeTable.selectAll()
-            .where { RelationshipAttributeTable.id eq attributeId.asString() }
+            .where { RelationshipAttributeTable.id eq attributeId }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
@@ -258,21 +261,19 @@ internal class ModelStorageDbSearchWrite(
                 relationshipId = attributeRecord.relationshipId,
                 relationshipKey = relationshipRecord.key,
                 relationshipLabel = relationshipLabelFromRecord(relationshipRecord),
-                attributeId = attributeId.asString(),
+                attributeId = attributeId,
                 attributeKey = attributeRecord.key,
                 attributeLabel = relationshipAttributeLabelFromRecord(attributeRecord),
                 searchText = buildSearchText(attributeRecord.key, attributeRecord.name, attributeRecord.description)
             ),
-            loadTagIds(
-                RelationshipAttributeTagTable,
-                RelationshipAttributeTagTable.attributeId,
-                attributeId.asString(),
-                RelationshipAttributeTagTable.tagId
-            )
+            RelationshipAttributeTagTable
+                .select(RelationshipAttributeTagTable.tagId)
+                .where { RelationshipAttributeTagTable.attributeId eq attributeId }
+                .map { it[RelationshipAttributeTagTable.tagId] }
         )
     }
 
-    private fun replaceSearchItem(item: DenormModelSearchItemRecord, tagIds: List<String>) {
+    private fun replaceSearchItem(item: DenormModelSearchItemRecord, tagIds: List<TagId>) {
         deleteSearchItemById(item.id)
         DenormModelSearchItemTable.insert { row ->
             row[id] = item.id
@@ -303,7 +304,7 @@ internal class ModelStorageDbSearchWrite(
     private fun deleteRowsByModelId(modelId: ModelId) {
         DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
-            .where { DenormModelSearchItemTable.modelId eq modelId.asString() }
+            .where { DenormModelSearchItemTable.modelId eq modelId }
             .map { it[DenormModelSearchItemTable.id] }
             .forEach { deleteSearchItemById(it) }
     }
@@ -312,9 +313,9 @@ internal class ModelStorageDbSearchWrite(
         DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
             .where {
-                (DenormModelSearchItemTable.entityId eq entityId.asString()) or
+                (DenormModelSearchItemTable.entityId eq entityId) or
                         ((DenormModelSearchItemTable.itemType eq SearchItemType.ENTITY_ATTRIBUTE.code) and
-                                (DenormModelSearchItemTable.entityId eq entityId.asString()))
+                                (DenormModelSearchItemTable.entityId eq entityId))
             }
             .map { it[DenormModelSearchItemTable.id] }
             .forEach { deleteSearchItemById(it) }
@@ -324,9 +325,9 @@ internal class ModelStorageDbSearchWrite(
         DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
             .where {
-                (DenormModelSearchItemTable.relationshipId eq relationshipId.asString()) or
+                (DenormModelSearchItemTable.relationshipId eq relationshipId) or
                         ((DenormModelSearchItemTable.itemType eq SearchItemType.RELATIONSHIP_ATTRIBUTE.code) and
-                                (DenormModelSearchItemTable.relationshipId eq relationshipId.asString()))
+                                (DenormModelSearchItemTable.relationshipId eq relationshipId))
             }
             .map { it[DenormModelSearchItemTable.id] }
             .forEach { deleteSearchItemById(it) }
@@ -365,22 +366,11 @@ internal class ModelStorageDbSearchWrite(
         return record.name ?: record.key
     }
 
-    private fun loadModelRecord(modelId: String): ModelRecord {
+    private fun loadModelRecord(modelId: ModelId): ModelRecord {
         val row = ModelTable.selectAll()
             .where { ModelTable.id eq modelId }
             .single()
         return ModelRecord.read(row)
-    }
-
-    private fun <T : Table> loadTagIds(
-        table: T,
-        ownerColumn: Column<String>,
-        ownerId: String,
-        tagColumn: Column<String>
-    ): List<String> {
-        return table.select(tagColumn)
-            .where { ownerColumn eq ownerId }
-            .map { it[tagColumn] }
     }
 
     private fun searchItemIdForModel(modelId: ModelId): String {

@@ -1,11 +1,13 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.TypeId
 import io.medatarun.model.infra.db.tables.ModelTypeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelTypeRecord(
-    val id: String,
-    val modelId: String,
+    val id: TypeId,
+    val modelId: ModelId,
     val key: String,
     val name: String?,
     val description: String?

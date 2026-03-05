@@ -1,19 +1,6 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.DomainLocation
-import io.medatarun.model.domain.EntityAttributeLocation
-import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityLocation
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelLocation
-import io.medatarun.model.domain.RelationshipAttributeLocation
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipLocation
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.ModelStorageDbSearchMissingProjectionReferenceException
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import org.jetbrains.exposed.v1.core.Column
@@ -22,16 +9,16 @@ import org.jetbrains.exposed.v1.core.ResultRow
 data class DenormModelSearchItemRecord(
     val id: String,
     val itemType: SearchItemType,
-    val modelId: String,
+    val modelId: ModelId,
     val modelKey: String,
     val modelLabel: String,
-    val entityId: String?,
+    val entityId: EntityId?,
     val entityKey: String?,
     val entityLabel: String?,
-    val relationshipId: String?,
+    val relationshipId: RelationshipId?,
     val relationshipKey: String?,
     val relationshipLabel: String?,
-    val attributeId: String?,
+    val attributeId: AttributeId?,
     val attributeKey: String?,
     val attributeLabel: String?,
     val searchText: String
@@ -41,7 +28,7 @@ data class DenormModelSearchItemRecord(
         return when (itemType) {
             SearchItemType.MODEL -> {
                 ModelLocation(
-                    id = ModelId.fromString(modelId),
+                    id = modelId,
                     key = ModelKey(modelKey),
                     label = modelLabel
                 )
@@ -50,7 +37,7 @@ data class DenormModelSearchItemRecord(
             SearchItemType.ENTITY -> {
                 EntityLocation(
                     model = modelLocationFromRecord(this),
-                    id = EntityId.fromString(requiredValue(entityId, DenormModelSearchItemTable.entityId)),
+                    id = requiredValue(entityId, DenormModelSearchItemTable.entityId),
                     key = EntityKey(requiredValue(entityKey, DenormModelSearchItemTable.entityKey)),
                     label = requiredValue(entityLabel, DenormModelSearchItemTable.entityLabel)
                 )
@@ -60,11 +47,11 @@ data class DenormModelSearchItemRecord(
                 EntityAttributeLocation(
                     entity = EntityLocation(
                         model = modelLocationFromRecord(this),
-                        id = EntityId.fromString(requiredValue(entityId, DenormModelSearchItemTable.entityId)),
+                        id = requiredValue(entityId, DenormModelSearchItemTable.entityId),
                         key = EntityKey(requiredValue(entityKey, DenormModelSearchItemTable.entityKey)),
                         label = requiredValue(entityLabel, DenormModelSearchItemTable.entityLabel)
                     ),
-                    id = AttributeId.fromString(requiredValue(attributeId, DenormModelSearchItemTable.attributeId)),
+                    id = requiredValue(attributeId, DenormModelSearchItemTable.attributeId),
                     key = AttributeKey(requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey)),
                     label = requiredValue(attributeLabel, DenormModelSearchItemTable.attributeLabel)
                 )
@@ -73,7 +60,7 @@ data class DenormModelSearchItemRecord(
             SearchItemType.RELATIONSHIP -> {
                 RelationshipLocation(
                     model = modelLocationFromRecord(this),
-                    id = RelationshipId.fromString(requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId)),
+                    id = requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId),
                     key = RelationshipKey(requiredValue(relationshipKey, DenormModelSearchItemTable.relationshipKey)),
                     label = requiredValue(relationshipLabel, DenormModelSearchItemTable.relationshipLabel)
                 )
@@ -83,11 +70,16 @@ data class DenormModelSearchItemRecord(
                 RelationshipAttributeLocation(
                     relationship = RelationshipLocation(
                         model = modelLocationFromRecord(this),
-                        id = RelationshipId.fromString(requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId)),
-                        key = RelationshipKey(requiredValue(relationshipKey, DenormModelSearchItemTable.relationshipKey)),
+                        id = requiredValue(relationshipId, DenormModelSearchItemTable.relationshipId),
+                        key = RelationshipKey(
+                            requiredValue(
+                                relationshipKey,
+                                DenormModelSearchItemTable.relationshipKey
+                            )
+                        ),
                         label = requiredValue(relationshipLabel, DenormModelSearchItemTable.relationshipLabel)
                     ),
-                    id = AttributeId.fromString(requiredValue(attributeId, DenormModelSearchItemTable.attributeId)),
+                    id = requiredValue(attributeId, DenormModelSearchItemTable.attributeId),
                     key = AttributeKey(requiredValue(attributeKey, DenormModelSearchItemTable.attributeKey)),
                     label = requiredValue(attributeLabel, DenormModelSearchItemTable.attributeLabel)
                 )
@@ -97,6 +89,7 @@ data class DenormModelSearchItemRecord(
         }
 
     }
+
     companion object {
         fun read(row: ResultRow): DenormModelSearchItemRecord {
             return DenormModelSearchItemRecord(
@@ -117,15 +110,16 @@ data class DenormModelSearchItemRecord(
                 searchText = row[DenormModelSearchItemTable.searchText]
             )
         }
+
         private fun modelLocationFromRecord(item: DenormModelSearchItemRecord): ModelLocation {
             return ModelLocation(
-                id = ModelId.fromString(item.modelId),
+                id = item.modelId,
                 key = ModelKey(item.modelKey),
                 label = item.modelLabel
             )
         }
 
-        private fun requiredValue(value: String?, columnName: Column<String?>): String {
+        private fun <T> requiredValue(value: T?, columnName: Column<T?>): T {
             return value ?: throw ModelStorageDbSearchMissingProjectionReferenceException(columnName.name)
         }
 

@@ -1,15 +1,18 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.AttributeId
+import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.TypeId
 import io.medatarun.model.infra.db.tables.EntityAttributeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class EntityAttributeRecord(
-    val id: String,
-    val entityId: String,
+    val id: AttributeId,
+    val entityId: EntityId,
     val key: String,
     val name: String?,
     val description: String?,
-    val typeId: String,
+    val typeId: TypeId,
     val optional: Boolean
 ) {
     companion object {
