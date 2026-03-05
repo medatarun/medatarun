@@ -1,5 +1,7 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.db.tables.ModelTable
@@ -8,8 +10,8 @@ import org.jetbrains.exposed.v1.core.ResultRow
 data class ModelRecord(
     val id: ModelId,
     val key: ModelKey,
-    val name: String?,
-    val description: String?,
+    val name: LocalizedText?,
+    val description: LocalizedMarkdown?,
     val version: String,
     val origin: String?,
     val documentationHome: String?

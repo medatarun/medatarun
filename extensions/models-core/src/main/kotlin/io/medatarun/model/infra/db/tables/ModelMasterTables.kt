@@ -7,8 +7,8 @@ import org.jetbrains.exposed.v1.core.Table
 object ModelTable : Table("model") {
     val id = text("id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::ModelKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val version = text("version")
     val origin = text("origin").nullable()
     val documentationHome = text("documentation_home").nullable()
@@ -25,8 +25,8 @@ object ModelTypeTable : Table("model_type") {
     val id = text("id").transform(IdTransformer(::TypeId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::TypeKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -35,8 +35,8 @@ object EntityTable : Table("entity") {
     val id = text("id").transform(IdTransformer(::EntityId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::EntityKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val identifierAttributeId = text("identifier_attribute_id").transform(IdTransformer(::AttributeId))
     val origin = text("origin").nullable()
     val documentationHome = text("documentation_home").nullable()
@@ -53,8 +53,8 @@ object EntityAttributeTable : Table("entity_attribute") {
     val id = text("id").transform(IdTransformer(::AttributeId))
     val entityId = text("entity_id").transform(IdTransformer(::EntityId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val typeId = text("type_id").transform(IdTransformer(::TypeId))
     val optional = bool("optional")
 
@@ -70,8 +70,8 @@ object RelationshipTable : Table("relationship") {
     val id = text("id").transform(IdTransformer(::RelationshipId))
     val modelId = text("model_id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::RelationshipKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -85,7 +85,7 @@ object RelationshipRoleTable : Table("relationship_role") {
     val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
     val key = text("key").transform(KeyTransformer(::RelationshipRoleKey))
     val entityId = text("entity_id").transform(IdTransformer(::EntityId))
-    val name = text("name").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val cardinality = text("cardinality")
     override val primaryKey = PrimaryKey(id)
 }
@@ -99,8 +99,8 @@ object RelationshipAttributeTable : Table("relationship_attribute") {
     val id = text("id").transform(IdTransformer(::AttributeId))
     val relationshipId = text("relationship_id").transform(IdTransformer(::RelationshipId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val typeId = text("type_id").transform(IdTransformer(::TypeId))
     val optional = bool("optional")
 

@@ -417,6 +417,33 @@ class ModelStorageDb(
         db.withExposed {
             insertModel(model.model)
             insertModelTags(model.id, model.tags)
+            for (entity in model.entities) {
+                insertEntity(
+                    EntityRecord(
+                        id = entity.id,
+                        modelId = model.id,
+                        key = entity.key,
+                        name = entity.name,
+                        description = entity.description,
+                        identifierAttributeId = entity.identifierAttributeId,
+                        origin = entityOriginToString(entity.origin),
+                        documentationHome = entity.documentationHome?.toExternalForm(),
+                    )
+                )
+                for (attr in model.attributes.filter { it.ownedBy(entity.id) }) {
+                    insertEntityAttribute(
+                        EntityAttributeRecord(
+                            id = attr.id,
+                            entityId = entity.id,
+                            key = attr.key,
+                            name = attr.name,
+                            description = attr.description,
+                            typeId = attr.typeId,
+                            optional = attr.optional
+                        )
+                    )
+                }
+            }
             searchWrite.upsertModelSearchItem(inMemoryModel.id)
         }
     }
@@ -431,7 +458,7 @@ class ModelStorageDb(
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
         db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-                row[ModelTable.name] = localizedTextToString(name)
+                row[ModelTable.name] = name
             }
             searchWrite.upsertModelSearchItem(modelId)
         }
@@ -440,7 +467,7 @@ class ModelStorageDb(
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
         db.withExposed {
             ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-                row[ModelTable.description] = localizedMarkdownToString(description)
+                row[ModelTable.description] = description
             }
             searchWrite.upsertModelSearchItem(modelId)
         }
@@ -492,8 +519,8 @@ class ModelStorageDb(
                 row[ModelTypeTable.id] = TypeId.generate()
                 row[ModelTypeTable.modelId] = modelId
                 row[ModelTypeTable.key] = initializer.key
-                row[ModelTypeTable.name] = localizedTextToString(initializer.name)
-                row[ModelTypeTable.description] = localizedMarkdownToString(initializer.description)
+                row[ModelTypeTable.name] = initializer.name
+                row[ModelTypeTable.description] = initializer.description
             }
         }
     }
@@ -515,7 +542,7 @@ class ModelStorageDb(
                 where = {
                     (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
                 }) { row ->
-                row[ModelTypeTable.name] = localizedTextToString(value)
+                row[ModelTypeTable.name] = value
             }
         }
     }
@@ -526,7 +553,7 @@ class ModelStorageDb(
                 where = {
                     (ModelTypeTable.id eq typeId) and (ModelTypeTable.modelId eq modelId)
                 }) { row ->
-                row[ModelTypeTable.description] = localizedMarkdownToString(value)
+                row[ModelTypeTable.description] = value
             }
         }
     }
@@ -563,7 +590,7 @@ class ModelStorageDb(
                 where = {
                     (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
-                row[EntityTable.name] = localizedTextToString(value)
+                row[EntityTable.name] = value
             }
             searchWrite.upsertEntitySearchItem(entityId)
         }
@@ -575,7 +602,7 @@ class ModelStorageDb(
                 where = {
                     (EntityTable.id eq entityId) and (EntityTable.modelId eq modelId)
                 }) { row ->
-                row[EntityTable.description] = localizedMarkdownToString(value)
+                row[EntityTable.description] = value
             }
             searchWrite.upsertEntitySearchItem(entityId)
         }
@@ -639,13 +666,15 @@ class ModelStorageDb(
     private fun createEntityAttribute(cmd: ModelRepoCmd.CreateEntityAttribute) {
         db.withExposed {
             insertEntityAttribute(
-                attributeId = cmd.attributeId,
-                entityId = cmd.entityId,
-                key = cmd.key,
-                name = cmd.name,
-                description = cmd.description,
-                typeId = cmd.typeId,
-                optional = cmd.optional
+                EntityAttributeRecord(
+                    id = cmd.attributeId,
+                    entityId = cmd.entityId,
+                    key = cmd.key,
+                    name = cmd.name,
+                    description = cmd.description,
+                    typeId = cmd.typeId,
+                    optional = cmd.optional
+                )
             )
         }
     }
@@ -668,7 +697,7 @@ class ModelStorageDb(
                 where = {
                     (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
-                row[EntityAttributeTable.name] = localizedTextToString(value)
+                row[EntityAttributeTable.name] = value
             }
             searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
@@ -682,7 +711,7 @@ class ModelStorageDb(
                 where = {
                     (EntityAttributeTable.id eq attributeId) and (EntityAttributeTable.entityId eq entityId)
                 }) { row ->
-                row[EntityAttributeTable.description] = localizedMarkdownToString(value)
+                row[EntityAttributeTable.description] = value
             }
             searchWrite.upsertEntityAttributeSearchItem(attributeId)
         }
@@ -747,8 +776,8 @@ class ModelStorageDb(
         ModelTable.insert { row ->
             row[ModelTable.id] = model.id
             row[ModelTable.key] = model.key
-            row[ModelTable.name] = localizedTextToString(model.name)
-            row[ModelTable.description] = localizedMarkdownToString(model.description)
+            row[ModelTable.name] = model.name
+            row[ModelTable.description] = model.description
             row[ModelTable.version] = model.version.value
             row[ModelTable.origin] = modelOriginToString(model.origin)
             row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
@@ -765,49 +794,62 @@ class ModelStorageDb(
     }
 
     private fun insertEntity(cmd: ModelRepoCmd.CreateEntity) {
-        EntityTable.insert { row ->
-            row[EntityTable.id] = cmd.entityId
-            row[EntityTable.modelId] = cmd.modelId
-            row[EntityTable.key] = cmd.key
-            row[EntityTable.name] = localizedTextToString(cmd.name)
-            row[EntityTable.description] = localizedMarkdownToString(cmd.description)
-            row[EntityTable.identifierAttributeId] = cmd.identityAttributeId
-            row[EntityTable.origin] = entityOriginToString(cmd.origin)
-            row[EntityTable.documentationHome] = cmd.documentationHome?.toExternalForm()
-        }
+
+        val record = EntityRecord(
+            id = cmd.entityId,
+            modelId = cmd.modelId,
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description,
+            identifierAttributeId = cmd.identityAttributeId,
+            origin = entityOriginToString(cmd.origin),
+            documentationHome = cmd.documentationHome?.toExternalForm()
+        )
+
+        insertEntity(record)
 
         insertEntityAttribute(
-            attributeId = cmd.identityAttributeId,
-            entityId = cmd.entityId,
-            key = cmd.identityAttributeKey,
-            name = cmd.identityAttributeName,
-            description = cmd.identityAttributeDescription,
-            typeId = cmd.identityAttributeTypeId,
-            optional = cmd.identityAttributeIdOptional
+            EntityAttributeRecord(
+                id = cmd.identityAttributeId,
+                entityId = cmd.entityId,
+                key = cmd.identityAttributeKey,
+                name = cmd.identityAttributeName,
+                description = cmd.identityAttributeDescription,
+                typeId = cmd.identityAttributeTypeId,
+                optional = cmd.identityAttributeIdOptional
+            )
         )
 
         searchWrite.upsertEntitySearchItem(cmd.entityId)
     }
 
+    private fun insertEntity(record: EntityRecord) {
+        EntityTable.insert { row ->
+            row[EntityTable.id] = record.id
+            row[EntityTable.modelId] = record.modelId
+            row[EntityTable.key] = record.key
+            row[EntityTable.name] = record.name
+            row[EntityTable.description] = record.description
+            row[EntityTable.identifierAttributeId] = record.identifierAttributeId
+            row[EntityTable.origin] = record.origin
+            row[EntityTable.documentationHome] = record.documentationHome
+        }
+    }
+
     private fun insertEntityAttribute(
-        attributeId: AttributeId,
-        entityId: EntityId,
-        key: AttributeKey,
-        name: LocalizedText?,
-        description: LocalizedMarkdown?,
-        typeId: TypeId,
-        optional: Boolean
+        record: EntityAttributeRecord
+
     ) {
         EntityAttributeTable.insert { row ->
-            row[EntityAttributeTable.id] = attributeId
-            row[EntityAttributeTable.entityId] = entityId
-            row[EntityAttributeTable.key] = key
-            row[EntityAttributeTable.name] = localizedTextToString(name)
-            row[EntityAttributeTable.description] = localizedMarkdownToString(description)
-            row[EntityAttributeTable.typeId] = typeId
-            row[EntityAttributeTable.optional] = optional
+            row[EntityAttributeTable.id] = record.id
+            row[EntityAttributeTable.entityId] = record.entityId
+            row[EntityAttributeTable.key] = record.key
+            row[EntityAttributeTable.name] = record.name
+            row[EntityAttributeTable.description] = record.description
+            row[EntityAttributeTable.typeId] = record.typeId
+            row[EntityAttributeTable.optional] = record.optional
         }
-        searchWrite.upsertEntityAttributeSearchItem(attributeId)
+        searchWrite.upsertEntityAttributeSearchItem(record.id)
     }
 
     private fun createRelationship(cmd: ModelRepoCmd.CreateRelationship) {
@@ -828,7 +870,7 @@ class ModelStorageDb(
     private fun updateRelationshipName(relationshipId: RelationshipId, value: LocalizedText?) {
         db.withExposed {
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId }) { row ->
-                row[RelationshipTable.name] = localizedTextToString(value)
+                row[RelationshipTable.name] = value
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
@@ -837,7 +879,7 @@ class ModelStorageDb(
     private fun updateRelationshipDescription(relationshipId: RelationshipId, value: LocalizedMarkdown?) {
         db.withExposed {
             RelationshipTable.update(where = { RelationshipTable.id eq relationshipId }) { row ->
-                row[RelationshipTable.description] = localizedMarkdownToString(value)
+                row[RelationshipTable.description] = value
             }
             searchWrite.upsertRelationshipSearchItem(relationshipId)
         }
@@ -854,7 +896,7 @@ class ModelStorageDb(
     private fun updateRelationshipRoleName(relationshipRoleId: RelationshipRoleId, value: LocalizedText?) {
         db.withExposed {
             RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
-                row[RelationshipRoleTable.name] = localizedTextToString(value)
+                row[RelationshipRoleTable.name] = value
             }
         }
     }
@@ -946,7 +988,7 @@ class ModelStorageDb(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
-                row[RelationshipAttributeTable.name] = localizedTextToString(value)
+                row[RelationshipAttributeTable.name] = value
             }
             searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
@@ -960,7 +1002,7 @@ class ModelStorageDb(
                 where = {
                     (RelationshipAttributeTable.id eq attributeId) and (RelationshipAttributeTable.relationshipId eq relationshipId)
                 }) { row ->
-                row[RelationshipAttributeTable.description] = localizedMarkdownToString(value)
+                row[RelationshipAttributeTable.description] = value
             }
             searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
         }
@@ -1030,8 +1072,8 @@ class ModelStorageDb(
             row[RelationshipTable.id] = cmd.relationshipId
             row[RelationshipTable.modelId] = cmd.modelId
             row[RelationshipTable.key] = cmd.key
-            row[RelationshipTable.name] = localizedTextToString(cmd.name)
-            row[RelationshipTable.description] = localizedMarkdownToString(cmd.description)
+            row[RelationshipTable.name] = cmd.name
+            row[RelationshipTable.description] = cmd.description
         }
 
 
@@ -1042,7 +1084,7 @@ class ModelStorageDb(
                 row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
                 row[RelationshipRoleTable.key] = role.key
                 row[RelationshipRoleTable.entityId] = role.entityId
-                row[RelationshipRoleTable.name] = localizedTextToString(role.name)
+                row[RelationshipRoleTable.name] = role.name
                 row[RelationshipRoleTable.cardinality] = role.cardinality.code
             }
         }
@@ -1063,8 +1105,8 @@ class ModelStorageDb(
             row[RelationshipAttributeTable.id] = attributeId
             row[RelationshipAttributeTable.relationshipId] = relationshipId
             row[RelationshipAttributeTable.key] = key
-            row[RelationshipAttributeTable.name] = localizedTextToString(name)
-            row[RelationshipAttributeTable.description] = localizedMarkdownToString(description)
+            row[RelationshipAttributeTable.name] = name
+            row[RelationshipAttributeTable.description] = description
             row[RelationshipAttributeTable.typeId] = typeId
             row[RelationshipAttributeTable.optional] = optional
         }
@@ -1191,14 +1233,6 @@ class ModelStorageDb(
             .where { RelationshipAttributeTagTable.attributeId eq attributeId }
             .orderBy(RelationshipAttributeTagTable.tagId to SortOrder.ASC)
             .map { it[RelationshipAttributeTagTable.tagId] }
-    }
-
-    private fun localizedTextToString(value: LocalizedText?): String? {
-        return value?.name
-    }
-
-    private fun localizedMarkdownToString(value: LocalizedMarkdown?): String? {
-        return value?.name
     }
 
     private fun modelOriginToString(origin: ModelOrigin): String? {

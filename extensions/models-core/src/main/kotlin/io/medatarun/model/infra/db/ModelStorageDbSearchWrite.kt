@@ -2,6 +2,8 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.search.normalizeModelSearchText
@@ -343,28 +345,28 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    private fun buildSearchText(key: Key<*>, name: String?, description: String?): String {
+    private fun buildSearchText(key: Key<*>, name: LocalizedText?, description: LocalizedMarkdown?): String {
         return normalizeModelSearchText(listOfNotNull(key, name, description).joinToString(" "))
     }
 
     private fun modelLabelFromRecord(record: ModelRecord): String {
-        return record.name ?: record.key.value
+        return record.name?.name ?: record.key.value
     }
 
     private fun entityLabelFromRecord(record: EntityRecord): String {
-        return record.name ?: record.key.value
+        return record.name?.name ?: record.key.value
     }
 
     private fun entityAttributeLabelFromRecord(record: EntityAttributeRecord): String {
-        return record.name ?: record.key.value
+        return record.name?.name ?: record.key.value
     }
 
     private fun relationshipLabelFromRecord(record: RelationshipRecord): String {
-        return record.name ?: record.key.value
+        return record.name?.name ?: record.key.value
     }
 
     private fun relationshipAttributeLabelFromRecord(record: RelationshipAttributeRecord): String {
-        return record.name ?: record.key.value
+        return record.name?.name ?: record.key.value
     }
 
     private fun loadModelRecord(modelId: ModelId): ModelRecord {

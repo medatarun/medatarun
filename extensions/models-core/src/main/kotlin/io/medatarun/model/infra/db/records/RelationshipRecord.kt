@@ -1,5 +1,7 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipKey
@@ -10,8 +12,8 @@ data class RelationshipRecord(
     val id: RelationshipId,
     val modelId: ModelId,
     val key: RelationshipKey,
-    val name: String?,
-    val description: String?
+    val name: LocalizedText?,
+    val description: LocalizedMarkdown?
 ) {
     companion object {
         fun read(row: ResultRow): RelationshipRecord {

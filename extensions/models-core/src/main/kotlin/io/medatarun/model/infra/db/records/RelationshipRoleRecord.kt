@@ -1,6 +1,7 @@
 package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipRoleId
 import io.medatarun.model.domain.RelationshipRoleKey
@@ -12,7 +13,7 @@ data class RelationshipRoleRecord(
     val relationshipId: RelationshipId,
     val key: RelationshipRoleKey,
     val entityId: EntityId,
-    val name: String?,
+    val name: LocalizedText?,
     val cardinality: String
 ) {
     companion object {

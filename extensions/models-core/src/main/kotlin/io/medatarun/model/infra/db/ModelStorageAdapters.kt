@@ -13,8 +13,8 @@ object ModelStorageAdapters {
         return ModelInMemory(
             id = record.id,
             key = record.key,
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
+            name = record.name,
+            description = record.description,
             version = ModelVersion(record.version),
             origin = stringToModelOrigin(record.origin),
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
@@ -24,8 +24,8 @@ object ModelStorageAdapters {
     fun toType(record: ModelTypeRecord): ModelTypeInMemory = ModelTypeInMemory(
         id = record.id,
         key = record.key,
-        name = stringToLocalizedText(record.name),
-        description = stringToLocalizedMarkdown(record.description)
+        name = record.name,
+        description = record.description
     )
 
     fun toEntity(record: EntityRecord, tags: List<TagId>): EntityInMemory {
@@ -35,8 +35,8 @@ object ModelStorageAdapters {
         return EntityInMemory(
             id = entityId,
             key = record.key,
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
+            name = record.name,
+            description = record.description,
             identifierAttributeId = identifierAttributeIdString,
             origin = stringToEntityOrigin(record.origin),
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
@@ -48,8 +48,8 @@ object ModelStorageAdapters {
         return AttributeInMemory(
             id = record.id,
             key = record.key,
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
+            name = record.name,
+            description = record.description,
             typeId = record.typeId,
             optional = record.optional,
             tags = tags,
@@ -65,8 +65,8 @@ object ModelStorageAdapters {
         return RelationshipInMemory(
             id = record.id,
             key = record.key,
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
+            name = record.name,
+            description = record.description,
             roles = roles.map { toRelationshipRole(it) },
             tags = tags
         )
@@ -79,7 +79,7 @@ object ModelStorageAdapters {
             id = record.id,
             key = record.key,
             entityId = record.entityId,
-            name = stringToLocalizedText(record.name),
+            name = record.name,
             cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
         )
     }
@@ -91,8 +91,8 @@ object ModelStorageAdapters {
         return AttributeInMemory(
             id = record.id,
             key = record.key,
-            name = stringToLocalizedText(record.name),
-            description = stringToLocalizedMarkdown(record.description),
+            name = record.name,
+            description = record.description,
             typeId = record.typeId,
             optional = record.optional,
             tags = tags,
@@ -109,13 +109,6 @@ object ModelStorageAdapters {
         return if (origin == null) EntityOrigin.Manual else EntityOrigin.Uri(URI(origin))
     }
 
-    private fun stringToLocalizedText(value: String?): LocalizedText? {
-        return if (value == null) null else LocalizedTextNotLocalized(value)
-    }
-
-    private fun stringToLocalizedMarkdown(value: String?): LocalizedMarkdown? {
-        return if (value == null) null else LocalizedMarkdownNotLocalized(value)
-    }
 
 
 }
