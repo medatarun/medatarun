@@ -394,7 +394,7 @@ class ModelStorageDb(
     }
 
     private fun storeModelAggregate(model: ModelAggregate) {
-        // TODO finish this
+
         val inMemoryModel = ModelInMemory.of(model)
 
         insertModel(model.model)
