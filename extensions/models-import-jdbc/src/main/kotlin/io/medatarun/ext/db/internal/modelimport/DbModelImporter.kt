@@ -16,6 +16,7 @@ import io.medatarun.platform.kernel.ResourceLocator
 import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
+import kotlin.collections.flatten
 
 class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
     ModelImporter {
@@ -84,10 +85,12 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             .firstOrNull { it.key == EntityKey(tableName) }
             ?: throw DbImportCouldNotFindEntityForRelationship(tableName)
 
-        val relationships = result.tables.map { table ->
-            table.foreignKeys.map { fk ->
-                val idStr =
-                    fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
+        val relationships = mutableListOf<RelationshipInMemory>()
+
+        var duplicateCount = 0
+        for (table in result.tables) {
+            for (fk in table.foreignKeys) {
+                val key = fk.fkName ?: "${fk.pkTableName}.${fk.pkColumnName}__${fk.fkTableName}.${fk.fkColumnName}"
                 val roles = listOf(
                     RelationshipRoleInMemory(
                         id = RelationshipRoleId.generate(),
@@ -108,16 +111,20 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                         name = null
                     ),
                 )
-                RelationshipInMemory(
+                val fkKeySafe = if (relationships.any { it.key.value == key }) {
+                        key + "_" + (duplicateCount++)
+                } else key
+                relationships.add(RelationshipInMemory(
                     id = RelationshipId.generate(),
-                    key = RelationshipKey(idStr),
+                    key = RelationshipKey(fkKeySafe),
                     name = null,
                     description = null,
                     roles = roles,
                     tags = emptyList(),
-                )
+                ))
             }
         }
+
         val model = ModelAggregateInMemory(
             model = ModelInMemory(
                 id = ModelId.generate(),
@@ -130,7 +137,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             ),
             types = types,
             entities = entities,
-            relationships = relationships.flatten(),
+            relationships = relationships,
             tags = emptyList(),
             attributes = attributesCollector
         )

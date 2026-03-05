@@ -20,63 +20,74 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 internal class ModelStorageDbSearchWrite(
-    private val dbConnectionFactory: DbConnectionFactory
+    private val dbConnectionFactory: DbConnectionFactory,
+    private val enabled: Boolean = true
 ) {
     fun upsertModelSearchItem(modelId: ModelId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             upsertModelSearchItemRow(modelId)
         }
     }
 
     fun deleteModelBranch(modelId: ModelId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             deleteRowsByModelId(modelId)
         }
     }
 
     fun upsertEntitySearchItem(entityId: EntityId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             upsertEntitySearchItemRow(entityId)
         }
     }
 
     fun deleteEntityBranch(entityId: EntityId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             deleteRowsByEntityId(entityId)
         }
     }
 
     fun upsertEntityAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             upsertEntityAttributeSearchItemRow(attributeId)
         }
     }
 
     fun deleteEntityAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
         }
     }
 
     fun upsertRelationshipSearchItem(relationshipId: RelationshipId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             upsertRelationshipSearchItemRow(relationshipId)
         }
     }
 
     fun deleteRelationshipBranch(relationshipId: RelationshipId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             deleteRowsByRelationshipId(relationshipId)
         }
     }
 
     fun upsertRelationshipAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             upsertRelationshipAttributeSearchItemRow(attributeId)
         }
     }
 
     fun deleteRelationshipAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
         dbConnectionFactory.withExposed {
             deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
         }

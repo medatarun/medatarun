@@ -21,6 +21,8 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class ModelStorageDb(
     private val db: DbConnectionFactory
@@ -394,6 +396,8 @@ class ModelStorageDb(
     }
 
     private fun storeModelAggregate(model: ModelAggregate) {
+
+        logger.warn("Storing full aggregate {}", model)
 
         val inMemoryModel = ModelInMemory.of(model)
 
@@ -1235,6 +1239,10 @@ class ModelStorageDb(
             (RelationshipAttributeTagTable.attributeId eq attributeId) and (RelationshipAttributeTagTable.tagId eq tagId)
         }
         searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
+    }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(ModelStorageDb::class.java)
     }
 
 

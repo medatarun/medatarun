@@ -88,7 +88,7 @@ class ActionInvoker(
         } catch (e: MedatarunException) {
             if (e.httpStatusCode.httpStatusCode < StatusCode.INTERNAL_SERVER_ERROR.httpStatusCode) {
                 throw ActionInvocationException(
-                    HttpStatusCode.InternalServerError,
+                    HttpStatusCode(e.httpStatusCode.httpStatusCode, e.httpStatusCode.name),
                     e.msg
                 )
             } else {

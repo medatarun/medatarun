@@ -113,7 +113,7 @@ class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef,
     MedatarunException("Can not delete attribute [${attributeRef.asString()}] in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
 
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
-    MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message })
+    MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message }, StatusCode.UNPROCESSABLE_CONTENT)
 
 
 class RelationshipDuplicateIdException(modelId: ModelId, relationshipKey: RelationshipKey) :
