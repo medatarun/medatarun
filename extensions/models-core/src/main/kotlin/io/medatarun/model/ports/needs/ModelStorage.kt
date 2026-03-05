@@ -1,10 +1,14 @@
 package io.medatarun.model.ports.needs
 
+import io.medatarun.model.domain.Attribute
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.Model
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelType
+import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.TypeId
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.search.SearchResults
@@ -33,6 +37,9 @@ interface ModelStorage {
     fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType?
 
     fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?
+
+    fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute?
+    fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?
 
     fun search(query: ModelStorageSearchQuery): SearchResults
 

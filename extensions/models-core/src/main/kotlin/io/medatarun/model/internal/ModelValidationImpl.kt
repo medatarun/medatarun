@@ -15,11 +15,13 @@ class ModelValidationImpl : ModelValidation {
     private fun ensureEachAttributeHasKnownType(model: ModelAggregate): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
         // each attribute must have a known type
-        model.entities.forEach { e ->
-            e.attributes.forEach { attr ->
-                if (model.findTypeOptional(attr.typeId) == null) {
-                    errors.add(ModelValidationErrorTypeNotFound(model.key, e.key, attr.key, attr.typeId))
+        model.attributes.forEach { attr ->
+            if (model.findTypeOptional(attr.typeId) == null) {
+                val key = when(val ownerId = attr.ownerId) {
+                    is AttributeOwnerId.OwnerEntityId -> model.findEntity(ownerId.id).key
+                    is AttributeOwnerId.OwnerRelationshipId -> model.findRelationship(ownerId.id).key
                 }
+                errors.add(ModelValidationErrorTypeNotFound(model.key, key, attr.key, attr.typeId))
             }
         }
         return errors
@@ -30,9 +32,8 @@ class ModelValidationImpl : ModelValidation {
      */
     private fun ensureIdentityAttributeExists(model: ModelAggregate): List<ModelValidationError> {
         val errors = mutableListOf<ModelValidationError>()
-
         model.entities.forEach { e ->
-            if (e.attributes.none { it.id == e.identifierAttributeId }) {
+            if (model.findEntityAttributeOptional(e.ref, e.identifierAttributeId) == null) {
                 errors.add(ModelValidationErrorInvalidIdentityAttribute(model.key, e.key, e.identifierAttributeId))
             }
         }

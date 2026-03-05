@@ -28,22 +28,26 @@ class ModelValidationTest {
             )
             val goodAttributeId = AttributeId.generate()
             val badAttributeId = AttributeId.generate()
-            addEntity(
+            val e = addEntity(
                 key = EntityKey("Contact"),
                 identifierAttributeId = badAttributeId
             ) {
-                addAttribute(
-                    AttributeInMemory(
-                        id = goodAttributeId,
-                        key = AttributeKey("id"),
-                        typeId = typeStringId,
-                        name = null,
-                        description = null,
-                        optional = false,
-                        tags = emptyList()
-                    )
-                )
+
             }
+            addAttribute(
+                AttributeInMemory(
+                    id = goodAttributeId,
+                    key = AttributeKey("id"),
+                    typeId = typeStringId,
+                    name = null,
+                    description = null,
+                    optional = false,
+                    tags = emptyList(),
+                    ownerId = AttributeOwnerId.OwnerEntityId(e.id)
+                )
+            )
+
+
         }
         val result = validation.validate(model)
         assertIs<ModelValidationState.Error>(result)
@@ -71,22 +75,24 @@ class ModelValidationTest {
                     description = null
                 )
             )
-            addEntity(
+            val contact = addEntity(
                 key = EntityKey("Contact"),
                 identifierAttributeId = identifierAttribute,
             ) {
-                addAttribute(
-                    AttributeInMemory(
-                        id = identifierAttribute,
-                        key = AttributeKey("id"),
-                        typeId = typeIdInvalid,
-                        name = null,
-                        description = null,
-                        optional = false,
-                        tags = emptyList()
-                    )
-                )
+
             }
+            addAttribute(
+                AttributeInMemory(
+                    id = identifierAttribute,
+                    key = AttributeKey("id"),
+                    typeId = typeIdInvalid,
+                    name = null,
+                    description = null,
+                    optional = false,
+                    tags = emptyList(),
+                    ownerId = AttributeOwnerId.OwnerEntityId(contact.id)
+                )
+            )
         }
 
         val result = validation.validate(model)

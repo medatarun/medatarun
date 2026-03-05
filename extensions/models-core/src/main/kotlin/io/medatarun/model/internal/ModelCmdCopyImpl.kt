@@ -22,6 +22,7 @@ class ModelCmdCopyImpl {
     fun copy(model: ModelAggregate, modelNewKey: ModelKey): ModelAggregate {
         val typeIds = IdConv("type") { TypeId.generate() }
         val entityIds = IdConv("entity") { EntityId.generate() }
+        val relationshipId = IdConv("relationship") { RelationshipId.generate() }
         val attributeIds = IdConv("attribute") { AttributeId.generate() }
 
         // Respect the order otherwise id conversion will fail!
@@ -30,27 +31,14 @@ class ModelCmdCopyImpl {
             ModelTypeInMemory.of(type).copy(id = typeIds.generate(type.id))
         }
         val newEntities = model.entities.map { entity ->
-            val entityAttributes = entity.attributes.map { attr ->
-                AttributeInMemory.of(attr).copy(
-                    id = attributeIds.generate(attr.id),
-                    typeId = typeIds.convert(attr.typeId),
-                )
-            }
             EntityInMemory.of(entity).copy(
                 id = entityIds.generate(entity.id),
                 identifierAttributeId = attributeIds.convert(entity.identifierAttributeId),
-                attributes = entityAttributes
             )
         }
         val newRelationships = model.relationships.map { rel ->
             RelationshipInMemory.of(rel).copy(
-                id = rel.id,
-                attributes = rel.attributes.map { attr ->
-                    AttributeInMemory.of(attr).copy(
-                        id = AttributeId.generate(),
-                        typeId = typeIds.convert(attr.typeId),
-                    )
-                },
+                id = relationshipId.generate(rel.id),
                 roles = rel.roles.map { role ->
                     RelationshipRoleInMemory.of(role).copy(
                         id = RelationshipRoleId.generate(),
@@ -59,6 +47,23 @@ class ModelCmdCopyImpl {
                 }
             )
         }
+
+        val attributes = model.attributes.map { attr ->
+            val ownerId = attr.ownerId
+            AttributeInMemory.of(attr).copy(
+                id = AttributeId.generate(),
+                typeId = typeIds.convert(attr.typeId),
+                ownerId = when (ownerId) {
+                    is AttributeOwnerId.OwnerEntityId -> AttributeOwnerId.OwnerEntityId(entityIds.convert(ownerId.id))
+                    is AttributeOwnerId.OwnerRelationshipId -> AttributeOwnerId.OwnerRelationshipId(
+                        relationshipId.convert(
+                            ownerId.id
+                        )
+                    )
+                }
+            )
+        }
+
         val next = ModelAggregateInMemory.of(model)
             .copy(
                 model = ModelInMemory.of(model).copy(
@@ -67,7 +72,8 @@ class ModelCmdCopyImpl {
                 ),
                 types = newTypes,
                 entities = newEntities,
-                relationships = newRelationships
+                relationships = newRelationships,
+                attributes = attributes
             )
         return next
     }

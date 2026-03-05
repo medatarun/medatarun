@@ -94,6 +94,42 @@ class ModelStorageDb(
         }
     }
 
+    override fun findEntityAttributeByKeyOptional(
+        modelId: ModelId,
+        entityId: EntityId,
+        key: AttributeKey
+    ): Attribute? {
+        return dbConnectionFactory.withExposed {
+            EntityAttributeTable.join(
+                EntityTable,
+                JoinType.INNER,
+                EntityAttributeTable.entityId,
+                EntityTable.id
+            ).selectAll()
+                .where { (EntityTable.modelId eq modelId.asString()) and (EntityAttributeTable.entityId eq entityId.asString()) and (EntityAttributeTable.key eq key.asString()) }
+                .singleOrNull()
+                ?.let { row -> entityAttributeFromRow(row) }
+        }
+    }
+
+    override fun findRelationshipAttributeByKeyOptional(
+        modelId: ModelId,
+        relationshipId: RelationshipId,
+        key: AttributeKey
+    ): Attribute? {
+        return dbConnectionFactory.withExposed {
+            RelationshipAttributeTable.join(
+                RelationshipTable,
+                JoinType.INNER,
+                RelationshipAttributeTable.relationshipId,
+                RelationshipTable.id
+            ).selectAll()
+                .where { (RelationshipTable.modelId eq modelId.asString()) and (RelationshipAttributeTable.relationshipId eq relationshipId.asString()) and (RelationshipAttributeTable.key eq key.asString()) }
+                .singleOrNull()
+                ?.let { row -> entityAttributeFromRow(row) }
+        }
+    }
+
     override fun isTypeUsedInEntityAttributes(
         modelId: ModelId,
         typeId: TypeId
@@ -568,15 +604,6 @@ class ModelStorageDb(
         searchWrite.upsertEntitySearchItem(cmd.entityId)
     }
 
-    private fun insertEntityTags(entityId: EntityId, tags: List<TagId>) {
-        for (tagId in tags) {
-            EntityTagTable.insert { row ->
-                row[EntityTagTable.entityId] = entityId.asString()
-                row[EntityTagTable.tagId] = tagId.asString()
-            }
-        }
-    }
-
     private fun insertEntityAttribute(
         attributeId: AttributeId,
         entityId: EntityId,
@@ -813,7 +840,7 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertRelationship(cmd:ModelRepoCmd.CreateRelationship) {
+    private fun insertRelationship(cmd: ModelRepoCmd.CreateRelationship) {
         RelationshipTable.insert { row ->
             row[RelationshipTable.id] = cmd.relationshipId.asString()
             row[RelationshipTable.modelId] = cmd.modelId.asString()
@@ -864,7 +891,10 @@ class ModelStorageDb(
         val modelId = ModelId.fromString(record.id)
         val types = loadTypes(modelId)
         val entities = loadEntities(modelId)
+        val entityAttributes = loadEntityAttributes(modelId)
         val relationships = loadRelationships(modelId)
+        val relationshipAttributes = loadRelationshipAttributes(modelId)
+
 
         return ModelAggregateInMemory(
             model = ModelInMemory(
@@ -875,7 +905,12 @@ class ModelStorageDb(
                 version = ModelVersion(record.version),
                 origin = stringToModelOrigin(record.origin),
                 documentationHome = record.documentationHome?.let { URI(it).toURL() },
-            ), types = types, entities = entities, relationships = relationships, tags = loadModelTags(modelId)
+            ),
+            types = types,
+            entities = entities,
+            relationships = relationships,
+            tags = loadModelTags(modelId),
+            attributes = entityAttributes + relationshipAttributes
         )
     }
 
@@ -909,19 +944,11 @@ class ModelStorageDb(
     )
 
     private fun loadEntities(modelId: ModelId): List<EntityInMemory> {
-        val attributeRows = EntityAttributeTable.selectAll().where {
-            EntityAttributeTable.entityId inSubQuery EntityTable.select(EntityTable.id)
-                .where { EntityTable.modelId eq modelId.asString() }
-        }.orderBy(EntityAttributeTable.key to SortOrder.ASC).toList()
-        val attributeRowsByEntityId = attributeRows.groupBy { it[EntityAttributeTable.entityId] }
 
         return EntityTable.selectAll().where { EntityTable.modelId eq modelId.asString() }
             .orderBy(EntityTable.key to SortOrder.ASC).map { row ->
                 val record = EntityRecord.read(row)
                 val entityId = EntityId.fromString(record.id)
-                val attributes = (attributeRowsByEntityId[entityId.asString()] ?: emptyList()).map { attrRow ->
-                    entityAttributeFromRow(attrRow)
-                }
                 val identifierAttributeIdString = record.identifierAttributeId
                     ?: throw ModelStorageDbInvalidIdentifierAttributeException(entityId.asString())
 
@@ -932,11 +959,32 @@ class ModelStorageDb(
                     description = stringToLocalizedMarkdown(record.description),
                     identifierAttributeId = AttributeId.fromString(identifierAttributeIdString),
                     origin = stringToEntityOrigin(record.origin),
-                    attributes = attributes,
                     documentationHome = record.documentationHome?.let { URI(it).toURL() },
                     tags = loadEntityTags(entityId)
                 )
             }
+    }
+
+    private fun loadEntityAttributes(modelId: ModelId): List<AttributeInMemory> {
+        return EntityAttributeTable.join(
+            EntityTable,
+            joinType = JoinType.INNER,
+            onColumn = EntityAttributeTable.entityId,
+            otherColumn = EntityTable.id
+        ).selectAll()
+            .where { EntityTable.modelId eq modelId.asString() }
+            .map { row -> entityAttributeFromRow(row) }
+    }
+
+    private fun loadRelationshipAttributes(modelId: ModelId): List<AttributeInMemory> {
+        return RelationshipTable.join(
+            RelationshipAttributeTable,
+            joinType = JoinType.INNER,
+            onColumn = RelationshipTable.id,
+            otherColumn = RelationshipAttributeTable.relationshipId
+        ).selectAll()
+            .where { RelationshipTable.modelId eq modelId.asString() }
+            .map { row -> relationshipAttributeFromRow(row) }
     }
 
     private fun loadRelationships(modelId: ModelId): List<RelationshipInMemory> {
@@ -947,11 +995,6 @@ class ModelStorageDb(
             RelationshipRoleTable.selectAll().where { RelationshipRoleTable.relationshipId inSubQuery relationshipIds }
                 .orderBy(RelationshipRoleTable.key to SortOrder.ASC).toList()
                 .groupBy { it[RelationshipRoleTable.relationshipId] }
-
-        val attributeRowsByRelationshipId = RelationshipAttributeTable.selectAll()
-            .where { RelationshipAttributeTable.relationshipId inSubQuery relationshipIds }
-            .orderBy(RelationshipAttributeTable.key to SortOrder.ASC).toList()
-            .groupBy { it[RelationshipAttributeTable.relationshipId] }
 
         return RelationshipTable.selectAll().where { RelationshipTable.modelId eq modelId.asString() }
             .orderBy(RelationshipTable.key to SortOrder.ASC).map { row ->
@@ -964,10 +1007,6 @@ class ModelStorageDb(
                     description = stringToLocalizedMarkdown(record.description),
                     roles = (roleRowsByRelationshipId[relationshipId.asString()] ?: emptyList()).map { roleRow ->
                         relationshipRoleFromRow(roleRow)
-                    },
-                    attributes = (attributeRowsByRelationshipId[relationshipId.asString()]
-                        ?: emptyList()).map { attrRow ->
-                        relationshipAttributeFromRow(attrRow)
                     },
                     tags = loadRelationshipTags(relationshipId)
                 )
@@ -984,7 +1023,8 @@ class ModelStorageDb(
             description = stringToLocalizedMarkdown(record.description),
             typeId = TypeId.fromString(record.typeId),
             optional = record.optional,
-            tags = loadEntityAttributeTags(attributeId)
+            tags = loadEntityAttributeTags(attributeId),
+            ownerId = AttributeOwnerId.OwnerEntityId(EntityId.fromString(record.entityId))
         )
     }
 
@@ -998,7 +1038,8 @@ class ModelStorageDb(
             description = stringToLocalizedMarkdown(record.description),
             typeId = TypeId.fromString(record.typeId),
             optional = record.optional,
-            tags = loadRelationshipAttributeTags(attributeId)
+            tags = loadRelationshipAttributeTags(attributeId),
+            ownerId = AttributeOwnerId.OwnerRelationshipId(RelationshipId.fromString(record.relationshipId))
         )
     }
 

@@ -8,6 +8,7 @@ import io.medatarun.tags.core.domain.TagId
  */
 data class AttributeInMemory(
     override val id: AttributeId,
+    override val ownerId: AttributeOwnerId,
     override val key: AttributeKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
@@ -26,6 +27,7 @@ data class AttributeInMemory(
                 typeId = other.typeId,
                 optional = other.optional,
                 tags = other.tags,
+                ownerId = other.ownerId
             )
         }
     }

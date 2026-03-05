@@ -12,6 +12,7 @@ data class ModelAggregateInMemory(
     override val model: ModelInMemory,
     override val types: List<ModelTypeInMemory>,
     override val entities: List<EntityInMemory>,
+    override val attributes: List<AttributeInMemory>,
     override val relationships: List<RelationshipInMemory>,
     override val tags: List<TagId>,
 ) : ModelAggregate, Model by model {
@@ -24,6 +25,7 @@ data class ModelAggregateInMemory(
                 entities = other.entities.map(EntityInMemory::of),
                 relationships = other.relationships.map(RelationshipInMemory::of),
                 tags = other.tags,
+                attributes = other.attributes.map(AttributeInMemory::of)
             )
         }
 
@@ -39,6 +41,7 @@ data class ModelAggregateInMemory(
             var relationships: MutableList<RelationshipInMemory> = mutableListOf(),
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),
+            var attributes: MutableList<AttributeInMemory> = mutableListOf()
         ) {
             fun build(): ModelAggregateInMemory {
                 return ModelAggregateInMemory(
@@ -54,6 +57,7 @@ data class ModelAggregateInMemory(
                     types = types,
                     entities = entities,
                     relationships = relationships,
+                    attributes = attributes,
                     tags = tags,
                 )
             }
@@ -66,6 +70,9 @@ data class ModelAggregateInMemory(
                 val e = EntityInMemory.builder(key, identifierAttributeId, block)
                 entities.add(e)
                 return e
+            }
+            fun addAttribute(attr: AttributeInMemory) {
+                this.attributes.add(attr)
             }
         }
 

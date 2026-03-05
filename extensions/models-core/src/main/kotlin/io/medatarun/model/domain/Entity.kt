@@ -28,11 +28,6 @@ interface Entity {
     val description: LocalizedMarkdown?
 
     /**
-     * Attributes contained in this [Entity]
-     */
-    val attributes: List<Attribute>
-
-    /**
      * Tells which attribute acts as entities' identifier
      */
     val identifierAttributeId: AttributeId

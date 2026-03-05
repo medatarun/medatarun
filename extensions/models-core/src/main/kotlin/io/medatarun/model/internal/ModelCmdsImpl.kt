@@ -138,16 +138,6 @@ class ModelCmdsImpl(
         return attr
     }
 
-    private fun findEntityAttributeOptional(
-        modelRef: ModelRef,
-        entityRef: EntityRef,
-        attrRef: EntityAttributeRef
-    ): Attribute? {
-        val model = findModelAggregate(modelRef)
-        val attr = model.findEntityAttributeOptional(entityRef, attrRef)
-        return attr
-    }
-
     private fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship {
         val model = findModelAggregate(modelRef)
         return model.findRelationshipOptional(relationshipRef)
@@ -193,6 +183,7 @@ class ModelCmdsImpl(
             types = emptyList(),
             entities = emptyList(),
             relationships = emptyList(),
+            attributes = emptyList(),
             tags = emptyList(),
         )
         storage.dispatch(ModelRepoCmd.CreateModel(model))
@@ -328,11 +319,18 @@ class ModelCmdsImpl(
     // -----------------------------------------------------------------------------------------------------------------
 
     data class ModelAndEntity(val model: Model, val entity: Entity)
+    data class ModelAndEntityAndAttribute(val model: Model, val entity: Entity, val attribute: Attribute)
 
     fun findModelAndEntity(modelRef: ModelRef, entityRef: EntityRef): ModelAndEntity {
         val model = findModel(modelRef)
         val entity = findEntity(modelRef, entityRef)
         return ModelAndEntity(model, entity)
+    }
+    fun findModelAndEntityAndAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): ModelAndEntityAndAttribute {
+        val model = findModel(modelRef)
+        val entity = findEntity(modelRef, entityRef)
+        val attribute = findEntityAttribute(modelRef, entityRef, attributeRef)
+        return ModelAndEntityAndAttribute(model, entity, attribute)
     }
 
     private fun updateEntityKey(cmd: ModelCmd.UpdateEntityKey) {
@@ -422,12 +420,8 @@ class ModelCmdsImpl(
 
     private fun createEntityAttribute(cmd: ModelCmd.CreateEntityAttribute) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val duplicate = findEntityAttributeOptional(
-            cmd.modelRef,
-            cmd.entityRef,
-            EntityAttributeRef.ByKey(cmd.attributeInitializer.attributeKey)
-        )
-        if (duplicate != null)
+        val found = storage.findEntityAttributeByKeyOptional(model.id, entity.id, cmd.attributeInitializer.attributeKey)
+        if (found != null)
             throw CreateAttributeDuplicateIdException(entity.key, cmd.attributeInitializer.attributeKey)
 
         // Makes sure the type reference exists, even if now, the type is referenced by a key only
@@ -463,48 +457,41 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeKey(cmd: ModelCmd.UpdateEntityAttributeKey) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
-        if (entity.attributes.any { it.key == cmd.value && it.key != attribute.key }) {
-            throw UpdateAttributeDuplicateKeyException(cmd.entityRef, cmd.attributeRef, cmd.value)
-        }
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val found = storage.findEntityAttributeByKeyOptional(model.id, entity.id, cmd.value)
+        if (found != null && found.id != attribute.id) throw UpdateAttributeDuplicateKeyException(cmd.entityRef, cmd.attributeRef, cmd.value)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityAttributeKey(model.id, entity.id, attribute.id, cmd.value)
         )
     }
 
     private fun updateEntityAttributeName(cmd: ModelCmd.UpdateEntityAttributeName) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.name == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeName(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeDescription(cmd: ModelCmd.UpdateEntityAttributeDescription) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.description == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeDescription(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeType(cmd: ModelCmd.UpdateEntityAttributeType) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         val type = findType(cmd.modelRef, cmd.value)
         if (attribute.typeId == type.id) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeType(model.id, entity.id, attribute.id, type.id))
     }
 
     private fun updateEntityAttributeOptional(cmd: ModelCmd.UpdateEntityAttributeOptional) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.optional == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateEntityAttributeOptional(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeTagAdd(cmd: ModelCmd.UpdateEntityAttributeTagAdd) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityAttributeTagAdd(
                 modelId = model.id,
@@ -516,8 +503,7 @@ class ModelCmdsImpl(
     }
 
     private fun updateEntityAttributeTagDelete(cmd: ModelCmd.UpdateEntityAttributeTagDelete) {
-        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        val attribute = findEntityAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateEntityAttributeTagDelete(
                 modelId = model.id,
@@ -532,191 +518,177 @@ class ModelCmdsImpl(
     // Relationships
     // ------------------------------------------------------------------------
 
+    data class ModelAndRelationship(val model: Model, val relationship: Relationship)
+    data class ModelAndRelationshipAndAttribute(val model: Model, val relationship: Relationship, val attribute: Attribute)
+
+    fun findModelAndRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): ModelAndRelationship {
+        val model = findModel(modelRef)
+        val relationship = findRelationship(modelRef, relationshipRef)
+        return ModelAndRelationship(model, relationship)
+    }
+    fun findModelAndRelationshipAndAttribute(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): ModelAndRelationshipAndAttribute {
+        val model = findModel(modelRef)
+        val relationship = findRelationship(modelRef, relationshipRef)
+        val attribute = findRelationshipAttribute(modelRef, relationshipRef, attributeRef)
+        return ModelAndRelationshipAndAttribute(model, relationship, attribute)
+    }
 
     private fun deleteRelationshipAttribute(cmd: ModelCmd.DeleteRelationshipAttribute) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.DeleteRelationshipAttribute(
                 modelId = model.id,
-                relationshipId = rel.id,
-                attributeId = attr.id
+                relationshipId = relationship.id,
+                attributeId = attribute.id
             )
         )
     }
 
     private fun updateRelationshipAttributeKey(cmd: ModelCmd.UpdateRelationshipAttributeKey) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
-        if (rel.attributes.any { it.key == cmd.value && it.key != attr.key }) {
-            throw RelationshipAttributeUpdateDuplicateKeyException(
-                cmd.modelRef,
-                cmd.relationshipRef,
-                cmd.attributeRef,
-                cmd.value
-            )
-        }
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        val found = storage.findRelationshipAttributeByKeyOptional(model.id, relationship.id, cmd.value)
+        if (found != null && found.id != attribute.id) throw RelationshipAttributeUpdateDuplicateKeyException(
+            cmd.modelRef,
+            cmd.relationshipRef,
+            cmd.attributeRef,
+            cmd.value
+        )
         storage.dispatch(
-            ModelRepoCmd.UpdateRelationshipAttributeKey(model.id, rel.id, attr.id, cmd.value)
+            ModelRepoCmd.UpdateRelationshipAttributeKey(model.id, relationship.id, attribute.id, cmd.value)
         )
     }
 
     private fun updateRelationshipAttributeName(cmd: ModelCmd.UpdateRelationshipAttributeName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
-        if (attr.name == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeName(model.id, rel.id, attr.id, cmd.value))
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        if (attribute.name == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeName(model.id, relationship.id, attribute.id, cmd.value))
     }
 
     private fun updateRelationshipAttributeDescription(cmd: ModelCmd.UpdateRelationshipAttributeDescription) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
-        if (attr.description == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeDescription(model.id, rel.id, attr.id, cmd.value))
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        if (attribute.description == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeDescription(model.id, relationship.id, attribute.id, cmd.value))
     }
 
     private fun updateRelationshipAttributeType(cmd: ModelCmd.UpdateRelationshipAttributeType) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         val type = findType(cmd.modelRef, cmd.value)
-        if (attr.typeId == type.id) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeType(model.id, rel.id, attr.id, type.id))
+        if (attribute.typeId == type.id) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeType(model.id, relationship.id, attribute.id, type.id))
     }
 
     private fun updateRelationshipAttributeOptional(cmd: ModelCmd.UpdateRelationshipAttributeOptional) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
-        if (attr.optional == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeOptional(model.id, rel.id, attr.id, cmd.value))
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        if (attribute.optional == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipAttributeOptional(model.id, relationship.id, attribute.id, cmd.value))
     }
 
     private fun updateRelationshipAttributeTagAdd(cmd: ModelCmd.UpdateRelationshipAttributeTagAdd) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateRelationshipAttributeTagAdd(
                 modelId = model.id,
-                relationshipId = rel.id,
-                attributeId = attr.id,
+                relationshipId = relationship.id,
+                attributeId = attribute.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
 
     private fun updateRelationshipAttributeTagDelete(cmd: ModelCmd.UpdateRelationshipAttributeTagDelete) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val attr = findRelationshipAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
+        val (model, relationship, attribute) = findModelAndRelationshipAndAttribute(cmd.modelRef, cmd.relationshipRef, cmd.attributeRef)
         storage.dispatch(
             ModelRepoCmd.UpdateRelationshipAttributeTagDelete(
                 modelId = model.id,
-                relationshipId = rel.id,
-                attributeId = attr.id,
+                relationshipId = relationship.id,
+                attributeId = attribute.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
 
     private fun deleteRelationship(cmd: ModelCmd.DeleteRelationship) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storage.dispatch(
             ModelRepoCmd.DeleteRelationship(
                 modelId = model.id,
-                relationshipId = rel.id,
+                relationshipId = relationship.id,
             )
         )
     }
 
     private fun updateRelationshipKey(cmd: ModelCmd.UpdateRelationshipKey) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        if (rel.key == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipKey(model.id, rel.id, cmd.value))
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        if (relationship.key == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipKey(model.id, relationship.id, cmd.value))
     }
 
     private fun updateRelationshipName(cmd: ModelCmd.UpdateRelationshipName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        if (rel.name == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipName(model.id, rel.id, cmd.value))
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        if (relationship.name == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipName(model.id, relationship.id, cmd.value))
     }
 
     private fun updateRelationshipDescription(cmd: ModelCmd.UpdateRelationshipDescription) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        if (rel.description == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipDescription(model.id, rel.id, cmd.value))
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        if (relationship.description == cmd.value) return
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipDescription(model.id, relationship.id, cmd.value))
     }
 
     private fun updateRelationshipRoleKey(cmd: ModelCmd.UpdateRelationshipRoleKey) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.relationshipRoleRef)
         if (role.key == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleKey(model.id, rel.id, role.id, cmd.value))
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleKey(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun updateRelationshipRoleName(cmd: ModelCmd.UpdateRelationshipRoleName) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.relationshipRoleRef)
         if (role.name == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleName(model.id, rel.id, role.id, cmd.value))
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleName(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun updateRelationshipRoleEntity(cmd: ModelCmd.UpdateRelationshipRoleEntity) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.relationshipRoleRef)
         val entity = findEntity(cmd.modelRef, cmd.value)
         if (role.entityId == entity.id) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleEntity(model.id, rel.id, role.id, entity.id))
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleEntity(model.id, relationship.id, role.id, entity.id))
     }
 
     private fun updateRelationshipRoleCardinality(cmd: ModelCmd.UpdateRelationshipRoleCardinality) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = findRelationshipRole(cmd.modelRef, cmd.relationshipRef, cmd.relationshipRoleRef)
         if (role.cardinality == cmd.value) return
-        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleCardinality(model.id, rel.id, role.id, cmd.value))
+        storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleCardinality(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun updateRelationshipTagAdd(cmd: ModelCmd.UpdateRelationshipTagAdd) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storage.dispatch(
             ModelRepoCmd.UpdateRelationshipTagAdd(
                 modelId = model.id,
-                relationshipId = rel.id,
+                relationshipId = relationship.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
 
     private fun updateRelationshipTagDelete(cmd: ModelCmd.UpdateRelationshipTagDelete) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storage.dispatch(
             ModelRepoCmd.UpdateRelationshipTagDelete(
                 modelId = model.id,
-                relationshipId = rel.id,
+                relationshipId = relationship.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
         )
     }
 
     private fun createRelationshipAttribute(cmd: ModelCmd.CreateRelationshipAttribute) {
-        val model = findModelAggregate(cmd.modelRef)
-        val rel = findRelationship(cmd.modelRef, cmd.relationshipRef)
-        val exists = model.findRelationshipAttributeOptional(cmd.relationshipRef, cmd.attr.attributeKey)
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        val exists = storage.findRelationshipAttributeByKeyOptional(model.id, relationship.id, cmd.attr.attributeKey)
         if (exists != null) {
             throw RelationshipAttributeCreateDuplicateKeyException(
                 cmd.modelRef,
@@ -728,7 +700,7 @@ class ModelCmdsImpl(
         storage.dispatch(
             ModelRepoCmd.CreateRelationshipAttribute(
                 modelId = model.id,
-                relationshipId = rel.id,
+                relationshipId = relationship.id,
                 attributeId = AttributeId.generate(),
                 key = cmd.attr.attributeKey,
                 name = cmd.attr.name,

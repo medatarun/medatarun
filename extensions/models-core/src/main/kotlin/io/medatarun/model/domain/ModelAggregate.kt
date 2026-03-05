@@ -1,19 +1,19 @@
 package io.medatarun.model.domain
 
 import io.medatarun.tags.core.domain.TagId
-import java.net.URL
 
 /**
  * A model contains multiple [Entity] that contains [Attribute].
  *
  * Think of it as a Domain Model in DDD in a bounded context
  */
-interface ModelAggregate: Model {
+interface ModelAggregate : Model {
 
     /**
      * Base model
      */
     val model: Model
+
     /**
      * Lists types known by the model
      */
@@ -33,6 +33,11 @@ interface ModelAggregate: Model {
      * Tags used as classifiers for the model
      */
     val tags: List<TagId>
+
+    /**
+     * Attributes on entities or relationships
+     */
+    val attributes: List<Attribute>
 
     fun findTypeOptional(typeKey: TypeKey): ModelType? = types.firstOrNull { it.key == typeKey }
     fun findTypeOptional(typeId: TypeId): ModelType? = types.firstOrNull { it.id == typeId }
@@ -79,14 +84,25 @@ interface ModelAggregate: Model {
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
         attrKey: AttributeKey,
-    ): Attribute? =
-        findEntityOptional(entityRef)?.attributes?.firstOrNull { it.key == attrKey }
+    ): Attribute? {
+        val e = findEntityOptional(entityRef) ?: return null
+        return attributes.firstOrNull {
+            val ownerId = it.ownerId
+            it.key == attrKey && ownerId is AttributeOwnerId.OwnerEntityId && ownerId.id == e.id
+        }
+    }
+
 
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
         attrId: AttributeId,
-    ): Attribute? =
-        findEntityOptional(entityRef)?.attributes?.firstOrNull { it.id == attrId }
+    ): Attribute? {
+        val e = findEntityOptional(entityRef) ?: return null
+        return attributes.firstOrNull {
+            val ownerId = it.ownerId
+            it.id == attrId && ownerId is AttributeOwnerId.OwnerEntityId && ownerId.id == e.id
+        }
+    }
 
     fun findEntityAttributeOptional(
         entityRef: EntityRef,
@@ -116,6 +132,9 @@ interface ModelAggregate: Model {
         is RelationshipRef.ByKey -> findRelationshipOptional(ref.key)
     }
 
+    fun findRelationship(ref: RelationshipId) = findRelationshipOptional(ref)
+        ?: throw RelationshipNotFoundException(ModelRef.ById(this.id), RelationshipRef.ById(ref))
+
     fun findRelationship(ref: RelationshipRef) = findRelationshipOptional(ref)
         ?: throw RelationshipNotFoundException(ModelRef.ById(this.id), ref)
 
@@ -142,14 +161,24 @@ interface ModelAggregate: Model {
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
         attrKey: AttributeKey,
-    ): Attribute? =
-        findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.key == attrKey }
+    ): Attribute? {
+        val r = findRelationshipOptional(relationshipRef) ?: return null
+        return attributes.firstOrNull {
+            val ownerId = it.ownerId
+            it.key == attrKey && ownerId is AttributeOwnerId.OwnerRelationshipId && ownerId.id == r.id
+        }
+    }
 
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
         attrId: AttributeId,
-    ): Attribute? =
-        findRelationshipOptional(relationshipRef)?.attributes?.firstOrNull { it.id == attrId }
+    ): Attribute? {
+        val r = findRelationshipOptional(relationshipRef) ?: return null
+        return attributes.firstOrNull {
+            val ownerId = it.ownerId
+            it.id == attrId && ownerId is AttributeOwnerId.OwnerRelationshipId && ownerId.id == r.id
+        }
+    }
 
     fun findRelationshipAttributeOptional(
         relationshipRef: RelationshipRef,
@@ -160,11 +189,24 @@ interface ModelAggregate: Model {
     }
 
     fun findEntityAttributes(ref: EntityRef): List<Attribute> {
-        return findEntity(ref).attributes
+        val e = findEntity(ref)
+        return attributes.filter {
+            val ownerId = it.ownerId
+            (ownerId is AttributeOwnerId.OwnerEntityId) && ownerId.id == e.id
+        }
+
     }
 
     fun findRelationshipAttributes(ref: RelationshipRef): List<Attribute> {
-        return findRelationship(ref).attributes
+        val r = findRelationship(ref)
+        return attributes.filter {
+            val ownerId = it.ownerId
+            (ownerId is AttributeOwnerId.OwnerRelationshipId) && ownerId.id == r.id
+        }
+    }
+
+    fun countAttributes(id: EntityId): Int {
+        return findEntityAttributes(EntityRef.ById(id)).count()
     }
 
 }

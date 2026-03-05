@@ -44,13 +44,12 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
         val modelKeyOrGenerated = modelKey?.value?.trimToNull() ?: (connection.name + "-" + UuidUtils.generateV4String())
         val modelNameOrGenerated = modelName?.trimToNull() ?: "${connection.name} (import $date)"
         val types = result.types().map { ModelTypeInMemory(TypeId.generate(), TypeKey(it), null, null) }
+        val attributesCollector = mutableListOf<AttributeInMemory>()
         val entities = result.tables.map { table ->
-
+            val entityId = EntityId.generate()
             val attributeFromColumns = table.columns.map {
-
                 val type = types.firstOrNull { type -> type.key == TypeKey(it.typeName) }
                     ?: throw DbImportTypeNotFoundException(table.tableName, it.typeName)
-
                 AttributeInMemory(
                     id = AttributeId.generate(),
                     key = AttributeKey(it.columnName),
@@ -59,17 +58,19 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                     typeId = type.id,
                     optional = it.isNullable != false,
                     tags = emptyList(),
+                    ownerId = AttributeOwnerId.OwnerEntityId(entityId)
                 )
             }
             val pkAttributeKey = table.pkNameOrFirstColumn()
             val pkAttribute = attributeFromColumns.firstOrNull { it.key == pkAttributeKey }
                 ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
 
+            attributesCollector.addAll(attributeFromColumns)
+
             EntityInMemory(
-                id = EntityId.generate(),
+                id = entityId,
                 key = EntityKey(table.tableName),
                 name = null,
-                attributes = attributeFromColumns,
                 description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
                 identifierAttributeId = pkAttribute.id,
                 origin = EntityOrigin.Uri(URI(path)),
@@ -112,7 +113,6 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                     key = RelationshipKey(idStr),
                     name = null,
                     description = null,
-                    attributes = emptyList(),
                     roles = roles,
                     tags = emptyList(),
                 )
@@ -132,6 +132,7 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             entities = entities,
             relationships = relationships.flatten(),
             tags = emptyList(),
+            attributes = attributesCollector
         )
         return model
     }

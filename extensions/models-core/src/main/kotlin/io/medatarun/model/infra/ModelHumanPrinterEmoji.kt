@@ -1,5 +1,6 @@
 package io.medatarun.model.infra
 
+import io.medatarun.model.domain.AttributeOwnerId
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.ports.exposed.ModelHumanPrinter
 
@@ -34,7 +35,7 @@ class ModelHumanPrinterEmoji : ModelHumanPrinter {
             if (entityDescription != null) {
                 buf.appendLine(tabs(2) + entityDescription)
             }
-            entity.attributes.forEach { attribute ->
+            model.attributes.filter { it.ownedBy(entity.id) }.forEach { attribute ->
                 val id = attribute.key.value
                 val type = model.findType(attribute.typeId).key.value
                 val optional = if (attribute.optional) "?" else ""

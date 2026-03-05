@@ -686,8 +686,9 @@ class ModelTest {
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(URI.create(docHome).toURL(), reloaded.documentationHome)
-        assertEquals(1, reloaded.attributes.size)
-        val attrId = reloaded.attributes[0]
+        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(reloaded.ref)
+        assertEquals(1, attributes.size)
+        val attrId = attributes[0]
         assertEquals(AttributeKey("id"), attrId.key)
         assertEquals("Identifier", attrId.name?.name)
         assertNull(attrId.description?.name)
@@ -717,7 +718,8 @@ class ModelTest {
         assertEquals(entityKey, reloaded.key)
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
-        assertEquals(1, reloaded.attributes.size)
+        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
+        assertEquals(1, attributes.size)
     }
 
     @Test
@@ -766,9 +768,10 @@ class ModelTest {
             )
         )
 
-        val reloaded = env.query.findEntity(env.modelRef, entityRef)
-        assertNull(reloaded.attributes[0].name)
-        assertNull(reloaded.attributes[0].description)
+        
+        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
+        assertNull(attributes[0].name)
+        assertNull(attributes[0].description)
     }
 
     @Test

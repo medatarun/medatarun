@@ -2,6 +2,7 @@ package io.medatarun.ext.modeljson.internal
 
 import io.medatarun.ext.modeljson.ModelJsonSchemas
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityOrigin.Uri
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
@@ -116,16 +117,19 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                             cardinality = role.cardinality.code
                         )
                     },
-                    attributes = toAttributeJsonList(model, rel.attributes),
+                    attributes = toAttributeJsonList(model, model.attributes.filter { it.ownedBy(rel.id) }),
                     tags = rel.tags.map { it.value.toString() }
 
                 )
             },
             entities = model.entities.map { entity ->
-                val attributesJson = toAttributeJsonList(model, entity.attributes)
-                val attributeKey = entity.attributes
-                    .firstOrNull { attribute -> entity.identifierAttributeId == attribute.id }
-                    ?.key ?: throw ModelJsonWriterEntityIdentifierAttributeNotFoundInAttributes(entity.id, entity.identifierAttributeId)
+                val attributesJson = toAttributeJsonList(model, model.attributes.filter { it.ownedBy(entity.id) })
+                val attributeKey = model.attributes
+                    .firstOrNull { attribute -> entity.identifierAttributeId == attribute.id }?.key
+                    ?: throw ModelJsonWriterEntityIdentifierAttributeNotFoundInAttributes(
+                        entity.id,
+                        entity.identifierAttributeId
+                    )
                 ModelEntityJson(
                     id = entity.id.value.toString(),
                     key = entity.key.value,
@@ -183,71 +187,88 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                 description = typeJson.description
             )
         }
-        val entities = modelJson.entities.map { entityJson -> toEntity(types, entityJson) }
+        val attributeCollector = mutableListOf<AttributeInMemory>()
+        val entityCollector = mutableListOf<EntityInMemory>()
+        val relationshipCollector = mutableListOf<RelationshipInMemory>()
 
-        fun findEntity(relationJsonKey: String, roleJsonKey: String, entityKey: EntityKey) = entities
+        for (entityJson in modelJson.entities) {
+            val entityId = entityJson.id?.let { EntityId.fromString(it) } ?: EntityId.generate()
+
+            val attributes = toAttributeList(types, entityJson.attributes, AttributeOwnerId.OwnerEntityId(entityId))
+            attributeCollector.addAll(attributes)
+
+            val identifierAttribute = attributes
+                .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute) }
+                ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
+
+            val e = EntityInMemory(
+                id = entityId,
+                key = EntityKey(entityJson.key),
+                name = entityJson.name,
+                description = entityJson.description,
+                identifierAttributeId = identifierAttribute.id,
+                origin = when (entityJson.origin) {
+                    null -> EntityOrigin.Manual
+                    else -> Uri(URI(entityJson.origin))
+                },
+                documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
+                tags = entityJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
+            )
+            entityCollector.add(e)
+        }
+
+        fun findEntity(relationJsonKey: String, roleJsonKey: String, entityKey: EntityKey) = entityCollector
             .firstOrNull { it.key == entityKey }
             ?: throw ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey, roleJsonKey, entityKey.value)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
-                key = ModelKey(modelJson.key),
-                version = ModelVersion(modelJson.version),
-                origin = when (modelJson.origin) {
-                    null -> ModelOrigin.Manual
-                    else -> ModelOrigin.Uri(URI(modelJson.origin))
-                },
-                name = modelJson.name,
-                description = modelJson.description,
-                documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
-            ),
-            types = types,
-            entities = entities,
-            relationships = modelJson.relationships.map { relationJson ->
-                return@map RelationshipInMemory(
-                    id = relationJson.id?.let { RelationshipId.fromString(it) } ?: RelationshipId.generate(),
-                    key = RelationshipKey(relationJson.key),
-                    name = relationJson.name,
-                    description = relationJson.description,
-                    roles = relationJson.roles.map { roleJson ->
-                        RelationshipRoleInMemory(
-                            id = roleJson.id?.let { RelationshipRoleId.fromString(it) } ?: RelationshipRoleId.generate(),
-                            key = RelationshipRoleKey(roleJson.key),
-                            name = roleJson.name,
-                            entityId = findEntity(relationJson.key, roleJson.key, EntityKey(roleJson.entityId)).id,
-                            cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
-                        )
-                    },
-                    attributes = toAttributeList(types, relationJson.attributes),
-                    tags = relationJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
-                )
-            },
+        for (relationJson in modelJson.relationships) {
+            val relationshipId = relationJson.id?.let { RelationshipId.fromString(it) } ?: RelationshipId.generate()
 
+            val attributes =
+                toAttributeList(types, relationJson.attributes, AttributeOwnerId.OwnerRelationshipId(relationshipId))
+            attributeCollector.addAll(attributes)
+
+            val r = RelationshipInMemory(
+                id = relationshipId,
+                key = RelationshipKey(relationJson.key),
+                name = relationJson.name,
+                description = relationJson.description,
+                roles = relationJson.roles.map { roleJson ->
+                    RelationshipRoleInMemory(
+                        id = roleJson.id?.let { RelationshipRoleId.fromString(it) } ?: RelationshipRoleId.generate(),
+                        key = RelationshipRoleKey(roleJson.key),
+                        name = roleJson.name,
+                        entityId = findEntity(relationJson.key, roleJson.key, EntityKey(roleJson.entityId)).id,
+                        cardinality = RelationshipCardinality.valueOfCode(roleJson.cardinality),
+                    )
+                },
+                tags = relationJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
+            )
+            relationshipCollector.add(r)
+        }
+
+        val model = ModelInMemory(
+            id = modelJson.id?.let { ModelId.fromString(it) } ?: ModelId.generate(),
+            key = ModelKey(modelJson.key),
+            version = ModelVersion(modelJson.version),
+            origin = when (modelJson.origin) {
+                null -> ModelOrigin.Manual
+                else -> ModelOrigin.Uri(URI(modelJson.origin))
+            },
+            name = modelJson.name,
+            description = modelJson.description,
+            documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
+        )
+
+        val modelAggregate = ModelAggregateInMemory(
+            model = model,
+            types = types,
+            entities = entityCollector,
+            relationships = relationshipCollector,
+            attributes = attributeCollector,
             tags = modelJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
         )
-        return model
-    }
-
-    private fun toEntity(types: List<ModelType>, entityJson: ModelEntityJson): EntityInMemory {
-        val attributes = toAttributeList(types, entityJson.attributes)
-        val identifierAttribute = attributes
-            .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute)}
-            ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
-        return EntityInMemory(
-            id = entityJson.id?.let { EntityId.fromString(it) } ?: EntityId.generate(),
-            key = EntityKey(entityJson.key),
-            name = entityJson.name,
-            description = entityJson.description,
-            identifierAttributeId = identifierAttribute.id,
-            origin = when (entityJson.origin) {
-                null -> EntityOrigin.Manual
-                else -> EntityOrigin.Uri(URI(entityJson.origin))
-            },
-            attributes = attributes,
-            documentationHome = entityJson.documentationHome?.let { URI(it).toURL() },
-            tags = entityJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
-        )
+        return modelAggregate
     }
 
     companion object {
@@ -265,7 +286,11 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             }
         }
 
-        private fun toAttributeList(types: List<ModelType>, attrs: Collection<ModelAttributeJson>): List<AttributeInMemory> {
+        private fun toAttributeList(
+            types: List<ModelType>,
+            attrs: Collection<ModelAttributeJson>,
+            ownerId: AttributeOwnerId
+        ): List<AttributeInMemory> {
 
             return attrs.map { attributeJson ->
 
@@ -279,7 +304,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                     description = attributeJson.description,
                     optional = attributeJson.optional,
                     typeId = type.id,
-                    tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList()
+                    tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList(),
+                    ownerId = ownerId
                 )
             }
         }
