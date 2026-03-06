@@ -41,11 +41,17 @@ class ActionSecurityRuleEvaluatorsTest {
     }
 
     private class DummyEvaluator(override val key: String) : SecurityRuleEvaluator {
+        override val name: String = "Dummy"
+        override val description: String = "Dummy rule for tests."
+
         override fun evaluate(ctx: SecurityRuleCtx) =
             SecurityRuleEvaluatorResult.Ok()
     }
 
     private class RecordingEvaluator(override val key: String) : SecurityRuleEvaluator {
+        override val name: String = "Recording"
+        override val description: String = "Recording rule for tests."
+
         var called = false
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
             called = true

@@ -7,6 +7,7 @@ export interface ActionDescriptorDto {
   description: string | null;
   parameters: ActionParamDescriptorDto[];
   uiLocations: string[];
+  securityRule: string;
 }
 
 export interface ActionParamDescriptorDto {

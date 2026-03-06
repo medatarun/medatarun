@@ -1,15 +1,15 @@
 export interface CommandsPageMessages {
   commandsPage_title: string;
   commandsPage_eyebrow: string;
-  commandsPage_groupLabel: string;
-  commandsPage_groupPlaceholder: string;
-  commandsPage_actionLabel: string;
-  commandsPage_actionPlaceholder: string;
   commandsPage_noActionSelected: string;
   commandsPage_payloadLabel: string;
   commandsPage_payloadPlaceholder: string;
+  commandsPage_noParametersRequired: string;
   commandsPage_submit: string;
   commandsPage_clear: string;
+  commandsPage_output: string;
+  commandsPage_copy_output: string;
+  commandsPage_copyOutputError: string;
   commandsPage_selectResourceAndActionError: string;
   commandsPage_invalidPayloadError: string;
   commandsPage_unknownError: string;
