@@ -22,29 +22,31 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
             is ConfigAction.AIAgentsInstructions -> ConfigAgentInstructions().process()
             is ConfigAction.Inspect -> actionCtx.extensionRegistry.inspectHumanReadable()
             is ConfigAction.InspectJson -> actionCtx.extensionRegistry.inspectJson()
-            is ConfigAction.InspectActions -> buildActionRegistryDto(actionCtx)
-            is ConfigAction.SecurityRulesDescriptions -> SecurityRulesDescriptionsResp(
-                items = actionCtx.extensionRegistry
-                    .findContributionsFlat(SecurityRulesProvider::class)
-                    .flatMap { it.getRules() }
-                    // Keep one entry per key if multiple providers expose same rule.
-                    .distinctBy { it.key }
-                    .sortedBy { it.key }
-                    .map {
-                        SecurityRuleDescriptionDto(
-                            key = it.key,
-                            name = it.name,
-                            description = it.description
-                        )
-                    }
-            )
+            is ConfigAction.InspectActions -> inspectActions(actionCtx)
+            is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
         }
     }
+
+    private fun inspectSecurityRules(actionCtx: ActionCtx): SecurityRulesDescriptionsResp = SecurityRulesDescriptionsResp(
+        items = actionCtx.extensionRegistry
+            .findContributionsFlat(SecurityRulesProvider::class)
+            .flatMap { it.getRules() }
+            // Keep one entry per key if multiple providers expose same rule.
+            .distinctBy { it.key }
+            .sortedBy { it.key }
+            .map {
+                SecurityRuleDescriptionDto(
+                    key = it.key,
+                    name = it.name,
+                    description = it.description
+                )
+            }
+    )
 
     /**
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
      */
-    private fun buildActionRegistryDto(actionCtx: ActionCtx): ActionRegistryDto {
+    private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
         val ruleEvaluators = ActionSecurityRuleEvaluators(
             actionCtx.extensionRegistry
                 .findContributionsFlat(SecurityRulesProvider::class)

@@ -49,7 +49,7 @@ sealed interface ConfigAction {
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.PUBLIC
     )
-    class SecurityRulesDescriptions : ConfigAction
+    class InspectSecurityRules : ConfigAction
 
 }
 
