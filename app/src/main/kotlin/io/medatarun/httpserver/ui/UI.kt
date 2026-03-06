@@ -1,19 +1,17 @@
 package io.medatarun.httpserver.ui
 
-import io.medatarun.actions.internal.ActionRegistry
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.platform.kernel.getService
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
+class UI(runtime: PlatformRuntime) {
 
     val modelQueries = runtime.services.getService<ModelQueries>()
 
@@ -181,54 +179,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
         }
     }
 
-
-
-    fun actionRegistryDto(detectLocale: Locale): List<ActionDescriptorDto> {
-        return actionRegistry.findAllActions().map { cmd ->
-            ActionDescriptorDto(
-                actionKey = cmd.key,
-                groupKey = cmd.group,
-                title = cmd.title ?: cmd.key,
-                description = cmd.description,
-                uiLocations = cmd.uiLocations,
-                securityRule = cmd.securityRule,
-                parameters = cmd.parameters.map { p ->
-                    ActionParamDescriptorDto(
-                        name = p.name,
-                        type = p.multiplatformType,
-                        optional = p.optional,
-                        title = p.title,
-                        description = p.description,
-                        order = p.order
-                    )
-                }
-            )
-        }
-    }
-
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(UI::class.java)
     }
 }
-
-
-@Serializable
-data class ActionDescriptorDto(
-    val groupKey: String,
-    val actionKey: String,
-    val title: String,
-    val description: String?,
-    val parameters: List<ActionParamDescriptorDto>,
-    val uiLocations: Set<String>,
-    val securityRule: String
-)
-
-@Serializable
-data class ActionParamDescriptorDto(
-    val name: String,
-    val type: String,
-    val optional: Boolean,
-    val title: String?,
-    val description: String?,
-    val order: Int
-)

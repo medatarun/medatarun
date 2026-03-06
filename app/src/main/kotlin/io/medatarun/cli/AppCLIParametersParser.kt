@@ -1,11 +1,10 @@
 package io.medatarun.cli
 
-import io.medatarun.httpserver.cli.CliActionDto
 import io.medatarun.types.TypeJsonEquiv
 import kotlinx.serialization.json.*
 
 class AppCLIParametersParser {
-    fun parseParameters(args: Array<String>, action: CliActionDto): JsonObject {
+    fun parseParameters(args: Array<String>, action: AppCLIAction): JsonObject {
 
 
         val parameters = LinkedHashMap<String, String>()

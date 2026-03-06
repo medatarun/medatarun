@@ -59,8 +59,8 @@ export class ActionRegistry {
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
-    this.actionGroupKeys = [...new Set(this.dto.map((it) => it.groupKey))];
-    this.actionDescriptors = dto.map((it) => new ActionDescriptor(it));
+    this.actionGroupKeys = [...new Set(this.dto.items.map((it) => it.groupKey))];
+    this.actionDescriptors = dto.items.map((it) => new ActionDescriptor(it));
   }
 
   public findActionDtoListByResource(

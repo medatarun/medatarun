@@ -34,6 +34,15 @@ sealed interface ConfigAction {
     class InspectJson : ConfigAction
 
     @ActionDoc(
+        key="inspect_actions",
+        title = "Inspect actions",
+        description = "Returns all known actions with their parameter descriptions.",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.PUBLIC
+    )
+    class InspectActions : ConfigAction
+
+    @ActionDoc(
         key="inspect_security_rules",
         title = "Inspect security rules",
         description = "Returns all known security rules registered in application with their descriptions.",
@@ -43,3 +52,4 @@ sealed interface ConfigAction {
     class SecurityRulesDescriptions : ConfigAction
 
 }
+

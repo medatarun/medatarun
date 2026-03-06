@@ -8,7 +8,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.*
-import io.medatarun.httpserver.cli.installCLI
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
 import io.medatarun.httpserver.commons.installJwtSecurity
@@ -112,11 +111,9 @@ class AppHttpServer(
 
             installUIStaticResources()
             installUIHomepage(uiIndexTemplate, oidcAuthority, oidcClientId)
-            installUIApis(services.runtime, services.actionRegistry)
+            installUIApis(services.runtime)
 
             installActionsApi(restApiDoc, restCommandInvocation, services.principalFactory)
-
-            installCLI(services.actionRegistry)
 
             installOidc(services.oidcService, services.userService, publicBaseUrl)
 
