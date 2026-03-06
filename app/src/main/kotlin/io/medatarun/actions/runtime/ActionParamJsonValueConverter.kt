@@ -1,6 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.ktor.http.*
+import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.types.TypeJsonConverter

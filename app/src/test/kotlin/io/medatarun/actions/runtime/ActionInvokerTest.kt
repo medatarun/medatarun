@@ -1,6 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.ktor.http.*
+import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException

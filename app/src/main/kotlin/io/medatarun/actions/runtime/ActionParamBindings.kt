@@ -1,6 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.ktor.http.*
+import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.lang.http.StatusCode
 import kotlin.reflect.KParameter
 

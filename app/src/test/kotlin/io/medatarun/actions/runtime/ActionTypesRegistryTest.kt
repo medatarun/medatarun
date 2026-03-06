@@ -1,5 +1,6 @@
 package io.medatarun.actions.runtime
 
+import io.medatarun.actions.domain.UndefinedMultiplatformTypeException
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
