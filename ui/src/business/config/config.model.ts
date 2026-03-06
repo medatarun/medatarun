@@ -17,4 +17,12 @@ export class SecurityRuleDescriptionRegistry {
   findDescription(ruleKey: string): string | undefined {
     return this.find(ruleKey)?.description;
   }
+
+  findName(ruleKey: string): string | undefined {
+    return this.find(ruleKey)?.name;
+  }
+
+  findNameOrDefault(ruleKey: string): string {
+    return this.findName(ruleKey) ?? ruleKey;
+  }
 }

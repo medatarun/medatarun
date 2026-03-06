@@ -22,7 +22,13 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                     // Keep one entry per key if multiple providers expose same rule.
                     .distinctBy { it.key }
                     .sortedBy { it.key }
-                    .map { SecurityRuleDescriptionDto(key = it.key, description = it.description) }
+                    .map {
+                        SecurityRuleDescriptionDto(
+                            key = it.key,
+                            name = it.name,
+                            description = it.description
+                        )
+                    }
             )
         }
     }
@@ -37,5 +43,6 @@ data class SecurityRulesDescriptionsResp(
 @Serializable
 data class SecurityRuleDescriptionDto(
     val key: String,
+    val name: String,
     val description: String
 )

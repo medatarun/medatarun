@@ -11,6 +11,11 @@ interface SecurityRuleEvaluator {
     val key: String
 
     /**
+     * Human-readable short name used by UIs.
+     */
+    val name: String
+
+    /**
      * Human-readable explanation of what this rule enforces.
      * Used in operator-facing UIs and docs.
      */
