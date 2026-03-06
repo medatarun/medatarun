@@ -2,6 +2,7 @@ import {useEffect, useMemo, useState} from "react";
 import {type ActionResp, executeAction} from "@/business/action_runner";
 import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
 import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
@@ -118,8 +119,8 @@ const useActionLauncherStyles = makeStyles({
 });
 
 export function ActionsPage() {
-  const commandRegistryDto = useActionRegistry();
-  return <ActionsPageLoaded actionRegistry={commandRegistryDto}/>;
+  const actionRegistryDto = useActionRegistry();
+  return <ActionsPageLoaded actionRegistry={actionRegistryDto}/>;
 }
 
 export function ActionsPageLoaded(
@@ -139,7 +140,7 @@ export function ActionsPageLoaded(
     defaultActionKey,
   );
 
-  const [selectedCommand, setSelectedCommand] = useState<{
+  const [selectedAction, setSelectedAction] = useState<{
     groupKey: string | undefined;
     actionKey: string | undefined;
   }>({
@@ -148,7 +149,7 @@ export function ActionsPageLoaded(
   });
 
   const handleActionSelectionChange = (groupKey: string | undefined, actionKey: string | undefined) => {
-    setSelectedCommand({groupKey, actionKey});
+    setSelectedAction({groupKey, actionKey});
   };
 
   return (
@@ -171,8 +172,8 @@ export function ActionsPageLoaded(
           <div className={styles.detailPane}>
             <ActionLaucher
               actionRegistry={actionRegistry}
-              selectedGroupKey={selectedCommand.groupKey}
-              selectedActionKey={selectedCommand.actionKey}
+              selectedGroupKey={selectedAction.groupKey}
+              selectedActionKey={selectedAction.actionKey}
               defaultPayload={defaultPayload}
             />
           </div>
@@ -260,32 +261,38 @@ function ActionLaucher(
           <div className={styles.actionDescription}>
             {selectedActionDescriptor.description}
           </div>
-          <div className={styles.parametersTableWrapper}>
-            <Table size="small" className={styles.parametersTable}>
-              <TableHeader>
-                <TableRow>
-                  <TableHeaderCell className={styles.parameterCol}>Parameter</TableHeaderCell>
-                  <TableHeaderCell className={styles.typeCol}>Type</TableHeaderCell>
-                  <TableHeaderCell className={styles.descriptionCol}>Description</TableHeaderCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {selectedActionDescriptor.parameters.map((parameter) => (
-                  <TableRow key={parameter.name}>
-                    <TableCell className={styles.parameterCol}>
-                      <div>{parameter.name}</div>
-                    </TableCell>
-                    <TableCell className={styles.typeCol}>
-                      {parameter.type} {parameter.optional ? "?" : ""}
-                    </TableCell>
-                    <TableCell className={styles.descriptionCol}>
-                      {parameter.description ?? "-"}
-                    </TableCell>
+          {selectedActionDescriptor.parameters.length === 0 ? (
+            <MissingInformation>
+              {t("commandsPage_noParametersRequired")}
+            </MissingInformation>
+          ) : (
+            <div className={styles.parametersTableWrapper}>
+              <Table size="small" className={styles.parametersTable}>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderCell className={styles.parameterCol}>Parameter</TableHeaderCell>
+                    <TableHeaderCell className={styles.typeCol}>Type</TableHeaderCell>
+                    <TableHeaderCell className={styles.descriptionCol}>Description</TableHeaderCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {selectedActionDescriptor.parameters.map((parameter) => (
+                    <TableRow key={parameter.name}>
+                      <TableCell className={styles.parameterCol}>
+                        <div>{parameter.name}</div>
+                      </TableCell>
+                      <TableCell className={styles.typeCol}>
+                        {parameter.type} {parameter.optional ? "?" : ""}
+                      </TableCell>
+                      <TableCell className={styles.descriptionCol}>
+                        {parameter.description ?? "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </div>
       ) : (
         <div>{t("commandsPage_noActionSelected")}</div>
@@ -422,7 +429,7 @@ function ActionsTree(
     <Field label={`${groupLabel} / ${actionLabel}`}>
       <SectionPaper>
         <Tree
-          aria-label="command-tree"
+          aria-label="action-tree"
           openItems={openGroupKeys}
           onOpenChange={(_, data) => setOpenGroupKeys(Array.from(data.openItems))}
         >
