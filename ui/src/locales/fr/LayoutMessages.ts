@@ -3,7 +3,7 @@ import { type LayoutMessages } from "../contracts/LayoutMessages";
 export const layoutMessages: LayoutMessages = {
   layout_homeLabel: "Accueil",
   layout_modelsLabel: "Modèles",
-  layout_commandsLabel: "Commandes",
+  layout_commandsLabel: "Action Runner",
   layout_reportsLabel: "Rapports",
   layout_tagGroupsLabel: "Groupes de tags",
   layout_preferencesLabel: "Préférences",

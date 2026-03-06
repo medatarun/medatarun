@@ -11,7 +11,9 @@ import {
   mergeClasses,
   Table,
   TableBody,
-  TableCell, TableHeader, TableHeaderCell,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
   TableRow,
   Textarea,
   tokens,
@@ -22,9 +24,13 @@ import {
 } from "@fluentui/react-components";
 import {Button} from "@seij/common-ui";
 import {useAppI18n} from "@/services/appI18n.tsx";
-import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
 
 const useActionTreeStyles = makeStyles({
+  root: {
+
+    padding: tokens.spacingVerticalM,
+
+  },
   actionItem: {
     fontWeight: tokens.fontWeightRegular,
   },
@@ -52,10 +58,16 @@ const useActionPageStyles = makeStyles({
   masterPane: {
     minHeight: 0,
     overflowY: "auto",
+    borderRight: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
+    backgroundColor: tokens.colorNeutralBackground1,
   },
   detailPane: {
     minHeight: 0,
     overflowY: "auto",
+    paddingLeft: tokens.spacingHorizontalM,
+    paddingTop: tokens.spacingVerticalM,
+    paddingRight: tokens.spacingHorizontalM,
+    paddingBottom: tokens.spacingVerticalM,
   },
 });
 
@@ -113,8 +125,12 @@ const useActionLauncherStyles = makeStyles({
     color: tokens.colorPaletteRedForeground1,
   },
   output: {
-    border: "1px solid green",
-    padding: "1em",
+    border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
+    borderRadius: tokens.borderRadiusSmall,
+    padding: tokens.spacingHorizontalM,
+  },
+  outputTitle: {
+    fontWeight: tokens.fontWeightSemibold,
   },
 });
 
@@ -153,17 +169,18 @@ export function ActionsPageLoaded(
   };
 
   return (
-    <ViewLayoutContained title={t("commandsPage_title")}>
-      <div className={styles.root}>
+    <ViewLayoutContained
+      title={
         <ViewTitle eyebrow={t("commandsPage_eyebrow")}>
           {t("commandsPage_title")}
         </ViewTitle>
+      }
+    >
+      <div className={styles.root}>
         <div className={styles.splitArea}>
           <div className={styles.masterPane}>
             <ActionsTree
               actionRegistry={actionRegistry}
-              groupLabel={t("commandsPage_groupLabel")}
-              actionLabel={t("commandsPage_actionLabel")}
               defaultGroupKey={defaultGroupKey}
               defaultActionKey={defaultActionKey}
               onActionSelect={handleActionSelectionChange}
@@ -212,6 +229,11 @@ function ActionLaucher(
   useEffect(() => {
     setPayload(payloadTemplate);
   }, [payloadTemplate]);
+
+  useEffect(() => {
+    setOutput(null);
+    setErrorMessage("");
+  }, [selectedGroupKey, selectedActionKey]);
 
   const handleSubmit = () => {
     if (!selectedGroupKey || !selectedActionKey) {
@@ -319,9 +341,12 @@ function ActionLaucher(
         ""
       )}
       {output && (
-        <pre className={styles.output}>
-          <ActionOutput resp={output}/>
-        </pre>
+        <div>
+          <div className={styles.outputTitle}>Results</div>
+          <pre className={styles.output}>
+            <ActionOutput resp={output}/>
+          </pre>
+        </div>
       )}
     </div>
   );
@@ -331,15 +356,11 @@ function ActionLaucher(
 function ActionsTree(
   {
     actionRegistry,
-    groupLabel,
-    actionLabel,
     defaultGroupKey,
     defaultActionKey,
     onActionSelect,
   }: {
     actionRegistry: ActionRegistry;
-    groupLabel: string;
-    actionLabel: string;
     defaultGroupKey: string | undefined;
     defaultActionKey: string | undefined;
     onActionSelect: (
@@ -426,45 +447,43 @@ function ActionsTree(
   };
 
   return (
-    <Field label={`${groupLabel} / ${actionLabel}`}>
-      <SectionPaper>
-        <Tree
-          aria-label="action-tree"
-          openItems={openGroupKeys}
-          onOpenChange={(_, data) => setOpenGroupKeys(Array.from(data.openItems))}
-        >
-          {treeGroups.map((group) => (
-            <TreeItem key={group.groupKey} itemType="branch" value={group.groupKey}>
-              <TreeItemLayout onClick={() => handleChangeActionGroup(group.groupKey)}>
-                {group.groupKey}
-              </TreeItemLayout>
-              <Tree>
-                {group.actions.map((action) => (
-                  <TreeItem
-                    key={`${group.groupKey}:${action.key}`}
-                    itemType="leaf"
-                    value={`${group.groupKey}:${action.key}`}
+    <div className={styles.root}>
+      <Tree
+        aria-label="action-tree"
+        openItems={openGroupKeys}
+        onOpenChange={(_, data) => setOpenGroupKeys(Array.from(data.openItems))}
+      >
+        {treeGroups.map((group) => (
+          <TreeItem key={group.groupKey} itemType="branch" value={group.groupKey}>
+            <TreeItemLayout onClick={() => handleChangeActionGroup(group.groupKey)}>
+              {group.groupKey}
+            </TreeItemLayout>
+            <Tree>
+              {group.actions.map((action) => (
+                <TreeItem
+                  key={`${group.groupKey}:${action.key}`}
+                  itemType="leaf"
+                  value={`${group.groupKey}:${action.key}`}
+                >
+                  <TreeItemLayout
+                    className={mergeClasses(
+                      styles.actionItem,
+                      selectedActionValue === `${group.groupKey}:${action.key}`
+                        ? styles.actionItemSelected
+                        : undefined,
+                    )}
+                    onClick={() =>
+                      handleSelectActionFromTree(group.groupKey, action.key)
+                    }
                   >
-                    <TreeItemLayout
-                      className={mergeClasses(
-                        styles.actionItem,
-                        selectedActionValue === `${group.groupKey}:${action.key}`
-                          ? styles.actionItemSelected
-                          : undefined,
-                      )}
-                      onClick={() =>
-                        handleSelectActionFromTree(group.groupKey, action.key)
-                      }
-                    >
-                      {action.key}
-                    </TreeItemLayout>
-                  </TreeItem>
-                ))}
-              </Tree>
-            </TreeItem>
-          ))}
-        </Tree>
-      </SectionPaper>
-    </Field>
+                    {action.key}
+                  </TreeItemLayout>
+                </TreeItem>
+              ))}
+            </Tree>
+          </TreeItem>
+        ))}
+      </Tree>
+    </div>
   );
 }

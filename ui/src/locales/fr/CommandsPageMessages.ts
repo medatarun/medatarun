@@ -1,12 +1,8 @@
 import { type CommandsPageMessages } from "../contracts/CommandsPageMessages";
 
 export const commandsPageMessages: CommandsPageMessages = {
-  commandsPage_title: "Exécuter des commandes",
-  commandsPage_eyebrow: "Panneau de commandes",
-  commandsPage_groupLabel: "Groupe",
-  commandsPage_groupPlaceholder: "Sélectionner un groupe d'actions",
-  commandsPage_actionLabel: "Action",
-  commandsPage_actionPlaceholder: "Sélectionner une action",
+  commandsPage_title: "Action Runner",
+  commandsPage_eyebrow: "Action Runner",
   commandsPage_noActionSelected: "Aucune action sélectionnée",
   commandsPage_payloadLabel: "Payload",
   commandsPage_payloadPlaceholder: "Saisir un payload",
