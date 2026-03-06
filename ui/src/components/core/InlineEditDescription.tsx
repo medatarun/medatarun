@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
-
-import { Textarea } from "@fluentui/react-components";
 import { InlineEditRichTextLayout } from "./InlineEditRichTextLayout.tsx";
 import { Markdown } from "./Markdown.tsx";
+import { MarkdownEditor, type MarkdownEditorHandle } from "./MarkdownEditor.tsx";
 import { MissingInformation } from "./MissingInformation.tsx";
 
 export function InlineEditDescription({
@@ -14,39 +13,37 @@ export function InlineEditDescription({
   placeholder: string;
   onChange: (value: string) => Promise<unknown>;
 }) {
+  const editorRef = useRef<MarkdownEditorHandle>(null);
   const [editValue, setEditValue] = useState(value ?? "");
-  const ref = useRef<HTMLTextAreaElement>(null);
 
   const handleEditStart = async () => {
-    console.log("handleEditStart");
     setEditValue(value ?? "");
   };
 
   const handleEditStarted = () => {
-    console.log("handleEditStarted", ref);
-    ref?.current?.focus();
+    editorRef.current?.focus();
   };
 
-  const handeEditOk = async () => {
-    await onChange(editValue);
+  const handleEditOk = async () => {
+    await onChange(normalizeMarkdownBeforeSave(editValue));
   };
+
   const handleEditCancel = async () => {
-    setEditValue("");
+    setEditValue(value ?? "");
   };
+
   return (
     <InlineEditRichTextLayout
       editor={
-        <Textarea
-          ref={ref}
+        <MarkdownEditor
+          ref={editorRef}
           value={editValue}
-          rows={20}
-          style={{ width: "100%" }}
-          onChange={(e, data) => setEditValue(data.value)}
+          onChange={setEditValue}
         />
       }
       onEditStart={handleEditStart}
       onEditStarted={handleEditStarted}
-      onEditOK={handeEditOk}
+      onEditOK={handleEditOk}
       onEditCancel={handleEditCancel}
     >
       {value ? (
@@ -56,4 +53,8 @@ export function InlineEditDescription({
       )}
     </InlineEditRichTextLayout>
   );
+}
+
+function normalizeMarkdownBeforeSave(value: string): string {
+  return value.replace(/<br\s*\/?>/gi, "  \n");
 }

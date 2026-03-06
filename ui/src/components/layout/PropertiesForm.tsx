@@ -4,7 +4,7 @@ import { makeStyles, tokens } from "@fluentui/react-components";
 const useStyles = makeStyles({
   root: {
     display: "grid",
-    gridTemplateColumns: "min-content auto",
+    gridTemplateColumns: "max-content auto",
     columnGap: tokens.spacingVerticalM,
     rowGap: tokens.spacingVerticalS,
     "& > div": {
