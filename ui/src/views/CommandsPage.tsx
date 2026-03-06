@@ -1,24 +1,46 @@
-import { Fragment, useMemo, useState } from "react";
-import { type ActionResp, executeAction } from "@/business/action_runner";
-import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
-import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { Field, Textarea } from "@fluentui/react-components";
-import { Button, InputCombobox } from "@seij/common-ui";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import {Fragment, useMemo, useState} from "react";
+import {type ActionResp, executeAction} from "@/business/action_runner";
+import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
+import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {
+  Field,
+  makeStyles,
+  mergeClasses,
+  Textarea,
+  tokens,
+  Tree,
+  TreeItem,
+  TreeItemLayout,
+  type TreeItemValue,
+} from "@fluentui/react-components";
+import {Button} from "@seij/common-ui";
+import {useAppI18n} from "@/services/appI18n.tsx";
+import {ContainedMixedScrolling, ContainedScrollable} from "@/components/layout/Contained.tsx";
+
+const useSelectionStyles = makeStyles({
+  actionItem: {
+    fontWeight: tokens.fontWeightRegular,
+  },
+  actionItemSelected: {
+    fontWeight: tokens.fontWeightSemibold,
+    backgroundColor: tokens.colorNeutralBackground1Selected,
+    borderRadius: tokens.borderRadiusSmall,
+  },
+});
 
 export function CommandsPage() {
   const commandRegistryDto = useActionRegistry();
-  return <CommandsPageLoaded actionRegistry={commandRegistryDto} />;
+  return <CommandsPageLoaded actionRegistry={commandRegistryDto}/>;
 }
 
 export function CommandsPageLoaded({
-  actionRegistry,
-}: {
+                                     actionRegistry,
+                                   }: {
   actionRegistry: ActionRegistry;
 }) {
-  const { t } = useAppI18n();
+  const {t} = useAppI18n();
   const defaultGroupKey = actionRegistry.findFirstGroupKey();
   const defaultActionKey = defaultGroupKey
     ? actionRegistry.findFirstActionKey(defaultGroupKey)
@@ -28,39 +50,27 @@ export function CommandsPageLoaded({
     defaultActionKey,
   );
 
-  const [selectedGroupSearch, setSelectedGroupSearch] = useState<string>(
-    defaultGroupKey ?? "",
-  );
-  const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(
-    defaultGroupKey,
-  );
-
-  const [selectedActionSearch, setSelectedActionSearch] = useState<string>(
-    defaultActionKey ?? "",
-  );
-  const [selectedActionKey, setSelectedActionKey] = useState<
-    string | undefined
-  >(defaultActionKey);
+  const [selectedCommand, setSelectedCommand] = useState<{
+    groupKey: string | undefined;
+    actionKey: string | undefined;
+  }>({
+    groupKey: defaultGroupKey,
+    actionKey: defaultActionKey,
+  });
 
   const [payload, setPayload] = useState<string>(defaultPayload);
   const [output, setOutput] = useState<ActionResp | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const actionGroupKeys = actionRegistry.actionGroupKeys;
-
-  const actionsInGroup = useMemo(() => {
-    return actionRegistry.findActionDtoListByResource(selectedGroupKey);
-  }, [selectedGroupKey, actionRegistry]);
-
   const selectedActionDescriptor = useMemo(() => {
     return actionRegistry.findActionOptional(
-      selectedGroupKey,
-      selectedActionKey,
+      selectedCommand.groupKey,
+      selectedCommand.actionKey,
     );
-  }, [selectedActionKey, selectedGroupKey, actionRegistry]);
+  }, [selectedCommand.groupKey, selectedCommand.actionKey, actionRegistry]);
 
   const handleSubmit = () => {
-    if (!selectedGroupKey || !selectedActionKey) {
+    if (!selectedCommand.groupKey || !selectedCommand.actionKey) {
       setErrorMessage(t("commandsPage_selectResourceAndActionError"));
       return;
     }
@@ -78,110 +88,57 @@ export function CommandsPageLoaded({
     }
     setErrorMessage("");
 
-    executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
+    executeAction(
+      selectedCommand.groupKey,
+      selectedCommand.actionKey,
+      parsedPayload,
+    )
       .then((data) => setOutput(data))
       .catch((err) =>
-        setOutput({ contentType: "json", json: { error: err.toString() } }),
+        setOutput({contentType: "json", json: {error: err.toString()}}),
       );
   };
   const handleClear = () => {
-    setOutput({ contentType: "text", text: "" });
+    setOutput({contentType: "text", text: ""});
   };
 
-  const handleChangeActionGroup = (groupKey: string | undefined) => {
-    const nextGroup =
-      groupKey == undefined
-        ? undefined
-        : actionRegistry.existsGroup(groupKey)
-          ? groupKey
-          : undefined;
-    const nextAction = nextGroup
-      ? actionRegistry.findFirstActionKey(nextGroup)
-      : undefined;
-    setSelectedGroupKey(nextGroup);
-    setSelectedGroupSearch(nextGroup ?? "");
-    setSelectedActionKey(nextAction);
-    setSelectedActionSearch(nextAction ?? "");
-    setPayload(actionRegistry.createPayloadTemplate(nextGroup, nextAction));
+  const handleActionSelectionChange = (
+    groupKey: string | undefined,
+    actionKey: string | undefined,
+  ) => {
+    setSelectedCommand({groupKey, actionKey});
+    setPayload(actionRegistry.createPayloadTemplate(groupKey, actionKey));
   };
-
-  const handleChangeAction = (action: string) => {
-    if (!selectedGroupKey) {
-      setSelectedActionKey(undefined);
-      setPayload("{}");
-    } else {
-      const nextAction = actionRegistry.existsAction(selectedGroupKey, action)
-        ? action
-        : undefined;
-      const nextPayload = actionRegistry.createPayloadTemplate(
-        selectedGroupKey,
-        nextAction,
-      );
-      setSelectedActionKey(nextAction);
-      setSelectedActionSearch(nextAction ?? "");
-      setPayload(nextPayload);
-    }
-  };
-
-  const actionGroupOptions = actionGroupKeys
-    .map((it) => ({ code: it, label: it }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
-  const actionOptions = useMemo(
-    () =>
-      actionsInGroup
-        .map((it) => ({ code: it.key, label: it.key }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    [actionsInGroup],
-  );
 
   return (
     <ViewLayoutContained title={t("commandsPage_title")}>
       <ViewTitle eyebrow={t("commandsPage_eyebrow")}>
         {t("commandsPage_title")}
       </ViewTitle>
-      <div>
-        <div>
+      <ContainedMixedScrolling>
+        <ContainedScrollable>
           <div></div>
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: "minmax(100px, 1fr) minmax(0, 4fr)",
               columnGap: "1em",
             }}
           >
             <div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  columnGap: "1em",
-                }}
-              >
-                <Field label={t("commandsPage_groupLabel")}>
-                  <InputCombobox
-                    placeholder={t("commandsPage_groupPlaceholder")}
-                    disabled={actionGroupKeys.length === 0}
-                    onValueChangeQuery={setSelectedGroupSearch}
-                    searchQuery={selectedGroupSearch}
-                    onValueChange={handleChangeActionGroup}
-                    options={actionGroupOptions}
-                  />
-                </Field>
-                <Field label={t("commandsPage_actionLabel")}>
-                  <InputCombobox
-                    placeholder={t("commandsPage_actionPlaceholder")}
-                    disabled={!selectedGroupKey || actionsInGroup.length === 0}
-                    onValueChangeQuery={setSelectedActionSearch}
-                    searchQuery={selectedActionSearch}
-                    onValueChange={handleChangeAction}
-                    options={actionOptions}
-                  />
-                </Field>
-              </div>
+              <CommandsActionTree
+                actionRegistry={actionRegistry}
+                groupLabel={t("commandsPage_groupLabel")}
+                actionLabel={t("commandsPage_actionLabel")}
+                defaultGroupKey={defaultGroupKey}
+                defaultActionKey={defaultActionKey}
+                onActionSelect={handleActionSelectionChange}
+              />
+            </div>
+            <div style={{display: "grid", rowGap: "1em"}}>
               {selectedActionDescriptor ? (
-                <div style={{ padding: "1em" }}>
-                  <div style={{ marginBottom: "0.5em" }}>
+                <div>
+                  <div style={{marginBottom: "0.5em"}}>
                     {selectedActionDescriptor.description}
                   </div>
                   <div
@@ -205,8 +162,6 @@ export function CommandsPageLoaded({
               ) : (
                 <div>{t("commandsPage_noActionSelected")}</div>
               )}
-            </div>
-            <div>
               <Field label={t("commandsPage_payloadLabel")}>
                 <Textarea
                   placeholder={t("commandsPage_payloadPlaceholder")}
@@ -225,21 +180,159 @@ export function CommandsPageLoaded({
                 </Button>
               </div>
               {errorMessage ? (
-                <div style={{ color: "red" }}>{errorMessage}</div>
+                <div style={{color: "red"}}>{errorMessage}</div>
               ) : (
                 ""
               )}
+              {output && (
+                <pre style={{border: "1px solid green", padding: "1em"}}>
+                  <ActionOutput resp={output}/>
+                </pre>
+              )}
             </div>
           </div>
-        </div>
-        <div>
-          {output && (
-            <pre style={{ border: "1px solid green", padding: "1em" }}>
-              <ActionOutput resp={output} />
-            </pre>
-          )}
-        </div>
-      </div>
+        </ContainedScrollable>
+      </ContainedMixedScrolling>
     </ViewLayoutContained>
+  );
+}
+
+
+function CommandsActionTree(
+  {
+    actionRegistry,
+    groupLabel,
+    actionLabel,
+    defaultGroupKey,
+    defaultActionKey,
+    onActionSelect,
+  }: {
+    actionRegistry: ActionRegistry;
+    groupLabel: string;
+    actionLabel: string;
+    defaultGroupKey: string | undefined;
+    defaultActionKey: string | undefined;
+    onActionSelect: (
+      groupKey: string | undefined,
+      actionKey: string | undefined,
+    ) => void;
+  }) {
+  const selectionStyles = useSelectionStyles();
+  const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(
+    defaultGroupKey,
+  );
+  const [selectedActionKey, setSelectedActionKey] = useState<
+    string | undefined
+  >(defaultActionKey);
+  const [openGroupKeys, setOpenGroupKeys] = useState<TreeItemValue[]>(
+    defaultGroupKey ? [defaultGroupKey] : [],
+  );
+
+  const selectedActionValue = useMemo(
+    () =>
+      selectedGroupKey && selectedActionKey
+        ? `${selectedGroupKey}:${selectedActionKey}`
+        : undefined,
+    [selectedGroupKey, selectedActionKey],
+  );
+  const treeGroups = useMemo(
+    () =>
+      actionRegistry.actionGroupKeys
+        .slice()
+        .sort((a, b) => a.localeCompare(b))
+        .map((groupKey) => ({
+          groupKey,
+          actions: actionRegistry
+            .findActionDtoListByResource(groupKey)
+            .slice()
+            .sort((a, b) => a.key.localeCompare(b.key)),
+        })),
+    [actionRegistry],
+  );
+
+  const handleChangeActionGroup = (groupKey: string | undefined) => {
+    const nextGroup =
+      groupKey == undefined
+        ? undefined
+        : actionRegistry.existsGroup(groupKey)
+          ? groupKey
+          : undefined;
+    const nextAction = nextGroup
+      ? actionRegistry.findFirstActionKey(nextGroup)
+      : undefined;
+    setSelectedGroupKey(nextGroup);
+    setSelectedActionKey(nextAction);
+    setOpenGroupKeys((currentOpenGroupKeys) => {
+      if (!nextGroup) {
+        return currentOpenGroupKeys;
+      }
+      const hasGroupAlreadyOpen = currentOpenGroupKeys.some(
+        (openItem) => openItem === nextGroup,
+      );
+      return hasGroupAlreadyOpen
+        ? currentOpenGroupKeys
+        : [...currentOpenGroupKeys, nextGroup];
+    });
+    onActionSelect(nextGroup, nextAction);
+  };
+
+  const handleSelectActionFromTree = (groupKey: string, actionKey: string) => {
+    if (!actionRegistry.existsAction(groupKey, actionKey)) {
+      setSelectedActionKey(undefined);
+      onActionSelect(groupKey, undefined);
+      return;
+    }
+    setSelectedGroupKey(groupKey);
+    setSelectedActionKey(actionKey);
+    setOpenGroupKeys((currentOpenGroupKeys) => {
+      const hasGroupAlreadyOpen = currentOpenGroupKeys.some(
+        (openItem) => openItem === groupKey,
+      );
+      return hasGroupAlreadyOpen
+        ? currentOpenGroupKeys
+        : [...currentOpenGroupKeys, groupKey];
+    });
+    onActionSelect(groupKey, actionKey);
+  };
+
+  return (
+    <Field label={`${groupLabel} / ${actionLabel}`}>
+      <Tree
+        aria-label="command-tree"
+        openItems={openGroupKeys}
+        onOpenChange={(_, data) => setOpenGroupKeys(Array.from(data.openItems))}
+      >
+        {treeGroups.map((group) => (
+          <TreeItem key={group.groupKey} itemType="branch" value={group.groupKey}>
+            <TreeItemLayout onClick={() => handleChangeActionGroup(group.groupKey)}>
+              {group.groupKey}
+            </TreeItemLayout>
+            <Tree>
+              {group.actions.map((action) => (
+                <TreeItem
+                  key={`${group.groupKey}:${action.key}`}
+                  itemType="leaf"
+                  value={`${group.groupKey}:${action.key}`}
+                >
+                  <TreeItemLayout
+                    className={mergeClasses(
+                      selectionStyles.actionItem,
+                      selectedActionValue === `${group.groupKey}:${action.key}`
+                        ? selectionStyles.actionItemSelected
+                        : undefined,
+                    )}
+                    onClick={() =>
+                      handleSelectActionFromTree(group.groupKey, action.key)
+                    }
+                  >
+                    {action.key}
+                  </TreeItemLayout>
+                </TreeItem>
+              ))}
+            </Tree>
+          </TreeItem>
+        ))}
+      </Tree>
+    </Field>
   );
 }
