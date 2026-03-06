@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {type ActionResp, executeAction} from "@/business/action_runner";
 import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
 import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
@@ -8,6 +8,10 @@ import {
   Field,
   makeStyles,
   mergeClasses,
+  Table,
+  TableBody,
+  TableCell, TableHeader, TableHeaderCell,
+  TableRow,
   Textarea,
   tokens,
   Tree,
@@ -61,14 +65,48 @@ const useActionLauncherStyles = makeStyles({
     gap: "1em",
     minHeight: 0,
   },
+  title: {
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: tokens.fontWeightSemibold,
+  },
+  subtitle: {
+    color: tokens.colorNeutralForeground3,
+    fontSize: tokens.fontSizeBase300,
+    marginTop: tokens.spacingVerticalXXS,
+  },
   actionDescription: {
     marginBottom: "0.5em",
   },
-  actionParametersGrid: {
-    display: "grid",
-    gridTemplateColumns: "auto auto",
-    columnGap: "1em",
-    rowGap: "0.5em",
+  parametersTableWrapper: {
+    overflowX: "auto",
+  },
+  parametersTable: {
+    width: "100%",
+    minWidth: "640px",
+  },
+  parameterCol: {
+    width: "clamp(120px, 18vw, 260px)",
+  },
+  typeCol: {
+    width: "clamp(90px, 10vw, 160px)",
+    whiteSpace: "nowrap",
+  },
+  descriptionCol: {
+    width: "auto",
+    minWidth: 0,
+    whiteSpace: "normal",
+    wordBreak: "break-word",
+  },
+  "@media (max-width: 900px)": {
+    parametersTable: {
+      minWidth: "560px",
+    },
+    parameterCol: {
+      width: "clamp(110px, 24vw, 210px)",
+    },
+    typeCol: {
+      width: "clamp(80px, 16vw, 130px)",
+    },
   },
   errorMessage: {
     color: tokens.colorPaletteRedForeground1,
@@ -206,20 +244,47 @@ function ActionLaucher(
 
   return (
     <div className={styles.root}>
+      <div>
+        <div className={styles.title}>
+          {selectedActionKey ?? t("commandsPage_noActionSelected")}
+        </div>
+        {selectedActionDescriptor &&
+        selectedActionDescriptor.title !== selectedActionKey ? (
+          <div className={styles.subtitle}>{selectedActionDescriptor.title}</div>
+        ) : (
+          ""
+        )}
+      </div>
       {selectedActionDescriptor ? (
         <div>
           <div className={styles.actionDescription}>
             {selectedActionDescriptor.description}
           </div>
-          <div className={styles.actionParametersGrid}>
-            {selectedActionDescriptor.parameters.map((parameter) => (
-              <Fragment key={parameter.name}>
-                <div>{parameter.name}</div>
-                <div>
-                  {parameter.type} {parameter.optional ? "?" : ""}
-                </div>
-              </Fragment>
-            ))}
+          <div className={styles.parametersTableWrapper}>
+            <Table size="small" className={styles.parametersTable}>
+              <TableHeader>
+                <TableRow>
+                  <TableHeaderCell className={styles.parameterCol}>Parameter</TableHeaderCell>
+                  <TableHeaderCell className={styles.typeCol}>Type</TableHeaderCell>
+                  <TableHeaderCell className={styles.descriptionCol}>Description</TableHeaderCell>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedActionDescriptor.parameters.map((parameter) => (
+                  <TableRow key={parameter.name}>
+                    <TableCell className={styles.parameterCol}>
+                      <div>{parameter.name}</div>
+                    </TableCell>
+                    <TableCell className={styles.typeCol}>
+                      {parameter.type} {parameter.optional ? "?" : ""}
+                    </TableCell>
+                    <TableCell className={styles.descriptionCol}>
+                      {parameter.description ?? "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       ) : (
