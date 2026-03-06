@@ -7,6 +7,7 @@ import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
+  Button,
   Field,
   makeStyles,
   mergeClasses,
@@ -23,7 +24,7 @@ import {
   TreeItemLayout,
   type TreeItemValue,
 } from "@fluentui/react-components";
-import {Button, ButtonBar} from "@seij/common-ui";
+import {CheckmarkRegular, CopyRegular, DismissRegular} from "@fluentui/react-icons";
 import {useAppI18n} from "@/services/appI18n.tsx";
 import {Problem, type ProblemJson} from "@seij/common-types";
 import {ErrorBox} from "@seij/common-ui";
@@ -145,6 +146,11 @@ const useActionLauncherStyles = makeStyles({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: tokens.spacingVerticalXS,
+  },
+  actionButtons: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: tokens.spacingHorizontalXS,
   },
 });
 
@@ -392,20 +398,24 @@ function ActionLaucher(
           rows={6}
         />
       </Field>
-      <ButtonBar>
-        <Button variant="primary" onClick={handleSubmit}>
+      <div className={styles.actionButtons}>
+        <Button appearance="primary" icon={<CheckmarkRegular/>} onClick={handleSubmit}>
           {t("commandsPage_submit")}
         </Button>
-        <Button variant="secondary" onClick={handleClear}>
+        <Button appearance="secondary" icon={<DismissRegular/>} onClick={handleClear}>
           {t("commandsPage_clear")}
         </Button>
-      </ButtonBar>
+      </div>
       {errorMessage ? <ErrorBox error={errorMessage}/> : ""}
       {output && (
         <div>
           <div className={styles.outputHeader}>
             <div className={styles.outputTitle}>{t("commandsPage_output")}</div>
-            <Button variant="secondary" onClick={handleCopyOutput}>
+            <Button
+              appearance="secondary"
+              icon={<CopyRegular/>}
+              onClick={handleCopyOutput}
+            >
               {t("commandsPage_copy_output")}
             </Button>
           </div>
