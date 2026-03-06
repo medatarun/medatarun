@@ -7,6 +7,9 @@ export interface CommandsPageMessages {
   commandsPage_noParametersRequired: string;
   commandsPage_submit: string;
   commandsPage_clear: string;
+  commandsPage_output: string;
+  commandsPage_copy_output: string;
+  commandsPage_copyOutputError: string;
   commandsPage_selectResourceAndActionError: string;
   commandsPage_invalidPayloadError: string;
   commandsPage_unknownError: string;

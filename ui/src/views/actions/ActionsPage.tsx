@@ -23,7 +23,7 @@ import {
   TreeItemLayout,
   type TreeItemValue,
 } from "@fluentui/react-components";
-import {Button} from "@seij/common-ui";
+import {Button, ButtonBar} from "@seij/common-ui";
 import {useAppI18n} from "@/services/appI18n.tsx";
 import {Problem, type ProblemJson} from "@seij/common-types";
 import {ErrorBox} from "@seij/common-ui";
@@ -140,6 +140,12 @@ const useActionLauncherStyles = makeStyles({
   outputTitle: {
     fontWeight: tokens.fontWeightSemibold,
   },
+  outputHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: tokens.spacingVerticalXS,
+  },
 });
 
 export function ActionsPage() {
@@ -246,6 +252,12 @@ function ActionLaucher(
   const toProblem = (problemJson: ProblemJson): Problem => {
     return new Problem(problemJson);
   };
+  const toOutputText = (resp: ActionResp): string => {
+    if (resp.contentType === "text") {
+      return resp.text;
+    }
+    return JSON.stringify(resp.json, null, 2);
+  };
 
   const handleSubmit = () => {
     if (!selectedGroupKey || !selectedActionKey) {
@@ -292,6 +304,22 @@ function ActionLaucher(
 
   const handleClear = () => {
     setOutput({contentType: "text", text: ""});
+  };
+  const handleCopyOutput = () => {
+    if (!output) {
+      return;
+    }
+    navigator.clipboard
+      .writeText(toOutputText(output))
+      .catch((e) =>
+        setErrorMessage(
+          toProblem({
+            type: "action-runner/copy-error",
+            title: t("commandsPage_copyOutputError"),
+            detail: e instanceof Error ? e.message : `${e}`,
+          }),
+        ),
+      );
   };
 
   return (
@@ -364,18 +392,23 @@ function ActionLaucher(
           rows={6}
         />
       </Field>
-      <div>
+      <ButtonBar>
         <Button variant="primary" onClick={handleSubmit}>
           {t("commandsPage_submit")}
         </Button>
         <Button variant="secondary" onClick={handleClear}>
           {t("commandsPage_clear")}
         </Button>
-      </div>
+      </ButtonBar>
       {errorMessage ? <ErrorBox error={errorMessage}/> : ""}
       {output && (
         <div>
-          <div className={styles.outputTitle}>Results</div>
+          <div className={styles.outputHeader}>
+            <div className={styles.outputTitle}>{t("commandsPage_output")}</div>
+            <Button variant="secondary" onClick={handleCopyOutput}>
+              {t("commandsPage_copy_output")}
+            </Button>
+          </div>
           <pre className={styles.output}>
             <ActionOutput resp={output}/>
           </pre>
