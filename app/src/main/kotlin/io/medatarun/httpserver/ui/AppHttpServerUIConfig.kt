@@ -9,7 +9,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.internal.ActionRegistry
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.lang.exceptions.MedatarunException

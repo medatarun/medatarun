@@ -1,4 +1,4 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.domain.ActionInvocationException

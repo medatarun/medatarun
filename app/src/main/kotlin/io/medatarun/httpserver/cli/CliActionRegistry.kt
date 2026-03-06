@@ -1,7 +1,7 @@
 package io.medatarun.httpserver.cli
 
 import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.internal.ActionRegistry
 import kotlinx.serialization.Serializable
 
 class CliActionRegistry(private val actionRegistry: ActionRegistry) {

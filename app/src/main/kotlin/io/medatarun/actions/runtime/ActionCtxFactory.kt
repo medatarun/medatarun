@@ -1,5 +1,6 @@
 package io.medatarun.actions.runtime
 
+import io.medatarun.actions.internal.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest

@@ -1,6 +1,5 @@
-package io.medatarun.actions.adapters
+package io.medatarun.actions.internal
 
-import io.medatarun.actions.internal.SecurityRuleCtxAction
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest

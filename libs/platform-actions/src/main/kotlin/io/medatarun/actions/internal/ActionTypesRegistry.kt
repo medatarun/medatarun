@@ -1,4 +1,4 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
 import io.medatarun.actions.actions.ActionWithPayload
 import io.medatarun.actions.domain.UndefinedMultiplatformTypeException

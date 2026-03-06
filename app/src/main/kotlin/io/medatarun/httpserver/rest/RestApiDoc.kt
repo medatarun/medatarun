@@ -1,6 +1,6 @@
 package io.medatarun.httpserver.rest
 
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.internal.ActionRegistry
 import kotlinx.serialization.Serializable
 
 class RestApiDoc(private val actionRegistry: ActionRegistry) {
