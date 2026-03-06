@@ -2,6 +2,7 @@ import {useEffect, useMemo, useState} from "react";
 import {type ActionResp, executeAction} from "@/business/action_runner";
 import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
 import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
+import {Markdown} from "@/components/core/Markdown.tsx";
 import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
@@ -24,6 +25,8 @@ import {
 } from "@fluentui/react-components";
 import {Button} from "@seij/common-ui";
 import {useAppI18n} from "@/services/appI18n.tsx";
+import {Problem, type ProblemJson} from "@seij/common-types";
+import {ErrorBox} from "@seij/common-ui";
 
 const useActionTreeStyles = makeStyles({
   root: {
@@ -90,6 +93,12 @@ const useActionLauncherStyles = makeStyles({
   actionDescription: {
     marginBottom: "0.5em",
   },
+  markdownCompact: {
+    "& p": {
+      marginTop: 0,
+      marginBottom: 0,
+    },
+  },
   parametersTableWrapper: {
     overflowX: "auto",
   },
@@ -121,13 +130,12 @@ const useActionLauncherStyles = makeStyles({
       width: "clamp(80px, 16vw, 130px)",
     },
   },
-  errorMessage: {
-    color: tokens.colorPaletteRedForeground1,
-  },
   output: {
     border: `${tokens.strokeWidthThin} solid ${tokens.colorNeutralStroke2}`,
     borderRadius: tokens.borderRadiusSmall,
     padding: tokens.spacingHorizontalM,
+    maxHeight: "45vh",
+    overflowY: "auto",
   },
   outputTitle: {
     fontWeight: tokens.fontWeightSemibold,
@@ -216,7 +224,7 @@ function ActionLaucher(
   const {t} = useAppI18n();
   const [payload, setPayload] = useState<string>(defaultPayload);
   const [output, setOutput] = useState<ActionResp | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<Problem | null>(null);
 
   const selectedActionDescriptor = useMemo(() => {
     return actionRegistry.findActionOptional(selectedGroupKey, selectedActionKey);
@@ -232,12 +240,21 @@ function ActionLaucher(
 
   useEffect(() => {
     setOutput(null);
-    setErrorMessage("");
+    setErrorMessage(null);
   }, [selectedGroupKey, selectedActionKey]);
+
+  const toProblem = (problemJson: ProblemJson): Problem => {
+    return new Problem(problemJson);
+  };
 
   const handleSubmit = () => {
     if (!selectedGroupKey || !selectedActionKey) {
-      setErrorMessage(t("commandsPage_selectResourceAndActionError"));
+      setErrorMessage(
+        toProblem({
+          type: "action-runner/validation-error",
+          title: t("commandsPage_selectResourceAndActionError"),
+        }),
+      );
       return;
     }
     let parsedPayload;
@@ -245,20 +262,32 @@ function ActionLaucher(
       parsedPayload = JSON.parse(payload);
     } catch (e) {
       setErrorMessage(
-        t("commandsPage_invalidPayloadError", {
-          details:
-            e instanceof Error ? e.message : t("commandsPage_unknownError"),
+        toProblem({
+          type: "action-runner/invalid-payload",
+          title: t("commandsPage_invalidPayloadError", {
+            details:
+              e instanceof Error ? e.message : t("commandsPage_unknownError"),
+          }),
         }),
       );
       return;
     }
-    setErrorMessage("");
+    setErrorMessage(null);
 
     executeAction(selectedGroupKey, selectedActionKey, parsedPayload)
       .then((data) => setOutput(data))
-      .catch((err) =>
-        setOutput({contentType: "json", json: {error: err.toString()}}),
-      );
+      .catch((err) => {
+        const problem =
+          err instanceof Problem
+            ? err
+            : toProblem({
+              type: "action-runner/execution-error",
+              title: t("commandsPage_unknownError"),
+              detail: err instanceof Error ? err.message : `${err}`,
+            });
+        setErrorMessage(problem);
+        setOutput(null);
+      });
   };
 
   const handleClear = () => {
@@ -281,7 +310,9 @@ function ActionLaucher(
       {selectedActionDescriptor ? (
         <div>
           <div className={styles.actionDescription}>
-            {selectedActionDescriptor.description}
+            <div className={styles.markdownCompact}>
+              <Markdown value={selectedActionDescriptor.description}/>
+            </div>
           </div>
           {selectedActionDescriptor.parameters.length === 0 ? (
             <MissingInformation>
@@ -307,7 +338,13 @@ function ActionLaucher(
                         {parameter.type} {parameter.optional ? "?" : ""}
                       </TableCell>
                       <TableCell className={styles.descriptionCol}>
-                        {parameter.description ?? "-"}
+                        {parameter.description ? (
+                          <div className={styles.markdownCompact}>
+                            <Markdown value={parameter.description}/>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -335,11 +372,7 @@ function ActionLaucher(
           {t("commandsPage_clear")}
         </Button>
       </div>
-      {errorMessage ? (
-        <div className={styles.errorMessage}>{errorMessage}</div>
-      ) : (
-        ""
-      )}
+      {errorMessage ? <ErrorBox error={errorMessage}/> : ""}
       {output && (
         <div>
           <div className={styles.outputTitle}>Results</div>
