@@ -1,6 +1,6 @@
 package io.medatarun.httpserver.ui
 
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.internal.ActionRegistry
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.model.domain.*

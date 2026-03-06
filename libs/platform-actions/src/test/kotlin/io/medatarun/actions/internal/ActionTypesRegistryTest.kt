@@ -1,5 +1,6 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
+import io.medatarun.actions.domain.UndefinedMultiplatformTypeException
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
@@ -81,7 +82,10 @@ class ActionTypesRegistryTest {
         assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(Double::class.createType()))
         assertEquals(TypeJsonEquiv.NUMBER, registry.toJsonType(BigDecimal::class.createType()))
         assertEquals(TypeJsonEquiv.ARRAY, registry.toJsonType(listType(String::class.createType())))
-        assertEquals(TypeJsonEquiv.OBJECT, registry.toJsonType(mapType(String::class.createType(), Int::class.createType())))
+        assertEquals(
+            TypeJsonEquiv.OBJECT,
+            registry.toJsonType(mapType(String::class.createType(), Int::class.createType()))
+        )
         assertEquals(TypeJsonEquiv.STRING, registry.toJsonType(Instant::class.createType()))
         assertEquals(TypeJsonEquiv.STRING, registry.toJsonType(LocalDate::class.createType()))
     }
@@ -97,7 +101,10 @@ class ActionTypesRegistryTest {
         assertEquals("Integer", registry.toMultiplatformType(BigInteger::class.createType()))
         assertEquals("Decimal", registry.toMultiplatformType(Double::class.createType()))
         assertEquals("Decimal", registry.toMultiplatformType(BigDecimal::class.createType()))
-        assertEquals("Map<String,Integer>", registry.toMultiplatformType(mapType(String::class.createType(), Int::class.createType())))
+        assertEquals(
+            "Map<String,Integer>",
+            registry.toMultiplatformType(mapType(String::class.createType(), Int::class.createType()))
+        )
         assertEquals("Instant", registry.toMultiplatformType(Instant::class.createType()))
         assertEquals("LocalDate", registry.toMultiplatformType(LocalDate::class.createType()))
     }
@@ -141,13 +148,13 @@ class ActionTypesRegistryTest {
     }
 
     private fun listType(elementType: KType): KType {
-        return List::class.createType(listOf(KTypeProjection.invariant(elementType)))
+        return List::class.createType(listOf(KTypeProjection.Companion.invariant(elementType)))
     }
 
     private fun mapType(keyType: KType, valueType: KType): KType {
         val arguments = listOf(
-            KTypeProjection.invariant(keyType),
-            KTypeProjection.invariant(valueType)
+            KTypeProjection.Companion.invariant(keyType),
+            KTypeProjection.Companion.invariant(valueType)
         )
         return Map::class.createType(arguments)
     }

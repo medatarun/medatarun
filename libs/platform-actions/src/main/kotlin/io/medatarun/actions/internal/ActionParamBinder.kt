@@ -1,7 +1,9 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
-import io.ktor.http.*
+import io.medatarun.actions.domain.ActionCmdDescriptor
+import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.lang.http.StatusCode
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -24,7 +26,7 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
         val callArgs = mutableMapOf<KParameter, ActionParamBindingState>()
 
         val function = actionClass.primaryConstructor ?: throw ActionInvocationException(
-            HttpStatusCode.InternalServerError,
+            StatusCode.INTERNAL_SERVER_ERROR,
             "Action class $actionClass has no primary constructor"
         )
         function.parameters.forEach { parameter ->
@@ -36,31 +38,31 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
                 KParameter.Kind.INSTANCE -> callArgs[parameter] = ActionParamBindingState.Ok(actionProviderInstance)
                 KParameter.Kind.VALUE -> {
                     val paramSerialName = parameter.name ?: throw ActionInvocationException(
-                        HttpStatusCode.InternalServerError,
+                        StatusCode.INTERNAL_SERVER_ERROR,
                         "Parameter [${parameter}] has no name"
                     )
                     val paramDescriptor = actionDescriptor.findParamByName(paramSerialName)
                         ?: throw ActionInvocationException(
-                            HttpStatusCode.InternalServerError,
+                            StatusCode.INTERNAL_SERVER_ERROR,
                             "No action parameter descriptor found for [$paramSerialName]"
                         )
 
                     if (isNullish(actionPayload, paramSerialName)) {
                         if (!paramDescriptor.optional) {
-                            callArgs[parameter] = ActionParamBindingState.Missing(HttpStatusCode.BadRequest)
+                            callArgs[parameter] = ActionParamBindingState.Missing(StatusCode.BAD_REQUEST)
                         } else {
                             callArgs[parameter] = ActionParamBindingState.Ok(null)
                         }
                     } else {
                         val raw = actionPayload.get(paramSerialName) ?: throw ActionInvocationException(
-                            HttpStatusCode.InternalServerError,
+                            StatusCode.INTERNAL_SERVER_ERROR,
                             "Parameter [${paramSerialName}] could not be found in Json payload"
                         )
 
                         when (val conversion = jsonValueConverter.convert(raw, parameter.type)) {
                             is ActionParamJsonValueConverter.ConversionResult.Error ->
                                 callArgs[parameter] =
-                                    ActionParamBindingState.Error(HttpStatusCode.BadRequest, conversion.message)
+                                    ActionParamBindingState.Error(StatusCode.BAD_REQUEST, conversion.message)
 
                             is ActionParamJsonValueConverter.ConversionResult.Value -> {
                                 try {
@@ -73,7 +75,7 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
                                     callArgs[parameter] = ActionParamBindingState.Ok(conversion.value)
                                 } catch (e: Throwable) {
                                     callArgs[parameter] = ActionParamBindingState.Error(
-                                        HttpStatusCode.BadRequest,
+                                        StatusCode.BAD_REQUEST,
                                         e.message ?: "Unknown error"
                                     )
                                 }

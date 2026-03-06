@@ -1,4 +1,4 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.domain
 
 import io.medatarun.actions.ports.needs.ActionProvider
 

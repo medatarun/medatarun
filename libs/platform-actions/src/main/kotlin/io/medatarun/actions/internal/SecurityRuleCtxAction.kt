@@ -1,4 +1,4 @@
-package io.medatarun.actions.adapters
+package io.medatarun.actions.internal
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.security.AppPrincipalRole

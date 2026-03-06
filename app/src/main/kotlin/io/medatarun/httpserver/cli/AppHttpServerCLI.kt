@@ -2,7 +2,7 @@ package io.medatarun.httpserver.cli
 
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.medatarun.actions.runtime.ActionRegistry
+import io.medatarun.actions.internal.ActionRegistry
 
 /**
  * Specific APIs for CLI (getting online docs mostly)

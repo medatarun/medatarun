@@ -1,5 +1,11 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
+import io.medatarun.actions.domain.ActionCmdAccessType
+import io.medatarun.actions.domain.ActionCmdDescriptor
+import io.medatarun.actions.domain.ActionCmdParamDescriptor
+import io.medatarun.actions.domain.ActionDefinitionWithUnknownSecurityRule
+import io.medatarun.actions.domain.ActionDefinitionWithoutDocException
+import io.medatarun.actions.domain.ActionGroupDescriptor
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionProvider

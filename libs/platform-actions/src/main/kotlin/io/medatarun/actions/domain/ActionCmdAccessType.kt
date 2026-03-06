@@ -1,4 +1,4 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.domain
 
 /**
  * Indicates how to invoke the command (may be expanded in the future, had contained other values before, we keep it)

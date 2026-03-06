@@ -12,5 +12,18 @@ annotation class ActionDoc(
      */
     val description: String = "",
     val uiLocations: Array<String>,
-    val securityRule: String
+    val securityRule: String,
+    val semantics: ActionSemantics = ActionSemantics(
+        mode = ActionSemanticsMode.AUTO
+    )
+
 )
+
+@Target()
+annotation class ActionSemantics(
+    val mode: ActionSemanticsMode = ActionSemanticsMode.AUTO
+)
+
+enum class ActionSemanticsMode {
+    AUTO, NONE, UNKNOWN
+}
