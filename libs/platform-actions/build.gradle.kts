@@ -13,5 +13,6 @@ dependencies {
     implementation(project(":libs:lang"))
     implementation(project(":libs:platform-kernel"))
     implementation(project(":libs:platform-security"))
+    implementation(project(":libs:platform-type-system"))
     testImplementation(kotlin("test"))
 }

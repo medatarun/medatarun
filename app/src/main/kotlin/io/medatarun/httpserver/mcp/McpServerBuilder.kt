@@ -1,6 +1,7 @@
 package io.medatarun.httpserver.mcp
 
 
+import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.*
 import io.medatarun.security.AppPrincipal

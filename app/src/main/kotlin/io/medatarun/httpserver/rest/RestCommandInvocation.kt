@@ -9,6 +9,7 @@ import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.runtime.ActionInvocationException
 import io.medatarun.actions.runtime.ActionInvoker
 import io.medatarun.httpserver.commons.HttpAdapters
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.AppPrincipal
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
@@ -23,12 +24,12 @@ class RestCommandInvocation(
         val actionKeyPathValue = call.parameters["actionKey"]
         try {
             val actionGroupKey = actionGroupKeyPathValue ?: throw ActionInvocationException(
-                HttpStatusCode.BadRequest,
+                StatusCode.BAD_REQUEST,
                 message = "Missing resource name",
 
                 )
             val actionKey = actionKeyPathValue ?: throw ActionInvocationException(
-                HttpStatusCode.BadRequest,
+                StatusCode.BAD_REQUEST,
                 "Missing function name",
 
                 )
@@ -53,7 +54,7 @@ class RestCommandInvocation(
         } catch (exception: ActionInvocationException) {
             val resourceForLog = actionGroupKeyPathValue ?: "unknown"
             val functionForLog = actionKeyPathValue ?: "unknown"
-            if (exception.status.value >= 500) {
+            if (exception.status.httpStatusCode >= 500) {
                 logger.error(
                     "Invocation failed for $resourceForLog.$functionForLog",
                     exception
@@ -67,12 +68,16 @@ class RestCommandInvocation(
             val payloadJson = buildJsonObject {
                 put("type", "about:blank")
                 put("title", exception.msg)
-                put("status", exception.status.value)
+                put("status", exception.status.httpStatusCode)
                 exception.payload.forEach { (k, v) ->
                     put(k,v)
                 }
             }
-            call.respondText(status = exception.status, text = payloadJson.toString(), contentType = ContentType.Application.Json)
+            call.respondText(
+                status = HttpStatusCode(exception.status.httpStatusCode, exception.status.message),
+                text = payloadJson.toString(),
+                contentType = ContentType.Application.Json
+            )
         }
     }
 

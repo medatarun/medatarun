@@ -1,6 +1,7 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonConverterBadFormatException
@@ -30,7 +31,7 @@ class ActionParamJsonValueConverter(
 
         val classifier = type.classifier as? KClass<*>
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "Unsupported type $type"
             )
 
@@ -54,7 +55,7 @@ class ActionParamJsonValueConverter(
             return ConversionResult.Value(value)
         } catch (e: TypeJsonConverterIllegalNullException) {
             throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 e.msg
             )
         } catch (e: TypeJsonConverterBadFormatException) {
@@ -65,7 +66,7 @@ class ActionParamJsonValueConverter(
     fun convertList(raw: JsonElement, type: KType): ConversionResult {
         val elementType = type.arguments.singleOrNull()?.type
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "List type has no generic argument"
             )
 
@@ -88,7 +89,7 @@ class ActionParamJsonValueConverter(
 
         val kclass = type.classifier as? KClass<*>
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "Can not manage KType of kind [$type]"
             )
 
@@ -109,7 +110,7 @@ class ActionParamJsonValueConverter(
                     convertDataClass(kclass, raw)
                 } else {
                     throw ActionInvocationException(
-                        HttpStatusCode.InternalServerError,
+                        StatusCode.INTERNAL_SERVER_ERROR,
                         "Unsupported parameter type: ${kclass.simpleName}"
                     )
                 }
@@ -200,12 +201,12 @@ class ActionParamJsonValueConverter(
     fun convertMap(raw: JsonElement, type: KType): ConversionResult {
         val keyType = type.arguments.getOrNull(0)?.type
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "Map type has no key generic argument"
             )
         val valueType = type.arguments.getOrNull(1)?.type
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "Map type has no value generic argument"
             )
 
@@ -236,7 +237,7 @@ class ActionParamJsonValueConverter(
         // Gets the value class constructor and its only parameter
         val ctor = kclass.primaryConstructor
             ?: throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "No constructor for value class ${kclass.simpleName}"
             )
         val innerParam = ctor.parameters.single()
@@ -269,7 +270,7 @@ class ActionParamJsonValueConverter(
         val ctor = kclass.primaryConstructor
         return if (ctor == null) {
             throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "No primary constructor for data class ${kclass.simpleName}"
             )
         } else {

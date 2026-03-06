@@ -1,6 +1,6 @@
 package io.medatarun.httpserver.cli
 
-import io.medatarun.actions.runtime.ActionCmdDescriptor
+import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.runtime.ActionRegistry
 import kotlinx.serialization.Serializable
 

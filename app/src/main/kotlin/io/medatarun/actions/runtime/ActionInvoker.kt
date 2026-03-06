@@ -1,6 +1,9 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.actions.domain.ActionCmdAccessType
+import io.medatarun.actions.domain.ActionCmdDescriptor
+import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -31,7 +34,7 @@ class ActionInvoker(
 
         val descriptor = registry.findGroupDescriptorByIdOptional(actionGroupKey)
             ?: throw ActionInvocationException(
-                HttpStatusCode.NotFound,
+                StatusCode.NOT_FOUND,
                 "Unknown action group '$actionGroupKey'"
             )
 
@@ -39,7 +42,7 @@ class ActionInvoker(
 
         val actionDescriptor = descriptor.actions.find { it.key == actionKey }
             ?: throw ActionInvocationException(
-                HttpStatusCode.NotFound,
+                StatusCode.NOT_FOUND,
                 "Unknown action '$actionGroupKey/$actionKey'"
             )
 
@@ -47,7 +50,7 @@ class ActionInvoker(
             actionSecurityRuleEvaluators.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
             throw ActionInvocationException(
-                HttpStatusCode.Unauthorized,
+                StatusCode.UNAUTHORIZED,
                 "Unauthorized",
                 mapOf("details" to securityRuleEvaluationResult.msg)
             )
@@ -69,7 +72,7 @@ class ActionInvoker(
             if (cause != null) {
                 logger.error("Invocation failed", e)
                 throw ActionInvocationException(
-                    HttpStatusCode.InternalServerError,
+                    StatusCode.INTERNAL_SERVER_ERROR,
                     cause::class.simpleName ?: "Invocation failed",
                     mapOf(
                         "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
@@ -78,7 +81,7 @@ class ActionInvoker(
             } else {
                 logger.error("Invocation failed", e)
                 throw ActionInvocationException(
-                    HttpStatusCode.InternalServerError,
+                    StatusCode.INTERNAL_SERVER_ERROR,
                     "Invocation failed",
                     mapOf(
                         "details" to (e.message ?: e::class.simpleName).toString()
@@ -88,13 +91,13 @@ class ActionInvoker(
         } catch (e: MedatarunException) {
             if (e.httpStatusCode.httpStatusCode < StatusCode.INTERNAL_SERVER_ERROR.httpStatusCode) {
                 throw ActionInvocationException(
-                    HttpStatusCode(e.httpStatusCode.httpStatusCode, e.httpStatusCode.name),
+                    e.httpStatusCode,
                     e.msg
                 )
             } else {
                 logger.error("Invocation failed", e)
                 throw ActionInvocationException(
-                    HttpStatusCode.InternalServerError,
+                    StatusCode.INTERNAL_SERVER_ERROR,
                     "Internal server error",
                     mapOf("details" to e.msg)
                 )
@@ -102,7 +105,7 @@ class ActionInvoker(
         } catch (throwable: Throwable) {
             logger.error("Invocation failed", throwable)
             throw ActionInvocationException(
-                HttpStatusCode.InternalServerError,
+                StatusCode.INTERNAL_SERVER_ERROR,
                 "Invocation failed",
                 mapOf(
                     "details" to (throwable.message ?: throwable::class.simpleName).toString()
@@ -128,7 +131,7 @@ class ActionInvoker(
             ?.sealedSubclasses
             ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
             ?: throw ActionInvocationException(
-                HttpStatusCode.NotFound,
+                StatusCode.NOT_FOUND,
                 "Action $actionGroupKey/$actionKey not found"
             )
 
@@ -149,7 +152,7 @@ class ActionInvoker(
             override fun invoke(): Any? {
                 val cmd = actionClass.primaryConstructor?.callBy(bindings.toCallArgs())
                     ?: throw ActionInvocationException(
-                        HttpStatusCode.InternalServerError,
+                        StatusCode.INTERNAL_SERVER_ERROR,
                         "Action class $actionClass has no primary constructor"
                     )
                 return actionProviderInstance.dispatch(cmd, actionCtx)

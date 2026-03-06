@@ -1,6 +1,5 @@
-package io.medatarun.actions.runtime
+package io.medatarun.actions.internal
 
-import io.medatarun.actions.adapters.SecurityRuleCtxAction
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorNotFoundException
@@ -20,4 +19,3 @@ class ActionSecurityRuleEvaluators(ruleList: List<SecurityRuleEvaluator>) {
         return e.evaluate(securityCtx)
     }
 }
-

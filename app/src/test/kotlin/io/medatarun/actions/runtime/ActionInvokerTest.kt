@@ -1,8 +1,10 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityRuleCtx
@@ -354,7 +356,7 @@ class ActionInvokerTest {
             runtime.invoke("abbreviation", payload)
         }
 
-        assertEquals(HttpStatusCode.BadRequest, ex.status)
+        assertEquals(StatusCode.BAD_REQUEST, ex.status)
         assertEquals("Abbreviation must be at most 4 chars", ex.payload["details"])
     }
 
@@ -397,7 +399,7 @@ class ActionInvokerTest {
             runtime.invokeWithGroup("missing", "alpha", payload)
         }
 
-        assertEquals(HttpStatusCode.NotFound, ex.status)
+        assertEquals(StatusCode.NOT_FOUND, ex.status)
     }
 
     @Test
@@ -409,7 +411,7 @@ class ActionInvokerTest {
             runtime.invoke("missing", payload)
         }
 
-        assertEquals(HttpStatusCode.NotFound, ex.status)
+        assertEquals(StatusCode.NOT_FOUND, ex.status)
     }
 
     @Test
@@ -421,7 +423,7 @@ class ActionInvokerTest {
             runtime.invoke("denied", payload)
         }
 
-        assertEquals(HttpStatusCode.Unauthorized, ex.status)
+        assertEquals(StatusCode.UNAUTHORIZED, ex.status)
     }
 
     @Test
@@ -435,7 +437,7 @@ class ActionInvokerTest {
             runtime.invoke("alpha", payload)
         }
 
-        assertEquals(HttpStatusCode.BadRequest, ex.status)
+        assertEquals(StatusCode.BAD_REQUEST, ex.status)
     }
 
     @Test
@@ -450,7 +452,7 @@ class ActionInvokerTest {
             runtime.invoke("alpha", payload)
         }
 
-        assertEquals(HttpStatusCode.BadRequest, ex.status)
+        assertEquals(StatusCode.BAD_REQUEST, ex.status)
     }
 
     private class TestRuntime(

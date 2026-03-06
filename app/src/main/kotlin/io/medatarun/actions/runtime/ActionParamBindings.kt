@@ -1,6 +1,7 @@
 package io.medatarun.actions.runtime
 
 import io.ktor.http.*
+import io.medatarun.lang.http.StatusCode
 import kotlin.reflect.KParameter
 
 data class ActionParamBindings(
@@ -39,7 +40,7 @@ data class ActionParamBindings(
 
                 is ActionParamBindingState.Error, is ActionParamBindingState.Missing -> {
                     throw ActionInvocationException(
-                        HttpStatusCode.InternalServerError,
+                        StatusCode.INTERNAL_SERVER_ERROR,
                         "Parameter [${param.name}] is invalid. Error should have been thrown before."
                     )
                 }
