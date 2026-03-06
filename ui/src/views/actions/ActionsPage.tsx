@@ -7,6 +7,7 @@ import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
+  Badge,
   Button,
   Field,
   makeStyles,
@@ -24,7 +25,12 @@ import {
   TreeItemLayout,
   type TreeItemValue,
 } from "@fluentui/react-components";
-import {CheckmarkRegular, CopyRegular, DismissRegular} from "@fluentui/react-icons";
+import {
+  CheckmarkRegular,
+  CopyRegular,
+  DismissRegular, ShieldColor,
+  ShieldRegular,
+} from "@fluentui/react-icons";
 import {useAppI18n} from "@/services/appI18n.tsx";
 import {Problem, type ProblemJson} from "@seij/common-types";
 import {ErrorBox} from "@seij/common-ui";
@@ -82,6 +88,15 @@ const useActionLauncherStyles = makeStyles({
     gap: "1em",
     minHeight: 0,
   },
+  titleRow: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: tokens.spacingHorizontalM,
+  },
+  titleBlock: {
+    minWidth: 0,
+  },
   title: {
     fontSize: tokens.fontSizeBase400,
     fontWeight: tokens.fontWeightSemibold,
@@ -90,6 +105,10 @@ const useActionLauncherStyles = makeStyles({
     color: tokens.colorNeutralForeground3,
     fontSize: tokens.fontSizeBase300,
     marginTop: tokens.spacingVerticalXXS,
+  },
+  securityRule: {
+    whiteSpace: "nowrap",
+    flexShrink: 0,
   },
   actionDescription: {
     marginBottom: "0.5em",
@@ -330,13 +349,28 @@ function ActionLaucher(
 
   return (
     <div className={styles.root}>
-      <div>
-        <div className={styles.title}>
-          {selectedActionKey ?? t("commandsPage_noActionSelected")}
+      <div className={styles.titleRow}>
+        <div className={styles.titleBlock}>
+          <div className={styles.title}>
+            {selectedActionKey ?? t("commandsPage_noActionSelected")}
+          </div>
+          {selectedActionDescriptor &&
+          selectedActionDescriptor.title !== selectedActionKey ? (
+            <div className={styles.subtitle}>{selectedActionDescriptor.title}</div>
+          ) : (
+            ""
+          )}
         </div>
-        {selectedActionDescriptor &&
-        selectedActionDescriptor.title !== selectedActionKey ? (
-          <div className={styles.subtitle}>{selectedActionDescriptor.title}</div>
+        {selectedActionDescriptor ? (
+          <div className={styles.securityRule}>
+            <Badge
+              appearance="tint"
+              color="brand"
+              icon={<ShieldColor />}
+            >
+              {selectedActionDescriptor.securityRule}
+            </Badge>
+          </div>
         ) : (
           ""
         )}

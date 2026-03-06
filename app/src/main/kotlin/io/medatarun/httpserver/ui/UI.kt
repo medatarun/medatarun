@@ -191,6 +191,7 @@ class UI(runtime: PlatformRuntime, private val actionRegistry: ActionRegistry) {
                 title = cmd.title ?: cmd.key,
                 description = cmd.description,
                 uiLocations = cmd.uiLocations,
+                securityRule = cmd.securityRule,
                 parameters = cmd.parameters.map { p ->
                     ActionParamDescriptorDto(
                         name = p.name,
@@ -218,7 +219,8 @@ data class ActionDescriptorDto(
     val title: String,
     val description: String?,
     val parameters: List<ActionParamDescriptorDto>,
-    val uiLocations: Set<String>
+    val uiLocations: Set<String>,
+    val securityRule: String
 )
 
 @Serializable
@@ -230,4 +232,3 @@ data class ActionParamDescriptorDto(
     val description: String?,
     val order: Int
 )
-

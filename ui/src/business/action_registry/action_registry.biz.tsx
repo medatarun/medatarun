@@ -13,6 +13,7 @@ export class ActionDescriptor {
   public parameters: ActionDescriptorParam[];
   public title: string;
   public path: string;
+  public securityRule: string;
 
   private dto: ActionDescriptorDto;
 
@@ -24,6 +25,7 @@ export class ActionDescriptor {
     this.parameters = dto.parameters.map((it) => new ActionDescriptorParam(it));
     this.title = dto.title ?? dto.groupKey + "/" + dto.actionKey;
     this.path = dto.groupKey + "/" + dto.actionKey;
+    this.securityRule = dto.securityRule;
   }
 
   matchesLocation(location: string): boolean {
