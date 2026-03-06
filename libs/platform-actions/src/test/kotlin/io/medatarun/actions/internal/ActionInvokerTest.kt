@@ -812,6 +812,7 @@ class ActionInvokerTest {
 
     private class AllowSecurityRuleEvaluator : SecurityRuleEvaluator {
         override val key: String = RULE_ALLOW
+        override val description: String = "Allow all in tests."
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
             return SecurityRuleEvaluatorResult.Ok()
@@ -820,6 +821,7 @@ class ActionInvokerTest {
 
     private class DenySecurityRuleEvaluator : SecurityRuleEvaluator {
         override val key: String = RULE_DENY
+        override val description: String = "Deny all in tests."
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
             return SecurityRuleEvaluatorResult.Error("blocked")

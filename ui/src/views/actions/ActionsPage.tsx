@@ -2,12 +2,12 @@ import {useEffect, useMemo, useState} from "react";
 import {type ActionResp, executeAction} from "@/business/action_runner";
 import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
 import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
+import {SecurityRuleBadge} from "@/views/actions/components/SecurityRuleBadge.tsx";
 import {Markdown} from "@/components/core/Markdown.tsx";
 import {MissingInformation} from "@/components/core/MissingInformation.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {
-  Badge,
   Button,
   Field,
   makeStyles,
@@ -28,8 +28,7 @@ import {
 import {
   CheckmarkRegular,
   CopyRegular,
-  DismissRegular, ShieldColor,
-  ShieldRegular,
+  DismissRegular,
 } from "@fluentui/react-icons";
 import {useAppI18n} from "@/services/appI18n.tsx";
 import {Problem, type ProblemJson} from "@seij/common-types";
@@ -346,7 +345,6 @@ function ActionLaucher(
         ),
       );
   };
-
   return (
     <div className={styles.root}>
       <div className={styles.titleRow}>
@@ -363,13 +361,9 @@ function ActionLaucher(
         </div>
         {selectedActionDescriptor ? (
           <div className={styles.securityRule}>
-            <Badge
-              appearance="tint"
-              color="brand"
-              icon={<ShieldColor />}
-            >
-              {selectedActionDescriptor.securityRule}
-            </Badge>
+            <SecurityRuleBadge
+              securityRule={selectedActionDescriptor.securityRule}
+            />
           </div>
         ) : (
           ""

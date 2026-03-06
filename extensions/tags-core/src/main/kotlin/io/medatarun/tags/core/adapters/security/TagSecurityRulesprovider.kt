@@ -9,14 +9,17 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
         return listOf(
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_MANAGED_MANAGE
+                override val description: String = "User must be allowed to manage managed tags."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_FREE_MANAGE
+                override val description: String = "User must be allowed to manage free tags."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagFreeManageRole)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_GROUP_MANAGE
+                override val description: String = "User must be allowed to manage tag groups."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
             }
         )
