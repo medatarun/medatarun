@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.model.domain.*
@@ -1130,7 +1131,8 @@ sealed interface ModelAction {
         title = "search",
         description = "Search",
         uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
     )
     data class Search(
         val filters: SearchFilters,

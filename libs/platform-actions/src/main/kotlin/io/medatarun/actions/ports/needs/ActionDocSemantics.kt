@@ -4,5 +4,6 @@ package io.medatarun.actions.ports.needs
 annotation class ActionDocSemantics(
     val mode: ActionDocSemanticsMode = ActionDocSemanticsMode.AUTO,
     val intent: ActionDocSemanticsIntent = ActionDocSemanticsIntent.OTHER,
-    val subjects: Array<String> = []
+    val subjects: Array<String> = [],
+    val returns: Array<String> = []
 )

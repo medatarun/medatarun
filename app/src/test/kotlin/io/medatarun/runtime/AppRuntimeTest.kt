@@ -21,6 +21,8 @@ class AppRuntimeTest {
         val config = AppRuntimeConfigFactory(cli = false, os).create()
         val runtime = AppRuntimeBuilder(config).build()
         val services = AppHttpServerServices(runtime)
+        val actions = services.actionRegistry.findAllActions()
+        actions.forEach { services.actionRegistry.semantics(it.id) }
 
     }
 

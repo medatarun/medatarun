@@ -9,6 +9,16 @@ interface ActionSemantics {
 
 interface ActionSemanticsSubject {
     val type: String
-    val referencingParams: List<String>
+    val referencingParams: List<ActionSemanticsSubjectReferencingParam>
 }
 
+data class ActionSemanticsSubjectReferencingParam(
+    val name: String,
+    val kind: ActionSemanticsSubjectReferencingParamKind
+)
+
+enum class ActionSemanticsSubjectReferencingParamKind {
+    ID,
+    REF,
+    KEY
+}

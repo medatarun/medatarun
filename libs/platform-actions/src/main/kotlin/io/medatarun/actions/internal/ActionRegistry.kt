@@ -134,7 +134,7 @@ class ActionRegistry(
 
     fun semantics(id: ActionId): ActionSemantics {
         val action = findAction(id)
-        return ActionSemanticsInferer().createSemantics(action)
+        return ActionSemanticsResolver().createSemantics(action)
     }
 
 

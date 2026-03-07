@@ -10,6 +10,7 @@ import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.dto.ActionDescriptorDto
 import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsDto
 import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsSubjectDto
+import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsSubjectReferencingParamDto
 import io.metadatarun.ext.config.actions.dto.ActionParamDescriptorDto
 import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
 import kotlinx.serialization.Serializable
@@ -89,7 +90,12 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                         subjects = sem.subjects.map { subject ->
                             ActionDescriptorSemanticsSubjectDto(
                                 type = subject.type,
-                                referencingParams = subject.referencingParams
+                                referencingParams = subject.referencingParams.map { param ->
+                                    ActionDescriptorSemanticsSubjectReferencingParamDto(
+                                        name = param.name,
+                                        kind = param.kind.name.lowercase()
+                                    )
+                                }
                             )
                         }
                     )

@@ -27,3 +27,8 @@ class ActionNotFoundInternalException(id: ActionId): MedatarunException(
 class ActionSemanticsInvalidSubjectFormatException(subject: String) : MedatarunException(
     "Invalid action semantics subject format [$subject], expected format is type(param,param)"
 )
+
+class ActionSemanticsAutoInferenceException(actionKey: String, reason: String) : MedatarunException(
+    "Could not infer semantics for action [$actionKey] in AUTO mode: $reason. " +
+        "Set explicit semantics declaration on ActionDoc for this action."
+)
