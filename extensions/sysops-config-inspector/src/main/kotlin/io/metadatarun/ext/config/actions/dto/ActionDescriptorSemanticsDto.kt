@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ActionDescriptorSemanticsDto(
     val intent: String,
-    val subjects: List<ActionDescriptorSemanticsSubjectDto>
+    val subjects: List<ActionDescriptorSemanticsSubjectDto>,
+    val returns: List<String>
 )

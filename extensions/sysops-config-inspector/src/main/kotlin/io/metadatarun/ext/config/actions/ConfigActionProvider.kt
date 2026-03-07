@@ -97,7 +97,8 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                                     )
                                 }
                             )
-                        }
+                        },
+                        returns = sem.returns
                     )
                 }
             )

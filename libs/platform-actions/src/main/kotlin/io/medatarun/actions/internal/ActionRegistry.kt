@@ -110,7 +110,8 @@ class ActionRegistry(
             ActionDocSemanticsMode.UNKNOWN -> ActionSemanticsConfig.Unknown
             ActionDocSemanticsMode.DECLARED -> ActionSemanticsConfig.Declared(
                 intent = doc.semantics.intent,
-                subjects = doc.semantics.subjects.toList()
+                subjects = doc.semantics.subjects.toList(),
+                returns = doc.semantics.returns.toList()
             )
         }
     }

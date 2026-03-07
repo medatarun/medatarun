@@ -24,7 +24,8 @@ class ActionSemanticsResolver {
     ): ActionSemantics {
         return ActionSemanticsResolved(
             intent = declaration.intent,
-            subjects = subjectDecoder.decodeSubjects(declaration.subjects)
+            subjects = subjectDecoder.decodeSubjects(declaration.subjects),
+            returns = normalizeReturns(declaration.returns)
         )
     }
 
@@ -33,7 +34,8 @@ class ActionSemanticsResolver {
         declaration: ActionSemanticsConfig.Unknown
     ): ActionSemantics {
         return ActionSemanticsResolved(intent = ActionDocSemanticsIntent.OTHER,
-            subjects = emptyList()
+            subjects = emptyList(),
+            returns = emptyList()
         )
     }
 
@@ -51,7 +53,8 @@ class ActionSemanticsResolver {
     ): ActionSemantics {
         return ActionSemanticsResolved(
             intent = ActionDocSemanticsIntent.OTHER,
-            subjects = emptyList()
+            subjects = emptyList(),
+            returns = emptyList()
         )
     }
 
@@ -82,8 +85,18 @@ class ActionSemanticsResolver {
 
         private data class ActionSemanticsResolved(
             override val intent: ActionDocSemanticsIntent,
-            override val subjects: List<ActionSemanticsSubject>
+            override val subjects: List<ActionSemanticsSubject>,
+            override val returns: List<String>
         ) : ActionSemantics
+
+        /**
+         * Returns are declared as simple type tokens.
+         * They are normalized for transport but intentionally not validated
+         * against reference syntax.
+         */
+        private fun normalizeReturns(returns: List<String>): List<String> {
+            return returns.map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        }
 
 
     }

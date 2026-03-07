@@ -52,6 +52,13 @@ sealed class ActionSemanticsConfig(
          * `modelRef`, `entityId` are action parameters keys that are used to identity impacted subjects.
          *
          */
-        val subjects: List<String>
+        val subjects: List<String>,
+        /**
+         * Types that may appear in the action result payload.
+         *
+         * This is intentionally independent from [subjects] because read/list/search
+         * operations may return heterogeneous content without targeting one specific subject.
+         */
+        val returns: List<String>
     ) : ActionSemanticsConfig(ActionDocSemanticsMode.DECLARED)
 }

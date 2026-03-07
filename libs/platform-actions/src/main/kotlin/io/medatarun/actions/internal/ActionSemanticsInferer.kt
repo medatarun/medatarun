@@ -1,114 +1,124 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.domain.ActionSemanticsInvalidSubjectFormatException
 import io.medatarun.actions.domain.ActionSemantics
-import io.medatarun.actions.domain.ActionSemanticsConfig
+import io.medatarun.actions.domain.ActionSemanticsAutoInferenceException
 import io.medatarun.actions.domain.ActionSemanticsSubject
+import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParam
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 
-class ActionSemanticsInferer {
-    fun createSemantics(action: ActionCmdDescriptor): ActionSemantics {
-        val declaration = action.semantics
-        return when (declaration) {
-            is ActionSemanticsConfig.None -> createSemanticsNone(action, declaration)
-            is ActionSemanticsConfig.Auto -> createSemanticsInferred(action, declaration)
-            is ActionSemanticsConfig.Unknown -> createSemanticsUnknwon(action, declaration)
-            is ActionSemanticsConfig.Declared -> createSemanticsDeclared(action, declaration)
-        }
-    }
+/**
+ * AUTO mode semantics inference only.
+ */
+class ActionSemanticsInferer(
+    private val vocabulary: SemanticsVocabulary
+) {
+    fun infer(action: ActionCmdDescriptor): ActionSemantics {
+        val intent = inferIntent(action.key)
+        val subjectType = inferSubject(action.key)
+        val referencingParams = inferReferencingParams(action)
 
-    private fun createSemanticsDeclared(
-        action: ActionCmdDescriptor,
-        declaration: ActionSemanticsConfig.Declared
-    ): ActionSemantics {
-        val subjects = decodeSubjects(declaration.subjects)
-
-        return object : ActionSemantics {
-            override val intent: ActionDocSemanticsIntent
-                get() = declaration.intent
-            override val subjects: List<ActionSemanticsSubject>
-                get() = subjects
-        }
-    }
-
-
-    private fun createSemanticsUnknwon(
-        action: ActionCmdDescriptor,
-        declaration: ActionSemanticsConfig.Unknown
-    ): ActionSemantics {
-        return object : ActionSemantics {
-            override val intent: ActionDocSemanticsIntent
-                get() = ActionDocSemanticsIntent.OTHER
-            override val subjects: List<ActionSemanticsSubject>
-                get() = emptyList()
+        if (
+            (intent == ActionDocSemanticsIntent.UPDATE || intent == ActionDocSemanticsIntent.DELETE) &&
+            referencingParams.isEmpty()
+        ) {
+            throw ActionSemanticsAutoInferenceException(
+                actionKey = action.key,
+                reason = "no reference parameter found for update/delete action"
+            )
         }
 
+        return semantics(
+            intent = intent,
+            subjects = listOf(
+                InferredActionSemanticsSubject(
+                    type = subjectType,
+                    referencingParams = referencingParams
+                )
+            ),
+            returns = listOf(subjectType)
+        )
     }
 
-    private fun createSemanticsInferred(
-        action: ActionCmdDescriptor,
-        declaration: ActionSemanticsConfig.Auto
-    ): ActionSemantics {
-        return object : ActionSemantics {
-            override val intent: ActionDocSemanticsIntent
-                get() = ActionDocSemanticsIntent.OTHER
-            override val subjects: List<ActionSemanticsSubject>
-                get() = emptyList()
-        }
-
-    }
-
-    private fun createSemanticsNone(
-        action: ActionCmdDescriptor,
-        declaration: ActionSemanticsConfig.None
-    ): ActionSemantics {
-        return object : ActionSemantics {
-            override val intent: ActionDocSemanticsIntent
-                get() = ActionDocSemanticsIntent.OTHER
-            override val subjects: List<ActionSemanticsSubject>
-                get() = emptyList()
-        }
-    }
-
-    companion object {
-        fun decodeSubjects(declaredSubjects: List<String>): MutableList<ActionSemanticsSubject> {
-            val subjects = mutableListOf<ActionSemanticsSubject>()
-            for (declaredSubject in declaredSubjects) {
-                val subjectString = declaredSubject.trim()
-                if (subjectString.isEmpty()) {
-                    throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
-                }
-
-                val openParenthesisIndex = subjectString.indexOf('(')
-                val closeParenthesisIndex = subjectString.lastIndexOf(')')
-                if (openParenthesisIndex <= 0 || closeParenthesisIndex <= openParenthesisIndex) {
-                    throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
-                }
-                if (closeParenthesisIndex != subjectString.length - 1) {
-                    throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
-                }
-
-                val type = subjectString.substring(0, openParenthesisIndex).trim()
-                if (type.isEmpty()) {
-                    throw ActionSemanticsInvalidSubjectFormatException(declaredSubject)
-                }
-
-                val referencingParams = subjectString
-                    .substring(openParenthesisIndex + 1, closeParenthesisIndex)
-                    .split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
-
-                subjects.add(object : ActionSemanticsSubject {
-                    override val type: String
-                        get() = type
-                    override val referencingParams: List<String>
-                        get() = referencingParams
-                })
+    private fun inferIntent(actionKey: String): ActionDocSemanticsIntent {
+        val candidates = verbCandidates(tokenizeKey(actionKey))
+        for (candidate in candidates) {
+            val intent = vocabulary.lookupIntentBySynonymOptional(candidate)
+            if (intent != null) {
+                return intent
             }
-            return subjects
         }
-
+        throw ActionSemanticsAutoInferenceException(
+            actionKey = actionKey,
+            reason = "unknown action verb"
+        )
     }
+
+    private fun inferSubject(actionKey: String): String {
+        val tokens = tokenizeKey(actionKey)
+        var prefixLength = tokens.size
+        while (prefixLength >= 1) {
+            val candidate = tokens.take(prefixLength).joinToString("_")
+            if (vocabulary.isKnownSubject(candidate)) {
+                return candidate
+            }
+            prefixLength -= 1
+        }
+        throw ActionSemanticsAutoInferenceException(
+            actionKey = actionKey,
+            reason = "unknown action subject"
+        )
+    }
+
+    private fun inferReferencingParams(
+        action: ActionCmdDescriptor
+    ): List<ActionSemanticsSubjectReferencingParam> {
+        val referencingParams = mutableListOf<ActionSemanticsSubjectReferencingParam>()
+        for (parameter in action.parameters) {
+            val kind = vocabulary.toReferencingParamKindOptional(parameter.name)
+            if (kind != null) {
+                referencingParams.add(
+                    ActionSemanticsSubjectReferencingParam(
+                        name = parameter.name,
+                        kind = kind
+                    )
+                )
+            }
+        }
+        return referencingParams.distinctBy { it.name }
+    }
+
+    private fun tokenizeKey(actionKey: String): List<String> {
+        return actionKey.split("_").filter { it.isNotEmpty() }
+    }
+
+    private fun verbCandidates(tokens: List<String>): List<String> {
+        val candidates = mutableListOf<String>()
+        var index = 0
+        while (index < tokens.size - 1) {
+            candidates.add(tokens[index] + "_" + tokens[index + 1])
+            index += 1
+        }
+        candidates.addAll(tokens)
+        return candidates
+    }
+
+    private fun semantics(
+        intent: ActionDocSemanticsIntent,
+        subjects: List<ActionSemanticsSubject>,
+        returns: List<String>
+    ): ActionSemantics {
+        return InferredActionSemantics(intent = intent, subjects = subjects, returns = returns)
+    }
+
+    private data class InferredActionSemantics(
+        override val intent: ActionDocSemanticsIntent,
+        override val subjects: List<ActionSemanticsSubject>,
+        override val returns: List<String>
+    ) : ActionSemantics
+
+    private data class InferredActionSemanticsSubject(
+        override val type: String,
+        override val referencingParams: List<ActionSemanticsSubjectReferencingParam>
+    ) : ActionSemanticsSubject
 }

@@ -42,7 +42,8 @@ class ActionSemanticsResolverTest {
                     securityRule = "",
                     semantics = ActionSemanticsConfig.Declared(
                         intent = ActionDocSemanticsIntent.CREATE,
-                        subjects = subjects
+                        subjects = subjects,
+                        returns = emptyList()
                     )
 
                 )
