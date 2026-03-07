@@ -6,9 +6,15 @@ import io.medatarun.actions.domain.ActionCmdParamDescriptor
 import io.medatarun.actions.domain.ActionDefinitionWithUnknownSecurityRule
 import io.medatarun.actions.domain.ActionDefinitionWithoutDocException
 import io.medatarun.actions.domain.ActionGroupDescriptor
+import io.medatarun.actions.domain.ActionId
+import io.medatarun.actions.domain.ActionNotFoundInternalException
+import io.medatarun.actions.domain.ActionSemantics
+import io.medatarun.actions.domain.ActionSemanticsConfig
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.type.commons.id.Id
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -36,6 +42,8 @@ class ActionRegistry(
 
     private val actionDescriptors: List<ActionCmdDescriptor> =
         actionGroupDescriptors.flatMap { it.actions }
+
+    private val actionMap: Map<ActionId, ActionCmdDescriptor> = actionDescriptors.associateBy { it.id }
 
 
     private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
@@ -65,7 +73,21 @@ class ActionRegistry(
         actionSecurityRuleEvaluators.findEvaluatorOptional(securityRule)
             ?: throw ActionDefinitionWithUnknownSecurityRule(actionGroup, doc.key, securityRule)
 
+        val parameters = sealed.memberProperties.mapIndexed { index, property ->
+            val paramdoc = property.findAnnotation<ActionParamDoc>()
+            ActionCmdParamDescriptor(
+                name = property.name,
+                title = paramdoc?.name,
+                description = paramdoc?.description?.trimIndent(),
+                optional = property.returnType.isMarkedNullable,
+                type = property.returnType,
+                multiplatformType = actionTypesRegistry.toMultiplatformType(property.returnType),
+                jsonType = actionTypesRegistry.toJsonType(property.returnType),
+                order = paramdoc?.order ?: index
+            )
+        }
         return ActionCmdDescriptor(
+            id = Id.generate(::ActionId),
             accessType = ActionCmdAccessType.DISPATCH,
             key = doc.key,
             actionClassName = sealed.simpleName ?: "",
@@ -73,23 +95,24 @@ class ActionRegistry(
             title = doc.title,
             description = doc.description,
             resultType = typeOf<Unit>(),
-            parameters = sealed.memberProperties.mapIndexed { index, property ->
-                val paramdoc = property.findAnnotation<ActionParamDoc>()
-                ActionCmdParamDescriptor(
-                    name = property.name,
-                    title = paramdoc?.name,
-                    description = paramdoc?.description?.trimIndent(),
-                    optional = property.returnType.isMarkedNullable,
-                    type = property.returnType,
-                    multiplatformType = actionTypesRegistry.toMultiplatformType(property.returnType),
-                    jsonType = actionTypesRegistry.toJsonType(property.returnType),
-                    order = paramdoc?.order ?: index
-                )
-            },
+            parameters = parameters,
             uiLocations = doc.uiLocations.toSet(),
-            securityRule = securityRule
-
+            securityRule = securityRule,
+            semantics = toSemanticsDescription(doc)
         )
+    }
+
+    private fun toSemanticsDescription(doc: ActionDoc): ActionSemanticsConfig {
+        val mode = doc.semantics.mode
+        return when(mode) {
+            ActionDocSemanticsMode.NONE -> ActionSemanticsConfig.None
+            ActionDocSemanticsMode.AUTO -> ActionSemanticsConfig.Auto
+            ActionDocSemanticsMode.UNKNOWN -> ActionSemanticsConfig.Unknown
+            ActionDocSemanticsMode.DECLARED -> ActionSemanticsConfig.Declared(
+                intent = doc.semantics.intent,
+                subjects = doc.semantics.subjects.toList()
+            )
+        }
     }
 
 
@@ -103,6 +126,15 @@ class ActionRegistry(
 
     fun findAllActions(): Collection<ActionCmdDescriptor> {
         return actionDescriptors
+    }
+
+    fun findAction(id: ActionId): ActionCmdDescriptor {
+        return actionMap[id] ?: throw ActionNotFoundInternalException(id)
+    }
+
+    fun semantics(id: ActionId): ActionSemantics {
+        val action = findAction(id)
+        return ActionSemanticsInferer().createSemantics(action)
     }
 
 

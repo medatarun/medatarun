@@ -2,9 +2,9 @@ package io.medatarun.model.actions
 
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionSemanticsMode
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilters
@@ -24,7 +24,7 @@ sealed interface ModelAction {
         description = "Import a new model. Detection is made based on the content of the file to detect original format. See installed plugins for supported formats.",
         uiLocations = [ActionUILocation.models],
         securityRule = SecurityRuleNames.SIGNED_IN,
-        semantics = ActionSemantics(mode = ActionSemanticsMode.NONE)
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     data class Import(
         @ActionParamDoc(
@@ -63,7 +63,7 @@ sealed interface ModelAction {
         description = "Returns the registered models, entities, and attributes with all metadata encoded as JSON. Preferred method for AI agents to understand the model.",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN,
-        semantics = ActionSemantics(mode = ActionSemanticsMode.NONE)
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     class Inspect_Json : ModelAction
 

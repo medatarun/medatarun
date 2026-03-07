@@ -4,6 +4,12 @@ import kotlin.reflect.KType
 
 data class ActionCmdDescriptor(
     /**
+     * Unique identifier of action across all actions of all extensions.
+     * Identifier is mostly internal to the system and not meant to be used by
+     * end users.
+     */
+    val id: ActionId,
+    /**
      * Serializable unique name of the action in its group
      */
     val key: String,
@@ -44,7 +50,11 @@ data class ActionCmdDescriptor(
     /**
      * Name of security rule tied to this action
      */
-    val securityRule: String
+    val securityRule: String,
+    /**
+     * Semantics of action as declared where action is declared.
+     */
+    val semantics: ActionSemanticsConfig
 ) {
     fun findParamByName(name: String): ActionCmdParamDescriptor? {
         return parameters.firstOrNull { it.name == name }

@@ -1,7 +1,5 @@
 package io.medatarun.cli
 
-import io.medatarun.httpserver.cli.CliActionDto
-import io.medatarun.httpserver.cli.CliActionParamDto
 import io.medatarun.types.TypeJsonEquiv
 import io.medatarun.types.TypeJsonEquiv.*
 import kotlinx.serialization.json.*
@@ -283,13 +281,13 @@ class AppCLIParametersParserTest {
 
     companion object {
 
-        fun createAction(vararg params: CliActionParamDto): CliActionDto {
-            return CliActionDto(
+        fun createAction(vararg params: AppCLIActionParam): AppCLIAction {
+            return AppCLIAction(
                 actionGroupKey = "dummy",
                 actionKey = "dummy",
-                title = null,
+                title = "",
                 description = null,
-                parameters = params.asList(),
+                parameters = params.asList()
             )
         }
 
@@ -297,8 +295,8 @@ class AppCLIParametersParserTest {
             key: String,
             jsonType: TypeJsonEquiv,
             optional: Boolean = false
-        ): CliActionParamDto {
-            return CliActionParamDto(
+        ): AppCLIActionParam {
+            return AppCLIActionParam(
                 key = key,
                 optional = optional,
                 title = null,

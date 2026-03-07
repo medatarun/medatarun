@@ -8,6 +8,8 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.dto.ActionDescriptorDto
+import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsDto
+import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsSubjectDto
 import io.metadatarun.ext.config.actions.dto.ActionParamDescriptorDto
 import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
 import kotlinx.serialization.Serializable
@@ -63,6 +65,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
 
         val items = actionRegistry.findAllActions().map { action ->
             ActionDescriptorDto(
+                id = action.id.asString(),
                 actionKey = action.key,
                 groupKey = action.group,
                 title = action.title ?: action.key,
@@ -78,6 +81,17 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                         title = parameter.title,
                         description = parameter.description,
                         order = parameter.order
+                    )
+                },
+                semantics = actionRegistry.semantics(action.id).let { sem ->
+                    ActionDescriptorSemanticsDto(
+                        intent = sem.intent.code,
+                        subjects = sem.subjects.map { subject ->
+                            ActionDescriptorSemanticsSubjectDto(
+                                type = subject.type,
+                                referencingParams = subject.referencingParams
+                            )
+                        }
                     )
                 }
             )
