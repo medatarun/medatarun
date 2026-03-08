@@ -1,40 +1,22 @@
 package io.medatarun.actions.internal
 
+import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.domain.ActionSemantics
-import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionDocSemantics
-import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
-import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.security.AppPrincipal
-import io.medatarun.security.SecurityRuleCtx
-import io.medatarun.security.SecurityRuleEvaluator
-import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.security.*
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KClass
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ActionInvokerTest {
 
@@ -472,25 +454,15 @@ class ActionInvokerTest {
 
     private class TestRuntime(
         private val actionProvider: TestActionProvider = TestActionProvider(),
-        evaluators: List<SecurityRuleEvaluator> = listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
+        securityRulesProviders: List<SecurityRulesProvider> = listOf(DefaultTestSecurityRulesProvider)
     ) {
-        private val actionTypesRegistry = ActionTypesRegistry(
-            listOf(
+        private val platform = ActionPlatform.build(
+            typeDescriptors = listOf(
                 ComplexPayloadTypeDescriptor,
                 AbbreviationTypeDescriptor
-            )
-        )
-        private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(evaluators)
-        private val actionRegistry = ActionRegistry(
-            actionSecurityRuleEvaluators,
-            actionTypesRegistry,
-            listOf(actionProvider),
-            ActionSemanticsResolver.buildDefaultVocabulary()
-        )
-        private val actionInvoker = ActionInvoker(
-            actionRegistry,
-            actionTypesRegistry,
-            actionSecurityRuleEvaluators
+            ),
+            actionProviders = listOf(actionProvider),
+            securityRulesProviders = securityRulesProviders
         )
         private val actionCtx = TestActionCtx()
 
@@ -500,7 +472,7 @@ class ActionInvokerTest {
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
             val request = ActionRequest(actionGroupKey, actionKey, payload)
-            return actionInvoker.handleInvocation(request, actionCtx)
+            return platform.invoker.handleInvocation(request, actionCtx)
         }
 
         fun lastCommand(): TestAction? {
@@ -509,6 +481,12 @@ class ActionInvokerTest {
 
         fun lastActionCtx(): ActionCtx? {
             return actionProvider.lastActionCtx
+        }
+    }
+
+    private object DefaultTestSecurityRulesProvider : SecurityRulesProvider {
+        override fun getRules(): List<SecurityRuleEvaluator> {
+            return listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
         }
     }
 
