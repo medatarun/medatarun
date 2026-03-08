@@ -1,11 +1,16 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.*
+import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
+import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeJsonEquiv
 import org.junit.jupiter.api.Nested
 import java.util.*
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,28 +25,46 @@ class ActionSemanticsResolverTest {
     inner class DecodeSubjects {
 
         fun decodeSubjects(subjects: List<String>): List<ActionSemanticsSubject> {
-            val action = ActionDescriptorBase(
-                id = Id.generate(::ActionId),
-                key = "dummy",
-                actionClassName = "",
-                group = "",
-                title = null,
-                description = null,
-                resultType = Unit::class.createType(),
-                accessType = ActionCmdAccessType.DISPATCH,
-                uiLocations = emptySet(),
-                securityRule = "",
-            )
-            val parameters = emptyList<ActionParamDescriptorImpl>()
-            val semantics = ActionSemanticsConfig.Declared(
-                intent = ActionDocSemanticsIntent.CREATE,
-                subjects = subjects,
-                returns = emptyList()
-            )
-            val a = ActionDescriptorImpl(
-                action, parameters, semantics
-            )
-            return resolver.createSemantics(a).subjects
+            class ActionProviderTest : ActionProvider<Any> {
+                override val actionGroupKey: String = "test"
+                override fun findCommandClass(): KClass<Any>? = null
+                override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
+                override fun findActions(): List<ActionCmdDescriptor> {
+                    val action = ActionDescriptorBase(
+                        id = Id.generate(::ActionId),
+                        key = "dummy",
+                        actionClassName = "",
+                        group = "test",
+                        title = null,
+                        description = null,
+                        resultType = Unit::class.createType(),
+                        accessType = ActionCmdAccessType.DISPATCH,
+                        uiLocations = emptySet(),
+                        securityRule = "",
+                    )
+                    val parameters = emptyList<ActionParamDescriptorImpl>()
+                    val semantics = ActionSemanticsConfig.Declared(
+                        intent = ActionDocSemanticsIntent.CREATE,
+                        subjects = subjects,
+                        returns = emptyList()
+                    )
+                    val a = ActionDescriptorImpl(
+                        action, parameters, semantics
+                    )
+                    return listOf(a)
+                }
+
+            }
+
+            val extension = object : MedatarunExtension {
+                override val id = "action-test-env"
+                override fun initContributions(ctx: MedatarunExtensionCtx) {
+                    ctx.registerContribution(ActionProvider::class, ActionProviderTest())
+                }
+            }
+            val env = ActionTestEnv(listOf(extension))
+
+            return env.actionPlatform.registry.findAction("test", "dummy").semantics.subjects
         }
 
         @Test

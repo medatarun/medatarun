@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 class ModelsImportJdbcExtension : MedatarunExtension {
 
     override val id = "models-import-jdbc"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val datasourcesPath = ctx.resolveApplicationHomePath("config/datasources")
         logger.debug("datasourcesPath: {}", datasourcesPath)
         val driversJsonPath = datasourcesPath.resolve("drivers.json")
@@ -24,8 +24,8 @@ class ModelsImportJdbcExtension : MedatarunExtension {
         val connexionsJsonPath = datasourcesPath.resolve("datasources.json")
         logger.debug("datasourcesJsonPath: {}", connexionsJsonPath)
         val dbConnectionRegistry = DbConnectionRegistry(connexionsJsonPath)
-        ctx.register(ModelImporter::class, DbModelImporter(dbDriverManager, dbConnectionRegistry))
-        ctx.register(ActionProvider::class, DatabasesActionProvider(dbDriverManager, dbConnectionRegistry))
+        ctx.registerContribution(ModelImporter::class, DbModelImporter(dbDriverManager, dbConnectionRegistry))
+        ctx.registerContribution(ActionProvider::class, DatabasesActionProvider(dbDriverManager, dbConnectionRegistry))
     }
 
     companion object {

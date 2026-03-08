@@ -20,7 +20,7 @@ class MedatarunExtensionCtxImpl(
         registrar.internalRegisterContributionPoint(extension, ContributionPoint(id, api, extension.id))
     }
 
-    override fun <INTERFACE : Any, IMPL : INTERFACE> register(api: KClass<INTERFACE>, instance: IMPL) {
+    override fun <INTERFACE : Any, IMPL : INTERFACE> registerContribution(api: KClass<INTERFACE>, instance: IMPL) {
         registrar.internalRegisterContribution(extension.id, api, instance)
     }
 

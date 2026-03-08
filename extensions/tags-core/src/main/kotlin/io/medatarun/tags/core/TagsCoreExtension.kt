@@ -42,18 +42,18 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.register(TagQueries::class, tagQueries)
     }
 
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint("$id.tag-scope-manager", TagScopeManager::class)
-        ctx.register(TypeDescriptor::class, TagIdTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagKeyTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagRefTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagScopeRefTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagGroupRefTypeDescriptor())
-        ctx.register(TypeDescriptor::class, TagSearchFiltersDescriptor())
-        ctx.register(ActionProvider::class, TagActionProvider())
-        ctx.register(SecurityRolesProvider::class, TagSecurityRolesProvider())
-        ctx.register(SecurityRulesProvider::class, TagSecurityRulesprovider())
-        ctx.register(DbMigration::class, TagsCoreDbMigration(id))
+        ctx.registerContribution(TypeDescriptor::class, TagIdTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagKeyTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagRefTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagScopeRefTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagGroupRefTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TagSearchFiltersDescriptor())
+        ctx.registerContribution(ActionProvider::class, TagActionProvider())
+        ctx.registerContribution(SecurityRolesProvider::class, TagSecurityRolesProvider())
+        ctx.registerContribution(SecurityRulesProvider::class, TagSecurityRulesprovider())
+        ctx.registerContribution(DbMigration::class, TagsCoreDbMigration(id))
     }
 }

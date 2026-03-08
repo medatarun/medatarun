@@ -52,20 +52,20 @@ class AuthExtension(
     val config:AuthExtensionConfig = AuthExtensionConfigProd()
 ) : MedatarunExtension {
     override val id: ExtensionId = "platform-auth"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val actionProvider = AuthEmbeddedActionsProvider()
         val rolesProvider = object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {
                 return listOf(toAppPrincipalRole(ActorRole.ADMIN))
             }
         }
-        ctx.register(ActionProvider::class, actionProvider)
-        ctx.register(SecurityRolesProvider::class, rolesProvider)
-        ctx.register(TypeDescriptor::class, UsernameTypeDescriptor())
-        ctx.register(TypeDescriptor::class, FullnameTypeDescriptor())
-        ctx.register(TypeDescriptor::class, PasswordClearTypeDescriptor())
-        ctx.register(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.register(DbMigration::class, AuthDbMigration())
+        ctx.registerContribution(ActionProvider::class, actionProvider)
+        ctx.registerContribution(SecurityRolesProvider::class, rolesProvider)
+        ctx.registerContribution(TypeDescriptor::class, UsernameTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
+        ctx.registerContribution(DbMigration::class, AuthDbMigration())
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {

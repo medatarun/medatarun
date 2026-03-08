@@ -47,7 +47,7 @@ class PlatformBuilder(
 
     internal class KernelSelfExtension : MedatarunExtension {
         override val id: ExtensionId = "kernel"
-        override fun init(ctx: MedatarunExtensionCtx) {
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
             ctx.registerContributionPoint(this.id + ".startup", PlatformStartedListener::class)
         }
     }

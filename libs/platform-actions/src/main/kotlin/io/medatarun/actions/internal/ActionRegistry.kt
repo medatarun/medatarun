@@ -134,6 +134,10 @@ class ActionRegistry(
         return actionByKeys["$actionGroupKey/$actionKey"]
     }
 
+    fun findAction(actionGroupKey: String, actionKey: String): ActionRegistered {
+        return findActionOptional(actionGroupKey, actionKey) ?: throw ActionNotFoundByKeysInternalException(actionGroupKey, actionKey)
+    }
+
     fun findProviderOptional(actionGroupKey: String, actionKey: String): ActionProvider<Any>? {
         return actionGroupDescriptorsMap[actionGroupKey]?.providerInstance as ActionProvider<Any>?
     }

@@ -25,10 +25,10 @@ import kotlin.reflect.KClass
 
 class VehicleExtension : MedatarunExtension {
     override val id: String = "vehicle"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val vehicleService = ctx.getService(VehicleService::class)
         val vehicleTagScopeManager = VehicleTagScopeManager(vehicleService)
-        ctx.register(TagScopeManager::class, vehicleTagScopeManager)
+        ctx.registerContribution(TagScopeManager::class, vehicleTagScopeManager)
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
@@ -50,10 +50,10 @@ class VehicleExtension : MedatarunExtension {
 
 class RecipeExtension : MedatarunExtension {
     override val id: String = "recipe"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val recipeService = ctx.getService(RecipeService::class)
         val recipeTagScopeManager = RecipeTagScopeManager(recipeService)
-        ctx.register(TagScopeManager::class, recipeTagScopeManager)
+        ctx.registerContribution(TagScopeManager::class, recipeTagScopeManager)
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
@@ -86,8 +86,8 @@ class ExtraExtension(
         }
     }
 
-    override fun init(ctx: MedatarunExtensionCtx) {
-        extraScopeManagers.forEach { ctx.register(TagScopeManager::class, it) }
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
+        extraScopeManagers.forEach { ctx.registerContribution(TagScopeManager::class, it) }
     }
 }
 

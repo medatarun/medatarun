@@ -8,8 +8,8 @@ import io.metadatarun.ext.config.actions.ConfigActionProvider
 class SysopsConfigInspectorExtension : MedatarunExtension {
 
     override val id = "sysops-config-inspector"
-    override fun init(ctx: MedatarunExtensionCtx) {
-        ctx.register(ActionProvider::class, ConfigActionProvider())
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
+        ctx.registerContribution(ActionProvider::class, ConfigActionProvider())
     }
 
 }

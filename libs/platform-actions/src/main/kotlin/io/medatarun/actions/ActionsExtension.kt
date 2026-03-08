@@ -12,9 +12,9 @@ import io.medatarun.types.TypeDescriptor
 
 class ActionsExtension : MedatarunExtension {
     override val id: String = "platform-actions"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
-        ctx.register(ActionProvider::class, BatchActionProvider())
+        ctx.registerContribution(ActionProvider::class, BatchActionProvider())
 
     }
 

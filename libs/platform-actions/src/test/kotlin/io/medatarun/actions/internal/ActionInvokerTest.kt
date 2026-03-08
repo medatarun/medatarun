@@ -1,8 +1,5 @@
 package io.medatarun.actions.internal
 
-import com.google.common.jimfs.Jimfs
-import io.medatarun.actions.ActionsExtension
-import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -12,7 +9,6 @@ import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
-import io.medatarun.types.TypeSystemExtension
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -457,34 +453,25 @@ class ActionInvokerTest {
     }
 
     private class TestRuntime {
-        private val runtime = PlatformBuilder(
-            config = MedatarunConfig.createTempConfig(Jimfs.newFileSystem(), emptyMap()),
-            extensions = listOf(
-                TypeSystemExtension(),
-                SecurityExtension(),
-                ActionsExtension(),
-                TestActionsExtension()
-            )
-        ).buildAndStart()
 
-        private val actionCtx = TestActionCtx(runtime.extensions, runtime.services)
+        private val env = ActionTestEnv(listOf(TestActionsExtension()))
 
         fun invoke(actionKey: String, payload: JsonObject): Any? {
-            return runtime.services.getService(ActionPlatform::class).invoker.handleInvocation(
-                ActionRequest("test", actionKey, payload), actionCtx)
+            return env.actionPlatform.invoker.handleInvocation(
+                ActionRequest("test", actionKey, payload), env.actionCtx)
         }
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
             val request = ActionRequest(actionGroupKey, actionKey, payload)
-            return runtime.services.getService(ActionPlatform::class).invoker.handleInvocation(request, actionCtx)
+            return env.actionPlatform.invoker.handleInvocation(request, env.actionCtx)
         }
 
         fun lastCommand(): TestAction? {
-            return runtime.services.getService(TestActionProvider::class).lastCommand
+            return env.runtime.services.getService(TestActionProvider::class).lastCommand
         }
 
         fun lastActionCtx(): ActionCtx? {
-            return runtime.services.getService(TestActionProvider::class).lastActionCtx
+            return env.runtime.services.getService(TestActionProvider::class).lastActionCtx
         }
     }
 
@@ -496,11 +483,11 @@ class ActionInvokerTest {
             ctx.register(TestActionProvider::class, actionProvider)
         }
 
-        override fun init(ctx: MedatarunExtensionCtx) {
-            ctx.register(ActionProvider::class, ctx.getService(TestActionProvider::class))
-            ctx.register(TypeDescriptor::class, ComplexPayloadTypeDescriptor)
-            ctx.register(TypeDescriptor::class, AbbreviationTypeDescriptor)
-            ctx.register(SecurityRulesProvider::class, DefaultTestSecurityRulesProvider)
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
+            ctx.registerContribution(ActionProvider::class, ctx.getService(TestActionProvider::class))
+            ctx.registerContribution(TypeDescriptor::class, ComplexPayloadTypeDescriptor)
+            ctx.registerContribution(TypeDescriptor::class, AbbreviationTypeDescriptor)
+            ctx.registerContribution(SecurityRulesProvider::class, DefaultTestSecurityRulesProvider)
         }
     }
 
@@ -781,37 +768,7 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionCtx(
-        override val extensionRegistry: ExtensionRegistry,
-        private val serviceRegistry: MedatarunServiceRegistry
-    ) : ActionCtx {
 
-        override fun dispatchAction(req: ActionRequest): Any? {
-            throw TestActionCtxDispatchException()
-        }
-
-        override fun <T : Any> getService(type: KClass<T>): T {
-            return serviceRegistry.getService(type)
-        }
-
-        override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
-    }
-
-    private class TestActionPrincipalCtx(private val providedPrincipal: AppPrincipal?) : ActionPrincipalCtx {
-        override val principal: AppPrincipal?
-            get() = providedPrincipal
-
-        override fun ensureIsAdmin() {
-            if (providedPrincipal == null || !providedPrincipal.isAdmin) {
-                throw TestPrincipalNotAdminException()
-            }
-        }
-
-        override fun ensureSignedIn(): AppPrincipal {
-            val principal = providedPrincipal ?: throw TestPrincipalMissingException()
-            return principal
-        }
-    }
 
     private class AllowSecurityRuleEvaluator : SecurityRuleEvaluator {
         override val key: String = RULE_ALLOW
@@ -833,10 +790,7 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
 
-    private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
-    private class TestPrincipalMissingException : MedatarunException("Principal is missing")
 
     private companion object {
         const val RULE_ALLOW = "allow"

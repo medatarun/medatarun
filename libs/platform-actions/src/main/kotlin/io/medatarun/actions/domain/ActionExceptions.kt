@@ -23,6 +23,10 @@ class ActionNotFoundInternalException(id: ActionId): MedatarunException(
     "Action $id not found in registry. This is mostly an internal error",
     StatusCode.INTERNAL_SERVER_ERROR
 )
+class ActionNotFoundByKeysInternalException(actionGroupKey: String, actionKey: String): MedatarunException(
+    "Action $actionGroupKey/$actionKey not found in registry. This is mostly an internal error",
+    StatusCode.INTERNAL_SERVER_ERROR
+)
 
 class ActionSemanticsInvalidSubjectFormatException(subject: String) : MedatarunException(
     "Invalid action semantics subject format [$subject], expected format is type(param,param)"

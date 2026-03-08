@@ -21,10 +21,10 @@ class PlatformStorageDbExtension : MedatarunExtension {
         ctx.register(DbMigrationChecker::class, DbMigrationCheckerImpl(connectionFactory))
     }
 
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint("$id.db-provider", DbProvider::class)
         ctx.registerContributionPoint("$id.db-migration", DbMigration::class)
-        ctx.register(PlatformStartedListener::class, object : PlatformStartedListener {
+        ctx.registerContribution(PlatformStartedListener::class, object : PlatformStartedListener {
             override fun onPlatformStarted(ctx: PlatformStartedCtx) {
                 val runner = ctx.services.getService(DbMigrationRunner::class)
                 runner.runAll()

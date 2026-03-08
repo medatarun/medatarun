@@ -10,11 +10,11 @@ import io.medatarun.platform.kernel.MedatarunExtensionCtx
 
 class ModelJsonExtension : MedatarunExtension {
     override val id: String = "models-storage-json"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val configPrettyPrint = ctx.getConfigProperty(CONFIG_PRETTY_PRINT_KEY, CONFIG_PRETTY_PRINT_DEFAULT)
         val prettyPrint = configPrettyPrint == "true"
         val converter = ModelJsonConverter(prettyPrint)
-        ctx.register(ModelExporter::class, ModelExporterJson(converter))
+        ctx.registerContribution(ModelExporter::class, ModelExporterJson(converter))
     }
 
 

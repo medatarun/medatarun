@@ -63,7 +63,7 @@ open class ModelExtension : MedatarunExtension {
 
     }
 
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         val modelQueries = ctx.getService(ModelQueries::class)
         val modelTagScopeManager = object : TagScopeManager {
             override val type: TagScopeType = modelTagScopeType
@@ -76,28 +76,28 @@ open class ModelExtension : MedatarunExtension {
 
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
-        ctx.register(TagScopeManager::class, modelTagScopeManager)
-        ctx.register(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
-        ctx.register(DbMigration::class, ModelStorageDbMigration(id))
-        ctx.register(TypeDescriptor::class, AttributeKeyDescriptor())
-        ctx.register(TypeDescriptor::class, EntityKeyDescriptor())
-        ctx.register(TypeDescriptor::class, EntityRefDescriptor())
-        ctx.register(TypeDescriptor::class, EntityAttributeRefDescriptor())
-        ctx.register(TypeDescriptor::class, LocalizedMarkdownDescriptor())
-        ctx.register(TypeDescriptor::class, LocalizedTextDescriptor())
-        ctx.register(TypeDescriptor::class, ModelKeyDescriptor())
-        ctx.register(TypeDescriptor::class, ModelRefDescriptor())
-        ctx.register(TypeDescriptor::class, ModelVersionDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipAttributeRefDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipCardinalityDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipKeyDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipRefDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
-        ctx.register(TypeDescriptor::class, RelationshipRoleRefDescriptor())
-        ctx.register(TypeDescriptor::class, SearchFieldsDescriptor())
-        ctx.register(TypeDescriptor::class, SearchFiltersDescriptor())
-        ctx.register(TypeDescriptor::class, TypeKeyDescriptor())
-        ctx.register(TypeDescriptor::class, TypeRefDescriptor())
+        ctx.registerContribution(TagScopeManager::class, modelTagScopeManager)
+        ctx.registerContribution(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
+        ctx.registerContribution(DbMigration::class, ModelStorageDbMigration(id))
+        ctx.registerContribution(TypeDescriptor::class, AttributeKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, EntityKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, EntityRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, EntityAttributeRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, LocalizedMarkdownDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, LocalizedTextDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, ModelKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, ModelRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, ModelVersionDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipAttributeRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipCardinalityDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipRoleKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RelationshipRoleRefDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, SearchFieldsDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, SearchFiltersDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TypeKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, TypeRefDescriptor())
     }
 
     companion object {
