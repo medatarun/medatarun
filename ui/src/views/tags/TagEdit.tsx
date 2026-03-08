@@ -34,6 +34,7 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateTag,
+  createDisplayedSubjectTag,
   detailActionLocation,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
@@ -57,6 +58,7 @@ export function TagEdit({ tagId }: { tagId: string }) {
     return <ErrorBox error={toProblem(t("tagEdit_notFound", { tagId }))} />;
 
   const isGlobalTag = tag.isGlobal;
+  const modelId = tag.scope.type === "model" ? tag.scope.id : null;
 
   const actions = actionRegistry.findActions(detailActionLocation(tag));
 
@@ -138,6 +140,11 @@ export function TagEdit({ tagId }: { tagId: string }) {
                   label={t("tagEdit_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateTag(tag.id)}
+                  displayedSubject={createDisplayedSubjectTag({
+                    tagId: tag.id,
+                    tagScopeRef: tag.scope,
+                    tagGroupId: tag.groupId
+                  })}
                 />
               </div>
             </div>

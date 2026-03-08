@@ -9,8 +9,9 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
+import {createActionTemplateGeneral, createDisplayedSubjectModel} from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
 
 export function PreferencesPage() {
   const { isDetailLevelTech, toggle } = useDetailLevelContext();
@@ -38,6 +39,7 @@ export function PreferencesPage() {
                   label={t("preferencesPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
+                  displayedSubject={displaySubjectNone}
                 />
               </div>
             </div>
@@ -48,9 +50,7 @@ export function PreferencesPage() {
       <ContainedHumanReadable>
         <div>
           <div>
-            <p>
-              {t("preferencesPage_currentMode", { mode })}
-            </p>
+            <p>{t("preferencesPage_currentMode", { mode })}</p>
             <p>{t("preferencesPage_modeDescription")}</p>
           </div>
           <SwitchButton

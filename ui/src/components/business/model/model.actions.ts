@@ -1,4 +1,5 @@
 import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
 import { refid } from "@/business/action_runner";
 
 export const createActionTemplateGeneral = () => ({});
@@ -78,3 +79,69 @@ export const createActionTemplateRelationshipRole = (
     relationshipRoleRef: refid(roleId),
   };
 };
+
+export const createDisplayedSubjectModel = (
+  modelId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "model",
+  refs: { modelId: modelId },
+});
+
+export const createDisplayedSubjectEntity = (
+  modelId: string,
+  entityId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "entity",
+  refs: { modelId: modelId, entityId: entityId },
+});
+
+export const createDisplayedSubjectEntityAttribute = (
+  modelId: string,
+  entityId: string,
+  attributeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "entity_attribute",
+  refs: {
+    modelId: modelId,
+    entityId: entityId,
+    attributeId: attributeId,
+  },
+});
+
+export const createDisplayedSubjectType = (
+  modelId: string,
+  typeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "type",
+  refs: { modelId: modelId, typeId: typeId },
+});
+
+export const createDisplayedSubjectRelationship = (
+  modelId: string,
+  relationshipId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "relationship",
+  refs: {
+    modelId: modelId,
+    relationshipId: relationshipId,
+  },
+});
+
+export const createDisplayedSubjectRelationshipAttribute = (
+  modelId: string,
+  relationshipId: string,
+  attributeId: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "relationship_attribute",
+  refs: {
+    modelId: modelId,
+    relationshipId: relationshipId,
+    attributeId: attributeId,
+  },
+});

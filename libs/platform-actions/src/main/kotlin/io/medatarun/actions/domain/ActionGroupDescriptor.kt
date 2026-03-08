@@ -8,10 +8,6 @@ data class ActionGroupDescriptor(
      */
     val key: String,
     /**
-     * List of commands provided by this group
-     */
-    val actions: List<ActionCmdDescriptor>,
-    /**
      * Provider that provides commands for this group
      */
     val providerInstance: ActionProvider<*>,

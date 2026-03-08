@@ -30,7 +30,7 @@ class PlatformKernelTest {
 
     class ExtensionRecipe : MedatarunExtension {
         override val id: ExtensionId = "recipe"
-        override fun init(ctx: MedatarunExtensionCtx) {
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
 
         }
 
@@ -64,7 +64,7 @@ class PlatformKernelTest {
 
         }
 
-        override fun init(ctx: MedatarunExtensionCtx) {
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
 
         }
 

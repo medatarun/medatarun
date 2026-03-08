@@ -3,10 +3,10 @@ package io.medatarun.httpserver.mcp
 
 import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.internal.ActionInvoker
 import io.medatarun.actions.internal.ActionRegistry
+import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.security.AppPrincipal
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.*
@@ -46,7 +46,7 @@ class McpServerBuilder(
         val server = Server(
             serverInfo = serverInfo,
             options = serverOptions,
-            ) {
+        ) {
             configAgentInstructions.process()
         }
 
@@ -57,24 +57,24 @@ class McpServerBuilder(
 
 
     private fun buildRegisteredTools(user: AppPrincipal?): List<RegisteredTool> {
-        return actionRegistry.findAllGroupDescriptors().flatMap { group ->
-            group.actions.map { action ->
-                val toolName = buildToolName(group.key, action.key)
-                val toolTitle = action.title ?: action.key
-                val toolDescription = action.description ?: "Invoke ${group.key}.${action.key}"
-                val tool = Tool(
-                    name = toolName,
-                    title = toolTitle,
-                    description = toolDescription,
-                    inputSchema = buildToolInput(action),
-                    outputSchema = null,
-                    annotations = null
-                )
+        return actionRegistry.findAllActions().map { actionRegistered ->
+            val action = actionRegistered.descriptor
+            val toolName = buildToolName(action.group, action.key)
+            val toolTitle = action.title ?: action.key
+            val toolDescription = action.description ?: "Invoke ${action.group}.${action.key}"
+            val tool = Tool(
+                name = toolName,
+                title = toolTitle,
+                description = toolDescription,
+                inputSchema = buildToolInput(action),
+                outputSchema = null,
+                annotations = null
+            )
 
-                RegisteredTool(tool) { request ->
-                    handleToolInvocation(group.key, action.key, request, user)
-                }
+            RegisteredTool(tool) { request ->
+                handleToolInvocation(action.group, action.key, request, user)
             }
+
         }
     }
 
@@ -125,17 +125,17 @@ class McpServerBuilder(
     }
 
     private fun toCallToolResult(result: Any?): CallToolResult {
-        return when(result) {
+        return when (result) {
             // When no result is provided, returns "ok" to the agent as a string
             // the protocol doesn't specify what to do when the tool only acts and doesn't have content to return
             null, Unit -> CallToolResult(content = listOf(TextContent("ok")))
             // If the action response is a plain String then we consider this is text only
-            is String -> CallToolResult(content=listOf(TextContent(result)))
+            is String -> CallToolResult(content = listOf(TextContent(result)))
             // If the action response is a structured object, we return it as a JSON object
             // it should be in "content" as plain text and also in "structuredContent" as JSON object
             // as specified in protocol
             is JsonObject -> CallToolResult(
-                content=listOf(TextContent(result.toString())),
+                content = listOf(TextContent(result.toString())),
                 structuredContent = result
             )
             // If the action response is an array, the protocol doesn't accept arrays as is
@@ -144,10 +144,11 @@ class McpServerBuilder(
             is JsonArray -> {
                 val json = buildJsonObject { put("items", result) }
                 CallToolResult(
-                    content=listOf(TextContent(json.toString())),
+                    content = listOf(TextContent(json.toString())),
                     structuredContent = json
                 )
             }
+
             is Iterable<*> -> {
                 val items = buildJsonArray {
                     for (item in result) {
@@ -160,7 +161,7 @@ class McpServerBuilder(
                 }
                 val json = buildJsonObject { put("items", items) }
                 CallToolResult(
-                    content=listOf(TextContent(json.toString())),
+                    content = listOf(TextContent(json.toString())),
                     structuredContent = json
                 )
             }
@@ -168,12 +169,12 @@ class McpServerBuilder(
             // and consider it is Json (typical of serializable classes returned by actions)
             else -> {
                 val json = encodeAnyToJsonElement(result)
-                val jsonObject = when(json) {
+                val jsonObject = when (json) {
                     is JsonObject -> json
                     else -> JsonObject(mapOf("result" to json))
                 }
                 CallToolResult(
-                    content=listOf(TextContent(jsonObject.toString())),
+                    content = listOf(TextContent(jsonObject.toString())),
                     structuredContent = jsonObject
                 )
             }

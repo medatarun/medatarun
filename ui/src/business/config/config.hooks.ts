@@ -1,6 +1,6 @@
-import {useMemo} from "react";
-import {SecurityRuleDescriptionRegistry} from "./config.model.ts";
-import {useSecurityRuleDescriptions} from "./config.storage.ts";
+import { useMemo } from "react";
+import { SecurityRuleDescriptionRegistry } from "./config.model.ts";
+import { useSecurityRuleDescriptions } from "./config.storage.ts";
 
 export const useSecurityRuleDescriptionRegistry = () => {
   const { data } = useSecurityRuleDescriptions();

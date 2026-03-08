@@ -41,6 +41,7 @@ import { formDataNormalize } from "@/business/action_form/action_form.normalize.
 import { isNil, isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { useNavigate } from "@tanstack/react-router";
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
@@ -87,7 +88,9 @@ export function ActionPerformerViewLoaded({
 }) {
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const { confirmAction, cancelAction, finishAction } = useActionPerformer();
+  const { confirmAction, cancelAction, finishAction, postHooks } =
+    useActionPerformer();
+  const navigate = useNavigate();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
   const [formData, setFormData] = useState<FormDataType>(defaultFormData);
   const firstInputRef = useRef<HTMLInputElement>(null);
@@ -135,6 +138,19 @@ export function ActionPerformerViewLoaded({
       finishAction();
     }
   }, [state.kind, actionResp, finishAction]);
+
+  useEffect(() => {
+    if (state.kind !== "done") return;
+
+    postHooks.resolveNavigationAfterSuccess(
+      {
+        action: action,
+        request: state.request,
+        state: state,
+        navigate: navigate,
+      },
+    );
+  }, [action, navigate, postHooks, state]);
 
   const focusedFieldKey = formFields.find(
     (it) => it.visible && !it.readonly,

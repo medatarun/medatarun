@@ -1,37 +1,22 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.security.AppPrincipal
-import io.medatarun.security.SecurityRuleCtx
-import io.medatarun.security.SecurityRuleEvaluator
-import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.platform.kernel.*
+import io.medatarun.security.*
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.reflect.KClass
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ActionInvokerTest {
 
@@ -108,46 +93,46 @@ class ActionInvokerTest {
     // String
     // ------------------------------------------------------------------------
 
-     @Test
-     fun `string optional when undefined then null`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-         }
+    @Test
+    fun `string optional when undefined then null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertNull(cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertNull(cmd.value)
+    }
 
-     @Test
-     fun `string optional when null then null`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-             put("value", JsonNull)
-         }
+    @Test
+    fun `string optional when null then null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertNull(cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertNull(cmd.value)
+    }
 
-     @Test
-     fun `string optional when provided then found`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-             put("value", JsonPrimitive("alpha"))
-         }
+    @Test
+    fun `string optional when provided then found`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("alpha"))
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertEquals("alpha", cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertEquals("alpha", cmd.value)
+    }
 
 
     // ------------------------------------------------------------------------
@@ -467,44 +452,48 @@ class ActionInvokerTest {
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
     }
 
-    private class TestRuntime(
-        private val actionProvider: TestActionProvider = TestActionProvider(),
-        evaluators: List<SecurityRuleEvaluator> = listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
-    ) {
-        private val actionTypesRegistry = ActionTypesRegistry(
-            listOf(
-                ComplexPayloadTypeDescriptor,
-                AbbreviationTypeDescriptor
-            )
-        )
-        private val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(evaluators)
-        private val actionRegistry = ActionRegistry(
-            actionSecurityRuleEvaluators,
-            actionTypesRegistry,
-            listOf(actionProvider)
-        )
-        private val actionInvoker = ActionInvoker(
-            actionRegistry,
-            actionTypesRegistry,
-            actionSecurityRuleEvaluators
-        )
-        private val actionCtx = TestActionCtx()
+    private class TestRuntime {
+
+        private val env = ActionTestEnv(listOf(TestActionsExtension()))
 
         fun invoke(actionKey: String, payload: JsonObject): Any? {
-            return invokeWithGroup(actionProvider.actionGroupKey, actionKey, payload)
+            return env.actionPlatform.invoker.handleInvocation(
+                ActionRequest("test", actionKey, payload), env.actionCtx)
         }
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
             val request = ActionRequest(actionGroupKey, actionKey, payload)
-            return actionInvoker.handleInvocation(request, actionCtx)
+            return env.actionPlatform.invoker.handleInvocation(request, env.actionCtx)
         }
 
         fun lastCommand(): TestAction? {
-            return actionProvider.lastCommand
+            return env.runtime.services.getService(TestActionProvider::class).lastCommand
         }
 
         fun lastActionCtx(): ActionCtx? {
-            return actionProvider.lastActionCtx
+            return env.runtime.services.getService(TestActionProvider::class).lastActionCtx
+        }
+    }
+
+    private class TestActionsExtension : MedatarunExtension {
+        override val id: String = "platform-actions-test"
+
+        override fun initServices(ctx: MedatarunServiceCtx) {
+            val actionProvider = TestActionProvider()
+            ctx.register(TestActionProvider::class, actionProvider)
+        }
+
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
+            ctx.registerContribution(ActionProvider::class, ctx.getService(TestActionProvider::class))
+            ctx.registerContribution(TypeDescriptor::class, ComplexPayloadTypeDescriptor)
+            ctx.registerContribution(TypeDescriptor::class, AbbreviationTypeDescriptor)
+            ctx.registerContribution(SecurityRulesProvider::class, DefaultTestSecurityRulesProvider)
+        }
+    }
+
+    private object DefaultTestSecurityRulesProvider : SecurityRulesProvider {
+        override fun getRules(): List<SecurityRuleEvaluator> {
+            return listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
         }
     }
 
@@ -515,7 +504,8 @@ class ActionInvokerTest {
             title = "Alpha",
             description = "Test action",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class Alpha(
             @ActionParamDoc(
@@ -543,7 +533,8 @@ class ActionInvokerTest {
             title = "Denied",
             description = "Action denied by security",
             uiLocations = [""],
-            securityRule = RULE_DENY
+            securityRule = RULE_DENY,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class Denied : TestAction
 
@@ -552,7 +543,8 @@ class ActionInvokerTest {
             title = "Collections",
             description = "Action with list and map",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithCollections(
             @ActionParamDoc(
@@ -574,7 +566,8 @@ class ActionInvokerTest {
             title = "Decimal",
             description = "Action with BigDecimal",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithDecimal(
             @ActionParamDoc(
@@ -590,7 +583,8 @@ class ActionInvokerTest {
             title = "BigInteger",
             description = "Action with BigInteger",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithBigInteger(
             @ActionParamDoc(
@@ -606,7 +600,8 @@ class ActionInvokerTest {
             title = "Double",
             description = "Action with Double",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithDouble(
             @ActionParamDoc(
@@ -622,7 +617,8 @@ class ActionInvokerTest {
             title = "Instant",
             description = "Action with Instant",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithInstant(
             @ActionParamDoc(
@@ -638,7 +634,8 @@ class ActionInvokerTest {
             title = "LocalDate",
             description = "Action with LocalDate",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithLocalDate(
             @ActionParamDoc(
@@ -654,7 +651,8 @@ class ActionInvokerTest {
             title = "String",
             description = "Action with String",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithStringOptional(
             @ActionParamDoc(
@@ -670,7 +668,8 @@ class ActionInvokerTest {
             title = "Abbreviation",
             description = "Action with validated abbreviation",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithAbbreviation(
             @ActionParamDoc(
@@ -686,7 +685,8 @@ class ActionInvokerTest {
             title = "Optional abbreviation",
             description = "Action with optional abbreviation",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithOptionalAbbreviation(
             @ActionParamDoc(
@@ -702,7 +702,8 @@ class ActionInvokerTest {
             title = "Complex",
             description = "Action with complex payload",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithComplex(
             @ActionParamDoc(
@@ -767,48 +768,7 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionCtx : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = object :
-            ExtensionRegistry {
-            override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
-                return emptyList()
-            }
 
-            override fun inspectHumanReadable(): String {
-                return ""
-            }
-
-            override fun inspectJson(): JsonObject {
-                return buildJsonObject { }
-            }
-        }
-
-        override fun dispatchAction(req: ActionRequest): Any? {
-            throw TestActionCtxDispatchException()
-        }
-
-        override fun <T : Any> getService(type: KClass<T>): T {
-            throw TestActionCtxServiceNotFoundException(type)
-        }
-
-        override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
-    }
-
-    private class TestActionPrincipalCtx(private val providedPrincipal: AppPrincipal?) : ActionPrincipalCtx {
-        override val principal: AppPrincipal?
-            get() = providedPrincipal
-
-        override fun ensureIsAdmin() {
-            if (providedPrincipal == null || !providedPrincipal.isAdmin) {
-                throw TestPrincipalNotAdminException()
-            }
-        }
-
-        override fun ensureSignedIn(): AppPrincipal {
-            val principal = providedPrincipal ?: throw TestPrincipalMissingException()
-            return principal
-        }
-    }
 
     private class AllowSecurityRuleEvaluator : SecurityRuleEvaluator {
         override val key: String = RULE_ALLOW
@@ -830,12 +790,7 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
-    private class TestActionCtxServiceNotFoundException(type: KClass<*>) :
-        MedatarunException("Service not found for ${type.simpleName}")
 
-    private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
-    private class TestPrincipalMissingException : MedatarunException("Principal is missing")
 
     private companion object {
         const val RULE_ALLOW = "allow"

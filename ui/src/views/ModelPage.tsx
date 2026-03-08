@@ -43,6 +43,7 @@ import { SectionCards } from "@/components/layout/SectionCards.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { createActionTemplateModel } from "@/components/business/model/model.actions.ts";
+import { createDisplayedSubjectModel } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
@@ -103,6 +104,7 @@ export function ModelView() {
     return modelUpdateName.mutateAsync({ modelId: model.id, value: value });
   };
 
+  const displayedSubject = createDisplayedSubjectModel(model.id);
   return (
     <ViewLayoutContained
       title={
@@ -128,6 +130,7 @@ export function ModelView() {
                   label={t("modelPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateModel(model.id)}
+                  displayedSubject={displayedSubject}
                 />
               </div>
             </div>
@@ -157,6 +160,7 @@ export function ModelView() {
             <SectionTitle
               icon={<EntityIcon />}
               actionParams={createActionTemplateModel(model.id)}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.model_entities}
             >
               {t("modelPage_entitiesTitle")}
@@ -164,7 +168,9 @@ export function ModelView() {
 
             {model.entities.length === 0 && (
               <p>
-                <MissingInformation>{t("modelPage_entitiesEmpty")}</MissingInformation>
+                <MissingInformation>
+                  {t("modelPage_entitiesEmpty")}
+                </MissingInformation>
               </p>
             )}
             {model.entities.length > 0 && (
@@ -176,6 +182,7 @@ export function ModelView() {
             <SectionTitle
               icon={<RelationshipIcon />}
               actionParams={createActionTemplateModel(model.id)}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.model_relationships}
             >
               {t("modelPage_relationshipsTitle")}
@@ -183,7 +190,9 @@ export function ModelView() {
 
             {model.relationships.length === 0 && (
               <p>
-                <MissingInformation>{t("modelPage_relationshipsEmpty")}</MissingInformation>
+                <MissingInformation>
+                  {t("modelPage_relationshipsEmpty")}
+                </MissingInformation>
               </p>
             )}
             {model.relationships.length > 0 && (
@@ -191,6 +200,7 @@ export function ModelView() {
                 <RelationshipsTable
                   onClick={handleClickRelationship}
                   relationships={model.relationships}
+                  displayedSubject={displayedSubject}
                 />
               </SectionTable>
             )}
@@ -198,6 +208,7 @@ export function ModelView() {
             <SectionTitle
               icon={<TypeIcon />}
               actionParams={createActionTemplateModel(model.id)}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.model_types}
             >
               {t("modelPage_dataTypesTitle")}
@@ -205,7 +216,9 @@ export function ModelView() {
 
             {model.types.length === 0 && (
               <p>
-                <MissingInformation>{t("modelPage_dataTypesEmpty")}</MissingInformation>
+                <MissingInformation>
+                  {t("modelPage_dataTypesEmpty")}
+                </MissingInformation>
               </p>
             )}
             {model.types.length > 0 && (
@@ -220,12 +233,13 @@ export function ModelView() {
                 modelTagScope(model.id),
               )}
               location={ActionUILocations.tag_free_list}
+              displayedSubject={displayedSubject}
             >
               {t("modelPage_localTagsTitle")}
             </SectionTitle>
 
             <SectionTable>
-              <TagsTable scope={modelTagScope(model.id)} />
+              <TagsTable scope={modelTagScope(model.id)} displayedSubject={displayedSubject} />
             </SectionTable>
           </ContainedHumanReadable>
         </ContainedScrollable>
@@ -243,6 +257,7 @@ export function ModelOverview() {
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
+  const displayedSubject = createDisplayedSubjectModel(model.id)
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
@@ -306,7 +321,9 @@ export function ModelOverview() {
           onChange={handleChangeDocumentationHome}
         >
           {!model.documentationHome ? (
-            <MissingInformation>{t("modelPage_externalLinkEmpty")}</MissingInformation>
+            <MissingInformation>
+              {t("modelPage_externalLinkEmpty")}
+            </MissingInformation>
           ) : (
             <ExternalUrl url={model.documentationHome} />
           )}
@@ -319,6 +336,7 @@ export function ModelOverview() {
           value={model.tags}
           scope={modelTagScope(model.id)}
           onChange={handleChangeTags}
+          displayedSubject={displayedSubject}
         >
           {model.tags.length === 0 ? (
             <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>

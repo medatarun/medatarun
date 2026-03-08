@@ -12,8 +12,7 @@ export const commandsPageMessages: CommandsPageMessages = {
   commandsPage_output: "Output",
   commandsPage_copy_output: "Copy output",
   commandsPage_copyOutputError: "Unable to copy output.",
-  commandsPage_selectResourceAndActionError:
-    "Select a resource and an action.",
+  commandsPage_selectResourceAndActionError: "Select a resource and an action.",
   commandsPage_invalidPayloadError: "Invalid payload: {details}",
   commandsPage_unknownError: "unknown error",
 };

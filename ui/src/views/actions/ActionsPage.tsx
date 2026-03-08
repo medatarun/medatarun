@@ -1,12 +1,12 @@
-import {useEffect, useMemo, useState} from "react";
-import {type ActionResp, executeAction} from "@/business/action_runner";
-import {ActionRegistry, useActionRegistry} from "@/business/action_registry";
-import {ActionOutput} from "@/components/business/actions/ActionOutput.tsx";
-import {SecurityRuleBadge} from "@/views/actions/components/SecurityRuleBadge.tsx";
-import {Markdown} from "@/components/core/Markdown.tsx";
-import {MissingInformation} from "@/components/core/MissingInformation.tsx";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import { useEffect, useMemo, useState } from "react";
+import { type ActionResp, executeAction } from "@/business/action_runner";
+import { ActionRegistry, useActionRegistry } from "@/business/action_registry";
+import { ActionOutput } from "@/components/business/actions/ActionOutput.tsx";
+import { SecurityRuleBadge } from "@/views/actions/components/SecurityRuleBadge.tsx";
+import { Markdown } from "@/components/core/Markdown.tsx";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Button,
   Field,
@@ -30,15 +30,13 @@ import {
   CopyRegular,
   DismissRegular,
 } from "@fluentui/react-icons";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {Problem, type ProblemJson} from "@seij/common-types";
-import {ErrorBox} from "@seij/common-ui";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { Problem, type ProblemJson } from "@seij/common-types";
+import { ErrorBox } from "@seij/common-ui";
 
 const useActionTreeStyles = makeStyles({
   root: {
-
     padding: tokens.spacingVerticalM,
-
   },
   actionItem: {
     fontWeight: tokens.fontWeightRegular,
@@ -174,17 +172,16 @@ const useActionLauncherStyles = makeStyles({
 
 export function ActionsPage() {
   const actionRegistryDto = useActionRegistry();
-  return <ActionsPageLoaded actionRegistry={actionRegistryDto}/>;
+  return <ActionsPageLoaded actionRegistry={actionRegistryDto} />;
 }
 
-export function ActionsPageLoaded(
-  {
-    actionRegistry,
-  }: {
-    actionRegistry: ActionRegistry;
-  }) {
+export function ActionsPageLoaded({
+  actionRegistry,
+}: {
+  actionRegistry: ActionRegistry;
+}) {
   const styles = useActionPageStyles();
-  const {t} = useAppI18n();
+  const { t } = useAppI18n();
   const defaultGroupKey = actionRegistry.findFirstGroupKey();
   const defaultActionKey = defaultGroupKey
     ? actionRegistry.findFirstActionKey(defaultGroupKey)
@@ -202,8 +199,11 @@ export function ActionsPageLoaded(
     actionKey: defaultActionKey,
   });
 
-  const handleActionSelectionChange = (groupKey: string | undefined, actionKey: string | undefined) => {
-    setSelectedAction({groupKey, actionKey});
+  const handleActionSelectionChange = (
+    groupKey: string | undefined,
+    actionKey: string | undefined,
+  ) => {
+    setSelectedAction({ groupKey, actionKey });
   };
 
   return (
@@ -238,30 +238,35 @@ export function ActionsPageLoaded(
   );
 }
 
-function ActionLaucher(
-  {
-    actionRegistry,
-    selectedGroupKey,
-    selectedActionKey,
-    defaultPayload,
-  }: {
-    actionRegistry: ActionRegistry;
-    selectedGroupKey: string | undefined;
-    selectedActionKey: string | undefined;
-    defaultPayload: string;
-  }) {
+function ActionLaucher({
+  actionRegistry,
+  selectedGroupKey,
+  selectedActionKey,
+  defaultPayload,
+}: {
+  actionRegistry: ActionRegistry;
+  selectedGroupKey: string | undefined;
+  selectedActionKey: string | undefined;
+  defaultPayload: string;
+}) {
   const styles = useActionLauncherStyles();
-  const {t} = useAppI18n();
+  const { t } = useAppI18n();
   const [payload, setPayload] = useState<string>(defaultPayload);
   const [output, setOutput] = useState<ActionResp | null>(null);
   const [errorMessage, setErrorMessage] = useState<Problem | null>(null);
 
   const selectedActionDescriptor = useMemo(() => {
-    return actionRegistry.findActionOptional(selectedGroupKey, selectedActionKey);
+    return actionRegistry.findActionOptional(
+      selectedGroupKey,
+      selectedActionKey,
+    );
   }, [actionRegistry, selectedGroupKey, selectedActionKey]);
 
   const payloadTemplate = useMemo(() => {
-    return actionRegistry.createPayloadTemplate(selectedGroupKey, selectedActionKey);
+    return actionRegistry.createPayloadTemplate(
+      selectedGroupKey,
+      selectedActionKey,
+    );
   }, [actionRegistry, selectedActionKey, selectedGroupKey]);
 
   useEffect(() => {
@@ -317,33 +322,31 @@ function ActionLaucher(
           err instanceof Problem
             ? err
             : toProblem({
-              type: "action-runner/execution-error",
-              title: t("commandsPage_unknownError"),
-              detail: err instanceof Error ? err.message : `${err}`,
-            });
+                type: "action-runner/execution-error",
+                title: t("commandsPage_unknownError"),
+                detail: err instanceof Error ? err.message : `${err}`,
+              });
         setErrorMessage(problem);
         setOutput(null);
       });
   };
 
   const handleClear = () => {
-    setOutput({contentType: "text", text: ""});
+    setOutput({ contentType: "text", text: "" });
   };
   const handleCopyOutput = () => {
     if (!output) {
       return;
     }
-    navigator.clipboard
-      .writeText(toOutputText(output))
-      .catch((e) =>
-        setErrorMessage(
-          toProblem({
-            type: "action-runner/copy-error",
-            title: t("commandsPage_copyOutputError"),
-            detail: e instanceof Error ? e.message : `${e}`,
-          }),
-        ),
-      );
+    navigator.clipboard.writeText(toOutputText(output)).catch((e) =>
+      setErrorMessage(
+        toProblem({
+          type: "action-runner/copy-error",
+          title: t("commandsPage_copyOutputError"),
+          detail: e instanceof Error ? e.message : `${e}`,
+        }),
+      ),
+    );
   };
   return (
     <div className={styles.root}>
@@ -354,7 +357,9 @@ function ActionLaucher(
           </div>
           {selectedActionDescriptor &&
           selectedActionDescriptor.title !== selectedActionKey ? (
-            <div className={styles.subtitle}>{selectedActionDescriptor.title}</div>
+            <div className={styles.subtitle}>
+              {selectedActionDescriptor.title}
+            </div>
           ) : (
             ""
           )}
@@ -373,7 +378,7 @@ function ActionLaucher(
         <div>
           <div className={styles.actionDescription}>
             <div className={styles.markdownCompact}>
-              <Markdown value={selectedActionDescriptor.description}/>
+              <Markdown value={selectedActionDescriptor.description} />
             </div>
           </div>
           {selectedActionDescriptor.parameters.length === 0 ? (
@@ -385,9 +390,15 @@ function ActionLaucher(
               <Table size="small" className={styles.parametersTable}>
                 <TableHeader>
                   <TableRow>
-                    <TableHeaderCell className={styles.parameterCol}>Parameter</TableHeaderCell>
-                    <TableHeaderCell className={styles.typeCol}>Type</TableHeaderCell>
-                    <TableHeaderCell className={styles.descriptionCol}>Description</TableHeaderCell>
+                    <TableHeaderCell className={styles.parameterCol}>
+                      Parameter
+                    </TableHeaderCell>
+                    <TableHeaderCell className={styles.typeCol}>
+                      Type
+                    </TableHeaderCell>
+                    <TableHeaderCell className={styles.descriptionCol}>
+                      Description
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -402,7 +413,7 @@ function ActionLaucher(
                       <TableCell className={styles.descriptionCol}>
                         {parameter.description ? (
                           <div className={styles.markdownCompact}>
-                            <Markdown value={parameter.description}/>
+                            <Markdown value={parameter.description} />
                           </div>
                         ) : (
                           "-"
@@ -427,28 +438,36 @@ function ActionLaucher(
         />
       </Field>
       <div className={styles.actionButtons}>
-        <Button appearance="primary" icon={<CheckmarkRegular/>} onClick={handleSubmit}>
+        <Button
+          appearance="primary"
+          icon={<CheckmarkRegular />}
+          onClick={handleSubmit}
+        >
           {t("commandsPage_submit")}
         </Button>
-        <Button appearance="secondary" icon={<DismissRegular/>} onClick={handleClear}>
+        <Button
+          appearance="secondary"
+          icon={<DismissRegular />}
+          onClick={handleClear}
+        >
           {t("commandsPage_clear")}
         </Button>
       </div>
-      {errorMessage ? <ErrorBox error={errorMessage}/> : ""}
+      {errorMessage ? <ErrorBox error={errorMessage} /> : ""}
       {output && (
         <div>
           <div className={styles.outputHeader}>
             <div className={styles.outputTitle}>{t("commandsPage_output")}</div>
             <Button
               appearance="secondary"
-              icon={<CopyRegular/>}
+              icon={<CopyRegular />}
               onClick={handleCopyOutput}
             >
               {t("commandsPage_copy_output")}
             </Button>
           </div>
           <pre className={styles.output}>
-            <ActionOutput resp={output}/>
+            <ActionOutput resp={output} />
           </pre>
         </div>
       )}
@@ -456,22 +475,20 @@ function ActionLaucher(
   );
 }
 
-
-function ActionsTree(
-  {
-    actionRegistry,
-    defaultGroupKey,
-    defaultActionKey,
-    onActionSelect,
-  }: {
-    actionRegistry: ActionRegistry;
-    defaultGroupKey: string | undefined;
-    defaultActionKey: string | undefined;
-    onActionSelect: (
-      groupKey: string | undefined,
-      actionKey: string | undefined,
-    ) => void;
-  }) {
+function ActionsTree({
+  actionRegistry,
+  defaultGroupKey,
+  defaultActionKey,
+  onActionSelect,
+}: {
+  actionRegistry: ActionRegistry;
+  defaultGroupKey: string | undefined;
+  defaultActionKey: string | undefined;
+  onActionSelect: (
+    groupKey: string | undefined,
+    actionKey: string | undefined,
+  ) => void;
+}) {
   const styles = useActionTreeStyles();
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | undefined>(
     defaultGroupKey,
@@ -558,8 +575,14 @@ function ActionsTree(
         onOpenChange={(_, data) => setOpenGroupKeys(Array.from(data.openItems))}
       >
         {treeGroups.map((group) => (
-          <TreeItem key={group.groupKey} itemType="branch" value={group.groupKey}>
-            <TreeItemLayout onClick={() => handleChangeActionGroup(group.groupKey)}>
+          <TreeItem
+            key={group.groupKey}
+            itemType="branch"
+            value={group.groupKey}
+          >
+            <TreeItemLayout
+              onClick={() => handleChangeActionGroup(group.groupKey)}
+            >
               {group.groupKey}
             </TreeItemLayout>
             <Tree>

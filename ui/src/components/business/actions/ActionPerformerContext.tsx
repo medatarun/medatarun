@@ -5,9 +5,11 @@ import type {
   ActionPerformerState,
 } from "./ActionPerformer.tsx";
 import { type ActionResp } from "@/business/action_runner";
+import type { ActionPostHooks } from "./ActionPostHook.ts";
 
 export interface ActionPerformerContextValue {
   state: ActionPerformerState;
+  postHooks: ActionPostHooks;
   performAction: (req: ActionPerformerRequest) => void;
   confirmAction: (formData: ActionPerformerFormData) => Promise<ActionResp>;
   cancelAction: (reason?: unknown) => void;

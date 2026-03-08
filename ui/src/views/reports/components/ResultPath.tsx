@@ -1,7 +1,17 @@
-import {useNavigate} from "@tanstack/react-router";
-import type {SearchResultLocation} from "@/business/model";
-import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem} from "@fluentui/react-components";
-import {AttributeIcon, EntityIcon, ModelIcon, RelationshipIcon} from "@/components/business/model/model.icons.tsx";
+import { useNavigate } from "@tanstack/react-router";
+import type { SearchResultLocation } from "@/business/model";
+import {
+  Breadcrumb,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+  BreadcrumbItem,
+} from "@fluentui/react-components";
+import {
+  AttributeIcon,
+  EntityIcon,
+  ModelIcon,
+  RelationshipIcon,
+} from "@/components/business/model/model.icons.tsx";
 
 export function ResultPath({ location }: { location: SearchResultLocation }) {
   const navigate = useNavigate();

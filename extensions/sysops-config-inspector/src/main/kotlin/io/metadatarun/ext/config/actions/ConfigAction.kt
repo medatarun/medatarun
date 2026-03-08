@@ -3,6 +3,8 @@ package io.metadatarun.ext.config.actions
 
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.security.SecurityRuleNames
 
 sealed interface ConfigAction {
@@ -11,35 +13,50 @@ sealed interface ConfigAction {
         title = "AI Agents Instructions",
         description = "Each AI Agent should read that first. Returns a usage guide for AI Agents. Use it for your AGENTS.md files if your agent doesn't support instructions in MCP.",
         uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.PUBLIC
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class AIAgentsInstructions : ConfigAction
 
     @ActionDoc(
         key="inspect_config_text",
-        title = "Inspect config",
+        title = "Inspect config as text file",
         description = "Returns a human-readable list of the configuration, including extension contributions and contribution points, what provides what to whom.",
         uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class Inspect : ConfigAction
 
     @ActionDoc(
-        key="inspect_config_json",
-        title = "Inspect config Json",
+        key="inspect_config",
+        title = "Inspect config",
         description = "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom.",
         uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class InspectJson : ConfigAction
+
+    @ActionDoc(
+        key="inspect_actions",
+        title = "Inspect actions",
+        description = "Returns all known actions with their parameter descriptions.",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+    )
+    class InspectActions : ConfigAction
 
     @ActionDoc(
         key="inspect_security_rules",
         title = "Inspect security rules",
         description = "Returns all known security rules registered in application with their descriptions.",
         uiLocations = [ActionUILocation.global],
-        securityRule = SecurityRuleNames.PUBLIC
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
-    class SecurityRulesDescriptions : ConfigAction
+    class InspectSecurityRules : ConfigAction
 
 }
+

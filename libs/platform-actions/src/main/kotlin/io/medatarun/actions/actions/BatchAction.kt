@@ -1,6 +1,8 @@
 package io.medatarun.actions.actions
 
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.security.SecurityRuleNames
 import kotlinx.serialization.Serializable
@@ -14,6 +16,7 @@ sealed interface BatchAction {
         description = "Process a list of commands all at once",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     class BatchRun(
         val actions: List<ActionWithPayload>,

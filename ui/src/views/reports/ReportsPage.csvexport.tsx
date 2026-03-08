@@ -1,5 +1,5 @@
-import {type SearchResult} from "@/business/model";
-import {downloadCsv} from "@seij/common-ui-csv-export";
+import { type SearchResult } from "@/business/model";
+import { downloadCsv } from "@seij/common-ui-csv-export";
 import { type AppMessageKey } from "@/services/appI18n.tsx";
 
 export function createCsv(

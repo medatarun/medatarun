@@ -9,12 +9,12 @@ import kotlin.io.path.createDirectories
 
 class PlatformStorageDbSqliteExtension : MedatarunExtension {
     override val id: ExtensionId = "platform-storage-db-sqlite"
-    override fun init(ctx: MedatarunExtensionCtx) {
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
         // WARNING: SQLite doesn't support Java Filesystems, any database created will be created for real
         // on the hard drive.
         val url = configuredDatabase(ctx) ?: defaultDatabase(ctx)
         val dbConnectionFactory = DbProviderSqlite(url)
-        ctx.register(DbProvider::class, dbConnectionFactory)
+        ctx.registerContribution(DbProvider::class, dbConnectionFactory)
     }
 
     private fun configuredDatabase(ctx: MedatarunExtensionCtx): String? {

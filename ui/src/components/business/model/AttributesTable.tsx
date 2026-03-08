@@ -1,22 +1,15 @@
-import {
-  makeStyles,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  tokens,
-} from "@fluentui/react-components";
-import {
-  type ActionUILocation,
-  useActionRegistry,
-} from "@/business/action_registry";
-import type { AttributeDto } from "@/business/model";
-import { ActionMenuButton } from "./TypesTable.tsx";
-import { useModelContext } from "./ModelContext.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
-import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import {makeStyles, Table, TableBody, TableCell, TableRow, tokens,} from "@fluentui/react-components";
+import {type ActionUILocation, useActionRegistry,} from "@/business/action_registry";
+import type {AttributeDto} from "@/business/model";
+import {ActionMenuButton} from "./TypesTable.tsx";
+import {useModelContext} from "./ModelContext.tsx";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
+import {Markdown} from "@/components/core/Markdown.tsx";
+import type {
+  ActionDisplayedSubject,
+  ActionPerformerRequestParams
+} from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -56,20 +49,23 @@ const useStyles = makeStyles({
   },
 });
 
-export function AttributesTable({
-  attributes,
-  actionUILocation,
-  onClickAttribute,
-  actionParamsFactory,
-}: {
-  attributes: AttributeDto[];
-  actionParamsFactory: (attributeId: string) => ActionPerformerRequestParams;
-  actionUILocation: ActionUILocation;
-  onClickAttribute: (id: string) => void;
-}) {
+export function AttributesTable(
+  {
+    attributes,
+    actionUILocation,
+    onClickAttribute,
+    actionParamsFactory,
+    displayedSubject
+  }: {
+    attributes: AttributeDto[];
+    actionParamsFactory: (attributeId: string) => ActionPerformerRequestParams;
+    displayedSubject: ActionDisplayedSubject,
+    actionUILocation: ActionUILocation;
+    onClickAttribute: (id: string) => void;
+  }) {
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
-  const { isDetailLevelTech } = useDetailLevelContext();
+  const {isDetailLevelTech} = useDetailLevelContext();
   const itemActions = actionRegistry.findActions(actionUILocation);
   const styles = useStyles();
   const handleClickAttribute = (id: string) => {
@@ -121,10 +117,10 @@ export function AttributesTable({
                 onClick={() => handleClickAttribute(attribute.id)}
               >
                 <div>
-                  <Markdown value={attribute.description} />
+                  <Markdown value={attribute.description}/>
                 </div>
                 {attribute.tags.length > 0 && (
-                  <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
+                  <Tags tags={attribute.tags} scope={modelTagScope(model.id)}/>
                 )}
               </TableCell>
 
@@ -132,6 +128,7 @@ export function AttributesTable({
                 <ActionMenuButton
                   itemActions={itemActions}
                   actionParams={actionParamsFactory(attribute.id)}
+                  displayedSubject={displayedSubject}
                 />
               </TableCell>
             </TableRow>

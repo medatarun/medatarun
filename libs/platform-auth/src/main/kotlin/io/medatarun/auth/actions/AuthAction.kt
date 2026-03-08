@@ -1,7 +1,11 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.actions.ActionUILocation
+import io.medatarun.actions.domain.ActionSemanticsConfig
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.user.Fullname
@@ -17,7 +21,8 @@ sealed interface AuthAction<R> {
         title = "Creates admin user",
         description = "Creates admin user account and bootstrap credentials. Consumes the one-time secret generated at install. This will automatically make the admin available as an actor and able to connect with tokens.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.PUBLIC
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class AdminBootstrap(
         @ActionParamDoc(
@@ -88,7 +93,8 @@ sealed interface AuthAction<R> {
         title = "Login user",
         description = "Generates a JWT Access Token for API calls that users can reuse to authenticate themselves in API or CLI calls (OAuth format, not OIDC)",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.PUBLIC
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class Login(
         @ActionParamDoc(
@@ -111,7 +117,8 @@ sealed interface AuthAction<R> {
         title="Who am i",
         description = "Tells who is the connected user. Allow you to know if you have the credentials you need",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class WhoAmI : AuthAction<WhoAmIRespDto>
 
@@ -120,7 +127,8 @@ sealed interface AuthAction<R> {
         title="Change own password",
         description = "Change connected user password. Must provide current password and a new password. Only available to authentified user.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.SIGNED_IN
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class ChangeMyPassword(
         @ActionParamDoc(
@@ -142,7 +150,8 @@ sealed interface AuthAction<R> {
         title="Change user password",
         description = "Change a user password. Only available for admins.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class UserChangePassword(
         @ActionParamDoc(
@@ -164,7 +173,8 @@ sealed interface AuthAction<R> {
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class UserDisable(
         @ActionParamDoc(
@@ -180,7 +190,8 @@ sealed interface AuthAction<R> {
         title="Enable user",
         description = "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class UserEnable(
         @ActionParamDoc(
@@ -196,7 +207,8 @@ sealed interface AuthAction<R> {
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
         uiLocations = [ActionUILocation.hidden],
-        securityRule = SecurityRuleNames.ADMIN
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
     class UserChangeFullname(
         @ActionParamDoc(

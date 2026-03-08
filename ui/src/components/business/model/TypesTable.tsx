@@ -25,8 +25,12 @@ import { Icon } from "@seij/common-ui-icons";
 import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
-import { createActionTemplateType } from "./model.actions.ts";
-import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  createActionTemplateType, createDisplayedSubjectModel,
+  createDisplayedSubjectType,
+} from "./model.actions.ts";
+import type { ActionDisplayedSubject, ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
@@ -82,6 +86,8 @@ export function TypesTable({
   const itemActions = actionRegistry.findActions(ActionUILocations.type);
   const { isDetailLevelTech } = useDetailLevelContext();
   const styles = useStyles();
+  const displayedSubject = createDisplayedSubjectModel(model.id);
+
   return (
     <div>
       {types.length == 0 ? (
@@ -92,47 +98,50 @@ export function TypesTable({
       <div style={{ paddingTop: tokens.spacingVerticalM }}>
         <Table size="small" style={{ marginBottom: "1em" }}>
           <TableBody>
-            {types.map((type) => (
-              <TableRow key={type.id}>
-                <TableCell
-                  className={styles.titleCell}
-                  onClick={() => onClick(type.id)}
-                >
-                  {model.findTypeNameOrKey(type.id)}
-                </TableCell>
-
-                <TableCell
-                  className={styles.flags}
-                  onClick={() => onClick(type.id)}
-                >
-                  {" "}
-                </TableCell>
-
-                {isDetailLevelTech && (
+            {types.map((type) => {
+              return (
+                <TableRow key={type.id}>
                   <TableCell
-                    className={styles.typeCodeCell}
+                    className={styles.titleCell}
                     onClick={() => onClick(type.id)}
                   >
-                    <code>{type.key}</code>
+                    {model.findTypeNameOrKey(type.id)}
                   </TableCell>
-                )}
-                <TableCell
-                  className={styles.descriptionCell}
-                  onClick={() => onClick(type.id)}
-                >
-                  <div>
-                    <Markdown value={type.description} />
-                  </div>
-                </TableCell>
 
-                <TableCell className={styles.actionCell}>
-                  <ActionMenuButton
-                    itemActions={itemActions}
-                    actionParams={createActionTemplateType(model.id, type.id)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell
+                    className={styles.flags}
+                    onClick={() => onClick(type.id)}
+                  >
+                    {" "}
+                  </TableCell>
+
+                  {isDetailLevelTech && (
+                    <TableCell
+                      className={styles.typeCodeCell}
+                      onClick={() => onClick(type.id)}
+                    >
+                      <code>{type.key}</code>
+                    </TableCell>
+                  )}
+                  <TableCell
+                    className={styles.descriptionCell}
+                    onClick={() => onClick(type.id)}
+                  >
+                    <div>
+                      <Markdown value={type.description}/>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className={styles.actionCell}>
+                    <ActionMenuButton
+                      itemActions={itemActions}
+                      actionParams={createActionTemplateType(model.id, type.id)}
+                      displayedSubject={displayedSubject}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -143,11 +152,17 @@ export function TypesTable({
 export function ActionMenuButton({
   itemActions,
   actionParams,
+  displayedSubject,
   label,
 }: {
   label?: string;
   itemActions: ActionDescriptor[];
   actionParams: ActionPerformerRequestParams;
+  /**
+   * Page subject propagated to action performer.
+   * Keep it equal to the page displayed subject.
+   */
+  displayedSubject: ActionDisplayedSubject;
 }) {
   const actionPerformer = useActionPerformer();
   if (itemActions.length === 0) return null;
@@ -167,6 +182,7 @@ export function ActionMenuButton({
                   actionKey: action.key,
                   actionGroupKey: action.actionGroupKey,
                   params: actionParams,
+                  displayedSubject: displayedSubject ?? displaySubjectNone,
                 })
               }
               icon={undefined}

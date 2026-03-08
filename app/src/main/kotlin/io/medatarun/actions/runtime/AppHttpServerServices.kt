@@ -1,9 +1,6 @@
 package io.medatarun.actions.runtime
 
-import io.medatarun.actions.internal.ActionInvoker
-import io.medatarun.actions.internal.ActionRegistry
-import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
-import io.medatarun.actions.internal.ActionTypesRegistry
+import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OidcService
@@ -21,25 +18,15 @@ class AppHttpServerServices(
     val runtime: PlatformRuntime,
 ) {
 
-    val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(
-        runtime.extensions.findContributionsFlat(SecurityRulesProvider::class)
-            .flatMap { it.getRules() }
-    )
-    val actionTypesRegistry = ActionTypesRegistry(
-        runtime.extensions.findContributionsFlat(TypeDescriptor::class)
-    )
-    val actionRegistry = ActionRegistry(
-        actionSecurityRuleEvaluators,
-        actionTypesRegistry,
-        runtime.extensions.findContributionsFlat(ActionProvider::class)
-    )
+    private val actionPlatform = ActionPlatform.build(
+        runtime.extensions.findContributionsFlat(TypeDescriptor::class),
+        runtime.extensions.findContributionsFlat(ActionProvider::class),
+        runtime.extensions.findContributionsFlat(SecurityRulesProvider::class),
 
-    val actionInvoker = ActionInvoker(
-        actionRegistry,
-        actionTypesRegistry,
-        actionSecurityRuleEvaluators
-    )
+        )
 
+    val actionRegistry = actionPlatform.registry
+    val actionInvoker = actionPlatform.invoker
     val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
 
     val userService = runtime.services.getService<UserService>()

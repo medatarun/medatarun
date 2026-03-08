@@ -6,7 +6,8 @@ export const commandsPageMessages: CommandsPageMessages = {
   commandsPage_noActionSelected: "Aucune action sélectionnée",
   commandsPage_payloadLabel: "Payload",
   commandsPage_payloadPlaceholder: "Saisir un payload",
-  commandsPage_noParametersRequired: "Cette action ne nécessite aucun paramètre.",
+  commandsPage_noParametersRequired:
+    "Cette action ne nécessite aucun paramètre.",
   commandsPage_submit: "Exécuter",
   commandsPage_clear: "Effacer",
   commandsPage_output: "Resultat",

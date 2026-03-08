@@ -23,7 +23,7 @@ class ExtensionRegistryImpl(
         }
 
         extensions.forEach { extension ->
-            extension.init(
+            extension.initContributions(
                 MedatarunExtensionCtxImpl(
                     extension = extension,
                     registrar = ExtensionRegistrar(),

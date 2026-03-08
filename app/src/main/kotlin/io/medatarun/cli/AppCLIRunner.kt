@@ -9,11 +9,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.httpserver.cli.CliActionGroupDto
+import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
@@ -138,14 +136,23 @@ class AppCLIRunner(
             return cached
         }
         val registry = runBlocking { fetchActionRegistry() }
-        val reg = AppCLIActionRegistry(registry)
+        val reg = AppCLIActionRegistry(registry.items)
         actionRegistryCache = reg
         return reg
     }
 
-    private suspend fun fetchActionRegistry(): List<CliActionGroupDto> {
-        val url = "$publicBaseUrl/cli/api/action-registry"
-        val response = httpClient.get(url)
+    private suspend fun fetchActionRegistry(): ActionRegistryDto {
+        val request = ActionRequest(
+            actionGroupKey = "config",
+            actionKey = "inspect_actions",
+            payload = buildJsonObject { }
+        )
+        val url = "$publicBaseUrl/api/${request.actionGroupKey}/${request.actionKey}"
+        val response = httpClient.post(url) {
+            contentType(ContentType.Application.Json)
+            if (authenticationToken != null) header("Authorization", "Bearer $authenticationToken")
+            setBody(request.payload)
+        }
         if (!response.status.isSuccess()) {
             val responseBody = response.bodyAsText()
             throw RemoteActionRegistryException(

@@ -29,7 +29,10 @@ import {
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import { createActionTemplateType } from "@/components/business/model/model.actions.ts";
+import {
+  createActionTemplateType,
+  createDisplayedSubjectType,
+} from "@/components/business/model/model.actions.ts";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { ErrorBox } from "@seij/common-ui";
@@ -141,6 +144,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
                     label={t("typePage_actions")}
                     itemActions={actions}
                     actionParams={actionParams}
+                    displayedSubject={createDisplayedSubjectType(model.id, type.id,)}
                   />
                 </div>
               </div>

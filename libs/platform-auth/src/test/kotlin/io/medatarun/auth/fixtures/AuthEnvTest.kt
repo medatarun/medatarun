@@ -159,8 +159,8 @@ class AuthEnvTest(
 
     class OtherRolesExtension(val otherRoles: Set<String>) : MedatarunExtension {
         override val id: ExtensionId = "other-roles"
-        override fun init(ctx: MedatarunExtensionCtx) {
-            ctx.register(SecurityRolesProvider::class, object : SecurityRolesProvider {
+        override fun initContributions(ctx: MedatarunExtensionCtx) {
+            ctx.registerContribution(SecurityRolesProvider::class, object : SecurityRolesProvider {
                 override fun getRoles(): List<AppPrincipalRole> {
                     return otherRoles.map {
                         object : AppPrincipalRole {

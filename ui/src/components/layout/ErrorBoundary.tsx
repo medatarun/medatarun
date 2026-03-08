@@ -34,7 +34,9 @@ export class ErrorBoundary extends Component<
     if (this.state.hasError) {
       return (
         <div>
-          <div style={{ color: "red" }}>{appT("errorBoundary_fallbackMessage")}</div>
+          <div style={{ color: "red" }}>
+            {appT("errorBoundary_fallbackMessage")}
+          </div>
           <pre>{JSON.stringify(toProblem(this.state.error))}</pre>
         </div>
       );

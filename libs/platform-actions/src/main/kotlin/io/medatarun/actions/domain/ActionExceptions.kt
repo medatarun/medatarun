@@ -19,3 +19,20 @@ class ActionDefinitionWithUnknownSecurityRule(group: String, name: String, rule:
 class UndefinedMultiplatformTypeException(type: KType) : MedatarunException(
     "Type $type has no multiplatform equivalent"
 )
+class ActionNotFoundInternalException(id: ActionId): MedatarunException(
+    "Action $id not found in registry. This is mostly an internal error",
+    StatusCode.INTERNAL_SERVER_ERROR
+)
+class ActionNotFoundByKeysInternalException(actionGroupKey: String, actionKey: String): MedatarunException(
+    "Action $actionGroupKey/$actionKey not found in registry. This is mostly an internal error",
+    StatusCode.INTERNAL_SERVER_ERROR
+)
+
+class ActionSemanticsInvalidSubjectFormatException(subject: String) : MedatarunException(
+    "Invalid action semantics subject format [$subject], expected format is type(param,param)"
+)
+
+class ActionSemanticsAutoInferenceException(actionKey: String, reason: String) : MedatarunException(
+    "Could not infer semantics for action [$actionKey] in AUTO mode: $reason. " +
+        "Set explicit semantics declaration on ActionDoc for this action."
+)

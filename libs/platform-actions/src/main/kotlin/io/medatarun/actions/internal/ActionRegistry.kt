@@ -1,14 +1,11 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionCmdAccessType
-import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.domain.ActionCmdParamDescriptor
-import io.medatarun.actions.domain.ActionDefinitionWithUnknownSecurityRule
-import io.medatarun.actions.domain.ActionDefinitionWithoutDocException
-import io.medatarun.actions.domain.ActionGroupDescriptor
+import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.type.commons.id.Id
 import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -18,34 +15,46 @@ import kotlin.reflect.typeOf
 class ActionRegistry(
     private val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators,
     private val actionTypesRegistry: ActionTypesRegistry,
-    private val actionProviderContributions: List<ActionProvider<*>>
+    private val actionProviderContributions: List<ActionProvider<*>>,
+    private val vocabulary: SemanticsVocabulary
 ) {
 
+    private val semanticsResolver = ActionSemanticsResolver(vocabulary)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
         actionProviderContributions.map {
             ActionGroupDescriptor(
                 key = it.actionGroupKey,
                 providerInstance = it,
-                actions = toActions(it)
-            )
+
+                )
         }
 
     private val actionGroupDescriptorsMap: Map<String, ActionGroupDescriptor> =
         actionGroupDescriptors.associateBy { it.key }
 
-    private val actionDescriptors: List<ActionCmdDescriptor> =
-        actionGroupDescriptors.flatMap { it.actions }
+    private val actionDescriptors: List<ActionRegistered> = actionProviderContributions.flatMap { toActions(it) }
+    private val actionMap: Map<ActionId, ActionRegistered> = actionDescriptors.associateBy { it.descriptor.id }
+    private val actionByKeys: Map<String, ActionRegistered> =
+        actionDescriptors.associateBy { it.descriptor.group + "/" + it.descriptor.key }
 
 
-    private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionCmdDescriptor> {
+    private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionRegistered> {
 
         val cmds = actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
             ?.map { sealed -> buildActionsDescriptions(sealed, actionProviderInstance.actionGroupKey) }
             ?: emptyList()
 
-        return cmds
+        val direct = actionProviderInstance.findActions()
+            .map {
+                ActionRegistered(
+                    descriptor = it,
+                    semantics = semanticsResolver.createSemantics(it)
+                )
+            }
+
+        return cmds + direct
 
     }
 
@@ -54,7 +63,7 @@ class ActionRegistry(
      *
      * At invocation time, commands are launched via the dispatch() method
      */
-    private fun buildActionsDescriptions(sealed: KClass<out Any>, actionGroup: String): ActionCmdDescriptor {
+    private fun buildActionsDescriptions(sealed: KClass<out Any>, actionGroup: String): ActionRegistered {
         val doc = sealed.findAnnotation<ActionDoc>() ?: throw ActionDefinitionWithoutDocException(
             actionGroup,
             sealed.simpleName ?: "unknown"
@@ -65,7 +74,8 @@ class ActionRegistry(
         actionSecurityRuleEvaluators.findEvaluatorOptional(securityRule)
             ?: throw ActionDefinitionWithUnknownSecurityRule(actionGroup, doc.key, securityRule)
 
-        return ActionCmdDescriptor(
+        val base = ActionDescriptorBase(
+            id = Id.generate(::ActionId),
             accessType = ActionCmdAccessType.DISPATCH,
             key = doc.key,
             actionClassName = sealed.simpleName ?: "",
@@ -73,40 +83,63 @@ class ActionRegistry(
             title = doc.title,
             description = doc.description,
             resultType = typeOf<Unit>(),
-            parameters = sealed.memberProperties.mapIndexed { index, property ->
-                val paramdoc = property.findAnnotation<ActionParamDoc>()
-                ActionCmdParamDescriptor(
-                    name = property.name,
-                    title = paramdoc?.name,
-                    description = paramdoc?.description?.trimIndent(),
-                    optional = property.returnType.isMarkedNullable,
-                    type = property.returnType,
-                    multiplatformType = actionTypesRegistry.toMultiplatformType(property.returnType),
-                    jsonType = actionTypesRegistry.toJsonType(property.returnType),
-                    order = paramdoc?.order ?: index
-                )
-            },
             uiLocations = doc.uiLocations.toSet(),
-            securityRule = securityRule
-
+            securityRule = securityRule,
         )
+
+        val parameters = sealed.memberProperties.mapIndexed { index, property ->
+            val paramdoc = property.findAnnotation<ActionParamDoc>()
+            ActionParamDescriptorImpl(
+                name = property.name,
+                title = paramdoc?.name,
+                description = paramdoc?.description?.trimIndent(),
+                optional = property.returnType.isMarkedNullable,
+                type = property.returnType,
+                multiplatformType = actionTypesRegistry.toMultiplatformType(property.returnType),
+                jsonType = actionTypesRegistry.toJsonType(property.returnType),
+                order = paramdoc?.order ?: index
+            )
+        }
+        val semanticsDescription = toSemanticsDescription(doc)
+        val descriptor = ActionDescriptorImpl(
+            base = base,
+            params = parameters,
+            semantics = semanticsDescription,
+        )
+        val semanticsResolved = semanticsResolver.createSemantics(descriptor)
+        val registered = ActionRegistered(
+            descriptor, semanticsResolved
+        )
+        return registered
     }
 
-
-    fun findAllGroupDescriptors(): Collection<ActionGroupDescriptor> {
-        return actionGroupDescriptorsMap.values
+    private fun toSemanticsDescription(doc: ActionDoc): ActionSemanticsConfig {
+        val mode = doc.semantics.mode
+        return when (mode) {
+            ActionDocSemanticsMode.NONE -> ActionSemanticsConfig.None
+            ActionDocSemanticsMode.AUTO -> ActionSemanticsConfig.Auto
+            ActionDocSemanticsMode.DECLARED -> ActionSemanticsConfig.Declared(
+                intent = doc.semantics.intent,
+                subjects = doc.semantics.subjects.toList(),
+                returns = doc.semantics.returns.toList()
+            )
+        }
     }
 
-    fun findGroupDescriptorByIdOptional(actionGroup: String): ActionGroupDescriptor? {
-        return actionGroupDescriptorsMap[actionGroup]
-    }
-
-    fun findAllActions(): Collection<ActionCmdDescriptor> {
+    fun findAllActions(): Collection<ActionRegistered> {
         return actionDescriptors
     }
 
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(ActionRegistry::class.java)
+    fun findActionOptional(actionGroupKey: String, actionKey: String): ActionRegistered? {
+        return actionByKeys["$actionGroupKey/$actionKey"]
     }
+
+    fun findAction(actionGroupKey: String, actionKey: String): ActionRegistered {
+        return findActionOptional(actionGroupKey, actionKey) ?: throw ActionNotFoundByKeysInternalException(actionGroupKey, actionKey)
+    }
+
+    fun findProviderOptional(actionGroupKey: String, actionKey: String): ActionProvider<Any>? {
+        return actionGroupDescriptorsMap[actionGroupKey]?.providerInstance as ActionProvider<Any>?
+    }
+
 }

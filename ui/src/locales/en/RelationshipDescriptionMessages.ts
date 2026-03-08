@@ -9,9 +9,7 @@ export const relationshipDescriptionMessages: RelationshipDescriptionMessages =
       " can be associated with at most one ",
     relationshipDescription_oneOrMoreBetween:
       " can be associated with one or more ",
-    relationshipDescription_withoutMaximumPrefix:
-      " can be associated with ",
-    relationshipDescription_withoutMaximumSuffix:
-      ", with no defined maximum.",
+    relationshipDescription_withoutMaximumPrefix: " can be associated with ",
+    relationshipDescription_withoutMaximumSuffix: ", with no defined maximum.",
     relationshipDescription_genericBetween: " can be associated with ",
   };

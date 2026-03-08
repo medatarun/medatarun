@@ -1,6 +1,9 @@
 import type {
   ActionDescriptorDto,
   ActionParamDescriptorDto,
+  ActionDescriptorSemanticsDto,
+  ActionDescriptorSemanticsSubjectDto,
+  ActionDescriptorSemanticsSubjectReferencingParamDto,
   ActionRegistryDto,
 } from "./action_registry.dto.ts";
 import type { ActionUILocation } from "./action_registry.uilocations.ts";
@@ -14,6 +17,7 @@ export class ActionDescriptor {
   public title: string;
   public path: string;
   public securityRule: string;
+  public semantics: ActionDescriptorSemantics;
 
   private dto: ActionDescriptorDto;
 
@@ -26,10 +30,47 @@ export class ActionDescriptor {
     this.title = dto.title ?? dto.groupKey + "/" + dto.actionKey;
     this.path = dto.groupKey + "/" + dto.actionKey;
     this.securityRule = dto.securityRule;
+    this.semantics = new ActionDescriptorSemantics(dto.semantics);
   }
 
   matchesLocation(location: string): boolean {
     return this.dto.uiLocations.includes(location);
+  }
+}
+
+export class ActionDescriptorSemantics {
+  public intent: string;
+  public subjects: ActionDescriptorSemanticsSubject[];
+  public returns: string[];
+
+  constructor(dto: ActionDescriptorSemanticsDto) {
+    this.intent = dto.intent;
+    this.subjects = dto.subjects.map(
+      (it) => new ActionDescriptorSemanticsSubject(it),
+    );
+    this.returns = dto.returns;
+  }
+}
+
+export class ActionDescriptorSemanticsSubject {
+  public type: string;
+  public referencingParams: ActionDescriptorSemanticsSubjectReferencingParam[];
+
+  constructor(dto: ActionDescriptorSemanticsSubjectDto) {
+    this.type = dto.type;
+    this.referencingParams = dto.referencingParams.map(
+      (it) => new ActionDescriptorSemanticsSubjectReferencingParam(it),
+    );
+  }
+}
+
+export class ActionDescriptorSemanticsSubjectReferencingParam {
+  public name: string;
+  public kind: string;
+
+  constructor(dto: ActionDescriptorSemanticsSubjectReferencingParamDto) {
+    this.name = dto.name;
+    this.kind = dto.kind;
   }
 }
 
@@ -59,8 +100,10 @@ export class ActionRegistry {
 
   public constructor(dto: ActionRegistryDto) {
     this.dto = dto;
-    this.actionGroupKeys = [...new Set(this.dto.map((it) => it.groupKey))];
-    this.actionDescriptors = dto.map((it) => new ActionDescriptor(it));
+    this.actionGroupKeys = [
+      ...new Set(this.dto.items.map((it) => it.groupKey)),
+    ];
+    this.actionDescriptors = dto.items.map((it) => new ActionDescriptor(it));
   }
 
   public findActionDtoListByResource(

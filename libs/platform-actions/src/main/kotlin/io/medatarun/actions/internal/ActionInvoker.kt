@@ -31,22 +31,20 @@ class ActionInvoker(
         val actionPayload = invocation.payload
 
 
-        val descriptor = registry.findGroupDescriptorByIdOptional(actionGroupKey)
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Unknown action group '$actionGroupKey'"
-            )
-
-        val actionProviderInstance: ActionProvider<Any> = descriptor.providerInstance as ActionProvider<Any>
-
-        val actionDescriptor = descriptor.actions.find { it.key == actionKey }
+        val action = registry.findActionOptional(actionGroupKey, actionKey)
             ?: throw ActionInvocationException(
                 StatusCode.NOT_FOUND,
                 "Unknown action '$actionGroupKey/$actionKey'"
             )
 
+        val actionProviderInstance: ActionProvider<Any> = registry.findProviderOptional(actionGroupKey, actionKey)
+            ?: throw ActionInvocationException(
+                StatusCode.NOT_FOUND,
+                "Action handler not found for '$actionGroupKey'"
+            )
+
         val securityRuleEvaluationResult =
-            actionSecurityRuleEvaluators.evaluateSecurity(actionDescriptor.securityRule, actionCtx)
+            actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
             throw ActionInvocationException(
                 StatusCode.UNAUTHORIZED,
@@ -55,9 +53,9 @@ class ActionInvoker(
             )
         }
 
-        val invoker: Invoker = when (actionDescriptor.accessType) {
+        val invoker: Invoker = when (action.descriptor.accessType) {
             ActionCmdAccessType.DISPATCH -> createInvokerDispatch(
-                actionDescriptor = actionDescriptor,
+                actionDescriptor = action.descriptor,
                 actionProviderInstance = actionProviderInstance,
                 actionPayload = actionPayload,
                 actionCtx = actionCtx

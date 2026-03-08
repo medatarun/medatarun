@@ -27,8 +27,12 @@ export function validateForm({
       result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "EntityRef")
       result = validateRef(formField, formData[formField.key]);
+    else if (formField.type === "EntityAttributeRef")
+      result = validateRef(formField, formData[formField.key]);
     else if (formField.type === "RelationshipKey")
       result = validateKey(formField, formData[formField.key]);
+    else if (formField.type === "RelationshipAttributeRef")
+      result = validateRef(formField, formData[formField.key]);
     else if (formField.type === "RelationshipRef")
       result = validateRef(formField, formData[formField.key]);
     else if (formField.type === "TagGroupKey")

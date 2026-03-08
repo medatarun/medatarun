@@ -40,6 +40,7 @@ import {
   createActionTemplateEntity,
   createActionTemplateEntityAttribute,
   createActionTemplateEntityForRelationships,
+  createDisplayedSubjectEntity,
 } from "@/components/business/model/model.actions.ts";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
@@ -115,6 +116,8 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       value: value,
     });
   };
+  const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id,);
+
   return (
     <ViewLayoutContained
       title={
@@ -154,6 +157,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
                   label={t("entityPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateEntity(model.id, entity.id)}
+                  displayedSubject={displayedSubject}
                 />
               </div>
             </div>
@@ -184,6 +188,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             <SectionTitle
               icon={<AttributeIcon />}
               actionParams={createActionTemplateEntity(model.id, entity.id)}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.entity_attributes}
             >
               {t("entityPage_attributesTitle")}
@@ -200,6 +205,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
                     attributeId,
                   )
                 }
+                displayedSubject={displayedSubject}
                 onClickAttribute={handleClickAttribute}
               />
             </SectionTable>
@@ -210,6 +216,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
                 model.id,
                 entity.id,
               )}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.entity_relationships}
             >
               {t("entityPage_relationshipsTitle")}
@@ -219,6 +226,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               <RelationshipsTable
                 onClick={handleClickRelationship}
                 relationships={relationshipsInvolved}
+                displayedSubject={displayedSubject}
               />
             </SectionTable>
           </ContainedHumanReadable>

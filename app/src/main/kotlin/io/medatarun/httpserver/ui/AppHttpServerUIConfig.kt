@@ -9,7 +9,6 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.medatarun.actions.internal.ActionRegistry
 import io.medatarun.httpserver.commons.AppHttpServerJwtSecurity.AUTH_MEDATARUN_JWT
 import io.medatarun.httpserver.commons.AppHttpServerTools.detectLocale
 import io.medatarun.lang.exceptions.MedatarunException
@@ -106,18 +105,13 @@ fun Routing.installUIHomepage(
 /**
  * UI specific APIs, not meant for general API usages
  */
-fun Routing.installUIApis(runtime: PlatformRuntime, actionRegistry: ActionRegistry) {
-
-    get("/ui/api/action-registry") {
-        // Authentication: the action registry for UI is public (otherwise no help on UI)
-        call.respond(UI(runtime, actionRegistry).actionRegistryDto(detectLocale(call)))
-    }
+fun Routing.installUIApis(runtime: PlatformRuntime) {
 
     authenticate(AUTH_MEDATARUN_JWT) {
         // Authentication: required
         get("/ui/api/models") {
             call.respondText(
-                UI(runtime, actionRegistry).modelListJson(detectLocale(call)),
+                UI(runtime).modelListJson(detectLocale(call)),
                 ContentType.Application.Json
             )
         }
@@ -127,7 +121,7 @@ fun Routing.installUIApis(runtime: PlatformRuntime, actionRegistry: ActionRegist
         get("/ui/api/models/{modelId}") {
             val modelId = call.parameters["modelId"] ?: throw NotFoundException()
             call.respondText(
-                UI(runtime, actionRegistry).modelJson(ModelId.fromString(modelId), detectLocale(call)),
+                UI(runtime).modelJson(ModelId.fromString(modelId), detectLocale(call)),
                 ContentType.Application.Json
             )
         }
