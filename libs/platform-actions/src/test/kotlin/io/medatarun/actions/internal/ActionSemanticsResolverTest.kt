@@ -18,8 +18,6 @@ import kotlin.test.assertFailsWith
 
 class ActionSemanticsResolverTest {
 
-    val vocabulary = ActionSemanticsResolver.buildDefaultVocabulary()
-    val resolver = ActionSemanticsResolver(vocabulary)
 
     @Nested
     inner class DecodeSubjects {
@@ -162,6 +160,62 @@ class ActionSemanticsResolverTest {
 
     @Nested
     inner class InferFromAction {
+        private fun createAutoActionDescriptor(
+            key: String,
+            group: String,
+            paramNames: List<String>
+        ): ActionCmdDescriptor {
+
+            return ActionDescriptorImpl(
+                base = ActionDescriptorBase(
+                    id = ActionId(UUID.randomUUID()),
+                    key = key,
+                    actionClassName = "TestAction",
+                    group = group,
+                    title = null,
+                    description = null,
+                    resultType = Unit::class.createType(),
+                    accessType = ActionCmdAccessType.DISPATCH,
+                    uiLocations = emptySet(),
+                    securityRule = "test",
+                ),
+                params = paramNames.mapIndexed { index, paramName ->
+                    ActionParamDescriptorImpl(
+                        name = paramName,
+                        title = null,
+                        type = String::class.createType(),
+                        multiplatformType = "String",
+                        jsonType = TypeJsonEquiv.STRING,
+                        optional = false,
+                        order = index,
+                        description = null
+                    )
+                },
+                semantics = ActionSemanticsConfig.Auto
+            )
+
+        }
+
+        fun semantics(action: ActionCmdDescriptor): ActionSemantics {
+            class ActionProviderTest : ActionProvider<Any> {
+                override val actionGroupKey: String = "test"
+                override fun findCommandClass(): KClass<Any>? = null
+                override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
+                override fun findActions(): List<ActionCmdDescriptor> = listOf(action)
+            }
+
+            val extension = object : MedatarunExtension {
+                override val id = "action-test-env"
+                override fun initContributions(ctx: MedatarunExtensionCtx) {
+                    ctx.registerContribution(ActionProvider::class, ActionProviderTest())
+                }
+            }
+            val env = ActionTestEnv(listOf(extension))
+
+            return env.actionPlatform.registry.findAction(action.group, action.key).semantics
+        }
+
+
         @Test
         fun `auto should infer model create from model_create`() {
             val action = createAutoActionDescriptor(
@@ -170,7 +224,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("modelKey", "name", "description", "version")
             )
 
-            val semantics = resolver.createSemantics(action)
+            val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.CREATE, semantics.intent)
             assertEquals(1, semantics.subjects.size)
@@ -197,7 +251,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("modelRef", "value")
             )
 
-            val semantics = resolver.createSemantics(action)
+            val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.UPDATE, semantics.intent)
             assertEquals("model", semantics.subjects[0].type)
@@ -221,7 +275,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("modelRef")
             )
 
-            val semantics = resolver.createSemantics(action)
+            val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.DELETE, semantics.intent)
             assertEquals("model", semantics.subjects[0].type)
@@ -239,14 +293,13 @@ class ActionSemanticsResolverTest {
 
         @Test
         fun `auto should throw when subject is not explicit in action key`() {
-            val action = createAutoActionDescriptor(
-                key = "search",
-                group = "model",
-                paramNames = listOf("filters", "fields")
-            )
-
             assertFailsWith<ActionSemanticsAutoInferenceException> {
-                resolver.createSemantics(action)
+                val action = createAutoActionDescriptor(
+                    key = "search",
+                    group = "model",
+                    paramNames = listOf("filters", "fields")
+                )
+                semantics(action)
             }
         }
 
@@ -258,7 +311,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("scopeRef", "key", "name", "description")
             )
 
-            val semantics = resolver.createSemantics(action)
+            val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.CREATE, semantics.intent)
             assertEquals("tag_free", semantics.subjects[0].type)
@@ -286,7 +339,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("filters")
             )
 
-            val semantics = resolver.createSemantics(action)
+            val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.READ, semantics.intent)
             assertEquals(emptyList(), semantics.subjects)
@@ -295,51 +348,17 @@ class ActionSemanticsResolverTest {
 
         @Test
         fun `auto should throw when verb is unknown`() {
-            val action = createAutoActionDescriptor(
-                key = "model_reconcile",
-                group = "model",
-                paramNames = listOf("modelRef")
-            )
 
             assertFailsWith<ActionSemanticsAutoInferenceException> {
-                resolver.createSemantics(action)
+                val action = createAutoActionDescriptor(
+                    key = "model_reconcile",
+                    group = "model",
+                    paramNames = listOf("modelRef")
+                )
+
+                semantics(action)
             }
         }
     }
 
-    private fun createAutoActionDescriptor(
-        key: String,
-        group: String,
-        paramNames: List<String>
-    ): ActionCmdDescriptor {
-
-        return ActionDescriptorImpl(
-            base = ActionDescriptorBase(
-                id = ActionId(UUID.randomUUID()),
-                key = key,
-                actionClassName = "TestAction",
-                group = group,
-                title = null,
-                description = null,
-                resultType = Unit::class.createType(),
-                accessType = ActionCmdAccessType.DISPATCH,
-                uiLocations = emptySet(),
-                securityRule = "test",
-            ),
-            params = paramNames.mapIndexed { index, paramName ->
-                ActionParamDescriptorImpl(
-                    name = paramName,
-                    title = null,
-                    type = String::class.createType(),
-                    multiplatformType = "String",
-                    jsonType = TypeJsonEquiv.STRING,
-                    optional = false,
-                    order = index,
-                    description = null
-                )
-            },
-            semantics = ActionSemanticsConfig.Auto
-        )
-
-    }
 }
