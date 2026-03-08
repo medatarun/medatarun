@@ -1,14 +1,18 @@
 package io.medatarun.actions.internal
 
+import com.google.common.jimfs.Jimfs
+import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.*
+import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
+import io.medatarun.types.TypeSystemExtension
 import kotlinx.serialization.json.*
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -93,46 +97,46 @@ class ActionInvokerTest {
     // String
     // ------------------------------------------------------------------------
 
-     @Test
-     fun `string optional when undefined then null`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-         }
+    @Test
+    fun `string optional when undefined then null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertNull(cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertNull(cmd.value)
+    }
 
-     @Test
-     fun `string optional when null then null`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-             put("value", JsonNull)
-         }
+    @Test
+    fun `string optional when null then null`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonNull)
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertNull(cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertNull(cmd.value)
+    }
 
-     @Test
-     fun `string optional when provided then found`() {
-         val runtime = TestRuntime()
-         val payload = buildJsonObject {
-             put("value", JsonPrimitive("alpha"))
-         }
+    @Test
+    fun `string optional when provided then found`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("value", JsonPrimitive("alpha"))
+        }
 
-         runtime.invoke("string_optional", payload)
+        runtime.invoke("string_optional", payload)
 
-         val cmd = runtime.lastCommand()
-         assertTrue(cmd is TestAction.WithStringOptional)
-         assertEquals("alpha", cmd.value)
-     }
+        val cmd = runtime.lastCommand()
+        assertTrue(cmd is TestAction.WithStringOptional)
+        assertEquals("alpha", cmd.value)
+    }
 
 
     // ------------------------------------------------------------------------
@@ -452,35 +456,51 @@ class ActionInvokerTest {
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
     }
 
-    private class TestRuntime(
-        private val actionProvider: TestActionProvider = TestActionProvider(),
-        securityRulesProviders: List<SecurityRulesProvider> = listOf(DefaultTestSecurityRulesProvider)
-    ) {
-        private val platform = ActionPlatform.build(
-            typeDescriptors = listOf(
-                ComplexPayloadTypeDescriptor,
-                AbbreviationTypeDescriptor
-            ),
-            actionProviders = listOf(actionProvider),
-            securityRulesProviders = securityRulesProviders
-        )
-        private val actionCtx = TestActionCtx()
+    private class TestRuntime {
+        private val runtime = PlatformBuilder(
+            config = MedatarunConfig.createTempConfig(Jimfs.newFileSystem(), emptyMap()),
+            extensions = listOf(
+                TypeSystemExtension(),
+                SecurityExtension(),
+                ActionsExtension(),
+                TestActionsExtension()
+            )
+        ).buildAndStart()
+
+        private val actionCtx = TestActionCtx(runtime.extensions, runtime.services)
 
         fun invoke(actionKey: String, payload: JsonObject): Any? {
-            return invokeWithGroup(actionProvider.actionGroupKey, actionKey, payload)
+            return runtime.services.getService(ActionPlatform::class).invoker.handleInvocation(
+                ActionRequest("test", actionKey, payload), actionCtx)
         }
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
             val request = ActionRequest(actionGroupKey, actionKey, payload)
-            return platform.invoker.handleInvocation(request, actionCtx)
+            return runtime.services.getService(ActionPlatform::class).invoker.handleInvocation(request, actionCtx)
         }
 
         fun lastCommand(): TestAction? {
-            return actionProvider.lastCommand
+            return runtime.services.getService(TestActionProvider::class).lastCommand
         }
 
         fun lastActionCtx(): ActionCtx? {
-            return actionProvider.lastActionCtx
+            return runtime.services.getService(TestActionProvider::class).lastActionCtx
+        }
+    }
+
+    private class TestActionsExtension : MedatarunExtension {
+        override val id: String = "platform-actions-test"
+
+        override fun initServices(ctx: MedatarunServiceCtx) {
+            val actionProvider = TestActionProvider()
+            ctx.register(TestActionProvider::class, actionProvider)
+        }
+
+        override fun init(ctx: MedatarunExtensionCtx) {
+            ctx.register(ActionProvider::class, ctx.getService(TestActionProvider::class))
+            ctx.register(TypeDescriptor::class, ComplexPayloadTypeDescriptor)
+            ctx.register(TypeDescriptor::class, AbbreviationTypeDescriptor)
+            ctx.register(SecurityRulesProvider::class, DefaultTestSecurityRulesProvider)
         }
     }
 
@@ -761,28 +781,17 @@ class ActionInvokerTest {
         }
     }
 
-    private class TestActionCtx : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = object :
-            ExtensionRegistry {
-            override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
-                return emptyList()
-            }
-
-            override fun inspectHumanReadable(): String {
-                return ""
-            }
-
-            override fun inspectJson(): JsonObject {
-                return buildJsonObject { }
-            }
-        }
+    private class TestActionCtx(
+        override val extensionRegistry: ExtensionRegistry,
+        private val serviceRegistry: MedatarunServiceRegistry
+    ) : ActionCtx {
 
         override fun dispatchAction(req: ActionRequest): Any? {
             throw TestActionCtxDispatchException()
         }
 
         override fun <T : Any> getService(type: KClass<T>): T {
-            throw TestActionCtxServiceNotFoundException(type)
+            return serviceRegistry.getService(type)
         }
 
         override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
@@ -825,8 +834,6 @@ class ActionInvokerTest {
     }
 
     private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
-    private class TestActionCtxServiceNotFoundException(type: KClass<*>) :
-        MedatarunException("Service not found for ${type.simpleName}")
 
     private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
     private class TestPrincipalMissingException : MedatarunException("Principal is missing")
