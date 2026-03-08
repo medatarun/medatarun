@@ -10,6 +10,7 @@ import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry();
@@ -33,6 +34,7 @@ export function DashboardPage() {
                   label={t("dashboardPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
+                  displayedSubject={displaySubjectNone}
                 />
               </div>
             </div>
@@ -42,7 +44,9 @@ export function DashboardPage() {
     >
       <ContainedHumanReadable>
         <div>
-          <MissingInformation>{t("dashboardPage_placeholder")}</MissingInformation>
+          <MissingInformation>
+            {t("dashboardPage_placeholder")}
+          </MissingInformation>
         </div>
       </ContainedHumanReadable>
     </ViewLayoutContained>

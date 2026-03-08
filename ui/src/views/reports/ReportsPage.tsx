@@ -1,6 +1,12 @@
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
-import {Button, Dropdown, type DropdownProps, Option, tokens,} from "@fluentui/react-components";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import {
+  Button,
+  Dropdown,
+  type DropdownProps,
+  Option,
+  tokens,
+} from "@fluentui/react-components";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   AddRegular,
   ArrowDownloadRegular,
@@ -8,28 +14,31 @@ import {
   DocumentBulletListRegular,
   SearchFilled,
 } from "@fluentui/react-icons";
-import {ContainedFixed, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
+import {
+  ContainedFixed,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
 import {
   type ModelSearchFilter,
   type ModelSearchReq,
   type ModelSearchTagFilter,
   useModelSearch,
 } from "@/business/model";
-import {useState} from "react";
-import {MissingInformation} from "@/components/core/MissingInformation.tsx";
-import {createCsv} from "./ReportsPage.csvexport.tsx";
-import {v7 as uuidv7} from "uuid";
-import {ResultTable} from "@/views/reports/components/ResultTable.tsx";
-import {FilterTagRowEditor} from "./components/FilterTagRowEditor.tsx";
-import {FilterTextRowEditor} from "./components/FilterTextRowEditor.tsx";
-import {useCompactDropdownStyles} from "./components/Reports.styles.tsx";
-import {ButtonBar, Loader} from "@seij/common-ui";
-import {useAppI18n} from "@/services/appI18n.tsx";
+import { useState } from "react";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { createCsv } from "./ReportsPage.csvexport.tsx";
+import { v7 as uuidv7 } from "uuid";
+import { ResultTable } from "@/views/reports/components/ResultTable.tsx";
+import { FilterTagRowEditor } from "./components/FilterTagRowEditor.tsx";
+import { FilterTextRowEditor } from "./components/FilterTextRowEditor.tsx";
+import { useCompactDropdownStyles } from "./components/Reports.styles.tsx";
+import { ButtonBar, Loader } from "@seij/common-ui";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 
 type FilterRowType = "tags" | "text";
-
 
 function createFilterId() {
   return uuidv7();
@@ -87,9 +96,8 @@ export function ReportsPage() {
   const { t } = useAppI18n();
   const styles = useCompactDropdownStyles();
   const [draftQuery, setDraftQuery] = useState<ModelSearchReq>(loadStoredQuery);
-  const [appliedQuery, setAppliedQuery] = useState<ModelSearchReq>(
-    loadStoredQuery,
-  );
+  const [appliedQuery, setAppliedQuery] =
+    useState<ModelSearchReq>(loadStoredQuery);
 
   const query = useModelSearch(appliedQuery);
   const items = query.data?.items ?? [];
@@ -224,7 +232,11 @@ export function ReportsPage() {
                   )}
                 </ButtonBar>
               </div>
-              <Button appearance="outline" icon={<AddRegular />} onClick={handleAddFilter}>
+              <Button
+                appearance="outline"
+                icon={<AddRegular />}
+                onClick={handleAddFilter}
+              >
                 {t("modelReportsPage_addCondition")}
               </Button>
             </div>
@@ -233,7 +245,9 @@ export function ReportsPage() {
         <ContainedScrollable>
           {!hasFilters && (
             <div style={{ padding: tokens.spacingVerticalM }}>
-              <MissingInformation>{t("modelReportsPage_emptySearch")}</MissingInformation>
+              <MissingInformation>
+                {t("modelReportsPage_emptySearch")}
+              </MissingInformation>
             </div>
           )}
           {query.isPending && (
@@ -243,12 +257,13 @@ export function ReportsPage() {
           )}
           {hasFilters && !query.isPending && items.length === 0 && (
             <div style={{ padding: tokens.spacingVerticalM }}>
-              <MissingInformation>{t("modelReportsPage_emptyResults")}</MissingInformation>
+              <MissingInformation>
+                {t("modelReportsPage_emptyResults")}
+              </MissingInformation>
             </div>
           )}
           {!query.isPending && items.length > 0 && (
             <ResultTable items={items} />
-
           )}
         </ContainedScrollable>
       </ContainedMixedScrolling>

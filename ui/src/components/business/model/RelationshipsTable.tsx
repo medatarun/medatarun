@@ -1,23 +1,13 @@
-import {
-  makeStyles,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Text,
-  tokens,
-} from "@fluentui/react-components";
-import { RelationshipDescription } from "./RelationshipDescription.tsx";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
-import type { RelationshipDto } from "@/business/model";
-import { useModelContext } from "./ModelContext.tsx";
-import { ActionMenuButton } from "./TypesTable.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { createActionTemplateRelationship } from "./model.actions.ts";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens,} from "@fluentui/react-components";
+import {RelationshipDescription} from "./RelationshipDescription.tsx";
+import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
+import type {RelationshipDto} from "@/business/model";
+import {useModelContext} from "./ModelContext.tsx";
+import {ActionMenuButton} from "./TypesTable.tsx";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {createActionTemplateRelationship} from "./model.actions.ts";
+import {useAppI18n} from "@/services/appI18n.tsx";
+import type {ActionDisplayedSubject} from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -48,25 +38,29 @@ const useStyles = makeStyles({
     textAlign: "right",
   },
 });
-export function RelationshipsTable({
-  relationships,
-  onClick,
-}: {
-  relationships: RelationshipDto[];
-  onClick: (relationshipId: string) => void;
-}) {
-  const { t } = useAppI18n();
+
+export function RelationshipsTable(
+  {
+    relationships,
+    onClick,
+    displayedSubject
+  }: {
+    displayedSubject: ActionDisplayedSubject,
+    relationships: RelationshipDto[];
+    onClick: (relationshipId: string) => void;
+  }) {
+  const {t} = useAppI18n();
   const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions(
     ActionUILocations.relationship,
   );
-  const { isDetailLevelTech } = useDetailLevelContext();
+  const {isDetailLevelTech} = useDetailLevelContext();
   const styles = useStyles();
   return (
     <div>
       {relationships.length == 0 ? (
-        <p style={{ paddingTop: tokens.spacingVerticalM }}>
+        <p style={{paddingTop: tokens.spacingVerticalM}}>
           <Text italic>{t("relationshipsTable_empty")}</Text>
         </p>
       ) : null}
@@ -92,7 +86,7 @@ export function RelationshipsTable({
                   onClick={() => onClick(r.id)}
                 >
                   <div>
-                    <RelationshipDescription rel={r} />
+                    <RelationshipDescription rel={r}/>
                   </div>
                   {isDetailLevelTech && (
                     <div>
@@ -103,10 +97,8 @@ export function RelationshipsTable({
                 <TableCell className={styles.actionCell}>
                   <ActionMenuButton
                     itemActions={itemActions}
-                    actionParams={createActionTemplateRelationship(
-                      model.id,
-                      r.id,
-                    )}
+                    actionParams={createActionTemplateRelationship(model.id, r.id,)}
+                    displayedSubject={displayedSubject}
                   />
                 </TableCell>
               </TableRow>

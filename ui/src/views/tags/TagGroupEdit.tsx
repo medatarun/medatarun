@@ -38,6 +38,7 @@ import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateTagGroup,
   createActionTemplateTagManagedList,
+  createDisplayedSubjectTagGroup,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
@@ -89,6 +90,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
     });
   };
 
+  const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
   return (
     <ViewLayoutContained
       title={
@@ -131,6 +133,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
                   label={t("tagGroupEdit_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateTagGroup(tagGroup.id)}
+                  displayedSubject={displayedSubject}
                 />
               </div>
             </div>
@@ -160,6 +163,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
               icon={<TagGroupIcon />}
               location={ActionUILocations.tag_managed_list}
               actionParams={createActionTemplateTagManagedList(tagGroup.id)}
+              displayedSubject={displayedSubject}
             >
               {t("tagGroupEdit_tagsTitle")}
             </SectionTitle>
@@ -168,6 +172,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
               <TagsTable
                 scope={{ type: "global", id: null }}
                 tagGroupId={tagGroup.id}
+                displayedSubject={displayedSubject}
               />
             </SectionTable>
           </ContainedHumanReadable>

@@ -5,7 +5,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { MessageBar } from "@fluentui/react-components";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActionRegistry,
   ActionsContext,
@@ -20,6 +20,9 @@ import { ApplicationShellSecured } from "@seij/common-ui-auth";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { modelActionPostHook } from "@/business/model";
+import { tagActionPostHook } from "@/business/tag";
+import { ActionPostHooks } from "@/components/business/actions/ActionPostHook.ts";
 
 export function Layout2() {
   const [actions, setActions] = useState<ActionRegistry>();
@@ -29,6 +32,10 @@ export function Layout2() {
   const { pathname } = useLocation();
   const { isDetailLevelTech } = useDetailLevelContext();
   const { t } = useAppI18n();
+  const postHooks = useMemo(
+    () => new ActionPostHooks([modelActionPostHook, tagActionPostHook]),
+    [],
+  );
 
   useEffect(() => {
     fetchActionDescriptors()
@@ -130,7 +137,7 @@ export function Layout2() {
           <>
             {actions && (
               <ActionsContext value={actions}>
-                <ActionProvider>
+                <ActionProvider postHooks={postHooks}>
                   <ErrorBoundary>
                     <Outlet />
                     <ActionPerformerView />

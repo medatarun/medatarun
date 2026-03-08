@@ -5,6 +5,7 @@ import {
 } from "@/business/action_runner";
 import { ActionRegistry } from "@/business/action_registry";
 import { queryClient } from "@/services/queryClient.ts";
+import type { ActionPostHooks } from "./ActionPostHook.ts";
 
 export type ActionPerformerRequestParam = {
   readonly: boolean;
@@ -14,11 +15,39 @@ export type ActionPerformerRequestParams = Record<
   string,
   ActionPerformerRequestParam
 >;
+
+/**
+ * Subject currently displayed by the UI where the action is triggered.
+ *
+ * Contract:
+ * - This is page-level context, not row-level or transient item context.
+ * - refs keys must follow action naming conventions (modelRef, entityRef, ...).
+ * - refs values should use the same normalized format as action params ("id:...").
+ */
+export type ActionDisplayedSubjectNone = { kind: "none" };
+export type ActionDisplayedSubjectResource = {
+  kind: "resource";
+  type: string;
+  refs: Record<string, string>;
+};
+export type ActionDisplayedSubject =
+  | ActionDisplayedSubjectNone
+  | ActionDisplayedSubjectResource;
 export type ActionPerformerFormData = Record<string, unknown>;
+
+/**
+ * Action execution request captured at trigger time.
+ *
+ * Contract:
+ * - params are action input values.
+ * - displayedSubject describes where the action was launched from.
+ *   Post-action navigation relies on it for delete behaviors.
+ */
 export type ActionPerformerRequest = {
   actionGroupKey: string;
   actionKey: string;
   params: ActionPerformerRequestParams;
+  displayedSubject: ActionDisplayedSubject;
 };
 
 export type ActionPerformerState =
@@ -32,11 +61,13 @@ type Listener = (s: ActionPerformerState) => void;
 
 export class ActionPerformer {
   private actionRegistry: ActionRegistry;
+  private postHooks: ActionPostHooks;
   private state: ActionPerformerState = { kind: "idle" };
   private listeners = new Set<Listener>();
 
-  constructor(actionRegistry: ActionRegistry) {
+  constructor(actionRegistry: ActionRegistry, postHooks: ActionPostHooks) {
     this.actionRegistry = actionRegistry;
+    this.postHooks = postHooks;
   }
 
   subscribe(listener: Listener) {
@@ -100,7 +131,23 @@ export class ActionPerformer {
     payload: ActionPayload,
   ): Promise<ActionResp> {
     const resp = await executeAction(actionGroupKey, actionKey, payload);
-    await queryClient.invalidateQueries();
+    const action = this.actionRegistry.findAction(actionGroupKey, actionKey);
+    const request = this.state.kind === "running" ? this.state.request : null;
+    let cachesHandled = false;
+    if (request) {
+      cachesHandled = await this.postHooks.onActionSuccess(
+        {
+          action: action,
+          request: request,
+          state: this.state,
+        },
+        queryClient,
+      );
+    }
+    if (!cachesHandled) {
+      await queryClient.invalidateQueries();
+    }
     return resp;
   }
 }
+export const displaySubjectNone: ActionDisplayedSubjectNone = { kind: "none" };

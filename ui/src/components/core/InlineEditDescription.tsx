@@ -1,7 +1,10 @@
 import { useRef, useState } from "react";
 import { InlineEditRichTextLayout } from "./InlineEditRichTextLayout.tsx";
 import { Markdown } from "./Markdown.tsx";
-import { MarkdownEditor, type MarkdownEditorHandle } from "./MarkdownEditor.tsx";
+import {
+  MarkdownEditor,
+  type MarkdownEditorHandle,
+} from "./MarkdownEditor.tsx";
 import { MissingInformation } from "./MissingInformation.tsx";
 
 export function InlineEditDescription({

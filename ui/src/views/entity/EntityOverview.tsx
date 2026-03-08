@@ -16,6 +16,7 @@ import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx
 import { useModelContext } from "@/components/business/model/ModelContext.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { createDisplayedSubjectEntity } from "@/components/business/model/model.actions.ts";
 
 export function EntityOverview({ entity }: { entity: EntityDto }) {
   const model = useModelContext();
@@ -92,7 +93,9 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           onChange={handleChangeDocumentationHome}
         >
           {!entity.documentationHome ? (
-            <MissingInformation>{t("entityPage_externalLinkEmpty")}</MissingInformation>
+            <MissingInformation>
+              {t("entityPage_externalLinkEmpty")}
+            </MissingInformation>
           ) : (
             <ExternalUrl url={entity.documentationHome} />
           )}
@@ -107,6 +110,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           value={entity.tags}
           scope={modelTagScope(model.id)}
           onChange={handleChangeTags}
+          displayedSubject={createDisplayedSubjectEntity(model.id, entity.id)}
         >
           {entity.tags.length === 0 ? (
             <MissingInformation>{t("entityPage_tagsEmpty")}</MissingInformation>

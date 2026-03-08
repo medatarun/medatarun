@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  forwardRef,
-  type PropsWithChildren,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import {forwardRef, type PropsWithChildren, useEffect, useRef, useState} from "react";
 
 import {
   Avatar,
@@ -18,10 +12,11 @@ import {
   TagPickerOption,
   type TagPickerProps,
 } from "@fluentui/react-components";
-import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
-import { Tags, useTags, type TagScopeRef } from "@/business/tag";
-import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
+import {Tags, type TagScopeRef, useTags} from "@/business/tag";
+import {useActionPerformer} from "@/components/business/actions/ActionPerformerHook.tsx";
+import {useAppI18n} from "@/services/appI18n.tsx";
+import {type ActionDisplayedSubject,} from "@/components/business/actions/ActionPerformer.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 
@@ -30,10 +25,12 @@ export function InlineEditTags({
   scope,
   children,
   onChange,
+  displayedSubject,
 }: {
   value: string[];
   scope: TagScopeRef;
   onChange: (value: string[]) => Promise<unknown>;
+  displayedSubject: ActionDisplayedSubject;
 } & PropsWithChildren) {
   const [values, setValues] = useState(value);
   const ref = useRef<HTMLInputElement>(null);
@@ -107,6 +104,7 @@ export function InlineEditTags({
         scopeRef: { value: scope, readonly: true },
         key: { value: key, readonly: false },
       },
+      displayedSubject: displayedSubject,
     });
   };
 

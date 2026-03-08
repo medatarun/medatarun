@@ -16,6 +16,7 @@ import type { TagGroup } from "@/business/tag";
 import { createActionTemplateTagGroup } from "@/components/business/tag/tag.actions.ts";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
+import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -91,6 +92,7 @@ export function TagGroupsTable({
                 <ActionMenuButton
                   itemActions={itemActions}
                   actionParams={createActionTemplateTagGroup(tagGroup.id)}
+                  displayedSubject={displaySubjectNone}
                 />
               </TableCell>
             </TableRow>

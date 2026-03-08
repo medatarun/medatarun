@@ -2,7 +2,7 @@ import {
   type ModelSearchFilter,
   type ModelSearchTextFilter,
 } from "@/business/model";
-import {Input} from "@fluentui/react-components";
+import { Input } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function FilterTextRowEditor({

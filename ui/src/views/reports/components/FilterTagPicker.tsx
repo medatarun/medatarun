@@ -43,7 +43,9 @@ export function FilterTagPicker({
       onOptionSelect={handleOptionSelect}
     >
       <TagPickerControl>
-        <TagPickerGroup aria-label={t("modelReportsTagPicker_selectedAriaLabel")}>
+        <TagPickerGroup
+          aria-label={t("modelReportsTagPicker_selectedAriaLabel")}
+        >
           {selectedTagIds.map((tagId) => (
             <Tag
               key={tagId}

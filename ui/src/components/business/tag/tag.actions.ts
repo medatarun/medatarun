@@ -1,7 +1,10 @@
-import { ActionUILocations } from "@/business/action_registry";
-import { Tag } from "@/business/tag";
-import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
-import { refid } from "@/business/action_runner";
+import {ActionUILocations} from "@/business/action_registry";
+import {Tag, type TagScopeRef} from "@/business/tag";
+import type {
+  ActionDisplayedSubject,
+  ActionPerformerRequestParams
+} from "@/components/business/actions/ActionPerformer.tsx";
+import {refid} from "@/business/action_runner";
 
 /**
  * Given a tag, gives the filter name for actions so we can display only actions
@@ -48,6 +51,47 @@ export const createActionTemplateTagFreeList = (scope: {
   id: string | null;
 }): ActionPerformerRequestParams => {
   return {
-    scopeRef: { value: scope, readonly: true },
+    scopeRef: {value: scope, readonly: true},
+  };
+};
+
+export const createDisplayedSubjectTagGroup = (
+  tagGroupId: string,
+): ActionDisplayedSubject => {
+  return {
+    kind: "resource",
+    type: "tag_group",
+    refs: {tagGroupId: tagGroupId},
+  };
+};
+
+/**
+ * Represents a tag page subject with optional parent references.
+ * Parent refs are used by post hooks to select a business fallback route
+ * after destructive actions.
+ */
+export const createDisplayedSubjectTag = (params: {
+  tagId: string;
+  tagGroupId: string | null,
+  tagScopeRef: TagScopeRef
+}): ActionDisplayedSubject => {
+  const refs: Record<string, string> = {
+    tagId: params.tagId,
+    tagScopeRefType: params.tagScopeRef.type,
+  }
+  if (params.tagScopeRef.type == "global" && params.tagGroupId !== null) {
+    refs.tagGroupId = params.tagGroupId
+  }
+  if (params.tagScopeRef.id) {
+    refs.tagScopeId = params.tagScopeRef.id
+    if (params.tagScopeRef.type === "model") {
+      refs.modelId = params.tagScopeRef.id
+    }
+  }
+
+  return {
+    kind: "resource",
+    type: "tag",
+    refs: refs,
   };
 };

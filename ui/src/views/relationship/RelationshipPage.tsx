@@ -1,7 +1,4 @@
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
 import {
   Model,
   type RelationshipDto,
@@ -13,14 +10,15 @@ import {
   useRelationshipUpdateKey,
   useRelationshipUpdateName,
 } from "@/business/model";
-import { ModelContext } from "@/components/business/model/ModelContext.tsx";
-import { Link, useNavigate } from "@tanstack/react-router";
+import {ModelContext} from "@/components/business/model/ModelContext.tsx";
+import {Link, useNavigate} from "@tanstack/react-router";
 import {
   createActionTemplateRelationship,
   createActionTemplateRelationshipAttribute,
   createActionTemplateRelationshipRole,
+  createDisplayedSubjectRelationship,
 } from "@/components/business/model/model.actions.ts";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -31,32 +29,25 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { ErrorBox } from "@seij/common-ui";
-import { toProblem } from "@seij/common-types";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import {
-  AttributeIcon,
-  ModelIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n, type AppMessageKey } from "@/services/appI18n.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
+import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {ErrorBox} from "@seij/common-ui";
+import {toProblem} from "@seij/common-types";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
+import {SectionTable} from "@/components/layout/SecionTable.tsx";
+import {AttributesTable} from "@/components/business/model/AttributesTable.tsx";
+import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
+import {SectionCards} from "@/components/layout/SectionCards.tsx";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
+import {AttributeIcon, ModelIcon,} from "@/components/business/model/model.icons.tsx";
+import {type AppMessageKey, useAppI18n} from "@/services/appI18n.tsx";
 
 export function RelationshipPage({
   modelId,
@@ -128,6 +119,10 @@ export function RelationshipView({
     relationship.id,
   );
 
+  const displayedSubject = createDisplayedSubjectRelationship(
+    model.id,
+    relationship.id,
+  );
   return (
     <ViewLayoutContained
       title={
@@ -178,6 +173,7 @@ export function RelationshipView({
                     label={t("relationshipPage_actions")}
                     itemActions={actions}
                     actionParams={actionParams}
+                    displayedSubject={displayedSubject}
                   />
                 </div>
               </div>
@@ -212,6 +208,7 @@ export function RelationshipView({
                 model.id,
                 relationship.id,
               )}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.relationship_roles}
             >
               {t("relationshipPage_rolesTitle")}
@@ -262,6 +259,7 @@ export function RelationshipView({
                               relationship.id,
                               role.id,
                             )}
+                            displayedSubject={displayedSubject}
                           />
                         }
                       />
@@ -288,6 +286,7 @@ export function RelationshipView({
                 model.id,
                 relationship.id,
               )}
+              displayedSubject={displayedSubject}
               location={ActionUILocations.relationship_attributes}
             >
               {t("relationshipPage_attributesTitle")}
@@ -312,6 +311,7 @@ export function RelationshipView({
                       attributeId,
                     )
                   }
+                  displayedSubject={displayedSubject}
                   onClickAttribute={handleClickAttribute}
                 />
               </SectionTable>
@@ -395,9 +395,15 @@ export function RelationshipOverview({
           value={relationship.tags}
           scope={modelTagScope(model.id)}
           onChange={handleChangeTags}
+          displayedSubject={createDisplayedSubjectRelationship(
+            model.id,
+            relationship.id,
+          )}
         >
           {relationship.tags.length === 0 ? (
-            <MissingInformation>{t("relationshipPage_tagsEmpty")}</MissingInformation>
+            <MissingInformation>
+              {t("relationshipPage_tagsEmpty")}
+            </MissingInformation>
           ) : (
             <Tags tags={relationship.tags} scope={modelTagScope(model.id)} />
           )}

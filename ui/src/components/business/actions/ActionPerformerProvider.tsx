@@ -8,12 +8,19 @@ import {
   type ActionPerformerContextValue,
 } from "./ActionPerformerContext.tsx";
 import { useActionRegistry } from "@/business/action_registry";
+import type { ActionPostHooks } from "./ActionPostHook.ts";
 
-export function ActionProvider({ children }: { children: React.ReactNode }) {
+export function ActionProvider({
+  children,
+  postHooks,
+}: {
+  children: React.ReactNode;
+  postHooks: ActionPostHooks;
+}) {
   const actionRegistry = useActionRegistry();
   const performer = useMemo(
-    () => new ActionPerformer(actionRegistry),
-    [actionRegistry],
+    () => new ActionPerformer(actionRegistry, postHooks),
+    [actionRegistry, postHooks],
   );
   const [state, setState] = useState<ActionPerformerState>(
     performer.getState(),
@@ -25,6 +32,7 @@ export function ActionProvider({ children }: { children: React.ReactNode }) {
 
   const value: ActionPerformerContextValue = {
     state: state,
+    postHooks: postHooks,
     performAction: (actionRequest) => performer.performAction(actionRequest),
     confirmAction: (payload) => performer.confirmAction(payload),
     cancelAction: (reason) => performer.cancelAction(reason),

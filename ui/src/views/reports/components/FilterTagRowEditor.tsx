@@ -42,7 +42,7 @@ export function FilterTagRowEditor({
   };
 
   return (
-    <div style={{display: "flex", columnGap: "1em"}}>
+    <div style={{ display: "flex", columnGap: "1em" }}>
       <Dropdown
         className={styles.compactDropdown}
         aria-label={t("modelReportsFilterTag_conditionAriaLabel")}
@@ -58,18 +58,18 @@ export function FilterTagRowEditor({
       </Dropdown>
 
       {isTagConditionUsingTags(filter.condition) && (
-        <div style={{flex: 1}}>
-        <FilterTagPicker
-          disabled={isPending}
-          selectedTagIds={filter.tagIds}
-          tags={tags}
-          onChange={(tagIds) =>
-            onChange({
-              ...filter,
-              tagIds: tagIds,
-            })
-          }
-        />
+        <div style={{ flex: 1 }}>
+          <FilterTagPicker
+            disabled={isPending}
+            selectedTagIds={filter.tagIds}
+            tags={tags}
+            onChange={(tagIds) =>
+              onChange({
+                ...filter,
+                tagIds: tagIds,
+              })
+            }
+          />
         </div>
       )}
     </div>
@@ -78,9 +78,7 @@ export function FilterTagRowEditor({
 
 function isTagConditionUsingTags(condition: ModelSearchTagFilterCondition) {
   return (
-    condition === "anyOf" ||
-    condition === "allOf" ||
-    condition === "noneOf"
+    condition === "anyOf" || condition === "allOf" || condition === "noneOf"
   );
 }
 
