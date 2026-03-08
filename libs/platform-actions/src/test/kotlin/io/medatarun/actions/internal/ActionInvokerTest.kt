@@ -1,6 +1,7 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionSemantics
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionParamDoc
@@ -481,7 +482,8 @@ class ActionInvokerTest {
         private val actionRegistry = ActionRegistry(
             actionSecurityRuleEvaluators,
             actionTypesRegistry,
-            listOf(actionProvider)
+            listOf(actionProvider),
+            ActionSemanticsResolver.buildDefaultVocabulary()
         )
         private val actionInvoker = ActionInvoker(
             actionRegistry,

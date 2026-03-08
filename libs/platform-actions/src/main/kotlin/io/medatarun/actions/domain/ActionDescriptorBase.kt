@@ -2,62 +2,50 @@ package io.medatarun.actions.domain
 
 import kotlin.reflect.KType
 
-interface ActionCmdDescriptor {
+class ActionDescriptorBase(
     /**
      * Unique identifier of action across all actions of all extensions.
      * Identifier is mostly internal to the system and not meant to be used by
      * end users.
      */
-    val id: ActionId
+    val id: ActionId,
     /**
      * Serializable unique name of the action in its group
      */
-    val key: String
+    val key: String,
     /**
      * Name of the command
      */
-    val actionClassName: String
+    val actionClassName: String,
     /**
      * Name (identifier) of the group that provides the command
      */
-    val group: String
+    val group: String,
     /**
      * Human title of the command
      */
-    val title: String?
+    val title: String?,
     /**
      * Human description of the command
      */
-    val description: String?
+    val description: String?,
     /**
      * Expected result type
      */
-    val resultType: KType
-    /**
-     * List of the command parameters
-     */
-    val parameters: List<ActionCmdParamDescriptor>
+    val resultType: KType,
     /**
      * How to invoke the command (may be expanded in the future, had contained other values before, we keep it)
      */
-    val accessType: ActionCmdAccessType
+    val accessType: ActionCmdAccessType,
     /**
      * Hint for UI to know where to display the command
      * Known values are "" (no location, hidden), "models" in the list of models, "entity" on an entity, etc.
      * This is tight to the UI. To know possible values, you need to look at the UI pages' code
      */
-    val uiLocations: Set<String>
+    val uiLocations: Set<String>,
     /**
      * Name of security rule tied to this action
      */
-    val securityRule: String
-    /**
-     * Semantics of action as declared where action is declared.
-     */
-    val semantics: ActionSemanticsConfig
+    val securityRule: String,
 
-
-    fun findParamByName(name: String): ActionCmdParamDescriptor? {
-        return parameters.firstOrNull { it.name == name }
-    }
-}
+    )

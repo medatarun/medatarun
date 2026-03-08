@@ -42,7 +42,7 @@ class AppHttpServer(
         actionCtxFactory = services.actionCtxFactory,
         actionInvoker = services.actionInvoker,
     )
-    private val restApiDoc = RestApiDoc(services.actionRegistry)
+    private val restApiDoc = RestApiDoc(services.actionRegistry, publicBaseUrl)
     private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionCtxFactory)
 
     private val uiIndexTemplate = UIIndexTemplate()

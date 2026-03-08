@@ -1,6 +1,5 @@
 package io.medatarun.runtime
 
-import com.google.common.base.StandardSystemProperty
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.runtime.AppHttpServerServices
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -10,7 +9,6 @@ import io.medatarun.runtime.internal.AppRuntimeConfigFactory
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_APPLICATION_DATA_ENV
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN_HOME_ENV
 import java.nio.file.FileSystem
-import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.test.Test
 
@@ -21,8 +19,8 @@ class AppRuntimeTest {
         val config = AppRuntimeConfigFactory(cli = false, os).create()
         val runtime = AppRuntimeBuilder(config).build()
         val services = AppHttpServerServices(runtime)
-        val actions = services.actionRegistry.findAllActions()
-        actions.forEach { services.actionRegistry.semantics(it.id) }
+        services.actionRegistry.findAllActions()
+
 
     }
 

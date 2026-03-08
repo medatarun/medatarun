@@ -20,7 +20,7 @@ sealed interface ConfigAction {
 
     @ActionDoc(
         key="inspect_config_text",
-        title = "Inspect config",
+        title = "Inspect config as text file",
         description = "Returns a human-readable list of the configuration, including extension contributions and contribution points, what provides what to whom.",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN,
@@ -29,8 +29,8 @@ sealed interface ConfigAction {
     class Inspect : ConfigAction
 
     @ActionDoc(
-        key="inspect_config_json",
-        title = "Inspect config Json",
+        key="inspect_config",
+        title = "Inspect config",
         description = "Returns a Json representation of the configuration, including extension contributions and contribution points, what provides what to whom.",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.ADMIN,

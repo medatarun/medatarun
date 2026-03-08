@@ -1,22 +1,11 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionCmdAccessType
-import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.domain.ActionCmdParamDescriptor
-import io.medatarun.actions.domain.ActionId
-import io.medatarun.actions.domain.ActionSemantics
-import io.medatarun.actions.domain.ActionSemanticsAutoInferenceException
-import io.medatarun.actions.domain.ActionSemanticsConfig
-import io.medatarun.actions.domain.ActionSemanticsInvalidSubjectFormatException
-import io.medatarun.actions.domain.ActionSemanticsSubject
-import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParam
-import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParamKind
+import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeJsonEquiv
 import org.junit.jupiter.api.Nested
-import java.util.UUID
-import kotlin.math.acos
+import java.util.*
 import kotlin.reflect.full.createType
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,30 +13,35 @@ import kotlin.test.assertFailsWith
 
 class ActionSemanticsResolverTest {
 
-    @Nested inner class DecodeSubjects {
+    val vocabulary = ActionSemanticsResolver.buildDefaultVocabulary()
+    val resolver = ActionSemanticsResolver(vocabulary)
+
+    @Nested
+    inner class DecodeSubjects {
 
         fun decodeSubjects(subjects: List<String>): List<ActionSemanticsSubject> {
-            return ActionSemanticsResolver().createSemantics(
-                ActionCmdDescriptor(
-                    id = Id.generate(::ActionId),
-                    key = "dummy",
-                    actionClassName = "",
-                    group = "",
-                    title = null,
-                    description = null,
-                    resultType = Unit::class.createType(),
-                    parameters = emptyList(),
-                    accessType = ActionCmdAccessType.DISPATCH,
-                    uiLocations = emptySet(),
-                    securityRule = "",
-                    semantics = ActionSemanticsConfig.Declared(
-                        intent = ActionDocSemanticsIntent.CREATE,
-                        subjects = subjects,
-                        returns = emptyList()
-                    )
-
-                )
-            ).subjects
+            val action = ActionDescriptorBase(
+                id = Id.generate(::ActionId),
+                key = "dummy",
+                actionClassName = "",
+                group = "",
+                title = null,
+                description = null,
+                resultType = Unit::class.createType(),
+                accessType = ActionCmdAccessType.DISPATCH,
+                uiLocations = emptySet(),
+                securityRule = "",
+            )
+            val parameters = emptyList<ActionParamDescriptorImpl>()
+            val semantics = ActionSemanticsConfig.Declared(
+                intent = ActionDocSemanticsIntent.CREATE,
+                subjects = subjects,
+                returns = emptyList()
+            )
+            val a = ActionDescriptorImpl(
+                action, parameters, semantics
+            )
+            return resolver.createSemantics(a).subjects
         }
 
         @Test
@@ -153,7 +147,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("modelKey", "name", "description", "version")
             )
 
-            val semantics = ActionSemanticsResolver().createSemantics(action)
+            val semantics = resolver.createSemantics(action)
 
             assertEquals(ActionDocSemanticsIntent.CREATE, semantics.intent)
             assertEquals(1, semantics.subjects.size)
@@ -167,17 +161,20 @@ class ActionSemanticsResolverTest {
                 ),
                 semantics.subjects[0].referencingParams
             )
+            assertEquals(emptyList(), semantics.returns)
         }
 
         @Test
         fun `auto should infer model update from model_update_name`() {
+
+
             val action = createAutoActionDescriptor(
                 key = "model_update_name",
                 group = "model",
                 paramNames = listOf("modelRef", "value")
             )
 
-            val semantics = ActionSemanticsResolver().createSemantics(action)
+            val semantics = resolver.createSemantics(action)
 
             assertEquals(ActionDocSemanticsIntent.UPDATE, semantics.intent)
             assertEquals("model", semantics.subjects[0].type)
@@ -190,6 +187,7 @@ class ActionSemanticsResolverTest {
                 ),
                 semantics.subjects[0].referencingParams
             )
+            assertEquals(emptyList(), semantics.returns)
         }
 
         @Test
@@ -200,7 +198,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("modelRef")
             )
 
-            val semantics = ActionSemanticsResolver().createSemantics(action)
+            val semantics = resolver.createSemantics(action)
 
             assertEquals(ActionDocSemanticsIntent.DELETE, semantics.intent)
             assertEquals("model", semantics.subjects[0].type)
@@ -213,6 +211,7 @@ class ActionSemanticsResolverTest {
                 ),
                 semantics.subjects[0].referencingParams
             )
+            assertEquals(emptyList(), semantics.returns)
         }
 
         @Test
@@ -224,7 +223,7 @@ class ActionSemanticsResolverTest {
             )
 
             assertFailsWith<ActionSemanticsAutoInferenceException> {
-                ActionSemanticsResolver().createSemantics(action)
+                resolver.createSemantics(action)
             }
         }
 
@@ -236,7 +235,7 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("scopeRef", "key", "name", "description")
             )
 
-            val semantics = ActionSemanticsResolver().createSemantics(action)
+            val semantics = resolver.createSemantics(action)
 
             assertEquals(ActionDocSemanticsIntent.CREATE, semantics.intent)
             assertEquals("tag_free", semantics.subjects[0].type)
@@ -253,6 +252,7 @@ class ActionSemanticsResolverTest {
                 ),
                 semantics.subjects[0].referencingParams
             )
+            assertEquals(emptyList(), semantics.returns)
         }
 
         @Test
@@ -263,11 +263,11 @@ class ActionSemanticsResolverTest {
                 paramNames = listOf("filters")
             )
 
-            val semantics = ActionSemanticsResolver().createSemantics(action)
+            val semantics = resolver.createSemantics(action)
 
             assertEquals(ActionDocSemanticsIntent.READ, semantics.intent)
-            assertEquals("tag", semantics.subjects[0].type)
-            assertEquals(emptyList(), semantics.subjects[0].referencingParams)
+            assertEquals(emptyList(), semantics.subjects)
+            assertEquals(listOf("tag"), semantics.returns)
         }
 
         @Test
@@ -279,7 +279,7 @@ class ActionSemanticsResolverTest {
             )
 
             assertFailsWith<ActionSemanticsAutoInferenceException> {
-                ActionSemanticsResolver().createSemantics(action)
+                resolver.createSemantics(action)
             }
         }
     }
@@ -289,32 +289,34 @@ class ActionSemanticsResolverTest {
         group: String,
         paramNames: List<String>
     ): ActionCmdDescriptor {
-        val params = paramNames.mapIndexed { index, paramName ->
-            ActionCmdParamDescriptor(
-                name = paramName,
-                title = null,
-                type = String::class.createType(),
-                multiplatformType = "String",
-                jsonType = TypeJsonEquiv.STRING,
-                optional = false,
-                order = index,
-                description = null
-            )
-        }
 
-        return ActionCmdDescriptor(
-            id = ActionId(UUID.randomUUID()),
-            key = key,
-            actionClassName = "TestAction",
-            group = group,
-            title = null,
-            description = null,
-            resultType = Unit::class.createType(),
-            parameters = params,
-            accessType = ActionCmdAccessType.DISPATCH,
-            uiLocations = emptySet(),
-            securityRule = "test",
+        return ActionDescriptorImpl(
+            base = ActionDescriptorBase(
+                id = ActionId(UUID.randomUUID()),
+                key = key,
+                actionClassName = "TestAction",
+                group = group,
+                title = null,
+                description = null,
+                resultType = Unit::class.createType(),
+                accessType = ActionCmdAccessType.DISPATCH,
+                uiLocations = emptySet(),
+                securityRule = "test",
+            ),
+            params = paramNames.mapIndexed { index, paramName ->
+                ActionParamDescriptorImpl(
+                    name = paramName,
+                    title = null,
+                    type = String::class.createType(),
+                    multiplatformType = "String",
+                    jsonType = TypeJsonEquiv.STRING,
+                    optional = false,
+                    order = index,
+                    description = null
+                )
+            },
             semantics = ActionSemanticsConfig.Auto
         )
+
     }
 }

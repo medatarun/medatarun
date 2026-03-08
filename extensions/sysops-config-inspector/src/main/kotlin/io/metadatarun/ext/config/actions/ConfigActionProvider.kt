@@ -2,17 +2,13 @@ package io.metadatarun.ext.config.actions
 
 import io.medatarun.actions.internal.ActionRegistry
 import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
+import io.medatarun.actions.internal.ActionSemanticsResolver
 import io.medatarun.actions.internal.ActionTypesRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
-import io.metadatarun.ext.config.actions.dto.ActionDescriptorDto
-import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsDto
-import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsSubjectDto
-import io.metadatarun.ext.config.actions.dto.ActionDescriptorSemanticsSubjectReferencingParamDto
-import io.metadatarun.ext.config.actions.dto.ActionParamDescriptorDto
-import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
+import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
 
 class ConfigActionProvider : ActionProvider<ConfigAction> {
@@ -30,21 +26,22 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
         }
     }
 
-    private fun inspectSecurityRules(actionCtx: ActionCtx): SecurityRulesDescriptionsResp = SecurityRulesDescriptionsResp(
-        items = actionCtx.extensionRegistry
-            .findContributionsFlat(SecurityRulesProvider::class)
-            .flatMap { it.getRules() }
-            // Keep one entry per key if multiple providers expose same rule.
-            .distinctBy { it.key }
-            .sortedBy { it.key }
-            .map {
-                SecurityRuleDescriptionDto(
-                    key = it.key,
-                    name = it.name,
-                    description = it.description
-                )
-            }
-    )
+    private fun inspectSecurityRules(actionCtx: ActionCtx): SecurityRulesDescriptionsResp =
+        SecurityRulesDescriptionsResp(
+            items = actionCtx.extensionRegistry
+                .findContributionsFlat(SecurityRulesProvider::class)
+                .flatMap { it.getRules() }
+                // Keep one entry per key if multiple providers expose same rule.
+                .distinctBy { it.key }
+                .sortedBy { it.key }
+                .map {
+                    SecurityRuleDescriptionDto(
+                        key = it.key,
+                        name = it.name,
+                        description = it.description
+                    )
+                }
+        )
 
     /**
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
@@ -61,19 +58,22 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
         val actionRegistry = ActionRegistry(
             actionSecurityRuleEvaluators = ruleEvaluators,
             actionTypesRegistry = typeRegistry,
-            actionProviderContributions = actionCtx.extensionRegistry.findContributionsFlat(ActionProvider::class)
+            actionProviderContributions = actionCtx.extensionRegistry.findContributionsFlat(ActionProvider::class),
+            vocabulary = ActionSemanticsResolver.buildDefaultVocabulary()
         )
 
-        val items = actionRegistry.findAllActions().map { action ->
+        val items = actionRegistry.findAllActions().map { actionRegistered ->
+            val descriptor = actionRegistered.descriptor
+            val semantics = actionRegistered.semantics
             ActionDescriptorDto(
-                id = action.id.asString(),
-                actionKey = action.key,
-                groupKey = action.group,
-                title = action.title ?: action.key,
-                description = action.description,
-                uiLocations = action.uiLocations,
-                securityRule = action.securityRule,
-                parameters = action.parameters.map { parameter ->
+                id = descriptor.id.asString(),
+                actionKey = descriptor.key,
+                groupKey = descriptor.group,
+                title = descriptor.title ?: descriptor.key,
+                description = descriptor.description,
+                uiLocations = descriptor.uiLocations,
+                securityRule = descriptor.securityRule,
+                parameters = descriptor.parameters.map { parameter ->
                     ActionParamDescriptorDto(
                         name = parameter.name,
                         type = parameter.multiplatformType,
@@ -84,23 +84,22 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                         order = parameter.order
                     )
                 },
-                semantics = actionRegistry.semantics(action.id).let { sem ->
-                    ActionDescriptorSemanticsDto(
-                        intent = sem.intent.code,
-                        subjects = sem.subjects.map { subject ->
-                            ActionDescriptorSemanticsSubjectDto(
-                                type = subject.type,
-                                referencingParams = subject.referencingParams.map { param ->
-                                    ActionDescriptorSemanticsSubjectReferencingParamDto(
-                                        name = param.name,
-                                        kind = param.kind.name.lowercase()
-                                    )
-                                }
-                            )
-                        },
-                        returns = sem.returns
-                    )
-                }
+                semantics = ActionDescriptorSemanticsDto(
+                    intent = semantics.intent.code,
+                    subjects = semantics.subjects.map { subject ->
+                        ActionDescriptorSemanticsSubjectDto(
+                            type = subject.type,
+                            referencingParams = subject.referencingParams.map { param ->
+                                ActionDescriptorSemanticsSubjectReferencingParamDto(
+                                    name = param.name,
+                                    kind = param.kind.name.lowercase()
+                                )
+                            }
+                        )
+                    },
+                    returns = semantics.returns
+                )
+
             )
         }
 

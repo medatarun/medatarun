@@ -1,10 +1,6 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.domain.ActionSemantics
-import io.medatarun.actions.domain.ActionSemanticsAutoInferenceException
-import io.medatarun.actions.domain.ActionSemanticsSubject
-import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParam
+import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 
 /**
@@ -15,19 +11,25 @@ class ActionSemanticsInferer(
 ) {
     fun infer(action: ActionCmdDescriptor): ActionSemantics {
         val intent = inferIntent(action.key)
-        val subjectType = inferSubject(action.key)
-        val referencingParams = inferReferencingParams(action)
-
-        if (
-            (intent == ActionDocSemanticsIntent.UPDATE || intent == ActionDocSemanticsIntent.DELETE) &&
-            referencingParams.isEmpty()
-        ) {
-            throw ActionSemanticsAutoInferenceException(
-                actionKey = action.key,
-                reason = "no reference parameter found for update/delete action"
+        if (intent == ActionDocSemanticsIntent.READ) {
+            val returnType = inferSubject(action.key)
+            return semantics(
+                intent = intent,
+                subjects = emptyList(),
+                returns = listOf(returnType)
             )
         }
 
+        val subjectType = inferSubject(action.key)
+        val referencingParams = inferReferencingParams(action)
+        if (intent == ActionDocSemanticsIntent.UPDATE || intent == ActionDocSemanticsIntent.DELETE) {
+            if (referencingParams.isEmpty()) {
+                throw ActionSemanticsAutoInferenceException(
+                    actionKey = action.key,
+                    reason = "no reference parameter found for update/delete action"
+                )
+            }
+        }
         return semantics(
             intent = intent,
             subjects = listOf(
@@ -36,7 +38,7 @@ class ActionSemanticsInferer(
                     referencingParams = referencingParams
                 )
             ),
-            returns = listOf(subjectType)
+            returns = emptyList()
         )
     }
 
@@ -71,7 +73,7 @@ class ActionSemanticsInferer(
     }
 
     private fun inferReferencingParams(
-        action: ActionCmdDescriptor
+        action: ActionCmdDescriptor,
     ): List<ActionSemanticsSubjectReferencingParam> {
         val referencingParams = mutableListOf<ActionSemanticsSubjectReferencingParam>()
         for (parameter in action.parameters) {

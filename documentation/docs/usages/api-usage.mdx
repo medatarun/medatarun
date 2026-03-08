@@ -7,7 +7,8 @@
 
 ### Prerequisites
 
-You need at least a user account to get started. See [creating your first user](../installation/manage-users.md).
+You need at least a user account to get started.
+See [creating your first user](../installation/manage-users.md).
 
 ### Create an access token
 
@@ -24,10 +25,13 @@ curl -X POST \
 If the credentials are valid, the response contains an access token:
 
 ```json
-{ "access_token": "<token>" }
+{
+  "access_token": "<token>"
+}
 ```
 
-This token can be included in all subsequent API calls using the HTTP Authorization header:
+This token can be included in all subsequent API calls using the HTTP
+Authorization header:
 
 ```text
 Authorization: Bearer <token>
@@ -38,9 +42,11 @@ Authorization: Bearer <token>
 Start with a simple action that does not require parameters.
 
 ```bash
-curl -H "Authorization: Bearer <your_token>" http://localhost:8080/api/config/InspectJson
+curl -H "Authorization: Bearer <your_token>" http://localhost:8080/api/config/inspect_config
 ```
+
 If everything is correctly configured:
+
 - the request succeeds
 - the server returns a response
 - the token is validated
@@ -65,15 +71,17 @@ curl -X POST \
 
 The response contains the result of the action execution.
 
-Errors are returned with a semantic HTTP status code and a structured error body.
-
+Errors are returned with a semantic HTTP status code and a structured error
+body.
 
 ## How the API works
 
-Medatarun API allows you to trigger the same actions as the server itself through HTTP calls.
+Medatarun API allows you to trigger the same actions as the server itself
+through HTTP calls.
 It is designed for automation, integration, and tooling.
 
-The API is action-based. Each HTTP call represents an explicit operation executed by Medatarun.
+The API is action-based. Each HTTP call represents an explicit operation
+executed by Medatarun.
 There is no generic CRUD layer or resource abstraction.
 
 All API endpoints are exposed under the `/api` base path.
@@ -84,27 +92,33 @@ An action is called using the following URL structure:
 /api/<actionGroup>/<action>
 ```
 
-For example, calling an action named `inspect_json` in the `config` group results in:
+For example, calling an action named `inspect_config` in the `config` group
+results in:
 
 ```text
-/api/config/inspect_json
+/api/config/inspect_config
 ```
 
 Both **GET** and **POST** methods are accepted for action calls.
-The server does not distinguish between them semantically. Use POST when you need to send a request body.
+The server does not distinguish between them semantically. Use POST when you
+need to send a request body.
 
 Request parameters are provided as follows:
+
 - simple parameters can be passed as query parameters
-- when an action expects structured input, parameters are passed as a JSON request body
+- when an action expects structured input, parameters are passed as a JSON
+  request body
 
 If no body is provided, an empty payload is assumed.
 
 :::tip
-For your application integrations, POST with systematic JSON body is the preferred choice.
+For your application integrations, POST with systematic JSON body is the
+preferred choice.
 GET is available as a convenience for __simple `curl` calls__
 :::
 
-API calls require authentication, except for API discovery and some few public actions (login, auth, etc.).
+API calls require authentication, except for API discovery and a few public
+actions (login, auth, etc.).
 
 Requests must include a valid JWT access token using the standard HTTP header:
 
@@ -112,42 +126,74 @@ Requests must include a valid JWT access token using the standard HTTP header:
 Authorization: Bearer <access_token>
 ```
 
-The API accepts any valid OIDC token, including tokens issued by an external identity provider, as long as the provider is configured in Medatarun.
+The API accepts any valid OIDC token, including tokens issued by an external
+identity provider, as long as the provider is configured in Medatarun.
 See [configuration](../installation/configuration)
 
-There is no refresh mechanism at the API level. Tokens are expected to be managed by the client.
+There is no refresh mechanism at the API level. Tokens are expected to be
+managed by the client.
 
-To verify that your token is valid and that the API is reachable, you can start with a simple call that does not require parameters.
+To verify that your token is valid and that the API is reachable, you can start
+with a simple call that does not require parameters.
 
 Example:
 
 ```
-GET /api/config/inspect_json
+GET /api/config/inspect_config
 ```
 
-If authentication succeeds, the server returns the result of the action directly.
+If authentication succeeds, the server returns the result of the action
+directly.
 
 Most actions return JSON data.
-Some actions intentionally return plain text responses. This is expected and depends on the action semantics.
+Some actions intentionally return plain text responses. This is expected and
+depends on the action semantics.
 
 - On success, the HTTP status code is `200 OK`.
-- On error, the server returns a semantic HTTP status code (`400`, `401`, `403`, `404`, `500`, etc.).
-The response body follows the `application/problem+json` format and describes the error.
+- On error, the server returns a semantic HTTP status code (`400`, `401`, `403`,
+  `404`, `500`, etc.).
+  The response body follows the `application/problem+json` format and describes
+  the error.
 
-The API is self-describing.
+## API Documentation
 
-You can retrieve the list of available action groups, actions, and their parameters by calling:
+The API is self-describing. You can find its documentation in several places.
 
-```
-GET /api
-```
+### User interface
 
-This endpoint does not require authentication and returns the full API description, including:
+When in the user interface, with the _technical mode_ active, on the main menu, 
+choose `Action Runner`. You will be able to see the full documentation, including:
 
 - available action groups
 - action names
 - parameters and their types
 - whether parameters are optional
+- security rules and how they apply
 
-This endpoint is the authoritative source for discovering what the API supports at runtime.
+Also, you will be able to execute actions directly with your own credentials.
 
+### CLI
+
+Using the `medatarun help` command in a terminal, all action groups, actions
+names, parameters, types, optional or not are described in the style of a `man`
+page.
+
+### OpenAPI format and Swagger
+
+You can retrieve the API description with:
+
+```
+GET /api
+```
+
+This endpoint is public and returns a minimal, OpenAPI-compatible description of available actions, payload fields and required parameters.
+
+In practice, OpenAPI alone is not enough to fully understand and use this API. It documents endpoints and payload shapes, but not the full action intent, constraints, and usage context.
+
+For complete functional documentation (intent, constraints, examples, context), use:
+
+- the Action runner in the Medatarun UI
+- the CLI command medatarun help
+- the full product documentation: https://docs.medatarun.com/
+
+You can load the `/api` response directly in Swagger Editor: https://editor.swagger.io/

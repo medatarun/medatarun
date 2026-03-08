@@ -3,18 +3,20 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 
-class ActionSemanticsResolver {
+class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
 
-    val vocabulary = buildDefaultVocabulary()
+
     val subjectDecoder = ActionSemanticsSubjectDecoder(vocabulary)
 
-    fun createSemantics(action: ActionCmdDescriptor): ActionSemantics {
-        val declaration = action.semantics
-        return when (declaration) {
-            is ActionSemanticsConfig.None -> createSemanticsNone(action, declaration)
-            is ActionSemanticsConfig.Auto -> createSemanticsInferred(action, declaration)
-            is ActionSemanticsConfig.Unknown -> createSemanticsUnknwon(action, declaration)
-            is ActionSemanticsConfig.Declared -> createSemanticsDeclared(action, declaration)
+    fun createSemantics(
+        action: ActionCmdDescriptor,
+    ): ActionSemantics {
+        val semantics = action.semantics
+        return when (semantics) {
+            is ActionSemanticsConfig.None -> createSemanticsNone(action, semantics)
+            is ActionSemanticsConfig.Auto -> createSemanticsInferred(action, semantics)
+            is ActionSemanticsConfig.Unknown -> createSemanticsUnknwon(action, semantics)
+            is ActionSemanticsConfig.Declared -> createSemanticsDeclared(action, semantics)
         }
     }
 
@@ -43,8 +45,14 @@ class ActionSemanticsResolver {
         action: ActionCmdDescriptor,
         declaration: ActionSemanticsConfig.Auto
     ): ActionSemantics {
-
-        return ActionSemanticsInferer(vocabulary).infer(action)
+        val semantics = ActionSemanticsInferer(vocabulary).infer(action)
+        if (semantics.intent == ActionDocSemanticsIntent.READ && semantics.returns.isEmpty()) {
+            throw ActionSemanticsAutoInferenceException(
+                actionKey = action.key,
+                reason = "no return type found for read action"
+            )
+        }
+        return semantics
     }
 
     private fun createSemanticsNone(
@@ -60,7 +68,7 @@ class ActionSemanticsResolver {
 
     companion object {
 
-        private fun buildDefaultVocabulary(): SemanticsVocabulary {
+        fun buildDefaultVocabulary(): SemanticsVocabulary {
             return SemanticsVocabulary(
                 knownSubjects = listOf(
                     "actor",
