@@ -118,22 +118,12 @@ class ActionRegistry(
         return when (mode) {
             ActionDocSemanticsMode.NONE -> ActionSemanticsConfig.None
             ActionDocSemanticsMode.AUTO -> ActionSemanticsConfig.Auto
-            ActionDocSemanticsMode.UNKNOWN -> ActionSemanticsConfig.Unknown
             ActionDocSemanticsMode.DECLARED -> ActionSemanticsConfig.Declared(
                 intent = doc.semantics.intent,
                 subjects = doc.semantics.subjects.toList(),
                 returns = doc.semantics.returns.toList()
             )
         }
-    }
-
-
-    fun findAllGroupDescriptors(): Collection<ActionGroupDescriptor> {
-        return actionGroupDescriptorsMap.values
-    }
-
-    fun findGroupDescriptorByIdOptional(actionGroup: String): ActionGroupDescriptor? {
-        return actionGroupDescriptorsMap[actionGroup]
     }
 
     fun findAllActions(): Collection<ActionRegistered> {
@@ -146,11 +136,6 @@ class ActionRegistry(
 
     fun findProviderOptional(actionGroupKey: String, actionKey: String): ActionProvider<Any>? {
         return actionGroupDescriptorsMap[actionGroupKey]?.providerInstance as ActionProvider<Any>?
-
     }
 
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(ActionRegistry::class.java)
-    }
 }

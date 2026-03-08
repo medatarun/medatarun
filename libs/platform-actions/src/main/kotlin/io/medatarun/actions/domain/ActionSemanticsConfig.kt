@@ -24,12 +24,6 @@ sealed class ActionSemanticsConfig(
     object Auto : ActionSemanticsConfig(ActionDocSemanticsMode.AUTO)
 
     /**
-     * [Unknown] should be considered as an error, no action should return unknown.
-     * We will remove it later once this is finished.
-     */
-    object Unknown : ActionSemanticsConfig(ActionDocSemanticsMode.UNKNOWN)
-
-    /**
      * [Declared] means the action descriptor carries a fully described in action descriptor.
      * There will be no attempts of auto discovery and information will be taken as-is.
      */

@@ -15,7 +15,6 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
         return when (semantics) {
             is ActionSemanticsConfig.None -> createSemanticsNone(action, semantics)
             is ActionSemanticsConfig.Auto -> createSemanticsInferred(action, semantics)
-            is ActionSemanticsConfig.Unknown -> createSemanticsUnknwon(action, semantics)
             is ActionSemanticsConfig.Declared -> createSemanticsDeclared(action, semantics)
         }
     }
@@ -28,16 +27,6 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
             intent = declaration.intent,
             subjects = subjectDecoder.decodeSubjects(declaration.subjects),
             returns = normalizeReturns(declaration.returns)
-        )
-    }
-
-    private fun createSemanticsUnknwon(
-        action: ActionCmdDescriptor,
-        declaration: ActionSemanticsConfig.Unknown
-    ): ActionSemantics {
-        return ActionSemanticsResolved(intent = ActionDocSemanticsIntent.OTHER,
-            subjects = emptyList(),
-            returns = emptyList()
         )
     }
 

@@ -4,6 +4,8 @@ import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionSemantics
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
@@ -517,7 +519,8 @@ class ActionInvokerTest {
             title = "Alpha",
             description = "Test action",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class Alpha(
             @ActionParamDoc(
@@ -545,7 +548,8 @@ class ActionInvokerTest {
             title = "Denied",
             description = "Action denied by security",
             uiLocations = [""],
-            securityRule = RULE_DENY
+            securityRule = RULE_DENY,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class Denied : TestAction
 
@@ -554,7 +558,8 @@ class ActionInvokerTest {
             title = "Collections",
             description = "Action with list and map",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithCollections(
             @ActionParamDoc(
@@ -576,7 +581,8 @@ class ActionInvokerTest {
             title = "Decimal",
             description = "Action with BigDecimal",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithDecimal(
             @ActionParamDoc(
@@ -592,7 +598,8 @@ class ActionInvokerTest {
             title = "BigInteger",
             description = "Action with BigInteger",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithBigInteger(
             @ActionParamDoc(
@@ -608,7 +615,8 @@ class ActionInvokerTest {
             title = "Double",
             description = "Action with Double",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithDouble(
             @ActionParamDoc(
@@ -624,7 +632,8 @@ class ActionInvokerTest {
             title = "Instant",
             description = "Action with Instant",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithInstant(
             @ActionParamDoc(
@@ -640,7 +649,8 @@ class ActionInvokerTest {
             title = "LocalDate",
             description = "Action with LocalDate",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithLocalDate(
             @ActionParamDoc(
@@ -656,7 +666,8 @@ class ActionInvokerTest {
             title = "String",
             description = "Action with String",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithStringOptional(
             @ActionParamDoc(
@@ -672,7 +683,8 @@ class ActionInvokerTest {
             title = "Abbreviation",
             description = "Action with validated abbreviation",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithAbbreviation(
             @ActionParamDoc(
@@ -688,7 +700,8 @@ class ActionInvokerTest {
             title = "Optional abbreviation",
             description = "Action with optional abbreviation",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithOptionalAbbreviation(
             @ActionParamDoc(
@@ -704,7 +717,8 @@ class ActionInvokerTest {
             title = "Complex",
             description = "Action with complex payload",
             uiLocations = [""],
-            securityRule = RULE_ALLOW
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class WithComplex(
             @ActionParamDoc(
