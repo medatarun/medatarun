@@ -177,7 +177,7 @@ export function ActionPerformerViewLoaded({
             >
               {action.description && <div>{action.description}</div>}
               {formFields
-                //.filter((it) => it.visible)
+                .filter((it) => it.visible)
                 .map((field) => (
                   <FormFieldInput
                     key={field.key}
