@@ -18,49 +18,30 @@ import kotlin.test.assertFailsWith
 
 class ActionSemanticsResolverTest {
 
-
     @Nested
     inner class DecodeSubjects {
 
         fun decodeSubjects(subjects: List<String>): List<ActionSemanticsSubject> {
-            class ActionProviderTest : ActionProvider<Any> {
-                override val actionGroupKey: String = "test"
-                override fun findCommandClass(): KClass<Any>? = null
-                override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
-                override fun findActions(): List<ActionCmdDescriptor> {
-                    val action = ActionDescriptorBase(
-                        id = Id.generate(::ActionId),
-                        key = "dummy",
-                        actionClassName = "",
-                        group = "test",
-                        title = null,
-                        description = null,
-                        resultType = Unit::class.createType(),
-                        accessType = ActionCmdAccessType.DISPATCH,
-                        uiLocations = emptySet(),
-                        securityRule = "",
-                    )
-                    val parameters = emptyList<ActionParamDescriptorImpl>()
-                    val semantics = ActionSemanticsConfig.Declared(
-                        intent = ActionDocSemanticsIntent.CREATE,
-                        subjects = subjects,
-                        returns = emptyList()
-                    )
-                    val a = ActionDescriptorImpl(
-                        action, parameters, semantics
-                    )
-                    return listOf(a)
-                }
-
-            }
-
-            val extension = object : MedatarunExtension {
-                override val id = "action-test-env"
-                override fun initContributions(ctx: MedatarunExtensionCtx) {
-                    ctx.registerContribution(ActionProvider::class, ActionProviderTest())
-                }
-            }
-            val env = ActionTestEnv(listOf(extension))
+            val action = ActionDescriptorBase(
+                id = Id.generate(::ActionId),
+                key = "dummy",
+                actionClassName = "",
+                group = "test",
+                title = null,
+                description = null,
+                resultType = Unit::class.createType(),
+                accessType = ActionCmdAccessType.DISPATCH,
+                uiLocations = emptySet(),
+                securityRule = "",
+            )
+            val parameters = emptyList<ActionParamDescriptorImpl>()
+            val semantics = ActionSemanticsConfig.Declared(
+                intent = ActionDocSemanticsIntent.CREATE,
+                subjects = subjects,
+                returns = emptyList()
+            )
+            val descriptor = ActionDescriptorImpl(action, parameters, semantics)
+            val env = envWithActionDescriptors(listOf(descriptor))
 
             return env.actionPlatform.registry.findAction("test", "dummy").semantics.subjects
         }
@@ -197,20 +178,7 @@ class ActionSemanticsResolverTest {
         }
 
         fun semantics(action: ActionCmdDescriptor): ActionSemantics {
-            class ActionProviderTest : ActionProvider<Any> {
-                override val actionGroupKey: String = "test"
-                override fun findCommandClass(): KClass<Any>? = null
-                override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
-                override fun findActions(): List<ActionCmdDescriptor> = listOf(action)
-            }
-
-            val extension = object : MedatarunExtension {
-                override val id = "action-test-env"
-                override fun initContributions(ctx: MedatarunExtensionCtx) {
-                    ctx.registerContribution(ActionProvider::class, ActionProviderTest())
-                }
-            }
-            val env = ActionTestEnv(listOf(extension))
+            val env = envWithActionDescriptors(listOf(action))
 
             return env.actionPlatform.registry.findAction(action.group, action.key).semantics
         }
@@ -359,6 +327,25 @@ class ActionSemanticsResolverTest {
                 semantics(action)
             }
         }
+    }
+
+    private class StaticActionProvider(
+        private val actions: List<ActionCmdDescriptor>
+    ) : ActionProvider<Any> {
+        override val actionGroupKey: String = "test"
+        override fun findCommandClass(): KClass<Any>? = null
+        override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
+        override fun findActions(): List<ActionCmdDescriptor> = actions
+    }
+
+    private fun envWithActionDescriptors(actions: List<ActionCmdDescriptor>): ActionTestEnv {
+        val extension = object : MedatarunExtension {
+            override val id = "action-test-env"
+            override fun initContributions(ctx: MedatarunExtensionCtx) {
+                ctx.registerContribution(ActionProvider::class, StaticActionProvider(actions))
+            }
+        }
+        return ActionTestEnv(listOf(extension))
     }
 
 }
