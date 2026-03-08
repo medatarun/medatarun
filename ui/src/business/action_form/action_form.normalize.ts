@@ -37,12 +37,16 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "AttributeRef") return normalizeRef(param, value);
   if (param.type == "EntityKey") return normalizeKey(param, value);
   if (param.type == "EntityRef") return normalizeRef(param, value);
+  if (param.type == "EntityAttributeRef") return normalizeRef(param, value);
   if (param.type == "Hashtag") return normalizeString(param, value);
   if (param.type == "ModelKey") return normalizeKey(param, value);
   if (param.type == "ModelRef") return normalizeRef(param, value);
   if (param.type == "ModelVersion") return normalizeVersion(param, value);
+  if (param.type == "RelationshipCardinality") return normalizeString(param, value);
   if (param.type == "RelationshipKey") return normalizeKey(param, value);
   if (param.type == "RelationshipRef") return normalizeRef(param, value);
+  if (param.type == "RelationshipRoleKey") return normalizeKey(param, value);
+  if (param.type == "RelationshipAttributeRef") return normalizeRef(param, value);
   if (param.type == "TagGroupKey") return normalizeKey(param, value);
   if (param.type == "TagGroupRef") return normalizeRef(param, value);
   if (param.type == "TagKey") return normalizeKey(param, value);
@@ -53,9 +57,6 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "String") return normalizeString(param, value);
   if (param.type == "LocalizedText") return normalizeString(param, value);
   if (param.type == "LocalizedMarkdown") return normalizeString(param, value);
-  if (param.type == "RelationshipRoleKey") return normalizeKey(param, value);
-  if (param.type == "RelationshipCardinality")
-    return normalizeString(param, value);
   throw Error("Unsupported type: " + param.type);
 }
 
