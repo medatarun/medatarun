@@ -122,6 +122,33 @@ class RelationshipDuplicateIdException(modelId: ModelId, relationshipKey: Relati
 class RelationshipDuplicateRoleIdException(roles: Collection<RelationshipRoleKey>) :
     MedatarunException("A relationship can not have the same role ids. Duplicate roles ids: [${roles.joinToString(", ")}]")
 
+class RelationshipRoleCreateDuplicateKeyException(
+    modelRef: ModelRef,
+    relationshipRef: RelationshipRef,
+    roleKey: RelationshipRoleKey
+) :
+    MedatarunException(
+        "Cannot create relationship role in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] because key [${roleKey.value}] already exists."
+    )
+
+class RelationshipRoleUpdateDuplicateKeyException(
+    modelRef: ModelRef,
+    relationshipRef: RelationshipRef,
+    roleRef: RelationshipRoleRef,
+    roleKey: RelationshipRoleKey
+) :
+    MedatarunException(
+        "Cannot update relationship role [${roleRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to key [${roleKey.value}] because this key already exists."
+    )
+
+class RelationshipRoleDeleteMinimumRolesException(
+    modelRef: ModelRef,
+    relationshipRef: RelationshipRef
+) :
+    MedatarunException(
+        "Cannot delete a relationship role from relationship [${relationshipRef.asString()}] in model [${modelRef.asString()}] because a relationship must keep at least two roles."
+    )
+
 class RelationshipAttributeCreateDuplicateKeyException(
     modelRef: ModelRef,
     relationshipRef: RelationshipRef,

@@ -615,28 +615,71 @@ class ModelActionHandler(
         )
     }
 
-    fun relationshipRoleCreate(@Suppress("unused") cmd: ModelAction.RelationshipRole_Create) {
-        TODO("Not yet implemented")
+    fun relationshipRoleCreate(cmd: ModelAction.RelationshipRole_Create) {
+        dispatch(
+            ModelCmd.CreateRelationshipRole(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                key = cmd.roleKey,
+                entityRef = cmd.roleEntityRef,
+                name = cmd.roleName,
+                cardinality = cmd.roleCardinality
+            )
+        )
     }
 
-    fun relationshipRoleUpdateKey(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateKey) {
-        TODO("Not yet implemented")
+    fun relationshipRoleUpdateKey(cmd: ModelAction.RelationshipRole_UpdateKey) {
+        dispatch(
+            ModelCmd.UpdateRelationshipRoleKey(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                relationshipRoleRef = cmd.relationshipRoleRef,
+                value = cmd.value
+            )
+        )
     }
 
-    fun relationshipRoleUpdateName(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateName) {
-        TODO("Not yet implemented")
+    fun relationshipRoleUpdateName(cmd: ModelAction.RelationshipRole_UpdateName) {
+        dispatch(
+            ModelCmd.UpdateRelationshipRoleName(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                relationshipRoleRef = cmd.relationshipRoleRef,
+                value = cmd.value
+            )
+        )
     }
 
-    fun relationshipRoleUpdateEntity(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateEntity) {
-        TODO("Not yet implemented")
+    fun relationshipRoleUpdateEntity(cmd: ModelAction.RelationshipRole_UpdateEntity) {
+        dispatch(
+            ModelCmd.UpdateRelationshipRoleEntity(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                relationshipRoleRef = cmd.relationshipRoleRef,
+                value = cmd.value
+            )
+        )
     }
 
-    fun relationshipRoleUpdateCardinality(@Suppress("unused") cmd: ModelAction.RelationshipRole_UpdateCardinality) {
-        TODO("Not yet implemented")
+    fun relationshipRoleUpdateCardinality(cmd: ModelAction.RelationshipRole_UpdateCardinality) {
+        dispatch(
+            ModelCmd.UpdateRelationshipRoleCardinality(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                relationshipRoleRef = cmd.relationshipRoleRef,
+                value = cmd.value
+            )
+        )
     }
 
-    fun relationshipRoleDelete(@Suppress("unused") cmd: ModelAction.RelationshipRole_Delete) {
-        TODO("Not yet implemented")
+    fun relationshipRoleDelete(cmd: ModelAction.RelationshipRole_Delete) {
+        dispatch(
+            ModelCmd.DeleteRelationshipRole(
+                modelRef = cmd.modelRef,
+                relationshipRef = cmd.relationshipRef,
+                relationshipRoleRef = cmd.relationshipRoleRef
+            )
+        )
     }
 
     fun relationshipAttributeCreate(cmd: ModelAction.RelationshipAttribute_Create) {
