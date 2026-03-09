@@ -1,6 +1,6 @@
 package io.medatarun.model.domain.actions
 
-import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateId
+import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateKey
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.UpdateAttributeDuplicateKeyException
 import io.medatarun.model.domain.entityAttributeRef
@@ -20,7 +20,7 @@ class EntityAttribute_UpdateKey_Test {
             // Rename firstname to lastname causes exception because lastname already exists
             val attributeRef = entityAttributeRef("firstname")
             env.runtime.dispatch(
-                EntityAttribute_UpdateId(
+                EntityAttribute_UpdateKey(
                     env.sampleModelRef,
                     env.sampleEntityRef,
                     attributeRef = attributeRef,
@@ -41,7 +41,7 @@ class EntityAttribute_UpdateKey_Test {
         env.createAttribute(AttributeKey("firstname"))
         val attributeRef = entityAttributeRef("firstname")
         env.runtime.dispatch(
-            EntityAttribute_UpdateId(
+            EntityAttribute_UpdateKey(
                 env.sampleModelRef,
                 env.sampleEntityRef,
                 attributeRef,
@@ -64,7 +64,7 @@ class EntityAttribute_UpdateKey_Test {
         // Be careful to specify "reloadId" because the attribute's id changed
         val attributeRef = entityAttributeRef(attrId)
         env.runtime.dispatch(
-            EntityAttribute_UpdateId(
+            EntityAttribute_UpdateKey(
                 env.sampleModelRef,
                 env.sampleEntityRef,
                 attributeRef = attributeRef,

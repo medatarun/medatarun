@@ -699,7 +699,7 @@ sealed interface ModelAction {
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class EntityAttribute_UpdateId(
+    data class EntityAttribute_UpdateKey(
         val modelRef: ModelRef,
         val entityRef: EntityRef,
         val attributeRef: EntityAttributeRef,
