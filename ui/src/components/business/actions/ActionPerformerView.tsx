@@ -334,8 +334,6 @@ const InputModelAuthority = forwardRef<
     setSearchQuery(selected?.label ?? value);
   }, [value]);
 
-
-
   return (
     <div>
       <InputCombobox

@@ -314,7 +314,10 @@ export function ModelOverview() {
 
       <div>{t("modelPage_versionLabel")}</div>
       <div>
-        <InlineEditSingleLine value={model.version} onChange={handleChangeVersion}>
+        <InlineEditSingleLine
+          value={model.version}
+          onChange={handleChangeVersion}
+        >
           <code>{model.version}</code>
         </InlineEditSingleLine>
       </div>

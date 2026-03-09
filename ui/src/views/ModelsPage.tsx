@@ -28,7 +28,9 @@ export function ModelsPage({
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.models);
   const { t } = useAppI18n();
-  const canonicalModels = data.filter((model) => model.authority === "canonical");
+  const canonicalModels = data.filter(
+    (model) => model.authority === "canonical",
+  );
   const systemModels = data.filter((model) => model.authority !== "canonical");
 
   return (
