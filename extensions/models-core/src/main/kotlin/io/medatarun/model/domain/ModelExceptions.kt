@@ -93,14 +93,14 @@ class UpdateAttributeDuplicateKeyException(
 ) :
     MedatarunException("Can not change attribute [${attributeRef.asString()}] key to [${newKey.value}] because it is already used for another attribute in entity [${entityRef.asString()}]")
 
-class EntityUpdateIdDuplicateIdException(entityKey: EntityKey) :
-    MedatarunException("Another entity [${entityKey.value}] already exists in the same model")
+class EntityUpdateKeyDuplicateKeyException(entityKey: EntityKey) :
+    MedatarunException("Another entity with key [${entityKey.value}] already exists in the same model")
 
-class CreateAttributeDuplicateIdException(entityKey: EntityKey, attributeKey: AttributeKey) :
-    MedatarunException("Another attribute [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
+class CreateAttributeDuplicateKeyException(entityKey: EntityKey, attributeKey: AttributeKey) :
+    MedatarunException("Another attribute with key [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
 
-class ModelTypeDeleteUsedException(typeId: TypeKey) :
-    MedatarunException("Model with id [${typeId.value}] could not be deleted as it's used in entities")
+class ModelTypeDeleteUsedException(key: TypeKey) :
+    MedatarunException("Type with key [${key.value}] could not be deleted as it's used in entities")
 
 class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] already exists with the same id in model [${modelKey.value}]")
