@@ -24,6 +24,7 @@ const useStyles = makeStyles({
     paddingTop: tokens.spacingVerticalM,
   },
   title: {
+    maxWidth: "60rem",
     width: "60rem",
     margin: "auto",
   },

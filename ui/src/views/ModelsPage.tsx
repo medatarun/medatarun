@@ -11,7 +11,7 @@ import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 
 export function ModelsPage({
   onClickModel,

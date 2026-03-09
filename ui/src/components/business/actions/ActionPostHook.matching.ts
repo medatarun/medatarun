@@ -34,12 +34,19 @@ export function actionTargetsDisplayedSubject(
     matches = false;
   } else {
     for (const refParam of targetSubject.referencingParams) {
-      const expectedId = decodeActionParamId(context.request.params[refParam.name]);
+      const expectedId = decodeActionParamId(
+        context.request.params[refParam.name],
+      );
       const displayedKey = toDisplayedSubjectIdKey(refParam.name);
       const displayedId = displayedKey
         ? displayedSubject.refs[displayedKey]
         : undefined;
-      if (!expectedId || !displayedKey || !displayedId || expectedId !== displayedId) {
+      if (
+        !expectedId ||
+        !displayedKey ||
+        !displayedId ||
+        expectedId !== displayedId
+      ) {
         matches = false;
         break;
       }

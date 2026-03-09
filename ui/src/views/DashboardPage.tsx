@@ -10,7 +10,7 @@ import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry();

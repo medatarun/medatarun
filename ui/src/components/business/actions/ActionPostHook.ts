@@ -73,9 +73,7 @@ export interface ActionPostHook {
    * - Do nothing to keep the current route.
    * - Do not perform cache work here (handled in onActionSuccess).
    */
-  resolveNavigationAfterSuccess: (
-    context: ActionPostNavigationContext,
-  ) => void;
+  resolveNavigationAfterSuccess: (context: ActionPostNavigationContext) => void;
 }
 
 /**
@@ -102,7 +100,9 @@ export class ActionPostHooks {
       return false;
     }
     let handled = false;
-    for (const hook of this.getMatchingHooks(resolvedContext.displayedSubject)) {
+    for (const hook of this.getMatchingHooks(
+      resolvedContext.displayedSubject,
+    )) {
       const hookHandled = await hook.onActionSuccess(
         resolvedContext,
         queryClient,
@@ -119,7 +119,9 @@ export class ActionPostHooks {
     if (!resolvedContext) {
       return;
     }
-    for (const hook of this.getMatchingHooks(resolvedContext.displayedSubject)) {
+    for (const hook of this.getMatchingHooks(
+      resolvedContext.displayedSubject,
+    )) {
       hook.resolveNavigationAfterSuccess(resolvedContext);
     }
   }

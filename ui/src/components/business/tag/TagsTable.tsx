@@ -1,14 +1,28 @@
-import {makeStyles, Table, TableBody, TableCell, TableRow, Text, tokens,} from "@fluentui/react-components";
-import {useNavigate} from "@tanstack/react-router";
-import {ErrorBox} from "@seij/common-ui";
-import {toProblem} from "@seij/common-types";
-import {useActionRegistry} from "@/business/action_registry";
-import {type TagScopeRef, useTags} from "@/business/tag";
-import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
-import {Markdown} from "@/components/core/Markdown.tsx";
-import {createActionTemplateTag, detailActionLocation,} from "./tag.actions.ts";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {type ActionDisplayedSubject, displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  makeStyles,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Text,
+  tokens,
+} from "@fluentui/react-components";
+import { useNavigate } from "@tanstack/react-router";
+import { ErrorBox } from "@seij/common-ui";
+import { toProblem } from "@seij/common-types";
+import { useActionRegistry } from "@/business/action_registry";
+import { type TagScopeRef, useTags } from "@/business/tag";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import { Markdown } from "@/components/core/Markdown.tsx";
+import {
+  createActionTemplateTag,
+  detailActionLocation,
+} from "./tag.actions.ts";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  type ActionDisplayedSubject,
+  displaySubjectNone,
+} from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
@@ -38,39 +52,37 @@ const useStyles = makeStyles({
   },
 });
 
-export function TagsTable(
-  {
-    scope,
-    tagGroupId,
-    displayedSubject
-  }: {
-    scope: TagScopeRef;
-    tagGroupId?: string;
-    displayedSubject: ActionDisplayedSubject
-  }
-) {
-  const {t} = useAppI18n();
+export function TagsTable({
+  scope,
+  tagGroupId,
+  displayedSubject,
+}: {
+  scope: TagScopeRef;
+  tagGroupId?: string;
+  displayedSubject: ActionDisplayedSubject;
+}) {
+  const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags(scope);
   const styles = useStyles();
 
   if (tagsResult.isPending) return null;
-  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)}/>;
+  if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
 
   const items = tagsResult.tags.findTagsByScope(scope, tagGroupId);
 
   const handleClickTag = (tagId: string) => {
     navigate({
       to: "/tags/$tagId",
-      params: {tagId: tagId},
+      params: { tagId: tagId },
     });
   };
 
   return (
     <div>
       {items.length === 0 ? (
-        <p style={{paddingTop: tokens.spacingVerticalM}}>
+        <p style={{ paddingTop: tokens.spacingVerticalM }}>
           <Text italic>
             {tagGroupId == null
               ? t("tagsTable_emptyScope")
@@ -93,7 +105,7 @@ export function TagsTable(
                 onClick={() => handleClickTag(tag.id)}
               >
                 <div>
-                  <Markdown value={tag.description}/>
+                  <Markdown value={tag.description} />
                 </div>
                 <div>
                   <code>{tag.key}</code>

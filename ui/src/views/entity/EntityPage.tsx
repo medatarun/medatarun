@@ -116,7 +116,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
       value: value,
     });
   };
-  const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id,);
+  const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id);
 
   return (
     <ViewLayoutContained

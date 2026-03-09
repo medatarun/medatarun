@@ -26,10 +26,14 @@ import { useActionPerformer } from "@/components/business/actions/ActionPerforme
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { Markdown } from "@/components/core/Markdown.tsx";
 import {
-  createActionTemplateType, createDisplayedSubjectModel,
+  createActionTemplateType,
+  createDisplayedSubjectModel,
   createDisplayedSubjectType,
 } from "./model.actions.ts";
-import type { ActionDisplayedSubject, ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
+import type {
+  ActionDisplayedSubject,
+  ActionPerformerRequestParams,
+} from "@/components/business/actions/ActionPerformer.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
@@ -128,7 +132,7 @@ export function TypesTable({
                     onClick={() => onClick(type.id)}
                   >
                     <div>
-                      <Markdown value={type.description}/>
+                      <Markdown value={type.description} />
                     </div>
                   </TableCell>
 

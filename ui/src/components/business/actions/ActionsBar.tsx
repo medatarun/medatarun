@@ -1,27 +1,30 @@
-import {ActionDescriptor, type ActionUILocation, useActionRegistry,} from "@/business/action_registry";
-import {useActionPerformer} from "./ActionPerformerHook.tsx";
-import {Button, ButtonBar} from "@seij/common-ui";
-import type {ComponentProps} from "react";
+import {
+  ActionDescriptor,
+  type ActionUILocation,
+  useActionRegistry,
+} from "@/business/action_registry";
+import { useActionPerformer } from "./ActionPerformerHook.tsx";
+import { Button, ButtonBar } from "@seij/common-ui";
+import type { ComponentProps } from "react";
 import {
   type ActionDisplayedSubject,
   type ActionPerformerRequestParams,
-  displaySubjectNone
+  displaySubjectNone,
 } from "./ActionPerformer.tsx";
 
 type ActionBarProps = {
   location: ActionUILocation;
   params?: ActionPerformerRequestParams;
   variant?: ComponentProps<typeof ButtonBar>["variant"];
-  displayedSubject?: ActionDisplayedSubject
+  displayedSubject?: ActionDisplayedSubject;
 };
 
-export const ActionsBar = (
-  {
-    location,
-    params = {},
-    variant,
-    displayedSubject
-  }: ActionBarProps) => {
+export const ActionsBar = ({
+  location,
+  params = {},
+  variant,
+  displayedSubject,
+}: ActionBarProps) => {
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(location);
   return (
@@ -38,18 +41,17 @@ export const ActionsBar = (
   );
 };
 
-export const ActionButton = (
-  {
-    action,
-    params,
-    displayedSubject
-  }: {
-    location: string;
-    action: ActionDescriptor;
-    params: ActionPerformerRequestParams;
-    displayedSubject?: ActionDisplayedSubject
-  }) => {
-  const {performAction, state} = useActionPerformer();
+export const ActionButton = ({
+  action,
+  params,
+  displayedSubject,
+}: {
+  location: string;
+  action: ActionDescriptor;
+  params: ActionPerformerRequestParams;
+  displayedSubject?: ActionDisplayedSubject;
+}) => {
+  const { performAction, state } = useActionPerformer();
   const disabled = state.kind !== "idle";
 
   const handleClick = async () => {

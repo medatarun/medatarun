@@ -1,21 +1,28 @@
-import {useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
-import {useTags} from "@/business/tag";
-import {TagGroupsTable} from "./TagGroupsTable.tsx";
-import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
-import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
-import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
-import {SectionTable} from "@/components/layout/SecionTable.tsx";
-import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
-import {tokens} from "@fluentui/react-components";
-import {ErrorBox} from "@seij/common-ui";
-import {toProblem} from "@seij/common-types";
-import {createActionTemplateTagGroupList} from "@/components/business/tag/tag.actions.ts";
-import {TagGroupIcon} from "@/components/business/tag/tag.icons.tsx";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
+import { useTags } from "@/business/tag";
+import { TagGroupsTable } from "./TagGroupsTable.tsx";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
+import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { tokens } from "@fluentui/react-components";
+import { ErrorBox } from "@seij/common-ui";
+import { toProblem } from "@seij/common-types";
+import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.actions.ts";
+import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 
 export function TagGroupsPage() {
   const { t } = useAppI18n();

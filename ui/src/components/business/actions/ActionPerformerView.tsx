@@ -142,14 +142,12 @@ export function ActionPerformerViewLoaded({
   useEffect(() => {
     if (state.kind !== "done") return;
 
-    postHooks.resolveNavigationAfterSuccess(
-      {
-        action: action,
-        request: state.request,
-        state: state,
-        navigate: navigate,
-      },
-    );
+    postHooks.resolveNavigationAfterSuccess({
+      action: action,
+      request: state.request,
+      state: state,
+      navigate: navigate,
+    });
   }, [action, navigate, postHooks, state]);
 
   const focusedFieldKey = formFields.find(
