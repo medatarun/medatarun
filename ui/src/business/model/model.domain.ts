@@ -26,6 +26,18 @@ export class Model {
     return this.dto.name ?? this.dto.key;
   }
 
+  static authorityEmoji(authority: ModelDto["authority"] | null | undefined) {
+    return authority === "canonical" ? "🟩" : "🟦";
+  }
+
+  get authorityEmoji() {
+    return Model.authorityEmoji(this.dto.authority);
+  }
+
+  get nameOrKeyWithAuthorityEmoji() {
+    return `${this.authorityEmoji} ${this.nameOrKey}`;
+  }
+
   get id() {
     return this.dto.id;
   }

@@ -3,6 +3,7 @@ export interface ModelSummaryDto {
   key: string;
   name: string | null;
   description: string | null;
+  authority: "system" | "canonical";
   error: string | null;
   countTypes: number;
   countEntities: number;
@@ -13,6 +14,7 @@ export interface ModelDto {
   id: string;
   key: string;
   name: string | null;
+  authority: "system" | "canonical";
   version: string;
   documentationHome: string | null;
   tags: string[];

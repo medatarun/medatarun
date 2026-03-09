@@ -125,7 +125,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
           <Breadcrumb style={{ marginLeft: "-22px" }} size="small">
             <BreadcrumbItem>
               <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-                {model.nameOrKey}
+                {model.nameOrKeyWithAuthorityEmoji}
               </BreadcrumbButton>
             </BreadcrumbItem>
             <BreadcrumbDivider />

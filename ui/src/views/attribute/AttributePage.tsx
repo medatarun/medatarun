@@ -280,7 +280,7 @@ export function AttributeView({
                   icon={<ModelIcon />}
                   onClick={handleClickModel}
                 >
-                  {model.nameOrKey}
+                  {model.nameOrKeyWithAuthorityEmoji}
                 </BreadcrumbButton>
               </BreadcrumbItem>
               <BreadcrumbDivider />

@@ -3,7 +3,11 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { type ModelSummaryDto, useModelSummaries } from "@/business/model";
+import {
+  Model,
+  type ModelSummaryDto,
+  useModelSummaries,
+} from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { tokens } from "@fluentui/react-components";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
@@ -12,6 +16,8 @@ import { createActionTemplateGeneral } from "@/components/business/model/model.a
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
+import { SectionCards } from "@/components/layout/SectionCards.tsx";
 
 export function ModelsPage({
   onClickModel,
@@ -22,6 +28,8 @@ export function ModelsPage({
   const actionRegistry = useActionRegistry();
   const actions = actionRegistry.findActions(ActionUILocations.models);
   const { t } = useAppI18n();
+  const canonicalModels = data.filter((model) => model.authority === "canonical");
+  const systemModels = data.filter((model) => model.authority !== "canonical");
 
   return (
     <ViewLayoutContained
@@ -61,6 +69,45 @@ export function ModelsPage({
         }}
       >
         {data.length == 0 ? t("modelsPage_empty") : null}
+        {canonicalModels.length > 0 && (
+          <ModelsSection
+            title={`${Model.authorityEmoji("canonical")} ${t("modelsPage_canonicalTitle")}`}
+            models={canonicalModels}
+            onClickModel={onClickModel}
+          />
+        )}
+        {systemModels.length > 0 && (
+          <ModelsSection
+            title={`${Model.authorityEmoji("system")} ${t("modelsPage_systemTitle")}`}
+            models={systemModels}
+            onClickModel={onClickModel}
+          />
+        )}
+      </div>
+    </ViewLayoutContained>
+  );
+}
+
+function ModelsSection({
+  title,
+  models,
+  onClickModel,
+}: {
+  title: string;
+  models: ModelSummaryDto[];
+  onClickModel: (modelId: string) => void;
+}) {
+  return (
+    <>
+      <SectionTitle
+        icon={undefined}
+        actionParams={createActionTemplateGeneral()}
+        displayedSubject={displaySubjectNone}
+        location={ActionUILocations.none}
+      >
+        {title}
+      </SectionTitle>
+      <SectionCards>
         <div
           style={{
             display: "flex",
@@ -71,11 +118,11 @@ export function ModelsPage({
             marginTop: tokens.spacingVerticalM,
           }}
         >
-          {data.map((model: ModelSummaryDto) => (
+          {models.map((model) => (
             <ModelCard key={model.id} model={model} onClick={onClickModel} />
           ))}
         </div>
-      </div>
-    </ViewLayoutContained>
+      </SectionCards>
+    </>
   );
 }

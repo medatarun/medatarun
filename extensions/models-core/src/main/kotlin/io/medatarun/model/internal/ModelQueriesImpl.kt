@@ -30,6 +30,7 @@ class ModelQueriesImpl(
                     key = model.key,
                     name = model.name?.get(locale),
                     description = model.description?.get(locale),
+                    authority = model.authority,
                     error = null,
                     countTypes = model.types.size,
                     countEntities = model.entities.size,
@@ -41,6 +42,7 @@ class ModelQueriesImpl(
                     key = ModelKey.generateRandom(),
                     name = null,
                     description = null,
+                    authority = ModelAuthority.SYSTEM,
                     error = e.message,
                     countTypes = 0, countEntities = 0, countRelationships = 0
                 )

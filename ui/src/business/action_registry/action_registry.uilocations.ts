@@ -1,4 +1,5 @@
 export const ActionUILocations = {
+  none: "none",
   entity: "entity",
   entity_attribute: "entity.attribute",
   entity_attributes: "entity.attributes",

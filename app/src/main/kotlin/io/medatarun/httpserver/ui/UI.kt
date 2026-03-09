@@ -25,6 +25,7 @@ class UI(runtime: PlatformRuntime) {
                         put("key", m.key.asString())
                         put("name", m.name)
                         put("description", m.description)
+                        put("authority", m.authority.code)
                         put("error", m.error)
                         put("countTypes", m.countTypes)
                         put("countEntities", m.countEntities)

@@ -5,6 +5,7 @@ data class ModelSummary(
     val key: ModelKey,
     val name: String?,
     val description: String?,
+    val authority: ModelAuthority,
     val error: String?,
     val countTypes: Int,
     val countEntities: Int,
