@@ -8,6 +8,7 @@ import io.medatarun.model.domain.AttributeOwnerId
 import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityRef
+import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelDuplicateKeyException
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelNotFoundException
@@ -329,6 +330,31 @@ class Model_Copy_Test {
         assertEquals(source.version, copied.version)
         assertEquals(source.origin, copied.origin)
         assertEquals(source.documentationHome, copied.documentationHome)
+    }
+
+    @Test
+    fun `copy model always sets copied model authority to system`() {
+        val env = createEnv()
+        val sourceKey = ModelKey("copy-source-model-authority")
+        val copiedKey = ModelKey("copy-target-model-authority")
+        val sourceRef = modelRefKey(sourceKey)
+
+        env.dispatch(
+            ModelAction.Model_Create(
+                modelKey = sourceKey,
+                name = LocalizedTextNotLocalized("Source model"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        env.dispatch(ModelAction.Model_UpdateAuthority(sourceRef, ModelAuthority.CANONICAL))
+
+        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
+
+        val source = env.queries.findModelByKey(sourceKey)
+        val copied = env.queries.findModelByKey(copiedKey)
+        assertEquals(ModelAuthority.CANONICAL, source.authority)
+        assertEquals(ModelAuthority.SYSTEM, copied.authority)
     }
 
     // ------------------------------------------------------------------------

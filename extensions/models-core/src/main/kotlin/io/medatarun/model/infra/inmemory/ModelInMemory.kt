@@ -1,13 +1,6 @@
 package io.medatarun.model.infra.inmemory
 
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.Model
-import io.medatarun.model.domain.ModelAggregate
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelOrigin
-import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.*
 import java.net.URL
 
 data class ModelInMemory(
@@ -17,6 +10,7 @@ data class ModelInMemory(
     override val description: LocalizedMarkdown?,
     override val version: ModelVersion,
     override val origin: ModelOrigin,
+    override val authority: ModelAuthority,
     override val documentationHome: URL?,
 ): Model {
     companion object {
@@ -28,6 +22,7 @@ data class ModelInMemory(
                 description = other.description,
                 version = other.version,
                 origin = other.origin,
+                authority = other.authority,
                 documentationHome = other.documentationHome
             )
         }

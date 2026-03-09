@@ -15,7 +15,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 
-import { type Ref, useEffect, useRef, useState } from "react";
+import { forwardRef, type Ref, useEffect, useRef, useState } from "react";
 import { ActionOutputBox } from "./ActionOutput.tsx";
 import { type ActionResp } from "@/business/action_runner";
 import {
@@ -36,7 +36,7 @@ import {
   combineValidationResults,
   type ValidationResult,
 } from "@seij/common-validation";
-import { Button, ErrorBox } from "@seij/common-ui";
+import { Button, ErrorBox, InputCombobox } from "@seij/common-ui";
 import { formDataNormalize } from "@/business/action_form/action_form.normalize.ts";
 import { isNil, isPlainObject } from "lodash-es";
 import { toProblem } from "@seij/common-types";
@@ -269,16 +269,88 @@ function FormFieldInput({
         validationMessage={validationResult?.error}
         required={!field.optional}
       >
-        <Input
-          ref={inputRef}
-          disabled={field.readonly}
+        <InputAutodetect
+          field={field}
+          inputRef={inputRef}
           value={valueNormalized}
-          onChange={(_, data) => onChange(field, data.value)}
+          onChange={(nextValue) => onChange(field, nextValue)}
         />
       </Field>
     </div>
   );
 }
+
+function InputAutodetect({
+  field,
+  value,
+  inputRef,
+  onChange,
+}: {
+  field: FormFieldType;
+  value: string;
+  onChange: (value: string) => void;
+  inputRef?: Ref<HTMLInputElement>;
+}) {
+  if (field.type === "ModelAuthority") {
+    return (
+      <InputModelAuthority
+        ref={inputRef}
+        value={value}
+        disabled={field.readonly}
+        onChange={onChange}
+      />
+    );
+  }
+  return (
+    <Input
+      ref={inputRef}
+      disabled={field.readonly}
+      value={value}
+      onChange={(_, data) => onChange(data.value)}
+    />
+  );
+}
+
+const InputModelAuthority = forwardRef<
+  HTMLInputElement,
+  {
+    value: string;
+    disabled: boolean;
+    onChange: (value: string) => void;
+  }
+>(function InputModelAuthority({ value, disabled, onChange }, _ref) {
+  // TODO InputCombobox does not expose an input ref yet, so we cannot wire this forwarded ref for now.
+  const options = [
+    { code: "system", label: "System" },
+    { code: "canonical", label: "Canonical" },
+  ];
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const selected = options.find((it) => it.code === value);
+    return selected?.label ?? value;
+  });
+
+  useEffect(() => {
+    const selected = options.find((it) => it.code === value);
+    setSearchQuery(selected?.label ?? value);
+  }, [value]);
+
+  return (
+    <div>
+      <InputCombobox
+        options={options}
+        searchQuery={searchQuery}
+        placeholder="Select authority"
+        disabled={disabled}
+        onValueChangeQuery={(query) => setSearchQuery(query)}
+        onValueChange={(nextValue) => {
+          onChange(nextValue);
+          const selected = options.find((it) => it.code === nextValue);
+          setSearchQuery(selected?.label ?? nextValue);
+        }}
+      />
+    </div>
+  );
+});
 
 function createFormFields(
   action: ActionDescriptor,

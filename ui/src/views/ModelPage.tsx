@@ -70,14 +70,14 @@ export function ModelPage({ modelId }: { modelId: string }) {
 }
 
 export function ModelView() {
-  const model = useModelContext().dto;
+  const model = useModelContext();
   const actionRegistry = useActionRegistry();
   const navigate = useNavigate();
   const modelUpdateDescription = useModelUpdateDescription();
   const modelUpdateName = useModelUpdateName();
   const { t } = useAppI18n();
 
-  const displayName = model.name ?? model.id;
+  const displayNameWithAuthority = model.nameOrKeyWithAuthorityEmoji;
 
   const handleClickType = (typeId: string) => {
     navigate({
@@ -122,7 +122,7 @@ export function ModelView() {
                   value={model.name ?? ""}
                   onChange={handleChangeName}
                 >
-                  {displayName}{" "}
+                  {displayNameWithAuthority}{" "}
                 </InlineEditSingleLine>
               </div>
               <div>
@@ -166,14 +166,14 @@ export function ModelView() {
               {t("modelPage_entitiesTitle")}
             </SectionTitle>
 
-            {model.entities.length === 0 && (
+            {!model.hasEntities && (
               <p>
                 <MissingInformation>
                   {t("modelPage_entitiesEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {model.entities.length > 0 && (
+            {model.hasEntities && (
               <SectionCards>
                 <EntitiesCardList onClick={handleClickEntity} />
               </SectionCards>
@@ -188,14 +188,14 @@ export function ModelView() {
               {t("modelPage_relationshipsTitle")}
             </SectionTitle>
 
-            {model.relationships.length === 0 && (
+            {!model.hasRelationships && (
               <p>
                 <MissingInformation>
                   {t("modelPage_relationshipsEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {model.relationships.length > 0 && (
+            {model.hasRelationships && (
               <SectionTable>
                 <RelationshipsTable
                   onClick={handleClickRelationship}
@@ -214,14 +214,14 @@ export function ModelView() {
               {t("modelPage_dataTypesTitle")}
             </SectionTitle>
 
-            {model.types.length === 0 && (
+            {!model.hasTypes && (
               <p>
                 <MissingInformation>
                   {t("modelPage_dataTypesEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {model.types.length > 0 && (
+            {model.hasTypes && (
               <SectionTable>
                 <TypesTable onClick={handleClickType} types={model.types} />
               </SectionTable>
@@ -252,7 +252,7 @@ export function ModelView() {
 }
 
 export function ModelOverview() {
-  const model = useModelContext().dto;
+  const model = useModelContext();
   const { isDetailLevelTech } = useDetailLevelContext();
   const modelUpdateVersion = useModelUpdateVersion();
   const modelUpdateKey = useModelUpdateKey();
@@ -261,6 +261,10 @@ export function ModelOverview() {
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
   const displayedSubject = createDisplayedSubjectModel(model.id);
+  const authorityLabel =
+    model.authority === "canonical"
+      ? t("modelPage_authorityCanonical")
+      : t("modelPage_authoritySystem");
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
@@ -275,19 +279,17 @@ export function ModelOverview() {
     });
   };
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of model.tags) {
-      if (!value.includes(tag))
-        await modelUpdateDeleteTag.mutateAsync({
-          modelId: model.id,
-          tag: "id:" + tag,
-        });
+    for (const tag of model.findTagsToDelete(value)) {
+      await modelUpdateDeleteTag.mutateAsync({
+        modelId: model.id,
+        tag: "id:" + tag,
+      });
     }
-    for (const tag of value) {
-      if (!model.tags.includes(tag))
-        await modelUpdateAddTag.mutateAsync({
-          modelId: model.id,
-          tag: "id:" + tag,
-        });
+    for (const tag of model.findTagsToAdd(value)) {
+      await modelUpdateAddTag.mutateAsync({
+        modelId: model.id,
+        tag: "id:" + tag,
+      });
     }
   };
   return (
@@ -306,6 +308,9 @@ export function ModelOverview() {
           </InlineEditSingleLine>
         </div>
       )}
+
+      <div>{t("modelPage_authorityLabel")}</div>
+      <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
 
       <div>{t("modelPage_versionLabel")}</div>
       <div>
@@ -341,7 +346,7 @@ export function ModelOverview() {
           onChange={handleChangeTags}
           displayedSubject={displayedSubject}
         >
-          {model.tags.length === 0 ? (
+          {!model.hasTags ? (
             <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={model.tags} scope={modelTagScope(model.id)} />
@@ -370,7 +375,7 @@ export function EntitiesCardList({
   onClick: (entityId: string) => void;
 }) {
   const model = useModelContext();
-  const entities = model.dto.entities;
+  const entities = model.entities;
   return (
     <div>
       <div

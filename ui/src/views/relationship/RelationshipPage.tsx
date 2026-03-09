@@ -144,7 +144,7 @@ export function RelationshipView({
                   icon={<ModelIcon />}
                   onClick={handleClickModel}
                 >
-                  {model.nameOrKey}
+                  {model.nameOrKeyWithAuthorityEmoji}
                 </BreadcrumbButton>
               </BreadcrumbItem>
               <BreadcrumbDivider />

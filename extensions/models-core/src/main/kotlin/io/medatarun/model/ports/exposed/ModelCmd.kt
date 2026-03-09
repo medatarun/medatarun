@@ -45,6 +45,11 @@ sealed interface ModelCmd {
         val description: LocalizedMarkdown?
     ) : ModelCmdOnModel
 
+    data class UpdateModelAuthority(
+        override val modelRef: ModelRef,
+        val authority: ModelAuthority
+    ) : ModelCmdOnModel
+
     data class UpdateModelVersion(
         override val modelRef: ModelRef,
         val version: ModelVersion

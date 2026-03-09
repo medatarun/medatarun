@@ -30,6 +30,90 @@ export class Model {
     return this.dto.id;
   }
 
+  get name() {
+    return this.dto.name;
+  }
+
+  get key() {
+    return this.dto.key;
+  }
+
+  get description() {
+    return this.dto.description;
+  }
+
+  get authority() {
+    return this.dto.authority;
+  }
+
+  get version() {
+    return this.dto.version;
+  }
+
+  get documentationHome() {
+    return this.dto.documentationHome;
+  }
+
+  get tags() {
+    return this.dto.tags;
+  }
+
+  hasTag(tagId: string) {
+    return this.dto.tags.includes(tagId);
+  }
+
+  findTagsToDelete(nextTagIds: string[]) {
+    return this.dto.tags.filter((tagId) => !nextTagIds.includes(tagId));
+  }
+
+  findTagsToAdd(nextTagIds: string[]) {
+    return nextTagIds.filter((tagId) => !this.hasTag(tagId));
+  }
+
+  get origin() {
+    return this.dto.origin;
+  }
+
+  get entities() {
+    return this.dto.entities;
+  }
+
+  get hasEntities() {
+    return this.dto.entities.length > 0;
+  }
+
+  get relationships() {
+    return this.dto.relationships;
+  }
+
+  get hasRelationships() {
+    return this.dto.relationships.length > 0;
+  }
+
+  get types() {
+    return this.dto.types;
+  }
+
+  get hasTypes() {
+    return this.dto.types.length > 0;
+  }
+
+  get hasTags() {
+    return this.dto.tags.length > 0;
+  }
+
+  static authorityEmoji(authority: ModelDto["authority"] | null | undefined) {
+    return authority === "canonical" ? "🟩" : "🟦";
+  }
+
+  get authorityEmoji() {
+    return Model.authorityEmoji(this.dto.authority);
+  }
+
+  get nameOrKeyWithAuthorityEmoji() {
+    return `${this.authorityEmoji} ${this.nameOrKey}`;
+  }
+
   findTypeNameOrKey(typeId: string) {
     const type = this.dto.types.find((it) => it.id === typeId);
     return type?.name ?? type?.key ?? type?.id;

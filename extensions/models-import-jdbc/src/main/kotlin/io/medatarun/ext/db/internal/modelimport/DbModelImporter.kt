@@ -133,6 +133,8 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
                 version = ModelVersion("0.0.1"),
                 description = null,
                 origin = ModelOrigin.Uri(URI(path)),
+                // Whatever we put here will be overridden anyway to SYSTEM by business rules of model copy
+                authority = ModelAuthority.SYSTEM,
                 documentationHome = null,
             ),
             types = types,

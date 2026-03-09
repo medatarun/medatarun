@@ -105,7 +105,7 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
                   icon={<ModelIcon />}
                   onClick={handleClickModel}
                 >
-                  {model.nameOrKey}
+                  {model.nameOrKeyWithAuthorityEmoji}
                 </BreadcrumbButton>
               </BreadcrumbItem>
               <BreadcrumbDivider />

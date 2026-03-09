@@ -10,6 +10,9 @@ export interface ModelPageMessages {
   modelPage_dataTypesEmpty: string;
   modelPage_localTagsTitle: string;
   modelPage_keyLabel: string;
+  modelPage_authorityLabel: string;
+  modelPage_authorityCanonical: string;
+  modelPage_authoritySystem: string;
   modelPage_versionLabel: string;
   modelPage_externalLinkLabel: string;
   modelPage_externalLinkEmpty: string;

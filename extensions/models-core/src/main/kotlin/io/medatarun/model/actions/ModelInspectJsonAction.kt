@@ -14,6 +14,7 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                     add(buildJsonObject {
                         put("id", model.key.value)
                         put("version", model.version.value)
+                        put("authority", model.authority.code)
                         put("name", localizedTextToJson(model.name))
                         put("description", localizedTextToJson(model.description))
                         put("types", buildJsonArray {

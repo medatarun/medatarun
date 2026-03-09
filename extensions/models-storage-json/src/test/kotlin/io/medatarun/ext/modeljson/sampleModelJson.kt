@@ -8,6 +8,7 @@ internal val sampleModelJson = $$"""{
   "key": "example",
   "$schema": "https://raw.githubusercontent.com/medatarun/medatarun/main/schemas/medatarun-model-2.0.json",
   "version": "1.0.0",
+  "authority": "system",
   "tags": [
     "11111111-1111-1111-1111-111111111111",
     "22222222-2222-2222-2222-222222222222",

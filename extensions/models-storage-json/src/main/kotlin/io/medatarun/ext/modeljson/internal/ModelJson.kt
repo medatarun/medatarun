@@ -94,6 +94,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
             name = model.name,
             description = model.description,
             origin = toModelOriginStr(model.origin),
+            authority = model.authority.code,
             types = model.types.map { type ->
                 ModelTypeJson(
                     id = type.id.value.toString(),
@@ -160,7 +161,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     fun toEntityOriginStr(origin: EntityOrigin): String? {
         val originStr = when (origin) {
-            null -> null
             is EntityOrigin.Manual -> null
             is EntityOrigin.Uri -> origin.uri.toString()
         }
@@ -169,7 +169,6 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     fun toModelOriginStr(origin: ModelOrigin): String? {
         val originStr = when (origin) {
-            null -> null
             is ModelOrigin.Manual -> null
             is ModelOrigin.Uri -> origin.uri.toString()
         }
@@ -255,6 +254,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
                 null -> ModelOrigin.Manual
                 else -> ModelOrigin.Uri(URI(modelJson.origin))
             },
+            authority = modelJson.authority?.let { ModelAuthority.valueOfCode(it) } ?: ModelAuthority.SYSTEM,
             name = modelJson.name,
             description = modelJson.description,
             documentationHome = modelJson.documentationHome?.let { URI(it).toURL() },
@@ -381,6 +381,7 @@ internal class ModelJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val origin: String? = null,
+    val authority: String? = null,
     val tags: List<String>? = emptyList(),
     val types: List<ModelTypeJson>,
     val entities: List<ModelEntityJson>,

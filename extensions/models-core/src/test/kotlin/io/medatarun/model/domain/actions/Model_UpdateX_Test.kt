@@ -3,6 +3,7 @@ package io.medatarun.model.domain.actions
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
@@ -57,6 +58,14 @@ class Model_UpdateX_Test {
                 ModelAction.Model_UpdateVersion(
                     modelRef = modelKeyWrong,
                     value = ModelVersion("3.0.0")
+                )
+            )
+        }
+        assertFailsWith(ModelNotFoundException::class) {
+            env.dispatch(
+                ModelAction.Model_UpdateAuthority(
+                    modelRef = modelKeyWrong,
+                    value = ModelAuthority.CANONICAL
                 )
             )
         }
