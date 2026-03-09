@@ -190,8 +190,13 @@ class ModelActionHandler(
         )
     }
 
-    fun modelUpdateKey(@Suppress("unused") cmd: ModelAction.Model_UpdateKey) {
-        TODO("Not yet implemented")
+    fun modelUpdateKey(cmd: ModelAction.Model_UpdateKey) {
+        dispatch(
+            ModelCmd.UpdateModelKey(
+                modelRef = cmd.modelRef,
+                key = cmd.value
+            )
+        )
     }
 
     fun modelUpdateName(cmd: ModelAction.Model_UpdateName) {

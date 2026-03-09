@@ -30,6 +30,14 @@ class Model_UpdateX_Test {
         val modelKeyWrong = modelRefKey("m2")
         assertFailsWith(ModelNotFoundException::class) {
             env.dispatch(
+                ModelAction.Model_UpdateKey(
+                    modelRef = modelKeyWrong,
+                    value = ModelKey("m2")
+                )
+            )
+        }
+        assertFailsWith(ModelNotFoundException::class) {
+            env.dispatch(
                 ModelAction.Model_UpdateName(
                     modelRef = modelKeyWrong,
                     value = LocalizedTextNotLocalized("other")

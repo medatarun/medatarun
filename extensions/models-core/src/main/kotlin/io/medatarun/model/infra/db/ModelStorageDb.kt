@@ -300,6 +300,7 @@ class ModelStorageDb(
             is ModelRepoCmd.CreateModel -> createModel(cmd.model)
             is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
             is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
+            is ModelRepoCmd.UpdateModelKey -> updateModelKey(cmd.modelId, cmd.key)
             is ModelRepoCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
             is ModelRepoCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
             is ModelRepoCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
@@ -501,6 +502,13 @@ class ModelStorageDb(
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
         ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
             row[ModelTable.name] = name
+        }
+        searchWrite.upsertModelSearchItem(modelId)
+    }
+
+    private fun updateModelKey(modelId: ModelId, key: ModelKey) {
+        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
+            row[ModelTable.key] = key
         }
         searchWrite.upsertModelSearchItem(modelId)
     }

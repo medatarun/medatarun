@@ -171,7 +171,7 @@ sealed interface ModelAction {
             description = "New model key value. Must be unique across all models.",
             order = 1
         )
-        val value: LocalizedText
+        val value: ModelKey
     ) : ModelAction
 
     @ActionDoc(
