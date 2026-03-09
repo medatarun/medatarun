@@ -29,6 +29,7 @@ class ModelCmdsImpl(
                 is ModelCmd.CreateModel -> createModel(cmd)
                 is ModelCmd.CopyModel -> copyModel(cmd)
                 is ModelCmd.ImportModel -> importModel(cmd)
+                is ModelCmd.UpdateModelKey -> updateModelKey(cmd)
                 is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
                 is ModelCmd.UpdateModelName -> updateModelName(cmd)
                 is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
@@ -370,6 +371,14 @@ class ModelCmdsImpl(
     private fun updateModelName(cmd: ModelCmd.UpdateModelName) {
         val model = storage.findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelName(model.id, cmd.name))
+    }
+
+    private fun updateModelKey(cmd: ModelCmd.UpdateModelKey) {
+        val model = storage.findModel(cmd.modelRef)
+        if (model.key != cmd.key && storage.existsModelByKey(cmd.key)) {
+            throw ModelDuplicateKeyException(cmd.key)
+        }
+        storage.dispatch(ModelRepoCmd.UpdateModelKey(model.id, cmd.key))
     }
 
     private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
