@@ -333,6 +333,7 @@ class ModelStorageDb(
             is ModelRepoCmd.UpdateRelationshipKey -> updateRelationshipKey(cmd.relationshipId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipName -> updateRelationshipName(cmd.relationshipId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipDescription -> updateRelationshipDescription(cmd.relationshipId, cmd.value)
+            is ModelRepoCmd.CreateRelationshipRole -> createRelationshipRole(cmd)
             is ModelRepoCmd.UpdateRelationshipRoleKey -> updateRelationshipRoleKey(cmd.relationshipRoleId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipRoleName -> updateRelationshipRoleName(cmd.relationshipRoleId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipRoleEntity -> updateRelationshipRoleEntity(cmd.relationshipRoleId, cmd.value)
@@ -340,6 +341,7 @@ class ModelStorageDb(
             is ModelRepoCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
             is ModelRepoCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
+            is ModelRepoCmd.DeleteRelationshipRole -> deleteRelationshipRole(cmd.relationshipId, cmd.relationshipRoleId)
             is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
             is ModelRepoCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd.relationshipId, cmd.attributeId, cmd.value)
             is ModelRepoCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd.relationshipId, cmd.attributeId, cmd.value)
@@ -1012,6 +1014,17 @@ class ModelStorageDb(
         searchWrite.upsertRelationshipSearchItem(relationshipId)
     }
 
+    private fun createRelationshipRole(cmd: ModelRepoCmd.CreateRelationshipRole) {
+        RelationshipRoleTable.insert { row ->
+            row[RelationshipRoleTable.id] = cmd.relationshipRoleId
+            row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
+            row[RelationshipRoleTable.key] = cmd.key
+            row[RelationshipRoleTable.entityId] = cmd.entityId
+            row[RelationshipRoleTable.name] = cmd.name
+            row[RelationshipRoleTable.cardinality] = cmd.cardinality.code
+        }
+    }
+
     private fun updateRelationshipRoleKey(relationshipRoleId: RelationshipRoleId, value: RelationshipRoleKey) {
         RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
             row[RelationshipRoleTable.key] = value
@@ -1035,6 +1048,12 @@ class ModelStorageDb(
     ) {
         RelationshipRoleTable.update(where = { RelationshipRoleTable.id eq relationshipRoleId }) { row ->
             row[RelationshipRoleTable.cardinality] = value.code
+        }
+    }
+
+    private fun deleteRelationshipRole(relationshipId: RelationshipId, relationshipRoleId: RelationshipRoleId) {
+        RelationshipRoleTable.deleteWhere {
+            (RelationshipRoleTable.id eq relationshipRoleId) and (RelationshipRoleTable.relationshipId eq relationshipId)
         }
     }
 

@@ -15,6 +15,11 @@ import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.RelationshipCardinality
+import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.RelationshipRef
+import io.medatarun.model.domain.RelationshipRoleKey
+import io.medatarun.model.domain.RelationshipRoleRef
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef
 import io.medatarun.model.domain.modelRef
@@ -151,4 +156,77 @@ class TestEnvEntityAttribute {
         return reloaded
     }
 
+}
+
+class TestEnvRelationshipRole {
+    val runtime = createEnv()
+    val dispatch = runtime::dispatch
+    val query: ModelQueries = runtime.queries
+
+    private val modelKey = ModelKey("model-relationship-role")
+    val modelRef = modelRefKey(modelKey)
+
+    val primaryEntityKey = EntityKey("entity-a")
+    val primaryEntityRef = EntityRef.ByKey(primaryEntityKey)
+    val secondaryEntityKey = EntityKey("entity-b")
+    val secondaryEntityRef = EntityRef.ByKey(secondaryEntityKey)
+
+    val relationshipKey = RelationshipKey("works-with")
+    val relationshipRef = RelationshipRef.ByKey(relationshipKey)
+    val roleAKey = RelationshipRoleKey("buyer")
+    val roleARef = RelationshipRoleRef.ByKey(roleAKey)
+    val roleBKey = RelationshipRoleKey("purchase")
+    val roleBRef = RelationshipRoleRef.ByKey(roleBKey)
+
+    init {
+        runtime.dispatch(
+            ModelAction.Model_Create(
+                modelKey = modelKey,
+                name = LocalizedTextNotLocalized("Model relationship role"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        runtime.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
+        runtime.dispatch(
+            ModelAction.Entity_Create(
+                modelRef = modelRef,
+                entityKey = primaryEntityKey,
+                name = null,
+                description = null,
+                identityAttributeKey = AttributeKey("id"),
+                identityAttributeType = typeRef("String"),
+                identityAttributeName = null,
+                documentationHome = null
+            )
+        )
+        runtime.dispatch(
+            ModelAction.Entity_Create(
+                modelRef = modelRef,
+                entityKey = secondaryEntityKey,
+                name = null,
+                description = null,
+                identityAttributeKey = AttributeKey("id"),
+                identityAttributeType = typeRef("String"),
+                identityAttributeName = null,
+                documentationHome = null
+            )
+        )
+        runtime.dispatch(
+            ModelAction.Relationship_Create(
+                modelRef = modelRef,
+                relationshipKey = relationshipKey,
+                name = null,
+                description = null,
+                roleAKey = roleAKey,
+                roleAEntityRef = primaryEntityRef,
+                roleAName = null,
+                roleACardinality = RelationshipCardinality.One,
+                roleBKey = roleBKey,
+                roleBEntityRef = secondaryEntityRef,
+                roleBName = null,
+                roleBCardinality = RelationshipCardinality.Many
+            )
+        )
+    }
 }

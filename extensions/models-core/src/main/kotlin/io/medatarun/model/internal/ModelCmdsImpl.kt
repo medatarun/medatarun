@@ -65,6 +65,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateRelationshipKey -> updateRelationshipKey(cmd)
                 is ModelCmd.UpdateRelationshipName -> updateRelationshipName(cmd)
                 is ModelCmd.UpdateRelationshipDescription -> updateRelationshipDescription(cmd)
+                is ModelCmd.CreateRelationshipRole -> createRelationshipRole(cmd)
                 is ModelCmd.UpdateRelationshipRoleKey -> updateRelationshipRoleKey(cmd)
                 is ModelCmd.UpdateRelationshipRoleName -> updateRelationshipRoleName(cmd)
                 is ModelCmd.UpdateRelationshipRoleEntity -> updateRelationshipRoleEntity(cmd)
@@ -72,6 +73,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateRelationshipTagAdd -> updateRelationshipTagAdd(cmd)
                 is ModelCmd.UpdateRelationshipTagDelete -> updateRelationshipTagDelete(cmd)
                 is ModelCmd.DeleteRelationship -> deleteRelationship(cmd)
+                is ModelCmd.DeleteRelationshipRole -> deleteRelationshipRole(cmd)
                 is ModelCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd)
                 is ModelCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd)
                 is ModelCmd.UpdateRelationshipAttributeDescription -> updateRelationshipAttributeDescription(cmd)
@@ -809,9 +811,38 @@ class ModelCmdsImpl(
         storage.dispatch(ModelRepoCmd.UpdateRelationshipDescription(model.id, relationship.id, cmd.value))
     }
 
+    private fun createRelationshipRole(cmd: ModelCmd.CreateRelationshipRole) {
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        val duplicate = storage.findRelationshipRoleByKeyOptional(model.id, relationship.id, cmd.key)
+        if (duplicate != null) {
+            throw RelationshipRoleCreateDuplicateKeyException(cmd.modelRef, cmd.relationshipRef, cmd.key)
+        }
+        val entity = storage.findEntity(model.id, cmd.entityRef)
+        storage.dispatch(
+            ModelRepoCmd.CreateRelationshipRole(
+                modelId = model.id,
+                relationshipId = relationship.id,
+                relationshipRoleId = RelationshipRoleId.generate(),
+                key = cmd.key,
+                entityId = entity.id,
+                name = cmd.name,
+                cardinality = cmd.cardinality
+            )
+        )
+    }
+
     private fun updateRelationshipRoleKey(cmd: ModelCmd.UpdateRelationshipRoleKey) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
+        val duplicate = storage.findRelationshipRoleByKeyOptional(model.id, relationship.id, cmd.value)
+        if (duplicate != null && duplicate.id != role.id) {
+            throw RelationshipRoleUpdateDuplicateKeyException(
+                cmd.modelRef,
+                cmd.relationshipRef,
+                cmd.relationshipRoleRef,
+                cmd.value
+            )
+        }
         if (role.key == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleKey(model.id, relationship.id, role.id, cmd.value))
     }
@@ -836,6 +867,21 @@ class ModelCmdsImpl(
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
         if (role.cardinality == cmd.value) return
         storage.dispatch(ModelRepoCmd.UpdateRelationshipRoleCardinality(model.id, relationship.id, role.id, cmd.value))
+    }
+
+    private fun deleteRelationshipRole(cmd: ModelCmd.DeleteRelationshipRole) {
+        val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
+        if (relationship.roles.size <= 2) {
+            throw RelationshipRoleDeleteMinimumRolesException(cmd.modelRef, cmd.relationshipRef)
+        }
+        val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
+        storage.dispatch(
+            ModelRepoCmd.DeleteRelationshipRole(
+                modelId = model.id,
+                relationshipId = relationship.id,
+                relationshipRoleId = role.id
+            )
+        )
     }
 
     private fun updateRelationshipTagAdd(cmd: ModelCmd.UpdateRelationshipTagAdd) {

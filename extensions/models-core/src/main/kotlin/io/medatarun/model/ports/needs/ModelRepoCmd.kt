@@ -273,6 +273,16 @@ sealed interface ModelRepoCmd {
         val value: LocalizedMarkdown?
     ) : ModelRepoCmdOnModel
 
+    class CreateRelationshipRole(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId,
+        val key: RelationshipRoleKey,
+        val entityId: EntityId,
+        val name: LocalizedText?,
+        val cardinality: RelationshipCardinality
+    ) : ModelRepoCmdOnModel
+
     class UpdateRelationshipRoleKey(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
@@ -316,6 +326,12 @@ sealed interface ModelRepoCmd {
     class DeleteRelationship(
         override val modelId: ModelId,
         val relationshipId: RelationshipId,
+    ) : ModelRepoCmdOnModel
+
+    class DeleteRelationshipRole(
+        override val modelId: ModelId,
+        val relationshipId: RelationshipId,
+        val relationshipRoleId: RelationshipRoleId
     ) : ModelRepoCmdOnModel
 
     class CreateRelationshipAttribute(

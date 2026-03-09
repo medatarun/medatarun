@@ -244,6 +244,15 @@ sealed interface ModelCmd {
         val value: LocalizedMarkdown?
     ) : ModelCmdOnModel
 
+    class CreateRelationshipRole(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val key: RelationshipRoleKey,
+        val entityRef: EntityRef,
+        val name: LocalizedText?,
+        val cardinality: RelationshipCardinality
+    ) : ModelCmdOnModel
+
     class UpdateRelationshipRoleKey(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
@@ -287,6 +296,12 @@ sealed interface ModelCmd {
     class DeleteRelationship(
         override val modelRef: ModelRef,
         val relationshipRef: RelationshipRef
+    ) : ModelCmdOnModel
+
+    class DeleteRelationshipRole(
+        override val modelRef: ModelRef,
+        val relationshipRef: RelationshipRef,
+        val relationshipRoleRef: RelationshipRoleRef
     ) : ModelCmdOnModel
 
 
