@@ -162,11 +162,113 @@ class ModelCmdsImpl(
 
 
     private fun copyModel(cmd: ModelCmd.CopyModel) {
-        // TODO handle tag copy
-        val model = storage.findModelAggregate(cmd.modelRef)
+        val source = storage.findModelAggregate(cmd.modelRef)
         if (storage.existsModelByKey(cmd.modelNewKey)) throw ModelDuplicateKeyException(cmd.modelNewKey)
-        val next = ModelCmdCopyImpl().copy(model, cmd.modelNewKey)
-        storage.dispatch(ModelRepoCmd.StoreModelAggregate(next))
+        val copied = ModelCmdCopyImpl().copy(source, cmd.modelNewKey)
+        storage.dispatch(ModelRepoCmd.StoreModelAggregate(copied))
+
+        val copiedModelRef = ModelRef.ById(copied.id)
+        val sourceScopeRef = modelTagScopeRef(source.id)
+        val copiedScopeRef = modelTagScopeRef(copied.id)
+        val copiedTagIdsBySourceTagId = mutableMapOf<TagId, TagId>()
+
+        /**
+         * For tags local to source model scope, create an equivalent local tag in copied model scope.
+         * For all other scopes, keep the same tag id.
+         */
+        fun mapTagId(sourceTagId: TagId): TagId {
+            val existing = copiedTagIdsBySourceTagId[sourceTagId]
+            if (existing != null) return existing
+
+            val sourceTag = tagResolver.findTagById(sourceTagId)
+            val mappedTagId = if (sourceTag.scope == sourceScopeRef) {
+                tagResolver.create(copied.id, sourceTag.key, sourceTag.name, sourceTag.description)
+                tagResolver.resolveTagId(TagRef.ByKey(copiedScopeRef, null, sourceTag.key))
+            } else {
+                sourceTagId
+            }
+            copiedTagIdsBySourceTagId[sourceTagId] = mappedTagId
+            return mappedTagId
+        }
+
+        source.tags.forEach { sourceTagId ->
+            dispatch(
+                ModelCmd.UpdateModelTagAdd(
+                    copiedModelRef,
+                    TagRef.ById(mapTagId(sourceTagId))
+                )
+            )
+        }
+
+        source.entities.forEach { sourceEntity ->
+            val copiedEntity = copied.findEntity(sourceEntity.key)
+            sourceEntity.tags.forEach { sourceTagId ->
+                dispatch(
+                    ModelCmd.UpdateEntityTagAdd(
+                        copiedModelRef,
+                        EntityRef.ById(copiedEntity.id),
+                        TagRef.ById(mapTagId(sourceTagId))
+                    )
+                )
+            }
+        }
+
+        source.relationships.forEach { sourceRelationship ->
+            val copiedRelationship = copied.findRelationship(RelationshipRef.ByKey(sourceRelationship.key))
+            sourceRelationship.tags.forEach { sourceTagId ->
+                dispatch(
+                    ModelCmd.UpdateRelationshipTagAdd(
+                        copiedModelRef,
+                        RelationshipRef.ById(copiedRelationship.id),
+                        TagRef.ById(mapTagId(sourceTagId))
+                    )
+                )
+            }
+        }
+
+        source.attributes.forEach { sourceAttribute ->
+            val sourceOwner = sourceAttribute.ownerId
+            if (sourceOwner is AttributeOwnerId.OwnerEntityId) {
+                val sourceEntity = source.findEntity(sourceOwner.id)
+                val copiedEntity = copied.findEntity(sourceEntity.key)
+                val copiedAttribute = copied.findEntityAttribute(
+                    EntityRef.ById(copiedEntity.id),
+                    EntityAttributeRef.ByKey(sourceAttribute.key)
+                )
+                sourceAttribute.tags.forEach { sourceTagId ->
+                    dispatch(
+                        ModelCmd.UpdateEntityAttributeTagAdd(
+                            copiedModelRef,
+                            EntityRef.ById(copiedEntity.id),
+                            EntityAttributeRef.ById(copiedAttribute.id),
+                            TagRef.ById(mapTagId(sourceTagId))
+                        )
+                    )
+                }
+            }
+            if (sourceOwner is AttributeOwnerId.OwnerRelationshipId) {
+                val sourceRelationship = source.findRelationship(sourceOwner.id)
+                val copiedRelationship = copied.findRelationship(RelationshipRef.ByKey(sourceRelationship.key))
+                val copiedAttribute = copied.findRelationshipAttributeOptional(
+                    RelationshipRef.ById(copiedRelationship.id),
+                    RelationshipAttributeRef.ByKey(sourceAttribute.key)
+                ) ?: throw RelationshipAttributeNotFoundException(
+                    copiedModelRef,
+                    RelationshipRef.ById(copiedRelationship.id),
+                    RelationshipAttributeRef.ByKey(sourceAttribute.key)
+                )
+                sourceAttribute.tags.forEach { sourceTagId ->
+                    dispatch(
+                        ModelCmd.UpdateRelationshipAttributeTagAdd(
+                            copiedModelRef,
+                            RelationshipRef.ById(copiedRelationship.id),
+                            RelationshipAttributeRef.ById(copiedAttribute.id),
+                            TagRef.ById(mapTagId(sourceTagId))
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun importModel(cmd: ModelCmd.ImportModel) {

@@ -7,6 +7,7 @@ import io.medatarun.tags.core.domain.TagRef
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
+import io.medatarun.tags.core.domain.Tag
 
 /**
  * Port used by model commands to resolve tags and validate attachment rules
@@ -20,6 +21,13 @@ interface ModelTagResolver {
      * Error is thrown if the tagRef doesn't match an existing tag
      */
     fun resolveTagId(tagRef: TagRef): TagId
+
+    /**
+     * Finds a [Tag] by its identifier.
+     *
+     * Error is thrown if the id does not match an existing tag.
+     */
+    fun findTagById(tagId: TagId): Tag
 
     /**
      * Resolves this [tagRef] as a [TagId] whatever the tag scope is.

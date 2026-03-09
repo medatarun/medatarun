@@ -10,6 +10,11 @@ internal class ModelTagResolverWithQueries(
     private val tagQueries: TagQueries,
     private val tagCmds: TagCmds
 ) : ModelTagResolver {
+    override fun findTagById(tagId: TagId): Tag {
+        val tag = tagQueries.findTagByIdOptional(tagId)
+        return tag ?: throw TagNotFoundException(tagId.asString())
+    }
+
     override fun resolveTagId(tagRef: TagRef): TagId {
         return tagQueries.findTagByRef(tagRef).id
     }
