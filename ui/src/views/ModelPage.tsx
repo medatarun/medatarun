@@ -71,41 +71,40 @@ export function ModelPage({ modelId }: { modelId: string }) {
 
 export function ModelView() {
   const model = useModelContext();
-  const modelDto = model.dto
   const actionRegistry = useActionRegistry();
   const navigate = useNavigate();
   const modelUpdateDescription = useModelUpdateDescription();
   const modelUpdateName = useModelUpdateName();
   const { t } = useAppI18n();
 
-  const displayNameWithAuthority = model.nameOrKeyWithAuthorityEmoji
+  const displayNameWithAuthority = model.nameOrKeyWithAuthorityEmoji;
 
   const handleClickType = (typeId: string) => {
     navigate({
       to: "/model/$modelId/type/$typeId",
-      params: { modelId: modelDto.id, typeId: typeId },
+      params: { modelId: model.id, typeId: typeId },
     });
   };
   const handleClickRelationship = (relationshipId: string) => {
     navigate({
       to: "/model/$modelId/relationship/$relationshipId",
-      params: { modelId: modelDto.id, relationshipId: relationshipId },
+      params: { modelId: model.id, relationshipId: relationshipId },
     });
   };
   const handleClickEntity = (entityId: string) => {
     navigate({
       to: "/model/$modelId/entity/$entityId",
-      params: { modelId: modelDto.id, entityId: entityId },
+      params: { modelId: model.id, entityId: entityId },
     });
   };
 
   const actions = actionRegistry.findActions(ActionUILocations.model_overview);
 
   const handleChangeName = (value: string) => {
-    return modelUpdateName.mutateAsync({ modelId: modelDto.id, value: value });
+    return modelUpdateName.mutateAsync({ modelId: model.id, value: value });
   };
 
-  const displayedSubject = createDisplayedSubjectModel(modelDto.id);
+  const displayedSubject = createDisplayedSubjectModel(model.id);
   return (
     <ViewLayoutContained
       title={
@@ -120,7 +119,7 @@ export function ModelView() {
             >
               <div style={{ width: "100%" }}>
                 <InlineEditSingleLine
-                  value={modelDto.name ?? ""}
+                  value={model.name ?? ""}
                   onChange={handleChangeName}
                 >
                   {displayNameWithAuthority}{" "}
@@ -130,7 +129,7 @@ export function ModelView() {
                 <ActionMenuButton
                   label={t("modelPage_actions")}
                   itemActions={actions}
-                  actionParams={createActionTemplateModel(modelDto.id)}
+                  actionParams={createActionTemplateModel(model.id)}
                   displayedSubject={displayedSubject}
                 />
               </div>
@@ -147,11 +146,11 @@ export function ModelView() {
             </SectionPaper>
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
-                value={modelDto.description}
+                value={model.description}
                 placeholder={t("modelPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   modelUpdateDescription.mutateAsync({
-                    modelId: modelDto.id,
+                    modelId: model.id,
                     value: v,
                   })
                 }
@@ -160,21 +159,21 @@ export function ModelView() {
 
             <SectionTitle
               icon={<EntityIcon />}
-              actionParams={createActionTemplateModel(modelDto.id)}
+              actionParams={createActionTemplateModel(model.id)}
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_entities}
             >
               {t("modelPage_entitiesTitle")}
             </SectionTitle>
 
-            {modelDto.entities.length === 0 && (
+            {!model.hasEntities && (
               <p>
                 <MissingInformation>
                   {t("modelPage_entitiesEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {modelDto.entities.length > 0 && (
+            {model.hasEntities && (
               <SectionCards>
                 <EntitiesCardList onClick={handleClickEntity} />
               </SectionCards>
@@ -182,25 +181,25 @@ export function ModelView() {
 
             <SectionTitle
               icon={<RelationshipIcon />}
-              actionParams={createActionTemplateModel(modelDto.id)}
+              actionParams={createActionTemplateModel(model.id)}
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_relationships}
             >
               {t("modelPage_relationshipsTitle")}
             </SectionTitle>
 
-            {modelDto.relationships.length === 0 && (
+            {!model.hasRelationships && (
               <p>
                 <MissingInformation>
                   {t("modelPage_relationshipsEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {modelDto.relationships.length > 0 && (
+            {model.hasRelationships && (
               <SectionTable>
                 <RelationshipsTable
                   onClick={handleClickRelationship}
-                  relationships={modelDto.relationships}
+                  relationships={model.relationships}
                   displayedSubject={displayedSubject}
                 />
               </SectionTable>
@@ -208,30 +207,30 @@ export function ModelView() {
 
             <SectionTitle
               icon={<TypeIcon />}
-              actionParams={createActionTemplateModel(modelDto.id)}
+              actionParams={createActionTemplateModel(model.id)}
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_types}
             >
               {t("modelPage_dataTypesTitle")}
             </SectionTitle>
 
-            {modelDto.types.length === 0 && (
+            {!model.hasTypes && (
               <p>
                 <MissingInformation>
                   {t("modelPage_dataTypesEmpty")}
                 </MissingInformation>
               </p>
             )}
-            {modelDto.types.length > 0 && (
+            {model.hasTypes && (
               <SectionTable>
-                <TypesTable onClick={handleClickType} types={modelDto.types} />
+                <TypesTable onClick={handleClickType} types={model.types} />
               </SectionTable>
             )}
 
             <SectionTitle
               icon={<TypeIcon />}
               actionParams={createActionTemplateTagFreeList(
-                modelTagScope(modelDto.id),
+                modelTagScope(model.id),
               )}
               location={ActionUILocations.tag_free_list}
               displayedSubject={displayedSubject}
@@ -241,7 +240,7 @@ export function ModelView() {
 
             <SectionTable>
               <TagsTable
-                scope={modelTagScope(modelDto.id)}
+                scope={modelTagScope(model.id)}
                 displayedSubject={displayedSubject}
               />
             </SectionTable>
@@ -254,7 +253,6 @@ export function ModelView() {
 
 export function ModelOverview() {
   const model = useModelContext();
-  const modelDto = model.dto;
   const { isDetailLevelTech } = useDetailLevelContext();
   const modelUpdateVersion = useModelUpdateVersion();
   const modelUpdateKey = useModelUpdateKey();
@@ -262,38 +260,36 @@ export function ModelOverview() {
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
-  const displayedSubject = createDisplayedSubjectModel(modelDto.id);
+  const displayedSubject = createDisplayedSubjectModel(model.id);
   const authorityLabel =
-    modelDto.authority === "canonical"
+    model.authority === "canonical"
       ? t("modelPage_authorityCanonical")
       : t("modelPage_authoritySystem");
 
   const handleChangeVersion = (value: string) => {
-    return modelUpdateVersion.mutateAsync({ modelId: modelDto.id, value: value });
+    return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
   };
   const handleChangeKey = (value: string) => {
-    return modelUpdateKey.mutateAsync({ modelId: modelDto.id, value: value });
+    return modelUpdateKey.mutateAsync({ modelId: model.id, value: value });
   };
   const handleChangeDocumentationHome = (value: string) => {
     return modelUpdateDocumentationHome.mutateAsync({
-      modelId: modelDto.id,
+      modelId: model.id,
       value: value,
     });
   };
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of modelDto.tags) {
-      if (!value.includes(tag))
-        await modelUpdateDeleteTag.mutateAsync({
-          modelId: modelDto.id,
-          tag: "id:" + tag,
-        });
+    for (const tag of model.findTagsToDelete(value)) {
+      await modelUpdateDeleteTag.mutateAsync({
+        modelId: model.id,
+        tag: "id:" + tag,
+      });
     }
-    for (const tag of value) {
-      if (!modelDto.tags.includes(tag))
-        await modelUpdateAddTag.mutateAsync({
-          modelId: modelDto.id,
-          tag: "id:" + tag,
-        });
+    for (const tag of model.findTagsToAdd(value)) {
+      await modelUpdateAddTag.mutateAsync({
+        modelId: model.id,
+        tag: "id:" + tag,
+      });
     }
   };
   return (
@@ -305,9 +301,9 @@ export function ModelOverview() {
       )}
       {isDetailLevelTech && (
         <div>
-          <InlineEditSingleLine value={modelDto.key} onChange={handleChangeKey}>
+          <InlineEditSingleLine value={model.key} onChange={handleChangeKey}>
             <Text>
-              <code>{modelDto.key}</code>
+              <code>{model.key}</code>
             </Text>
           </InlineEditSingleLine>
         </div>
@@ -318,26 +314,23 @@ export function ModelOverview() {
 
       <div>{t("modelPage_versionLabel")}</div>
       <div>
-        <InlineEditSingleLine
-          value={modelDto.version}
-          onChange={handleChangeVersion}
-        >
-          <code>{modelDto.version}</code>
+        <InlineEditSingleLine value={model.version} onChange={handleChangeVersion}>
+          <code>{model.version}</code>
         </InlineEditSingleLine>
       </div>
 
       <div>{t("modelPage_externalLinkLabel")}</div>
       <div>
         <InlineEditSingleLine
-          value={modelDto.documentationHome ?? ""}
+          value={model.documentationHome ?? ""}
           onChange={handleChangeDocumentationHome}
         >
-          {!modelDto.documentationHome ? (
+          {!model.documentationHome ? (
             <MissingInformation>
               {t("modelPage_externalLinkEmpty")}
             </MissingInformation>
           ) : (
-            <ExternalUrl url={modelDto.documentationHome} />
+            <ExternalUrl url={model.documentationHome} />
           )}
         </InlineEditSingleLine>
       </div>
@@ -345,28 +338,28 @@ export function ModelOverview() {
       <div>{t("modelPage_tagsLabel")}</div>
       <div>
         <InlineEditTags
-          value={modelDto.tags}
-          scope={modelTagScope(modelDto.id)}
+          value={model.tags}
+          scope={modelTagScope(model.id)}
           onChange={handleChangeTags}
           displayedSubject={displayedSubject}
         >
-          {modelDto.tags.length === 0 ? (
+          {!model.hasTags ? (
             <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>
           ) : (
-            <Tags tags={modelDto.tags} scope={modelTagScope(modelDto.id)} />
+            <Tags tags={model.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
       </div>
       {isDetailLevelTech && <div>{t("modelPage_originLabel")}</div>}
       {isDetailLevelTech && (
         <div>
-          <Origin value={modelDto.origin} />
+          <Origin value={model.origin} />
         </div>
       )}
       {isDetailLevelTech && <div>{t("modelPage_identifierLabel")}</div>}
       {isDetailLevelTech && (
         <div>
-          <code>{modelDto.id}</code>
+          <code>{model.id}</code>
         </div>
       )}
     </PropertiesForm>
@@ -379,7 +372,7 @@ export function EntitiesCardList({
   onClick: (entityId: string) => void;
 }) {
   const model = useModelContext();
-  const entities = model.dto.entities;
+  const entities = model.entities;
   return (
     <div>
       <div
