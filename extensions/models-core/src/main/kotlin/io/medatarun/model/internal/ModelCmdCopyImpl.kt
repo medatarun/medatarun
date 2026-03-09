@@ -30,6 +30,10 @@ class ModelCmdCopyImpl {
         val newTypes = model.types.map { type ->
             ModelTypeInMemory.of(type).copy(id = typeIds.generate(type.id))
         }
+        // Build attribute id conversions before copying entities because entities reference identifier attributes.
+        model.attributes.forEach { attr ->
+            attributeIds.generate(attr.id)
+        }
         val newEntities = model.entities.map { entity ->
             EntityInMemory.of(entity).copy(
                 id = entityIds.generate(entity.id),
@@ -51,7 +55,7 @@ class ModelCmdCopyImpl {
         val attributes = model.attributes.map { attr ->
             val ownerId = attr.ownerId
             AttributeInMemory.of(attr).copy(
-                id = AttributeId.generate(),
+                id = attributeIds.convert(attr.id),
                 typeId = typeIds.convert(attr.typeId),
                 ownerId = when (ownerId) {
                     is AttributeOwnerId.OwnerEntityId -> AttributeOwnerId.OwnerEntityId(entityIds.convert(ownerId.id))
