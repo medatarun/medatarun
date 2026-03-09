@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useActionRegistry } from "@/business/action_registry";
 import { Model, useModel } from "@/business/model";
 import {
@@ -38,6 +38,7 @@ import {
   detailActionLocation,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
+import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function TagEdit({ tagId }: { tagId: string }) {
@@ -223,8 +224,16 @@ function TagEditBreadcrumb({
 
 function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
   const { t } = useAppI18n();
+  const navigate = useNavigate();
   const { data: modelDto } = useModel(modelId);
   const model = modelDto ? new Model(modelDto) : null;
+
+  const handleClickModel = () => {
+    navigate({
+      to: "/model/$modelId",
+      params: { modelId: modelId },
+    });
+  };
 
   if (!model) {
     return (
@@ -240,9 +249,9 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
   return (
     <>
       <BreadcrumbItem>
-        <Link to="/model/$modelId" params={{ modelId: modelId }}>
-          {model.nameOrKey}
-        </Link>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model.nameOrKeyWithAuthorityEmoji}
+        </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
     </>

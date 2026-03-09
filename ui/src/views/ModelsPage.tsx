@@ -9,7 +9,7 @@ import {
   useModelSummaries,
 } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { tokens } from "@fluentui/react-components";
+import { InfoLabel, tokens } from "@fluentui/react-components";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
@@ -72,6 +72,7 @@ export function ModelsPage({
         {canonicalModels.length > 0 && (
           <ModelsSection
             title={`${Model.authorityEmoji("canonical")} ${t("modelsPage_canonicalTitle")}`}
+            titleInfo={t("modelsPage_canonicalInfo")}
             models={canonicalModels}
             onClickModel={onClickModel}
           />
@@ -79,6 +80,7 @@ export function ModelsPage({
         {systemModels.length > 0 && (
           <ModelsSection
             title={`${Model.authorityEmoji("system")} ${t("modelsPage_systemTitle")}`}
+            titleInfo={t("modelsPage_systemInfo")}
             models={systemModels}
             onClickModel={onClickModel}
           />
@@ -90,10 +92,12 @@ export function ModelsPage({
 
 function ModelsSection({
   title,
+  titleInfo,
   models,
   onClickModel,
 }: {
   title: string;
+  titleInfo: string;
   models: ModelSummaryDto[];
   onClickModel: (modelId: string) => void;
 }) {
@@ -105,7 +109,16 @@ function ModelsSection({
         displayedSubject={displaySubjectNone}
         location={ActionUILocations.none}
       >
-        {title}
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: tokens.spacingHorizontalXS,
+          }}
+        >
+          {title}
+          <InfoLabel info={titleInfo}></InfoLabel>
+        </span>
       </SectionTitle>
       <SectionCards>
         <div
