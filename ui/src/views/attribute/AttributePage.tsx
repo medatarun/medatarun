@@ -34,8 +34,6 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
-  Combobox,
-  Option,
   Text,
   tokens,
 } from "@fluentui/react-components";
@@ -63,7 +61,6 @@ import { toProblem } from "@seij/common-types";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { InlineEditSingleLineLayout } from "@/components/core/InlineEditSingleLineLayout.tsx";
 import {
   EntityIcon,
   ModelIcon,
@@ -74,7 +71,8 @@ import {
   type ActionDisplayedSubject,
   displaySubjectNone,
 } from "@/components/business/actions/ActionPerformer.tsx";
-import { type KeyboardEvent, type ReactNode, useMemo, useState } from "react";
+import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
+import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
 
 export function AttributePage({
   modelId,
@@ -443,20 +441,20 @@ export function AttributeOverview({
     }
   };
 
-  const handleChangeRequired = (value: string) => {
+  const handleChangeRequired = (value: boolean) => {
     if (parentAsEntity) {
       return entityAttributeUpdateOptional.mutateAsync({
         modelId: model.id,
         entityId: parentAsEntity.id,
         attributeId: attribute.id,
-        value: value !== "true",
+        value: !value,
       });
     } else if (parentAsRelationship) {
       return relationshipAttributeUpdateOptional.mutateAsync({
         modelId: model.id,
         relationshipId: parentAsRelationship.id,
         attributeId: attribute.id,
-        value: value !== "true",
+        value: !value,
       });
     } else {
       throw toProblem(
@@ -527,6 +525,7 @@ export function AttributeOverview({
           attribute.id,
         )
       : displaySubjectNone;
+  const typeOptions = model.findTypeOptions();
 
   return (
     <PropertiesForm>
@@ -580,9 +579,10 @@ export function AttributeOverview({
         <Text>{t("attributePage_typeLabel")}</Text>
       </div>
       <div>
-        <InlineEditType
-          modelId={model.id}
+        <InlineEditCombobox
           value={attribute.type}
+          options={typeOptions}
+          placeholder={t("attributePage_typeLabel")}
           onChange={handleChangeType}
         >
           <Link
@@ -596,15 +596,17 @@ export function AttributeOverview({
               ? "🔑 " + t("attributePage_identifierBadge")
               : ""}
           </Text>
-        </InlineEditType>
+        </InlineEditCombobox>
       </div>
 
       <div>
         <Text>{t("attributePage_requiredLabel")}</Text>
       </div>
       <div>
-        <InlineEditSingleLine
-          value={attribute.optional ? "false" : "true"}
+        <InlineEditBoolean
+          value={!attribute.optional}
+          labelTrue={t("attributePage_requiredYes")}
+          labelFalse={t("attributePage_requiredNo")}
           onChange={handleChangeRequired}
         >
           <Text>
@@ -612,94 +614,8 @@ export function AttributeOverview({
               ? t("attributePage_requiredNo")
               : t("attributePage_requiredYes")}
           </Text>
-        </InlineEditSingleLine>
+        </InlineEditBoolean>
       </div>
     </PropertiesForm>
-  );
-}
-
-function InlineEditType({
-  modelId,
-  value,
-  children,
-  onChange,
-}: {
-  modelId: string;
-  value: string;
-  children: ReactNode;
-  onChange: (value: string) => Promise<unknown>;
-}) {
-  const { data: modelDto } = useModel(modelId);
-  const [editValue, setEditValue] = useState(value);
-
-  const sortedTypes = useMemo(() => {
-    const items = modelDto?.types ?? [];
-    return [...items].sort((left, right) => {
-      const leftLabel = left.name ?? left.key ?? left.id;
-      const rightLabel = right.name ?? right.key ?? right.id;
-      return leftLabel.localeCompare(rightLabel);
-    });
-  }, [modelDto]);
-  const selectedType = sortedTypes.find((type) => type.id === editValue);
-
-  const handleEditStart = async () => {
-    setEditValue(value);
-  };
-
-  const handleEditOk = async () => {
-    await onChange(editValue);
-  };
-
-  const handleEditCancel = async () => {
-    setEditValue(value);
-  };
-
-  return (
-    <InlineEditSingleLineLayout
-      editor={({ commit, cancel, pending }) => (
-        <Combobox
-          style={{ width: "100%" }}
-          disabled={pending}
-          freeform={false}
-          selectedOptions={[editValue]}
-          value={
-            // The editor stores the selected type id, while the combobox input displays the readable label.
-            selectedType?.name ?? selectedType?.key ?? editValue
-          }
-          onOptionSelect={(_, data) => {
-            const selected = data.selectedOptions[0];
-            if (typeof selected === "string") {
-              setEditValue(selected);
-            }
-          }}
-          onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-            if (event.key === "Escape") {
-              event.preventDefault();
-              cancel();
-              return;
-            }
-            if (event.key === "Enter") {
-              event.preventDefault();
-              commit();
-            }
-          }}
-        >
-          {sortedTypes.map((type) => (
-            <Option
-              key={type.id}
-              value={type.id}
-              text={type.name ?? type.key ?? type.id}
-            >
-              {type.name ?? type.key ?? type.id}
-            </Option>
-          ))}
-        </Combobox>
-      )}
-      onEditStart={handleEditStart}
-      onEditOK={handleEditOk}
-      onEditCancel={handleEditCancel}
-    >
-      {children}
-    </InlineEditSingleLineLayout>
   );
 }

@@ -1,5 +1,10 @@
 import type { ModelDto, TypeDto } from "./model.dto.ts";
 
+export interface TypeOption {
+  code: string;
+  label: string;
+}
+
 export class Model {
   public dto: ModelDto;
 
@@ -62,5 +67,21 @@ export class Model {
 
   findTypeDto(typeId: string): TypeDto | undefined {
     return this.dto.types.find((it) => it.id === typeId);
+  }
+
+  /**
+   * Returns type options sorted by their display label to keep combobox choices stable.
+   */
+  findTypeOptions(): TypeOption[] {
+    return [...this.dto.types]
+      .sort((left, right) => {
+        const leftLabel = left.name ?? left.key ?? left.id;
+        const rightLabel = right.name ?? right.key ?? right.id;
+        return leftLabel.localeCompare(rightLabel);
+      })
+      .map((type) => ({
+        code: type.id,
+        label: type.name ?? type.key ?? type.id,
+      }));
   }
 }
