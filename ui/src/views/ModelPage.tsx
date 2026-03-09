@@ -262,6 +262,10 @@ export function ModelOverview() {
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
   const displayedSubject = createDisplayedSubjectModel(model.id);
+  const authorityLabel =
+    model.authority === "canonical"
+      ? t("modelPage_authorityCanonical")
+      : t("modelPage_authoritySystem");
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
@@ -307,6 +311,9 @@ export function ModelOverview() {
           </InlineEditSingleLine>
         </div>
       )}
+
+      <div>{t("modelPage_authorityLabel")}</div>
+      <div>{`${Model.authorityEmoji(model.authority)} ${authorityLabel}`}</div>
 
       <div>{t("modelPage_versionLabel")}</div>
       <div>
