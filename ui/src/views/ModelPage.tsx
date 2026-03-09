@@ -253,7 +253,8 @@ export function ModelView() {
 }
 
 export function ModelOverview() {
-  const model = useModelContext().dto;
+  const model = useModelContext();
+  const modelDto = model.dto;
   const { isDetailLevelTech } = useDetailLevelContext();
   const modelUpdateVersion = useModelUpdateVersion();
   const modelUpdateKey = useModelUpdateKey();
@@ -261,36 +262,36 @@ export function ModelOverview() {
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
-  const displayedSubject = createDisplayedSubjectModel(model.id);
+  const displayedSubject = createDisplayedSubjectModel(modelDto.id);
   const authorityLabel =
-    model.authority === "canonical"
+    modelDto.authority === "canonical"
       ? t("modelPage_authorityCanonical")
       : t("modelPage_authoritySystem");
 
   const handleChangeVersion = (value: string) => {
-    return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
+    return modelUpdateVersion.mutateAsync({ modelId: modelDto.id, value: value });
   };
   const handleChangeKey = (value: string) => {
-    return modelUpdateKey.mutateAsync({ modelId: model.id, value: value });
+    return modelUpdateKey.mutateAsync({ modelId: modelDto.id, value: value });
   };
   const handleChangeDocumentationHome = (value: string) => {
     return modelUpdateDocumentationHome.mutateAsync({
-      modelId: model.id,
+      modelId: modelDto.id,
       value: value,
     });
   };
   const handleChangeTags = async (value: string[]) => {
-    for (const tag of model.tags) {
+    for (const tag of modelDto.tags) {
       if (!value.includes(tag))
         await modelUpdateDeleteTag.mutateAsync({
-          modelId: model.id,
+          modelId: modelDto.id,
           tag: "id:" + tag,
         });
     }
     for (const tag of value) {
-      if (!model.tags.includes(tag))
+      if (!modelDto.tags.includes(tag))
         await modelUpdateAddTag.mutateAsync({
-          modelId: model.id,
+          modelId: modelDto.id,
           tag: "id:" + tag,
         });
     }
@@ -304,39 +305,39 @@ export function ModelOverview() {
       )}
       {isDetailLevelTech && (
         <div>
-          <InlineEditSingleLine value={model.key} onChange={handleChangeKey}>
+          <InlineEditSingleLine value={modelDto.key} onChange={handleChangeKey}>
             <Text>
-              <code>{model.key}</code>
+              <code>{modelDto.key}</code>
             </Text>
           </InlineEditSingleLine>
         </div>
       )}
 
       <div>{t("modelPage_authorityLabel")}</div>
-      <div>{`${Model.authorityEmoji(model.authority)} ${authorityLabel}`}</div>
+      <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
 
       <div>{t("modelPage_versionLabel")}</div>
       <div>
         <InlineEditSingleLine
-          value={model.version}
+          value={modelDto.version}
           onChange={handleChangeVersion}
         >
-          <code>{model.version}</code>
+          <code>{modelDto.version}</code>
         </InlineEditSingleLine>
       </div>
 
       <div>{t("modelPage_externalLinkLabel")}</div>
       <div>
         <InlineEditSingleLine
-          value={model.documentationHome ?? ""}
+          value={modelDto.documentationHome ?? ""}
           onChange={handleChangeDocumentationHome}
         >
-          {!model.documentationHome ? (
+          {!modelDto.documentationHome ? (
             <MissingInformation>
               {t("modelPage_externalLinkEmpty")}
             </MissingInformation>
           ) : (
-            <ExternalUrl url={model.documentationHome} />
+            <ExternalUrl url={modelDto.documentationHome} />
           )}
         </InlineEditSingleLine>
       </div>
@@ -344,28 +345,28 @@ export function ModelOverview() {
       <div>{t("modelPage_tagsLabel")}</div>
       <div>
         <InlineEditTags
-          value={model.tags}
-          scope={modelTagScope(model.id)}
+          value={modelDto.tags}
+          scope={modelTagScope(modelDto.id)}
           onChange={handleChangeTags}
           displayedSubject={displayedSubject}
         >
-          {model.tags.length === 0 ? (
+          {modelDto.tags.length === 0 ? (
             <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>
           ) : (
-            <Tags tags={model.tags} scope={modelTagScope(model.id)} />
+            <Tags tags={modelDto.tags} scope={modelTagScope(modelDto.id)} />
           )}
         </InlineEditTags>
       </div>
       {isDetailLevelTech && <div>{t("modelPage_originLabel")}</div>}
       {isDetailLevelTech && (
         <div>
-          <Origin value={model.origin} />
+          <Origin value={modelDto.origin} />
         </div>
       )}
       {isDetailLevelTech && <div>{t("modelPage_identifierLabel")}</div>}
       {isDetailLevelTech && (
         <div>
-          <code>{model.id}</code>
+          <code>{modelDto.id}</code>
         </div>
       )}
     </PropertiesForm>
