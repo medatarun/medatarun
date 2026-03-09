@@ -94,7 +94,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             // ------------------------------------------------------------------------
 
             is ModelAction.EntityAttribute_Create -> handler.entityAttributeCreate(cmd)
-            is ModelAction.EntityAttribute_UpdateId -> handler.entityAttributeUpdateId(cmd)
+            is ModelAction.EntityAttribute_UpdateKey -> handler.entityAttributeUpdateKey(cmd)
             is ModelAction.EntityAttribute_UpdateName -> handler.entityAttributeUpdateName(cmd)
             is ModelAction.EntityAttribute_UpdateDescription -> handler.entityAttributeUpdateDescription(cmd)
             is ModelAction.EntityAttribute_UpdateType -> handler.entityAttributeUpdateType(cmd)
@@ -121,7 +121,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.RelationshipRole_UpdateEntity -> handler.relationshipRoleUpdateEntity(cmd)
             is ModelAction.RelationshipRole_Delete -> handler.relationshipRoleDelete(cmd)
             is ModelAction.RelationshipAttribute_Create -> handler.relationshipAttributeCreate(cmd)
-            is ModelAction.RelationshipAttribute_UpdateKey -> handler.relationshipAttributeUpdateId(cmd)
+            is ModelAction.RelationshipAttribute_UpdateKey -> handler.relationshipAttributeUpdateKey(cmd)
             is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(cmd)
             is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(cmd)
             is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(cmd)
@@ -437,7 +437,7 @@ class ModelActionHandler(
         )
     }
 
-    fun entityAttributeUpdateId(cmd: ModelAction.EntityAttribute_UpdateId) {
+    fun entityAttributeUpdateKey(cmd: ModelAction.EntityAttribute_UpdateKey) {
         dispatch(
             ModelCmd.UpdateEntityAttributeKey(
                 modelRef = cmd.modelRef,
@@ -720,7 +720,7 @@ class ModelActionHandler(
         )
     }
 
-    fun relationshipAttributeUpdateId(cmd: ModelAction.RelationshipAttribute_UpdateKey) {
+    fun relationshipAttributeUpdateKey(cmd: ModelAction.RelationshipAttribute_UpdateKey) {
         dispatch(
             ModelCmd.UpdateRelationshipAttributeKey(
                 modelRef = cmd.modelRef,

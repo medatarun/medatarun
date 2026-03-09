@@ -19,7 +19,6 @@ class RelationshipRole_Delete_Test {
             ModelAction.RelationshipRole_Create(
                 modelRef = env.modelRef,
                 relationshipRef = env.relationshipRef,
-                relationshipRoleKey = roleKey,
                 roleKey = roleKey,
                 roleEntityRef = env.primaryEntityRef,
                 roleName = null,
@@ -45,7 +44,6 @@ class RelationshipRole_Delete_Test {
             ModelAction.RelationshipRole_Create(
                 modelRef = env.modelRef,
                 relationshipRef = env.relationshipRef,
-                relationshipRoleKey = roleKey,
                 roleKey = roleKey,
                 roleEntityRef = env.primaryEntityRef,
                 roleName = null,
@@ -74,7 +72,6 @@ class RelationshipRole_Delete_Test {
             ModelAction.RelationshipRole_Create(
                 modelRef = env.modelRef,
                 relationshipRef = env.relationshipRef,
-                relationshipRoleKey = roleKey,
                 roleKey = roleKey,
                 roleEntityRef = env.primaryEntityRef,
                 roleName = null,
