@@ -1,7 +1,23 @@
-package io.medatarun.model.domain
+package io.medatarun.model.domain.actions
 
 import io.medatarun.model.actions.ModelAction
+import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityAttributeRef
+import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.EntityRef
+import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
+import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.RelationshipAttributeRef
+import io.medatarun.model.domain.RelationshipCardinality
+import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.RelationshipRef
+import io.medatarun.model.domain.RelationshipRoleKey
+import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*

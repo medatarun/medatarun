@@ -358,7 +358,7 @@ class ModelCmdsImpl(
         val duplicate = storage.findEntityByKeyOptional(model.id, cmd.value)
 
         if (duplicate != null && duplicate.id != entity.id) {
-            throw EntityUpdateIdDuplicateIdException(entity.key)
+            throw EntityUpdateKeyDuplicateKeyException(entity.key)
         }
 
         storage.dispatch(ModelRepoCmd.UpdateEntityKey(model.id, entity.id, cmd.value))
@@ -443,7 +443,7 @@ class ModelCmdsImpl(
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         val found = storage.findEntityAttributeByKeyOptional(model.id, entity.id, cmd.attributeInitializer.attributeKey)
         if (found != null)
-            throw CreateAttributeDuplicateIdException(entity.key, cmd.attributeInitializer.attributeKey)
+            throw CreateAttributeDuplicateKeyException(entity.key, cmd.attributeInitializer.attributeKey)
 
         // Makes sure the type reference exists, even if now, the type is referenced by a key only
         val typeRef = cmd.attributeInitializer.type

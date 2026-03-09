@@ -1,6 +1,6 @@
 package io.medatarun.model.infra.db
 
-import io.medatarun.model.domain.ModelTestEnv
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
