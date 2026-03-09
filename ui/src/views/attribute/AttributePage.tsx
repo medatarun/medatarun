@@ -75,6 +75,7 @@ import {
   displaySubjectNone,
 } from "@/components/business/actions/ActionPerformer.tsx";
 import { type KeyboardEvent, type ReactNode, useMemo, useState } from "react";
+import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
 
 export function AttributePage({
   modelId,
@@ -443,20 +444,20 @@ export function AttributeOverview({
     }
   };
 
-  const handleChangeRequired = (value: string) => {
+  const handleChangeRequired = (value: boolean) => {
     if (parentAsEntity) {
       return entityAttributeUpdateOptional.mutateAsync({
         modelId: model.id,
         entityId: parentAsEntity.id,
         attributeId: attribute.id,
-        value: value !== "true",
+        value: !value,
       });
     } else if (parentAsRelationship) {
       return relationshipAttributeUpdateOptional.mutateAsync({
         modelId: model.id,
         relationshipId: parentAsRelationship.id,
         attributeId: attribute.id,
-        value: value !== "true",
+        value: !value,
       });
     } else {
       throw toProblem(
@@ -603,8 +604,10 @@ export function AttributeOverview({
         <Text>{t("attributePage_requiredLabel")}</Text>
       </div>
       <div>
-        <InlineEditSingleLine
-          value={attribute.optional ? "false" : "true"}
+        <InlineEditBoolean
+          value={!attribute.optional}
+          labelTrue={t("attributePage_requiredYes")}
+          labelFalse={t("attributePage_requiredNo")}
           onChange={handleChangeRequired}
         >
           <Text>
@@ -612,7 +615,7 @@ export function AttributeOverview({
               ? t("attributePage_requiredNo")
               : t("attributePage_requiredYes")}
           </Text>
-        </InlineEditSingleLine>
+        </InlineEditBoolean>
       </div>
     </PropertiesForm>
   );
