@@ -20,7 +20,6 @@ class RelationshipRole_Create_Test {
             ModelAction.RelationshipRole_Create(
                 modelRef = env.modelRef,
                 relationshipRef = env.relationshipRef,
-                relationshipRoleKey = roleKey,
                 roleKey = roleKey,
                 roleEntityRef = env.primaryEntityRef,
                 roleName = null,
@@ -40,7 +39,6 @@ class RelationshipRole_Create_Test {
                 ModelAction.RelationshipRole_Create(
                     modelRef = env.modelRef,
                     relationshipRef = env.relationshipRef,
-                    relationshipRoleKey = env.roleAKey,
                     roleKey = env.roleAKey,
                     roleEntityRef = env.primaryEntityRef,
                     roleName = null,
@@ -59,7 +57,6 @@ class RelationshipRole_Create_Test {
                 ModelAction.RelationshipRole_Create(
                     modelRef = env.modelRef,
                     relationshipRef = env.relationshipRef,
-                    relationshipRoleKey = roleKey,
                     roleKey = roleKey,
                     roleEntityRef = EntityRef.ByKey(EntityKey("unknown-entity")),
                     roleName = null,

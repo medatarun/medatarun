@@ -12,7 +12,6 @@ import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.domain.TagRef
 
-@Suppress("ClassName")
 sealed interface ModelAction {
 
     // ------------------------------------------------------------------------
@@ -883,7 +882,6 @@ sealed interface ModelAction {
     data class RelationshipRole_Create(
         val modelRef: ModelRef,
         val relationshipRef: RelationshipRef,
-        val relationshipRoleKey: RelationshipRoleKey,
         val roleKey: RelationshipRoleKey,
         val roleEntityRef: EntityRef,
         val roleName: LocalizedText?,
