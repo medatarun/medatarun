@@ -239,7 +239,10 @@ export function ModelView() {
             </SectionTitle>
 
             <SectionTable>
-              <TagsTable scope={modelTagScope(model.id)} displayedSubject={displayedSubject} />
+              <TagsTable
+                scope={modelTagScope(model.id)}
+                displayedSubject={displayedSubject}
+              />
             </SectionTable>
           </ContainedHumanReadable>
         </ContainedScrollable>
@@ -257,7 +260,7 @@ export function ModelOverview() {
   const modelUpdateAddTag = useModelAddTag();
   const modelUpdateDeleteTag = useModelDeleteTag();
   const { t } = useAppI18n();
-  const displayedSubject = createDisplayedSubjectModel(model.id)
+  const displayedSubject = createDisplayedSubjectModel(model.id);
 
   const handleChangeVersion = (value: string) => {
     return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });

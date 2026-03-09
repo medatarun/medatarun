@@ -143,7 +143,7 @@ export function TagEdit({ tagId }: { tagId: string }) {
                   displayedSubject={createDisplayedSubjectTag({
                     tagId: tag.id,
                     tagScopeRef: tag.scope,
-                    tagGroupId: tag.groupId
+                    tagGroupId: tag.groupId,
                   })}
                 />
               </div>

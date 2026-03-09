@@ -9,9 +9,9 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import {createActionTemplateGeneral, createDisplayedSubjectModel} from "@/components/business/model/model.actions.ts";
+import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 
 export function PreferencesPage() {
   const { isDetailLevelTech, toggle } = useDetailLevelContext();

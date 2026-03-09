@@ -1,8 +1,6 @@
 import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionPostHook } from "@/components/business/actions/ActionPostHook.ts";
-import type {
-  ActionDisplayedSubjectResource,
-} from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionDisplayedSubjectResource } from "@/components/business/actions/ActionPerformer.tsx";
 import { actionTargetsDisplayedSubject } from "@/components/business/actions/ActionPostHook.matching.ts";
 
 export const tagActionPostHook: ActionPostHook = {

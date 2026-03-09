@@ -144,7 +144,10 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
                     label={t("typePage_actions")}
                     itemActions={actions}
                     actionParams={actionParams}
-                    displayedSubject={createDisplayedSubjectType(model.id, type.id,)}
+                    displayedSubject={createDisplayedSubjectType(
+                      model.id,
+                      type.id,
+                    )}
                   />
                 </div>
               </div>

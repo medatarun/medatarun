@@ -1,5 +1,11 @@
 import * as React from "react";
-import {forwardRef, type PropsWithChildren, useEffect, useRef, useState} from "react";
+import {
+  forwardRef,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Avatar,
@@ -12,11 +18,11 @@ import {
   TagPickerOption,
   type TagPickerProps,
 } from "@fluentui/react-components";
-import {InlineEditSingleLineLayout} from "./InlineEditSingleLineLayout.tsx";
-import {Tags, type TagScopeRef, useTags} from "@/business/tag";
-import {useActionPerformer} from "@/components/business/actions/ActionPerformerHook.tsx";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {type ActionDisplayedSubject,} from "@/components/business/actions/ActionPerformer.tsx";
+import { InlineEditSingleLineLayout } from "./InlineEditSingleLineLayout.tsx";
+import { Tags, type TagScopeRef, useTags } from "@/business/tag";
+import { useActionPerformer } from "@/components/business/actions/ActionPerformerHook.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
 
 const CREATE_OPTION_PREFIX = "__create__:";
 

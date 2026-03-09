@@ -1,8 +1,6 @@
 import type { NavigateFn } from "@tanstack/react-router";
 import type { ActionPostHook } from "@/components/business/actions/ActionPostHook.ts";
-import type {
-  ActionDisplayedSubjectResource,
-} from "@/components/business/actions/ActionPerformer.tsx";
+import type { ActionDisplayedSubjectResource } from "@/components/business/actions/ActionPerformer.tsx";
 import {
   actionTargetsDisplayedSubject,
   decodeActionParamId,
@@ -60,11 +58,7 @@ function navigateAfterDelete(
   const refs = displayedSubject.refs;
   if (type === "model") {
     navigate({ to: "/models" });
-  } else if (
-    type === "entity" ||
-    type === "relationship" ||
-    type === "type"
-  ) {
+  } else if (type === "entity" || type === "relationship" || type === "type") {
     navigate({
       to: "/model/$modelId",
       params: { modelId: refs.modelId },

@@ -1,5 +1,8 @@
-import {Link, useNavigate} from "@tanstack/react-router";
-import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
+import { Link, useNavigate } from "@tanstack/react-router";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
 import {
   type AttributeDto,
   type EntityDto,
@@ -21,21 +24,30 @@ import {
   useRelationshipAttributeUpdateOptional,
   useRelationshipAttributeUpdateType,
 } from "@/business/model";
-import {ModelContext, useModelContext,} from "@/components/business/model/ModelContext.tsx";
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {
+  ModelContext,
+  useModelContext,
+} from "@/components/business/model/ModelContext.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
+  Combobox,
+  Option,
   Text,
   tokens,
 } from "@fluentui/react-components";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
-import {ActionMenuButton} from "@/components/business/model/TypesTable.tsx";
-import {MissingInformation} from "@/components/core/MissingInformation.tsx";
-import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
-import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
+import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import {
   createActionTemplateEntityAttribute,
   createActionTemplateModel,
@@ -43,36 +55,45 @@ import {
   createDisplayedSubjectEntityAttribute,
   createDisplayedSubjectRelationshipAttribute,
 } from "@/components/business/model/model.actions.ts";
-import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
-import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
-import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
-import {ErrorBox} from "@seij/common-ui";
-import {toProblem} from "@seij/common-types";
-import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
-import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
-import {EntityIcon, ModelIcon, RelationshipIcon,} from "@/components/business/model/model.icons.tsx";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {type ActionDisplayedSubject, displaySubjectNone} from "@/components/business/actions/ActionPerformer.tsx";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+import { ErrorBox } from "@seij/common-ui";
+import { toProblem } from "@seij/common-types";
+import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+import { InlineEditSingleLineLayout } from "@/components/core/InlineEditSingleLineLayout.tsx";
+import {
+  EntityIcon,
+  ModelIcon,
+  RelationshipIcon,
+} from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  type ActionDisplayedSubject,
+  displaySubjectNone,
+} from "@/components/business/actions/ActionPerformer.tsx";
+import { type KeyboardEvent, type ReactNode, useMemo, useState } from "react";
 
 export function AttributePage({
-                                modelId,
-                                parentType,
-                                parentId,
-                                attributeId,
-                              }: {
+  modelId,
+  parentType,
+  parentId,
+  attributeId,
+}: {
   modelId: string;
   parentType: "entity" | "relationship";
   parentId: string;
   attributeId: string;
 }) {
-  const {t} = useAppI18n();
-  const {data: modelDto} = useModel(modelId);
+  const { t } = useAppI18n();
+  const { data: modelDto } = useModel(modelId);
 
   if (!modelDto)
     return (
       <ErrorBox
-        error={toProblem(t("attributePage_modelNotFound", {modelId}))}
+        error={toProblem(t("attributePage_modelNotFound", { modelId }))}
       />
     );
   const model = new Model(modelDto);
@@ -128,10 +149,10 @@ export function AttributePage({
 }
 
 export function AttributeView({
-                                parent,
-                                parentType,
-                                attribute,
-                              }: {
+  parent,
+  parentType,
+  attribute,
+}: {
   parent: EntityDto | RelationshipDto;
   parentType: "entity" | "relationship";
   attribute: AttributeDto;
@@ -147,7 +168,7 @@ export function AttributeView({
   const relationshipAttributeUpdateName = useRelationshipAttributeUpdateName();
   const relationshipAttributeUpdateDescription =
     useRelationshipAttributeUpdateDescription();
-  const {t} = useAppI18n();
+  const { t } = useAppI18n();
 
   const actions = actionRegistry.findActions(
     parentType == "entity"
@@ -158,21 +179,21 @@ export function AttributeView({
   const handleClickModel = () => {
     navigate({
       to: "/model/$modelId",
-      params: {modelId: model.id},
+      params: { modelId: model.id },
     });
   };
 
   const handleClickEntity = () => {
     navigate({
       to: "/model/$modelId/entity/$entityId",
-      params: {modelId: model.id, entityId: parent.id},
+      params: { modelId: model.id, entityId: parent.id },
     });
   };
 
   const handleClickRelationship = () => {
     navigate({
       to: "/model/$modelId/relationship/$relationshipId",
-      params: {modelId: model.id, relationshipId: parent.id},
+      params: { modelId: model.id, relationshipId: parent.id },
     });
   };
 
@@ -184,23 +205,32 @@ export function AttributeView({
   const actionParams =
     parentAsEntity !== null
       ? createActionTemplateEntityAttribute(
-        model.id,
-        parentAsEntity.id,
-        attribute.id,
-      )
-      : parentAsRelationship !== null
-        ? createActionTemplateRelationshipAttribute(
           model.id,
-          parentAsRelationship.id,
+          parentAsEntity.id,
           attribute.id,
         )
+      : parentAsRelationship !== null
+        ? createActionTemplateRelationshipAttribute(
+            model.id,
+            parentAsRelationship.id,
+            attribute.id,
+          )
         : createActionTemplateModel(model.id);
 
-  const displayedSubject: ActionDisplayedSubject = parentAsEntity !== null
-      ? createDisplayedSubjectEntityAttribute(model.id, parentAsEntity.id, attribute.id,)
+  const displayedSubject: ActionDisplayedSubject =
+    parentAsEntity !== null
+      ? createDisplayedSubjectEntityAttribute(
+          model.id,
+          parentAsEntity.id,
+          attribute.id,
+        )
       : parentAsRelationship != null
-      ? createDisplayedSubjectRelationshipAttribute(model.id, parentAsRelationship.id, attribute.id,)
-      : displaySubjectNone
+        ? createDisplayedSubjectRelationshipAttribute(
+            model.id,
+            parentAsRelationship.id,
+            attribute.id,
+          )
+        : displaySubjectNone;
 
   const handleUpdateName = async (value: string) => {
     if (parentAsEntity != null) {
@@ -245,21 +275,21 @@ export function AttributeView({
     <ViewLayoutContained
       title={
         <div>
-          <div style={{marginLeft: "-22px"}}>
+          <div style={{ marginLeft: "-22px" }}>
             <Breadcrumb size="small">
               <BreadcrumbItem>
                 <BreadcrumbButton
-                  icon={<ModelIcon/>}
+                  icon={<ModelIcon />}
                   onClick={handleClickModel}
                 >
                   {model.nameOrKey}
                 </BreadcrumbButton>
               </BreadcrumbItem>
-              <BreadcrumbDivider/>
+              <BreadcrumbDivider />
               {parentAsEntity != null && (
                 <BreadcrumbItem>
                   <BreadcrumbButton
-                    icon={<EntityIcon/>}
+                    icon={<EntityIcon />}
                     onClick={handleClickEntity}
                   >
                     {parentAsEntity.name ?? parentAsEntity.id}
@@ -269,7 +299,7 @@ export function AttributeView({
               {parentAsRelationship != null && (
                 <BreadcrumbItem>
                   <BreadcrumbButton
-                    icon={<RelationshipIcon/>}
+                    icon={<RelationshipIcon />}
                     onClick={handleClickRelationship}
                   >
                     {parentAsRelationship.name ?? parentAsRelationship.id}
@@ -292,7 +322,7 @@ export function AttributeView({
                 paddingRight: tokens.spacingHorizontalL,
               }}
             >
-              <div style={{width: "100%"}}>
+              <div style={{ width: "100%" }}>
                 <InlineEditSingleLine
                   value={attribute.name ?? ""}
                   onChange={handleUpdateName}
@@ -343,18 +373,18 @@ export function AttributeView({
 }
 
 export function AttributeOverview({
-                                    attribute,
-                                    model,
-                                    parentAsEntity,
-                                    parentAsRelationship,
-                                  }: {
+  attribute,
+  model,
+  parentAsEntity,
+  parentAsRelationship,
+}: {
   attribute: AttributeDto;
   model: Model;
   parentAsEntity: EntityDto | null;
   parentAsRelationship: RelationshipDto | null;
 }) {
-  const {isDetailLevelTech} = useDetailLevelContext();
-  const {t} = useAppI18n();
+  const { isDetailLevelTech } = useDetailLevelContext();
+  const { t } = useAppI18n();
 
   const entityAttributeUpdateKey = useEntityAttributeUpdateKey();
   const entityAttributeUpdateType = useEntityAttributeUpdateType();
@@ -397,14 +427,14 @@ export function AttributeOverview({
         modelId: model.id,
         entityId: parentAsEntity.id,
         attributeId: attribute.id,
-        value: value,
+        value: "id:" + value,
       });
     } else if (parentAsRelationship) {
       return relationshipAttributeUpdateType.mutateAsync({
         modelId: model.id,
         relationshipId: parentAsRelationship.id,
         attributeId: attribute.id,
-        value: value,
+        value: "id:" + value,
       });
     } else {
       throw toProblem(
@@ -521,7 +551,7 @@ export function AttributeOverview({
         <Text>{t("attributePage_fromModelLabel")}</Text>
       </div>
       <div>
-        <Link to="/model/$modelId" params={{modelId: model.id}}>
+        <Link to="/model/$modelId" params={{ modelId: model.id }}>
           {model.nameOrKey}
         </Link>
       </div>
@@ -541,7 +571,7 @@ export function AttributeOverview({
               {t("attributePage_tagsEmpty")}
             </MissingInformation>
           ) : (
-            <Tags tags={attribute.tags} scope={modelTagScope(model.id)}/>
+            <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
       </div>
@@ -550,13 +580,14 @@ export function AttributeOverview({
         <Text>{t("attributePage_typeLabel")}</Text>
       </div>
       <div>
-        <InlineEditSingleLine
+        <InlineEditType
+          modelId={model.id}
           value={attribute.type}
           onChange={handleChangeType}
         >
           <Link
             to="/model/$modelId/type/$typeId"
-            params={{modelId: model.id, typeId: attribute.type}}
+            params={{ modelId: model.id, typeId: attribute.type }}
           >
             {model.findTypeNameOrKey(attribute.type)}
           </Link>{" "}
@@ -565,7 +596,7 @@ export function AttributeOverview({
               ? "🔑 " + t("attributePage_identifierBadge")
               : ""}
           </Text>
-        </InlineEditSingleLine>
+        </InlineEditType>
       </div>
 
       <div>
@@ -584,5 +615,91 @@ export function AttributeOverview({
         </InlineEditSingleLine>
       </div>
     </PropertiesForm>
+  );
+}
+
+function InlineEditType({
+  modelId,
+  value,
+  children,
+  onChange,
+}: {
+  modelId: string;
+  value: string;
+  children: ReactNode;
+  onChange: (value: string) => Promise<unknown>;
+}) {
+  const { data: modelDto } = useModel(modelId);
+  const [editValue, setEditValue] = useState(value);
+
+  const sortedTypes = useMemo(() => {
+    const items = modelDto?.types ?? [];
+    return [...items].sort((left, right) => {
+      const leftLabel = left.name ?? left.key ?? left.id;
+      const rightLabel = right.name ?? right.key ?? right.id;
+      return leftLabel.localeCompare(rightLabel);
+    });
+  }, [modelDto]);
+  const selectedType = sortedTypes.find((type) => type.id === editValue);
+
+  const handleEditStart = async () => {
+    setEditValue(value);
+  };
+
+  const handleEditOk = async () => {
+    await onChange(editValue);
+  };
+
+  const handleEditCancel = async () => {
+    setEditValue(value);
+  };
+
+  return (
+    <InlineEditSingleLineLayout
+      editor={({ commit, cancel, pending }) => (
+        <Combobox
+          style={{ width: "100%" }}
+          disabled={pending}
+          freeform={false}
+          selectedOptions={[editValue]}
+          value={
+            // The editor stores the selected type id, while the combobox input displays the readable label.
+            selectedType?.name ?? selectedType?.key ?? editValue
+          }
+          onOptionSelect={(_, data) => {
+            const selected = data.selectedOptions[0];
+            if (typeof selected === "string") {
+              setEditValue(selected);
+            }
+          }}
+          onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              cancel();
+              return;
+            }
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commit();
+            }
+          }}
+        >
+          {sortedTypes.map((type) => (
+            <Option
+              key={type.id}
+              value={type.id}
+              text={type.name ?? type.key ?? type.id}
+            >
+              {type.name ?? type.key ?? type.id}
+            </Option>
+          ))}
+        </Combobox>
+      )}
+      onEditStart={handleEditStart}
+      onEditOK={handleEditOk}
+      onEditCancel={handleEditCancel}
+    >
+      {children}
+    </InlineEditSingleLineLayout>
   );
 }
