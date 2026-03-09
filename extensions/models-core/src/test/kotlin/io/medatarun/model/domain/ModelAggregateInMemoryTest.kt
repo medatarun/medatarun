@@ -177,6 +177,7 @@ class ModelAggregateInMemoryTest {
                 version = ModelVersion("1.0.0"),
                 documentationHome = null,
                 origin = ModelOrigin.Manual,
+                authority = ModelAuthority.SYSTEM,
             ),
             types = listOf(typeString, typeMarkdown),
             entities = listOf(personEntity, companyEntity),

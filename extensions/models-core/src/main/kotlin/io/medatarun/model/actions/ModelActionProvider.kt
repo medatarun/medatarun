@@ -60,6 +60,7 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
             is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
             is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
+            is ModelAction.Model_UpdateAuthority -> handler.modelUpdateAuthority(cmd)
             is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(cmd)
             is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
             is ModelAction.Model_AddTag -> handler.modelAddTag(cmd)
@@ -213,6 +214,15 @@ class ModelActionHandler(
             ModelCmd.UpdateModelDescription(
                 modelRef = cmd.modelRef,
                 description = cmd.value,
+            )
+        )
+    }
+
+    fun modelUpdateAuthority(cmd: ModelAction.Model_UpdateAuthority) {
+        dispatch(
+            ModelCmd.UpdateModelAuthority(
+                modelRef = cmd.modelRef,
+                authority = cmd.value
             )
         )
     }

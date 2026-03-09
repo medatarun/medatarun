@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS model
     description        TEXT,
     version            TEXT NOT NULL,
     origin             TEXT,
+    authority          TEXT NOT NULL,
     documentation_home TEXT
 );
 

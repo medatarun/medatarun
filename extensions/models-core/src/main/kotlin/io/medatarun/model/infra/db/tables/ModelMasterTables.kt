@@ -11,6 +11,7 @@ object ModelTable : Table("model") {
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val version = text("version")
     val origin = text("origin").nullable()
+    val authority = text("authority").transform(ModelAuthorityTransformer())
     val documentationHome = text("documentation_home").nullable()
 
     override val primaryKey = PrimaryKey(id)
@@ -106,4 +107,3 @@ object RelationshipAttributeTable : Table("relationship_attribute") {
 
     override val primaryKey = PrimaryKey(id)
 }
-

@@ -302,6 +302,7 @@ class ModelStorageDb(
             is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
             is ModelRepoCmd.UpdateModelKey -> updateModelKey(cmd.modelId, cmd.key)
             is ModelRepoCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
+            is ModelRepoCmd.UpdateModelAuthority -> updateModelAuthority(cmd.modelId, cmd.authority)
             is ModelRepoCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
             is ModelRepoCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
             is ModelRepoCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
@@ -522,6 +523,12 @@ class ModelStorageDb(
         searchWrite.upsertModelSearchItem(modelId)
     }
 
+    private fun updateModelAuthority(modelId: ModelId, authority: ModelAuthority) {
+        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
+            row[ModelTable.authority] = authority
+        }
+    }
+
     private fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
         ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
             row[ModelTable.version] = version.value
@@ -562,16 +569,8 @@ class ModelStorageDb(
             row[ModelTable.description] = model.description
             row[ModelTable.version] = model.version.value
             row[ModelTable.origin] = modelOriginToString(model.origin)
+            row[ModelTable.authority] = model.authority
             row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
-        }
-    }
-
-    private fun insertModelTags(modelId: ModelId, tags: List<TagId>) {
-        for (tagId in tags) {
-            ModelTagTable.insert { row ->
-                row[ModelTagTable.modelId] = modelId
-                row[ModelTagTable.tagId] = tagId
-            }
         }
     }
 
@@ -726,12 +725,6 @@ class ModelStorageDb(
             insertEntityTag(entityId, tagId)
         }
         searchWrite.upsertEntitySearchItem(entityId)
-    }
-
-    private fun insertEntityTags(entityId: EntityId, tags: List<TagId>) {
-        for (tag in tags) {
-            insertEntityTag(entityId, tag)
-        }
     }
 
     private fun insertEntityTag(entityId: EntityId, tagId: TagId) {
@@ -914,12 +907,6 @@ class ModelStorageDb(
         searchWrite.upsertEntityAttributeSearchItem(attributeId)
     }
 
-    private fun insertEntityAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
-        for (tag in tags) {
-            insertEntityAttributeTag(attributeId, tag)
-        }
-    }
-
     private fun insertEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
         EntityAttributeTagTable.insert { row ->
             row[EntityAttributeTagTable.attributeId] = attributeId
@@ -1065,15 +1052,6 @@ class ModelStorageDb(
             insertRelationshipTag(relationshipId, tagId)
         }
         searchWrite.upsertRelationshipSearchItem(relationshipId)
-    }
-
-    private fun insertRelationshipTags(
-        relationshipId: RelationshipId,
-        tags: List<TagId>
-    ) {
-        for (tag in tags) {
-            insertRelationshipTag(relationshipId, tag)
-        }
     }
 
     private fun insertRelationshipTag(
@@ -1227,11 +1205,6 @@ class ModelStorageDb(
         searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
     }
 
-    private fun insertRelationshipAttributeTags(attributeId: AttributeId, tags: List<TagId>) {
-        for (tag in tags) {
-            insertRelationshipAttributeTag(attributeId, tag)
-        }
-    }
     private fun insertRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
         RelationshipAttributeTagTable.insert { row ->
             row[RelationshipAttributeTagTable.attributeId] = attributeId

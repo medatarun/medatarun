@@ -36,6 +36,15 @@
       ],
       "format": "uri"
     },
+    "authority": {
+      "description": "Authority level of the model.",
+      "type": "string",
+      "enum": [
+        "system",
+        "canonical"
+      ],
+      "default": "system"
+    },
     "types": {
       "type": "array",
       "items": {

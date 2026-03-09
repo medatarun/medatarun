@@ -217,6 +217,28 @@ sealed interface ModelAction {
         val value: LocalizedMarkdown?
     ) : ModelAction
 
+    @ActionDoc(
+        key = "model_update_authority",
+        title = "Update model authority",
+        description = "Changes model authority between system and canonical.",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+    data class Model_UpdateAuthority(
+        @ActionParamDoc(
+            name = "Model reference",
+            description = "Reference of the model to be updated",
+            order = 0
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "New model authority",
+            description = "New model authority value.",
+            order = 1
+        )
+        val value: ModelAuthority
+    ) : ModelAction
+
 
     @ActionDoc(
         key = "model_update_documentation_link",

@@ -1,6 +1,7 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdOnModel
@@ -31,6 +32,7 @@ class ModelCmdsImpl(
                 is ModelCmd.ImportModel -> importModel(cmd)
                 is ModelCmd.UpdateModelKey -> updateModelKey(cmd)
                 is ModelCmd.UpdateModelDescription -> updateModelDescription(cmd)
+                is ModelCmd.UpdateModelAuthority -> updateModelAuthority(cmd)
                 is ModelCmd.UpdateModelName -> updateModelName(cmd)
                 is ModelCmd.UpdateModelVersion -> updateModelVersion(cmd)
                 is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmd)
@@ -158,6 +160,7 @@ class ModelCmdsImpl(
             description = cmd.description,
             version = cmd.version,
             origin = ModelOrigin.Manual,
+            authority = ModelAuthority.SYSTEM,
             documentationHome = null,
         )
         storage.dispatch(ModelRepoCmd.CreateModel(model))
@@ -277,7 +280,10 @@ class ModelCmdsImpl(
     private fun importModel(cmd: ModelCmd.ImportModel) {
         // TODO handle tags ?
 
-        val model = cmd.model
+        // Makes sure that imported models are always with a SYSTEM authority
+        val model = ModelAggregateInMemory.of(cmd.model).copy(
+            model = ModelInMemory.of(cmd.model).copy(authority = ModelAuthority.SYSTEM)
+        )
 
         if (storage.existsModelByKey(model.key)) throw ModelDuplicateKeyException(model.key)
         ensureImportedModelIsValid(model)
@@ -386,6 +392,11 @@ class ModelCmdsImpl(
     private fun updateModelDescription(cmd: ModelCmd.UpdateModelDescription) {
         val model = storage.findModel(cmd.modelRef)
         storage.dispatch(ModelRepoCmd.UpdateModelDescription(model.id, cmd.description))
+    }
+
+    private fun updateModelAuthority(cmd: ModelCmd.UpdateModelAuthority) {
+        val model = storage.findModel(cmd.modelRef)
+        storage.dispatch(ModelRepoCmd.UpdateModelAuthority(model.id, cmd.authority))
     }
 
     private fun updateModelVersion(cmd: ModelCmd.UpdateModelVersion) {

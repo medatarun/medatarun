@@ -41,6 +41,7 @@ data class ModelAggregateInMemory(
             var relationships: MutableList<RelationshipInMemory> = mutableListOf(),
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),
+            var authority: ModelAuthority = ModelAuthority.SYSTEM,
             var attributes: MutableList<AttributeInMemory> = mutableListOf()
         ) {
             fun build(): ModelAggregateInMemory {
@@ -52,6 +53,7 @@ data class ModelAggregateInMemory(
                         description = description,
                         version = version,
                         origin = origin,
+                        authority = authority,
                         documentationHome = documentationHome,
                     ),
                     types = types,

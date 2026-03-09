@@ -3,6 +3,7 @@ package io.medatarun.model.domain.actions
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.ModelQueries
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-@Suppress("ClassName")
 class Model_Create_Test {
 
     @Test
@@ -29,6 +29,7 @@ class Model_Create_Test {
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(version, reloaded.version)
+        assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
     }
 
     @Test
@@ -47,5 +48,6 @@ class Model_Create_Test {
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
         assertEquals(version, reloaded.version)
+        assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
     }
 }

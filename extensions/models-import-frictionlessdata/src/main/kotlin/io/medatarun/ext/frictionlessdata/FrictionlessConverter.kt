@@ -97,6 +97,8 @@ class FrictionlessConverter(
                     ModelVersion("0.0.0")
                 },
                 origin = ModelOrigin.Uri(uri),
+                // Whatever we put here will be overridden anyway to SYSTEM by business rules of model copy
+                authority = ModelAuthority.SYSTEM,
                 documentationHome = toURLSafe(datapackage.homepage)
             ),
             types = types,
@@ -159,6 +161,8 @@ class FrictionlessConverter(
                 description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
                 version = ModelVersion(datapackage.version ?: "0.0.0"),
                 origin = ModelOrigin.Uri(uri),
+                // Whatever we put here will be overridden anyway to SYSTEM by business rules of model copy
+                authority = ModelAuthority.SYSTEM,
                 documentationHome = toURLSafe(datapackage.homepage),
             ),
             types = types,

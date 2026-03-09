@@ -2,6 +2,7 @@ package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.domain.LocalizedMarkdown
 import io.medatarun.model.domain.LocalizedText
+import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.infra.db.tables.ModelTable
@@ -14,6 +15,7 @@ data class ModelRecord(
     val description: LocalizedMarkdown?,
     val version: String,
     val origin: String?,
+    val authority: ModelAuthority,
     val documentationHome: String?
 ) {
     companion object {
@@ -25,6 +27,7 @@ data class ModelRecord(
                 description = row[ModelTable.description],
                 version = row[ModelTable.version],
                 origin = row[ModelTable.origin],
+                authority = row[ModelTable.authority],
                 documentationHome = row[ModelTable.documentationHome]
             )
         }

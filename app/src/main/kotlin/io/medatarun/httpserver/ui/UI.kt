@@ -46,6 +46,7 @@ class UI(runtime: PlatformRuntime) {
             put("key", model.key.asString())
             put("name", model.name?.get(locale))
             put("version", model.version.value)
+            put("authority", model.authority.code)
             put("documentationHome", model.documentationHome?.toExternalForm())
             put("tags", JsonArray(model.tags.map { JsonPrimitive(it.value.toString()) }))
             put("description", model.description?.get(locale))

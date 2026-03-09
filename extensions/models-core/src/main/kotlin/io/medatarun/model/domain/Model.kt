@@ -35,6 +35,12 @@ interface Model {
     val origin: ModelOrigin
 
     /**
+     * Authority level of the model. System models usually come from concrete implementations,
+     * canonical models are reference targets maintained by users and serve as business reference.
+     */
+    val authority: ModelAuthority
+
+    /**
      * Documentation home
      */
     val documentationHome: URL?

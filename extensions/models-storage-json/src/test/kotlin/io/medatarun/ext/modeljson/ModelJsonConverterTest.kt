@@ -30,6 +30,7 @@ internal class ModelJsonConverterTest {
         val modelRead = instance.fromJson(sampleModelJson)
         assertEquals(modelRead.key, ModelKey("example"))
         assertEquals(modelRead.version, ModelVersion("1.0.0"))
+        assertEquals(ModelAuthority.SYSTEM, modelRead.authority)
         assertEquals(modelRead.entities.size, 2)
         assertEquals(
             setOf(
@@ -163,6 +164,51 @@ internal class ModelJsonConverterTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun `model authority undefined then system`() {
+        val json = createJsonForOriginTest(null)
+        val model = instance.fromJson(json.toString())
+        assertEquals(ModelAuthority.SYSTEM, model.authority)
+    }
+
+    @Test
+    fun `model authority canonical then canonical`() {
+        val json = buildJsonObject {
+            put("id", ModelId.generate().value.toString())
+            put("key", "exemple")
+            put("version", "1.0.0")
+            put($$"$schema", ModelJsonSchemas.forVersion(ModelJsonSchemas.v_2_0))
+            put("authority", "canonical")
+            putJsonArray("types") {
+                addJsonObject {
+                    put("id", TypeId.generate().value.toString())
+                    put("key", "String")
+                }
+            }
+            putJsonArray("entities") {
+                addJsonObject {
+                    put("id", EntityId.generate().value.toString())
+                    put("key", "contact")
+                    put("name", "Contact")
+                    put("identifierAttribute", "id")
+                    putJsonArray("attributes") {
+                        addJsonObject {
+                            put("id", AttributeId.generate().value.toString())
+                            put("key", "id")
+                            put("name", "Identifier")
+                            put("type", "String")
+                        }
+                    }
+                }
+            }
+        }
+        val model = instance.fromJson(json.toString())
+        assertEquals(ModelAuthority.CANONICAL, model.authority)
+        val jsonWritten = instance.toJsonString(model)
+        val modelRead = instance.fromJson(jsonWritten)
+        assertEquals(ModelAuthority.CANONICAL, modelRead.authority)
     }
 
     @Test

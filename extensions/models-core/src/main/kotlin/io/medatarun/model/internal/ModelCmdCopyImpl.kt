@@ -73,6 +73,8 @@ class ModelCmdCopyImpl {
                 model = ModelInMemory.of(model).copy(
                     id = ModelId.generate(),
                     key = modelNewKey,
+                    // A model copy falls back to system, always (business rule) to not pollute the list of canonical models. Users can promote that manually later.
+                    authority = ModelAuthority.SYSTEM,
                 ),
                 types = newTypes,
                 entities = newEntities,
