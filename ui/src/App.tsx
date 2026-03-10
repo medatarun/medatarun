@@ -39,6 +39,7 @@ import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
 import { TagGroupsPage } from "@/views/tags/TagGroupsPage.tsx";
 import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
 import { TagEdit } from "@/views/tags/TagEdit.tsx";
+import { ModelComparePage } from "@/views/ModelComparePage.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -92,6 +93,10 @@ function ModelsRouteComponent() {
     navigate({ to: "/model/$modelId", params: { modelId } });
   };
   return <ModelsPage onClickModel={handleClickModel} />;
+}
+
+function ModelCompareRouteComponent() {
+  return <ModelComparePage />;
 }
 
 function ModelRouteComponent() {
@@ -178,6 +183,12 @@ const modelRoute = createRoute({
   component: ModelRouteComponent,
 });
 
+const modelCompareRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/model-compare",
+  component: ModelCompareRouteComponent,
+});
+
 const preferencesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/preferences",
@@ -262,6 +273,7 @@ const routeTree = rootRoute.addChildren([
   entityRoute,
   entityAttributeRoute,
   modelRoute,
+  modelCompareRoute,
   modelsRoute,
   preferencesRoute,
   relationshipAttributeRoute,

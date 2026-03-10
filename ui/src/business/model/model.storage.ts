@@ -74,6 +74,32 @@ export const useModelSearch = (req: ModelSearchReq) => {
   });
 };
 
+export type ModelDiffScopeCode = "structural" | "complete";
+
+export type ModelCompareReq = {
+  leftModelId: string;
+  rightModelId: string;
+  scope: ModelDiffScopeCode;
+};
+
+export async function modelCompare(req: ModelCompareReq): Promise<unknown> {
+  const result = await executeAction("model", "model_compare", {
+    leftModelRef: "id:" + req.leftModelId,
+    rightModelRef: "id:" + req.rightModelId,
+    scope: req.scope,
+  });
+  if (result.contentType === "json") {
+    return result.json;
+  }
+  throw toProblem("Invalid response content type");
+}
+
+export const useModelCompare = () => {
+  return useMutation({
+    mutationFn: (req: ModelCompareReq) => modelCompare(req),
+  });
+};
+
 export const useModelUpdateName = () => {
   const queryClient = useQueryClient();
   return useMutation({
