@@ -1,3 +1,21 @@
+/**
+ * HONEST NOTE:
+ * This file was built with heavy AI help and many quick refactors.
+ * The result is ugly, hard to follow, and not at our normal code quality level.
+ *
+ * We did this on purpose to test many UI comparison ideas very fast with real data.
+ * It helped us validate ergonomics and reject bad visual options.
+ *
+ * So yes, this code is messy.
+ * We know it.
+ *
+ * Also we know we don't want to keep this visual and try other ways because reading
+ * is too hard for business users.
+ *
+ * We keep it for now because it already covers a good part of the business need.
+ * It stays temporary until we replace it with cleaner comparison views
+ * (see TODO: [COMPARE_UI_VARIANTS]).
+ */
 import type {
   ModelCompareDto,
   ModelCompareEntryDto,
