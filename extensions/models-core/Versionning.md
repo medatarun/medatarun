@@ -51,11 +51,15 @@ La structure technique visée repose sur une logique d'event log et de snapshots
 - `model`: identité stable absolue de "ce modèle", indépendante des événements
   et des snapshots.
 - `model_event`: historique des changements, source de vérité.
-- `release`: publication versionnée immuable, matérialisée par un `model_event`
-  dédié.
+- `release`: type de `model_event` qui marque la création d'une version
+  (`MAJOR.MINOR.PATCH`) et sa frontière historique.
+- `version`: identifiant SemVer (`MAJOR.MINOR.PATCH`) porté par un
+  `model_event` de type `release`. Une version nomme une frontière historique
+  stable du modèle. Une version n'est ni un état métier autonome, ni un
+  snapshot.
 - `model_snapshot`: projection dérivée des `model_event`.
-- `snapshot_kind`: `HEAD` (dernier état connu, mutable, recalculable) ou
-  `RELEASE` (état publié, immuable).
+- `snapshot_kind`: `CURRENT_HEAD` (dernier état connu, mutable, recalculable) ou
+  `VERSION_SNAPSHOT` (snapshot immuable rattaché à un `model_event` de type `release`).
 - `stream_revision`: ordre canonique monotone des `model_event` pour un `model`.
 - `expected_revision`: valeur de contrôle de concurrence fournie lors d'un
   append de `model_event`.
@@ -64,35 +68,36 @@ La structure technique visée repose sur une logique d'event log et de snapshots
 
 ### Vision globale
 
-- Le système doit reconstruire exactement l'état complet d'un modèle pour toute version publiée (`v1`, `v2`, `v3`).
+- Le système doit reconstruire exactement l'état complet d'un modèle pour toute version (`v1`, `v2`, `v3`) créée par un `model_event` de type `release`.
 - Le système doit expliquer précisément les changements entre versions.
-- Une version publiée est strictement immuable.
+- Une version créée par un `model_event` de type `release` est strictement immuable.
 - Le flux est cumulatif et linéaire: `(rien) -> model_event -> ... -> release -> model_event -> ... -> release`.
 - Le terme "brouillon" n'est pas retenu.
 
 ### Source de vérité et projections
 
 - `model_event` est la source de vérité.
-- La projection `head/current` est un cache reconstruisible.
-- L'état courant projeté est égal à la dernière release plus les événements survenus depuis cette release.
-- Politique de snapshots: un snapshot immuable par release et un snapshot mutable `head/current` mis à jour à chaque `model_event`.
+- La projection `CURRENT_HEAD` est un cache reconstruisible.
+- L'état courant projeté est égal à la dernière version (créée par release) plus les événements survenus depuis cette release.
+- Politique de snapshots: un snapshot immuable par release et un snapshot mutable `CURRENT_HEAD` mis à jour à chaque `model_event`.
 - Le snapshot de release fige toute la structure du modèle (model/types/entities/relationships/attributes/roles + tags attachés par `TagId`).
 - Le snapshot de release est une projection dérivée reconstructible depuis `model_event`.
 - La version éventuellement stockée dans un snapshot est une dénormalisation, pas la source de vérité.
 - Les lectures applicatives rapides s'appuient sur les projections.
 - L'audit et la traçabilité s'appuient sur `model_event`, jamais sur les projections seules.
-- Unicité du snapshot courant: exactement un `model_snapshot` de type `HEAD` par `model`.
+- Unicité du snapshot courant: exactement un `model_snapshot` de type `CURRENT_HEAD` par `model`.
+- Tous les snapshots liés à une release utilisent `snapshot_kind = VERSION_SNAPSHOT`.
 
 ### Publication de release
 
-- Une publication de release est un `model_event` métier dédié.
-- Le `model_event` de release porte les métadonnées de publication (au minimum version, auteur, date) et définit la frontière historique.
+- La création d'une release est un `model_event` métier dédié.
+- Le `model_event` de type `release` porte les métadonnées (au minimum version, auteur, date) et définit la frontière historique.
 - Pas de redondance de frontière de release (`last_event_id` séparé non retenu si la frontière est déjà portée par le `model_event` de release).
-- La publication ne peut se faire qu'à partir du `HEAD` courant du `model`.
-- Publication sans changement interdite: impossible de publier si aucun `model_event` de contenu n'a été ajouté depuis la release précédente.
-- Publication en mode strict: une release est refusée si la cohérence reconstruction `model_event -> HEAD` échoue.
-- Atomicité de publication: création du `model_event` de release et du snapshot de release dans la même transaction logique.
-- Publication idempotente: un rejeu de la même demande ne crée pas de doublon.
+- La création d'une release ne peut se faire qu'à partir du `CURRENT_HEAD` du `model`.
+- Création de release sans changement interdite: impossible de créer une release si aucun `model_event` de contenu n'a été ajouté depuis la release précédente.
+- Mode strict: la création d'une release est refusée si la cohérence reconstruction `model_event -> CURRENT_HEAD` échoue.
+- Atomicité: création du `model_event` de release et du snapshot de release dans la même transaction logique.
+- Idempotence: un rejeu de la même demande de création de release ne crée pas de doublon.
 
 ### Ordonnancement et concurrence
 
@@ -103,7 +108,7 @@ La structure technique visée repose sur une logique d'event log et de snapshots
 
 ### Règles de version
 
-- Attribution de version en V1: la version est choisie explicitement par l'utilisateur au moment de la publication.
+- Attribution de version en V1: la version est choisie explicitement par l'utilisateur au moment de la création de release.
 - Format imposé: SemVer strict (`MAJOR.MINOR.PATCH`).
 - Saut de versions autorisé (ex: `1.2.0` vers `3.0.0`) tant que SemVer est valide et unique par `model`.
 - Pré-releases SemVer (`-alpha`, `-beta`, etc.) non autorisées en V1.
@@ -120,17 +125,15 @@ La structure technique visée repose sur une logique d'event log et de snapshots
 
 ### Sécurité, traçabilité et opérations
 
-- Les droits d'accès sont traités au niveau des actions via des règles de sécurité (roles/permissions). Le versionning ne redéfinit pas le "qui peut".
-- Une fois la règle de sécurité de l'action passée, le métier versionning considère l'opération autorisée jusqu'au stockage.
-- Chaque `model_event` doit porter le nom de l'actor qui a initié l'action.
+- Chaque `model_event` doit porter l'identité de l'actor qui a initié l'action.
 - Chaque `model_event` doit porter un `action_id` système permettant d'identifier l'action source.
 - `model_event` est append-only en flux normal; la correction passe par des événements compensatoires.
 - Réparabilité manuelle exigée en incident: correction SQL manuelle possible avec des outils classiques.
 - Cette réparabilité n'est pas une fonctionnalité à implémenter dans le logiciel.
 - En cas d'arbitrage, la robustesse logicielle prime sur la simplicité de réparation manuelle.
 - Pas de contrôle périodique automatique en V1 (pas de timer interne).
-- Contrôle de cohérence en V1: obligatoire à la publication et possible via une action manuelle dédiée de vérification/reconstruction.
-- Tradeoff accepté: la reconstruction de `head/current` peut être longue en incident si beaucoup de `model_event` se sont accumulés.
+- Contrôle de cohérence en V1: obligatoire à la création d'une release et possible via une action manuelle dédiée de vérification/reconstruction.
+- Tradeoff accepté: la reconstruction de `CURRENT_HEAD` peut être longue en incident si beaucoup de `model_event` se sont accumulés.
 
 ## Questions ouvertes
 
@@ -141,37 +144,44 @@ La structure technique visée repose sur une logique d'event log et de snapshots
    conserver les tags en suppression logique, ou autoriser la suppression
    physique en copiant les métadonnées de tags dans les snapshots de release.
 
-2. Règles fonctionnelles de publication côté expérience utilisateur.  
-   Les contraintes de cohérence techniques sont validées, mais l'expérience
-   utilisateur avant confirmation n'est pas encore figée. Il faut préciser les
-   informations obligatoires affichées avant publication, notamment le résumé
-   des changements et la version saisie.
-
-3. Parcours de comparaison entre releases.  
+2. Parcours de comparaison entre releases.  
    L'objectif de traçabilité est validé, mais le contenu exact du diff métier
    reste à cadrer. Il faut décider le niveau de détail attendu pour les ajouts,
    suppressions, modifications et renommages, ainsi que la granularité
    d'affichage sur les objets du modèle.
 
-4. Cycle de vie d'un `model` en fin de vie.  
+3. Cycle de vie d'un `model` en fin de vie.  
    Le paradigme versionné est défini, mais les règles de suppression ou
    d'archivage ne sont pas tranchées. Il faut décider si la fin de vie passe par
    suppression physique, archivage logique, ou une combinaison, et définir
    l'impact sur `model_event`, `model_snapshot` et les releases.
 
-5. Schéma SQL cible et plan d'initialisation V1.  
+4. Schéma SQL cible et plan d'initialisation V1.  
    Il n'y a pas de migration legacy à gérer, mais la structure finale reste à
    formaliser. Il faut définir les tables, les contraintes, les index et la
    séquence d'initialisation d'un nouveau modèle.
 
-6. Contrat d'import vers l'historique versionné.  
+5. Contrat d'import vers l'historique versionné.  
    Les imports existent déjà, mais il faut formaliser comment un import crée
-   les premiers `model_event`, le `HEAD`, et éventuellement une première
+   les premiers `model_event`, le `CURRENT_HEAD`, et éventuellement une première
    release.
 
-7. Gestion fonctionnelle des conflits de concurrence.  
+6. Gestion fonctionnelle des conflits de concurrence.  
    Le contrôle `expected_revision` est validé, mais le comportement utilisateur
    en cas de conflit reste à préciser (message affiché, rechargement, reprise).
+
+## Hors sujet (pour ce document)
+
+Le design UX détaillé n'est pas dans le périmètre de ce document.
+
+Point acté pour éviter les ambiguïtés:
+- une action de création de release sera disponible côté application,
+- cette action utilisera un formulaire dédié.
+- les droits d'accès restent gérés au niveau des actions via règles de sécurité (roles/permissions),
+  et ne sont pas redéfinis par la logique de versionning.
+
+Le contenu exact des écrans, des parcours et des interactions UX sera traité
+dans un travail séparé.
 
 ## Risques connus
 
