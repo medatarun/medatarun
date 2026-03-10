@@ -87,8 +87,8 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 
 - `model_event` est la source de vérité.
 - La projection `CURRENT_HEAD` est un cache reconstruisible.
-- L'état courant projeté est égal au dernier `model_event` de type `release`
-  plus les `model_event` survenus après cet event.
+- `CURRENT_HEAD` représente l'état du modèle après application de tous les
+  `model_event` jusqu'à la révision courante.
 - Politique de snapshots: un snapshot immuable par release et un snapshot
   mutable `CURRENT_HEAD` mis à jour à chaque `model_event`.
 - Le `model_snapshot` de type `VERSION_SNAPSHOT` fige toute la structure du modèle (
@@ -123,6 +123,12 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   la même transaction logique.
 - Idempotence: un rejeu de la même demande de création de release ne crée pas de
   doublon.
+- Initialisation create/import:
+  - `create` et `import` produisent des `model_event` de contenu,
+  - Le projecteur construit/met à jour `CURRENT_HEAD` au fil de ces events.
+  - puis un `model_event` de type `release` est créé dans le flux initial, à partir du numéro indiqué dans le `create`ou `import`
+  - un `model_snapshot` de type `VERSION_SNAPSHOT` est créé à partir du `CURRENT_HEAD`.
+  - ainsi `CURRENT_HEAD` existe tout le temsp, y compris avant le premier event `release`
 
 ### Ordonnancement et concurrence
 
@@ -176,6 +182,8 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   possible via une action manuelle dédiée de vérification/reconstruction.
 - Tradeoff accepté: la reconstruction de `CURRENT_HEAD` peut être longue en
   incident si beaucoup de `model_event` se sont accumulés.
+- Suppression technique d'un `model` par un administrateur:
+  - suppression totale du `model`, de ses `model_event` et de ses `model_snapshot`.
 
 ## Questions ouvertes
 
@@ -186,37 +194,19 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
    conserver les tags en suppression logique, ou autoriser la suppression
    physique en copiant les métadonnées de tags dans les snapshots de release.
 
-2. Parcours de comparaison entre releases.  
-   L'objectif de traçabilité est validé, mais le contenu exact du diff métier
-   reste à cadrer. Il faut décider le niveau de détail attendu pour les ajouts,
-   suppressions, modifications et renommages, ainsi que la granularité
-   d'affichage sur les objets du modèle.
-
-3. Cycle de vie d'un `model` en fin de vie.  
-   Le paradigme versionné est défini, mais les règles de suppression ou
-   d'archivage ne sont pas tranchées. Il faut décider si la fin de vie passe par
-   suppression physique, archivage logique, ou une combinaison, et définir
-   l'impact sur `model_event`, `model_snapshot` et les releases.
-
-4. Schéma SQL cible et plan d'initialisation V1.  
+2. Schéma SQL cible et plan d'initialisation V1.  
    Il n'y a pas de migration legacy à gérer, mais la structure finale reste à
    formaliser. Il faut définir les tables, les contraintes, les index et la
    séquence d'initialisation d'un nouveau modèle.
 
-5. Contrat d'import vers l'historique versionné.  
+3. Contrat d'import vers l'historique versionné.  
    Les imports existent déjà, mais il faut formaliser comment un import crée
    les premiers `model_event`, le `CURRENT_HEAD`, et la première release.
 
-6. Gestion fonctionnelle des conflits de concurrence.  
+4. Gestion fonctionnelle des conflits de concurrence.  
    Le contrôle `expected_revision` est validé, mais le comportement utilisateur
    en cas de conflit reste à préciser (message affiché, rechargement, reprise).
 
-7. Statut versionnel des actions `create` et `import`.
-   Le document pose `release` comme event qui matérialise une version. Mais un
-   modèle nouvellement créé/importé existe déjà avec une version initiale
-   saisie/fournie. Il faut trancher si `create`/`import` doivent aussi produire
-   un `model_event` de type `release` immédiatement, ou si un autre mécanisme
-   représente cette première version.
 
 ## Hors sujet (pour ce document)
 
@@ -229,6 +219,15 @@ Point acté pour éviter les ambiguïtés:
 - les droits d'accès restent gérés au niveau des actions via règles de
   sécurité (roles/permissions),
   et ne sont pas redéfinis par la logique de versionning.
+- la politique détaillée "qui peut supprimer quoi" et la traçabilité associée
+  (action log) existent déjà au niveau application et ne sont pas redéfinies ici.
+- l'application porte plusieurs notions de diff (métier: drift/suivi
+  d'évolution/comparaison de modèles, gouvernance générale, audit des
+  modifications), avec des traitements différents.
+- ce chantier ne définit pas la manière de traiter ces diff; il définit
+  uniquement les fondations (`model_event` + snapshots) qui les rendent possibles.
+- le cycle de vie métier des modèles (actif/inactif/visibilité) n'est pas défini
+  dans ce chantier.
 
 Le contenu exact des écrans, des parcours et des interactions UX sera traité
 dans un travail séparé.
