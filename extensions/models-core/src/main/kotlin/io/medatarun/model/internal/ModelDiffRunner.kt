@@ -366,10 +366,7 @@ class ModelDiffRunner {
     }
 
     private fun isModelStructuralChanged(left: ModelDiffModelSnapshot, right: ModelDiffModelSnapshot): Boolean {
-        return left.key != right.key ||
-                left.version != right.version ||
-                left.origin != right.origin ||
-                left.authority != right.authority
+        return left.key != right.key
     }
 
     private fun isTypeStructuralChanged(left: ModelDiffTypeSnapshot, right: ModelDiffTypeSnapshot): Boolean {
@@ -378,8 +375,7 @@ class ModelDiffRunner {
 
     private fun isEntityStructuralChanged(left: ModelDiffEntitySnapshot, right: ModelDiffEntitySnapshot): Boolean {
         return left.key != right.key ||
-                left.identifierAttributeKey != right.identifierAttributeKey ||
-                left.origin != right.origin
+                left.identifierAttributeKey != right.identifierAttributeKey
     }
 
     private fun isEntityAttributeStructuralChanged(
