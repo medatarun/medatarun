@@ -91,10 +91,10 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   plus les `model_event` survenus après cet event.
 - Politique de snapshots: un snapshot immuable par release et un snapshot
   mutable `CURRENT_HEAD` mis à jour à chaque `model_event`.
-- Le snapshot de release fige toute la structure du modèle (
+- Le `model_snapshot` de type `VERSION_SNAPSHOT` fige toute la structure du modèle (
   model/types/entities/relationships/attributes/roles + tags attachés par
   `TagId`).
-- Le snapshot de release est une projection dérivée reconstructible depuis
+- Le `model_snapshot` de type `VERSION_SNAPSHOT` est une projection dérivée reconstructible depuis
   `model_event`.
 - La version éventuellement stockée dans un snapshot est une dénormalisation,
   pas la source de vérité.
@@ -119,7 +119,7 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   si aucun `model_event` de contenu n'a été ajouté depuis la release précédente.
 - Mode strict: la création d'une release est refusée si la cohérence
   reconstruction `model_event -> CURRENT_HEAD` échoue.
-- Atomicité: création du `model_event` de release et du snapshot de release dans
+- Atomicité: création du `model_event` de release et du `model_snapshot` de type `VERSION_SNAPSHOT` dans
   la même transaction logique.
 - Idempotence: un rejeu de la même demande de création de release ne crée pas de
   doublon.
@@ -211,6 +211,13 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
    Le contrôle `expected_revision` est validé, mais le comportement utilisateur
    en cas de conflit reste à préciser (message affiché, rechargement, reprise).
 
+7. Statut versionnel des actions `create` et `import`.
+   Le document pose `release` comme event qui matérialise une version. Mais un
+   modèle nouvellement créé/importé existe déjà avec une version initiale
+   saisie/fournie. Il faut trancher si `create`/`import` doivent aussi produire
+   un `model_event` de type `release` immédiatement, ou si un autre mécanisme
+   représente cette première version.
+
 ## Hors sujet (pour ce document)
 
 Le design UX détaillé n'est pas dans le périmètre de ce document.
@@ -239,8 +246,8 @@ sont pas conservées historiquement.
 
 La création d'un event `release` peut échouer en cas d'incident de
 cohérence (projecteur buggué, migration défectueuse, corruption, validation
-incomplète d'event). Ce blocage est volontaire pour éviter une release non
-reconstruisible.
+incomplète d'event). Ce blocage est volontaire pour éviter la création d'une
+version non reconstruisible.
 
 ## Contexte technique observé (non décisionnel)
 
