@@ -107,17 +107,13 @@ function SummaryPill({
   value: number;
   tone: "added" | "deleted" | "modified";
 }) {
-  const background =
-    tone === "added"
-      ? "var(--colorPaletteGreenBackground1)"
-      : tone === "deleted"
-        ? "var(--colorPaletteRedBackground1)"
-        : "var(--colorPaletteYellowBackground1)";
+  const status = toStatusFromTone(tone);
+  const visual = toStatusVisual(status);
 
   return (
     <div
       style={{
-        background: background,
+        background: visual.backgroundSoft,
         border: "1px solid var(--colorNeutralStroke2)",
         borderRadius: tokens.borderRadiusMedium,
         padding: tokens.spacingVerticalXS + " " + tokens.spacingHorizontalS,
@@ -127,7 +123,9 @@ function SummaryPill({
       }}
     >
       <Text>{label}</Text>
-      <Text weight="semibold">{value}</Text>
+      <Text weight="semibold" style={{ color: visual.accent }}>
+        {value}
+      </Text>
     </div>
   );
 }
@@ -143,6 +141,7 @@ function DiffGrid({ children }: { children: ReactNode }) {
     >
       <DiffRow
         hierarchy={<Text weight="semibold">Hierarchy</Text>}
+        status={<Text weight="semibold"> </Text>}
         left={<Text weight="semibold">Left</Text>}
         right={<Text weight="semibold">Right</Text>}
         background="var(--colorNeutralBackground3)"
@@ -192,6 +191,7 @@ function GroupedSectionRows({
 
   return (
     <>
+      <SpacerRow height={tokens.spacingVerticalXL} />
       <SectionRow title={title} />
       {Array.from(grouped.entries())
         .sort((left, right) => left[0].localeCompare(right[0]))
@@ -205,7 +205,18 @@ function GroupedSectionRows({
 function SectionRow({ title }: { title: string }) {
   return (
     <DiffRow
-      hierarchy={<Text weight="semibold">▸ {title}</Text>}
+      hierarchy={
+        <Text
+          style={{
+            fontSize: "1.05em",
+            letterSpacing: "0.01em",
+            fontWeight: tokens.fontWeightRegular,
+          }}
+        >
+          ▸ {title}
+        </Text>
+      }
+      status={null}
       left={null}
       right={null}
       background="var(--colorNeutralBackground2)"
@@ -220,11 +231,74 @@ function GroupRows({
   groupKey: string;
   entries: ModelCompareEntryDto[];
 }) {
-  const sorted = sortEntries(entries);
+  const parentEntry = entries.find((entry) => {
+    if (entry.objectType !== "entity" && entry.objectType !== "relationship") {
+      return false;
+    }
+    return toObjectBusinessLabel(entry) === groupKey;
+  });
+  const children = entries.filter((entry) => entry !== parentEntry);
+  const sorted = sortEntries(children);
+  const parentVisual = parentEntry == null ? null : toStatusVisual(parentEntry.status);
+  const parentAccent = parentVisual == null ? undefined : parentVisual.accent;
+  const parentBackground = parentVisual == null ? undefined : parentVisual.backgroundStrong;
+  const parentFieldRows = parentEntry == null ? [] : toFieldRows(parentEntry);
+  const defaultOpen =
+    parentEntry == null ? true : parentEntry.status === "MODIFIED";
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
   return (
     <>
-      <DiffRow hierarchy={<IndentedText level={1}>• {groupKey}</IndentedText>} left={null} right={null} />
-      {sorted.map((entry, index) => (
+      <SpacerRow height={tokens.spacingVerticalM} />
+      <DiffRow
+        hierarchy={
+          <IndentedText level={1} kind="group">
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              style={{
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                padding: 0,
+                marginRight: tokens.spacingHorizontalXXS,
+                width: 16,
+                textAlign: "left",
+                color: "var(--colorNeutralForeground2)",
+              }}
+            >
+              {isOpen ? "▾" : "▸"}
+            </button>
+            {groupHeaderLabel(groupKey, parentEntry)}
+          </IndentedText>
+        }
+        status={
+          parentEntry == null ? null : <StatusDot accentColor={parentAccent ?? "inherit"} />
+        }
+        left={null}
+        right={null}
+        background={parentBackground}
+        hierarchyAccent={parentAccent}
+      />
+      {isOpen &&
+        parentEntry != null &&
+        parentFieldRows.map((fieldRow) => (
+          <DiffRow
+            key={groupKey + "-parent-field-" + fieldRow.field}
+            hierarchy={
+              <IndentedText level={2} kind="field">
+                ↳ {toBusinessFieldLabel(fieldRow.field)}
+              </IndentedText>
+            }
+            status={null}
+            left={<Text>{fieldRow.leftValue}</Text>}
+            right={<Text>{fieldRow.rightValue}</Text>}
+            background={parentVisual == null ? undefined : parentVisual.backgroundSubtle}
+            hierarchyAccent={parentAccent}
+          />
+        ))}
+      {isOpen &&
+        sorted.map((entry, index) => (
         <EntryRows key={groupKey + "-" + index} entry={entry} level={2} />
       ))}
     </>
@@ -235,18 +309,19 @@ function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: numbe
   const label = lineObjectLabel(entry);
   const objectLabel = toObjectBusinessLabel(entry);
   const fieldRows = toFieldRows(entry);
-  const sideSummaries = entrySideSummary(entry);
-  const entryCellColors = toEntryCellColors(entry.status);
-  const fieldCellColors = toFieldCellColors(entry.status);
   const defaultOpen = entry.status === "MODIFIED";
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const canExpand = fieldRows.length > 0;
+  const visual = toStatusVisual(entry.status);
+  const parentLevel = isPrimaryObjectType(entry.objectType);
+  const rowBackground = parentLevel ? visual.backgroundStrong : visual.backgroundSoft;
+  const rowAccent = parentLevel ? visual.accent : visual.accentSoft;
 
   return (
     <>
       <DiffRow
         hierarchy={
-          <IndentedText level={level}>
+          <IndentedText level={level} kind="object">
             {canExpand ? (
               <button
                 type="button"
@@ -276,23 +351,26 @@ function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: numbe
             {label}
           </IndentedText>
         }
-        left={<Text>{sideSummaries.left}</Text>}
-        right={<Text>{sideSummaries.right}</Text>}
-        leftBackground={entryCellColors.leftBackground}
-        rightBackground={entryCellColors.rightBackground}
+        status={<StatusDot accentColor={rowAccent} />}
+        left={null}
+        right={null}
+        background={rowBackground}
+        hierarchyAccent={rowAccent}
       />
       {isOpen &&
         fieldRows.map((fieldRow) => (
         <DiffRow
           key={objectLabel + "-" + fieldRow.field}
           hierarchy={
-            <IndentedText level={level + 1}>↳ {toBusinessFieldLabel(fieldRow.field)}</IndentedText>
+            <IndentedText level={level + 1} kind="field">
+              ↳ {toBusinessFieldLabel(fieldRow.field)}
+            </IndentedText>
           }
+          status={null}
           left={<Text>{fieldRow.leftValue}</Text>}
           right={<Text>{fieldRow.rightValue}</Text>}
-          background="var(--colorNeutralBackground1)"
-          leftBackground={fieldCellColors.leftBackground}
-          rightBackground={fieldCellColors.rightBackground}
+          background={visual.backgroundSubtle}
+          hierarchyAccent={rowAccent}
         />
       ))}
     </>
@@ -301,42 +379,55 @@ function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: numbe
 
 function DiffRow({
   hierarchy,
+  status,
   left,
   right,
   background,
-  leftBackground,
-  rightBackground,
+  hierarchyAccent,
 }: {
   hierarchy: ReactNode;
+  status: ReactNode;
   left: ReactNode;
   right: ReactNode;
   background?: string;
-  leftBackground?: string;
-  rightBackground?: string;
+  hierarchyAccent?: string;
 }) {
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "45% 27.5% 27.5%",
+        gridTemplateColumns: "44% 4% 26% 26%",
         borderBottom: "1px solid var(--colorNeutralStroke2)",
         background: background,
       }}
     >
-      <Cell>{hierarchy}</Cell>
-      <Cell background={leftBackground}>{left}</Cell>
-      <Cell background={rightBackground}>{right}</Cell>
+      <Cell leftAccentColor={hierarchyAccent}>
+        {hierarchy}
+      </Cell>
+      <Cell>{status}</Cell>
+      <Cell>{left}</Cell>
+      <Cell>{right}</Cell>
     </div>
   );
 }
 
-function Cell({ children, background }: { children: ReactNode; background?: string }) {
+function Cell({
+  children,
+  background,
+  leftAccentColor,
+}: {
+  children: ReactNode;
+  background?: string;
+  leftAccentColor?: string;
+}) {
   return (
     <div
       style={{
         padding: tokens.spacingVerticalXS + " " + tokens.spacingHorizontalS,
         borderRight: "1px solid var(--colorNeutralStroke2)",
         background: background,
+        boxShadow:
+          leftAccentColor == null ? undefined : "inset 3px 0 0 " + leftAccentColor,
       }}
     >
       {children}
@@ -346,13 +437,46 @@ function Cell({ children, background }: { children: ReactNode; background?: stri
 
 function IndentedText({
   level,
+  kind,
   children,
 }: {
   level: number;
+  kind: "group" | "object" | "field";
   children: ReactNode;
 }) {
+  const styleByKind =
+    kind === "group"
+      ? {
+          fontSize: "1.05em",
+          fontWeight: tokens.fontWeightRegular,
+          color: "var(--colorNeutralForeground1)",
+          paddingTop: tokens.spacingVerticalM,
+        }
+      : kind === "object"
+        ? {
+            fontSize: "1em",
+            fontWeight: tokens.fontWeightRegular,
+            color: "var(--colorNeutralForeground1)",
+            paddingTop: "0",
+          }
+        : {
+            fontSize: "1em",
+            fontWeight: tokens.fontWeightRegular,
+            color: "var(--colorNeutralForeground3)",
+            paddingTop: "0",
+          };
+
   return (
-    <Text style={{ paddingLeft: level * 16, display: "block" }}>
+    <Text
+      style={{
+        paddingLeft: level * 16,
+        display: "block",
+        fontSize: styleByKind.fontSize,
+        fontWeight: styleByKind.fontWeight,
+        color: styleByKind.color,
+        paddingTop: styleByKind.paddingTop,
+      }}
+    >
       {children}
     </Text>
   );
@@ -449,16 +573,6 @@ function formatBusinessValue(value: unknown): string | null {
   }
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
-}
-
-function entrySideSummary(entry: ModelCompareEntryDto): { left: string; right: string } {
-  if (entry.status === "ADDED") {
-    return { left: "", right: "Added" };
-  }
-  if (entry.status === "DELETED") {
-    return { left: "Deleted", right: "" };
-  }
-  return { left: "Changed", right: "Changed" };
 }
 
 function sortEntries(entries: ModelCompareEntryDto[]): ModelCompareEntryDto[] {
@@ -572,6 +686,32 @@ function toObjectBusinessLabel(entry: ModelCompareEntryDto): string {
   return entry.objectType;
 }
 
+function groupHeaderLabel(
+  groupKey: string,
+  parentEntry: ModelCompareEntryDto | undefined,
+): ReactNode {
+  if (parentEntry == null) {
+    return "• " + groupKey;
+  }
+  const icon = toObjectIcon(parentEntry.objectType);
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: tokens.spacingHorizontalXXS,
+      }}
+    >
+      {icon != null && (
+        <span style={{ display: "inline-flex", color: "var(--colorNeutralForeground3)" }}>
+          {icon}
+        </span>
+      )}
+      <span>{groupKey}</span>
+    </span>
+  );
+}
+
 function toObjectIcon(objectType: string): ReactNode | null {
   if (objectType === "model") return <ModelIcon fontSize={14} />;
   if (objectType === "type") return <TypeIcon fontSize={14} />;
@@ -589,48 +729,75 @@ interface FieldRow {
   rightValue: string;
 }
 
-function toEntryCellColors(status: string): {
-  leftBackground?: string;
-  rightBackground?: string;
-} {
-  if (status === "ADDED") {
-    return {
-      rightBackground: "rgba(34, 197, 94, 0.14)",
-    };
-  }
-  if (status === "DELETED") {
-    return {
-      leftBackground: "rgba(239, 68, 68, 0.14)",
-    };
-  }
-  if (status === "MODIFIED") {
-    return {
-      leftBackground: "rgba(249, 115, 22, 0.16)",
-      rightBackground: "rgba(249, 115, 22, 0.16)",
-    };
-  }
-  return {};
+function SpacerRow({ height }: { height: string }) {
+  return <div style={{ height: height }} />;
 }
 
-function toFieldCellColors(status: string): {
-  leftBackground?: string;
-  rightBackground?: string;
+function StatusDot({
+  accentColor,
+}: {
+  accentColor: string;
+}) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        width: "100%",
+        justifyContent: "center",
+        color: accentColor,
+        fontSize: "1em",
+        lineHeight: 1,
+      }}
+    >
+      ●
+    </span>
+  );
+}
+
+function toStatusFromTone(tone: "added" | "deleted" | "modified"): string {
+  if (tone === "added") return "ADDED";
+  if (tone === "deleted") return "DELETED";
+  return "MODIFIED";
+}
+
+function toStatusVisual(status: string): {
+  accent: string;
+  accentSoft: string;
+  backgroundStrong: string;
+  backgroundSoft: string;
+  backgroundSubtle: string;
 } {
   if (status === "ADDED") {
     return {
-      rightBackground: "rgba(34, 197, 94, 0.14)",
+      accent: "rgb(22, 163, 74)",
+      accentSoft: "rgba(22, 163, 74, 0.7)",
+      backgroundStrong: "rgba(22, 163, 74, 0.14)",
+      backgroundSoft: "rgba(22, 163, 74, 0.08)",
+      backgroundSubtle: "rgba(22, 163, 74, 0.05)",
     };
   }
   if (status === "DELETED") {
     return {
-      leftBackground: "rgba(239, 68, 68, 0.14)",
+      accent: "rgb(220, 38, 38)",
+      accentSoft: "rgba(220, 38, 38, 0.7)",
+      backgroundStrong: "rgba(220, 38, 38, 0.14)",
+      backgroundSoft: "rgba(220, 38, 38, 0.08)",
+      backgroundSubtle: "rgba(220, 38, 38, 0.05)",
     };
   }
-  if (status === "MODIFIED") {
-    return {
-      leftBackground: "rgba(249, 115, 22, 0.16)",
-      rightBackground: "rgba(249, 115, 22, 0.16)",
-    };
-  }
-  return {};
+  return {
+    accent: "rgb(217, 119, 6)",
+    accentSoft: "rgba(217, 119, 6, 0.7)",
+    backgroundStrong: "rgba(217, 119, 6, 0.14)",
+    backgroundSoft: "rgba(217, 119, 6, 0.08)",
+    backgroundSubtle: "rgba(217, 119, 6, 0.05)",
+  };
+}
+
+function isPrimaryObjectType(objectType: string): boolean {
+  if (objectType === "model") return true;
+  if (objectType === "type") return true;
+  if (objectType === "entity") return true;
+  if (objectType === "relationship") return true;
+  return false;
 }
