@@ -85,6 +85,8 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 
 ### Source de vérité et projections
 
+- Les décisions BDD de ce chantier sont centralisées dans
+  [DATABASE.md](./DATABASE.md).
 - `model_event` est la source de vérité.
 - La projection `CURRENT_HEAD` est un cache reconstruisible.
 - `CURRENT_HEAD` représente l'état du modèle après application de tous les
@@ -163,12 +165,27 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   métier.
 - `ModelKey` est renommable.
 - `model.id` porte l'identité absolue.
+- La `key` métier du `model` fait partie de l'état versionné: elle est portée
+  par les projections de snapshot, pas par la table d'identité `model`.
+- Règle d'unicité: à un instant donné, la `key` courante d'un modèle doit être
+  unique globalement entre tous les `CURRENT_HEAD`.
 
 ### Sécurité, traçabilité et opérations
 
 - Chaque `model_event` doit porter l'identité de l'actor qui a initié l'action.
 - Chaque `model_event` doit porter un `action_id` système permettant
   d'identifier l'action source.
+- `action_id` est un UUIDv7 attribué par la plateforme d'actions.
+- Les métadonnées `actor_id` et `action_id` doivent être propagées de bout en
+  bout: `ModelAction` -> `ModelActionProvider` -> `ModelCmdsImpl` ->
+  `ModelStorage` -> `ModelRepoCmd` -> `ModelStorageDb` -> `model_event`.
+- Le point d'entrée unique du logiciel, tous canaux confondus (UI, API, MCP),
+  est le système d'actions. Il n'existe pas de chemin alternatif pour écrire
+  des `model_event`.
+- La sérialisation des commandes vers `model_event` doit utiliser un mapping
+  explicite et stable pour chaque commande de `ModelRepoCmd.kt`.
+- Ce mapping ne doit pas persister les noms de classes/propriétés Kotlin tels
+  quels; il doit utiliser des noms choisis et stables (annotations dédiées).
 - `model_event` est append-only en flux normal; la correction passe par des
   événements compensatoires.
 - Réparabilité manuelle exigée en incident: correction SQL manuelle possible
@@ -206,6 +223,7 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 4. Gestion fonctionnelle des conflits de concurrence.  
    Le contrôle `expected_revision` est validé, mais le comportement utilisateur
    en cas de conflit reste à préciser (message affiché, rechargement, reprise).
+
 
 
 ## Hors sujet (pour ce document)
