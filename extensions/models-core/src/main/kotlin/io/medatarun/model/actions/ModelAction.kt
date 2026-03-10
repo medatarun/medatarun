@@ -7,6 +7,7 @@ import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilters
 import io.medatarun.security.SecurityRuleNames
@@ -90,6 +91,35 @@ sealed interface ModelAction {
             description = "Reference of the model to export"
         )
         val modelRef: ModelRef,
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "model_compare",
+        title = "Compare models",
+        description = "Compares two model states and returns their differences.",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+    )
+    data class Compare(
+        @ActionParamDoc(
+            order = 1,
+            name = "Left model ref",
+            description = "Reference of the left model state to compare."
+        )
+        val leftModelRef: ModelRef,
+        @ActionParamDoc(
+            order = 2,
+            name = "Right model ref",
+            description = "Reference of the right model state to compare."
+        )
+        val rightModelRef: ModelRef,
+        @ActionParamDoc(
+            order = 3,
+            name = "Diff scope",
+            description = "Comparison scope to apply: STRUCTURAL or COMPLETE."
+        )
+        val scope: ModelDiffScope
     ) : ModelAction
 
     // ------------------------------------------------------------------------

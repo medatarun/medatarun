@@ -73,6 +73,16 @@ export function Layout2() {
       rule: undefined,
     },
     {
+      id: "model-compare",
+      parentId: null,
+      type: "page",
+      path: "/model-compare",
+      label: t("layout_modelCompareLabel"),
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined,
+    },
+    {
       id: "commands",
       parentId: null,
       type: "page",

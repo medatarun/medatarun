@@ -86,6 +86,7 @@ open class ModelExtension : MedatarunExtension {
         ctx.registerContribution(TypeDescriptor::class, LocalizedMarkdownDescriptor())
         ctx.registerContribution(TypeDescriptor::class, LocalizedTextDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelAuthorityDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, ModelDiffScopeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelRefDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ModelVersionDescriptor())

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchModel, fetchModelSummaries } from "./model.api.ts";
-import type { SearchResults } from "./model.dto.ts";
+import type { ModelCompareDto, SearchResults } from "./model.dto.ts";
 import { type ActionPayload, executeAction } from "../action_runner";
 import { toProblem } from "@seij/common-types";
 
@@ -71,6 +71,32 @@ export const useModelSearch = (req: ModelSearchReq) => {
   return useQuery({
     queryKey: ["search", req],
     queryFn: () => modelSearch(req),
+  });
+};
+
+export type ModelDiffScopeCode = "structural" | "complete";
+
+export type ModelCompareReq = {
+  leftModelId: string;
+  rightModelId: string;
+  scope: ModelDiffScopeCode;
+};
+
+export async function modelCompare(req: ModelCompareReq): Promise<ModelCompareDto> {
+  const result = await executeAction("model", "model_compare", {
+    leftModelRef: "id:" + req.leftModelId,
+    rightModelRef: "id:" + req.rightModelId,
+    scope: req.scope,
+  });
+  if (result.contentType === "json") {
+    return result.json as ModelCompareDto;
+  }
+  throw toProblem("Invalid response content type");
+}
+
+export const useModelCompare = () => {
+  return useMutation({
+    mutationFn: (req: ModelCompareReq) => modelCompare(req),
   });
 };
 

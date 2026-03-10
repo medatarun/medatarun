@@ -12,6 +12,7 @@ import { inlineEditTagsMessages } from "./en/InlineEditTagsMessages";
 import { layoutMessages } from "./en/LayoutMessages";
 import { loginPageMessages } from "./en/LoginPageMessages";
 import { modelPageMessages } from "./en/ModelPageMessages";
+import { modelComparePageMessages } from "./en/ModelComparePageMessages";
 import { modelReportsPageMessages } from "./en/ModelReportsPageMessages";
 import { modelsPageMessages } from "./en/ModelsPageMessages";
 import { preferencesPageMessages } from "./en/PreferencesPageMessages";
@@ -42,6 +43,7 @@ export const messages = {
   ...inlineEditTagsMessages,
   ...layoutMessages,
   ...modelsPageMessages,
+  ...modelComparePageMessages,
   ...modelPageMessages,
   ...modelReportsPageMessages,
   ...entityPageMessages,
