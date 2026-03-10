@@ -11,7 +11,16 @@ export const modelComparePageMessages: ModelComparePageMessages = {
     "Choisir un mode de comparaison",
   modelComparePage_comparisonModeNoOptions: "Aucun mode de comparaison",
   modelComparePage_compareButton: "Comparer",
-  modelComparePage_resultPlaceholder: "// JSON du résultat de comparaison",
+  modelComparePage_emptyState: "Sélectionnez les modèles à comparer.",
   modelComparePage_modeStructural: "Structurel",
   modelComparePage_modeComplete: "Complet",
+  modelComparePage_noDifferences: "Aucune différence trouvée.",
+  modelComparePage_leftPaneTitle: "Gauche",
+  modelComparePage_rightPaneTitle: "Droite",
+  modelComparePage_emptySide: "∅",
+  modelComparePage_noVisibleBusinessChange:
+    "Aucun changement métier visible sur les champs.",
+  modelComparePage_addedTitle: "{objectLabel} ajouté: {identifier}",
+  modelComparePage_deletedTitle: "{objectLabel} supprimé: {identifier}",
+  modelComparePage_modifiedTitle: "{objectLabel} modifié: {identifier}",
 };

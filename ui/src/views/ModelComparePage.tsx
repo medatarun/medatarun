@@ -9,6 +9,8 @@ import {
   ComparisonModeInput,
   type ComparisonMode,
 } from "@/views/model-compare/ComparisonModeInput.tsx";
+import { ModelCompareDiffView } from "@/views/model-compare/ModelCompareDiffView.tsx";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 
 export function ModelComparePage() {
   const { data: modelSummaries = [] } = useModelSummaries();
@@ -84,20 +86,11 @@ export function ModelComparePage() {
           </div>
         </div>
 
-        <pre
-          style={{
-            marginTop: tokens.spacingVerticalM,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-            background: "var(--colorNeutralBackground3)",
-            padding: tokens.spacingHorizontalM,
-            borderRadius: tokens.borderRadiusMedium,
-          }}
-        >
-          {compare.data
-            ? JSON.stringify(compare.data, null, 2)
-            : t("modelComparePage_resultPlaceholder")}
-        </pre>
+        {compare.data ? (
+          <ModelCompareDiffView diff={compare.data} />
+        ) : (
+          <MissingInformation>{t("modelComparePage_emptyState")}</MissingInformation>
+        )}
       </div>
     </ViewLayoutContained>
   );

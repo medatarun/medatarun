@@ -110,3 +110,30 @@ export interface SearchResult {
 export interface SearchResults {
   items: SearchResult[];
 }
+
+export interface ModelCompareSideDto {
+  modelId: string;
+  modelKey: string;
+  modelVersion: string;
+  modelAuthority: "system" | "canonical" | string;
+}
+
+export interface ModelCompareEntryDto {
+  status: "ADDED" | "DELETED" | "MODIFIED" | string;
+  objectType: string;
+  modelKey: string;
+  typeKey: string | null;
+  entityKey: string | null;
+  relationshipKey: string | null;
+  roleKey: string | null;
+  attributeKey: string | null;
+  left: Record<string, unknown> | null;
+  right: Record<string, unknown> | null;
+}
+
+export interface ModelCompareDto {
+  scopeApplied: "structural" | "complete" | string;
+  left: ModelCompareSideDto;
+  right: ModelCompareSideDto;
+  entries: ModelCompareEntryDto[];
+}
