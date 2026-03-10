@@ -5,11 +5,10 @@ import { Button, InputCombobox } from "@seij/common-ui";
 import { Text, tokens } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { useAppI18n } from "@/services/appI18n.tsx";
-
-type CompareScopeOption = {
-  code: "structural" | "complete";
-  label: string;
-};
+import {
+  ComparisonModeInput,
+  type ComparisonMode,
+} from "@/views/model-compare/ComparisonModeInput.tsx";
 
 export function ModelComparePage() {
   const { data: modelSummaries = [] } = useModelSummaries();
@@ -17,25 +16,14 @@ export function ModelComparePage() {
   const { t } = useAppI18n();
   const [leftModelId, setLeftModelId] = useState("");
   const [rightModelId, setRightModelId] = useState("");
-  const [scope, setScope] = useState<"structural" | "complete">("structural");
-  const [scopeQuery, setScopeQuery] = useState(t("modelComparePage_modeStructural"));
-
-  const scopeOptions: CompareScopeOption[] = [
-    {
-      code: "structural",
-      label: t("modelComparePage_modeStructural"),
-    },
-    {
-      code: "complete",
-      label: t("modelComparePage_modeComplete"),
-    },
-  ];
+  const [comparisonMode, setComparisonMode] =
+    useState<ComparisonMode>("structural");
 
   const handleCompare = async () => {
     await compare.mutateAsync({
       leftModelId: leftModelId,
       rightModelId: rightModelId,
-      scope: scope,
+      scope: comparisonMode,
     });
   };
 
@@ -87,32 +75,7 @@ export function ModelComparePage() {
             noOptionsMessage={t("modelComparePage_modelsNoOptions")}
           />
 
-          <div>
-            <Text
-              style={{
-                display: "block",
-                marginBottom: tokens.spacingVerticalXS,
-              }}
-            >
-              {t("modelComparePage_comparisonModeLabel")}
-            </Text>
-            <InputCombobox
-              searchQuery={scopeQuery}
-              disabled={false}
-              options={scopeOptions}
-              placeholder={t("modelComparePage_selectComparisonModePlaceholder")}
-              noOptionsMessage={t("modelComparePage_comparisonModeNoOptions")}
-              onValueChangeQuery={setScopeQuery}
-              onValueChange={(newValue) => {
-                const matched = scopeOptions.find(
-                  (option) => option.code === newValue,
-                );
-                if (!matched) return;
-                setScope(matched.code);
-                setScopeQuery(matched.label);
-              }}
-            />
-          </div>
+          <ComparisonModeInput value={comparisonMode} onChange={setComparisonMode} />
 
           <div>
             <Button disabled={!canCompare} onClick={handleCompare}>

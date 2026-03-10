@@ -75,8 +75,3 @@ Attendu cible:
 
 - afficher les champs du formulaire de comparaison sur une seule ligne
   (modèle gauche, modèle droit, comparison mode, bouton comparer).
-
-#### 3.4.3 Finaliser le sélecteur du mode de comparaison
-
-- remplacer le sélecteur du mode de comparaison par `InputSelect`
-  (pas `InputCombobox`) pour ce champ.
