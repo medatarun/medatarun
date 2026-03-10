@@ -1,5 +1,6 @@
 package io.medatarun.model.domain.diff
 
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
@@ -58,8 +59,29 @@ import java.net.URL
  */
 enum class ModelDiffScope {
     STRUCTURAL,
-    COMPLETE
+    COMPLETE;
+
+    val code: String
+        get() = when (this) {
+            STRUCTURAL -> "structural"
+            COMPLETE -> "complete"
+        }
+
+    companion object {
+        private val map = entries.associateBy(ModelDiffScope::code)
+
+        fun valueOfCodeOptional(code: String): ModelDiffScope? {
+            return map[code]
+        }
+
+        fun valueOfCode(code: String): ModelDiffScope {
+            return valueOfCodeOptional(code) ?: throw ModelDiffScopeIllegalCodeException(code)
+        }
+    }
 }
+
+class ModelDiffScopeIllegalCodeException(code: String) :
+    MedatarunException("Unknown model diff scope code: $code")
 
 /**
  * Diff result for two model references.

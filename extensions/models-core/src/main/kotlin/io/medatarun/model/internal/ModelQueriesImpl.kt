@@ -1,6 +1,8 @@
 package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.diff.ModelDiff
+import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.*
@@ -14,6 +16,7 @@ class ModelQueriesImpl(
     private val storage: ModelStorage,
     private val tagResolver: ModelTagResolver
 ) : ModelQueries {
+    private val diffRunner = ModelDiffRunner()
 
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
@@ -86,6 +89,12 @@ class ModelQueriesImpl(
         typeRef: TypeRef
     ): ModelType {
         return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+    }
+
+    override fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff {
+        val leftModel = findModel(leftModelRef)
+        val rightModel = findModel(rightModelRef)
+        return diffRunner.diff(leftModel, rightModel, scope)
     }
 
     override fun findModelByKey(modelKey: ModelKey): ModelAggregate {

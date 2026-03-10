@@ -1,6 +1,8 @@
 package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.diff.ModelDiff
+import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
 import java.util.*
@@ -30,6 +32,8 @@ interface ModelQueries {
     ): Attribute?
 
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
+
+    fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff
 
     fun search(query: SearchQuery): SearchResults
 }

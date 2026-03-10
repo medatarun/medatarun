@@ -19,8 +19,12 @@ enum class ModelAuthority(val code: String) {
     companion object {
         private val map = entries.associateBy(ModelAuthority::code)
 
+        fun valueOfCodeOptional(code: String): ModelAuthority? {
+            return map[code]
+        }
+
         fun valueOfCode(code: String): ModelAuthority {
-            return map[code] ?: throw ModelAuthorityIllegalCodeException(code)
+            return valueOfCodeOptional(code) ?: throw ModelAuthorityIllegalCodeException(code)
         }
     }
 }
