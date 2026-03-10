@@ -41,7 +41,7 @@ export function ModelCompareDiffView({ diff }: { diff: ModelCompareDto }) {
           marginTop: tokens.spacingVerticalM,
           padding: tokens.spacingHorizontalM,
           borderRadius: tokens.borderRadiusMedium,
-          background: "var(--colorNeutralBackground3)",
+          background: tokens.colorNeutralBackground3,
         }}
       >
         <Text>{t("modelComparePage_noDifferences")}</Text>
@@ -109,9 +109,9 @@ function SummaryBar({ entries }: { entries: ModelCompareEntryDto[] }) {
         flexWrap: "wrap",
       }}
     >
-      <SummaryPill label="+ Added" value={added} tone="added" />
-      <SummaryPill label="- Deleted" value={deleted} tone="deleted" />
-      <SummaryPill label="~ Modified" value={modified} tone="modified" />
+      <SummaryPill label="Added" value={added} tone="added" />
+      <SummaryPill label="Deleted" value={deleted} tone="deleted" />
+      <SummaryPill label="Modified" value={modified} tone="modified" />
     </div>
   );
 }
@@ -474,7 +474,7 @@ function IndentedText({
         ? {
             fontSize: "1em",
             fontWeight: tokens.fontWeightRegular,
-            color: "var(--colorNeutralForeground1)",
+            color: tokens.colorNeutralForeground1,
             paddingTop: "0",
           }
         : {
