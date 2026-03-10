@@ -80,11 +80,3 @@ Attendu cible:
 
 - remplacer le sélecteur du mode de comparaison par `InputSelect`
   (pas `InputCombobox`) pour ce champ.
-
-#### 3.4.4 Finaliser les textes UI
-
-- ajouter les traductions i18n pour tous les libellés de l'écran
-  `ModelCompare` (titres, placeholders, bouton, messages).
-- harmoniser le vocabulaire UI:
-  - ne pas utiliser le terme `scope`,
-  - utiliser `comparison mode` partout (labels, variables d'affichage, textes).

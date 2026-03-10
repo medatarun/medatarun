@@ -77,7 +77,7 @@ export function Layout2() {
       parentId: null,
       type: "page",
       path: "/model-compare",
-      label: "Model compare",
+      label: t("layout_modelCompareLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
