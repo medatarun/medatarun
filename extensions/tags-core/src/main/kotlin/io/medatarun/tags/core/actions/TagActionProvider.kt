@@ -2,12 +2,14 @@ package io.medatarun.tags.core.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.getService
 import io.medatarun.tags.core.domain.*
 import kotlinx.serialization.json.*
 import kotlin.reflect.KClass
 
-class TagActionProvider : ActionProvider<TagAction> {
+class TagActionProvider(
+    val tagCmds: TagCmds,
+    val tagQueries: TagQueries
+) : ActionProvider<TagAction> {
     override val actionGroupKey: String = "tag"
 
 
@@ -17,8 +19,6 @@ class TagActionProvider : ActionProvider<TagAction> {
         cmd: TagAction,
         actionCtx: ActionCtx
     ): Any {
-        val tagCmds = actionCtx.getService<TagCmds>()
-        val tagQueries = actionCtx.getService<TagQueries>()
         val handler = TagActionHandler(tagCmds, tagQueries)
 
         val result = when (cmd) {

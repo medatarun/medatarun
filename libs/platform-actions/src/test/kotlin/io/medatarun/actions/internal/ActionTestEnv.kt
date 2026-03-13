@@ -7,11 +7,13 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
-import io.medatarun.platform.kernel.*
+import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.PlatformBuilder
+import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityExtension
 import io.medatarun.types.TypeSystemExtension
-import kotlin.reflect.KClass
 
 class ActionTestEnv(extensions: List<MedatarunExtension>) {
     val runtime = PlatformBuilder(
@@ -23,21 +25,14 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
         ).plus(extensions)
     ).buildAndStart()
 
-    val actionCtx = TestActionCtx( runtime.services)
+    val actionCtx = TestActionCtx()
 
     val actionPlatform = runtime.services.getService<ActionPlatform>()
 
-    class TestActionCtx(
-
-        private val serviceRegistry: MedatarunServiceRegistry
-    ) : ActionCtx {
+    class TestActionCtx : ActionCtx {
 
         override fun dispatchAction(req: ActionRequest): Any? {
             throw TestActionCtxDispatchException()
-        }
-
-        override fun <T : Any> getService(type: KClass<T>): T {
-            return serviceRegistry.getService(type)
         }
 
         override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)

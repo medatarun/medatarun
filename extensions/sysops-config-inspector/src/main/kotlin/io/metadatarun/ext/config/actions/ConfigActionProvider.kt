@@ -1,7 +1,6 @@
 package io.metadatarun.ext.config.actions
 
-
-import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
@@ -9,7 +8,10 @@ import io.medatarun.security.SecurityRulesProvider
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
 
-class ConfigActionProvider(private val extensionRegistry: ExtensionRegistry) : ActionProvider<ConfigAction> {
+class ConfigActionProvider(
+    private val extensionRegistry: ExtensionRegistry,
+    private val actionRegistry: ActionRegistry
+) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
 
@@ -45,7 +47,7 @@ class ConfigActionProvider(private val extensionRegistry: ExtensionRegistry) : A
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
      */
     private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
-        val actionRegistry = actionCtx.getService(ActionPlatform::class).registry
+
         val items = actionRegistry.findAllActions().map { actionRegistered ->
             val descriptor = actionRegistered.descriptor
             val semantics = actionRegistered.semantics

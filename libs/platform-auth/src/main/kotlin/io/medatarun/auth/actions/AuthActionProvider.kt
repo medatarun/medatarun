@@ -3,7 +3,6 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.actor.Actor
@@ -16,7 +15,12 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
+class AuthEmbeddedActionsProvider(
+    private val userService: UserService,
+    private val oidcService: OidcService,
+    private val oauthService: OAuthService,
+    private val actorService: ActorService
+) : ActionProvider<AuthAction<*>> {
     override val actionGroupKey: String = "auth"
     override fun findCommandClass(): KClass<AuthAction<*>> {
         return AuthAction::class
@@ -26,10 +30,6 @@ class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
         cmd: AuthAction<*>,
         actionCtx: ActionCtx
     ): Any {
-        val userService = actionCtx.getService<UserService>()
-        val oidcService = actionCtx.getService<OidcService>()
-        val oauthService = actionCtx.getService<OAuthService>()
-        val actorService = actionCtx.getService<ActorService>()
         val launcher =
             AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal)
         return when (cmd) {

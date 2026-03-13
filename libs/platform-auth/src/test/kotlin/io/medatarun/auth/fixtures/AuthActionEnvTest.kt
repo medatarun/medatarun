@@ -22,7 +22,9 @@ class AuthActionEnvTest(
 
     val env = AuthEnvTest(createAdmin = createAdmin, otherRoles = otherRoles)
 
-    val provider = AuthEmbeddedActionsProvider()
+    val provider = AuthEmbeddedActionsProvider(
+        env.userService, env.oidcService, env.oauthService, env.actorService
+    )
 
     var actionCtx: ActionCtx = ActionCtxWithActor(this, null)
 
@@ -30,7 +32,7 @@ class AuthActionEnvTest(
         return provider.dispatch(action, actionCtx) as R
     }
 
-    fun logout()  {
+    fun logout() {
         this.actionCtx = ActionCtxWithActor(this, null)
     }
 
@@ -55,17 +57,16 @@ class AuthActionEnvTest(
         private val actor: Actor?
     ) : ActionCtx {
 
-        private val appPrincipal = if (actor==null) null else toAppPrincipal(actor)
+        private val appPrincipal = if (actor == null) null else toAppPrincipal(actor)
         private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
 
         override fun dispatchAction(req: ActionRequest): Any? {
             throw IllegalStateException("Should not be called")
         }
 
-        override fun <T : Any> getService(type: KClass<T>): T = closure.getService(type)
-
         override val principal: ActionPrincipalCtx = actionPrincipal
     }
+
     companion object {
 
         private fun toAppPrincipal(actor: Actor): AppPrincipal {

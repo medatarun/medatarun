@@ -24,6 +24,7 @@ import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.domain.Tag
+import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagGroupRef
 import io.medatarun.tags.core.domain.TagKey
@@ -59,17 +60,18 @@ class ModelTestEnv {
         get() = platform.services.getService(ModelCmds::class)
     val tagQueries
         get() = platform.services.getService(TagQueries::class)
+    private val tagCmds
+        get() = platform.services.getService(TagCmds::class)
     val dbMigrationChecker
         get() = platform.services.getService(DbMigrationChecker::class)
 
     private val modelActionProvider = ModelActionProvider(platform.config.createResourceLocator(), platform.extensions, cmds , queries)
-    private val tagActionProvider = TagActionProvider()
+    private val tagActionProvider = TagActionProvider(tagCmds, tagQueries)
     private val actionCtx = object : ActionCtx {
 
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
 
-        override fun <T : Any> getService(type: KClass<T>): T = platform.services.getService(type)
         override val principal: ActionPrincipalCtx
             get() = throw IllegalStateException("Should not be called")
     }

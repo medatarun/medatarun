@@ -63,6 +63,5 @@ class SecurityRuleCtxActionTest {
             override fun ensureSignedIn(): AppPrincipal = error("not used")
         }
         override fun dispatchAction(req: ActionRequest): Any = error("not used")
-        override fun <T : Any> getService(type: KClass<T>): T = error("not used")
     }
 }

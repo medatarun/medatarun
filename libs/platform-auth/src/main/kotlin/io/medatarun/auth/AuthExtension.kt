@@ -40,6 +40,7 @@ import io.medatarun.platform.kernel.ExtensionId
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -53,7 +54,14 @@ class AuthExtension(
 ) : MedatarunExtension {
     override val id: ExtensionId = "platform-auth"
     override fun initContributions(ctx: MedatarunExtensionCtx) {
-        val actionProvider = AuthEmbeddedActionsProvider()
+        val userService = ctx.getService<UserService>()
+        val oidcService = ctx.getService<OidcService>()
+        val oauthService = ctx.getService<OAuthService>()
+        val actorService = ctx.getService<ActorService>()
+
+        val actionProvider = AuthEmbeddedActionsProvider(
+            userService, oidcService, oauthService, actorService
+        )
         val rolesProvider = object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {
                 return listOf(toAppPrincipalRole(ActorRole.ADMIN))
