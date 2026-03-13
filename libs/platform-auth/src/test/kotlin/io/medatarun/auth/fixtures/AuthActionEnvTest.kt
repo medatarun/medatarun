@@ -1,5 +1,6 @@
 package io.medatarun.auth.fixtures
 
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -13,6 +14,7 @@ import io.medatarun.auth.domain.user.Username
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
+import io.medatarun.type.commons.id.Id
 import kotlin.reflect.KClass
 
 class AuthActionEnvTest(
@@ -26,37 +28,36 @@ class AuthActionEnvTest(
         env.userService, env.oidcService, env.oauthService, env.actorService
     )
 
-    var actionCtx: ActionCtx = ActionCtxWithActor(this, null)
+    var actionCtx: ActionCtx = ActionCtxWithActor(null)
 
     fun <R> dispatch(action: AuthAction<R>): R {
         return provider.dispatch(action, actionCtx) as R
     }
 
     fun logout() {
-        this.actionCtx = ActionCtxWithActor(this, null)
+        this.actionCtx = ActionCtxWithActor(null)
     }
 
     fun asAdmin() {
         val actorService = env.actorService
         val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), env.adminUsername.value)
             ?: throw ActorNotFoundException()
-        this.actionCtx = ActionCtxWithActor(this, actor)
+        this.actionCtx = ActionCtxWithActor(actor)
     }
 
     fun asUser(username: Username) {
         val actorService = env.actorService
         val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), username.value)
             ?: throw ActorNotFoundException()
-        this.actionCtx = ActionCtxWithActor(this, actor)
+        this.actionCtx = ActionCtxWithActor(actor)
     }
 
     fun <T : Any> getService(type: KClass<T>): T = env.runtime.services.getService(type)
 
     class ActionCtxWithActor(
-        private val closure: AuthActionEnvTest,
         private val actor: Actor?
     ) : ActionCtx {
-
+        override val actionInstanceId = Id.generate(::ActionInstanceId)
         private val appPrincipal = if (actor == null) null else toAppPrincipal(actor)
         private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
 

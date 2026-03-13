@@ -2,6 +2,7 @@ package io.medatarun.model.domain.fixtures
 
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -31,6 +32,7 @@ import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagRef
 import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.KClass
 
@@ -45,10 +47,10 @@ class ModelTestEnv {
         ModelExtension()
     )
     val platform = PlatformBuilder(
-        config = MedatarunConfig.Companion.createTempConfig(
+        config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
             mapOf(
-                PlatformStorageDbSqliteExtension.Companion.JDBC_URL_PROPERTY to DbProviderSqlite.Companion.randomDbUrl()
+                PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY to DbProviderSqlite.randomDbUrl()
             )
         ),
         extensions = extensions
@@ -68,6 +70,8 @@ class ModelTestEnv {
     private val modelActionProvider = ModelActionProvider(platform.config.createResourceLocator(), platform.extensions, cmds , queries)
     private val tagActionProvider = TagActionProvider(tagCmds, tagQueries)
     private val actionCtx = object : ActionCtx {
+
+        override val actionInstanceId = Id.generate(::ActionInstanceId)
 
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
@@ -113,7 +117,7 @@ class ModelTestEnv {
      */
     fun createFreeTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
         val modelId = queries.findModel(modelRef).id
-        val scopeRef = ModelTagResolver.Companion.modelTagScopeRef(modelId)
+        val scopeRef = ModelTagResolver.modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(
             scopeRef = scopeRef,

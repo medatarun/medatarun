@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":libs:platform-actions"))
     implementation(project(":libs:platform-security"))
     implementation(project(":libs:platform-type-system"))
+    implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-storage-db"))
     implementation(project(":libs:platform-storage-db-sqlite"))
     implementation(project(":libs:lang"))

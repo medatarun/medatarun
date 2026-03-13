@@ -2,6 +2,7 @@ package io.medatarun.tags.core
 
 import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -21,6 +22,7 @@ import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.KClass
 
@@ -126,6 +128,8 @@ class TagTestEnv(
     private val provider = TagActionProvider(tagCmds, tagQueries)
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
+
+        override val actionInstanceId = Id.generate(::ActionInstanceId)
 
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")

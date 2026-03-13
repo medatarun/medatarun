@@ -1,5 +1,6 @@
 package io.medatarun.actions.internal
 
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionCtx
@@ -9,6 +10,7 @@ import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.type.commons.id.Id
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
@@ -23,6 +25,7 @@ internal class ActionInvokerImpl(
         val actionKey = invocation.actionKey
         val actionGroupKey = invocation.actionGroupKey
         val actionPayloadSerialized = invocation.payload
+        val actionInstanceId = Id.generate(::ActionInstanceId)
 
 
         // Find action, throws if not found
@@ -52,6 +55,9 @@ internal class ActionInvokerImpl(
             override fun dispatchAction(req: ActionRequest): Any? {
                 return handleInvocation(req, actionRequestCtx)
             }
+
+            override val actionInstanceId: ActionInstanceId
+                get() = actionInstanceId
 
             override val principal: ActionPrincipalCtx
                 get() = actionRequestCtx.principal
