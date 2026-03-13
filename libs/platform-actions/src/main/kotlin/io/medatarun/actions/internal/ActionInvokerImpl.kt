@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationTargetException
 
 internal class ActionInvokerImpl(
     val registry: ActionRegistryImpl,
-    val actionTypesRegistry: ActionTypesRegistry,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ): ActionInvoker {
 

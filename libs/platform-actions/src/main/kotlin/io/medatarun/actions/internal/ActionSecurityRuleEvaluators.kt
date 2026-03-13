@@ -1,6 +1,5 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorNotFoundException

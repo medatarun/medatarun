@@ -3,9 +3,7 @@ package io.medatarun.actions.internal
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.kernel.MedatarunConfig

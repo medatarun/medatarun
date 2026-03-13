@@ -9,7 +9,6 @@ import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionRequestCtxFactory
-import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.AppPrincipal
 import kotlinx.serialization.json.*
@@ -36,7 +35,7 @@ class RestCommandInvocation(
                 )
 
             val body = call.receiveText()
-            val json = if (body.isNullOrBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
+            val json = if (body.isBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
 
             val request = ActionRequest(
                 actionGroupKey = actionGroupKey,
@@ -48,7 +47,11 @@ class RestCommandInvocation(
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)
-                is JsonObject, is JsonArray -> call.respondText(responsePayload.toString(), ContentType.Application.Json)
+                is JsonObject, is JsonArray -> call.respondText(
+                    responsePayload.toString(),
+                    ContentType.Application.Json
+                )
+
                 else -> call.respond(responsePayload)
             }
             call.respond(HttpStatusCode.OK, responsePayload)
@@ -71,7 +74,7 @@ class RestCommandInvocation(
                 put("title", exception.msg)
                 put("status", exception.status.httpStatusCode)
                 exception.payload.forEach { (k, v) ->
-                    put(k,v)
+                    put(k, v)
                 }
             }
             call.respondText(
@@ -81,33 +84,6 @@ class RestCommandInvocation(
             )
         }
     }
-
-    private suspend fun readBodyParameters(call: ApplicationCall): Map<String, String> {
-        if (!allowsBody(call.request.httpMethod)) return emptyMap()
-        val contentType = call.request.contentType()
-        return when {
-            contentType.match(ContentType.Application.Json) ->
-                runCatching { call.receiveNullable<JsonObject>() }.getOrNull()?.let(HttpAdapters::jsonObjectToStringMap)
-                    .orEmpty()
-
-            contentType.match(ContentType.Application.FormUrlEncoded) ->
-                runCatching { call.receiveParameters() }
-                    .map { parameters -> toSingleValueMap(parameters) }
-                    .getOrNull()
-                    .orEmpty()
-
-            else -> emptyMap()
-        }
-    }
-
-
-    private fun toSingleValueMap(parameters: Parameters): Map<String, String> =
-        parameters.entries().mapNotNull { entry ->
-            entry.value.lastOrNull()?.let { value -> entry.key to value }
-        }.toMap()
-
-    private fun allowsBody(method: HttpMethod): Boolean =
-        method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch || method == HttpMethod.Delete
 
     private fun buildResponsePayload(result: Any?): Any = when (result) {
         null, Unit -> mapOf("status" to "ok")

@@ -1,14 +1,11 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
 import org.junit.jupiter.api.Assertions
-import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class SecurityRuleCtxActionTest {

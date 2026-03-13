@@ -42,7 +42,7 @@ interface ActionPlatform {
             )
 
             val actionInvoker = ActionInvokerImpl(
-                registry, actionTypesRegistry, actionSecurityRuleEvaluators
+                registry, actionSecurityRuleEvaluators
             )
 
             return object : ActionPlatform {

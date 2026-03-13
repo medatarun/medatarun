@@ -2,7 +2,6 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.lang.http.StatusCode
-import kotlin.collections.iterator
 import kotlin.reflect.KParameter
 
 internal data class ActionParamBindings(
