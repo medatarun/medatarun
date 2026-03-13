@@ -170,3 +170,4 @@ class CopyModelIdConversionFailedException(name: String, oldId: String) :
 
 class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
     MedatarunException("Could not resolve tag reference [${tagRef.asString()}")
+class ModelActionNotAuthorizedException : MedatarunException("Not authorized", StatusCode.UNAUTHORIZED)

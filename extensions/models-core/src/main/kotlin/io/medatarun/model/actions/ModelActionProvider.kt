@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.lang.exceptions.MedatarunException
@@ -153,7 +154,10 @@ class ModelActionHandler(
     private val actionCtx: ActionCtx,
     private val extensionRegistry: ExtensionRegistry
 ) {
-    fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
+    fun dispatch(businessCmd: ModelCmd) {
+        val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthorizedException()
+        modelCmds.dispatch(ModelCmdEnveloppe(actionCtx.actionInstanceId, principal, businessCmd))
+    }
 
     fun modelImport(action: ModelAction.Import) {
         val contribs = extensionRegistry.findContributionsFlat(ModelImporter::class)
@@ -169,7 +173,7 @@ class ModelActionHandler(
         val modelData = contrib.toModel(action.from, resourceLocator, action.modelKey, action.modelName)
 
         // Save imported model
-        modelCmds.dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
+        dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
     }
 
 

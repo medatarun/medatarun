@@ -334,7 +334,7 @@ class ActionSemanticsResolverTest {
     ) : ActionProvider<Any> {
         override val actionGroupKey: String = "test"
         override fun findCommandClass(): KClass<Any>? = null
-        override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
+        override fun dispatch(action: Any, actionCtx: ActionCtx): Any? = null
         override fun findActions(): List<ActionDescriptor> = actions
     }
 

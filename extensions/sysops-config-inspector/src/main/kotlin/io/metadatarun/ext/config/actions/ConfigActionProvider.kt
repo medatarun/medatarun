@@ -16,8 +16,8 @@ class ConfigActionProvider(
 
 
     override fun findCommandClass() = ConfigAction::class
-    override fun dispatch(cmd: ConfigAction, actionCtx: ActionCtx): Any {
-        return when (cmd) {
+    override fun dispatch(action: ConfigAction, actionCtx: ActionCtx): Any {
+        return when (action) {
             is ConfigAction.AIAgentsInstructions -> ConfigAgentInstructions().process()
             is ConfigAction.Inspect -> extensionRegistry.inspectHumanReadable()
             is ConfigAction.InspectJson -> extensionRegistry.inspectJson()

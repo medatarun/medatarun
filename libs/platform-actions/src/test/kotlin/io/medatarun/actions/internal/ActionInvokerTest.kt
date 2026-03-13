@@ -765,8 +765,8 @@ class ActionInvokerTest {
             return TestAction::class
         }
 
-        override fun dispatch(cmd: TestAction, actionCtx: ActionCtx): Any {
-            lastCommand = cmd
+        override fun dispatch(action: TestAction, actionCtx: ActionCtx): Any {
+            lastCommand = action
             lastActionCtx = actionCtx
             return "ok"
         }

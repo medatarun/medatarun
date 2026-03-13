@@ -22,10 +22,10 @@ class DatabasesActionProvider(
     }
 
     override fun dispatch(
-        cmd: DatabasesAction,
+        action: DatabasesAction,
         actionCtx: ActionCtx
     ): Any {
-        return when (cmd) {
+        return when (action) {
             is DatabasesAction.DatabaseDrivers -> {
                 buildJsonObject {
                     putJsonArray("drivers") {

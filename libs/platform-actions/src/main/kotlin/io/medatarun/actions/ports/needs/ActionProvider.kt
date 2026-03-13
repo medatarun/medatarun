@@ -6,6 +6,6 @@ import kotlin.reflect.KClass
 interface ActionProvider<C: Any> {
     val actionGroupKey: String
     fun findCommandClass(): KClass<C>?
-    fun dispatch(cmd: C, actionCtx: ActionCtx): Any?
+    fun dispatch(action: C, actionCtx: ActionCtx): Any?
     fun findActions(): List<ActionDescriptor> = emptyList()
 }

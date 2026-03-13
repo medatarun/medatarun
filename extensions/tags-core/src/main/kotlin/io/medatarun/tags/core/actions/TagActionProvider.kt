@@ -16,33 +16,33 @@ class TagActionProvider(
     override fun findCommandClass(): KClass<TagAction> = TagAction::class
 
     override fun dispatch(
-        cmd: TagAction,
+        action: TagAction,
         actionCtx: ActionCtx
     ): Any {
         val handler = TagActionHandler(tagCmds, tagQueries)
 
-        val result = when (cmd) {
+        val result = when (action) {
 
-            is TagAction.TagManagedCreate -> handler.tagManagedCreate(cmd)
-            is TagAction.TagManagedDelete -> handler.tagManagedDelete(cmd)
-            is TagAction.TagManagedUpdateKey -> handler.tagManagedUpdateKey(cmd)
-            is TagAction.TagManagedUpdateName -> handler.tagManagedUpdateName(cmd)
-            is TagAction.TagManagedUpdateDescription -> handler.tagManagedUpdateDescription(cmd)
+            is TagAction.TagManagedCreate -> handler.tagManagedCreate(action)
+            is TagAction.TagManagedDelete -> handler.tagManagedDelete(action)
+            is TagAction.TagManagedUpdateKey -> handler.tagManagedUpdateKey(action)
+            is TagAction.TagManagedUpdateName -> handler.tagManagedUpdateName(action)
+            is TagAction.TagManagedUpdateDescription -> handler.tagManagedUpdateDescription(action)
 
-            is TagAction.TagFreeCreate -> handler.tagFreeCreate(cmd)
-            is TagAction.TagFreeDelete -> handler.tagFreeDelete(cmd)
-            is TagAction.TagFreeUpdateKey -> handler.tagFreeUpdateKey(cmd)
-            is TagAction.TagFreeUpdateName -> handler.tagFreeUpdateName(cmd)
-            is TagAction.TagFreeUpdateDescription -> handler.tagFreeUpdateDescription(cmd)
+            is TagAction.TagFreeCreate -> handler.tagFreeCreate(action)
+            is TagAction.TagFreeDelete -> handler.tagFreeDelete(action)
+            is TagAction.TagFreeUpdateKey -> handler.tagFreeUpdateKey(action)
+            is TagAction.TagFreeUpdateName -> handler.tagFreeUpdateName(action)
+            is TagAction.TagFreeUpdateDescription -> handler.tagFreeUpdateDescription(action)
 
-            is TagAction.TagGroupCreate -> handler.tagGroupCreate(cmd)
-            is TagAction.TagGroupDelete -> handler.tagGroupDelete(cmd)
-            is TagAction.TagGroupUpdateKey -> handler.tagGroupUpdateKey(cmd)
-            is TagAction.TagGroupUpdateName -> handler.tagGroupUpdateName(cmd)
-            is TagAction.TagGroupUpdateDescription -> handler.tagGroupUpdateDescription(cmd)
+            is TagAction.TagGroupCreate -> handler.tagGroupCreate(action)
+            is TagAction.TagGroupDelete -> handler.tagGroupDelete(action)
+            is TagAction.TagGroupUpdateKey -> handler.tagGroupUpdateKey(action)
+            is TagAction.TagGroupUpdateName -> handler.tagGroupUpdateName(action)
+            is TagAction.TagGroupUpdateDescription -> handler.tagGroupUpdateDescription(action)
 
-            is TagAction.TagSearch -> handler.tagSearch(cmd)
-            is TagAction.TagGroupList -> handler.tagGroupList(cmd)
+            is TagAction.TagSearch -> handler.tagSearch(action)
+            is TagAction.TagGroupList -> handler.tagGroupList(action)
         }
         return result
     }

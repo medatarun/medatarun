@@ -20,6 +20,9 @@ import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.PlatformBuilder
+import io.medatarun.security.AppPrincipal
+import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
@@ -77,7 +80,28 @@ class ModelTestEnv {
             throw IllegalStateException("Should not be called in tests")
 
         override val principal: ActionPrincipalCtx
-            get() = throw IllegalStateException("Should not be called")
+            get() = object: ActionPrincipalCtx {
+                val p = object : AppPrincipal {
+                    override val id: AppPrincipalId = AppPrincipalId("user")
+                    override val issuer: String = ""
+                    override val subject: String = ""
+                    override val isAdmin: Boolean = false
+                    override val fullname: String = "user"
+                    override val roles: List<AppPrincipalRole> = emptyList()
+
+                }
+                override fun ensureIsAdmin() {
+
+                }
+
+                override fun ensureSignedIn(): AppPrincipal {
+                    return p
+                }
+
+                override val principal: AppPrincipal?
+                    get() = p
+
+            }
     }
 
     fun dispatch(action: ModelAction) {

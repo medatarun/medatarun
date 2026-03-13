@@ -4,6 +4,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelCmd
+import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmdOnModel
 import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.needs.ModelRepoCmd
@@ -23,7 +24,8 @@ class ModelCmdsImpl(
     private val txManager: DbTransactionManager
 ) : ModelCmds {
 
-    override fun dispatch(cmd: ModelCmd) {
+    override fun dispatch(cmdEnv: ModelCmdEnveloppe) {
+        val cmd = cmdEnv.cmd
         return txManager.runInTransaction {
             if (cmd is ModelCmdOnModel) ensureModelExists(cmd.modelRef)
             when (cmd) {
@@ -85,7 +87,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateRelationshipAttributeTagDelete -> updateRelationshipAttributeTagDelete(cmd)
                 is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd)
             }
-            auditor.onCmdProcessed(cmd)
+            auditor.onCmdProcessed(cmdEnv)
         }
     }
 
@@ -198,7 +200,7 @@ class ModelCmdsImpl(
         }
 
         source.tags.forEach { sourceTagId ->
-            dispatch(
+            updateModelTagAdd(
                 ModelCmd.UpdateModelTagAdd(
                     copiedModelRef,
                     TagRef.ById(mapTagId(sourceTagId))
@@ -209,7 +211,7 @@ class ModelCmdsImpl(
         source.entities.forEach { sourceEntity ->
             val copiedEntity = copied.findEntity(sourceEntity.key)
             sourceEntity.tags.forEach { sourceTagId ->
-                dispatch(
+                updateEntityTagAdd(
                     ModelCmd.UpdateEntityTagAdd(
                         copiedModelRef,
                         EntityRef.ById(copiedEntity.id),
@@ -222,7 +224,7 @@ class ModelCmdsImpl(
         source.relationships.forEach { sourceRelationship ->
             val copiedRelationship = copied.findRelationship(RelationshipRef.ByKey(sourceRelationship.key))
             sourceRelationship.tags.forEach { sourceTagId ->
-                dispatch(
+                updateRelationshipTagAdd(
                     ModelCmd.UpdateRelationshipTagAdd(
                         copiedModelRef,
                         RelationshipRef.ById(copiedRelationship.id),
@@ -242,7 +244,7 @@ class ModelCmdsImpl(
                     EntityAttributeRef.ByKey(sourceAttribute.key)
                 )
                 sourceAttribute.tags.forEach { sourceTagId ->
-                    dispatch(
+                    updateEntityAttributeTagAdd(
                         ModelCmd.UpdateEntityAttributeTagAdd(
                             copiedModelRef,
                             EntityRef.ById(copiedEntity.id),
@@ -264,7 +266,7 @@ class ModelCmdsImpl(
                     RelationshipAttributeRef.ByKey(sourceAttribute.key)
                 )
                 sourceAttribute.tags.forEach { sourceTagId ->
-                    dispatch(
+                    updateRelationshipAttributeTagAdd(
                         ModelCmd.UpdateRelationshipAttributeTagAdd(
                             copiedModelRef,
                             RelationshipRef.ById(copiedRelationship.id),
@@ -306,7 +308,7 @@ class ModelCmdsImpl(
         }
 
         applyTags(model.tags) { tagRef ->
-            dispatch(
+            updateModelTagAdd(
                 ModelCmd.UpdateModelTagAdd(
                     ModelRef.ById(model.id),
                     tagRef
@@ -316,7 +318,7 @@ class ModelCmdsImpl(
 
         for (entity in model.entities) {
             applyTags(entity.tags) { tagRef ->
-                dispatch(
+                updateEntityTagAdd(
                     ModelCmd.UpdateEntityTagAdd(
                         ModelRef.ById(model.id),
                         EntityRef.ById(entity.id), tagRef
@@ -327,7 +329,7 @@ class ModelCmdsImpl(
 
         for (relationship in model.relationships) {
             applyTags(relationship.tags) { tagRef ->
-                dispatch(
+                updateRelationshipTagAdd(
                     ModelCmd.UpdateRelationshipTagAdd(
                         ModelRef.ById(model.id),
                         RelationshipRef.ById(relationship.id),
@@ -342,7 +344,7 @@ class ModelCmdsImpl(
                 val owner = attribute.ownerId
                 when (owner) {
                     is AttributeOwnerId.OwnerEntityId -> {
-                        dispatch(
+                        updateEntityAttributeTagAdd(
                             ModelCmd.UpdateEntityAttributeTagAdd(
                                 ModelRef.ById(model.id),
                                 EntityRef.ById(owner.id),
@@ -353,7 +355,7 @@ class ModelCmdsImpl(
                     }
 
                     is AttributeOwnerId.OwnerRelationshipId -> {
-                        dispatch(
+                        updateRelationshipAttributeTagAdd(
                             ModelCmd.UpdateRelationshipAttributeTagAdd(
                                 ModelRef.ById(model.id),
                                 RelationshipRef.ById(owner.id),
