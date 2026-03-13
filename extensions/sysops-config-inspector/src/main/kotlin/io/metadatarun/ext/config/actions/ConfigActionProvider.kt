@@ -2,14 +2,14 @@ package io.metadatarun.ext.config.actions
 
 
 import io.medatarun.actions.adapters.ActionPlatform
-import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.SecurityRulesProvider
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
 
-class ConfigActionProvider : ActionProvider<ConfigAction> {
+class ConfigActionProvider(private val extensionRegistry: ExtensionRegistry) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
 
@@ -17,8 +17,8 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
     override fun dispatch(cmd: ConfigAction, actionCtx: ActionCtx): Any {
         return when (cmd) {
             is ConfigAction.AIAgentsInstructions -> ConfigAgentInstructions().process()
-            is ConfigAction.Inspect -> actionCtx.extensionRegistry.inspectHumanReadable()
-            is ConfigAction.InspectJson -> actionCtx.extensionRegistry.inspectJson()
+            is ConfigAction.Inspect -> extensionRegistry.inspectHumanReadable()
+            is ConfigAction.InspectJson -> extensionRegistry.inspectJson()
             is ConfigAction.InspectActions -> inspectActions(actionCtx)
             is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
         }
@@ -26,7 +26,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
 
     private fun inspectSecurityRules(actionCtx: ActionCtx): SecurityRulesDescriptionsResp =
         SecurityRulesDescriptionsResp(
-            items = actionCtx.extensionRegistry
+            items = extensionRegistry
                 .findContributionsFlat(SecurityRulesProvider::class)
                 .flatMap { it.getRules() }
                 // Keep one entry per key if multiple providers expose same rule.

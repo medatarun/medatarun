@@ -2,7 +2,6 @@ package io.medatarun.model.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.getService
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
@@ -12,6 +11,7 @@ import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.ports.exposed.*
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
@@ -19,7 +19,12 @@ import org.slf4j.LoggerFactory
 import java.net.URI
 import java.util.*
 
-class ModelActionProvider(private val resourceLocator: ResourceLocator) : ActionProvider<ModelAction> {
+class ModelActionProvider(
+    private val resourceLocator: ResourceLocator,
+    private val extensionRegistry: ExtensionRegistry,
+    private val modelCmds: ModelCmds,
+    private val modelQueries: ModelQueries
+) : ActionProvider<ModelAction> {
 
     override val actionGroupKey: String = "model"
 
@@ -31,107 +36,104 @@ class ModelActionProvider(private val resourceLocator: ResourceLocator) : Action
      */
     override fun findCommandClass() = ModelAction::class
 
-    override fun dispatch(cmd: ModelAction, actionCtx: ActionCtx): Any {
-
-        val modelCmds = actionCtx.getService<ModelCmds>()
-        val modelQueries = actionCtx.getService<ModelQueries>()
+    override fun dispatch(action: ModelAction, actionCtx: ActionCtx): Any {
 
         val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries,  resourceLocator, locale, actionCtx)
+        val handler = ModelActionHandler(modelCmds, modelQueries,  resourceLocator, locale, actionCtx, extensionRegistry)
 
-        logger.info(cmd.toString())
+        logger.info(action.toString())
 
 
-        val result = when (cmd) {
+        val result = when (action) {
 
             // ------------------------------------------------------------------------
             // Models
             // ------------------------------------------------------------------------
 
-            is ModelAction.Import -> handler.modelImport(cmd)
+            is ModelAction.Import -> handler.modelImport(action)
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
-            is ModelAction.Compare -> handler.modelCompare(cmd)
-            is ModelAction.Search -> handler.search(cmd)
+            is ModelAction.Compare -> handler.modelCompare(action)
+            is ModelAction.Search -> handler.search(action)
 
-            is ModelAction.Model_List -> handler.modelList(cmd)
-            is ModelAction.Model_Export -> handler.modelExport(cmd)
+            is ModelAction.Model_List -> handler.modelList(action)
+            is ModelAction.Model_Export -> handler.modelExport(action)
 
-            is ModelAction.Model_Create -> handler.modelCreate(cmd)
-            is ModelAction.Model_Copy -> handler.modelCopy(cmd)
-            is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(cmd)
-            is ModelAction.Model_UpdateName -> handler.modelUpdateName(cmd)
-            is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(cmd)
-            is ModelAction.Model_UpdateAuthority -> handler.modelUpdateAuthority(cmd)
-            is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(cmd)
-            is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(cmd)
-            is ModelAction.Model_AddTag -> handler.modelAddTag(cmd)
-            is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(cmd)
-            is ModelAction.Model_Delete -> handler.modelDelete(cmd)
+            is ModelAction.Model_Create -> handler.modelCreate(action)
+            is ModelAction.Model_Copy -> handler.modelCopy(action)
+            is ModelAction.Model_UpdateKey -> handler.modelUpdateKey(action)
+            is ModelAction.Model_UpdateName -> handler.modelUpdateName(action)
+            is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(action)
+            is ModelAction.Model_UpdateAuthority -> handler.modelUpdateAuthority(action)
+            is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(action)
+            is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(action)
+            is ModelAction.Model_AddTag -> handler.modelAddTag(action)
+            is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(action)
+            is ModelAction.Model_Delete -> handler.modelDelete(action)
 
             // ------------------------------------------------------------------------
             // Types
             // ------------------------------------------------------------------------
 
-            is ModelAction.Type_Create -> handler.typeCreate(cmd)
-            is ModelAction.Type_UpdateName -> handler.typeUpdateName(cmd)
-            is ModelAction.Type_UpdateKey -> handler.typeUpdateKey(cmd)
-            is ModelAction.Type_UpdateDescription -> handler.typeUpdateDescription(cmd)
-            is ModelAction.Type_Delete -> handler.typeDelete(cmd)
+            is ModelAction.Type_Create -> handler.typeCreate(action)
+            is ModelAction.Type_UpdateName -> handler.typeUpdateName(action)
+            is ModelAction.Type_UpdateKey -> handler.typeUpdateKey(action)
+            is ModelAction.Type_UpdateDescription -> handler.typeUpdateDescription(action)
+            is ModelAction.Type_Delete -> handler.typeDelete(action)
 
             // ------------------------------------------------------------------------
             // Entities
             // ------------------------------------------------------------------------
 
-            is ModelAction.Entity_Create -> handler.entityCreate(cmd)
-            is ModelAction.Entity_UpdateKey -> handler.entityUpdateKey(cmd)
-            is ModelAction.Entity_UpdateName -> handler.entityUpdateName(cmd)
-            is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(cmd)
-            is ModelAction.Entity_UpdateDocumentationHome -> handler.entityUpdateDocumentationHome(cmd)
-            is ModelAction.Entity_AddTag -> handler.entityAddTag(cmd)
-            is ModelAction.Entity_DeleteTag -> handler.entityDeleteTag(cmd)
-            is ModelAction.Entity_Delete -> handler.entityDelete(cmd)
+            is ModelAction.Entity_Create -> handler.entityCreate(action)
+            is ModelAction.Entity_UpdateKey -> handler.entityUpdateKey(action)
+            is ModelAction.Entity_UpdateName -> handler.entityUpdateName(action)
+            is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(action)
+            is ModelAction.Entity_UpdateDocumentationHome -> handler.entityUpdateDocumentationHome(action)
+            is ModelAction.Entity_AddTag -> handler.entityAddTag(action)
+            is ModelAction.Entity_DeleteTag -> handler.entityDeleteTag(action)
+            is ModelAction.Entity_Delete -> handler.entityDelete(action)
 
             // ------------------------------------------------------------------------
             // Entity attributes
             // ------------------------------------------------------------------------
 
-            is ModelAction.EntityAttribute_Create -> handler.entityAttributeCreate(cmd)
-            is ModelAction.EntityAttribute_UpdateKey -> handler.entityAttributeUpdateKey(cmd)
-            is ModelAction.EntityAttribute_UpdateName -> handler.entityAttributeUpdateName(cmd)
-            is ModelAction.EntityAttribute_UpdateDescription -> handler.entityAttributeUpdateDescription(cmd)
-            is ModelAction.EntityAttribute_UpdateType -> handler.entityAttributeUpdateType(cmd)
-            is ModelAction.EntityAttribute_UpdateOptional -> handler.entityAttributeUpdateOptional(cmd)
-            is ModelAction.EntityAttribute_AddTag -> handler.entityAttributeAddTag(cmd)
-            is ModelAction.EntityAttribute_DeleteTag -> handler.entityAttributeDeleteTag(cmd)
-            is ModelAction.EntityAttribute_Delete -> handler.entityAttributeDelete(cmd)
+            is ModelAction.EntityAttribute_Create -> handler.entityAttributeCreate(action)
+            is ModelAction.EntityAttribute_UpdateKey -> handler.entityAttributeUpdateKey(action)
+            is ModelAction.EntityAttribute_UpdateName -> handler.entityAttributeUpdateName(action)
+            is ModelAction.EntityAttribute_UpdateDescription -> handler.entityAttributeUpdateDescription(action)
+            is ModelAction.EntityAttribute_UpdateType -> handler.entityAttributeUpdateType(action)
+            is ModelAction.EntityAttribute_UpdateOptional -> handler.entityAttributeUpdateOptional(action)
+            is ModelAction.EntityAttribute_AddTag -> handler.entityAttributeAddTag(action)
+            is ModelAction.EntityAttribute_DeleteTag -> handler.entityAttributeDeleteTag(action)
+            is ModelAction.EntityAttribute_Delete -> handler.entityAttributeDelete(action)
 
             // ------------------------------------------------------------------------
             // Relationships
             // ------------------------------------------------------------------------
 
-            is ModelAction.Relationship_Create -> handler.relationshipCreate(cmd)
-            is ModelAction.Relationship_UpdateKey -> handler.relationshipUpdateKey(cmd)
-            is ModelAction.Relationship_UpdateName -> handler.relationshipUpdateName(cmd)
-            is ModelAction.Relationship_UpdateDescription -> handler.relationshipUpdateDescription(cmd)
-            is ModelAction.Relationship_AddTag -> handler.relationshipAddTag(cmd)
-            is ModelAction.Relationship_DeleteTag -> handler.relationshipDeleteTag(cmd)
-            is ModelAction.Relationship_Delete -> handler.relationshipDelete(cmd)
-            is ModelAction.RelationshipRole_Create -> handler.relationshipRoleCreate(cmd)
-            is ModelAction.RelationshipRole_UpdateKey -> handler.relationshipRoleUpdateKey(cmd)
-            is ModelAction.RelationshipRole_UpdateName -> handler.relationshipRoleUpdateName(cmd)
-            is ModelAction.RelationshipRole_UpdateCardinality -> handler.relationshipRoleUpdateCardinality(cmd)
-            is ModelAction.RelationshipRole_UpdateEntity -> handler.relationshipRoleUpdateEntity(cmd)
-            is ModelAction.RelationshipRole_Delete -> handler.relationshipRoleDelete(cmd)
-            is ModelAction.RelationshipAttribute_Create -> handler.relationshipAttributeCreate(cmd)
-            is ModelAction.RelationshipAttribute_UpdateKey -> handler.relationshipAttributeUpdateKey(cmd)
-            is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(cmd)
-            is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(cmd)
-            is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(cmd)
-            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(cmd)
-            is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(cmd)
-            is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(cmd)
-            is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(cmd)
+            is ModelAction.Relationship_Create -> handler.relationshipCreate(action)
+            is ModelAction.Relationship_UpdateKey -> handler.relationshipUpdateKey(action)
+            is ModelAction.Relationship_UpdateName -> handler.relationshipUpdateName(action)
+            is ModelAction.Relationship_UpdateDescription -> handler.relationshipUpdateDescription(action)
+            is ModelAction.Relationship_AddTag -> handler.relationshipAddTag(action)
+            is ModelAction.Relationship_DeleteTag -> handler.relationshipDeleteTag(action)
+            is ModelAction.Relationship_Delete -> handler.relationshipDelete(action)
+            is ModelAction.RelationshipRole_Create -> handler.relationshipRoleCreate(action)
+            is ModelAction.RelationshipRole_UpdateKey -> handler.relationshipRoleUpdateKey(action)
+            is ModelAction.RelationshipRole_UpdateName -> handler.relationshipRoleUpdateName(action)
+            is ModelAction.RelationshipRole_UpdateCardinality -> handler.relationshipRoleUpdateCardinality(action)
+            is ModelAction.RelationshipRole_UpdateEntity -> handler.relationshipRoleUpdateEntity(action)
+            is ModelAction.RelationshipRole_Delete -> handler.relationshipRoleDelete(action)
+            is ModelAction.RelationshipAttribute_Create -> handler.relationshipAttributeCreate(action)
+            is ModelAction.RelationshipAttribute_UpdateKey -> handler.relationshipAttributeUpdateKey(action)
+            is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(action)
+            is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(action)
+            is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(action)
+            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(action)
+            is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(action)
+            is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(action)
+            is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(action)
         }
         return result
     }
@@ -148,22 +150,23 @@ class ModelActionHandler(
     private val modelQueries: ModelQueries,
     private val resourceLocator: ResourceLocator,
     private val locale: Locale,
-    private val actionCtx: ActionCtx
+    private val actionCtx: ActionCtx,
+    private val extensionRegistry: ExtensionRegistry
 ) {
     fun dispatch(businessCmd: ModelCmd) = modelCmds.dispatch(businessCmd)
 
-    fun modelImport(cmd: ModelAction.Import) {
-        val contribs = actionCtx.extensionRegistry.findContributionsFlat(ModelImporter::class)
-        val resourceLocator = resourceLocator.withPath(cmd.from)
+    fun modelImport(action: ModelAction.Import) {
+        val contribs = extensionRegistry.findContributionsFlat(ModelImporter::class)
+        val resourceLocator = resourceLocator.withPath(action.from)
         val contrib = contribs.firstOrNull { contrib ->
-            contrib.accept(cmd.from, resourceLocator)
+            contrib.accept(action.from, resourceLocator)
         }
         if (contrib == null) {
-            throw ModelImportActionNotFoundException(cmd.from)
+            throw ModelImportActionNotFoundException(action.from)
         }
 
         // read model
-        val modelData = contrib.toModel(cmd.from, resourceLocator, cmd.modelKey, cmd.modelName)
+        val modelData = contrib.toModel(action.from, resourceLocator, action.modelKey, action.modelName)
 
         // Save imported model
         modelCmds.dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
@@ -173,67 +176,67 @@ class ModelActionHandler(
 
     fun modelInspectJson(): String = ModelInspectJsonAction(modelQueries).process()
 
-    fun modelCompare(cmd: ModelAction.Compare): ModelCompareDto {
+    fun modelCompare(action: ModelAction.Compare): ModelCompareDto {
         val diff = modelQueries.diff(
-            leftModelRef = cmd.leftModelRef,
-            rightModelRef = cmd.rightModelRef,
-            scope = cmd.scope
+            leftModelRef = action.leftModelRef,
+            rightModelRef = action.rightModelRef,
+            scope = action.scope
         )
         return toCompareDto(diff)
     }
 
-    fun modelCreate(cmd: ModelAction.Model_Create) {
+    fun modelCreate(action: ModelAction.Model_Create) {
         dispatch(
             ModelCmd.CreateModel(
-                modelKey = cmd.modelKey,
-                name = cmd.name,
-                description = cmd.description,
-                version = cmd.version ?: ModelVersion("0.0.1")
+                modelKey = action.modelKey,
+                name = action.name,
+                description = action.description,
+                version = action.version ?: ModelVersion("0.0.1")
             )
         )
     }
 
-    fun modelCopy(cmd: ModelAction.Model_Copy) {
+    fun modelCopy(action: ModelAction.Model_Copy) {
         dispatch(
             ModelCmd.CopyModel(
-                modelRef = cmd.modelRef,
-                modelNewKey = cmd.modelNewKey
+                modelRef = action.modelRef,
+                modelNewKey = action.modelNewKey
             )
         )
     }
 
-    fun modelUpdateKey(cmd: ModelAction.Model_UpdateKey) {
+    fun modelUpdateKey(action: ModelAction.Model_UpdateKey) {
         dispatch(
             ModelCmd.UpdateModelKey(
-                modelRef = cmd.modelRef,
-                key = cmd.value
+                modelRef = action.modelRef,
+                key = action.value
             )
         )
     }
 
-    fun modelUpdateName(cmd: ModelAction.Model_UpdateName) {
+    fun modelUpdateName(action: ModelAction.Model_UpdateName) {
         dispatch(
             ModelCmd.UpdateModelName(
-                modelRef = cmd.modelRef,
-                name = cmd.value,
+                modelRef = action.modelRef,
+                name = action.value,
             )
         )
     }
 
-    fun modelUpdateDescription(cmd: ModelAction.Model_UpdateDescription) {
+    fun modelUpdateDescription(action: ModelAction.Model_UpdateDescription) {
         dispatch(
             ModelCmd.UpdateModelDescription(
-                modelRef = cmd.modelRef,
-                description = cmd.value,
+                modelRef = action.modelRef,
+                description = action.value,
             )
         )
     }
 
-    fun modelUpdateAuthority(cmd: ModelAction.Model_UpdateAuthority) {
+    fun modelUpdateAuthority(action: ModelAction.Model_UpdateAuthority) {
         dispatch(
             ModelCmd.UpdateModelAuthority(
-                modelRef = cmd.modelRef,
-                authority = cmd.value
+                modelRef = action.modelRef,
+                authority = action.value
             )
         )
     }
@@ -1145,7 +1148,7 @@ class ModelActionHandler(
     }
 
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
-        val exporters = actionCtx.extensionRegistry.findContributionsFlat(ModelExporter::class)
+        val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
         val model = modelQueries.findModel(cmd.modelRef)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)

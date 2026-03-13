@@ -21,9 +21,11 @@ import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeTy
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.getService
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
@@ -64,7 +66,9 @@ open class ModelExtension : MedatarunExtension {
     }
 
     override fun initContributions(ctx: MedatarunExtensionCtx) {
-        val modelQueries = ctx.getService(ModelQueries::class)
+        val extensionRegistry = ctx.getService<ExtensionRegistry>()
+        val modelQueries = ctx.getService<ModelQueries>()
+        val modelCmds = ctx.getService<ModelCmds>()
         val modelTagScopeManager = object : TagScopeManager {
             override val type: TagScopeType = modelTagScopeType
 
@@ -73,11 +77,12 @@ open class ModelExtension : MedatarunExtension {
                 return modelQueries.findModelOptional(ModelRef.ById(modelId)) != null
             }
         }
+        val actionProvider = ModelActionProvider(ctx.createResourceLocator(), extensionRegistry, modelCmds, modelQueries)
 
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
         ctx.registerContribution(TagScopeManager::class, modelTagScopeManager)
-        ctx.registerContribution(ActionProvider::class, ModelActionProvider(ctx.createResourceLocator()))
+        ctx.registerContribution(ActionProvider::class, actionProvider)
         ctx.registerContribution(DbMigration::class, ModelStorageDbMigration(id))
         ctx.registerContribution(TypeDescriptor::class, AttributeKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, EntityKeyDescriptor())

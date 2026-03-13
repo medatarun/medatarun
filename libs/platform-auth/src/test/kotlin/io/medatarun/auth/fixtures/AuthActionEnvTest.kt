@@ -58,10 +58,6 @@ class AuthActionEnvTest(
         private val appPrincipal = if (actor==null) null else toAppPrincipal(actor)
         private val actionPrincipal = ActionPrincipalCtxAdapter.toActionPrincipalCtx(appPrincipal)
 
-
-        override val extensionRegistry
-            get() = closure.env.runtime.extensions
-
         override fun dispatchAction(req: ActionRequest): Any? {
             throw IllegalStateException("Should not be called")
         }

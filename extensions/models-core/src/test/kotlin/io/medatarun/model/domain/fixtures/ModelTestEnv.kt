@@ -9,6 +9,7 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.domain.ModelRef
+import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.db.DbMigrationChecker
@@ -54,15 +55,17 @@ class ModelTestEnv {
 
     val queries
         get() = platform.services.getService(ModelQueries::class)
+    private val cmds
+        get() = platform.services.getService(ModelCmds::class)
     val tagQueries
         get() = platform.services.getService(TagQueries::class)
     val dbMigrationChecker
         get() = platform.services.getService(DbMigrationChecker::class)
 
-    private val modelActionProvider = ModelActionProvider(platform.config.createResourceLocator())
+    private val modelActionProvider = ModelActionProvider(platform.config.createResourceLocator(), platform.extensions, cmds , queries)
     private val tagActionProvider = TagActionProvider()
     private val actionCtx = object : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = platform.extensions
+
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
 

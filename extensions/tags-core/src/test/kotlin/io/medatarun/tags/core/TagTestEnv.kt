@@ -124,7 +124,7 @@ class TagTestEnv(
     private val provider = TagActionProvider()
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = platform.extensions
+
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
 

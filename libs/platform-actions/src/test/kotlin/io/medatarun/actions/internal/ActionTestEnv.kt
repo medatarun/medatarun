@@ -23,12 +23,12 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
         ).plus(extensions)
     ).buildAndStart()
 
-    val actionCtx = TestActionCtx(runtime.extensions, runtime.services)
+    val actionCtx = TestActionCtx( runtime.services)
 
     val actionPlatform = runtime.services.getService<ActionPlatform>()
 
     class TestActionCtx(
-        override val extensionRegistry: ExtensionRegistry,
+
         private val serviceRegistry: MedatarunServiceRegistry
     ) : ActionCtx {
 
