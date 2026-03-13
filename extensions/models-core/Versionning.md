@@ -67,8 +67,6 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   `VERSION_SNAPSHOT` (snapshot immuable rattaché à un `model_event` de type
   `release`).
 - `stream_revision`: ordre canonique monotone des `model_event` pour un `model`.
-- `expected_revision`: valeur de contrôle de concurrence fournie lors d'un
-  append de `model_event`.
 
 ## Validé (explicite)
 
@@ -124,13 +122,15 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - Atomicité: création du `model_event` de release et du `model_snapshot` de type `VERSION_SNAPSHOT` dans
   la même transaction logique.
 - Idempotence: un rejeu de la même demande de création de release ne crée pas de
-  doublon.
+  doublon. Deux `model_event` ne peuvent pas avoir le même numéro de version. 
 - Initialisation create/import:
   - `create` et `import` produisent des `model_event` de contenu,
   - Le projecteur construit/met à jour `CURRENT_HEAD` au fil de ces events.
   - puis un `model_event` de type `release` est créé dans le flux initial, à partir du numéro indiqué dans le `create`ou `import`
   - un `model_snapshot` de type `VERSION_SNAPSHOT` est créé à partir du `CURRENT_HEAD`.
   - ainsi `CURRENT_HEAD` existe tout le temsp, y compris avant le premier event `release`
+  - atomicité exacte de toute la séquence (tout ou rien) : c'est dans une transaction
+  - pas de retry/timeout (c'est synchrone en BDD dans la meme base)
 
 ### Ordonnancement et concurrence
 
@@ -202,6 +202,24 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - Suppression technique d'un `model` par un administrateur:
   - suppression totale du `model`, de ses `model_event` et de ses `model_snapshot`.
 
+### Serialisation des events
+
+- Chaque event a un event_type explicite et immuable (ex: entity_attribute_added), jamais le nom de classe Kotlin.
+- Chaque event a un schema_version entier dans l’enveloppe.
+- Payload JSON avec champs nommés explicitement et stables en utilisant les annotations des data classe, Pas de sérialisation auto des data classes non annotées. Une classe ne peut pas être sérialisée si elle n'a pas les annotations qui figent le nommage.
+- Ajouter occurred_at, actor_id, action_id, model_id, stream_revision dans l’enveloppe, pas dans le payload métier.
+- Règle: ajout de champ = compatible; renommage/suppression = nouvelle schema_version.
+- Registry explicite: (event_type, schema_version) -> decoder.
+- Tests unitaires de round-trip et upcast figés écrits JSON (pas en dataclass) pour tous les events.
+- Ne jamais réutiliser un event_type pour un sens différent.
+- Si la sémantique change, créer un nouveau event_type ou bump de version majeur du schéma d’event.
+- Documenter chaque changement dans un “Event Contract Changelog”.
+
+Migration d'events
+
+- Migration à la lecture via upcasters qui transforment un event v1 en v2 en v3 jusqu'au format courant avant application
+- Garder les anciens décodeurs côté application tant que des events historiques existent
+
 ## Questions ouvertes
 
 1. Politique tags et reproductibilité historique.  
@@ -210,21 +228,6 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
    options: interdire la suppression d'un tag référencé par une release publiée,
    conserver les tags en suppression logique, ou autoriser la suppression
    physique en copiant les métadonnées de tags dans les snapshots de release.
-
-2. Schéma SQL cible et plan d'initialisation V1.  
-   Il n'y a pas de migration legacy à gérer, mais la structure finale reste à
-   formaliser. Il faut définir les tables, les contraintes, les index et la
-   séquence d'initialisation d'un nouveau modèle.
-
-3. Contrat d'import vers l'historique versionné.  
-   Les imports existent déjà, mais il faut formaliser comment un import crée
-   les premiers `model_event`, le `CURRENT_HEAD`, et la première release.
-
-4. Gestion fonctionnelle des conflits de concurrence.  
-   Le contrôle `expected_revision` est validé, mais le comportement utilisateur
-   en cas de conflit reste à préciser (message affiché, rechargement, reprise).
-
-
 
 ## Hors sujet (pour ce document)
 
@@ -246,6 +249,10 @@ Point acté pour éviter les ambiguïtés:
   uniquement les fondations (`model_event` + snapshots) qui les rendent possibles.
 - le cycle de vie métier des modèles (actif/inactif/visibilité) n'est pas défini
   dans ce chantier.
+- Gestion fonctionnelle des conflits de concurrence.
+  Le contrôle `expected_revision` est validé, le comportement utilisateur
+  en cas de conflit n'est pas dans ce périmètre, on sait juste qu'une exception sera levée.
+
 
 Le contenu exact des écrans, des parcours et des interactions UX sera traité
 dans un travail séparé.

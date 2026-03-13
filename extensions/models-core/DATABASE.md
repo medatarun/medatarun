@@ -1,38 +1,98 @@
 # DATABASE - Spécification SQL (V1)
 
-Ce document fige la cible SQL du chantier versionning.
+Ce document définit la structure SQL cible (tables, colonnes, clés, index) pour
+le versionning.
 
 Il ne décrit pas l'UX ni les politiques produit hors base.
 
-## 1) Tables maître
+## Conventions
+
+- La table d'un Modèle s'appelle `model`. Elle sert de base au graphe d'une
+  entité logique Modèle (modele + events + snapshots, etc.)
+- Les tables des constituants d'un modèle commencent toutes par `model_` car
+  elles appartiennent au module `models-core`
+- Une table qui represente un snapshot est suffixées `_snapshot`. On sait ainsi
+  que cette table est reconstituable
+
+Foreign Keys
+
+- les références internes au module `models-core` sont déclarées en Foreign Key
+  SQL sauf exceptions documentées (attribut identifiant d'une entité ou actors
+  par exemple)
+- `tag_id` reste sans FK SQL vers `tags-core` (pas de contrainte cross-zone).
+- quand une colonne d'une table référence une autre colonne de table, la colonne
+  s'appelle toujours `autre_table_id`
+
+Identifiants
+
+- Les tables ont généralement un `id` sauf les tables dites d'`id bag` censées
+  représenter des arrays d'id n'ont pas d'identifiant de ligne (table
+  d’association pure, sans attribut métier propre)
+- Les identifiants de lignes de base de données sont des UUIDv7 et s'appelle
+  toujours `id` quand ils existent.
+- l'identité stable d'un objet métier versionnable est portée par `lineage_id`
+- `lineage_id` est stable à travers les snapshots pour un même objet (`type`,
+  `entity`, `attribute`, `relationship`, `role`). Il permet d'identifier de
+  manière unique l'objet métier à travers le temps.
+
+## Principes
+
+Principe d’architecture:
+
+- La base garantit la fiabilité structurelle des tables maître (`model`,
+  `model_event`): identité, rattachement au modèle, ordre canonique, unicité
+  technique.
+- Les règles métier (ex: validité fonctionnelle d’une release, cohérence métier
+  SemVer, interdictions liées au workflow) sont validées par l’application, pas
+  par la base.
+- Les tables `_snapshot` sont des projections dénormalisées, reconstruites
+  depuis `model_event`. Elles sont considérées comme scratchables: en cas
+  d’incident ou de recalcul, l’application peut les supprimer/recréer.
+- Les contraintes SQL sur les `_snapshot` restent volontairement minimales et
+  orientées intégrité de reconstruction, sans déplacer le moteur métier dans la
+  base.
+
+Conséquence:
+
+- Une donnée peut être techniquement stockable en SQL mais rejetée par la couche
+  applicative si elle viole une règle métier.
+
+## Tables maître (sources de vérité)
 
 ### `model`
 
 Rôle: identité stable du modèle.
 
 Colonnes:
-- `id` TEXT PRIMARY KEY: identifiant technique stable du modèle.
+
+- `id` TEXT PRIMARY KEY: identifiant technique stable du modèle. C'est aussi l'
+  id du lineage intégral du modele.
 
 ### `model_event`
 
 Rôle: source de vérité append-only.
 
 Colonnes:
+
 - `id` TEXT PRIMARY KEY: identifiant technique unique de l'event.
 - `model_id` TEXT NOT NULL REFERENCES `model(id)` ON DELETE CASCADE: modèle
   auquel l'event appartient.
 - `stream_revision` INTEGER NOT NULL: ordre canonique de l'event dans le flux du
   modèle.
-- `event_type` TEXT NOT NULL: type d'event (`create`, `update`, `release`, etc.).
+- `event_type` TEXT NOT NULL: type d'event (`create`, `update`, `release`,
+  etc.).
+- `event_version` INTEGER NOT NULL: numéro de version de l'event, permet d'upcaster les vieux event lors du replay quand ils évoluent
 - `version` TEXT NULL: version SemVer portée uniquement pour les events
   `event_type='release'`.
-- `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'action.
+- `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'
+  action.
 - `action_id` TEXT NOT NULL: identifiant système de l'action source, fourni par
   la plateforme d'actions.
-- `payload` TEXT NOT NULL: contenu détaillé de l'event (JSON texte).
 - `created_at` TEXT NOT NULL: date/heure de création de l'event.
+- `payload` TEXT NOT NULL: contenu détaillé de l'event (JSON texte).
 
 Règle de mapping:
+
 - `event_type` et le `payload` sont dérivés des commandes décrites dans
   `ModelRepoCmd.kt`.
 - Le mapping doit être explicite et stable; il ne doit pas dépendre
@@ -43,15 +103,21 @@ Règle de mapping:
   traçabilité opérationnelle (relier un `model_event` à l'action source).
 
 Contraintes:
+
 - `UNIQUE(model_id, stream_revision)` (ordre canonique)
 - `UNIQUE(model_id, version)` avec filtre logique `event_type='release'`
   si le moteur SQL le permet; sinon garantir l'unicité côté application.
 
+## Tables projection métier
+
+Cette section décrit le contenu des tables projetées du snapshot.
+
 ### `model_snapshot`
 
-Rôle: projection matérialisée.
+Rôle: racine d'un état projeté du modèle.
 
 Colonnes:
+
 - `id` TEXT PRIMARY KEY: identifiant technique du snapshot.
 - `model_id` TEXT NOT NULL REFERENCES `model(id)` ON DELETE CASCADE: modèle
   auquel le snapshot appartient.
@@ -62,13 +128,16 @@ Colonnes:
 - `authority` TEXT NOT NULL: autorité/référentiel de ce snapshot.
 - `documentation_home` TEXT NULL: lien de documentation racine du modèle dans
   ce snapshot.
-- `snapshot_kind` TEXT NOT NULL CHECK (`snapshot_kind` IN ('CURRENT_HEAD', 'VERSION_SNAPSHOT')):
+- `snapshot_kind` TEXT NOT NULL CHECK (`snapshot_kind` IN ('CURRENT_HEAD', '
+  VERSION_SNAPSHOT')):
   nature du snapshot (`CURRENT_HEAD` mutable ou `VERSION_SNAPSHOT` figé).
 - `up_to_revision` INTEGER NOT NULL: dernière `stream_revision` incluse dans ce
   snapshot.
-- `release_event_id` TEXT NULL REFERENCES `model_event(id)` ON DELETE CASCADE:
-  event `release` associé (obligatoire pour `VERSION_SNAPSHOT`, null pour
-  `CURRENT_HEAD`).
+- `model_event_release_id` TEXT NULL REFERENCES `model_event(id)` ON DELETE
+  CASCADE: event `release` associé (obligatoire pour `VERSION_SNAPSHOT`, null
+  pour `CURRENT_HEAD`). S'appelle bien `model_event_release_id` pas
+  `model_event_id`
+  car on pointe sur un type d'event spécifique.
 - `version` TEXT NULL: version SemVer liée au snapshot versionné (null pour
   `CURRENT_HEAD`).
 - `created_at` TEXT NOT NULL: date/heure de création du snapshot.
@@ -76,84 +145,234 @@ Colonnes:
   pour `CURRENT_HEAD`).
 
 Contraintes:
+
 - Un seul `CURRENT_HEAD` par `model` (index unique partiel recommandé).
-- Un seul `VERSION_SNAPSHOT` par `release_event_id`.
+- Un seul `VERSION_SNAPSHOT` par `model_event_release_id`.
 - `version` obligatoire pour `VERSION_SNAPSHOT`, null pour `CURRENT_HEAD`
   (CHECK si supporté, sinon règle applicative).
 - Unicité de la clé courante: `key` doit être unique globalement entre tous les
   snapshots `CURRENT_HEAD` (index unique partiel recommandé).
 
-## 2) Tables projection métier
+### `model_tag_snapshot`
 
-Principe: toutes les tables actuellement rattachées à `model_id` sont
-rattachées à `snapshot_id`.
+Rôle: tags du modèle pour un snapshot.
 
-Exemples cibles:
-- `snapshot_model_tag`: tags du modèle pour un `snapshot_id`.
-- `snapshot_model_type`: types du modèle pour un `snapshot_id`.
-- `snapshot_entity`: entités pour un `snapshot_id`.
-- `snapshot_entity_tag`: tags des entités pour un `snapshot_id`.
-- `snapshot_entity_attribute`: attributs d'entité pour un `snapshot_id`.
-- `snapshot_entity_attribute_tag`: tags des attributs d'entité pour un
-  `snapshot_id`.
-- `snapshot_relationship`: relations pour un `snapshot_id`.
-- `snapshot_relationship_tag`: tags des relations pour un `snapshot_id`.
-- `snapshot_relationship_role`: rôles de relation pour un `snapshot_id`.
-- `snapshot_relationship_attribute`: attributs de relation pour un `snapshot_id`.
-- `snapshot_relationship_attribute_tag`: tags des attributs de relation pour un
-  `snapshot_id`.
+Colonnes:
 
-Règle d'unicité à appliquer:
-- les clés métier qui étaient uniques par `model_id` deviennent uniques par
-  `snapshot_id` (ou par owner dans le snapshot).
+- `model_snapshot_id` TEXT NOT NULL REFERENCES `model_snapshot(id)` ON DELETE
+  CASCADE
+- `tag_id` TEXT NOT NULL
 
-## 3) Écriture transactionnelle (contrat SQL)
+Unicité:
 
-### Append d'un `model_event`
+- `PRIMARY KEY (model_snapshot_id, tag_id)`
 
-Entrées: `model_id`, `expected_revision`, `event_type`, `payload`, métadonnées.
+### `model_type_snapshot`
 
-Contrat:
-1. vérifier que la dernière révision du modèle est `expected_revision`,
-2. insérer le nouvel event avec `stream_revision = expected_revision + 1`,
-3. projeter l'event dans `CURRENT_HEAD`,
-4. commit.
+Rôle: types du modèle dans un snapshot.
 
-En cas de concurrence: échec sur unicité `(model_id, stream_revision)` ou
-vérification de précondition, puis retry applicatif.
+Colonnes:
 
-### Création d'une release
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_snapshot_id` TEXT NOT NULL REFERENCES `model_snapshot(id)` ON DELETE
+  CASCADE
+- `key` TEXT NOT NULL
+- `name` TEXT NULL
+- `description` TEXT NULL
 
-Contrat atomique:
-1. insérer `model_event(event_type='release', version=...)`,
-2. mettre à jour `CURRENT_HEAD` jusqu'à cette révision,
-3. créer `VERSION_SNAPSHOT` depuis `CURRENT_HEAD`,
-4. commit.
+Unicité:
 
-## 4) Contrat create/import
+- `UNIQUE(model_snapshot_id, lineage_id)`
+- `UNIQUE(model_snapshot_id, key)`
 
-`create`/`import` doivent aboutir à:
-- un flux initial de `model_event` de contenu,
-- un `CURRENT_HEAD` à jour,
-- un `model_event` de type `release` avec version initiale,
-- un `VERSION_SNAPSHOT` correspondant.
+### `model_entity_snapshot`
 
-## 5) Recherche
+Rôle: entités d'un modele dans un snapshot.
 
-Les tables denorm de recherche doivent être rattachées au snapshot lu:
-- recherche courante: `CURRENT_HEAD`,
-- recherche sur version: `VERSION_SNAPSHOT` ciblé.
+Colonnes:
 
-## 6) Suppression technique
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_snapshot_id` TEXT NOT NULL REFERENCES `model_snapshot(id)` ON DELETE
+  CASCADE
+- `key` TEXT NOT NULL
+- `name` TEXT NULL
+- `description` TEXT NULL
+- `identifier_attribute_snapshot_id` TEXT NOT NULL
+- `origin` TEXT NULL
+- `documentation_home` TEXT NULL
 
-Suppression d'un `model`:
-- suppression totale du `model`,
-- suppression en cascade des `model_event`,
-- suppression en cascade des `model_snapshot`,
-- suppression en cascade des tables projection rattachées aux snapshots.
+Unicité:
 
-## 7) Points SQL à finaliser
+- `UNIQUE(model_snapshot_id, lineage_id)`
+- `UNIQUE(model_snapshot_id, key)`
 
-- Noms définitifs des tables `snapshot_*` (alignement avec conventions existantes).
-- DDL exact des CHECK/indices partiels selon moteur (SQLite cible V1).
-- Format exact de `payload` (`JSON` texte) et indexation éventuelle.
+Attention:
+
+- `identifier_attribute_snapshot_id` est l'id de
+  `model_entity_attribute_snapshot(id)` mais mettre une Foreign Key ici créerait
+  une référence circulaire qui peut être compliquée à gérer selon le moteur de
+  base de données utilisé. On choisit donc de ne pas mettre de Foreign Key ici.
+
+### `model_entity_tag_snapshot`
+
+Rôle: tags des entités d'un modele dans un snapshot.
+
+Colonnes:
+
+- `model_entity_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_entity_snapshot(id)` ON DELETE CASCADE
+- `tag_id` TEXT NOT NULL
+
+Unicité:
+
+- `PRIMARY KEY (model_entity_snapshot_id, tag_id)`
+
+### `model_entity_attribute_snapshot`
+
+Rôle: attributs d'entité d'un modèle dans un snapshot.
+
+Colonnes:
+
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_entity_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_entity_snapshot(id)` ON DELETE CASCADE
+- `key` TEXT NOT NULL
+- `name` TEXT NULL
+- `description` TEXT NULL
+- `model_type_snapshot_id` TEXT NOT NULL REFERENCES `model_type_snapshot(id)`
+- `optional` INTEGER NOT NULL
+
+Unicité:
+
+- `UNIQUE(model_entity_snapshot_id, lineage_id)`
+- `UNIQUE(model_entity_snapshot_id, key)`
+
+### `model_entity_attribute_tag_snapshot`
+
+Rôle: tags des attributs d'entité d'un modele dans un snapshot.
+
+Colonnes:
+
+- `model_entity_attribute_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_entity_attribute_snapshot(id)` ON DELETE CASCADE
+- `tag_id` TEXT NOT NULL
+
+Unicité:
+
+- `PRIMARY KEY (model_entity_attribute_snapshot_id, tag_id)`
+
+### `model_relationship_snapshot`
+
+Rôle: relations d'un modele dans un snapshot.
+
+Colonnes:
+
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_snapshot_id` TEXT NOT NULL REFERENCES `model_snapshot(id)` ON DELETE
+  CASCADE
+- `key` TEXT NOT NULL
+- `name` TEXT NULL
+- `description` TEXT NULL
+
+Unicité:
+
+- `UNIQUE(model_snapshot_id, lineage_id)`
+- `UNIQUE(model_snapshot_id, key)`
+
+### `model_relationship_tag_snapshot`
+
+Rôle: tags des relations d'un modele dans un snapshot.
+
+Colonnes:
+
+- `model_relationship_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_relationship_snapshot(id)` ON DELETE CASCADE
+- `tag_id` TEXT NOT NULL
+
+Unicité:
+
+- `PRIMARY KEY (model_relationship_snapshot_id, tag_id)`
+
+### `model_relationship_role_snapshot`
+
+Rôle: rôles d'une relation d'un modele dans un snapshot.
+
+Colonnes:
+
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_relationship_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_relationship_snapshot(id)` ON DELETE CASCADE
+- `key` TEXT NOT NULL
+- `model_entity_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_entity_snapshot(id)`
+- `name` TEXT NULL
+- `cardinality` TEXT NOT NULL
+
+Unicité:
+
+- `UNIQUE(model_relationship_snapshot_id, lineage_id)`
+- `UNIQUE(model_relationship_snapshot_id, key)`
+
+### `model_relationship_attribute_snapshot`
+
+Rôle: attributs d'une relation d'un modele dans un snapshot.
+
+Colonnes:
+
+- `id` TEXT PRIMARY KEY
+- `lineage_id` TEXT NOT NULL
+- `model_relationship_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_relationship_snapshot(id)` ON DELETE CASCADE
+- `key` TEXT NOT NULL
+- `name` TEXT NULL
+- `description` TEXT NULL
+- `model_type_snapshot_id` TEXT NOT NULL REFERENCES `model_type_snapshot(id)`
+- `optional` INTEGER NOT NULL
+
+Unicité:
+
+- `UNIQUE(model_relationship_snapshot_id, lineage_id)`
+- `UNIQUE(model_relationship_snapshot_id, key)`
+
+### `model_relationship_attribute_tag_snapshot`
+
+Rôle: tags des attributs de relation d'un modele dans un snapshot.
+
+Colonnes:
+
+- `model_relationship_attribute_snapshot_id` TEXT NOT NULL REFERENCES
+  `model_relationship_attribute_snapshot(id)` ON DELETE CASCADE
+- `tag_id` TEXT NOT NULL
+
+Unicité:
+
+- `PRIMARY KEY (model_relationship_attribute_snapshot_id, tag_id)`
+
+### Recherche
+
+La recherche indexe uniquement l'état `CURRENT_HEAD`.
+Elle n'indexe pas les snapshots de version.
+
+Tables cibles:
+
+- `model_search_item_snapshot`
+- `model_search_item_tag_snapshot`
+
+Transformations depuis `v000_init_db_sqlite.sql`:
+
+- renommer `denorm_model_search_item` en `model_search_item_snapshot`;
+- renommer `denorm_model_search_item_tag` en `model_search_item_tag_snapshot`;
+- renommer la colonne `model_id` en `model_snapshot_id` dans
+  `model_search_item_snapshot`;
+- `model_search_item_snapshot.model_snapshot_id` référence `model_snapshot(id)`;
+- conserver la relation tag:
+  `model_search_item_tag_snapshot.search_item_id` référence
+  `model_search_item_snapshot.id`;
+- conserver les autres colonnes de recherche (item_type, clés/labels,
+  search_text)
+  avec le même sens fonctionnel.
