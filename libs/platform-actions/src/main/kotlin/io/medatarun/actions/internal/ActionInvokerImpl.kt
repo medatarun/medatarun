@@ -66,7 +66,8 @@ internal class ActionInvokerImpl(
 
         // Invoke action, catch all exceptions and get the result
         val actionInvocationResult = try {
-            specializedInvoker.invoke(deserializedPayload, actionCtx)
+            val result = specializedInvoker.invoke(deserializedPayload, actionCtx)
+            result
         } catch (e: InvocationTargetException) {
             val cause = e.cause
             if (cause != null) {
