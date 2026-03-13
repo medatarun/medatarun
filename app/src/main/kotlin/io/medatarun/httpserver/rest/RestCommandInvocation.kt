@@ -8,6 +8,7 @@ import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.actions.internal.ActionInvoker
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.AppPrincipal
@@ -40,7 +41,7 @@ class RestCommandInvocation(
             val request = ActionRequest(
                 actionGroupKey = actionGroupKey,
                 actionKey = actionKey,
-                payload = json
+                payload = ActionPayload.AsJson(json)
             )
 
             val result = actionInvoker.handleInvocation(request, actionCtxFactory.create(principal))

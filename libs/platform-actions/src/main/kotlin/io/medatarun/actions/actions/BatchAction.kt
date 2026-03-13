@@ -3,6 +3,7 @@ package io.medatarun.actions.actions
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.security.SecurityRuleNames
 import kotlinx.serialization.Serializable
@@ -31,7 +32,7 @@ data class ActionWithPayload(
     fun toResourceInvocationRequest(): ActionRequest {
         val (r, c) = action.split("/")
         return ActionRequest(
-            r, c, payload ?: EMPTY_JSON_OBJECT
+            r, c, ActionPayload.AsJson(payload ?: EMPTY_JSON_OBJECT)
         )
     }
 

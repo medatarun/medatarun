@@ -1,12 +1,9 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.*
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
-import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.actions.ports.needs.*
+import io.medatarun.lang.http.StatusCode
 import io.medatarun.type.commons.id.Id
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
@@ -22,35 +19,37 @@ class ActionRegistry(
     private val semanticsResolver = ActionSemanticsResolver(vocabulary)
 
     private val actionGroupDescriptors: List<ActionGroupDescriptor> =
-        actionProviderContributions.map {
-            ActionGroupDescriptor(
-                key = it.actionGroupKey,
-                providerInstance = it,
+        actionProviderContributions.map { ActionGroupDescriptor(key = it.actionGroupKey) }
 
-                )
-        }
+    private val actionDescriptors: List<ActionRegisteredWithRuntime> =
+        actionProviderContributions.flatMap { toActions(it) }
 
-    private val actionGroupDescriptorsMap: Map<String, ActionGroupDescriptor> =
-        actionGroupDescriptors.associateBy { it.key }
+    private val actionMap: Map<ActionId, ActionRegisteredWithRuntime> =
+        actionDescriptors.associateBy { it.descriptor.id }
 
-    private val actionDescriptors: List<ActionRegistered> = actionProviderContributions.flatMap { toActions(it) }
-    private val actionMap: Map<ActionId, ActionRegistered> = actionDescriptors.associateBy { it.descriptor.id }
-    private val actionByKeys: Map<String, ActionRegistered> =
+    private val actionByKeys: Map<String, ActionRegisteredWithRuntime> =
         actionDescriptors.associateBy { it.descriptor.group + "/" + it.descriptor.key }
 
 
-    private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionRegistered> {
+    private fun toActions(actionProviderInstance: ActionProvider<*>): List<ActionRegisteredWithRuntime> {
 
         val cmds = actionProviderInstance.findCommandClass()
             ?.sealedSubclasses
-            ?.map { sealed -> buildActionsDescriptions(sealed, actionProviderInstance.actionGroupKey) }
+            ?.map { sealed ->
+                buildActionsDescriptions(
+                    actionProviderInstance,
+                    sealed,
+                    actionProviderInstance.actionGroupKey
+                )
+            }
             ?: emptyList()
 
         val direct = actionProviderInstance.findActions()
             .map {
-                ActionRegistered(
+                ActionRegisteredWithRuntime(
                     descriptor = it,
-                    semantics = semanticsResolver.createSemantics(it)
+                    semantics = semanticsResolver.createSemantics(it),
+                    provider = actionProviderInstance
                 )
             }
 
@@ -63,7 +62,11 @@ class ActionRegistry(
      *
      * At invocation time, commands are launched via the dispatch() method
      */
-    private fun buildActionsDescriptions(sealed: KClass<out Any>, actionGroup: String): ActionRegistered {
+    private fun buildActionsDescriptions(
+        actionProvider: ActionProvider<*>,
+        sealed: KClass<out Any>,
+        actionGroup: String
+    ): ActionRegisteredWithRuntime {
         val doc = sealed.findAnnotation<ActionDoc>() ?: throw ActionDefinitionWithoutDocException(
             actionGroup,
             sealed.simpleName ?: "unknown"
@@ -107,8 +110,8 @@ class ActionRegistry(
             semantics = semanticsDescription,
         )
         val semanticsResolved = semanticsResolver.createSemantics(descriptor)
-        val registered = ActionRegistered(
-            descriptor, semanticsResolved
+        val registered = ActionRegisteredWithRuntime(
+            descriptor = descriptor, semantics = semanticsResolved, provider = actionProvider
         )
         return registered
     }
@@ -126,6 +129,10 @@ class ActionRegistry(
         }
     }
 
+    private fun findActionById(actionId: ActionId): ActionRegisteredWithRuntime {
+        return actionMap[actionId] ?: throw ActionNotFoundInternalException(actionId)
+    }
+
     fun findAllActions(): Collection<ActionRegistered> {
         return actionDescriptors
     }
@@ -135,11 +142,44 @@ class ActionRegistry(
     }
 
     fun findAction(actionGroupKey: String, actionKey: String): ActionRegistered {
-        return findActionOptional(actionGroupKey, actionKey) ?: throw ActionNotFoundByKeysInternalException(actionGroupKey, actionKey)
+        return findActionOptional(actionGroupKey, actionKey) ?: throw ActionNotFoundByKeysInternalException(
+            actionGroupKey,
+            actionKey
+        )
     }
 
-    fun findProviderOptional(actionGroupKey: String, actionKey: String): ActionProvider<Any>? {
-        return actionGroupDescriptorsMap[actionGroupKey]?.providerInstance as ActionProvider<Any>?
+    fun findProviderOptional(actionId: ActionId): ActionProvider<Any>? {
+        return findActionById(actionId).provider as ActionProvider<Any>?
+    }
+
+    fun findInvoker(actionId: ActionId): Invoker {
+        val action = findActionById(actionId)
+        val provider = when (action.descriptor.accessType) {
+            ActionCmdAccessType.DISPATCH -> {
+                findProviderOptional(actionId) ?: throw ActionInvokerNotFoundInternalException(actionId)
+            }
+        }
+        return InvokerByDispatch(provider)
+    }
+
+    fun findDeserializer(actionId: ActionId): ActionPayloadJsonDeserializer {
+        val action = findActionById(actionId)
+        when (action.descriptor.accessType) {
+            ActionCmdAccessType.DISPATCH -> {
+                val actionProviderInstance: ActionProvider<Any> = findProviderOptional(action.descriptor.id)
+                    ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Action provider not found for [${action.descriptor.id}]")
+                return ActionPayloadDeserializerFromProviders(
+                    actionProviderInstance,
+                    actionTypesRegistry
+                )
+
+            }
+        }
+
+    }
+
+    interface Invoker {
+        fun invoke(cmd: Any, actionCtx: ActionCtx): Any?
     }
 
 }

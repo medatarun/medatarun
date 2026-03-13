@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
 import kotlinx.coroutines.runBlocking
@@ -80,7 +81,7 @@ class AppCLIRunner(
         val request = ActionRequest(
             actionGroupKey = actionGroupKey,
             actionKey = actionKey,
-            payload = rawParameters
+            payload = ActionPayload.AsJson(rawParameters)
         )
 
         val result = runBlocking {
@@ -145,7 +146,7 @@ class AppCLIRunner(
         val request = ActionRequest(
             actionGroupKey = "config",
             actionKey = "inspect_actions",
-            payload = buildJsonObject { }
+            payload = ActionPayload.AsJson(buildJsonObject { })
         )
         val url = "$publicBaseUrl/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {

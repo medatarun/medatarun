@@ -1,48 +1,34 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionCmdAccessType
-import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import kotlinx.serialization.json.JsonObject
+import io.medatarun.type.commons.key.Key
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
-import kotlin.reflect.full.primaryConstructor
 
 class ActionInvoker(
     val registry: ActionRegistry,
-    val actionTypesRegistry : ActionTypesRegistry,
+    val actionTypesRegistry: ActionTypesRegistry,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ) {
 
-
-    private val actionParamBinder = ActionParamBinder(actionTypesRegistry)
-
-
     fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
+
         val actionKey = invocation.actionKey
         val actionGroupKey = invocation.actionGroupKey
-        val actionPayload = invocation.payload
+        val actionPayloadSerialized = invocation.payload
 
 
+        // Find action, throws if not found
         val action = registry.findActionOptional(actionGroupKey, actionKey)
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Unknown action '$actionGroupKey/$actionKey'"
-            )
+            ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Unknown action '$actionGroupKey/$actionKey'")
 
-        val actionProviderInstance: ActionProvider<Any> = registry.findProviderOptional(actionGroupKey, actionKey)
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Action handler not found for '$actionGroupKey'"
-            )
-
+        // Evaluate security first, before any attempt to decode the payload
         val securityRuleEvaluationResult =
             actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
@@ -53,17 +39,16 @@ class ActionInvoker(
             )
         }
 
-        val invoker: Invoker = when (action.descriptor.accessType) {
-            ActionCmdAccessType.DISPATCH -> createInvokerDispatch(
-                actionDescriptor = action.descriptor,
-                actionProviderInstance = actionProviderInstance,
-                actionPayload = actionPayload,
-                actionCtx = actionCtx
-            )
-        }
+        // Deserialize the payload if needed
+        val deserializedPayload = registry.findDeserializer(action.descriptor.id)
+            .deserialize(action, actionPayloadSerialized)
 
+        // Find specialized invoker, depending on how the action is declared
+        val invoker: ActionRegistry.Invoker = registry.findInvoker(action.descriptor.id)
+
+        // Invoke action, catch all exceptions and get the result
         val actionInvocationResult = try {
-            invoker.invoke()
+            invoker.invoke(deserializedPayload, actionCtx)
         } catch (e: InvocationTargetException) {
             val cause = e.cause
             if (cause != null) {
@@ -112,50 +97,6 @@ class ActionInvoker(
         return actionInvocationResult
     }
 
-    interface Invoker {
-        fun invoke(): Any?
-    }
-
-    private fun createInvokerDispatch(
-        actionDescriptor: ActionCmdDescriptor,
-        actionProviderInstance: ActionProvider<Any>,
-        actionPayload: JsonObject,
-        actionCtx: ActionCtx
-    ): Invoker {
-        val actionGroupKey = actionDescriptor.group
-        val actionKey = actionDescriptor.key
-        val actionClass = actionProviderInstance.findCommandClass()
-            ?.sealedSubclasses
-            ?.firstOrNull { it.simpleName == actionDescriptor.actionClassName }
-            ?: throw ActionInvocationException(
-                StatusCode.NOT_FOUND,
-                "Action $actionGroupKey/$actionKey not found"
-            )
-
-        val bindings = actionParamBinder.buildConstructorArgs(
-            actionClass = actionClass,
-            actionProviderInstance = actionProviderInstance,
-            actionPayload = actionPayload,
-            actionDescriptor = actionDescriptor
-        )
-
-        // This will throw exceptions if invalid parameters exists (missing, with errors, etc.)
-        bindings.technicalValidation()
-
-        // Now we can assume there is no error anymore on parameters
-        logger.debug("call args: {}", bindings)
-
-        return object : Invoker {
-            override fun invoke(): Any? {
-                val cmd = actionClass.primaryConstructor?.callBy(bindings.toCallArgs())
-                    ?: throw ActionInvocationException(
-                        StatusCode.INTERNAL_SERVER_ERROR,
-                        "Action class $actionClass has no primary constructor"
-                    )
-                return actionProviderInstance.dispatch(cmd, actionCtx)
-            }
-        }
-    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(ActionInvoker::class.java)

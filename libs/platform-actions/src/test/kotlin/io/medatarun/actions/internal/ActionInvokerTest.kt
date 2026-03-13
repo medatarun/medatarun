@@ -458,11 +458,11 @@ class ActionInvokerTest {
 
         fun invoke(actionKey: String, payload: JsonObject): Any? {
             return env.actionPlatform.invoker.handleInvocation(
-                ActionRequest("test", actionKey, payload), env.actionCtx)
+                ActionRequest("test", actionKey, ActionPayload.AsJson(payload)), env.actionCtx)
         }
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
-            val request = ActionRequest(actionGroupKey, actionKey, payload)
+            val request = ActionRequest(actionGroupKey, actionKey, ActionPayload.AsJson(payload))
             return env.actionPlatform.invoker.handleInvocation(request, env.actionCtx)
         }
 

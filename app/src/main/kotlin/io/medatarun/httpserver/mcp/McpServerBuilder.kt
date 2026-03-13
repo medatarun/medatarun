@@ -5,6 +5,7 @@ import io.medatarun.actions.domain.ActionCmdDescriptor
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.internal.ActionInvoker
 import io.medatarun.actions.internal.ActionRegistry
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionCtxFactory
 import io.medatarun.security.AppPrincipal
@@ -88,7 +89,7 @@ class McpServerBuilder(
         val invocationRequest = ActionRequest(
             actionGroupKey = actionGroupKey,
             actionKey = actionKey,
-            payload = request.arguments
+            payload = ActionPayload.AsJson(request.arguments)
         )
 
         return try {
