@@ -3,7 +3,9 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
@@ -17,7 +19,7 @@ internal class ActionInvokerImpl(
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
 ): ActionInvoker {
 
-    override fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
+    override fun handleInvocation(invocation: ActionRequest, actionRequestCtx: ActionRequestCtx): Any? {
 
         val actionKey = invocation.actionKey
         val actionGroupKey = invocation.actionGroupKey
@@ -30,7 +32,7 @@ internal class ActionInvokerImpl(
 
         // Evaluate security first, before any attempt to decode the payload
         val securityRuleEvaluationResult =
-            actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionCtx)
+            actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
         if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
             throw ActionInvocationException(
                 StatusCode.UNAUTHORIZED,
@@ -44,11 +46,22 @@ internal class ActionInvokerImpl(
             .deserialize(action, actionPayloadSerialized)
 
         // Find specialized invoker, depending on how the action is declared
-        val invoker: ActionRegistryImpl.Invoker = registry.findInvoker(action.descriptor.id)
+        val specializedInvoker: ActionRegistryImpl.Invoker = registry.findInvoker(action.descriptor.id)
+
+        // Transform the request context into a context suitable for action handlers
+        val actionCtx = object: ActionCtx {
+            override fun dispatchAction(req: ActionRequest): Any? {
+                return handleInvocation(req, actionRequestCtx)
+            }
+
+            override val principal: ActionPrincipalCtx
+                get() = actionRequestCtx.principal
+
+        }
 
         // Invoke action, catch all exceptions and get the result
         val actionInvocationResult = try {
-            invoker.invoke(deserializedPayload, actionCtx)
+            specializedInvoker.invoke(deserializedPayload, actionCtx)
         } catch (e: InvocationTargetException) {
             val cause = e.cause
             if (cause != null) {

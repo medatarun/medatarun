@@ -7,7 +7,7 @@ import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionRequestCtxFactory
 import io.medatarun.security.AppPrincipal
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.*
@@ -29,7 +29,7 @@ class McpServerBuilder(
     private val actionRegistry: ActionRegistry,
     private val actionInvoker: ActionInvoker,
     private val configAgentInstructions: ConfigAgentInstructions,
-    private val actionCtxFactory: ActionCtxFactory,
+    private val actionRequestCtxFactory: ActionRequestCtxFactory,
 ) {
 
     private val serverInfo = Implementation(
@@ -93,7 +93,7 @@ class McpServerBuilder(
         )
 
         return try {
-            val result = actionInvoker.handleInvocation(invocationRequest, actionCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(invocationRequest, actionRequestCtxFactory.create(principal))
             toCallToolResult(result)
         } catch (exception: ActionInvocationException) {
             CallToolResult(

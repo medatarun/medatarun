@@ -3,6 +3,7 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
@@ -56,12 +57,12 @@ class SecurityRuleCtxActionTest {
 
     private class TestRole(override val key: String) : AppPrincipalRole
 
-    private class TestActionCtx(principal: AppPrincipal?) : ActionCtx {
+    private class TestActionCtx(principal: AppPrincipal?) : ActionRequestCtx {
         override val principal = object : ActionPrincipalCtx {
             override val principal = principal
             override fun ensureIsAdmin() = error("not used")
             override fun ensureSignedIn(): AppPrincipal = error("not used")
         }
-        override fun dispatchAction(req: ActionRequest): Any = error("not used")
+
     }
 }

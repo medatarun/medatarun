@@ -27,7 +27,7 @@ class AppHttpServerServices(
 
     val actionRegistry = actionPlatform.registry
     val actionInvoker = actionPlatform.invoker
-    val actionCtxFactory = ActionCtxFactory(runtime, actionInvoker, runtime.services)
+    val actionRequestCtxFactory = ActionRequestCtxFactory()
 
     val userService = runtime.services.getService<UserService>()
     val oidcService = runtime.services.getService<OidcService>()

@@ -6,6 +6,7 @@ import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.MedatarunExtension
@@ -29,11 +30,7 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
 
     val actionPlatform = runtime.services.getService<ActionPlatform>()
 
-    class TestActionCtx : ActionCtx {
-
-        override fun dispatchAction(req: ActionRequest): Any? {
-            throw TestActionCtxDispatchException()
-        }
+    class TestActionCtx : ActionRequestCtx {
 
         override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
     }
@@ -54,7 +51,6 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
         }
     }
 
-    private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
     private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
     private class TestPrincipalMissingException : MedatarunException("Principal is missing")
 }

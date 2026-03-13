@@ -8,7 +8,7 @@ import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionRequestCtxFactory
 import io.medatarun.httpserver.commons.HttpAdapters
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.AppPrincipal
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(
     private val actionInvoker: ActionInvoker,
-    private val actionCtxFactory: ActionCtxFactory
+    private val actionRequestCtxFactory: ActionRequestCtxFactory
 ) {
 
     suspend fun processInvocation(call: ApplicationCall, principal: AppPrincipal?) {
@@ -44,7 +44,7 @@ class RestCommandInvocation(
                 payload = ActionPayload.AsJson(json)
             )
 
-            val result = actionInvoker.handleInvocation(request, actionCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(request, actionRequestCtxFactory.create(principal))
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)

@@ -1,11 +1,12 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluatorResult
 
-internal class SecurityRuleCtxAction(private val actionCtx: ActionCtx) : SecurityRuleCtx {
+internal class SecurityRuleCtxAction(private val actionCtx: ActionRequestCtx) : SecurityRuleCtx {
 
     override fun isSignedIn(): Boolean {
         return actionCtx.principal.principal != null
