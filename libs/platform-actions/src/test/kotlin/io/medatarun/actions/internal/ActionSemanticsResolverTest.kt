@@ -30,11 +30,11 @@ class ActionSemanticsResolverTest {
                 title = null,
                 description = null,
                 resultType = Unit::class.createType(),
-                accessType = ActionCmdAccessType.DISPATCH,
+                accessType = ActionAccessType.DISPATCH,
                 uiLocations = emptySet(),
                 securityRule = "",
             )
-            val parameters = emptyList<ActionParamDescriptorImpl>()
+            val parameters = emptyList<ActionDescriptorParamImpl>()
             val semantics = ActionSemanticsConfig.Declared(
                 intent = ActionDocSemanticsIntent.CREATE,
                 subjects = subjects,
@@ -145,7 +145,7 @@ class ActionSemanticsResolverTest {
             key: String,
             group: String,
             paramNames: List<String>
-        ): ActionCmdDescriptor {
+        ): ActionDescriptor {
 
             return ActionDescriptorImpl(
                 base = ActionDescriptorBase(
@@ -156,13 +156,13 @@ class ActionSemanticsResolverTest {
                     title = null,
                     description = null,
                     resultType = Unit::class.createType(),
-                    accessType = ActionCmdAccessType.DISPATCH,
+                    accessType = ActionAccessType.DISPATCH,
                     uiLocations = emptySet(),
                     securityRule = "test",
                 ),
                 params = paramNames.mapIndexed { index, paramName ->
-                    ActionParamDescriptorImpl(
-                        name = paramName,
+                    ActionDescriptorParamImpl(
+                        key = paramName,
                         title = null,
                         type = String::class.createType(),
                         multiplatformType = "String",
@@ -177,7 +177,7 @@ class ActionSemanticsResolverTest {
 
         }
 
-        fun semantics(action: ActionCmdDescriptor): ActionSemantics {
+        fun semantics(action: ActionDescriptor): ActionSemantics {
             val env = envWithActionDescriptors(listOf(action))
 
             return env.actionPlatform.registry.findAction(action.group, action.key).semantics
@@ -330,15 +330,15 @@ class ActionSemanticsResolverTest {
     }
 
     private class StaticActionProvider(
-        private val actions: List<ActionCmdDescriptor>
+        private val actions: List<ActionDescriptor>
     ) : ActionProvider<Any> {
         override val actionGroupKey: String = "test"
         override fun findCommandClass(): KClass<Any>? = null
         override fun dispatch(cmd: Any, actionCtx: ActionCtx): Any? = null
-        override fun findActions(): List<ActionCmdDescriptor> = actions
+        override fun findActions(): List<ActionDescriptor> = actions
     }
 
-    private fun envWithActionDescriptors(actions: List<ActionCmdDescriptor>): ActionTestEnv {
+    private fun envWithActionDescriptors(actions: List<ActionDescriptor>): ActionTestEnv {
         val extension = object : MedatarunExtension {
             override val id = "action-test-env"
             override fun initContributions(ctx: MedatarunExtensionCtx) {

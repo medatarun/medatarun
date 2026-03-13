@@ -1,7 +1,8 @@
 package io.medatarun.actions.internal
 
+import io.medatarun.actions.domain.ActionRegistered
 import io.medatarun.actions.ports.needs.ActionPayload
 
-interface ActionPayloadJsonDeserializer {
+internal interface ActionPayloadJsonDeserializer {
     fun deserialize(action: ActionRegistered, payload: ActionPayload): Any
 }

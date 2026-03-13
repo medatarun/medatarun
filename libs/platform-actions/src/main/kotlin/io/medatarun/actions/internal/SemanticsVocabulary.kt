@@ -3,7 +3,7 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParamKind
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 
-class SemanticsVocabulary(
+internal class SemanticsVocabulary(
     val knownSubjects: List<String>,
     val updateIntentSynonyms: List<String>,
     val createIntentSynonyms: List<String>,

@@ -5,7 +5,7 @@ import io.medatarun.security.SecurityRuleEvaluator
 import io.medatarun.security.SecurityRuleEvaluatorNotFoundException
 import io.medatarun.security.SecurityRuleEvaluatorResult
 
-class ActionSecurityRuleEvaluators(ruleList: List<SecurityRuleEvaluator>) {
+internal class ActionSecurityRuleEvaluators(ruleList: List<SecurityRuleEvaluator>) {
 
     private val rules = ruleList.associateBy { it.key }
 

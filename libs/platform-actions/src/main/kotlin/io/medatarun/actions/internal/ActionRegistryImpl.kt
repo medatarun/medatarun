@@ -9,12 +9,12 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.typeOf
 
-class ActionRegistry(
+internal class ActionRegistryImpl(
     private val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators,
     private val actionTypesRegistry: ActionTypesRegistry,
     private val actionProviderContributions: List<ActionProvider<*>>,
     private val vocabulary: SemanticsVocabulary
-) {
+): ActionRegistry {
 
     private val semanticsResolver = ActionSemanticsResolver(vocabulary)
 
@@ -58,7 +58,7 @@ class ActionRegistry(
     }
 
     /**
-     * Builds a [ActionCmdDescriptor] based on a ModelCmd.
+     * Builds a [ActionDescriptor] based on a ModelCmd.
      *
      * At invocation time, commands are launched via the dispatch() method
      */
@@ -79,7 +79,7 @@ class ActionRegistry(
 
         val base = ActionDescriptorBase(
             id = Id.generate(::ActionId),
-            accessType = ActionCmdAccessType.DISPATCH,
+            accessType = ActionAccessType.DISPATCH,
             key = doc.key,
             actionClassName = sealed.simpleName ?: "",
             group = actionGroup,
@@ -92,8 +92,8 @@ class ActionRegistry(
 
         val parameters = sealed.memberProperties.mapIndexed { index, property ->
             val paramdoc = property.findAnnotation<ActionParamDoc>()
-            ActionParamDescriptorImpl(
-                name = property.name,
+            ActionDescriptorParamImpl(
+                key = property.name,
                 title = paramdoc?.name,
                 description = paramdoc?.description?.trimIndent(),
                 optional = property.returnType.isMarkedNullable,
@@ -133,7 +133,7 @@ class ActionRegistry(
         return actionMap[actionId] ?: throw ActionNotFoundInternalException(actionId)
     }
 
-    fun findAllActions(): Collection<ActionRegistered> {
+    override fun findAllActions(): Collection<ActionRegistered> {
         return actionDescriptors
     }
 
@@ -141,7 +141,7 @@ class ActionRegistry(
         return actionByKeys["$actionGroupKey/$actionKey"]
     }
 
-    fun findAction(actionGroupKey: String, actionKey: String): ActionRegistered {
+    override fun findAction(actionGroupKey: String, actionKey: String): ActionRegistered {
         return findActionOptional(actionGroupKey, actionKey) ?: throw ActionNotFoundByKeysInternalException(
             actionGroupKey,
             actionKey
@@ -155,7 +155,7 @@ class ActionRegistry(
     fun findInvoker(actionId: ActionId): Invoker {
         val action = findActionById(actionId)
         val provider = when (action.descriptor.accessType) {
-            ActionCmdAccessType.DISPATCH -> {
+            ActionAccessType.DISPATCH -> {
                 findProviderOptional(actionId) ?: throw ActionInvokerNotFoundInternalException(actionId)
             }
         }
@@ -165,7 +165,7 @@ class ActionRegistry(
     fun findDeserializer(actionId: ActionId): ActionPayloadJsonDeserializer {
         val action = findActionById(actionId)
         when (action.descriptor.accessType) {
-            ActionCmdAccessType.DISPATCH -> {
+            ActionAccessType.DISPATCH -> {
                 val actionProviderInstance: ActionProvider<Any> = findProviderOptional(action.descriptor.id)
                     ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Action provider not found for [${action.descriptor.id}]")
                 return ActionPayloadDeserializerFromProviders(

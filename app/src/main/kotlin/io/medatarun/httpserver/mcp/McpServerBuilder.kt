@@ -1,10 +1,10 @@
 package io.medatarun.httpserver.mcp
 
 
-import io.medatarun.actions.domain.ActionCmdDescriptor
+import io.medatarun.actions.domain.ActionDescriptor
 import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.internal.ActionInvoker
-import io.medatarun.actions.internal.ActionRegistry
+import io.medatarun.actions.domain.ActionInvoker
+import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.runtime.ActionCtxFactory
@@ -200,17 +200,17 @@ class McpServerBuilder(
      * Builds the description of the tool as the MCPInspector see it or the MCP client
      * will handle it.
      */
-    private fun buildToolInput(actionDescriptor: ActionCmdDescriptor): Tool.Input {
+    private fun buildToolInput(actionDescriptor: ActionDescriptor): Tool.Input {
         val properties = buildJsonObject {
             actionDescriptor.parameters.forEach { param ->
-                put(param.name, buildJsonObject {
+                put(param.key, buildJsonObject {
                     put("type", mapParameterType(param.type))
                 })
             }
         }
         val required = actionDescriptor.parameters
             .filterNot { it.optional }
-            .map { it.name }
+            .map { it.key }
 
         return Tool.Input(
             properties = properties,

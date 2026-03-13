@@ -5,7 +5,7 @@ import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRuleCtx
 import io.medatarun.security.SecurityRuleEvaluatorResult
 
-class SecurityRuleCtxAction(private val actionCtx: ActionCtx) : SecurityRuleCtx {
+internal class SecurityRuleCtxAction(private val actionCtx: ActionCtx) : SecurityRuleCtx {
 
     override fun isSignedIn(): Boolean {
         return actionCtx.principal.principal != null

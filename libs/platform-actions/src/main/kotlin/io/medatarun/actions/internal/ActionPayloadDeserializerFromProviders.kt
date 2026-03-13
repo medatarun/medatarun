@@ -1,6 +1,7 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionRegistered
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionProvider
@@ -12,7 +13,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.primaryConstructor
 
-class ActionPayloadDeserializerFromProviders(
+internal class ActionPayloadDeserializerFromProviders(
     val actionProviderInstance: ActionProvider<Any>,
     val actionTypesRegistry: ActionTypesRegistry
 ) : ActionPayloadJsonDeserializer {

@@ -1,10 +1,17 @@
 package io.medatarun.actions.adapters
 
+import io.medatarun.actions.domain.ActionInvoker
+import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.internal.*
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
 
+/**
+ * Action platform holds the public runnable tooling necessary to use actions.
+ *
+ * Exposed tools are the [ActionRegistryImpl] and [ActionInvoker], used to discover registered actions and invoke them.
+ */
 interface ActionPlatform {
 
     val registry: ActionRegistry
@@ -12,24 +19,29 @@ interface ActionPlatform {
 
     companion object {
 
+        /**
+         * Builds an action platform so you can get a running registry and invoker at once, based on things provided externally
+         * (action descriptors, type descriptors, security rule evaluators, etc.)
+         */
         fun build(
-            typeDescriptors : List<TypeDescriptor<*>>,
+            typeDescriptors: List<TypeDescriptor<*>>,
             actionProviders: List<ActionProvider<*>>,
-            securityRulesProviders : List<SecurityRulesProvider>
+            securityRulesProviders: List<SecurityRulesProvider>
         ): ActionPlatform {
 
             val actionTypesRegistry = ActionTypesRegistry(typeDescriptors)
 
-            val actionSecurityRuleEvaluators = ActionSecurityRuleEvaluators(securityRulesProviders.flatMap { it.getRules() })
+            val actionSecurityRuleEvaluators =
+                ActionSecurityRuleEvaluators(securityRulesProviders.flatMap { it.getRules() })
 
-            val registry = ActionRegistry(
+            val registry = ActionRegistryImpl(
                 actionSecurityRuleEvaluators,
                 actionTypesRegistry,
                 actionProviders,
                 ActionSemanticsResolver.buildDefaultVocabulary()
             )
 
-            val actionInvoker = ActionInvoker(
+            val actionInvoker = ActionInvokerImpl(
                 registry, actionTypesRegistry, actionSecurityRuleEvaluators
             )
 

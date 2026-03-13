@@ -1,13 +1,11 @@
 package io.metadatarun.ext.config.actions
 
-import io.medatarun.actions.internal.ActionRegistry
-import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
-import io.medatarun.actions.internal.ActionSemanticsResolver
-import io.medatarun.actions.internal.ActionTypesRegistry
+
+import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.security.SecurityRulesProvider
-import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
 
@@ -47,21 +45,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
      */
     private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
-        val ruleEvaluators = ActionSecurityRuleEvaluators(
-            actionCtx.extensionRegistry
-                .findContributionsFlat(SecurityRulesProvider::class)
-                .flatMap { it.getRules() }
-        )
-        val typeRegistry = ActionTypesRegistry(
-            actionCtx.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
-        )
-        val actionRegistry = ActionRegistry(
-            actionSecurityRuleEvaluators = ruleEvaluators,
-            actionTypesRegistry = typeRegistry,
-            actionProviderContributions = actionCtx.extensionRegistry.findContributionsFlat(ActionProvider::class),
-            vocabulary = ActionSemanticsResolver.buildDefaultVocabulary()
-        )
-
+        val actionRegistry = actionCtx.getService(ActionPlatform::class).registry
         val items = actionRegistry.findAllActions().map { actionRegistered ->
             val descriptor = actionRegistered.descriptor
             val semantics = actionRegistered.semantics
@@ -75,7 +59,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                 securityRule = descriptor.securityRule,
                 parameters = descriptor.parameters.map { parameter ->
                     ActionParamDescriptorDto(
-                        name = parameter.name,
+                        name = parameter.key,
                         type = parameter.multiplatformType,
                         jsonType = parameter.jsonType.code,
                         optional = parameter.optional,

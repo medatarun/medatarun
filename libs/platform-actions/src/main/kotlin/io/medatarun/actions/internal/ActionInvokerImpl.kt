@@ -1,23 +1,23 @@
 package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
-import io.medatarun.type.commons.key.Key
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 
-class ActionInvoker(
-    val registry: ActionRegistry,
+internal class ActionInvokerImpl(
+    val registry: ActionRegistryImpl,
     val actionTypesRegistry: ActionTypesRegistry,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
-) {
+): ActionInvoker {
 
-    fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
+    override fun handleInvocation(invocation: ActionRequest, actionCtx: ActionCtx): Any? {
 
         val actionKey = invocation.actionKey
         val actionGroupKey = invocation.actionGroupKey
@@ -44,7 +44,7 @@ class ActionInvoker(
             .deserialize(action, actionPayloadSerialized)
 
         // Find specialized invoker, depending on how the action is declared
-        val invoker: ActionRegistry.Invoker = registry.findInvoker(action.descriptor.id)
+        val invoker: ActionRegistryImpl.Invoker = registry.findInvoker(action.descriptor.id)
 
         // Invoke action, catch all exceptions and get the result
         val actionInvocationResult = try {
@@ -99,7 +99,7 @@ class ActionInvoker(
 
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ActionInvoker::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(ActionInvokerImpl::class.java)
     }
 
 }

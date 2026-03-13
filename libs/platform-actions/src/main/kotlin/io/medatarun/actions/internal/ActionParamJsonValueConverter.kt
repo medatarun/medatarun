@@ -27,7 +27,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.primaryConstructor
 
-class ActionParamJsonValueConverter(
+internal class ActionParamJsonValueConverter(
     private val typeConverters: ActionTypesRegistry,
 ) {
     sealed interface ConversionResult {

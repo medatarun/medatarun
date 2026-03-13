@@ -2,7 +2,10 @@ package io.medatarun.actions.domain
 
 import kotlin.reflect.KType
 
-interface ActionCmdDescriptor {
+/**
+ * Declaration of an action (by an external module). This is the public facing declaration.
+ */
+interface ActionDescriptor {
     /**
      * Unique identifier of action across all actions of all extensions.
      * Identifier is mostly internal to the system and not meant to be used by
@@ -36,11 +39,11 @@ interface ActionCmdDescriptor {
     /**
      * List of the command parameters
      */
-    val parameters: List<ActionCmdParamDescriptor>
+    val parameters: List<ActionDescriptorParam>
     /**
-     * How to invoke the command (may be expanded in the future, had contained other values before, we keep it)
+     * How to invoke the command (maybe expanded in the future, had contained other values before, we keep it)
      */
-    val accessType: ActionCmdAccessType
+    val accessType: ActionAccessType
     /**
      * Hint for UI to know where to display the command
      * Known values are "" (no location, hidden), "models" in the list of models, "entity" on an entity, etc.
@@ -57,7 +60,7 @@ interface ActionCmdDescriptor {
     val semantics: ActionSemanticsConfig
 
 
-    fun findParamByName(name: String): ActionCmdParamDescriptor? {
-        return parameters.firstOrNull { it.name == name }
+    fun findParamByName(name: String): ActionDescriptorParam? {
+        return parameters.firstOrNull { it.key == name }
     }
 }

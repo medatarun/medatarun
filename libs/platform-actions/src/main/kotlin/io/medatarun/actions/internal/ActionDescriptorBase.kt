@@ -1,8 +1,10 @@
-package io.medatarun.actions.domain
+package io.medatarun.actions.internal
 
+import io.medatarun.actions.domain.ActionAccessType
+import io.medatarun.actions.domain.ActionId
 import kotlin.reflect.KType
 
-class ActionDescriptorBase(
+internal class ActionDescriptorBase(
     /**
      * Unique identifier of action across all actions of all extensions.
      * Identifier is mostly internal to the system and not meant to be used by
@@ -36,7 +38,7 @@ class ActionDescriptorBase(
     /**
      * How to invoke the command (may be expanded in the future, had contained other values before, we keep it)
      */
-    val accessType: ActionCmdAccessType,
+    val accessType: ActionAccessType,
     /**
      * Hint for UI to know where to display the command
      * Known values are "" (no location, hidden), "models" in the list of models, "entity" on an entity, etc.

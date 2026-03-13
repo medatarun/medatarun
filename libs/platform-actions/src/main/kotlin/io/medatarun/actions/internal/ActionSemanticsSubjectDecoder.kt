@@ -4,7 +4,7 @@ import io.medatarun.actions.domain.ActionSemanticsInvalidSubjectFormatException
 import io.medatarun.actions.domain.ActionSemanticsSubject
 import io.medatarun.actions.domain.ActionSemanticsSubjectReferencingParam
 
-class ActionSemanticsSubjectDecoder(val vocabulary: SemanticsVocabulary) {
+internal class ActionSemanticsSubjectDecoder(val vocabulary: SemanticsVocabulary) {
     fun decodeSubjects(declaredSubjects: List<String>): List<ActionSemanticsSubject> {
         val subjects = mutableListOf<ActionSemanticsSubject>()
 
