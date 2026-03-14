@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":extensions:models-import-frictionlessdata"))
     implementation(project(":extensions:models-import-jdbc"))
     implementation(project(":extensions:models-storage-json"))
+    implementation(project(":extensions:platform-actions-storage-db"))
     implementation(project(":extensions:sysops-config-inspector"))
     implementation(project(":extensions:tags-core"))
     implementation(project(":libs:lang"))

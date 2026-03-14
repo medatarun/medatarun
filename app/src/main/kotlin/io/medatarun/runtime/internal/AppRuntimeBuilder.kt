@@ -13,6 +13,7 @@ import io.medatarun.platform.kernel.PlatformRuntime
 import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.types.TypeSystemExtension
+import io.medatarun.actions.infra.db.PlatformActionsStorageDbExtension
 import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
@@ -28,6 +29,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
             ActionsExtension(),
             PlatformStorageDbExtension(),
             PlatformStorageDbSqliteExtension(),
+            PlatformActionsStorageDbExtension(),
             AuthExtension(),
             TagsCoreExtension(),
             ModelExtension(),

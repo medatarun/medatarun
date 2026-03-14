@@ -1,0 +1,16 @@
+CREATE TABLE action_audit_event (
+    action_instance_id TEXT PRIMARY KEY NOT NULL,
+    action_group_key TEXT NOT NULL,
+    action_key TEXT NOT NULL,
+    principal_id TEXT NULL,
+    source TEXT NOT NULL,
+    payload_serialized TEXT NOT NULL,
+    status TEXT NOT NULL,
+    error_code TEXT NULL,
+    error_message TEXT NULL
+);
+
+CREATE INDEX idx_action_audit_event_group_key ON action_audit_event(action_group_key);
+CREATE INDEX idx_action_audit_event_action_key ON action_audit_event(action_key);
+CREATE INDEX idx_action_audit_event_principal_id ON action_audit_event(principal_id);
+CREATE INDEX idx_action_audit_event_status ON action_audit_event(status);
