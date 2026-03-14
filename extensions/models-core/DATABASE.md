@@ -82,7 +82,7 @@ Colonnes:
 - `event_type` TEXT NOT NULL: type d'event (`create`, `update`, `release`,
   etc.).
 - `event_version` INTEGER NOT NULL: numéro de version de l'event, permet d'upcaster les vieux event lors du replay quand ils évoluent
-- `version` TEXT NULL: version SemVer portée uniquement pour les events
+- `model_version` TEXT NULL: version SemVer du modèle, portée uniquement pour les events
   `event_type='release'`.
 - `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'
   action.
@@ -105,7 +105,7 @@ Règle de mapping:
 Contraintes:
 
 - `UNIQUE(model_id, stream_revision)` (ordre canonique)
-- `UNIQUE(model_id, version)` avec filtre logique `event_type='release'`
+- `UNIQUE(model_id, model_version)` avec filtre logique `event_type='release'`
   si le moteur SQL le permet; sinon garantir l'unicité côté application.
 
 ## Tables projection métier
