@@ -30,7 +30,7 @@ class Model_Compare_Test {
         createBaseModel(env, leftKey)
         createBaseModel(env, rightKey)
 
-        val result = env.dispatchResult(
+        val result = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
                 rightModelRef = modelRefKey(rightKey),
@@ -58,7 +58,7 @@ class Model_Compare_Test {
             )
         )
 
-        val result = env.dispatchResult(
+        val result = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
                 rightModelRef = modelRefKey(rightKey),
@@ -93,7 +93,7 @@ class Model_Compare_Test {
             )
         )
 
-        val structuralResult = env.dispatchResult(
+        val structuralResult = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
                 rightModelRef = modelRefKey(rightKey),
@@ -104,7 +104,7 @@ class Model_Compare_Test {
         val structuralEntriesWithoutModel = structuralDiff.entries.filter { it.objectType != "model" }
         assertEquals(0, structuralEntriesWithoutModel.size)
 
-        val completeResult = env.dispatchResult(
+        val completeResult = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
                 rightModelRef = modelRefKey(rightKey),

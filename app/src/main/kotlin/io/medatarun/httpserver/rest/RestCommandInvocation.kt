@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.medatarun.actions.domain.ActionExceptionInterpreter
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.ports.needs.ActionPayload
@@ -55,30 +56,31 @@ class RestCommandInvocation(
                 else -> call.respond(responsePayload)
             }
             call.respond(HttpStatusCode.OK, responsePayload)
-        } catch (exception: ActionInvocationException) {
+        } catch (exception: Throwable) {
             val resourceForLog = actionGroupKeyPathValue ?: "unknown"
             val functionForLog = actionKeyPathValue ?: "unknown"
-            if (exception.status.httpStatusCode >= 500) {
+            val i = ActionExceptionInterpreter(exception)
+            if (i.isInternal()) {
                 logger.error(
                     "Invocation failed for $resourceForLog.$functionForLog",
                     exception
                 )
             } else {
                 logger.warn(
-                    "Invocation error for $resourceForLog/$functionForLog: ${exception.message}"
+                    "Invocation error for $resourceForLog/$functionForLog: ${i.privateErrorMessage()}"
                 )
             }
 
             val payloadJson = buildJsonObject {
                 put("type", "about:blank")
-                put("title", exception.msg)
-                put("status", exception.status.httpStatusCode)
-                exception.payload.forEach { (k, v) ->
+                put("title", i.publicErrorMessage())
+                put("status", i.statusCode)
+                i.details().forEach { (k, v) ->
                     put(k, v)
                 }
             }
             call.respondText(
-                status = HttpStatusCode(exception.status.httpStatusCode, exception.status.message),
+                status = HttpStatusCode(i.statusCode, i.statusName),
                 text = payloadJson.toString(),
                 contentType = ContentType.Application.Json
             )

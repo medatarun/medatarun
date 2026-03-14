@@ -7,18 +7,14 @@ import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.SecurityRuleEvaluatorResult
 import io.medatarun.type.commons.id.Id
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.lang.reflect.InvocationTargetException
 
 internal class ActionInvokerImpl(
     val registry: ActionRegistryImpl,
     val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
-): ActionInvoker {
+) : ActionInvoker {
 
     override fun handleInvocation(invocation: ActionRequest, actionRequestCtx: ActionRequestCtx): Any? {
 
@@ -51,7 +47,7 @@ internal class ActionInvokerImpl(
         val specializedInvoker: ActionRegistryImpl.Invoker = registry.findInvoker(action.descriptor.id)
 
         // Transform the request context into a context suitable for action handlers
-        val actionCtx = object: ActionCtx {
+        val actionCtx = object : ActionCtx {
             override fun dispatchAction(req: ActionRequest): Any? {
                 return handleInvocation(req, actionRequestCtx)
             }
@@ -65,60 +61,8 @@ internal class ActionInvokerImpl(
         }
 
         // Invoke action, catch all exceptions and get the result
-        val actionInvocationResult = try {
-            val result = specializedInvoker.invoke(deserializedPayload, actionCtx)
-            result
-        } catch (e: InvocationTargetException) {
-            val cause = e.cause
-            if (cause != null) {
-                logger.error("Invocation failed", e)
-                throw ActionInvocationException(
-                    StatusCode.INTERNAL_SERVER_ERROR,
-                    cause::class.simpleName ?: "Invocation failed",
-                    mapOf(
-                        "details" to (e.cause?.message ?: e::class.simpleName ?: e).toString()
-                    )
-                )
-            } else {
-                logger.error("Invocation failed", e)
-                throw ActionInvocationException(
-                    StatusCode.INTERNAL_SERVER_ERROR,
-                    "Invocation failed",
-                    mapOf(
-                        "details" to (e.message ?: e::class.simpleName).toString()
-                    )
-                )
-            }
-        } catch (e: MedatarunException) {
-            if (e.httpStatusCode.httpStatusCode < StatusCode.INTERNAL_SERVER_ERROR.httpStatusCode) {
-                throw ActionInvocationException(
-                    e.httpStatusCode,
-                    e.msg
-                )
-            } else {
-                logger.error("Invocation failed", e)
-                throw ActionInvocationException(
-                    StatusCode.INTERNAL_SERVER_ERROR,
-                    "Internal server error",
-                    mapOf("details" to e.msg)
-                )
-            }
-        } catch (throwable: Throwable) {
-            logger.error("Invocation failed", throwable)
-            throw ActionInvocationException(
-                StatusCode.INTERNAL_SERVER_ERROR,
-                "Invocation failed",
-                mapOf(
-                    "details" to (throwable.message ?: throwable::class.simpleName).toString()
-                )
-            )
-        }
+        val actionInvocationResult = specializedInvoker.invoke(deserializedPayload, actionCtx)
         return actionInvocationResult
-    }
-
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ActionInvokerImpl::class.java)
     }
 
 }

@@ -10,7 +10,7 @@ class TagActionProvider(
     val tagCmds: TagCmds,
     val tagQueries: TagQueries
 ) : ActionProvider<TagAction> {
-    override val actionGroupKey: String = "tag"
+    override val actionGroupKey: String = ACTION_GROUP_KEY
 
 
     override fun findCommandClass(): KClass<TagAction> = TagAction::class
@@ -45,6 +45,10 @@ class TagActionProvider(
             is TagAction.TagGroupList -> handler.tagGroupList(action)
         }
         return result
+    }
+
+    companion object {
+        const val ACTION_GROUP_KEY = "tag"
     }
 }
 

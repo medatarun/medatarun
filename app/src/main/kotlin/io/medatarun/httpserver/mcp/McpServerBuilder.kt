@@ -2,7 +2,7 @@ package io.medatarun.httpserver.mcp
 
 
 import io.medatarun.actions.domain.ActionDescriptor
-import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionExceptionInterpreter
 import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionPayload
@@ -95,17 +95,10 @@ class McpServerBuilder(
         return try {
             val result = actionInvoker.handleInvocation(invocationRequest, actionRequestCtxFactory.create(principal))
             toCallToolResult(result)
-        } catch (exception: ActionInvocationException) {
+        } catch(t: Throwable) {
+            val i = ActionExceptionInterpreter(t)
             CallToolResult(
-                content = listOf(TextContent(buildMcpErrorMessage(exception))),
-                isError = true
-            )
-        } catch (throwable: Throwable) {
-            logger.error("Unhandled error while invoking $actionGroupKey.$actionKey", throwable)
-            CallToolResult(
-                content = listOf(
-                    TextContent("Invocation failed: ${throwable.message ?: throwable::class.simpleName}")
-                ),
+                content = listOf(TextContent(buildMcpErrorMessage(i))),
                 isError = true
             )
         }
@@ -182,9 +175,9 @@ class McpServerBuilder(
         }
     }
 
-    private fun buildMcpErrorMessage(exception: ActionInvocationException): String {
-        val parts = mutableListOf(exception.message ?: "Invocation error")
-        exception.payload.forEach { (key, value) ->
+    private fun buildMcpErrorMessage(exception: ActionExceptionInterpreter): String {
+        val parts = mutableListOf(exception.publicErrorMessage())
+        exception.details().forEach { (key, value) ->
             parts += "$key: $value"
         }
         return parts.joinToString(separator = "\n")

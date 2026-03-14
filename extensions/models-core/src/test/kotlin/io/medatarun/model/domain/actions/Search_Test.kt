@@ -41,7 +41,7 @@ class Search_Test {
      */
     @Test
     fun `matches objects having any of the requested tags`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -93,7 +93,7 @@ class Search_Test {
      */
     @Test
     fun `matches objects having all requested tags`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -125,7 +125,7 @@ class Search_Test {
      */
     @Test
     fun `matches objects having none of the excluded tags`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -174,7 +174,7 @@ class Search_Test {
      */
     @Test
     fun `matches objects with no tags`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -201,7 +201,7 @@ class Search_Test {
      */
     @Test
     fun `nonEmpty matches objects with at least one tag`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -265,7 +265,7 @@ class Search_Test {
      */
     @Test
     fun `empty and not-empty partition indexed objects`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -286,7 +286,7 @@ class Search_Test {
      */
     @Test
     fun `resolves global tags by group and key`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -309,7 +309,7 @@ class Search_Test {
      */
     @Test
     fun `resolves local tags in crm scope`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
         val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
@@ -336,7 +336,7 @@ class Search_Test {
      */
     @Test
     fun `resolves local tags in cooking scope`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
         val cookingModelId = fixture.env.queries.findModel(refs.cooking.ref).id
@@ -389,7 +389,7 @@ class Search_Test {
      */
     @Test
     fun `fails when any requested global tag does not exist`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
         val unknownGlobalTag = TagRef.ByKey(
@@ -410,12 +410,12 @@ class Search_Test {
      */
     @Test
     fun `fails when any requested local tag does not exist`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
         val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
         val unknownLocalTag = TagRef.ByKey(
-            scopeRef = ModelTagResolver.Companion.modelTagScopeRef(crmModelId),
+            scopeRef = ModelTagResolver.modelTagScopeRef(crmModelId),
             groupKey = null,
             key = TagKey("missing-local-tag")
         )
@@ -436,7 +436,7 @@ class Search_Test {
      */
     @Test
     fun `intersects filter results with and`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -491,7 +491,7 @@ class Search_Test {
      */
     @Test
     fun `unions filter results with or`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -533,7 +533,7 @@ class Search_Test {
      */
     @Test
     fun `handles any-of with empty requested tags list`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -549,7 +549,7 @@ class Search_Test {
      */
     @Test
     fun `handles all-of with empty requested tags list`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -565,7 +565,7 @@ class Search_Test {
      */
     @Test
     fun `handles none-of with empty excluded tags list`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -581,7 +581,7 @@ class Search_Test {
      */
     @Test
     fun `ignores or handles duplicate requested tags in any-of`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -619,7 +619,7 @@ class Search_Test {
      */
     @Test
     fun `ignores or handles duplicate requested tags in all-of`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -657,7 +657,7 @@ class Search_Test {
      */
     @Test
     fun `ignores or handles duplicate requested tags in none-of`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -693,7 +693,7 @@ class Search_Test {
      */
     @Test
     fun `handles and with no filters`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -717,7 +717,7 @@ class Search_Test {
      */
     @Test
     fun `handles or with no filters`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -744,7 +744,7 @@ class Search_Test {
      */
     @Test
     fun `search applies to all indexed object kinds`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -779,7 +779,7 @@ class Search_Test {
      */
     @Test
     fun `search includes auto-created entity id attributes in indexed objects`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -834,7 +834,7 @@ class Search_Test {
 
     @Test
     fun `text contains matches model names`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -845,7 +845,7 @@ class Search_Test {
 
     @Test
     fun `text contains matches object keys`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -859,7 +859,7 @@ class Search_Test {
 
     @Test
     fun `text contains matches object descriptions`() {
-        val fixture = SearchFixture.Companion.builder()
+        val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
 
@@ -897,7 +897,7 @@ class Search_Test {
     }
 
     private fun search(fixture: SearchFixture, filters: SearchFilters): JsonObject {
-        return fixture.env.dispatchResult(
+        return fixture.env.dispatch(
             ModelAction.Search(
                 filters = filters,
                 fields = SearchFields(emptyList())

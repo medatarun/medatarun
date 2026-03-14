@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.lang.exceptions.MedatarunException
@@ -27,7 +26,7 @@ class ModelActionProvider(
     private val modelQueries: ModelQueries
 ) : ActionProvider<ModelAction> {
 
-    override val actionGroupKey: String = "model"
+    override val actionGroupKey: String = ACTION_GROUP_KEY
 
 
     /**
@@ -142,6 +141,11 @@ class ModelActionProvider(
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModelActionProvider::class.java)
+
+        /**
+         * Changing this will break APIs or CLI. It is the name clients are using to reference action group
+         */
+        const val ACTION_GROUP_KEY = "model"
     }
 }
 
