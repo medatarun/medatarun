@@ -10,6 +10,22 @@ CREATE TABLE IF NOT EXISTS model
     documentation_home TEXT
 );
 
+CREATE TABLE IF NOT EXISTS model_event
+(
+    id              TEXT PRIMARY KEY UNIQUE,
+    model_id        TEXT    NOT NULL,
+    stream_revision INTEGER NOT NULL,
+    event_type      TEXT    NOT NULL,
+    event_version   INTEGER NOT NULL,
+    model_version   TEXT,
+    actor_id        TEXT    NOT NULL,
+    action_id       TEXT    NOT NULL,
+    created_at      TEXT    NOT NULL,
+    payload         TEXT    NOT NULL,
+    FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
+    UNIQUE (model_id, stream_revision)
+);
+
 CREATE TABLE IF NOT EXISTS model_tag
 (
     model_id TEXT NOT NULL,
@@ -156,6 +172,9 @@ CREATE TABLE IF NOT EXISTS denorm_model_search_item_tag
 
 CREATE INDEX IF NOT EXISTS idx_model_type_model_id
     ON model_type (model_id);
+
+CREATE INDEX IF NOT EXISTS idx_model_event_model_id
+    ON model_event (model_id);
 
 CREATE INDEX IF NOT EXISTS idx_entity_model_id
     ON entity (model_id);

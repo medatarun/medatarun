@@ -5,11 +5,14 @@ import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.model.ModelExtension
+import io.medatarun.model.ModelExtensionConfigProd
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
 import io.medatarun.model.domain.ModelRef
+import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -57,6 +60,10 @@ class ModelTestEnv {
         get() = platform.services.getService(TagQueries::class)
     val dbMigrationChecker
         get() = platform.services.getService(DbMigrationChecker::class)
+    val dbConnectionFactory
+        get() = platform.services.getService(DbConnectionFactory::class)
+    val storageDb
+        get() = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
     private val actionPlatform get() = platform.services.getService<ActionPlatform>()
 
     fun dispatch(action: ModelAction): Any? {

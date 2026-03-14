@@ -81,6 +81,15 @@ class ModelVersionPreReleaseLeadingZeroException :
         StatusCode.BAD_REQUEST
     )
 
+class ModelEventConcurrentWriteException(
+    modelId: ModelId,
+    expectedRevision: Int,
+    conflictingRevision: Int
+) : MedatarunException(
+    "Cannot append a model event to model [${modelId.value}] at expected revision [$expectedRevision] because revision [$conflictingRevision] was written concurrently.",
+    StatusCode.CONFLICT
+)
+
 
 class LocalizedTextMapEmptyException :
     MedatarunException("When creating a LocalizedTextMap you must provide at least one language value or a 'default' key with a value")

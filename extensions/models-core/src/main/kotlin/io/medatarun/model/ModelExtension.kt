@@ -11,10 +11,10 @@ import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
-import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelQueries
+import io.medatarun.model.ports.needs.ModelClock
 import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelStorage
@@ -22,11 +22,7 @@ import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeTy
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
-import io.medatarun.platform.kernel.ExtensionRegistry
-import io.medatarun.platform.kernel.MedatarunExtension
-import io.medatarun.platform.kernel.MedatarunExtensionCtx
-import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.getService
+import io.medatarun.platform.kernel.*
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
@@ -34,11 +30,14 @@ import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.types.TypeDescriptor
 import org.slf4j.LoggerFactory
+import java.time.Instant
 
 /**
  * Extension to register the "model" base plugin to the kernel.
  */
-open class ModelExtension : MedatarunExtension {
+open class ModelExtension(
+    private val config: ModelExtensionConfig = ModelExtensionConfigProd()
+) : MedatarunExtension {
     override val id: String = "models-core"
     override fun initServices(ctx: MedatarunServiceCtx) {
         val tagQueries = ctx.getService(TagQueries::class)
@@ -54,11 +53,9 @@ open class ModelExtension : MedatarunExtension {
 
         val validation = ModelValidationImpl()
         val tagResolver = ModelTagResolverWithQueries(tagQueries, tagCmds)
-        val storage: ModelStorage = ModelStorageDb(dbConnectionFactory)
+        val storage: ModelStorage = ModelStorageDb(dbConnectionFactory, config.modelClock)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
-
-
 
         ctx.register(ModelCmds::class, modelCmdsImpl)
         ctx.register(ModelQueries::class, modelQueriesImpl)
@@ -110,5 +107,15 @@ open class ModelExtension : MedatarunExtension {
 
     companion object {
         private val logger = LoggerFactory.getLogger("audit")
+    }
+}
+
+interface ModelExtensionConfig {
+    val modelClock: ModelClock
+}
+
+class ModelExtensionConfigProd : ModelExtensionConfig {
+    override val modelClock = object : ModelClock {
+        override fun now(): Instant = Instant.now()
     }
 }

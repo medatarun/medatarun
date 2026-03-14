@@ -181,7 +181,7 @@ interface ModelStorage {
      *
      * See [ModelRepoCmd] for the list of supported write operations.
      */
-    fun dispatch(cmd: ModelRepoCmd)
+    fun dispatch(cmdEnv: ModelRepoCmdEnveloppe)
 
 
 }

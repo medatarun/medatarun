@@ -14,9 +14,7 @@ import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
-import io.medatarun.model.ports.needs.ModelRepoCmd
-import io.medatarun.model.ports.needs.ModelStorage
-import io.medatarun.model.ports.needs.ModelStorageSearchQuery
+import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
@@ -25,10 +23,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class ModelStorageDb(
-    private val db: DbConnectionFactory
+    private val db: DbConnectionFactory,
+    private val clock: ModelClock
 ) : ModelStorage {
     private val searchRead = ModelStorageDbSearchRead(db)
     private val searchWrite = ModelStorageDbSearchWrite(db)
+    private val eventRecordFactory = ModelEventRecordFactory()
+    private val eventStreamNumberManager = ModelEventStreamNumberManager()
 
     // -------------------------------------------------------------------------
     // Queries
@@ -65,6 +66,15 @@ class ModelStorageDb(
         return db.withExposed {
             val row = ModelTable.selectAll().where { ModelTable.id eq id }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
+        }
+    }
+
+    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
+        return db.withExposed {
+            ModelEventTable.selectAll()
+                .where { ModelEventTable.modelId eq modelId }
+                .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+                .map(ModelEventRecord::read)
         }
     }
 
@@ -289,11 +299,33 @@ class ModelStorageDb(
     // Commands
     // -------------------------------------------------------------------------
 
-    override fun dispatch(cmd: ModelRepoCmd) {
-        db.withExposed { dispatchExposed(cmd) }
+    override fun dispatch(cmdEnv: ModelRepoCmdEnveloppe) {
+        db.withExposed {
+            val modelId = extractModelId(cmdEnv.cmd)
+            val streamNumberCtx = eventStreamNumberManager.createNumberContext(modelId)
+            dispatchExposed(cmdEnv, streamNumberCtx)
+        }
     }
 
-    private fun dispatchExposed(cmd: ModelRepoCmd) {
+    private fun dispatchExposed(
+        cmdEnv: ModelRepoCmdEnveloppe,
+        streamNumberCtx: ModelEventStreamNumberContext
+    ) {
+        val cmd = cmdEnv.cmd
+        if (cmd is ModelRepoCmd.CreateModel || cmd is ModelRepoCmd.StoreModelAggregate) {
+            dispatchCommand(cmd)
+            appendModelEvent(cmdEnv, streamNumberCtx)
+        } else if (cmd is ModelRepoCmd.DeleteModel) {
+            appendModelEvent(cmdEnv, streamNumberCtx)
+            dispatchCommand(cmd)
+            return
+        } else {
+            appendModelEvent(cmdEnv, streamNumberCtx)
+            dispatchCommand(cmd)
+        }
+    }
+
+    private fun dispatchCommand(cmd: ModelRepoCmd) {
         when (cmd) {
             //@formatter:off
             is ModelRepoCmd.StoreModelAggregate -> storeModelAggregate(cmd.model)
@@ -356,6 +388,46 @@ class ModelStorageDb(
         }
     }
 
+    private fun appendModelEvent(
+        cmdEnv: ModelRepoCmdEnveloppe,
+        streamNumberCtx: ModelEventStreamNumberContext
+    ) {
+        val record = eventRecordFactory.create(
+            cmdEnv = cmdEnv,
+            streamRevision = streamNumberCtx.nextRevision(),
+            createdAt = clock.now()
+        )
+        try {
+            ModelEventTable.insert { row ->
+                row[ModelEventTable.id] = record.id
+                row[ModelEventTable.modelId] = record.modelId
+                row[ModelEventTable.streamRevision] = record.streamRevision
+                row[ModelEventTable.eventType] = record.eventType
+                row[ModelEventTable.eventVersion] = record.eventVersion
+                row[ModelEventTable.modelVersion] = record.modelVersion
+                row[ModelEventTable.actorId] = record.actorId
+                row[ModelEventTable.actionId] = record.actionId
+                row[ModelEventTable.createdAt] = record.createdAt.toString()
+                row[ModelEventTable.payload] = record.payload
+            }
+        } catch (e: Exception) {
+            eventStreamNumberManager.rethrowIfStreamRevisionConflict(
+                exception = e,
+                numberContext = streamNumberCtx,
+                conflictingRevision = record.streamRevision
+            )
+            throw e
+        }
+        eventStreamNumberManager.onAppendCommitted(streamNumberCtx, record.streamRevision)
+    }
+
+    private fun extractModelId(cmd: ModelRepoCmd): ModelId {
+        return when (cmd) {
+            is ModelRepoCmd.CreateModel -> cmd.model.id
+            is ModelRepoCmd.StoreModelAggregate -> cmd.model.id
+            is ModelRepoCmdOnModel -> cmd.modelId
+        }
+    }
 
     // Model
     // ------------------------------------------------------------------------
