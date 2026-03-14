@@ -64,5 +64,6 @@ class ActionSecurityRuleEvaluatorsTest {
                 override fun ensureIsAdmin() = error("not used")
                 override fun ensureSignedIn(): AppPrincipal = error("not used")
             }
+            override val source: String = "test"
         }
 }

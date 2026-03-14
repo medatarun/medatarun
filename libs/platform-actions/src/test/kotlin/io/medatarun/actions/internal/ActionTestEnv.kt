@@ -31,6 +31,7 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
     class TestActionCtx : ActionRequestCtx {
 
         override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
+        override val source: String = "test"
     }
 
     private class TestActionPrincipalCtx(private val providedPrincipal: AppPrincipal?) : ActionPrincipalCtx {

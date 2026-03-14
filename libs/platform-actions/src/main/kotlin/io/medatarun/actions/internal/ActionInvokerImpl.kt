@@ -3,7 +3,13 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.domain.ActionInvoker
+import io.medatarun.actions.ports.needs.ActionAuditFailed
+import io.medatarun.actions.ports.needs.ActionAuditReceived
+import io.medatarun.actions.ports.needs.ActionAuditRecorder
+import io.medatarun.actions.ports.needs.ActionAuditRejected
+import io.medatarun.actions.ports.needs.ActionAuditSucceeded
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
@@ -13,16 +19,61 @@ import io.medatarun.type.commons.id.Id
 
 internal class ActionInvokerImpl(
     val registry: ActionRegistryImpl,
-    val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators
+    val actionSecurityRuleEvaluators: ActionSecurityRuleEvaluators,
+    private val actionAuditRecorder: ActionAuditRecorder
 ) : ActionInvoker {
 
     override fun handleInvocation(invocation: ActionRequest, actionRequestCtx: ActionRequestCtx): Any? {
+        val actionInstanceId = Id.generate(::ActionInstanceId)
 
+        // Record that the action request reached the action system.
+        actionAuditRecorder.recordReceived(
+            ActionAuditReceived(
+                actionInstanceId = actionInstanceId,
+                actionGroupKey = invocation.actionGroupKey,
+                actionKey = invocation.actionKey,
+                principalId = actionRequestCtx.principal.principal?.id,
+                payloadSerialized = serializePayload(invocation.payload),
+                source = actionRequestCtx.source
+            )
+        )
+
+        try {
+            val actionInvocationResult = handleInvocationInternal(invocation, actionRequestCtx, actionInstanceId)
+            // At this point the action has been accepted and business invocation completed.
+            actionAuditRecorder.recordSucceeded(ActionAuditSucceeded(actionInstanceId))
+            return actionInvocationResult
+        } catch (exception: ActionInvocationException) {
+            // ActionInvocationException belongs to the action system: the request was rejected before business invoke.
+            actionAuditRecorder.recordRejected(
+                ActionAuditRejected(
+                    actionInstanceId = actionInstanceId,
+                    code = exception.status.name,
+                    message = exception.message ?: exception.status.message
+                )
+            )
+            throw exception
+        } catch (exception: Exception) {
+            // Any other exception comes from business invocation or a deeper technical failure during invoke.
+            actionAuditRecorder.recordFailed(
+                ActionAuditFailed(
+                    actionInstanceId = actionInstanceId,
+                    code = exception::class.simpleName ?: Exception::class.simpleName.toString(),
+                    message = exception.message ?: ""
+                )
+            )
+            throw exception
+        }
+    }
+
+    private fun handleInvocationInternal(
+        invocation: ActionRequest,
+        actionRequestCtx: ActionRequestCtx,
+        actionInstanceId: ActionInstanceId
+    ): Any? {
         val actionKey = invocation.actionKey
         val actionGroupKey = invocation.actionGroupKey
         val actionPayloadSerialized = invocation.payload
-        val actionInstanceId = Id.generate(::ActionInstanceId)
-
 
         // Find action, throws if not found
         val action = registry.findActionOptional(actionGroupKey, actionKey)
@@ -60,9 +111,15 @@ internal class ActionInvokerImpl(
 
         }
 
-        // Invoke action, catch all exceptions and get the result
-        val actionInvocationResult = specializedInvoker.invoke(deserializedPayload, actionCtx)
-        return actionInvocationResult
+        // Invoke business action
+        return specializedInvoker.invoke(deserializedPayload, actionCtx)
+    }
+
+    private fun serializePayload(payload: ActionPayload): String {
+        return when (payload) {
+            is ActionPayload.AsJson -> payload.value.toString()
+            is ActionPayload.AsRaw -> payload.value.toString()
+        }
     }
 
 }

@@ -14,7 +14,8 @@ class SysopsConfigInspectorExtension : MedatarunExtension {
     override fun initContributions(ctx: MedatarunExtensionCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val actionPlatform = ctx.getService<ActionPlatform>()
-        ctx.registerContribution(ActionProvider::class, ConfigActionProvider(extensionRegistry, actionPlatform.registry))
+        val actionRegistry by lazy { actionPlatform.registry }
+        ctx.registerContribution(ActionProvider::class, ConfigActionProvider(extensionRegistry, lazy { actionRegistry }))
     }
 
 }

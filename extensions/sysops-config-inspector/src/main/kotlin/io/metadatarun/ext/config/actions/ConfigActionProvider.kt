@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 
 class ConfigActionProvider(
     private val extensionRegistry: ExtensionRegistry,
-    private val actionRegistry: ActionRegistry
+    private val actionRegistry: Lazy<ActionRegistry>
 ) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
@@ -48,7 +48,7 @@ class ConfigActionProvider(
      */
     private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
 
-        val items = actionRegistry.findAllActions().map { actionRegistered ->
+        val items = actionRegistry.value.findAllActions().map { actionRegistered ->
             val descriptor = actionRegistered.descriptor
             val semantics = actionRegistered.semantics
             ActionDescriptorDto(

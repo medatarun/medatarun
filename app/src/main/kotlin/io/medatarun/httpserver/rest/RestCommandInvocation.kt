@@ -44,7 +44,7 @@ class RestCommandInvocation(
                 payload = ActionPayload.AsJson(json)
             )
 
-            val result = actionInvoker.handleInvocation(request, actionRequestCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(request, actionRequestCtxFactory.create(principal, "api"))
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)

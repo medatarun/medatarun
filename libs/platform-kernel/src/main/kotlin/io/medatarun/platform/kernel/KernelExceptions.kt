@@ -11,3 +11,4 @@ class ContributionPointDuplicateInterface(e: ExtensionId, c: ContributionPointId
 class ContributionRegistrationContributionPointNotFoundException(e: ExtensionId, api: KClass<*>): MedatarunException("Error during registrations of extension $e, no contribution point matches this interface: [$api].")
 class ContributionPointNotFoundByApiException(api: KClass<*>): MedatarunException("No contribution point matches this interface: [$api].")
 class ExtensionStoragePathNotDirectoryException(path: Path): MedatarunException("Extension storage path [$path] is not a directory.")
+class ContributionAccessWhileNotInitializedException: MedatarunException("You can not access extension contributions while the extension registry is beeing built. You are reading contributions too soon, so you will not get them all.")

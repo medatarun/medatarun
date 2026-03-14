@@ -6,10 +6,11 @@ import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.security.AppPrincipal
 
 class ActionRequestCtxFactory() {
-    fun create(principal: AppPrincipal?): ActionRequestCtx {
+    fun create(principal: AppPrincipal?, source: String): ActionRequestCtx {
         return object : ActionRequestCtx {
 
             override val principal: ActionPrincipalCtx = ActionPrincipalCtxAdapter.toActionPrincipalCtx(principal)
+            override val source: String = source
         }
     }
 }

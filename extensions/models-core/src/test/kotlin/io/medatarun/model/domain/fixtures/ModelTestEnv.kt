@@ -143,6 +143,8 @@ class ModelTestEnv {
         val testActionRequestContext = object : ActionRequestCtx {
             override val principal: ActionPrincipalCtx
                 get() = testPrincipalCtx
+            override val source: String
+                get() = "test"
         }
     }
 }

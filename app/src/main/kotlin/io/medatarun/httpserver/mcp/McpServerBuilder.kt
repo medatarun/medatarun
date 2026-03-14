@@ -93,7 +93,7 @@ class McpServerBuilder(
         )
 
         return try {
-            val result = actionInvoker.handleInvocation(invocationRequest, actionRequestCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(invocationRequest, actionRequestCtxFactory.create(principal, "mcp"))
             toCallToolResult(result)
         } catch(t: Throwable) {
             val i = ActionExceptionInterpreter(t)

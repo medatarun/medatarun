@@ -2,6 +2,8 @@ package io.medatarun.actions
 
 import io.medatarun.actions.actions.BatchActionProvider
 import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.actions.internal.ActionAuditLoggerRecorder
+import io.medatarun.actions.ports.needs.ActionAuditRecorder
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
@@ -12,15 +14,18 @@ import io.medatarun.types.TypeDescriptor
 
 class ActionsExtension : MedatarunExtension {
     override val id: String = "platform-actions"
-    override fun initContributions(ctx: MedatarunExtensionCtx) {
-        ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
-        ctx.registerContribution(ActionProvider::class, BatchActionProvider())
-
-    }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         ctx.register(ActionPlatform::class, createActionPlatform(extensionRegistry))
+    }
+
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
+        ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
+        ctx.registerContributionPoint(this.id + ".auditRecorders", ActionAuditRecorder::class)
+        ctx.registerContribution(ActionProvider::class, BatchActionProvider())
+        ctx.registerContribution(ActionAuditRecorder::class, ActionAuditLoggerRecorder())
+
     }
 
     /**
@@ -32,7 +37,8 @@ class ActionsExtension : MedatarunExtension {
                 ActionPlatform.build(
                     typeDescriptors = extensionRegistry.findContributionsFlat(TypeDescriptor::class),
                     actionProviders = extensionRegistry.findContributionsFlat(ActionProvider::class),
-                    securityRulesProviders = extensionRegistry.findContributionsFlat(SecurityRulesProvider::class)
+                    securityRulesProviders = extensionRegistry.findContributionsFlat(SecurityRulesProvider::class),
+                    actionAuditRecorders = extensionRegistry.findContributionsFlat(ActionAuditRecorder::class)
                 )
             }
 
