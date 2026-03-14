@@ -17,6 +17,7 @@ class ActionAuditRecorderDbTest {
         assertEquals("test-db-audit", row.actionGroupKey)
         assertEquals("business-ok", row.actionKey)
         assertEquals("test", row.source)
+        assertEquals(env.actionAuditClockTests.staticNow, row.createdAt)
         assertEquals("SUCCEEDED", row.status)
         assertNotNull(row.actionInstanceId)
         assertEquals(null, row.errorCode)

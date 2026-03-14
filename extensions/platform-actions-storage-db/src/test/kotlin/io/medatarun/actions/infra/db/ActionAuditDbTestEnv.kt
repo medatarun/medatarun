@@ -4,47 +4,35 @@ import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.infra.db.records.ActionAuditEventRecord
-import io.medatarun.actions.ports.needs.ActionCtx
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionDocSemantics
-import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
-import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionPayload
-import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.ports.needs.ActionRequestCtx
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
-import io.medatarun.platform.kernel.MedatarunConfig
-import io.medatarun.platform.kernel.MedatarunExtension
-import io.medatarun.platform.kernel.MedatarunExtensionCtx
-import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.PlatformBuilder
-import io.medatarun.platform.kernel.getService
-import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
-import io.medatarun.security.AppPrincipalRole
-import io.medatarun.security.SecurityExtension
-import io.medatarun.security.SecurityRuleCtx
-import io.medatarun.security.SecurityRuleEvaluator
-import io.medatarun.security.SecurityRuleEvaluatorResult
-import io.medatarun.security.SecurityRulesProvider
+import io.medatarun.platform.kernel.*
+import io.medatarun.security.*
 import io.medatarun.types.TypeSystemExtension
+import java.time.Instant
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 
 class ActionAuditDbTestEnv {
+    val actionAuditClockTests = ActionAuditClockTester()
+
     private val extensions = listOf(
         TypeSystemExtension(),
         SecurityExtension(),
         ActionsExtension(),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
-        PlatformActionsStorageDbExtension(),
+        PlatformActionsStorageDbExtension(
+            object : PlatformActionsStorageDbExtensionConfig {
+                override val actionAuditClock: ActionAuditClock
+                    get() = actionAuditClockTests
+            }
+        ),
         TestActionsStorageDbExtension()
     )
 
@@ -75,7 +63,7 @@ class ActionAuditDbTestEnv {
 
     fun auditRows(): List<ActionAuditEventRecord> {
         val dbConnectionFactory = platform.services.getService<DbConnectionFactory>()
-        val actionAuditRecorderDb = ActionAuditRecorderDb(dbConnectionFactory)
+        val actionAuditRecorderDb = ActionAuditRecorderDb(dbConnectionFactory, actionAuditClockTests)
         return actionAuditRecorderDb.findAll()
     }
 
@@ -195,6 +183,14 @@ class ActionAuditDbTestEnv {
         val testActionRequestContext = object : ActionRequestCtx {
             override val principal: ActionPrincipalCtx = testPrincipalCtx
             override val source: String = "test"
+        }
+    }
+
+    class ActionAuditClockTester(
+        var staticNow: Instant = Instant.parse("2026-01-02T03:04:05Z")
+    ) : ActionAuditClock {
+        override fun now(): Instant {
+            return staticNow
         }
     }
 }

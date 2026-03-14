@@ -14,7 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
 class ActionAuditRecorderDb(
-    private val dbConnectionFactory: DbConnectionFactory
+    private val dbConnectionFactory: DbConnectionFactory,
+    private val clock: ActionAuditClock
 ) : ActionAuditRecorder {
 
     override fun recordReceived(event: ActionAuditReceived) {
@@ -23,9 +24,10 @@ class ActionAuditRecorderDb(
                 it[actionInstanceId] = event.actionInstanceId.value.toString()
                 it[actionGroupKey] = event.actionGroupKey
                 it[actionKey] = event.actionKey
-                it[principalId] = event.principalId?.value
+                it[principalId] = event.principalId
                 it[sourceValue] = event.source
                 it[payloadSerialized] = event.payloadSerialized
+                it[createdAt] = clock.now()
                 it[status] = STATUS_RECEIVED
                 it[errorCode] = null
                 it[errorMessage] = null
