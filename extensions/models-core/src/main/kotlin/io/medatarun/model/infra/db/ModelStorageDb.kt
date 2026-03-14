@@ -328,7 +328,7 @@ class ModelStorageDb(
     private fun dispatchCommand(cmd: ModelRepoCmd) {
         when (cmd) {
             //@formatter:off
-            is ModelRepoCmd.StoreModelAggregate -> storeModelAggregate(cmd.model)
+            is ModelRepoCmd.StoreModelAggregate -> storeModelAggregate(cmd)
             is ModelRepoCmd.CreateModel -> createModel(cmd.model)
             is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
             is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
@@ -471,20 +471,30 @@ class ModelStorageDb(
         }
     }
 
-    private fun storeModelAggregate(model: ModelAggregate) {
+    private fun storeModelAggregate(model: ModelRepoCmd.StoreModelAggregate) {
 
         logger.warn("Storing full aggregate {}", model)
 
-        val inMemoryModel = ModelInMemory.of(model)
+        val modelId = model.model.id
 
-        insertModel(model.model)
-        // insertModelTags(model.id, model.tags)
+        insertModel(
+            ModelInMemory(
+                id = model.model.id,
+                key = model.model.key,
+                name = model.model.name,
+                description = model.model.description,
+                version = model.model.version,
+                origin = model.model.origin,
+                authority = model.model.authority,
+                documentationHome = model.model.documentationHome,
+            )
+        )
 
         for (type in model.types) {
             insertType(
                 ModelTypeRecord(
                     id = type.id,
-                    modelId = model.id,
+                    modelId = modelId,
                     key = type.key,
                     name = type.name,
                     description = type.description
@@ -496,7 +506,7 @@ class ModelStorageDb(
             insertEntity(
                 EntityRecord(
                     id = entity.id,
-                    modelId = model.id,
+                    modelId = modelId,
                     key = entity.key,
                     name = entity.name,
                     description = entity.description,
@@ -505,10 +515,9 @@ class ModelStorageDb(
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
             )
-            // insertEntityTags(entity.id, entity.tags)
             searchWrite.upsertEntitySearchItem(entity.id)
 
-            for (attr in model.attributes.filter { it.ownedBy(entity.id) }) {
+            for (attr in model.entityAttributes.filter { it.entityId == entity.id }) {
                 insertEntityAttribute(
                     EntityAttributeRecord(
                         id = attr.id,
@@ -520,7 +529,6 @@ class ModelStorageDb(
                         optional = attr.optional
                     )
                 )
-                // insertEntityAttributeTags(attr.id, attr.tags)
                 searchWrite.upsertEntityAttributeSearchItem(attr.id)
             }
         }
@@ -529,7 +537,7 @@ class ModelStorageDb(
             insertRelationship(
                 record = RelationshipRecord(
                     id = relationship.id,
-                    modelId = model.id,
+                    modelId = modelId,
                     key = relationship.key,
                     name = relationship.name,
                     description = relationship.description
@@ -545,10 +553,9 @@ class ModelStorageDb(
                     )
                 }
             )
-            // insertRelationshipTags(relationship.id, relationship.tags)
             searchWrite.upsertRelationshipSearchItem(relationship.id)
 
-            for (attr in model.attributes.filter { it.ownedBy(relationship.id) }) {
+            for (attr in model.relationshipAttributes.filter { it.relationshipId == relationship.id }) {
                 insertRelationshipAttribute(
                     RelationshipAttributeRecord(
                         id = attr.id,
@@ -560,12 +567,11 @@ class ModelStorageDb(
                         optional = attr.optional
                     )
                 )
-                // insertRelationshipAttributeTags(attr.id, attr.tags)
                 searchWrite.upsertRelationshipAttributeSearchItem(attr.id)
             }
         }
 
-        searchWrite.upsertModelSearchItem(inMemoryModel.id)
+        searchWrite.upsertModelSearchItem(modelId)
 
     }
 

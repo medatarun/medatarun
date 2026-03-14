@@ -6,6 +6,13 @@ import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdEnveloppe
+import io.medatarun.model.ports.needs.StoreModelAggregateEntity
+import io.medatarun.model.ports.needs.StoreModelAggregateEntityAttribute
+import io.medatarun.model.ports.needs.StoreModelAggregateModel
+import io.medatarun.model.ports.needs.StoreModelAggregateRelationship
+import io.medatarun.model.ports.needs.StoreModelAggregateRelationshipAttribute
+import io.medatarun.model.ports.needs.StoreModelAggregateRelationshipRole
+import io.medatarun.model.ports.needs.StoreModelAggregateType
 import kotlinx.serialization.json.*
 
 /**
@@ -43,7 +50,7 @@ class ModelEventRecordFactory {
 
     private fun toEvent(cmd: ModelRepoCmd): EventData {
         return when (cmd) {
-            is ModelRepoCmd.StoreModelAggregate -> event("model_aggregate_stored", payload = modelAggregatePayload(cmd.model))
+            is ModelRepoCmd.StoreModelAggregate -> event("model_aggregate_stored", payload = modelAggregatePayload(cmd))
             is ModelRepoCmd.CreateModel -> event("model_created", payload = modelPayload(cmd.model))
             is ModelRepoCmd.UpdateModelName -> event("model_name_updated", payload = buildJsonObject {
                 putNullable("name", json(cmd.name))
@@ -306,23 +313,45 @@ class ModelEventRecordFactory {
         }
     }
 
-    private fun modelAggregatePayload(model: ModelAggregate): JsonObject {
+    private fun modelAggregatePayload(model: ModelRepoCmd.StoreModelAggregate): JsonObject {
         return buildJsonObject {
-            put("model", modelPayload(model.model))
-            putJsonArray("tags") {
-                model.tags.sortedBy { it.value.toString() }.forEach { add(JsonPrimitive(it.value.toString())) }
-            }
+            put("model", modelAggregateModelPayload(model.model))
             putJsonArray("types") {
-                model.types.sortedBy { it.key.value }.forEach { add(modelTypePayload(it)) }
+                model.types.sortedBy { it.key.value }.forEach { add(modelAggregateTypePayload(it)) }
             }
             putJsonArray("entities") {
-                model.entities.sortedBy { it.key.value }.forEach { add(entityPayload(it, model.findEntityAttributes(it.ref))) }
-            }
-            putJsonArray("relationships") {
-                model.relationships.sortedBy { it.key.value }.forEach {
-                    add(relationshipPayload(it, model.findRelationshipAttributes(it.ref)))
+                model.entities.sortedBy { it.key.value }.forEach { entity ->
+                    add(
+                        modelAggregateEntityPayload(
+                            entity,
+                            model.entityAttributes.filter { attribute -> attribute.entityId == entity.id }
+                        )
+                    )
                 }
             }
+            putJsonArray("relationships") {
+                model.relationships.sortedBy { it.key.value }.forEach { relationship ->
+                    add(
+                        modelAggregateRelationshipPayload(
+                            relationship,
+                            model.relationshipAttributes.filter { attribute -> attribute.relationshipId == relationship.id }
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun modelAggregateModelPayload(model: StoreModelAggregateModel): JsonObject {
+        return buildJsonObject {
+            put("model_id", model.id.value.toString())
+            put("key", model.key.value)
+            putNullable("name", json(model.name))
+            putNullable("description", json(model.description))
+            put("version", model.version.value)
+            put("origin", modelOriginPayload(model.origin))
+            put("authority", model.authority.name)
+            putNullable("documentation_home", model.documentationHome?.toExternalForm()?.let { JsonPrimitive(it) })
         }
     }
 
@@ -340,6 +369,15 @@ class ModelEventRecordFactory {
     }
 
     private fun modelTypePayload(type: ModelType): JsonObject {
+        return buildJsonObject {
+            put("type_id", type.id.value.toString())
+            put("key", type.key.value)
+            putNullable("name", json(type.name))
+            putNullable("description", json(type.description))
+        }
+    }
+
+    private fun modelAggregateTypePayload(type: StoreModelAggregateType): JsonObject {
         return buildJsonObject {
             put("type_id", type.id.value.toString())
             put("key", type.key.value)
@@ -374,6 +412,24 @@ class ModelEventRecordFactory {
         }
     }
 
+    private fun modelAggregateEntityPayload(
+        entity: StoreModelAggregateEntity,
+        attributes: List<StoreModelAggregateEntityAttribute>
+    ): JsonObject {
+        return buildJsonObject {
+            put("entity_id", entity.id.value.toString())
+            put("key", entity.key.value)
+            putNullable("name", json(entity.name))
+            putNullable("description", json(entity.description))
+            put("identifier_attribute_id", entity.identifierAttributeId.value.toString())
+            put("origin", entityOriginPayload(entity.origin))
+            putNullable("documentation_home", entity.documentationHome?.toExternalForm()?.let { JsonPrimitive(it) })
+            putJsonArray("attributes") {
+                attributes.sortedBy { it.key.value }.forEach { add(modelAggregateEntityAttributePayload(it)) }
+            }
+        }
+    }
+
     private fun relationshipPayload(relationship: Relationship, attributes: List<Attribute>): JsonObject {
         return buildJsonObject {
             put("relationship_id", relationship.id.value.toString())
@@ -392,7 +448,35 @@ class ModelEventRecordFactory {
         }
     }
 
+    private fun modelAggregateRelationshipPayload(
+        relationship: StoreModelAggregateRelationship,
+        attributes: List<StoreModelAggregateRelationshipAttribute>
+    ): JsonObject {
+        return buildJsonObject {
+            put("relationship_id", relationship.id.value.toString())
+            put("key", relationship.key.value)
+            putNullable("name", json(relationship.name))
+            putNullable("description", json(relationship.description))
+            putJsonArray("roles") {
+                relationship.roles.sortedBy { it.key.value }.forEach { add(modelAggregateRelationshipRolePayload(it)) }
+            }
+            putJsonArray("attributes") {
+                attributes.sortedBy { it.key.value }.forEach { add(modelAggregateRelationshipAttributePayload(it)) }
+            }
+        }
+    }
+
     private fun relationshipRolePayload(role: RelationshipRole): JsonObject {
+        return buildJsonObject {
+            put("role_id", role.id.value.toString())
+            put("key", role.key.value)
+            put("entity_id", role.entityId.value.toString())
+            putNullable("name", json(role.name))
+            put("cardinality", role.cardinality.code)
+        }
+    }
+
+    private fun modelAggregateRelationshipRolePayload(role: StoreModelAggregateRelationshipRole): JsonObject {
         return buildJsonObject {
             put("role_id", role.id.value.toString())
             put("key", role.key.value)
@@ -414,6 +498,28 @@ class ModelEventRecordFactory {
             putJsonArray("tags") {
                 attribute.tags.sortedBy { it.value.toString() }.forEach { add(JsonPrimitive(it.value.toString())) }
             }
+        }
+    }
+
+    private fun modelAggregateEntityAttributePayload(attribute: StoreModelAggregateEntityAttribute): JsonObject {
+        return buildJsonObject {
+            put("attribute_id", attribute.id.value.toString())
+            put("key", attribute.key.value)
+            putNullable("name", json(attribute.name))
+            putNullable("description", json(attribute.description))
+            put("type_id", attribute.typeId.value.toString())
+            put("optional", attribute.optional)
+        }
+    }
+
+    private fun modelAggregateRelationshipAttributePayload(attribute: StoreModelAggregateRelationshipAttribute): JsonObject {
+        return buildJsonObject {
+            put("attribute_id", attribute.id.value.toString())
+            put("key", attribute.key.value)
+            putNullable("name", json(attribute.name))
+            putNullable("description", json(attribute.description))
+            put("type_id", attribute.typeId.value.toString())
+            put("optional", attribute.optional)
         }
     }
 

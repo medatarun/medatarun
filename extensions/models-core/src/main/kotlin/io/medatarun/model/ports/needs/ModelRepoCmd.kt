@@ -17,7 +17,12 @@ sealed interface ModelRepoCmd {
     // ------------------------------------------------------------------------
 
     data class StoreModelAggregate(
-        val model: ModelAggregate
+        val model: StoreModelAggregateModel,
+        val types: List<StoreModelAggregateType>,
+        val entities: List<StoreModelAggregateEntity>,
+        val entityAttributes: List<StoreModelAggregateEntityAttribute>,
+        val relationships: List<StoreModelAggregateRelationship>,
+        val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
     ) : ModelRepoCmd
 
     data class CreateModel(

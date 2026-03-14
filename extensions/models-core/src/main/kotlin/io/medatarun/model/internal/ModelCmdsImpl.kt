@@ -11,6 +11,7 @@ import io.medatarun.model.ports.needs.ModelRepoCmd
 import io.medatarun.model.ports.needs.ModelRepoCmdEnveloppe
 import io.medatarun.model.ports.needs.ModelStorage
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.model.ports.needs.StoreModelAggregatePayloadFactory
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.tags.core.domain.TagId
@@ -186,7 +187,7 @@ class ModelCmdsImpl(
         val source = storage.findModelAggregate(cmd.modelRef)
         if (storage.existsModelByKey(cmd.modelNewKey)) throw ModelDuplicateKeyException(cmd.modelNewKey)
         val copied = ModelCmdCopyImpl().copy(source, cmd.modelNewKey)
-        storageDispatch(cmdEnv, ModelRepoCmd.StoreModelAggregate(copied))
+        storageDispatch(cmdEnv, StoreModelAggregatePayloadFactory.create(copied))
 
         val copiedModelRef = ModelRef.ById(copied.id)
         val sourceScopeRef = modelTagScopeRef(source.id)
@@ -307,7 +308,7 @@ class ModelCmdsImpl(
 
         if (storage.existsModelByKey(model.key)) throw ModelDuplicateKeyException(model.key)
         ensureImportedModelIsValid(model)
-        storageDispatch(cmdEnv, ModelRepoCmd.StoreModelAggregate(model))
+        storageDispatch(cmdEnv, StoreModelAggregatePayloadFactory.create(model))
 
         val newtags = cmd.tags
 
