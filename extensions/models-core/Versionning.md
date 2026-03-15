@@ -151,15 +151,21 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 
 - Attribution de version en V1: la version est choisie explicitement par
   l'utilisateur au moment de la création de release.
-- Format imposé: SemVer strict (`MAJOR.MINOR.PATCH`).
-- Saut de versions autorisé (ex: `1.2.0` vers `3.0.0`) tant que SemVer est
-  valide et unique par `model`.
-- Pré-releases SemVer (`-alpha`, `-beta`, etc.) non autorisées en V1.
-- Build metadata SemVer (`+build...`) non autorisé en V1.
+- Format imposé: les versions acceptées sont celles supportées par
+  `ModelVersion`.
+- Les versions doivent être naturellement comparables via l'ordre défini par
+  `ModelVersion`.
+- Saut de versions autorisé (ex: `1.2.0` vers `3.0.0`) tant que la version est
+  valide, comparable et unique par `model`.
+- Les pré-releases acceptées ou non sont celles acceptées ou non par
+  `ModelVersion`.
+- Build metadata SemVer (`+build...`) non autorisé en V1 car non accepté par
+  `ModelVersion`.
 - La version initiale d'un `model` est libre à la création (y compris import),
-  tant qu'elle respecte SemVer.
+  tant qu'elle est acceptée par `ModelVersion`.
 - Chaque release suivante doit avoir une version unique et strictement
-  supérieure à la précédente pour le même `model`.
+  supérieure à la précédente pour le même `model` selon l'ordre défini par
+  `ModelVersion`.
 - Unicité stricte de version par `model`.
 
 ### Identité métier

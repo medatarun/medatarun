@@ -23,7 +23,7 @@ Items:
 - `[VE-D][DONE]` Les commandes métier continuent à mettre à jour les tables courantes en parallèle, ce qui permet de construire le système d'events sans casser l'existant.
 - `[VE-E][DONE]` La lecture brute des `model_event` existe déjà via `findAllModelEvents(modelId)`.
 - `[VE-F][DONE]` La couche stockage/versionning est alignée sur le vocabulaire `release`: `ModelStorageCmd.ModelRelease` sérialise l'event `model_release`.
-- `[VE-G][PARTIAL]` La validation `ModelVersion` actuelle accepte encore les suffixes SemVer `-pre-release` et `+build`, alors que la V1 de `Versionning.md` impose `MAJOR.MINOR.PATCH` uniquement.
+- `[VE-G][DONE]` Le cadrage documentation/versionning est aligné sur `ModelVersion`: les versions acceptées et leur ordre sont ceux définis par `ModelVersion`.
 - `[VE-H][DONE]` Les tests de contrat JSON figés des events existent déjà: vérification de `event_type`, `event_version`, payload JSON figé et round-trip encode/decode.
 - `[VE-L][TODO]` Ajouter les tables SQL de projection `model_snapshot` et associées, sans retirer les tables courantes tant que la projection n'est pas stabilisée.
 - `[VE-M][TODO]` Introduire `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT` et les contraintes SQL minimales associées.

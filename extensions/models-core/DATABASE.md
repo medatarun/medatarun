@@ -94,6 +94,9 @@ Colonnes:
 - `event_version` INTEGER NOT NULL: numéro de version de l'event, permet d'upcaster les vieux event lors du replay quand ils évoluent
 - `model_version` TEXT NULL: version SemVer du modèle, portée uniquement pour
   les events `event_type='model_release'`.
+- `model_version` doit toujours être une valeur acceptée par `ModelVersion`.
+- L'ordre métier entre deux valeurs de `model_version` est celui défini par
+  `ModelVersion`.
 - `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'
   action.
 - `action_id` TEXT NOT NULL: identifiant système de l'action source, fourni par
