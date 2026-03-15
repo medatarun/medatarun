@@ -1,11 +1,12 @@
 package io.medatarun.model.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.type.commons.enums.EnumWithCode
 
 /**
  * Defines whether a model is a system snapshot or a business reference model.
  */
-enum class ModelAuthority(val code: String) {
+enum class ModelAuthority(override val code: String): EnumWithCode {
     /**
      * Model describing a concrete system implementation (often imported).
      */

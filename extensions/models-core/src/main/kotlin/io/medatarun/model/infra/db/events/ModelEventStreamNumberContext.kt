@@ -1,4 +1,4 @@
-package io.medatarun.model.infra.db
+package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.domain.ModelId
 

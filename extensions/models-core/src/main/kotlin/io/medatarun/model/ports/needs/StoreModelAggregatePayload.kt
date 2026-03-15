@@ -1,32 +1,9 @@
-@file:UseContextualSerialization(
-    AttributeId::class,
-    AttributeKey::class,
-    EntityId::class,
-    EntityKey::class,
-    EntityOrigin::class,
-    LocalizedMarkdown::class,
-    LocalizedText::class,
-    ModelAuthority::class,
-    ModelId::class,
-    ModelKey::class,
-    ModelOrigin::class,
-    ModelVersion::class,
-    RelationshipCardinality::class,
-    RelationshipId::class,
-    RelationshipKey::class,
-    RelationshipRoleId::class,
-    RelationshipRoleKey::class,
-    TypeId::class,
-    TypeKey::class,
-    URL::class,
-)
-
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
 import java.net.URL
 
 /**
@@ -38,66 +15,91 @@ import java.net.URL
  */
 @Serializable
 data class StoreModelAggregateModel(
+    @Contextual
     @SerialName("id")
     val id: ModelId,
+    @Contextual
     @SerialName("key")
     val key: ModelKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?,
+    @Contextual
     @SerialName("version")
     val version: ModelVersion,
+    @Contextual
     @SerialName("origin")
     val origin: ModelOrigin,
+    @Contextual
     @SerialName("authority")
     val authority: ModelAuthority,
+    @Contextual
     @SerialName("documentation_home")
     val documentationHome: URL?
 )
 
 @Serializable
 data class StoreModelAggregateType(
+    @Contextual
     @SerialName("id")
     val id: TypeId,
+    @Contextual
     @SerialName("key")
     val key: TypeKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?
 )
 
 @Serializable
 data class StoreModelAggregateEntity(
+    @Contextual
     @SerialName("id")
     val id: EntityId,
+    @Contextual
     @SerialName("key")
     val key: EntityKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?,
+    @Contextual
     @SerialName("identifier_attribute_id")
     val identifierAttributeId: AttributeId,
+    @Contextual
     @SerialName("origin")
     val origin: EntityOrigin,
+    @Contextual
     @SerialName("documentation_home")
     val documentationHome: URL?
 )
 
 @Serializable
 data class StoreModelAggregateEntityAttribute(
+    @Contextual
     @SerialName("id")
     val id: AttributeId,
+    @Contextual
     @SerialName("entity_id")
     val entityId: EntityId,
+    @Contextual
     @SerialName("key")
     val key: AttributeKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?,
+    @Contextual
     @SerialName("type_id")
     val typeId: TypeId,
     @SerialName("optional")
@@ -106,12 +108,16 @@ data class StoreModelAggregateEntityAttribute(
 
 @Serializable
 data class StoreModelAggregateRelationship(
+    @Contextual
     @SerialName("id")
     val id: RelationshipId,
+    @Contextual
     @SerialName("key")
     val key: RelationshipKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?,
     @SerialName("roles")
@@ -120,30 +126,41 @@ data class StoreModelAggregateRelationship(
 
 @Serializable
 data class StoreModelAggregateRelationshipRole(
+    @Contextual
     @SerialName("id")
     val id: RelationshipRoleId,
+    @Contextual
     @SerialName("key")
     val key: RelationshipRoleKey,
+    @Contextual
     @SerialName("entity_id")
     val entityId: EntityId,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("cardinality")
     val cardinality: RelationshipCardinality
 )
 
 @Serializable
 data class StoreModelAggregateRelationshipAttribute(
+    @Contextual
     @SerialName("id")
     val id: AttributeId,
+    @Contextual
     @SerialName("relationship_id")
     val relationshipId: RelationshipId,
+    @Contextual
     @SerialName("key")
     val key: AttributeKey,
+    @Contextual
     @SerialName("name")
     val name: LocalizedText?,
+    @Contextual
     @SerialName("description")
     val description: LocalizedMarkdown?,
+    @Contextual
     @SerialName("type_id")
     val typeId: TypeId,
     @SerialName("optional")
@@ -155,8 +172,8 @@ data class StoreModelAggregateRelationshipAttribute(
  * ModelRepoCmd.StoreModelAggregate.
  */
 object StoreModelAggregatePayloadFactory {
-    fun create(modelAggregate: ModelAggregate): ModelRepoCmd.StoreModelAggregate {
-        return ModelRepoCmd.StoreModelAggregate(
+    fun create(modelAggregate: ModelAggregate): ModelStorageCmd.StoreModelAggregate {
+        return ModelStorageCmd.StoreModelAggregate(
             model = StoreModelAggregateModel(
                 id = modelAggregate.id,
                 key = modelAggregate.key,

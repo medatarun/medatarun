@@ -9,8 +9,8 @@ import io.medatarun.security.AppPrincipalId
  * The storage layer needs the action and actor identifiers to persist the event log
  * without depending on the action system types above this boundary.
  */
-data class ModelRepoCmdEnveloppe(
+data class ModelStorageCmdEnveloppe(
     val actionId: ActionInstanceId,
     val principalId: AppPrincipalId,
-    val cmd: ModelRepoCmd,
+    val cmd: ModelStorageCmd,
 )

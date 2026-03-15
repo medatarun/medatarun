@@ -1,4 +1,4 @@
-package io.medatarun.model.infra.db
+package io.medatarun.model.ports.needs
 
 /**
  * Declares the stable event metadata stored in model_event for one repository

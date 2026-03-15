@@ -1,6 +1,8 @@
 package io.medatarun.model.domain.search
 
-enum class SearchField(val code: String) {
+import io.medatarun.type.commons.enums.EnumWithCode
+
+enum class SearchField(override val code: String): EnumWithCode {
     LOCATION("location");
 
     companion object {

@@ -6,6 +6,32 @@ cible du module (décrit dans `README.md`) et l'état actuel du code.
 Ce qui est implémenté doit rester dans le README.
 Ce qui ne l'est pas encore doit être suivi ici, puis supprimé une fois livré.
 
+## [EVENT_CODEC_URL_WARNING] Supprimer l'usage de `URL(String)` déprécié
+
+Règle technique cible:
+
+- le code du module ne doit pas utiliser le constructeur Java `URL(String)`
+  désormais déprécié.
+- les conversions de chaînes vers `URL` doivent passer par `URI(...).toURL()`
+  ou une autre construction explicite équivalente.
+
+Constat actuel dans le code:
+
+- le codec d'events `ModelRepoCmdEventJsonCodec.kt` utilise encore `URL(String)`
+  dans son serializer dédié des `URL`.
+- le test `ModelRepoCmdEventJsonCodecTest.kt` utilise aussi `URL(String)` dans
+  ses fixtures.
+- tout fonctionne, mais la compilation remonte des warnings de dépréciation.
+
+Ce qui manque encore:
+
+- remplacer les constructions `URL(String)` dans
+  `ModelRepoCmdEventJsonCodec.kt`.
+- remplacer les constructions `URL(String)` dans
+  `ModelRepoCmdEventJsonCodecTest.kt`.
+- vérifier ensuite que `:extensions:models-core:compileKotlin` et
+  `:extensions:models-core:test` ne remontent plus ce warning.
+
 ## [TAG_DEDUP_RULE] Éviter les tags dupliqués sur un même objet
 
 Règle métier cible:

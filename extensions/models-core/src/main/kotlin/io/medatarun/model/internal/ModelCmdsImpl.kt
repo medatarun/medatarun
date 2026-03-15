@@ -7,11 +7,7 @@ import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmdOnModel
 import io.medatarun.model.ports.exposed.ModelCmds
-import io.medatarun.model.ports.needs.ModelRepoCmd
-import io.medatarun.model.ports.needs.ModelRepoCmdEnveloppe
-import io.medatarun.model.ports.needs.ModelStorage
-import io.medatarun.model.ports.needs.ModelTagResolver
-import io.medatarun.model.ports.needs.StoreModelAggregatePayloadFactory
+import io.medatarun.model.ports.needs.*
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.tags.core.domain.TagId
@@ -26,16 +22,16 @@ class ModelCmdsImpl(
     private val txManager: DbTransactionManager
 ) : ModelCmds {
 
-    private fun repoCmdEnveloppe(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelRepoCmd): ModelRepoCmdEnveloppe {
-        return ModelRepoCmdEnveloppe(
+    private fun storageCmdEnveloppe(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelStorageCmd): ModelStorageCmdEnveloppe {
+        return ModelStorageCmdEnveloppe(
             actionId = cmdEnv.actionId,
             principalId = cmdEnv.principal.id,
             cmd = repoCmd
         )
     }
 
-    private fun storageDispatch(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelRepoCmd) {
-        storage.dispatch(repoCmdEnveloppe(cmdEnv, repoCmd))
+    private fun storageDispatch(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelStorageCmd) {
+        storage.dispatch(storageCmdEnveloppe(cmdEnv, repoCmd))
     }
 
     override fun dispatch(cmdEnv: ModelCmdEnveloppe) {
@@ -179,7 +175,19 @@ class ModelCmdsImpl(
             authority = ModelAuthority.SYSTEM,
             documentationHome = null,
         )
-        storageDispatch(cmdEnv, ModelRepoCmd.CreateModel(model))
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.CreateModel(
+                id = model.id,
+                key = model.key,
+                name = model.name,
+                description = model.description,
+                version = model.version,
+                origin = model.origin,
+                authority = model.authority,
+                documentationHome = model.documentationHome
+            )
+        )
     }
 
 
@@ -299,7 +307,6 @@ class ModelCmdsImpl(
     }
 
     private fun importModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.ImportModel) {
-        // TODO handle tags ?
 
         // Makes sure that imported models are always with a SYSTEM authority
         val model = ModelAggregateInMemory.of(cmd.model).copy(
@@ -399,12 +406,12 @@ class ModelCmdsImpl(
 
     private fun deleteModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteModel) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.DeleteModel(model.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.DeleteModel(model.id))
     }
 
     private fun updateModelName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelName) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelName(model.id, cmd.name))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelName(model.id, cmd.name))
     }
 
     private fun updateModelKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelKey) {
@@ -412,33 +419,33 @@ class ModelCmdsImpl(
         if (model.key != cmd.key && storage.existsModelByKey(cmd.key)) {
             throw ModelDuplicateKeyException(cmd.key)
         }
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelKey(model.id, cmd.key))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelKey(model.id, cmd.key))
     }
 
     private fun updateModelDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelDescription) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelDescription(model.id, cmd.description))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelDescription(model.id, cmd.description))
     }
 
     private fun updateModelAuthority(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelAuthority) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelAuthority(model.id, cmd.authority))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelAuthority(model.id, cmd.authority))
     }
 
     private fun updateModelVersion(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelVersion) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelVersion(model.id, cmd.version))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelVersion(model.id, cmd.version))
     }
 
     private fun updateDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelDocumentationHome) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateModelDocumentationHome(model.id, cmd.url))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelDocumentationHome(model.id, cmd.url))
     }
 
     private fun updateModelTagAdd(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelTagAdd) {
         val model = storage.findModel(cmd.modelRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateModelTagAdd(
+            ModelStorageCmd.UpdateModelTagAdd(
                 model.id,
                 tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
@@ -448,7 +455,7 @@ class ModelCmdsImpl(
     private fun updateModelTagDelete(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelTagDelete) {
         val model = storage.findModel(cmd.modelRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateModelTagDelete(
+            ModelStorageCmd.UpdateModelTagDelete(
                 model.id,
                 tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
@@ -465,7 +472,15 @@ class ModelCmdsImpl(
         val model = storage.findModel(cmd.modelRef)
         val existing = storage.findTypeByKeyOptional(model.id, cmd.initializer.key)
         if (existing != null) throw TypeCreateDuplicateException(model.key, cmd.initializer.key)
-        storageDispatch(cmdEnv, ModelRepoCmd.CreateType(model.id, cmd.initializer))
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.CreateType(
+                modelId = model.id,
+                key = cmd.initializer.key,
+                name = cmd.initializer.name,
+                description = cmd.initializer.description
+            )
+        )
     }
 
     private fun updateTypeKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateTypeKey) {
@@ -473,19 +488,19 @@ class ModelCmdsImpl(
         if (type.key == cmd.value) return
         val found = storage.findTypeByKeyOptional(model.id, cmd.value)
         if (found != null) throw TypeUpdateDuplicateKeyException(cmd.value)
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateTypeKey(model.id, type.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateTypeKey(model.id, type.id, cmd.value))
     }
 
     private fun updateTypeName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateTypeName) {
         val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
         if (type.name == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateTypeName(model.id, type.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateTypeName(model.id, type.id, cmd.value))
     }
 
     private fun updateTypeDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateTypeDescription) {
         val (model, type) = findModelAndType(cmd.modelRef, cmd.typeRef)
         if (type.description == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateTypeDescription(model.id, type.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateTypeDescription(model.id, type.id, cmd.value))
     }
 
     private fun deleteType(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteType) {
@@ -496,7 +511,7 @@ class ModelCmdsImpl(
 
         if (used) throw ModelTypeDeleteUsedException(type.key)
 
-        storageDispatch(cmdEnv, ModelRepoCmd.DeleteType(model.id, type.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.DeleteType(model.id, type.id))
     }
     // -----------------------------------------------------------------------------------------------------------------
     // Entities
@@ -511,38 +526,38 @@ class ModelCmdsImpl(
             throw EntityUpdateKeyDuplicateKeyException(entity.key)
         }
 
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityKey(model.id, entity.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityKey(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityName) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.name == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityName(model.id, entity.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityName(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDescription) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.description == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityIdentifierAttribute(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityIdentifierAttribute) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.value)
         val attrId = attribute.id
         if (entity.identifierAttributeId == attrId) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityIdentifierAttribute(model.id, entity.id, attrId))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityIdentifierAttribute(model.id, entity.id, attrId))
     }
 
     private fun updateEntityDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDocumentationHome) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.documentationHome?.toExternalForm() == cmd.value?.toExternalForm()) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityDocumentationHome(model.id, entity.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityDocumentationHome(model.id, entity.id, cmd.value))
     }
 
     private fun updateEntityTagAdd(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityTagAdd) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateEntityTagAdd(
+            ModelStorageCmd.UpdateEntityTagAdd(
                 model.id, entity.id,
                 tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
@@ -552,7 +567,7 @@ class ModelCmdsImpl(
     private fun updateEntityTagDelete(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityTagDelete) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateEntityTagDelete(
+            ModelStorageCmd.UpdateEntityTagDelete(
                 model.id, entity.id,
                 tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
             )
@@ -565,7 +580,7 @@ class ModelCmdsImpl(
         val type = storage.findType(model.id, c.entityInitializer.identityAttribute.type)
         val identityAttributeId = AttributeId.generate()
         storageDispatch(cmdEnv,
-            ModelRepoCmd.CreateEntity(
+            ModelStorageCmd.CreateEntity(
                 modelId = model.id,
                 entityId = EntityId.generate(),
                 key = c.entityInitializer.entityKey,
@@ -586,7 +601,7 @@ class ModelCmdsImpl(
 
     private fun deleteEntity(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntity) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
-        storageDispatch(cmdEnv, ModelRepoCmd.DeleteEntity(model.id, entity.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.DeleteEntity(model.id, entity.id))
     }
 
     private fun createEntityAttribute(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.CreateEntityAttribute) {
@@ -600,7 +615,7 @@ class ModelCmdsImpl(
         val type = storage.findType(model.id, typeRef)
 
         storageDispatch(cmdEnv,
-            ModelRepoCmd.CreateEntityAttribute(
+            ModelStorageCmd.CreateEntityAttribute(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = AttributeId.generate(),
@@ -618,7 +633,7 @@ class ModelCmdsImpl(
         if (entity.identifierAttributeId == attribute.id)
             throw DeleteAttributeIdentifierException(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.DeleteEntityAttribute(
+            ModelStorageCmd.DeleteEntityAttribute(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = attribute.id
@@ -635,39 +650,39 @@ class ModelCmdsImpl(
             cmd.value
         )
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateEntityAttributeKey(model.id, entity.id, attribute.id, cmd.value)
+            ModelStorageCmd.UpdateEntityAttributeKey(model.id, entity.id, attribute.id, cmd.value)
         )
     }
 
     private fun updateEntityAttributeName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeName) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.name == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityAttributeName(model.id, entity.id, attribute.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityAttributeName(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeDescription) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.description == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityAttributeDescription(model.id, entity.id, attribute.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityAttributeDescription(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeType(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeType) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         val type = storage.findType(model.id, cmd.value)
         if (attribute.typeId == type.id) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityAttributeType(model.id, entity.id, attribute.id, type.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityAttributeType(model.id, entity.id, attribute.id, type.id))
     }
 
     private fun updateEntityAttributeOptional(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeOptional) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         if (attribute.optional == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateEntityAttributeOptional(model.id, entity.id, attribute.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityAttributeOptional(model.id, entity.id, attribute.id, cmd.value))
     }
 
     private fun updateEntityAttributeTagAdd(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeTagAdd) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateEntityAttributeTagAdd(
+            ModelStorageCmd.UpdateEntityAttributeTagAdd(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = attribute.id,
@@ -679,7 +694,7 @@ class ModelCmdsImpl(
     private fun updateEntityAttributeTagDelete(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeTagDelete) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateEntityAttributeTagDelete(
+            ModelStorageCmd.UpdateEntityAttributeTagDelete(
                 modelId = model.id,
                 entityId = entity.id,
                 attributeId = attribute.id,
@@ -700,7 +715,7 @@ class ModelCmdsImpl(
             cmd.attributeRef
         )
         storageDispatch(cmdEnv,
-            ModelRepoCmd.DeleteRelationshipAttribute(
+            ModelStorageCmd.DeleteRelationshipAttribute(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 attributeId = attribute.id
@@ -722,7 +737,7 @@ class ModelCmdsImpl(
             cmd.value
         )
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeKey(model.id, relationship.id, attribute.id, cmd.value)
+            ModelStorageCmd.UpdateRelationshipAttributeKey(model.id, relationship.id, attribute.id, cmd.value)
         )
     }
 
@@ -734,7 +749,7 @@ class ModelCmdsImpl(
         )
         if (attribute.name == cmd.value) return
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeName(
+            ModelStorageCmd.UpdateRelationshipAttributeName(
                 model.id,
                 relationship.id,
                 attribute.id,
@@ -751,7 +766,7 @@ class ModelCmdsImpl(
         )
         if (attribute.description == cmd.value) return
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeDescription(
+            ModelStorageCmd.UpdateRelationshipAttributeDescription(
                 model.id,
                 relationship.id,
                 attribute.id,
@@ -768,7 +783,7 @@ class ModelCmdsImpl(
         )
         val type = storage.findType(model.id, cmd.value)
         if (attribute.typeId == type.id) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipAttributeType(model.id, relationship.id, attribute.id, type.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipAttributeType(model.id, relationship.id, attribute.id, type.id))
     }
 
     private fun updateRelationshipAttributeOptional(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipAttributeOptional) {
@@ -779,7 +794,7 @@ class ModelCmdsImpl(
         )
         if (attribute.optional == cmd.value) return
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeOptional(
+            ModelStorageCmd.UpdateRelationshipAttributeOptional(
                 model.id,
                 relationship.id,
                 attribute.id,
@@ -795,7 +810,7 @@ class ModelCmdsImpl(
             cmd.attributeRef
         )
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeTagAdd(
+            ModelStorageCmd.UpdateRelationshipAttributeTagAdd(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 attributeId = attribute.id,
@@ -811,7 +826,7 @@ class ModelCmdsImpl(
             cmd.attributeRef
         )
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipAttributeTagDelete(
+            ModelStorageCmd.UpdateRelationshipAttributeTagDelete(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 attributeId = attribute.id,
@@ -823,7 +838,7 @@ class ModelCmdsImpl(
     private fun deleteRelationship(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteRelationship) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.DeleteRelationship(
+            ModelStorageCmd.DeleteRelationship(
                 modelId = model.id,
                 relationshipId = relationship.id,
             )
@@ -833,19 +848,19 @@ class ModelCmdsImpl(
     private fun updateRelationshipKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipKey) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         if (relationship.key == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipKey(model.id, relationship.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipKey(model.id, relationship.id, cmd.value))
     }
 
     private fun updateRelationshipName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipName) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         if (relationship.name == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipName(model.id, relationship.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipName(model.id, relationship.id, cmd.value))
     }
 
     private fun updateRelationshipDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipDescription) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         if (relationship.description == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipDescription(model.id, relationship.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipDescription(model.id, relationship.id, cmd.value))
     }
 
     private fun createRelationshipRole(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.CreateRelationshipRole) {
@@ -856,7 +871,7 @@ class ModelCmdsImpl(
         }
         val entity = storage.findEntity(model.id, cmd.entityRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.CreateRelationshipRole(
+            ModelStorageCmd.CreateRelationshipRole(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 relationshipRoleId = RelationshipRoleId.generate(),
@@ -881,14 +896,14 @@ class ModelCmdsImpl(
             )
         }
         if (role.key == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipRoleKey(model.id, relationship.id, role.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipRoleKey(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun updateRelationshipRoleName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipRoleName) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
         if (role.name == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipRoleName(model.id, relationship.id, role.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipRoleName(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun updateRelationshipRoleEntity(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipRoleEntity) {
@@ -896,14 +911,14 @@ class ModelCmdsImpl(
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
         val entity = storage.findEntity(model.id, cmd.value)
         if (role.entityId == entity.id) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipRoleEntity(model.id, relationship.id, role.id, entity.id))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipRoleEntity(model.id, relationship.id, role.id, entity.id))
     }
 
     private fun updateRelationshipRoleCardinality(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipRoleCardinality) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
         if (role.cardinality == cmd.value) return
-        storageDispatch(cmdEnv, ModelRepoCmd.UpdateRelationshipRoleCardinality(model.id, relationship.id, role.id, cmd.value))
+        storageDispatch(cmdEnv, ModelStorageCmd.UpdateRelationshipRoleCardinality(model.id, relationship.id, role.id, cmd.value))
     }
 
     private fun deleteRelationshipRole(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteRelationshipRole) {
@@ -913,7 +928,7 @@ class ModelCmdsImpl(
         }
         val role = storage.findRelationshipRole(model.id, relationship.id, cmd.relationshipRoleRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.DeleteRelationshipRole(
+            ModelStorageCmd.DeleteRelationshipRole(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 relationshipRoleId = role.id
@@ -924,7 +939,7 @@ class ModelCmdsImpl(
     private fun updateRelationshipTagAdd(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipTagAdd) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipTagAdd(
+            ModelStorageCmd.UpdateRelationshipTagAdd(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
@@ -935,7 +950,7 @@ class ModelCmdsImpl(
     private fun updateRelationshipTagDelete(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateRelationshipTagDelete) {
         val (model, relationship) = findModelAndRelationship(cmd.modelRef, cmd.relationshipRef)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.UpdateRelationshipTagDelete(
+            ModelStorageCmd.UpdateRelationshipTagDelete(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 tagId = tagResolver.resolveTagIdCompatible(model.id, cmd.tagRef)
@@ -955,7 +970,7 @@ class ModelCmdsImpl(
         }
         val type = storage.findType(model.id, cmd.attr.type)
         storageDispatch(cmdEnv,
-            ModelRepoCmd.CreateRelationshipAttribute(
+            ModelStorageCmd.CreateRelationshipAttribute(
                 modelId = model.id,
                 relationshipId = relationship.id,
                 attributeId = AttributeId.generate(),
@@ -983,7 +998,7 @@ class ModelCmdsImpl(
         }
 
         storageDispatch(cmdEnv,
-            ModelRepoCmd.CreateRelationship(
+            ModelStorageCmd.CreateRelationship(
                 modelId = model.id,
                 relationshipId = RelationshipId.generate(),
                 name = cmd.initializer.name,
@@ -991,7 +1006,7 @@ class ModelCmdsImpl(
                 key = cmd.initializer.key,
                 roles = cmd.initializer.roles.map {
                     val entity = storage.findEntity(model.id, it.entityRef)
-                    ModelRepoCmd.RelationshipRoleInitializer(
+                    ModelStorageCmd.RelationshipRoleInitializer(
                         id = RelationshipRoleId.generate(),
                         key = it.key,
                         entityId = entity.id,

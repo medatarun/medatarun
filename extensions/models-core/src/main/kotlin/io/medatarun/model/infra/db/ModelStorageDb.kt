@@ -10,10 +10,11 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
+import io.medatarun.model.infra.db.events.ModelEventStreamNumberContext
+import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
-import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
@@ -26,11 +27,10 @@ class ModelStorageDb(
     private val db: DbConnectionFactory,
     private val clock: ModelClock
 ) : ModelStorage {
+
     private val searchRead = ModelStorageDbSearchRead(db)
     private val searchWrite = ModelStorageDbSearchWrite(db)
-    private val eventRecordFactory = ModelEventRecordFactory()
-    private val eventStreamNumberManager = ModelEventStreamNumberManager()
-
+    private val eventSystem = ModelEventSystem()
     // -------------------------------------------------------------------------
     // Queries
     // -------------------------------------------------------------------------
@@ -299,23 +299,23 @@ class ModelStorageDb(
     // Commands
     // -------------------------------------------------------------------------
 
-    override fun dispatch(cmdEnv: ModelRepoCmdEnveloppe) {
+    override fun dispatch(cmdEnv: ModelStorageCmdEnveloppe) {
         db.withExposed {
             val modelId = extractModelId(cmdEnv.cmd)
-            val streamNumberCtx = eventStreamNumberManager.createNumberContext(modelId)
+            val streamNumberCtx = eventSystem.eventStreamNumberManager.createNumberContext(modelId)
             dispatchExposed(cmdEnv, streamNumberCtx)
         }
     }
 
     private fun dispatchExposed(
-        cmdEnv: ModelRepoCmdEnveloppe,
+        cmdEnv: ModelStorageCmdEnveloppe,
         streamNumberCtx: ModelEventStreamNumberContext
     ) {
         val cmd = cmdEnv.cmd
-        if (cmd is ModelRepoCmd.CreateModel || cmd is ModelRepoCmd.StoreModelAggregate) {
+        if (cmd is ModelStorageCmd.CreateModel || cmd is ModelStorageCmd.StoreModelAggregate) {
             dispatchCommand(cmd)
             appendModelEvent(cmdEnv, streamNumberCtx)
-        } else if (cmd is ModelRepoCmd.DeleteModel) {
+        } else if (cmd is ModelStorageCmd.DeleteModel) {
             appendModelEvent(cmdEnv, streamNumberCtx)
             dispatchCommand(cmd)
             return
@@ -325,74 +325,74 @@ class ModelStorageDb(
         }
     }
 
-    private fun dispatchCommand(cmd: ModelRepoCmd) {
+    private fun dispatchCommand(cmd: ModelStorageCmd) {
         when (cmd) {
             //@formatter:off
-            is ModelRepoCmd.StoreModelAggregate -> storeModelAggregate(cmd)
-            is ModelRepoCmd.CreateModel -> createModel(cmd.model)
-            is ModelRepoCmd.DeleteModel -> deleteModel(cmd.modelId)
-            is ModelRepoCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
-            is ModelRepoCmd.UpdateModelKey -> updateModelKey(cmd.modelId, cmd.key)
-            is ModelRepoCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
-            is ModelRepoCmd.UpdateModelAuthority -> updateModelAuthority(cmd.modelId, cmd.authority)
-            is ModelRepoCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
-            is ModelRepoCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
-            is ModelRepoCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
-            is ModelRepoCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
-            is ModelRepoCmd.CreateType -> createType(cmd.modelId, cmd.initializer)
-            is ModelRepoCmd.UpdateTypeKey -> updateTypeKey(cmd.modelId, cmd.typeId, cmd.value)
-            is ModelRepoCmd.UpdateTypeName -> updateTypeName(cmd.modelId, cmd.typeId, cmd.value)
-            is ModelRepoCmd.UpdateTypeDescription -> updateTypeDescription(cmd.modelId, cmd.typeId, cmd.value)
-            is ModelRepoCmd.DeleteType -> deleteType(cmd.modelId, cmd.typeId)
-            is ModelRepoCmd.CreateEntity -> createEntity(cmd)
-            is ModelRepoCmd.UpdateEntityKey -> updateEntityKey(cmd.modelId, cmd.entityId, cmd.value)
-            is ModelRepoCmd.UpdateEntityName -> updateEntityName(cmd.modelId, cmd.entityId, cmd.value)
-            is ModelRepoCmd.UpdateEntityDescription -> updateEntityDescription(cmd.modelId, cmd.entityId, cmd.value)
-            is ModelRepoCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(cmd.modelId, cmd.entityId, cmd.value)
-            is ModelRepoCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmd.modelId, cmd.entityId, cmd.value)
-            is ModelRepoCmd.UpdateEntityTagAdd -> addEntityTag(cmd.entityId, cmd.tagId)
-            is ModelRepoCmd.UpdateEntityTagDelete -> deleteEntityTag(cmd.entityId, cmd.tagId)
-            is ModelRepoCmd.DeleteEntity -> deleteEntity(cmd.modelId, cmd.entityId)
-            is ModelRepoCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
-            is ModelRepoCmd.UpdateEntityAttributeKey -> updateEntityAttributeKey(cmd.entityId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateEntityAttributeName -> updateEntityAttributeName(cmd.entityId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateEntityAttributeDescription -> updateEntityAttributeDescription(cmd.entityId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateEntityAttributeType -> updateEntityAttributeType(cmd.entityId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateEntityAttributeOptional -> updateEntityAttributeOptional(cmd.entityId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateEntityAttributeTagAdd -> addEntityAttributeTag(cmd.attributeId, cmd.tagId)
-            is ModelRepoCmd.UpdateEntityAttributeTagDelete -> deleteEntityAttributeTag(cmd.attributeId, cmd.tagId)
-            is ModelRepoCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd.entityId, cmd.attributeId)
-            is ModelRepoCmd.CreateRelationship -> createRelationship(cmd)
-            is ModelRepoCmd.UpdateRelationshipKey -> updateRelationshipKey(cmd.relationshipId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipName -> updateRelationshipName(cmd.relationshipId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipDescription -> updateRelationshipDescription(cmd.relationshipId, cmd.value)
-            is ModelRepoCmd.CreateRelationshipRole -> createRelationshipRole(cmd)
-            is ModelRepoCmd.UpdateRelationshipRoleKey -> updateRelationshipRoleKey(cmd.relationshipRoleId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipRoleName -> updateRelationshipRoleName(cmd.relationshipRoleId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipRoleEntity -> updateRelationshipRoleEntity(cmd.relationshipRoleId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipRoleCardinality -> updateRelationshipRoleCardinality(cmd.relationshipRoleId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
-            is ModelRepoCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
-            is ModelRepoCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
-            is ModelRepoCmd.DeleteRelationshipRole -> deleteRelationshipRole(cmd.relationshipId, cmd.relationshipRoleId)
-            is ModelRepoCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
-            is ModelRepoCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd.relationshipId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd.relationshipId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipAttributeDescription -> updateRelationshipAttributeDescription(cmd.relationshipId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipAttributeType -> updateRelationshipAttributeType(cmd.relationshipId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipAttributeOptional -> updateRelationshipAttributeOptional(cmd.relationshipId, cmd.attributeId, cmd.value)
-            is ModelRepoCmd.UpdateRelationshipAttributeTagAdd -> addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
-            is ModelRepoCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
-            is ModelRepoCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
+            is ModelStorageCmd.StoreModelAggregate -> storeModelAggregate(cmd)
+            is ModelStorageCmd.CreateModel -> createModel(cmd)
+            is ModelStorageCmd.DeleteModel -> deleteModel(cmd.modelId)
+            is ModelStorageCmd.UpdateModelName -> updateModelName(cmd.modelId, cmd.name)
+            is ModelStorageCmd.UpdateModelKey -> updateModelKey(cmd.modelId, cmd.key)
+            is ModelStorageCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
+            is ModelStorageCmd.UpdateModelAuthority -> updateModelAuthority(cmd.modelId, cmd.authority)
+            is ModelStorageCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
+            is ModelStorageCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
+            is ModelStorageCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
+            is ModelStorageCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
+            is ModelStorageCmd.CreateType -> createType(cmd)
+            is ModelStorageCmd.UpdateTypeKey -> updateTypeKey(cmd.modelId, cmd.typeId, cmd.value)
+            is ModelStorageCmd.UpdateTypeName -> updateTypeName(cmd.modelId, cmd.typeId, cmd.value)
+            is ModelStorageCmd.UpdateTypeDescription -> updateTypeDescription(cmd.modelId, cmd.typeId, cmd.value)
+            is ModelStorageCmd.DeleteType -> deleteType(cmd.modelId, cmd.typeId)
+            is ModelStorageCmd.CreateEntity -> createEntity(cmd)
+            is ModelStorageCmd.UpdateEntityKey -> updateEntityKey(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelStorageCmd.UpdateEntityName -> updateEntityName(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelStorageCmd.UpdateEntityDescription -> updateEntityDescription(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelStorageCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelStorageCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmd.modelId, cmd.entityId, cmd.value)
+            is ModelStorageCmd.UpdateEntityTagAdd -> addEntityTag(cmd.entityId, cmd.tagId)
+            is ModelStorageCmd.UpdateEntityTagDelete -> deleteEntityTag(cmd.entityId, cmd.tagId)
+            is ModelStorageCmd.DeleteEntity -> deleteEntity(cmd.modelId, cmd.entityId)
+            is ModelStorageCmd.CreateEntityAttribute -> createEntityAttribute(cmd)
+            is ModelStorageCmd.UpdateEntityAttributeKey -> updateEntityAttributeKey(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateEntityAttributeName -> updateEntityAttributeName(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateEntityAttributeDescription -> updateEntityAttributeDescription(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateEntityAttributeType -> updateEntityAttributeType(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateEntityAttributeOptional -> updateEntityAttributeOptional(cmd.entityId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateEntityAttributeTagAdd -> addEntityAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelStorageCmd.UpdateEntityAttributeTagDelete -> deleteEntityAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelStorageCmd.DeleteEntityAttribute -> deleteEntityAttribute(cmd.entityId, cmd.attributeId)
+            is ModelStorageCmd.CreateRelationship -> createRelationship(cmd)
+            is ModelStorageCmd.UpdateRelationshipKey -> updateRelationshipKey(cmd.relationshipId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipName -> updateRelationshipName(cmd.relationshipId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipDescription -> updateRelationshipDescription(cmd.relationshipId, cmd.value)
+            is ModelStorageCmd.CreateRelationshipRole -> createRelationshipRole(cmd)
+            is ModelStorageCmd.UpdateRelationshipRoleKey -> updateRelationshipRoleKey(cmd.relationshipRoleId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipRoleName -> updateRelationshipRoleName(cmd.relationshipRoleId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipRoleEntity -> updateRelationshipRoleEntity(cmd.relationshipRoleId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipRoleCardinality -> updateRelationshipRoleCardinality(cmd.relationshipRoleId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipTagAdd -> addRelationshipTag(cmd.relationshipId, cmd.tagId)
+            is ModelStorageCmd.UpdateRelationshipTagDelete -> deleteRelationshipTag(cmd.relationshipId, cmd.tagId)
+            is ModelStorageCmd.DeleteRelationship -> deleteRelationship(cmd.modelId, cmd.relationshipId)
+            is ModelStorageCmd.DeleteRelationshipRole -> deleteRelationshipRole(cmd.relationshipId, cmd.relationshipRoleId)
+            is ModelStorageCmd.CreateRelationshipAttribute -> createRelationshipAttribute(cmd)
+            is ModelStorageCmd.UpdateRelationshipAttributeKey -> updateRelationshipAttributeKey(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipAttributeName -> updateRelationshipAttributeName(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipAttributeDescription -> updateRelationshipAttributeDescription(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipAttributeType -> updateRelationshipAttributeType(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipAttributeOptional -> updateRelationshipAttributeOptional(cmd.relationshipId, cmd.attributeId, cmd.value)
+            is ModelStorageCmd.UpdateRelationshipAttributeTagAdd -> addRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelStorageCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(cmd.attributeId, cmd.tagId)
+            is ModelStorageCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmd.relationshipId, cmd.attributeId)
             //@formatter:on
         }
     }
 
     private fun appendModelEvent(
-        cmdEnv: ModelRepoCmdEnveloppe,
+        cmdEnv: ModelStorageCmdEnveloppe,
         streamNumberCtx: ModelEventStreamNumberContext
     ) {
-        val record = eventRecordFactory.create(
+        val record = eventSystem.recordFactory.create(
             cmdEnv = cmdEnv,
             streamRevision = streamNumberCtx.nextRevision(),
             createdAt = clock.now()
@@ -411,21 +411,21 @@ class ModelStorageDb(
                 row[ModelEventTable.payload] = record.payload
             }
         } catch (e: Exception) {
-            eventStreamNumberManager.rethrowIfStreamRevisionConflict(
+            eventSystem.eventStreamNumberManager.rethrowIfStreamRevisionConflict(
                 exception = e,
                 numberContext = streamNumberCtx,
                 conflictingRevision = record.streamRevision
             )
             throw e
         }
-        eventStreamNumberManager.onAppendCommitted(streamNumberCtx, record.streamRevision)
+        eventSystem.eventStreamNumberManager.onAppendCommitted(streamNumberCtx, record.streamRevision)
     }
 
-    private fun extractModelId(cmd: ModelRepoCmd): ModelId {
+    private fun extractModelId(cmd: ModelStorageCmd): ModelId {
         return when (cmd) {
-            is ModelRepoCmd.CreateModel -> cmd.model.id
-            is ModelRepoCmd.StoreModelAggregate -> cmd.model.id
-            is ModelRepoCmdOnModel -> cmd.modelId
+            is ModelStorageCmd.CreateModel -> cmd.id
+            is ModelStorageCmd.StoreModelAggregate -> cmd.model.id
+            is ModelStorageCmdOnModel -> cmd.modelId
         }
     }
 
@@ -463,15 +463,24 @@ class ModelStorageDb(
     }
 
 
-    private fun createModel(model: Model) {
-        val inMemoryModel = ModelInMemory.of(model)
+    private fun createModel(cmd: ModelStorageCmd.CreateModel) {
+        val inMemoryModel = ModelInMemory(
+            id = cmd.id,
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description,
+            version = cmd.version,
+            origin = cmd.origin,
+            authority = cmd.authority,
+            documentationHome = cmd.documentationHome,
+        )
         db.withExposed {
             insertModel(inMemoryModel)
             searchWrite.upsertModelSearchItem(inMemoryModel.id)
         }
     }
 
-    private fun storeModelAggregate(model: ModelRepoCmd.StoreModelAggregate) {
+    private fun storeModelAggregate(model: ModelStorageCmd.StoreModelAggregate) {
 
         logger.warn("Storing full aggregate {}", model)
 
@@ -663,13 +672,13 @@ class ModelStorageDb(
             }
     }
 
-    private fun createType(modelId: ModelId, initializer: ModelTypeInitializer) {
+    private fun createType(cmd: ModelStorageCmd.CreateType) {
         val record = ModelTypeRecord(
             id = TypeId.generate(),
-            modelId = modelId,
-            key = initializer.key,
-            name = initializer.name,
-            description = initializer.description
+            modelId = cmd.modelId,
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description
         )
         insertType(record)
     }
@@ -742,7 +751,7 @@ class ModelStorageDb(
         }
     }
 
-    private fun createEntity(cmd: ModelRepoCmd.CreateEntity) {
+    private fun createEntity(cmd: ModelStorageCmd.CreateEntity) {
         insertEntity(cmd)
         searchWrite.upsertEntitySearchItem(cmd.entityId)
     }
@@ -826,7 +835,7 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertEntity(cmd: ModelRepoCmd.CreateEntity) {
+    private fun insertEntity(cmd: ModelStorageCmd.CreateEntity) {
 
         val record = EntityRecord(
             id = cmd.entityId,
@@ -889,7 +898,7 @@ class ModelStorageDb(
             .orderBy(EntityAttributeTagTable.tagId to SortOrder.ASC).map { it[EntityAttributeTagTable.tagId] }
     }
 
-    private fun createEntityAttribute(cmd: ModelRepoCmd.CreateEntityAttribute) {
+    private fun createEntityAttribute(cmd: ModelStorageCmd.CreateEntityAttribute) {
         insertEntityAttribute(
             EntityAttributeRecord(
                 id = cmd.attributeId,
@@ -1036,7 +1045,7 @@ class ModelStorageDb(
             .orderBy(RelationshipTagTable.tagId to SortOrder.ASC).map { it[RelationshipTagTable.tagId] }
     }
 
-    private fun createRelationship(cmd: ModelRepoCmd.CreateRelationship) {
+    private fun createRelationship(cmd: ModelStorageCmd.CreateRelationship) {
         val record = RelationshipRecord(
             id = cmd.relationshipId,
             modelId = cmd.modelId,
@@ -1079,7 +1088,7 @@ class ModelStorageDb(
         searchWrite.upsertRelationshipSearchItem(relationshipId)
     }
 
-    private fun createRelationshipRole(cmd: ModelRepoCmd.CreateRelationshipRole) {
+    private fun createRelationshipRole(cmd: ModelStorageCmd.CreateRelationshipRole) {
         RelationshipRoleTable.insert { row ->
             row[RelationshipRoleTable.id] = cmd.relationshipRoleId
             row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
@@ -1201,7 +1210,7 @@ class ModelStorageDb(
             .map { it[RelationshipAttributeTagTable.tagId] }
     }
 
-    private fun createRelationshipAttribute(cmd: ModelRepoCmd.CreateRelationshipAttribute) {
+    private fun createRelationshipAttribute(cmd: ModelStorageCmd.CreateRelationshipAttribute) {
         val record = RelationshipAttributeRecord(
             id = cmd.attributeId,
             relationshipId = cmd.relationshipId,

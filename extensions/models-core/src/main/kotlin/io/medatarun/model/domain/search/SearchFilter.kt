@@ -1,13 +1,14 @@
 package io.medatarun.model.domain.search
 
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.type.commons.enums.EnumWithCode
 
 data class SearchFilters(
     val operator: SearchFiltersLogicalOperator,
     val items: List<SearchFilter>
 )
 
-enum class SearchFiltersLogicalOperator(val code: String) {
+enum class SearchFiltersLogicalOperator(override val code: String): EnumWithCode {
     AND("and"), OR("or");
 
     companion object {

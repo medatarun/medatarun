@@ -179,9 +179,9 @@ interface ModelStorage {
     /**
      * Process one model storage command.
      *
-     * See [ModelRepoCmd] for the list of supported write operations.
+     * See [ModelStorageCmd] for the list of supported write operations.
      */
-    fun dispatch(cmdEnv: ModelRepoCmdEnveloppe)
+    fun dispatch(cmdEnv: ModelStorageCmdEnveloppe)
 
 
 }

@@ -1,47 +1,19 @@
-@file:UseContextualSerialization(
-    AttributeId::class,
-    AttributeKey::class,
-    EntityId::class,
-    EntityKey::class,
-    EntityOrigin::class,
-    LocalizedMarkdown::class,
-    LocalizedText::class,
-    Model::class,
-    ModelAuthority::class,
-    ModelId::class,
-    ModelKey::class,
-    ModelOrigin::class,
-    ModelTypeInitializer::class,
-    ModelVersion::class,
-    RelationshipCardinality::class,
-    RelationshipId::class,
-    RelationshipKey::class,
-    RelationshipRoleId::class,
-    RelationshipRoleKey::class,
-    TagId::class,
-    TypeId::class,
-    TypeKey::class,
-    URL::class,
-)
-
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.db.ModelEventContract
-import io.medatarun.model.ports.exposed.ModelTypeInitializer
 import io.medatarun.tags.core.domain.TagId
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseContextualSerialization
 import java.net.URL
 
 @Serializable
-sealed interface ModelRepoCmdOnModel : ModelRepoCmd {
+sealed interface ModelStorageCmdOnModel : ModelStorageCmd {
     val modelId: ModelId
 }
 
 @Serializable
-sealed interface ModelRepoCmd {
+sealed interface ModelStorageCmd {
 
 
     // ------------------------------------------------------------------------
@@ -63,93 +35,132 @@ sealed interface ModelRepoCmd {
         val relationships: List<StoreModelAggregateRelationship>,
         @SerialName("relationship_attributes")
         val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
-    ) : ModelRepoCmd
+    ) : ModelStorageCmd
 
     @Serializable
     @ModelEventContract(eventType = "model_created", eventVersion = 1)
     data class CreateModel(
-        @SerialName("model")
-        val model: Model
-    ) : ModelRepoCmd
+        @Contextual
+        @SerialName("id")
+        val id: ModelId,
+        @Contextual
+        @SerialName("key")
+        val key: ModelKey,
+        @Contextual
+        @SerialName("name")
+        val name: LocalizedText?,
+        @Contextual
+        @SerialName("description")
+        val description: LocalizedMarkdown?,
+        @Contextual
+        @SerialName("version")
+        val version: ModelVersion,
+        @Contextual
+        @SerialName("origin")
+        val origin: ModelOrigin,
+        @Contextual
+        @SerialName("authority")
+        val authority: ModelAuthority,
+        @Contextual
+        @SerialName("documentation_home")
+        val documentationHome: URL?
+    ) : ModelStorageCmd
 
     @Serializable
     @ModelEventContract(eventType = "model_name_updated", eventVersion = 1)
     data class UpdateModelName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_key_updated", eventVersion = 1)
     data class UpdateModelKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("key")
         val key: ModelKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_description_updated", eventVersion = 1)
     data class UpdateModelDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("description")
         val description: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_authority_updated", eventVersion = 1)
     data class UpdateModelAuthority(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("authority")
         val authority: ModelAuthority
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_version_updated", eventVersion = 1)
     data class UpdateModelVersion(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("version")
         val version: ModelVersion
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_documentation_home_updated", eventVersion = 1)
     data class UpdateModelDocumentationHome(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("url")
         val url: URL?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_tag_added", eventVersion = 1)
     data class UpdateModelTagAdd(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_tag_deleted", eventVersion = 1)
     data class UpdateModelTagDelete(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "model_deleted", eventVersion = 1)
     data class DeleteModel(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     // ------------------------------------------------------------------------
     // Types
@@ -158,53 +169,72 @@ sealed interface ModelRepoCmd {
     @Serializable
     @ModelEventContract(eventType = "type_created", eventVersion = 1)
     data class CreateType(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
-        @SerialName("initializer")
-        val initializer: ModelTypeInitializer
-    ) : ModelRepoCmdOnModel
+        @Contextual
+        @SerialName("key")
+        val key: TypeKey,
+        @Contextual
+        @SerialName("name")
+        val name: LocalizedText?,
+        @Contextual
+        @SerialName("description")
+        val description: LocalizedMarkdown?
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "type_key_updated", eventVersion = 1)
     data class UpdateTypeKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId,
+        @Contextual
         @SerialName("value")
         val value: TypeKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "type_name_updated", eventVersion = 1)
     data class UpdateTypeName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "type_description_updated", eventVersion = 1)
     data class UpdateTypeDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "type_deleted", eventVersion = 1)
     data class DeleteType(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     // ------------------------------------------------------------------------
     // Entity
@@ -213,120 +243,155 @@ sealed interface ModelRepoCmd {
     @Serializable
     @ModelEventContract(eventType = "entity_created", eventVersion = 1)
     data class CreateEntity(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("key")
         val key: EntityKey,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("description")
         val description: LocalizedMarkdown?,
+        @Contextual
         @SerialName("documentation_home")
         val documentationHome: URL?,
+        @Contextual
         @SerialName("origin")
         val origin: EntityOrigin,
+        @Contextual
         @SerialName("identity_attribute_id")
         val identityAttributeId: AttributeId,
+        @Contextual
         @SerialName("identity_attribute_key")
         val identityAttributeKey: AttributeKey,
+        @Contextual
         @SerialName("identity_attribute_type_id")
         val identityAttributeTypeId: TypeId,
+        @Contextual
         @SerialName("identity_attribute_name")
         val identityAttributeName: LocalizedText?,
+        @Contextual
         @SerialName("identity_attribute_description")
         val identityAttributeDescription: LocalizedMarkdown?,
         @SerialName("identity_attribute_optional")
         val identityAttributeIdOptional: Boolean,
 
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_key_updated", eventVersion = 1)
     data class UpdateEntityKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("value")
         val value: EntityKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_name_updated", eventVersion = 1)
     data class UpdateEntityName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_description_updated", eventVersion = 1)
     data class UpdateEntityDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
     data class UpdateEntityIdentifierAttribute(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("value")
         val value: AttributeId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_documentation_home_updated", eventVersion = 1)
     data class UpdateEntityDocumentationHome(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("value")
         val value: URL?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_tag_added", eventVersion = 1)
     data class UpdateEntityTagAdd(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_tag_deleted", eventVersion = 1)
     data class UpdateEntityTagDelete(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_deleted", eventVersion = 1)
     data class DeleteEntity(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     // ------------------------------------------------------------------------
     // Entity attributes
@@ -335,125 +400,162 @@ sealed interface ModelRepoCmd {
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_created", eventVersion = 1)
     data class CreateEntityAttribute(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("key")
         val key: AttributeKey,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("description")
         val description: LocalizedMarkdown?,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId,
         @SerialName("optional")
         val optional: Boolean
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_deleted", eventVersion = 1)
     data class DeleteEntityAttribute(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_key_updated", eventVersion = 1)
     data class UpdateEntityAttributeKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: AttributeKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_name_updated", eventVersion = 1)
     data class UpdateEntityAttributeName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_description_updated", eventVersion = 1)
     data class UpdateEntityAttributeDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_type_updated", eventVersion = 1)
     data class UpdateEntityAttributeType(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: TypeId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_optional_updated", eventVersion = 1)
     data class UpdateEntityAttributeOptional(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
         @SerialName("value")
         val value: Boolean
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_tag_added", eventVersion = 1)
     data class UpdateEntityAttributeTagAdd(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "entity_attribute_tag_deleted", eventVersion = 1)
     data class UpdateEntityAttributeTagDelete(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
 
     // ------------------------------------------------------------------------
@@ -463,30 +565,40 @@ sealed interface ModelRepoCmd {
     @Serializable
     @ModelEventContract(eventType = "relationship_created", eventVersion = 1)
     data class CreateRelationship(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("key")
         val key: RelationshipKey,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("description")
         val description: LocalizedMarkdown?,
         @SerialName("roles")
         val roles: List<RelationshipRoleInitializer>,
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     data class RelationshipRoleInitializer(
+        @Contextual
         @SerialName("id")
         val id: RelationshipRoleId,
+        @Contextual
         @SerialName("key")
         val key: RelationshipRoleKey,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("cardinality")
         val cardinality: RelationshipCardinality,
     )
@@ -494,271 +606,351 @@ sealed interface ModelRepoCmd {
     @Serializable
     @ModelEventContract(eventType = "relationship_key_updated", eventVersion = 1)
     data class UpdateRelationshipKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("value")
         val value: RelationshipKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_name_updated", eventVersion = 1)
     data class UpdateRelationshipName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_description_updated", eventVersion = 1)
     data class UpdateRelationshipDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_created", eventVersion = 1)
     data class CreateRelationshipRole(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId,
+        @Contextual
         @SerialName("key")
         val key: RelationshipRoleKey,
+        @Contextual
         @SerialName("entity_id")
         val entityId: EntityId,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("cardinality")
         val cardinality: RelationshipCardinality
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_key_updated", eventVersion = 1)
     data class UpdateRelationshipRoleKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId,
+        @Contextual
         @SerialName("value")
         val value: RelationshipRoleKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_name_updated", eventVersion = 1)
     data class UpdateRelationshipRoleName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_entity_updated", eventVersion = 1)
     data class UpdateRelationshipRoleEntity(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId,
+        @Contextual
         @SerialName("value")
         val value: EntityId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_cardinality_updated", eventVersion = 1)
     data class UpdateRelationshipRoleCardinality(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId,
+        @Contextual
         @SerialName("value")
         val value: RelationshipCardinality
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_tag_added", eventVersion = 1)
     data class UpdateRelationshipTagAdd(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipTagDelete(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_deleted", eventVersion = 1)
     data class DeleteRelationship(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_role_deleted", eventVersion = 1)
     data class DeleteRelationshipRole(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("relationship_role_id")
         val relationshipRoleId: RelationshipRoleId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_created", eventVersion = 1)
     data class CreateRelationshipAttribute(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("key")
         val key: AttributeKey,
+        @Contextual
         @SerialName("name")
         val name: LocalizedText?,
+        @Contextual
         @SerialName("description")
         val description: LocalizedMarkdown?,
+        @Contextual
         @SerialName("type_id")
         val typeId: TypeId,
         @SerialName("optional")
         val optional: Boolean,
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_name_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeName(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedText?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_description_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeDescription(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: LocalizedMarkdown?
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_key_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeKey(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: AttributeKey
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_type_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeType(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("value")
         val value: TypeId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_optional_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeOptional(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
         @SerialName("value")
         val value: Boolean
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_tag_added", eventVersion = 1)
     data class UpdateRelationshipAttributeTagAdd(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipAttributeTagDelete(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
+        @Contextual
         @SerialName("tag_id")
         val tagId: TagId
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
     @Serializable
     @ModelEventContract(eventType = "relationship_attribute_deleted", eventVersion = 1)
     data class DeleteRelationshipAttribute(
+        @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
+        @Contextual
         @SerialName("relationship_id")
         val relationshipId: RelationshipId,
+        @Contextual
         @SerialName("attribute_id")
         val attributeId: AttributeId,
-    ) : ModelRepoCmdOnModel
+    ) : ModelStorageCmdOnModel
 
 
 }
