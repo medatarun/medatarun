@@ -1,11 +1,31 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
+import io.medatarun.model.domain.AttributeId
+import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.RelationshipId
+import io.medatarun.model.domain.TypeId
 import io.medatarun.type.commons.id.Id
 
 
 class ModelStorageDbInvalidIdentifierAttributeException(entityId: String) :
     MedatarunException("Entity $entityId has no identifier attribute in sqlite storage")
+
+class ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId: ModelId) :
+    MedatarunException("Could not find CURRENT_HEAD model snapshot for model [${modelId.asString()}]")
+
+class ModelStorageDbMissingTypeSnapshotException(typeId: TypeId) :
+    MedatarunException("Could not find CURRENT_HEAD type snapshot for type [${typeId.asString()}]")
+
+class ModelStorageDbMissingEntitySnapshotException(entityId: EntityId) :
+    MedatarunException("Could not find CURRENT_HEAD entity snapshot for entity [${entityId.asString()}]")
+
+class ModelStorageDbMissingAttributeSnapshotException(attributeId: AttributeId) :
+    MedatarunException("Could not find CURRENT_HEAD attribute snapshot for attribute [${attributeId.asString()}]")
+
+class ModelStorageDbMissingRelationshipSnapshotException(relationshipId: RelationshipId) :
+    MedatarunException("Could not find CURRENT_HEAD relationship snapshot for relationship [${relationshipId.asString()}]")
 
 
 class ModelStorageDbSearchUnknownItemTypeException(itemType: String) :

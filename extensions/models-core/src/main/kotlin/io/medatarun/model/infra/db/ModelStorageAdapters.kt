@@ -29,38 +29,44 @@ object ModelStorageAdapters {
         description = record.description
     )
 
-    fun toEntity(record: EntityRecord, tags: List<TagId>): EntityInMemory {
-        val entityId = record.lineageId
-        val identifierAttributeIdString = record.identifierAttributeSnapshotId
-
+    fun toEntity(
+        record: EntityRecord,
+        tags: List<TagId>,
+        identifierAttributeId: AttributeId
+    ): EntityInMemory {
         return EntityInMemory(
-            id = entityId,
+            id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            identifierAttributeId = identifierAttributeIdString,
+            identifierAttributeId = identifierAttributeId,
             origin = record.origin,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = tags
         )
     }
 
-    fun toEntityAttribute(record: EntityAttributeRecord, tags: List<TagId>): AttributeInMemory {
+    fun toEntityAttribute(
+        record: EntityAttributeRecord,
+        tags: List<TagId>,
+        typeId: TypeId,
+        ownerEntityId: EntityId
+    ): AttributeInMemory {
         return AttributeInMemory(
             id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            typeId = record.typeSnapshotId,
+            typeId = typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerEntityId(record.entitySnapshotId)
+            ownerId = AttributeOwnerId.OwnerEntityId(ownerEntityId)
         )
     }
 
     fun toRelationship(
         record: RelationshipRecord,
-        roles: List<RelationshipRoleRecord>,
+        roles: List<RelationshipRoleInMemory>,
         tags: List<TagId>
     ): RelationshipInMemory {
         return RelationshipInMemory(
@@ -68,18 +74,20 @@ object ModelStorageAdapters {
             key = record.key,
             name = record.name,
             description = record.description,
-            roles = roles.map { toRelationshipRole(it) },
+            roles = roles,
             tags = tags
         )
     }
 
 
-    fun toRelationshipRole(record: RelationshipRoleRecord): RelationshipRoleInMemory {
-
+    fun toRelationshipRole(
+        record: RelationshipRoleRecord,
+        entityId: EntityId
+    ): RelationshipRoleInMemory {
         return RelationshipRoleInMemory(
             id = record.lineageId,
             key = record.key,
-            entityId = record.entitySnapshotId,
+            entityId = entityId,
             name = record.name,
             cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
         )
@@ -87,17 +95,19 @@ object ModelStorageAdapters {
 
     fun toRelationshipAttribute(
         record: RelationshipAttributeRecord,
-        tags: List<TagId>
+        tags: List<TagId>,
+        typeId: TypeId,
+        ownerRelationshipId: RelationshipId
     ): AttributeInMemory {
         return AttributeInMemory(
             id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            typeId = record.typeSnapshotId,
+            typeId = typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerRelationshipId(record.relationshipSnapshotId)
+            ownerId = AttributeOwnerId.OwnerRelationshipId(ownerRelationshipId)
         )
     }
 

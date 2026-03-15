@@ -122,7 +122,7 @@ internal class ModelStorageDbSearchWrite(
                 searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
             ),
             ModelTagTable.select(ModelTagTable.tagId)
-                .where { ModelTagTable.modelSnapshotId eq modelId }
+                .where { ModelTagTable.modelSnapshotId eq ModelId.fromString(modelRecord.snapshotId) }
                 .map { it[ModelTagTable.tagId] }
         )
     }
@@ -136,13 +136,13 @@ internal class ModelStorageDbSearchWrite(
             return
         }
         val entityRecord = EntityRecord.read(row)
-        val modelRecord = loadModelRecord(entityRecord.modelSnapshotId)
+        val modelRecord = loadModelRecordBySnapshotId(entityRecord.modelSnapshotId)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForEntity(entityId),
                 itemType = SearchItemType.ENTITY,
-                modelId = entityRecord.modelSnapshotId,
+                modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
                 entityId = entityId,
@@ -178,13 +178,13 @@ internal class ModelStorageDbSearchWrite(
             .singleOrNull()
             ?: throw ModelStorageDbSearchMissingSourceRowException("entity", attributeRecord.entitySnapshotId)
         val entityRecord = EntityRecord.read(entityRow)
-        val modelRecord = loadModelRecord(entityRecord.modelSnapshotId)
+        val modelRecord = loadModelRecordBySnapshotId(entityRecord.modelSnapshotId)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForEntityAttribute(attributeId),
                 itemType = SearchItemType.ENTITY_ATTRIBUTE,
-                modelId = entityRecord.modelSnapshotId,
+                modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
                 entityId = entityRecord.lineageId,
@@ -214,13 +214,13 @@ internal class ModelStorageDbSearchWrite(
             return
         }
         val relationshipRecord = RelationshipRecord.read(row)
-        val modelRecord = loadModelRecord(relationshipRecord.modelSnapshotId)
+        val modelRecord = loadModelRecordBySnapshotId(relationshipRecord.modelSnapshotId)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForRelationship(relationshipId),
                 itemType = SearchItemType.RELATIONSHIP,
-                modelId = relationshipRecord.modelSnapshotId,
+                modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
                 entityId = null,
@@ -260,13 +260,13 @@ internal class ModelStorageDbSearchWrite(
             .singleOrNull()
             ?: throw ModelStorageDbSearchMissingSourceRowException("relationship", attributeRecord.relationshipSnapshotId)
         val relationshipRecord = RelationshipRecord.read(relationshipRow)
-        val modelRecord = loadModelRecord(relationshipRecord.modelSnapshotId)
+        val modelRecord = loadModelRecordBySnapshotId(relationshipRecord.modelSnapshotId)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForRelationshipAttribute(attributeId),
                 itemType = SearchItemType.RELATIONSHIP_ATTRIBUTE,
-                modelId = relationshipRecord.modelSnapshotId,
+                modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
                 entityId = null,
@@ -289,10 +289,11 @@ internal class ModelStorageDbSearchWrite(
 
     private fun replaceSearchItem(item: DenormModelSearchItemRecord, tagIds: List<TagId>) {
         deleteSearchItemById(item.id)
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(item.modelId)
         DenormModelSearchItemTable.insert { row ->
             row[id] = item.id
             row[itemType] = item.itemType.code
-            row[modelSnapshotId] = item.modelId
+            row[modelSnapshotId] = modelSnapshotIdValue
             row[modelKey] = item.modelKey
             row[modelLabel] = item.modelLabel
             row[entityId] = item.entityId
@@ -385,6 +386,17 @@ internal class ModelStorageDbSearchWrite(
             .where { (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD") }
             .single()
         return ModelRecord.read(row)
+    }
+
+    private fun loadModelRecordBySnapshotId(modelSnapshotId: ModelId): ModelRecord {
+        val row = ModelSnapshotTable.selectAll()
+            .where { ModelSnapshotTable.id eq modelSnapshotId.asString() }
+            .single()
+        return ModelRecord.read(row)
+    }
+
+    private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
+        return ModelId.fromString(loadModelRecord(modelId).snapshotId)
     }
 
     private fun searchItemIdForModel(modelId: ModelId): String {
