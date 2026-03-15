@@ -5,6 +5,7 @@ import io.medatarun.model.domain.LocalizedText
 import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelOrigin
 import io.medatarun.model.infra.db.tables.ModelTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
@@ -14,7 +15,7 @@ data class ModelRecord(
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
     val version: String,
-    val origin: String?,
+    val origin: ModelOrigin,
     val authority: ModelAuthority,
     val documentationHome: String?
 ) {

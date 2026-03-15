@@ -3,15 +3,20 @@ package io.medatarun.model.domain
 import java.net.URI
 
 sealed interface ModelOrigin {
+    val code: String
     /**
      * Model definition had been imported and is linked to another source (JsonSchema, TableSchema, DataPackage Schema, JDBC database, etc.)
      *
      * An external source like this makes this entity externally managed (the origin is source of truth)
      */
-    data class Uri(val uri: URI) : ModelOrigin
+    data class Uri(val uri: URI) : ModelOrigin {
+        override val code: String = "uri"
+    }
 
     /**
      * Model is manually created
      */
-    object Manual : ModelOrigin
+    object Manual : ModelOrigin {
+        override val code: String = "manual"
+    }
 }

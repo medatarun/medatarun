@@ -10,7 +10,7 @@ object ModelTable : Table("model") {
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val version = text("version")
-    val origin = text("origin").nullable()
+    val origin = text("origin").transform(ModelOriginTransformer())
     val authority = text("authority").transform(ModelAuthorityTransformer())
     val documentationHome = text("documentation_home").nullable()
 
@@ -39,7 +39,7 @@ object EntityTable : Table("entity") {
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
     val identifierAttributeId = text("identifier_attribute_id").transform(IdTransformer(::AttributeId))
-    val origin = text("origin").nullable()
+    val origin = text("origin").transform(EntityOriginTransformer())
     val documentationHome = text("documentation_home").nullable()
 
     override val primaryKey = PrimaryKey(id)

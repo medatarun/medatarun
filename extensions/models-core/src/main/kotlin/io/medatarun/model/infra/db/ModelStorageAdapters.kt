@@ -16,7 +16,7 @@ object ModelStorageAdapters {
             name = record.name,
             description = record.description,
             version = ModelVersion(record.version),
-            origin = stringToModelOrigin(record.origin),
+            origin = record.origin,
             authority = record.authority,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
         )
@@ -39,7 +39,7 @@ object ModelStorageAdapters {
             name = record.name,
             description = record.description,
             identifierAttributeId = identifierAttributeIdString,
-            origin = stringToEntityOrigin(record.origin),
+            origin = record.origin,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = tags
         )
@@ -100,16 +100,5 @@ object ModelStorageAdapters {
             ownerId = AttributeOwnerId.OwnerRelationshipId(record.relationshipId)
         )
     }
-
-
-    private fun stringToModelOrigin(origin: String?): ModelOrigin {
-        return if (origin == null) ModelOrigin.Manual else ModelOrigin.Uri(URI(origin))
-    }
-
-    private fun stringToEntityOrigin(origin: String?): EntityOrigin {
-        return if (origin == null) EntityOrigin.Manual else EntityOrigin.Uri(URI(origin))
-    }
-
-
 
 }

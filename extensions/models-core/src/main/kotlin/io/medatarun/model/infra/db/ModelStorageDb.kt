@@ -455,14 +455,6 @@ class ModelStorageDb(
             .orderBy(ModelTagTable.tagId to SortOrder.ASC).map { it[ModelTagTable.tagId] }
     }
 
-    private fun modelOriginToString(origin: ModelOrigin): String? {
-        return when (origin) {
-            is ModelOrigin.Manual -> null
-            is ModelOrigin.Uri -> origin.uri.toString()
-        }
-    }
-
-
     private fun createModel(cmd: ModelStorageCmd.CreateModel) {
         val inMemoryModel = ModelInMemory(
             id = cmd.id,
@@ -520,7 +512,7 @@ class ModelStorageDb(
                     name = entity.name,
                     description = entity.description,
                     identifierAttributeId = entity.identifierAttributeId,
-                    origin = entityOriginToString(entity.origin),
+                    origin = entity.origin,
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
             )
@@ -655,7 +647,7 @@ class ModelStorageDb(
             row[ModelTable.name] = model.name
             row[ModelTable.description] = model.description
             row[ModelTable.version] = model.version.value
-            row[ModelTable.origin] = modelOriginToString(model.origin)
+            row[ModelTable.origin] = model.origin
             row[ModelTable.authority] = model.authority
             row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
         }
@@ -742,13 +734,6 @@ class ModelStorageDb(
     private fun loadEntityTags(entityId: EntityId): List<TagId> {
         return EntityTagTable.selectAll().where { EntityTagTable.entityId eq entityId }
             .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { it[EntityTagTable.tagId] }
-    }
-
-    private fun entityOriginToString(origin: EntityOrigin): String? {
-        return when (origin) {
-            is EntityOrigin.Manual -> null
-            is EntityOrigin.Uri -> origin.uri.toString()
-        }
     }
 
     private fun createEntity(cmd: ModelStorageCmd.CreateEntity) {
@@ -844,7 +829,7 @@ class ModelStorageDb(
             name = cmd.name,
             description = cmd.description,
             identifierAttributeId = cmd.identityAttributeId,
-            origin = entityOriginToString(cmd.origin),
+            origin = cmd.origin,
             documentationHome = cmd.documentationHome?.toExternalForm()
         )
 

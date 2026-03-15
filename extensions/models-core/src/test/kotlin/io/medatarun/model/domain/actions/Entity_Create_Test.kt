@@ -3,6 +3,7 @@ package io.medatarun.model.domain.actions
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.EntityOrigin
 import io.medatarun.model.domain.EntityRef
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.LocalizedTextNotLocalized
@@ -39,6 +40,7 @@ class Entity_Create_Test {
         assertEquals(entityId, reloaded.key)
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
+        assertEquals(EntityOrigin.Manual, reloaded.origin)
         assertEquals(URI.create(docHome).toURL(), reloaded.documentationHome)
         val attributes = env.query.findModel(env.modelRef).findEntityAttributes(reloaded.ref)
         assertEquals(1, attributes.size)
@@ -72,6 +74,7 @@ class Entity_Create_Test {
         assertEquals(entityKey, reloaded.key)
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
+        assertEquals(EntityOrigin.Manual, reloaded.origin)
         val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
         assertEquals(1, attributes.size)
     }
@@ -100,6 +103,7 @@ class Entity_Create_Test {
         assertEquals(entityKey, reloaded.key)
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
+        assertEquals(EntityOrigin.Manual, reloaded.origin)
     }
 
     @Test

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS model
     name               TEXT,
     description        TEXT,
     version            TEXT NOT NULL,
-    origin             TEXT,
+    origin             TEXT NOT NULL,
     authority          TEXT NOT NULL,
     documentation_home TEXT
 );
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS entity
     name                    TEXT,
     description             TEXT,
     identifier_attribute_id TEXT NOT NULL,
-    origin                  TEXT,
+    origin                  TEXT NOT NULL,
     documentation_home      TEXT,
     FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
     UNIQUE (model_id, key)

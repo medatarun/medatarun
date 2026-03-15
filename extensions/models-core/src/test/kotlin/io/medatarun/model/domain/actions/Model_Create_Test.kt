@@ -5,6 +5,7 @@ import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelAuthority
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelOrigin
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
@@ -29,6 +30,7 @@ class Model_Create_Test {
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(version, reloaded.version)
+        assertEquals(ModelOrigin.Manual, reloaded.origin)
         assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
     }
 
@@ -48,6 +50,7 @@ class Model_Create_Test {
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
         assertEquals(version, reloaded.version)
+        assertEquals(ModelOrigin.Manual, reloaded.origin)
         assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
     }
 }

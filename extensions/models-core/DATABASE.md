@@ -136,8 +136,8 @@ Colonnes:
 - `model_id` TEXT NOT NULL REFERENCES `model(id)` ON DELETE CASCADE: modèle
   auquel le snapshot appartient.
 - `key` TEXT NOT NULL: clé métier du modèle dans ce snapshot.
-- `name` TEXT NOT NULL: nom du modèle dans ce snapshot.
-- `description` TEXT NOT NULL: description du modèle dans ce snapshot.
+- `name` TEXT NULL: nom du modèle dans ce snapshot.
+- `description` TEXT NULL: description du modèle dans ce snapshot.
 - `origin` TEXT NOT NULL: source métier/technique du modèle dans ce snapshot.
 - `authority` TEXT NOT NULL: autorité/référentiel de ce snapshot.
 - `documentation_home` TEXT NULL: lien de documentation racine du modèle dans
