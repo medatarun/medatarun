@@ -26,11 +26,11 @@ data class EntityRecord(
             return EntityRecord(
                 snapshotId = row[EntityTable.id],
                 lineageId = row[EntityTable.lineageId],
-                modelSnapshotId = row[EntityTable.modelId],
+                modelSnapshotId = row[EntityTable.modelSnapshotId],
                 key = row[EntityTable.key],
                 name = row[EntityTable.name],
                 description = row[EntityTable.description],
-                identifierAttributeSnapshotId = row[EntityTable.identifierAttributeId],
+                identifierAttributeSnapshotId = row[EntityTable.identifierAttributeSnapshotId],
                 origin = row[EntityTable.origin],
                 documentationHome = row[EntityTable.documentationHome]
             )

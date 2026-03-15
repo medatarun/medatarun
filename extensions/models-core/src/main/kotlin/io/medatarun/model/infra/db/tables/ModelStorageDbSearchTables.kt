@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.core.Table
 object DenormModelSearchItemTable : Table("model_search_item_snapshot") {
     val id = text("id")
     val itemType = text("item_type")
-    val modelId = text("model_snapshot_id").transform(IdTransformer(::ModelId))
+    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelId))
     val modelKey = text("model_key").transform(KeyTransformer(::ModelKey))
     val modelLabel = text("model_label")
     val entityId = text("entity_id").transform(IdTransformer(::EntityId)).nullable()

@@ -122,7 +122,7 @@ internal class ModelStorageDbSearchWrite(
                 searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
             ),
             ModelTagTable.select(ModelTagTable.tagId)
-                .where { ModelTagTable.modelId eq modelId }
+                .where { ModelTagTable.modelSnapshotId eq modelId }
                 .map { it[ModelTagTable.tagId] }
         )
     }
@@ -158,7 +158,7 @@ internal class ModelStorageDbSearchWrite(
             ),
             EntityTagTable
                 .select(EntityTagTable.tagId)
-                .where { EntityTagTable.entityId eq entityRecord.snapshotId }
+                .where { EntityTagTable.entitySnapshotId eq entityRecord.snapshotId }
                 .map { it[EntityTagTable.tagId] }
         )
     }
@@ -200,7 +200,7 @@ internal class ModelStorageDbSearchWrite(
             ),
             EntityAttributeTagTable
                 .select(EntityAttributeTagTable.tagId)
-                .where { EntityAttributeTagTable.attributeId eq attributeRecord.snapshotId }
+                .where { EntityAttributeTagTable.attributeSnapshotId eq attributeRecord.snapshotId }
                 .map{ it[EntityAttributeTagTable.tagId] }
         )
     }
@@ -240,7 +240,7 @@ internal class ModelStorageDbSearchWrite(
             ),
             RelationshipTagTable
                 .select(RelationshipTagTable.tagId)
-                .where { RelationshipTagTable.relationshipId eq relationshipRecord.snapshotId }
+                .where { RelationshipTagTable.relationshipSnapshotId eq relationshipRecord.snapshotId }
                 .map { it[RelationshipTagTable.tagId] }
         )
     }
@@ -282,7 +282,7 @@ internal class ModelStorageDbSearchWrite(
             ),
             RelationshipAttributeTagTable
                 .select(RelationshipAttributeTagTable.tagId)
-                .where { RelationshipAttributeTagTable.attributeId eq attributeRecord.snapshotId }
+                .where { RelationshipAttributeTagTable.attributeSnapshotId eq attributeRecord.snapshotId }
                 .map { it[RelationshipAttributeTagTable.tagId] }
         )
     }
@@ -292,7 +292,7 @@ internal class ModelStorageDbSearchWrite(
         DenormModelSearchItemTable.insert { row ->
             row[id] = item.id
             row[itemType] = item.itemType.code
-            row[modelId] = item.modelId
+            row[modelSnapshotId] = item.modelId
             row[modelKey] = item.modelKey
             row[modelLabel] = item.modelLabel
             row[entityId] = item.entityId
@@ -318,7 +318,7 @@ internal class ModelStorageDbSearchWrite(
     private fun deleteRowsByModelId(modelId: ModelId) {
         DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
-            .where { DenormModelSearchItemTable.modelId eq modelId }
+            .where { DenormModelSearchItemTable.modelSnapshotId eq modelId }
             .map { it[DenormModelSearchItemTable.id] }
             .forEach { deleteSearchItemById(it) }
     }

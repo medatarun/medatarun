@@ -24,11 +24,11 @@ data class RelationshipAttributeRecord(
             return RelationshipAttributeRecord(
                 snapshotId = row[RelationshipAttributeTable.id],
                 lineageId = row[RelationshipAttributeTable.lineageId],
-                relationshipSnapshotId = row[RelationshipAttributeTable.relationshipId],
+                relationshipSnapshotId = row[RelationshipAttributeTable.relationshipSnapshotId],
                 key = row[RelationshipAttributeTable.key],
                 name = row[RelationshipAttributeTable.name],
                 description = row[RelationshipAttributeTable.description],
-                typeSnapshotId = row[RelationshipAttributeTable.typeId],
+                typeSnapshotId = row[RelationshipAttributeTable.typeSnapshotId],
                 optional = row[RelationshipAttributeTable.optional]
             )
         }

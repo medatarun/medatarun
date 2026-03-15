@@ -21,7 +21,7 @@ data class ModelTypeRecord(
             return ModelTypeRecord(
                 snapshotId = row[ModelTypeTable.id],
                 lineageId = row[ModelTypeTable.lineageId],
-                modelSnapshotId = row[ModelTypeTable.modelId],
+                modelSnapshotId = row[ModelTypeTable.modelSnapshotId],
                 key = row[ModelTypeTable.key],
                 name = row[ModelTypeTable.name],
                 description = row[ModelTypeTable.description]

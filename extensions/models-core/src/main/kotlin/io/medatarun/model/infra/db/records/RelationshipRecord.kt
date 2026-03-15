@@ -21,7 +21,7 @@ data class RelationshipRecord(
             return RelationshipRecord(
                 snapshotId = row[RelationshipTable.id],
                 lineageId = row[RelationshipTable.lineageId],
-                modelSnapshotId = row[RelationshipTable.modelId],
+                modelSnapshotId = row[RelationshipTable.modelSnapshotId],
                 key = row[RelationshipTable.key],
                 name = row[RelationshipTable.name],
                 description = row[RelationshipTable.description]

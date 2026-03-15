@@ -22,9 +22,9 @@ data class RelationshipRoleRecord(
             return RelationshipRoleRecord(
                 snapshotId = row[RelationshipRoleTable.id],
                 lineageId = row[RelationshipRoleTable.lineageId],
-                relationshipSnapshotId = row[RelationshipRoleTable.relationshipId],
+                relationshipSnapshotId = row[RelationshipRoleTable.relationshipSnapshotId],
                 key = row[RelationshipRoleTable.key],
-                entitySnapshotId = row[RelationshipRoleTable.entityId],
+                entitySnapshotId = row[RelationshipRoleTable.entitySnapshotId],
                 name = row[RelationshipRoleTable.name],
                 cardinality = row[RelationshipRoleTable.cardinality]
             )

@@ -90,7 +90,7 @@ data class DenormModelSearchItemRecord(
             return DenormModelSearchItemRecord(
                 id = row[DenormModelSearchItemTable.id],
                 itemType = SearchItemType.valueOfCode(row[DenormModelSearchItemTable.itemType]),
-                modelId = row[DenormModelSearchItemTable.modelId],
+                modelId = row[DenormModelSearchItemTable.modelSnapshotId],
                 modelKey = row[DenormModelSearchItemTable.modelKey],
                 modelLabel = row[DenormModelSearchItemTable.modelLabel],
                 entityId = row[DenormModelSearchItemTable.entityId],

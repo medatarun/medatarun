@@ -24,11 +24,11 @@ data class EntityAttributeRecord(
             return EntityAttributeRecord(
                 snapshotId = row[EntityAttributeTable.id],
                 lineageId = row[EntityAttributeTable.lineageId],
-                entitySnapshotId = row[EntityAttributeTable.entityId],
+                entitySnapshotId = row[EntityAttributeTable.entitySnapshotId],
                 key = row[EntityAttributeTable.key],
                 name = row[EntityAttributeTable.name],
                 description = row[EntityAttributeTable.description],
-                typeSnapshotId = row[EntityAttributeTable.typeId],
+                typeSnapshotId = row[EntityAttributeTable.typeSnapshotId],
                 optional = row[EntityAttributeTable.optional]
             )
         }
