@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db.events
 
+import io.medatarun.model.adapters.jsonserializers.ModelJsonSerializers
 import io.medatarun.model.infra.db.ModelEventRegistry
 import io.medatarun.model.infra.db.ModelEventStreamNumberManager
 import io.medatarun.model.infra.db.ModelStorageEventRegistryBuilder

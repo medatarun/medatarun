@@ -1,11 +1,12 @@
-package io.medatarun.model.infra.db.events
+package io.medatarun.model.adapters.jsonserializers
 
-import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.ModelRepoCmdEventInvalidOriginJsonException
 import io.medatarun.model.infra.db.ModelRepoCmdEventUnknownOriginTypeException
+import io.medatarun.tags.core.adapters.jsonserializers.TagsJsonSerializers
 import io.medatarun.tags.core.domain.TagId
-import io.medatarun.type.commons.enums.EnumWithCode
+import io.medatarun.type.commons.serialization.SerializationUtils.enumWithCodeSerializer
+import io.medatarun.type.commons.serialization.SerializationUtils.stringSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -16,6 +17,9 @@ import kotlinx.serialization.modules.SerializersModule
 import java.net.URI
 import java.net.URL
 
+/**
+ * Set of Kotlin serializers and deserializers for types in this module
+ */
 object ModelJsonSerializers {
 
     val modelId = stringSerializer("ModelId", ModelId.Companion::fromString) { it.value.toString() }
@@ -24,7 +28,7 @@ object ModelJsonSerializers {
     val relationshipId = stringSerializer("RelationshipId", RelationshipId.Companion::fromString) { it.value.toString() }
     val relationshipRoleId = stringSerializer("RelationshipRoleId", RelationshipRoleId.Companion::fromString) { it.value.toString() }
     val typeId = stringSerializer("TypeId", TypeId.Companion::fromString) { it.value.toString() }
-    val tagId = stringSerializer("TagId", { TagId(UuidUtils.fromString(it)) }) { it.value.toString() }
+
 
     val modelKey = stringSerializer("ModelKey", { ModelKey(it) }) { it.value }
     val entityKey = stringSerializer("EntityKey", { EntityKey(it) }) { it.value }
@@ -124,9 +128,9 @@ object ModelJsonSerializers {
         }
     }
 
-    val modelAuthority = enumWithCodeSerializer("ModelAuthority", ModelAuthority::valueOfCode)
+    val modelAuthority = enumWithCodeSerializer("ModelAuthority", ModelAuthority.Companion::valueOfCode)
     val relationshipCardinality =
-        enumWithCodeSerializer("RelationshipCardinality", RelationshipCardinality::valueOfCode)
+        enumWithCodeSerializer("RelationshipCardinality", RelationshipCardinality.Companion::valueOfCode)
 
     fun module(): SerializersModule {
         return SerializersModule {
@@ -136,7 +140,7 @@ object ModelJsonSerializers {
             contextual(RelationshipId::class, relationshipId)
             contextual(RelationshipRoleId::class, relationshipRoleId)
             contextual(TypeId::class, typeId)
-            contextual(TagId::class, tagId)
+            contextual(TagId::class, TagsJsonSerializers.tagId)
             contextual(ModelKey::class, modelKey)
             contextual(EntityKey::class, entityKey)
             contextual(AttributeKey::class, attributeKey)
@@ -154,38 +158,4 @@ object ModelJsonSerializers {
         }
     }
 
-    private inline fun <T> stringSerializer(
-        serialName: String,
-        crossinline decode: (String) -> T,
-        crossinline encode: (T) -> String
-    ): KSerializer<T> {
-        return object : KSerializer<T> {
-            override val descriptor = PrimitiveSerialDescriptor(serialName, PrimitiveKind.STRING)
-
-            override fun serialize(encoder: Encoder, value: T) {
-                encoder.encodeString(encode(value))
-            }
-
-            override fun deserialize(decoder: Decoder): T {
-                return decode(decoder.decodeString())
-            }
-        }
-    }
-
-    private inline fun <T : EnumWithCode> enumWithCodeSerializer(
-        serialName: String,
-        crossinline decode: (String) -> T
-    ): KSerializer<T> {
-        return object : KSerializer<T> {
-            override val descriptor = PrimitiveSerialDescriptor(serialName, PrimitiveKind.STRING)
-
-            override fun serialize(encoder: Encoder, value: T) {
-                encoder.encodeString(value.code)
-            }
-
-            override fun deserialize(decoder: Decoder): T {
-                return decode(decoder.decodeString())
-            }
-        }
-    }
 }
