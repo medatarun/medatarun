@@ -95,7 +95,9 @@ class ModelEventLogTest {
 
             assertEquals(1, currentHeadRows.size)
             assertEquals(1, versionSnapshotRows.size)
+            assertEquals(2, currentHeadRows.single()[ModelSnapshotTable.upToRevision])
             assertEquals("2.0.0", versionSnapshotRows.single()[ModelSnapshotTable.version])
+            assertEquals(2, versionSnapshotRows.single()[ModelSnapshotTable.upToRevision])
             assertEquals(releaseEventId, versionSnapshotRows.single()[ModelSnapshotTable.modelEventReleaseId])
         }
     }

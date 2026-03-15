@@ -100,6 +100,11 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   `model_event`.
 - La version éventuellement stockée dans un snapshot est une dénormalisation,
   pas la source de vérité.
+- Pour un `VERSION_SNAPSHOT`, cette valeur pratique reflète la version du
+  `model_event` de release associé.
+- Pour un `CURRENT_HEAD`, cette valeur pratique peut contenir la dernière
+  version publiée connue, sans devenir la définition canonique de la version du
+  modèle.
 - Les lectures applicatives rapides s'appuient sur les projections.
 - L'audit et la traçabilité s'appuient sur `model_event`, jamais sur les
   projections seules.

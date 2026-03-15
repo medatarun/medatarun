@@ -412,6 +412,7 @@ class ModelStorageDb(
         if (cmd is ModelStorageCmd.CreateModel || cmd is ModelStorageCmd.StoreModelAggregate) {
             dispatchCommand(cmd)
             appendModelEvent(cmdEnv, streamNumberCtx)
+            updateCurrentHeadProjectionMetadata(extractModelId(cmd), streamNumberCtx.expectedRevision)
         } else if (cmd is ModelStorageCmd.DeleteModel) {
             appendModelEvent(cmdEnv, streamNumberCtx)
             dispatchCommand(cmd)
@@ -419,6 +420,7 @@ class ModelStorageDb(
         } else {
             appendModelEvent(cmdEnv, streamNumberCtx)
             dispatchCommand(cmd)
+            updateCurrentHeadProjectionMetadata(extractModelId(cmd), streamNumberCtx.expectedRevision)
         }
     }
 
@@ -551,6 +553,18 @@ class ModelStorageDb(
 
     private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
         return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
+    }
+
+    /**
+     * While CURRENT_HEAD is still fed by direct writes, keep projection metadata
+     * aligned with the latest event revision that has been applied.
+     */
+    private fun updateCurrentHeadProjectionMetadata(modelId: ModelId, upToRevision: Int) {
+        val now = clock.now().toString()
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+            row[ModelSnapshotTable.upToRevision] = upToRevision
+            row[ModelSnapshotTable.updatedAt] = now
+        }
     }
 
     private fun currentHeadTypeSnapshotId(typeId: TypeId): TypeId {

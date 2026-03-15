@@ -34,7 +34,7 @@ Items DONE:
 Items PARTIAL et TODO:
 
 - `[VE-L][TODO]` Poser directement le schéma SQL final du versionning: `model` réduit à son rôle d'identité stable, tables `model_snapshot` et `*_snapshot`, tables de tags snapshot et tables de recherche snapshot.
-- `[VE-M][TODO]` Introduire dans ce schéma final `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT`, `up_to_revision`, `model_event_release_id`, `version`, `lineage_id` et les contraintes SQL minimales associées.
+- `[VE-M][TODO]` Introduire dans ce schéma final `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT`, `up_to_revision`, `model_event_release_id`, `version`, `lineage_id` et les contraintes SQL minimales associées, en gardant `model_event` comme seule source de vérité de version.
 - `[VE-N][TODO]` Adapter l'écriture actuelle pour alimenter temporairement le schéma final `CURRENT_HEAD` sans attendre le replay complet depuis `model_event`.
 - `[VE-O][TODO]` Remplacer cette alimentation directe temporaire par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 - `[VE-K][TODO]` Ajouter les premières règles métier de publication d'une release: version obligatoire, unicité par modèle, refus sans changement depuis la release précédente.
