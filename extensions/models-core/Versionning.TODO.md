@@ -15,7 +15,7 @@ Statuts:
 - `[PARTIAL]` présent en partie
 - `[TODO]` restant à implémenter
 
-Items:
+Items DONE:
 
 - `[VE-A][DONE]` La table `model_event` existe avec `event_type`, `event_version`, `stream_revision`, `actor_id`, `action_id`, `created_at` et `payload`.
 - `[VE-B][DONE]` Le mapping `ModelStorageCmd -> event` est explicite via `@ModelEventContract`, registry dédiée et codec JSON versionné.
@@ -25,12 +25,15 @@ Items:
 - `[VE-F][DONE]` La couche stockage/versionning est alignée sur le vocabulaire `release`: `ModelStorageCmd.ModelRelease` sérialise l'event `model_release`.
 - `[VE-G][DONE]` Le cadrage documentation/versionning est aligné sur `ModelVersion`: les versions acceptées et leur ordre sont ceux définis par `ModelVersion`.
 - `[VE-H][DONE]` Les tests de contrat JSON figés des events existent déjà: vérification de `event_type`, `event_version`, payload JSON figé et round-trip encode/decode.
-- `[VE-L][TODO]` Ajouter les tables SQL de projection `model_snapshot` et associées, sans retirer les tables courantes tant que la projection n'est pas stabilisée.
-- `[VE-M][TODO]` Introduire `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT` et les contraintes SQL minimales associées.
 - `[VE-I][DONE]` Le vrai event de stockage `model_release` existe, distinct des updates courants, avec version portée dans l'event.
 - `[VE-J][DONE]` `model_version` dans `model_event` est rempli pour les events `model_release`.
-- `[VE-K][TODO]` Ajouter les premières règles métier de publication d'une release: version obligatoire, unicité par modèle, refus sans changement depuis la release précédente.
+
+Items PARTIAL et TODO:
+
+- `[VE-L][TODO]` Ajouter les tables SQL de projection `model_snapshot` et associées, sans retirer les tables courantes tant que la projection n'est pas stabilisée.
+- `[VE-M][TODO]` Introduire `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT` et les contraintes SQL minimales associées.
 - `[VE-O][TODO]` Implémenter un projecteur transactionnel `model_event -> CURRENT_HEAD` construit en parallèle de l'écriture actuelle.
+- `[VE-K][TODO]` Ajouter les premières règles métier de publication d'une release: version obligatoire, unicité par modèle, refus sans changement depuis la release précédente.
 - `[VE-P][TODO]` Créer atomiquement le `VERSION_SNAPSHOT` lors d'une `release`, à partir du `CURRENT_HEAD`.
 - `[VE-Q][TODO]` Ajouter le replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
 - `[VE-R][TODO]` Refaire `create` et `import` pour produire leur séquence initiale d'events puis la `release` initiale dans une seule transaction.
