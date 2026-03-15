@@ -1,8 +1,7 @@
-package io.medatarun.model.infra.db
+package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.domain.ModelEventConcurrentWriteException
 import io.medatarun.model.domain.ModelId
-import io.medatarun.model.infra.db.events.ModelEventStreamNumberContext
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -10,14 +9,14 @@ import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 
 /**
- * Helps [ModelStorageDb] choose the right event number for one model.
+ * Helps [io.medatarun.model.infra.db.ModelStorageDb] choose the right event number for one model.
  *
  * This class only does three things:
  * - read the last event number already stored for a model,
  * - remember which number should be used next during one local append sequence,
  * - recognize a JDBC uniqueness error and turn it into the domain exception.
  *
- * It does not insert rows itself. The SQL insert stays in [ModelStorageDb].
+ * It does not insert rows itself. The SQL insert stays in [io.medatarun.model.infra.db.ModelStorageDb].
  */
 class ModelEventStreamNumberManager {
 
@@ -25,7 +24,7 @@ class ModelEventStreamNumberManager {
      * Creates a local context for writing events of one model.
      *
      * The context remembers the last event number seen in the database when
-     * [ModelStorageDb] starts one append sequence.
+     * [io.medatarun.model.infra.db.ModelStorageDb] starts one append sequence.
      *
      * Example:
      * - the database already contains events `1`, `2`, `3` for model `crm`
@@ -120,4 +119,3 @@ class ModelEventStreamNumberManager {
         return sqlState != null && sqlState.startsWith("23")
     }
 }
-

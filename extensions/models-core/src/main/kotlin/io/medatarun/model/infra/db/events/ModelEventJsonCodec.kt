@@ -2,7 +2,6 @@ package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.infra.db.ModelRepoCmdEventPayloadDecodeException
 import io.medatarun.model.infra.db.ModelRepoCmdEventPayloadEncodeException
-import io.medatarun.model.infra.db.ModelEventRegistry
 import io.medatarun.model.ports.needs.ModelStorageCmd
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -16,26 +15,33 @@ class ModelEventJsonCodec(
     private val json: Json
 ) {
 
-    fun encode(cmd: ModelStorageCmd): ModelRepoCmdEncodedEvent {
+    /**
+     * Encode a model event payload expressed as a [ModelStorageCmd]
+     * into a [ModelEventEncoded], suitable for a database.
+     */
+    fun encode(cmd: ModelStorageCmd): ModelEventEncoded {
         val entry = registry.findEntryByCmd(cmd)
         val payload = try {
             json.encodeToString(entry.serializer, cmd)
         } catch (e: SerializationException) {
             throw ModelRepoCmdEventPayloadEncodeException(entry.eventType, entry.eventVersion, e)
         }
-        return ModelRepoCmdEncodedEvent(
+        return ModelEventEncoded(
             eventType = entry.eventType,
             eventVersion = entry.eventVersion,
             payload = payload
         )
     }
 
-    fun decode(eventType: String, eventVersion: Int, payload: String): ModelStorageCmd {
-        val entry = registry.findEntryByContract(eventType, eventVersion)
+    /**
+     * Decodes an event into a [ModelStorageCmd]
+     */
+    fun decode(evt: ModelEventEncoded): ModelStorageCmd {
+        val entry = registry.findEntryByContract(evt.eventType, evt.eventVersion)
         return try {
-            json.decodeFromString(entry.serializer, payload)
+            json.decodeFromString(entry.serializer, evt.payload)
         } catch (e: SerializationException) {
-            throw ModelRepoCmdEventPayloadDecodeException(eventType, eventVersion, e)
+            throw ModelRepoCmdEventPayloadDecodeException(evt.eventType, evt.eventVersion, e)
         }
     }
 

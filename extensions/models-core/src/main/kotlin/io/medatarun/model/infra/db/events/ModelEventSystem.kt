@@ -1,13 +1,12 @@
 package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.adapters.jsonserializers.ModelJsonSerializers
-import io.medatarun.model.infra.db.ModelEventRegistry
-import io.medatarun.model.infra.db.ModelEventStreamNumberManager
-import io.medatarun.model.infra.db.ModelStorageEventRegistryBuilder
+import io.medatarun.model.infra.db.events.ModelEventStreamNumberManager
+import io.medatarun.model.infra.db.events.ModelEventRegistryBuilder
 import kotlinx.serialization.json.Json
 
 class ModelEventSystem {
-    val registry: ModelEventRegistry = ModelStorageEventRegistryBuilder().build()
+    val registry: ModelEventRegistry = ModelEventRegistryBuilder().build()
     val jsonSerializer = Json {
         prettyPrint = false
         ignoreUnknownKeys = false

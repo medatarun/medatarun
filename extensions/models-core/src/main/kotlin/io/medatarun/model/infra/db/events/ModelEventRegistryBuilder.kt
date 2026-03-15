@@ -1,5 +1,7 @@
-package io.medatarun.model.infra.db
+package io.medatarun.model.infra.db.events
 
+import io.medatarun.model.infra.db.ModelRepoCmdEventContractOnNonDataClassException
+import io.medatarun.model.infra.db.ModelRepoCmdEventMissingContractAnnotationException
 import io.medatarun.model.ports.needs.ModelEventContract
 import io.medatarun.model.ports.needs.ModelStorageCmd
 import kotlinx.serialization.KSerializer
@@ -11,10 +13,10 @@ import kotlin.reflect.full.starProjectedType
  * Builds the model event registry from the event contract declared directly on
  * ModelRepoCmd leaf classes.
  */
-class ModelStorageEventRegistryBuilder {
+class ModelEventRegistryBuilder {
 
     fun build(): ModelEventRegistry {
-        val entries = collectEventCommandClasses(ModelStorageCmd::class).map(::entry)
+        val entries = collectEventCommandClasses(ModelStorageCmd::class).map(::toModelEventDescriptor)
         return ModelEventRegistry(entries)
     }
 
@@ -38,14 +40,14 @@ class ModelStorageEventRegistryBuilder {
         }
     }
 
-    private fun entry(kClass: KClass<out ModelStorageCmd>): ModelEventRegistry.Entry<ModelStorageCmd> {
+    private fun toModelEventDescriptor(kClass: KClass<out ModelStorageCmd>): ModelEventDescriptor<ModelStorageCmd> {
         val annotation = kClass.java.getAnnotation(ModelEventContract::class.java)
             ?: throw ModelRepoCmdEventMissingContractAnnotationException(kClass.qualifiedName ?: "unknown")
         @Suppress("UNCHECKED_CAST")
         val serializer = serializer(kClass.starProjectedType) as KSerializer<ModelStorageCmd>
         @Suppress("UNCHECKED_CAST")
         val commandClass = kClass as KClass<ModelStorageCmd>
-        return ModelEventRegistry.Entry(
+        return ModelEventDescriptor(
             kClass = commandClass,
             eventType = annotation.eventType,
             eventVersion = annotation.eventVersion,

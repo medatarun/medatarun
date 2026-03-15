@@ -15,8 +15,6 @@ import java.time.Instant
  */
 class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
 
-
-
     fun create(cmdEnv: ModelStorageCmdEnveloppe, streamRevision: Int, createdAt: Instant): ModelEventRecord {
         val encoded = codec.encode(cmdEnv.cmd)
         return ModelEventRecord(
