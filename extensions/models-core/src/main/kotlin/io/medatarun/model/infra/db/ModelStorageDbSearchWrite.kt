@@ -94,8 +94,8 @@ internal class ModelStorageDbSearchWrite(
     }
 
     private fun upsertModelSearchItemRow(modelId: ModelId) {
-        val row = ModelTable.selectAll()
-            .where { ModelTable.id eq modelId }
+        val row = ModelSnapshotTable.selectAll()
+            .where { (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD") }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForModel(modelId))
@@ -381,8 +381,8 @@ internal class ModelStorageDbSearchWrite(
     }
 
     private fun loadModelRecord(modelId: ModelId): ModelRecord {
-        val row = ModelTable.selectAll()
-            .where { ModelTable.id eq modelId }
+        val row = ModelSnapshotTable.selectAll()
+            .where { (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD") }
             .single()
         return ModelRecord.read(row)
     }

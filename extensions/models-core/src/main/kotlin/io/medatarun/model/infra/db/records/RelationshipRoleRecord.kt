@@ -19,7 +19,7 @@ data class RelationshipRoleRecord(
     companion object {
         fun read(row: ResultRow): RelationshipRoleRecord {
             return RelationshipRoleRecord(
-                id = row[RelationshipRoleTable.id],
+                id = row[RelationshipRoleTable.lineageId],
                 relationshipId = row[RelationshipRoleTable.relationshipId],
                 key = row[RelationshipRoleTable.key],
                 entityId = row[RelationshipRoleTable.entityId],

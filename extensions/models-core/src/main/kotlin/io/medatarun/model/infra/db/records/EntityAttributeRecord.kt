@@ -21,7 +21,7 @@ data class EntityAttributeRecord(
     companion object {
         fun read(row: ResultRow): EntityAttributeRecord {
             return EntityAttributeRecord(
-                id = row[EntityAttributeTable.id],
+                id = row[EntityAttributeTable.lineageId],
                 entityId = row[EntityAttributeTable.entityId],
                 key = row[EntityAttributeTable.key],
                 name = row[EntityAttributeTable.name],

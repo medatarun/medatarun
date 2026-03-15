@@ -1,13 +1,6 @@
 CREATE TABLE IF NOT EXISTS model
 (
-    id                 TEXT PRIMARY KEY UNIQUE,
-    key                TEXT NOT NULL UNIQUE,
-    name               TEXT,
-    description        TEXT,
-    version            TEXT NOT NULL,
-    origin             TEXT NOT NULL,
-    authority          TEXT NOT NULL,
-    documentation_home TEXT
+    id TEXT PRIMARY KEY UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS model_event
@@ -26,128 +19,160 @@ CREATE TABLE IF NOT EXISTS model_event
     UNIQUE (model_id, stream_revision)
 );
 
-CREATE TABLE IF NOT EXISTS model_tag
+CREATE TABLE IF NOT EXISTS model_snapshot
 (
-    model_id TEXT NOT NULL,
-    tag_id   TEXT NOT NULL,
-    PRIMARY KEY (model_id, tag_id),
-    FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS model_type
-(
-    id          TEXT PRIMARY KEY UNIQUE,
-    model_id    TEXT NOT NULL,
-    key         TEXT NOT NULL,
-    name        TEXT,
-    description TEXT,
+    id                     TEXT PRIMARY KEY UNIQUE,
+    model_id               TEXT    NOT NULL,
+    key                    TEXT    NOT NULL,
+    name                   TEXT,
+    description            TEXT,
+    origin                 TEXT    NOT NULL,
+    authority              TEXT    NOT NULL,
+    documentation_home     TEXT,
+    snapshot_kind          TEXT    NOT NULL,
+    up_to_revision         INTEGER NOT NULL,
+    model_event_release_id TEXT,
+    version                TEXT,
+    created_at             TEXT    NOT NULL,
+    updated_at             TEXT    NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
-    UNIQUE (model_id, key)
+    FOREIGN KEY (model_event_release_id) REFERENCES model_event (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS entity
+CREATE TABLE IF NOT EXISTS model_tag_snapshot
 (
-    id                      TEXT PRIMARY KEY UNIQUE,
-    model_id                TEXT NOT NULL,
-    key                     TEXT NOT NULL,
-    name                    TEXT,
-    description             TEXT,
-    identifier_attribute_id TEXT NOT NULL,
-    origin                  TEXT NOT NULL,
-    documentation_home      TEXT,
-    FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
-    UNIQUE (model_id, key)
+    model_snapshot_id TEXT NOT NULL,
+    tag_id            TEXT NOT NULL,
+    PRIMARY KEY (model_snapshot_id, tag_id),
+    FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS entity_tag
+CREATE TABLE IF NOT EXISTS model_type_snapshot
 (
-    entity_id TEXT NOT NULL,
-    tag_id    TEXT NOT NULL,
-    PRIMARY KEY (entity_id, tag_id),
-    FOREIGN KEY (entity_id) REFERENCES entity (id) ON DELETE CASCADE
+    id                TEXT PRIMARY KEY UNIQUE,
+    lineage_id        TEXT NOT NULL,
+    model_snapshot_id TEXT NOT NULL,
+    key               TEXT NOT NULL,
+    name              TEXT,
+    description       TEXT,
+    FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE,
+    UNIQUE (model_snapshot_id, lineage_id),
+    UNIQUE (model_snapshot_id, key)
 );
 
-CREATE TABLE IF NOT EXISTS entity_attribute
+CREATE TABLE IF NOT EXISTS model_entity_snapshot
 (
-    id          TEXT PRIMARY KEY UNIQUE,
-    entity_id   TEXT    NOT NULL,
-    key         TEXT    NOT NULL,
-    name        TEXT,
-    description TEXT,
-    type_id     TEXT    NOT NULL,
-    optional    INTEGER NOT NULL,
-    FOREIGN KEY (entity_id) REFERENCES entity (id) ON DELETE CASCADE,
-    FOREIGN KEY (type_id) REFERENCES model_type (id),
-    UNIQUE (entity_id, key)
+    id                             TEXT PRIMARY KEY UNIQUE,
+    lineage_id                     TEXT NOT NULL,
+    model_snapshot_id              TEXT NOT NULL,
+    key                            TEXT NOT NULL,
+    name                           TEXT,
+    description                    TEXT,
+    identifier_attribute_snapshot_id TEXT NOT NULL,
+    origin                         TEXT NOT NULL,
+    documentation_home             TEXT,
+    FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE,
+    UNIQUE (model_snapshot_id, lineage_id),
+    UNIQUE (model_snapshot_id, key)
 );
 
-CREATE TABLE IF NOT EXISTS entity_attribute_tag
+CREATE TABLE IF NOT EXISTS model_entity_tag_snapshot
 (
-    attribute_id TEXT NOT NULL,
-    tag_id       TEXT NOT NULL,
-    PRIMARY KEY (attribute_id, tag_id),
-    FOREIGN KEY (attribute_id) REFERENCES entity_attribute (id) ON DELETE CASCADE
+    model_entity_snapshot_id TEXT NOT NULL,
+    tag_id                   TEXT NOT NULL,
+    PRIMARY KEY (model_entity_snapshot_id, tag_id),
+    FOREIGN KEY (model_entity_snapshot_id) REFERENCES model_entity_snapshot (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS relationship
+CREATE TABLE IF NOT EXISTS model_entity_attribute_snapshot
 (
-    id          TEXT PRIMARY KEY UNIQUE,
-    model_id    TEXT NOT NULL,
-    key         TEXT NOT NULL,
-    name        TEXT,
-    description TEXT,
-    FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
-    UNIQUE (model_id, key)
+    id                       TEXT PRIMARY KEY UNIQUE,
+    lineage_id               TEXT    NOT NULL,
+    model_entity_snapshot_id TEXT    NOT NULL,
+    key                      TEXT    NOT NULL,
+    name                     TEXT,
+    description              TEXT,
+    model_type_snapshot_id   TEXT    NOT NULL,
+    optional                 INTEGER NOT NULL,
+    FOREIGN KEY (model_entity_snapshot_id) REFERENCES model_entity_snapshot (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_type_snapshot_id) REFERENCES model_type_snapshot (id),
+    UNIQUE (model_entity_snapshot_id, lineage_id),
+    UNIQUE (model_entity_snapshot_id, key)
 );
 
-CREATE TABLE IF NOT EXISTS relationship_tag
+CREATE TABLE IF NOT EXISTS model_entity_attribute_tag_snapshot
 (
-    relationship_id TEXT NOT NULL,
-    tag_id          TEXT NOT NULL,
-    PRIMARY KEY (relationship_id, tag_id),
-    FOREIGN KEY (relationship_id) REFERENCES relationship (id) ON DELETE CASCADE
+    model_entity_attribute_snapshot_id TEXT NOT NULL,
+    tag_id                             TEXT NOT NULL,
+    PRIMARY KEY (model_entity_attribute_snapshot_id, tag_id),
+    FOREIGN KEY (model_entity_attribute_snapshot_id) REFERENCES model_entity_attribute_snapshot (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS relationship_role
+CREATE TABLE IF NOT EXISTS model_relationship_snapshot
 (
-    id              TEXT PRIMARY KEY UNIQUE,
-    relationship_id TEXT NOT NULL,
-    key             TEXT NOT NULL,
-    entity_id       TEXT NOT NULL,
-    name            TEXT,
-    cardinality     TEXT NOT NULL,
-    FOREIGN KEY (relationship_id) REFERENCES relationship (id) ON DELETE CASCADE,
-    FOREIGN KEY (entity_id) REFERENCES entity (id),
-    UNIQUE (relationship_id, key)
+    id                TEXT PRIMARY KEY UNIQUE,
+    lineage_id        TEXT NOT NULL,
+    model_snapshot_id TEXT NOT NULL,
+    key               TEXT NOT NULL,
+    name              TEXT,
+    description       TEXT,
+    FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE,
+    UNIQUE (model_snapshot_id, lineage_id),
+    UNIQUE (model_snapshot_id, key)
 );
 
-CREATE TABLE IF NOT EXISTS relationship_attribute
+CREATE TABLE IF NOT EXISTS model_relationship_tag_snapshot
 (
-    id              TEXT PRIMARY KEY UNIQUE,
-    relationship_id TEXT    NOT NULL,
-    key             TEXT    NOT NULL,
-    name            TEXT,
-    description     TEXT,
-    type_id         TEXT    NOT NULL,
-    optional        INTEGER NOT NULL,
-    FOREIGN KEY (relationship_id) REFERENCES relationship (id) ON DELETE CASCADE,
-    FOREIGN KEY (type_id) REFERENCES model_type (id),
-    UNIQUE (relationship_id, key)
+    model_relationship_snapshot_id TEXT NOT NULL,
+    tag_id                         TEXT NOT NULL,
+    PRIMARY KEY (model_relationship_snapshot_id, tag_id),
+    FOREIGN KEY (model_relationship_snapshot_id) REFERENCES model_relationship_snapshot (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS relationship_attribute_tag
+CREATE TABLE IF NOT EXISTS model_relationship_role_snapshot
 (
-    attribute_id TEXT NOT NULL,
-    tag_id       TEXT NOT NULL,
-    PRIMARY KEY (attribute_id, tag_id),
-    FOREIGN KEY (attribute_id) REFERENCES relationship_attribute (id) ON DELETE CASCADE
+    id                             TEXT PRIMARY KEY UNIQUE,
+    lineage_id                     TEXT NOT NULL,
+    model_relationship_snapshot_id TEXT NOT NULL,
+    key                            TEXT NOT NULL,
+    model_entity_snapshot_id       TEXT NOT NULL,
+    name                           TEXT,
+    cardinality                    TEXT NOT NULL,
+    FOREIGN KEY (model_relationship_snapshot_id) REFERENCES model_relationship_snapshot (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_entity_snapshot_id) REFERENCES model_entity_snapshot (id),
+    UNIQUE (model_relationship_snapshot_id, lineage_id),
+    UNIQUE (model_relationship_snapshot_id, key)
 );
 
-CREATE TABLE IF NOT EXISTS denorm_model_search_item
+CREATE TABLE IF NOT EXISTS model_relationship_attribute_snapshot
+(
+    id                              TEXT PRIMARY KEY UNIQUE,
+    lineage_id                      TEXT    NOT NULL,
+    model_relationship_snapshot_id  TEXT    NOT NULL,
+    key                             TEXT    NOT NULL,
+    name                            TEXT,
+    description                     TEXT,
+    model_type_snapshot_id          TEXT    NOT NULL,
+    optional                        INTEGER NOT NULL,
+    FOREIGN KEY (model_relationship_snapshot_id) REFERENCES model_relationship_snapshot (id) ON DELETE CASCADE,
+    FOREIGN KEY (model_type_snapshot_id) REFERENCES model_type_snapshot (id),
+    UNIQUE (model_relationship_snapshot_id, lineage_id),
+    UNIQUE (model_relationship_snapshot_id, key)
+);
+
+CREATE TABLE IF NOT EXISTS model_relationship_attribute_tag_snapshot
+(
+    model_relationship_attribute_snapshot_id TEXT NOT NULL,
+    tag_id                                   TEXT NOT NULL,
+    PRIMARY KEY (model_relationship_attribute_snapshot_id, tag_id),
+    FOREIGN KEY (model_relationship_attribute_snapshot_id) REFERENCES model_relationship_attribute_snapshot (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS model_search_item_snapshot
 (
     id                 TEXT PRIMARY KEY UNIQUE,
     item_type          TEXT NOT NULL,
-    model_id           TEXT NOT NULL,
+    model_snapshot_id  TEXT NOT NULL,
     model_key          TEXT NOT NULL,
     model_label        TEXT NOT NULL,
     entity_id          TEXT,
@@ -159,49 +184,50 @@ CREATE TABLE IF NOT EXISTS denorm_model_search_item
     attribute_id       TEXT,
     attribute_key      TEXT,
     attribute_label    TEXT,
-    search_text        TEXT NOT NULL
+    search_text        TEXT NOT NULL,
+    FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS denorm_model_search_item_tag
+CREATE TABLE IF NOT EXISTS model_search_item_tag_snapshot
 (
     search_item_id TEXT NOT NULL,
     tag_id         TEXT NOT NULL,
     PRIMARY KEY (search_item_id, tag_id),
-    FOREIGN KEY (search_item_id) REFERENCES denorm_model_search_item (id) ON DELETE CASCADE
+    FOREIGN KEY (search_item_id) REFERENCES model_search_item_snapshot (id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_model_type_model_id
-    ON model_type (model_id);
+    ON model_type_snapshot (model_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS idx_model_event_model_id
     ON model_event (model_id);
 
 CREATE INDEX IF NOT EXISTS idx_entity_model_id
-    ON entity (model_id);
+    ON model_entity_snapshot (model_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS idx_entity_attribute_entity_id
-    ON entity_attribute (entity_id);
+    ON model_entity_attribute_snapshot (model_entity_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS idx_relationship_model_id
-    ON relationship (model_id);
+    ON model_relationship_snapshot (model_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS idx_relationship_role_relationship_id
-    ON relationship_role (relationship_id);
+    ON model_relationship_role_snapshot (model_relationship_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS idx_relationship_attribute_relationship_id
-    ON relationship_attribute (relationship_id);
+    ON model_relationship_attribute_snapshot (model_relationship_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS denorm_model_search_item_model_id_idx
-    ON denorm_model_search_item (model_id);
+    ON model_search_item_snapshot (model_snapshot_id);
 
 CREATE INDEX IF NOT EXISTS denorm_model_search_item_entity_id_idx
-    ON denorm_model_search_item (entity_id);
+    ON model_search_item_snapshot (entity_id);
 
 CREATE INDEX IF NOT EXISTS denorm_model_search_item_relationship_id_idx
-    ON denorm_model_search_item (relationship_id);
+    ON model_search_item_snapshot (relationship_id);
 
 CREATE INDEX IF NOT EXISTS denorm_model_search_item_attribute_id_idx
-    ON denorm_model_search_item (attribute_id);
+    ON model_search_item_snapshot (attribute_id);
 
 CREATE INDEX IF NOT EXISTS denorm_model_search_item_tag_tag_id_idx
-    ON denorm_model_search_item_tag (tag_id);
+    ON model_search_item_tag_snapshot (tag_id);

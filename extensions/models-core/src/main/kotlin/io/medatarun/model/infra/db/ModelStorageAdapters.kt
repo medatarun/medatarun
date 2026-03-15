@@ -15,7 +15,7 @@ object ModelStorageAdapters {
             key = record.key,
             name = record.name,
             description = record.description,
-            version = ModelVersion(record.version),
+            version = ModelVersion(record.version ?: "0.0.0"),
             origin = record.origin,
             authority = record.authority,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },

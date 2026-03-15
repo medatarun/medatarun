@@ -23,7 +23,7 @@ data class EntityRecord(
     companion object {
         fun read(row: ResultRow): EntityRecord {
             return EntityRecord(
-                id = row[EntityTable.id],
+                id = row[EntityTable.lineageId],
                 modelId = row[EntityTable.modelId],
                 key = row[EntityTable.key],
                 name = row[EntityTable.name],

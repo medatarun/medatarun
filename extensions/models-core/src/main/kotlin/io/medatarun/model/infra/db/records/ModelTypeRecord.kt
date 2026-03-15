@@ -18,7 +18,7 @@ data class ModelTypeRecord(
     companion object {
         fun read(row: ResultRow): ModelTypeRecord {
             return ModelTypeRecord(
-                id = row[ModelTypeTable.id],
+                id = row[ModelTypeTable.lineageId],
                 modelId = row[ModelTypeTable.modelId],
                 key = row[ModelTypeTable.key],
                 name = row[ModelTypeTable.name],

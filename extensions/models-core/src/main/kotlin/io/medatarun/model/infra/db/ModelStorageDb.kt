@@ -45,7 +45,9 @@ class ModelStorageDb(
 
     override fun existsModelByKey(key: ModelKey): Boolean {
         return db.withExposed {
-            ModelTable.select(ModelTable.id).where { ModelTable.key eq key }.limit(1).any()
+            ModelSnapshotTable.select(ModelSnapshotTable.id).where {
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
+            }.limit(1).any()
         }
     }
 
@@ -57,14 +59,18 @@ class ModelStorageDb(
 
     override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.key eq key }.singleOrNull()
+            val row = ModelSnapshotTable.selectAll().where {
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
+            }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
         }
     }
 
     override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.id eq id }.singleOrNull()
+            val row = ModelSnapshotTable.selectAll().where {
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
+            }.singleOrNull()
             if (row == null) null else loadModelAggregate(row)
         }
     }
@@ -80,14 +86,18 @@ class ModelStorageDb(
 
     override fun findModelByKeyOptional(key: ModelKey): Model? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.key eq key }.singleOrNull()
+            val row = ModelSnapshotTable.selectAll().where {
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
+            }.singleOrNull()
             if (row == null) null else toModel(ModelRecord.read(row))
         }
     }
 
     override fun findModelByIdOptional(id: ModelId): Model? {
         return db.withExposed {
-            val row = ModelTable.selectAll().where { ModelTable.id eq id }.singleOrNull()
+            val row = ModelSnapshotTable.selectAll().where {
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
+            }.singleOrNull()
             if (row == null) null else toModel(ModelRecord.read(row))
         }
     }
@@ -582,41 +592,41 @@ class ModelStorageDb(
     }
 
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.name] = name
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.name] = name
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelKey(modelId: ModelId, key: ModelKey) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.key] = key
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.key] = key
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.description] = description
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.description] = description
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelAuthority(modelId: ModelId, authority: ModelAuthority) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.authority] = authority
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.authority] = authority
         }
     }
 
     private fun releaseModel(modelId: ModelId, version: ModelVersion) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.version] = version.value
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.version] = version.value
         }
     }
 
     private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
-        ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
-            row[ModelTable.documentationHome] = documentationHome?.toExternalForm()
+        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+            row[ModelSnapshotTable.documentationHome] = documentationHome?.toExternalForm()
         }
     }
 
@@ -643,13 +653,22 @@ class ModelStorageDb(
     private fun insertModel(model: Model) {
         ModelTable.insert { row ->
             row[ModelTable.id] = model.id
-            row[ModelTable.key] = model.key
-            row[ModelTable.name] = model.name
-            row[ModelTable.description] = model.description
-            row[ModelTable.version] = model.version.value
-            row[ModelTable.origin] = model.origin
-            row[ModelTable.authority] = model.authority
-            row[ModelTable.documentationHome] = model.documentationHome?.toExternalForm()
+        }
+        ModelSnapshotTable.insert { row ->
+            row[ModelSnapshotTable.id] = model.id.asString()
+            row[ModelSnapshotTable.modelId] = model.id
+            row[ModelSnapshotTable.key] = model.key
+            row[ModelSnapshotTable.name] = model.name
+            row[ModelSnapshotTable.description] = model.description
+            row[ModelSnapshotTable.origin] = model.origin
+            row[ModelSnapshotTable.authority] = model.authority
+            row[ModelSnapshotTable.documentationHome] = model.documentationHome?.toExternalForm()
+            row[ModelSnapshotTable.snapshotKind] = CURRENT_HEAD_SNAPSHOT_KIND
+            row[ModelSnapshotTable.upToRevision] = 0
+            row[ModelSnapshotTable.modelEventReleaseId] = null
+            row[ModelSnapshotTable.version] = model.version.value
+            row[ModelSnapshotTable.createdAt] = clock.now().toString()
+            row[ModelSnapshotTable.updatedAt] = clock.now().toString()
         }
     }
 
@@ -678,6 +697,7 @@ class ModelStorageDb(
     private fun insertType(record: ModelTypeRecord) {
         ModelTypeTable.insert { row ->
             row[ModelTypeTable.id] = record.id
+            row[ModelTypeTable.lineageId] = record.id
             row[ModelTypeTable.modelId] = record.modelId
             row[ModelTypeTable.key] = record.key
             row[ModelTypeTable.name] = record.name
@@ -851,6 +871,7 @@ class ModelStorageDb(
     private fun insertEntity(record: EntityRecord) {
         EntityTable.insert { row ->
             row[EntityTable.id] = record.id
+            row[EntityTable.lineageId] = record.id
             row[EntityTable.modelId] = record.modelId
             row[EntityTable.key] = record.key
             row[EntityTable.name] = record.name
@@ -958,6 +979,7 @@ class ModelStorageDb(
     ) {
         EntityAttributeTable.insert { row ->
             row[EntityAttributeTable.id] = record.id
+            row[EntityAttributeTable.lineageId] = record.id
             row[EntityAttributeTable.entityId] = record.entityId
             row[EntityAttributeTable.key] = record.key
             row[EntityAttributeTable.name] = record.name
@@ -1076,6 +1098,7 @@ class ModelStorageDb(
     private fun createRelationshipRole(cmd: ModelStorageCmd.CreateRelationshipRole) {
         RelationshipRoleTable.insert { row ->
             row[RelationshipRoleTable.id] = cmd.relationshipRoleId
+            row[RelationshipRoleTable.lineageId] = cmd.relationshipRoleId
             row[RelationshipRoleTable.relationshipId] = cmd.relationshipId
             row[RelationshipRoleTable.key] = cmd.key
             row[RelationshipRoleTable.entityId] = cmd.entityId
@@ -1140,6 +1163,7 @@ class ModelStorageDb(
 
         RelationshipTable.insert { row ->
             row[RelationshipTable.id] = record.id
+            row[RelationshipTable.lineageId] = record.id
             row[RelationshipTable.modelId] = record.modelId
             row[RelationshipTable.key] = record.key
             row[RelationshipTable.name] = record.name
@@ -1148,6 +1172,7 @@ class ModelStorageDb(
         for (roleRecord in roles) {
             RelationshipRoleTable.insert { row ->
                 row[RelationshipRoleTable.id] = roleRecord.id
+                row[RelationshipRoleTable.lineageId] = roleRecord.id
                 row[RelationshipRoleTable.relationshipId] = roleRecord.relationshipId
                 row[RelationshipRoleTable.key] = roleRecord.key
                 row[RelationshipRoleTable.entityId] = roleRecord.entityId
@@ -1289,6 +1314,7 @@ class ModelStorageDb(
     ) {
         RelationshipAttributeTable.insert { row ->
             row[RelationshipAttributeTable.id] = record.id
+            row[RelationshipAttributeTable.lineageId] = record.id
             row[RelationshipAttributeTable.relationshipId] = record.relationshipId
             row[RelationshipAttributeTable.key] = record.key
             row[RelationshipAttributeTable.name] = record.name
@@ -1314,6 +1340,7 @@ class ModelStorageDb(
     }
 
     companion object {
+        private const val CURRENT_HEAD_SNAPSHOT_KIND = "CURRENT_HEAD"
         private val logger: Logger = LoggerFactory.getLogger(ModelStorageDb::class.java)
     }
 

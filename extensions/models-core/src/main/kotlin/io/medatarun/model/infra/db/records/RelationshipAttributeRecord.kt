@@ -21,7 +21,7 @@ data class RelationshipAttributeRecord(
     companion object {
         fun read(row: ResultRow): RelationshipAttributeRecord {
             return RelationshipAttributeRecord(
-                id = row[RelationshipAttributeTable.id],
+                id = row[RelationshipAttributeTable.lineageId],
                 relationshipId = row[RelationshipAttributeTable.relationshipId],
                 key = row[RelationshipAttributeTable.key],
                 name = row[RelationshipAttributeTable.name],

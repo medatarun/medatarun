@@ -12,10 +12,10 @@ import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 
 
-object DenormModelSearchItemTable : Table("denorm_model_search_item") {
+object DenormModelSearchItemTable : Table("model_search_item_snapshot") {
     val id = text("id")
     val itemType = text("item_type")
-    val modelId = text("model_id").transform(IdTransformer(::ModelId))
+    val modelId = text("model_snapshot_id").transform(IdTransformer(::ModelId))
     val modelKey = text("model_key").transform(KeyTransformer(::ModelKey))
     val modelLabel = text("model_label")
     val entityId = text("entity_id").transform(IdTransformer(::EntityId)).nullable()
@@ -32,7 +32,7 @@ object DenormModelSearchItemTable : Table("denorm_model_search_item") {
     override val primaryKey = PrimaryKey(id)
 }
 
-object DenormModelSearchItemTagTable : Table("denorm_model_search_item_tag") {
+object DenormModelSearchItemTagTable : Table("model_search_item_tag_snapshot") {
     val searchItemId = text("search_item_id")
     val tagId = text("tag_id").transform(IdTransformer(::TagId))
 
