@@ -54,12 +54,12 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   et des snapshots.
 - `model_event`: historique des changements, source de vérité.
 - `release`: événement métier sérialisé dans `model_event` avec
-  `event_type = model_release`, qui marque la création d'une version
-  (`MAJOR.MINOR.PATCH`) et sa frontière historique.
+  `event_type = model_release`, qui marque la création d'une version acceptée
+  par `ModelVersion` et sa frontière historique.
 - ce qu'on appelle une action de création de release, ou de release, est
   l'émission d'un `model_event` avec `event_type = model_release`
-- `version`: identifiant SemVer (`MAJOR.MINOR.PATCH`) porté par un
-  `model_event` avec `event_type = model_release`. Une version nomme une frontière historique
+- `version`: valeur acceptée par `ModelVersion` (sous ensemble de SemVer, comparable), portée par un `model_event`
+  avec `event_type = model_release`. Une version nomme une frontière historique
   stable du modèle. Une version n'est ni un état métier autonome, ni un
   snapshot.
 - `model_snapshot`: projection dérivée des `model_event`.
@@ -230,14 +230,32 @@ Migration d'events
 - Migration à la lecture via upcasters qui transforment un event v1 en v2 en v3 jusqu'au format courant avant application
 - Garder les anciens décodeurs côté application tant que des events historiques existent
 
-## Questions ouvertes
+### Tags et restitution historique
 
-1. Politique tags et reproductibilité historique.  
-   Les releases figent la structure avec des `TagId`, mais les tags peuvent
-   évoluer ou être supprimés dans `tags-core`. Il faut décider entre trois
-   options: interdire la suppression d'un tag référencé par une release publiée,
-   conserver les tags en suppression logique, ou autoriser la suppression
-   physique en copiant les métadonnées de tags dans les snapshots de release.
+- Les releases et snapshots conservent les `TagId` attachés aux objets du
+  modèle.
+- Les releases et snapshots ne figent pas les métadonnées complètes des tags
+  (`key`, `name`, `description`, etc.).
+- Le fait historique conservé par le versionning des modèles est donc
+  l'attache d'un `TagId` à un objet, pas l'état complet du tag dans
+  `tags-core`.
+- Ce choix est retenu parce que le sens principal du modèle est porté par les
+  noms et descriptions des objets versionnés. Les tags portent surtout des
+  rattachements de classement et des marquages transverses.
+- Le cycle de vie des tags reste autonome. Une release historique de
+  `models-core` ne bloque ni la suppression ni l'évolution d'un tag dans
+  `tags-core`.
+
+Conséquences explicites:
+
+- si un tag référencé historiquement est supprimé dans `tags-core`, une
+  remontée d'historique peut ne plus restituer que le `TagId` stocké;
+- si un tag est renommé, la remontée d'historique affiche sa `key` actuelle, pas
+  celle du moment de la release;
+- si le `name` ou la `description` d'un tag changent, la remontée d'historique
+  affiche les valeurs actuelles, pas celles du moment de la release;
+- cette perte de restitution complète du tag ne remet pas en cause la validité
+  historique de la release du modèle.
 
 ## Hors sujet (pour ce document)
 
