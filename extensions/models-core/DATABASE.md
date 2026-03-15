@@ -28,12 +28,22 @@ Identifiants
 - Les tables ont généralement un `id` sauf les tables dites d'`id bag` censées
   représenter des arrays d'id n'ont pas d'identifiant de ligne (table
   d’association pure, sans attribut métier propre)
-- Les identifiants de lignes de base de données sont des UUIDv7 et s'appelle
+- Quand une table a un `id`, cet `id` est l'identifiant technique de la ligne
+  SQL. Ce n'est pas l'identité métier versionnée de l'objet contenu dans la
+  ligne.
+- Les identifiants techniques de lignes SQL sont des UUIDv7 et s'appellent
   toujours `id` quand ils existent.
-- l'identité stable d'un objet métier versionnable est portée par `lineage_id`
-- `lineage_id` est stable à travers les snapshots pour un même objet (`type`,
-  `entity`, `attribute`, `relationship`, `role`). Il permet d'identifier de
-  manière unique l'objet métier à travers le temps.
+- L'identité métier stable d'un objet versionnable (`type`, `entity`,
+  `attribute`, `relationship`, `role`) est portée en stockage par
+  `lineage_id`.
+- `lineage_id` est stable à travers les snapshots pour un même objet. Il sert à
+  rattacher entre elles les différentes incarnations stockées du même objet à
+  travers le temps.
+- `lineage_id` n'est pas une deuxième identité métier en plus de l'`id` du
+  domaine. Dans les tables de snapshot, `lineage_id` stocke la même identité
+  stable que celle exposée par `item.id` dans le modèle de domaine.
+- Règle de mapping: quand on reconstruit un objet du domaine depuis une table
+  versionnée, on lit `record.lineage_id` pour alimenter `item.id`.
 
 ## Principes
 
