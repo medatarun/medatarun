@@ -15,6 +15,9 @@ class ModelStorageDbInvalidIdentifierAttributeException(entityId: String) :
 class ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId: ModelId) :
     MedatarunException("Could not find CURRENT_HEAD model snapshot for model [${modelId.asString()}]")
 
+class ModelStorageDbMissingReleaseEventException(modelId: ModelId, version: String) :
+    MedatarunException("Could not find model_release event for model [${modelId.asString()}] and version [$version]")
+
 class ModelStorageDbMissingTypeSnapshotException(typeId: TypeId) :
     MedatarunException("Could not find CURRENT_HEAD type snapshot for type [${typeId.asString()}]")
 
