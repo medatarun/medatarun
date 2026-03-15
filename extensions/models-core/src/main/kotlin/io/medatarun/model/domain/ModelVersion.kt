@@ -1,28 +1,17 @@
 package io.medatarun.model.domain
 
 import io.medatarun.model.domain.ModelVersion.Companion.DESCRIPTION
-import kotlin.text.MatchResult
 
 
 /**
  * See [DESCRIPTION] for infos
  */
-@JvmInline
-value class ModelVersion(val value: String) : Comparable<ModelVersion> {
-    private val match: MatchResult
-        get() = MODEL_VERSION_REGEX.matchEntire(value) ?: throw ModelVersionInvalidFormatException()
-    val major: Int
-        get() = parseCoreIdentifier(1)
-    val minor: Int
-        get() = parseCoreIdentifier(2)
-    val patch: Int
-        get() = parseCoreIdentifier(3)
-    val preRelease: String?
-        get() = match.groups[4]?.value
-
-    init {
-        ensureValid()
-    }
+data class ModelVersion(val value: String) : Comparable<ModelVersion> {
+    private val parsed: ParsedModelVersion = ParsedModelVersion.parse(value)
+    val major: Int = parsed.major
+    val minor: Int = parsed.minor
+    val patch: Int = parsed.patch
+    val preRelease: String? = parsed.preRelease
 
     override fun compareTo(other: ModelVersion): Int {
         val majorComparison = major.compareTo(other.major)
@@ -34,8 +23,8 @@ value class ModelVersion(val value: String) : Comparable<ModelVersion> {
         val patchComparison = patch.compareTo(other.patch)
         if (patchComparison != 0) return patchComparison
 
-        val currentPreRelease = parsePreReleaseIdentifiers()
-        val otherPreRelease = other.parsePreReleaseIdentifiers()
+        val currentPreRelease: List<String> = parsed.preReleaseIdentifiers
+        val otherPreRelease: List<String> = other.parsed.preReleaseIdentifiers
 
         if (currentPreRelease.isEmpty() && otherPreRelease.isEmpty()) return 0
         if (currentPreRelease.isEmpty()) return 1
@@ -54,50 +43,6 @@ value class ModelVersion(val value: String) : Comparable<ModelVersion> {
         return currentPreRelease.size.compareTo(otherPreRelease.size)
     }
 
-    private fun validatePreReleaseIdentifiers(preRelease: String) {
-        // SemVer: pre-release identifiers are dot-separated; numeric identifiers cannot have leading zeros.
-        val identifiers = preRelease.split(".")
-        identifiers.forEach { identifier ->
-            if (identifier.isNotEmpty() && identifier.all { it.isDigit() } && hasLeadingZero(identifier)) {
-                throw ModelVersionPreReleaseLeadingZeroException()
-            }
-        }
-    }
-
-    private fun hasLeadingZero(identifier: String): Boolean {
-        return identifier.length > 1 && identifier.startsWith("0")
-    }
-
-    /**
-     * Completes structural format errors detected during creation with the dedicated domain exceptions.
-     */
-    private fun ensureValid() {
-        if (value.isBlank()) throw ModelVersionEmptyException()
-
-        if (hasLeadingZero(rawCoreIdentifier(1)) || hasLeadingZero(rawCoreIdentifier(2)) || hasLeadingZero(rawCoreIdentifier(3))) {
-            throw ModelVersionCoreLeadingZeroException()
-        }
-
-        val preReleaseStable = preRelease
-        if (preReleaseStable != null) {
-            validatePreReleaseIdentifiers(preReleaseStable)
-        }
-    }
-
-    private fun rawCoreIdentifier(groupIndex: Int): String {
-        return match.groups[groupIndex]?.value ?: throw ModelVersionInvalidFormatException()
-    }
-
-    private fun parseCoreIdentifier(groupIndex: Int): Int {
-        val identifier = rawCoreIdentifier(groupIndex)
-        return identifier.toIntOrNull() ?: throw ModelVersionInvalidFormatException()
-    }
-
-    private fun parsePreReleaseIdentifiers(): List<String> {
-        val preReleaseStable = preRelease ?: return emptyList()
-        return preReleaseStable.split(".")
-    }
-
     private fun comparePreReleaseIdentifier(left: String, right: String): Int {
         val leftNumeric = left.all { it.isDigit() }
         val rightNumeric = right.all { it.isDigit() }
@@ -110,6 +55,54 @@ value class ModelVersion(val value: String) : Comparable<ModelVersion> {
         if (rightNumeric) return 1
 
         return left.compareTo(right)
+    }
+
+    private data class ParsedModelVersion(
+        val major: Int,
+        val minor: Int,
+        val patch: Int,
+        val preRelease: String?,
+        val preReleaseIdentifiers: List<String>
+    ) {
+        companion object {
+            fun parse(value: String): ParsedModelVersion {
+                if (value.isBlank()) throw ModelVersionEmptyException()
+
+                val match = MODEL_VERSION_REGEX.matchEntire(value) ?: throw ModelVersionInvalidFormatException()
+
+                val rawMajor = match.groups[1]?.value ?: throw ModelVersionInvalidFormatException()
+                val rawMinor = match.groups[2]?.value ?: throw ModelVersionInvalidFormatException()
+                val rawPatch = match.groups[3]?.value ?: throw ModelVersionInvalidFormatException()
+
+                if (hasLeadingZero(rawMajor) || hasLeadingZero(rawMinor) || hasLeadingZero(rawPatch)) {
+                    throw ModelVersionCoreLeadingZeroException()
+                }
+
+                val preRelease = match.groups[4]?.value
+                val preReleaseIdentifiers = preRelease?.split(".").orEmpty()
+                validatePreReleaseIdentifiers(preReleaseIdentifiers)
+
+                return ParsedModelVersion(
+                    major = rawMajor.toIntOrNull() ?: throw ModelVersionInvalidFormatException(),
+                    minor = rawMinor.toIntOrNull() ?: throw ModelVersionInvalidFormatException(),
+                    patch = rawPatch.toIntOrNull() ?: throw ModelVersionInvalidFormatException(),
+                    preRelease = preRelease,
+                    preReleaseIdentifiers = preReleaseIdentifiers
+                )
+            }
+
+            private fun validatePreReleaseIdentifiers(preReleaseIdentifiers: List<String>) {
+                preReleaseIdentifiers.forEach { identifier ->
+                    if (identifier.all { it.isDigit() } && hasLeadingZero(identifier)) {
+                        throw ModelVersionPreReleaseLeadingZeroException()
+                    }
+                }
+            }
+
+            private fun hasLeadingZero(identifier: String): Boolean {
+                return identifier.length > 1 && identifier.startsWith("0")
+            }
+        }
     }
 
     companion object {
