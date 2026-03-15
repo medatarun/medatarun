@@ -89,11 +89,11 @@ Colonnes:
   auquel l'event appartient.
 - `stream_revision` INTEGER NOT NULL: ordre canonique de l'event dans le flux du
   modèle.
-- `event_type` TEXT NOT NULL: type d'event (`create`, `update`, `release`,
+- `event_type` TEXT NOT NULL: type d'event (`create`, `update`, `model_release`,
   etc.).
 - `event_version` INTEGER NOT NULL: numéro de version de l'event, permet d'upcaster les vieux event lors du replay quand ils évoluent
-- `model_version` TEXT NULL: version SemVer du modèle, portée uniquement pour les events
-  `event_type='release'`.
+- `model_version` TEXT NULL: version SemVer du modèle, portée uniquement pour
+  les events `event_type='model_release'`.
 - `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'
   action.
 - `action_id` TEXT NOT NULL: identifiant système de l'action source, fourni par
@@ -115,7 +115,8 @@ Règle de mapping:
 Contraintes:
 
 - `UNIQUE(model_id, stream_revision)` (ordre canonique)
-- `UNIQUE(model_id, model_version)` avec filtre logique `event_type='release'`
+- `UNIQUE(model_id, model_version)` avec filtre logique
+  `event_type='model_release'`
   si le moteur SQL le permet; sinon garantir l'unicité côté application.
 
 ## Tables projection métier
@@ -144,7 +145,8 @@ Colonnes:
 - `up_to_revision` INTEGER NOT NULL: dernière `stream_revision` incluse dans ce
   snapshot.
 - `model_event_release_id` TEXT NULL REFERENCES `model_event(id)` ON DELETE
-  CASCADE: event `release` associé (obligatoire pour `VERSION_SNAPSHOT`, null
+  CASCADE: event `model_release` associé (obligatoire pour
+  `VERSION_SNAPSHOT`, null
   pour `CURRENT_HEAD`). S'appelle bien `model_event_release_id` pas
   `model_event_id`
   car on pointe sur un type d'event spécifique.

@@ -434,7 +434,7 @@ class ModelCmdsImpl(
 
     private fun updateModelVersion(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelVersion) {
         val model = storage.findModel(cmd.modelRef)
-        storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelVersion(model.id, cmd.version))
+        storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, cmd.version))
     }
 
     private fun updateDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelDocumentationHome) {

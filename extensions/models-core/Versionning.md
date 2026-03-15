@@ -53,19 +53,20 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - `model`: identité stable absolue de "ce modèle", indépendante des événements
   et des snapshots.
 - `model_event`: historique des changements, source de vérité.
-- `release`: type de `model_event` qui marque la création d'une version
+- `release`: événement métier sérialisé dans `model_event` avec
+  `event_type = model_release`, qui marque la création d'une version
   (`MAJOR.MINOR.PATCH`) et sa frontière historique.
 - ce qu'on appelle une action de création de release, ou de release, est
-  l'émission d'un `model_event` de type `release`
+  l'émission d'un `model_event` avec `event_type = model_release`
 - `version`: identifiant SemVer (`MAJOR.MINOR.PATCH`) porté par un
-  `model_event` de type `release`. Une version nomme une frontière historique
+  `model_event` avec `event_type = model_release`. Une version nomme une frontière historique
   stable du modèle. Une version n'est ni un état métier autonome, ni un
   snapshot.
 - `model_snapshot`: projection dérivée des `model_event`.
 - `snapshot_kind`: propriété d'un `model_snapshot` qui peut valoir
   `CURRENT_HEAD` (dernier état connu, mutable, recalculable) ou
   `VERSION_SNAPSHOT` (snapshot immuable rattaché à un `model_event` de type
-  `release`).
+  `model_release`).
 - `stream_revision`: ordre canonique monotone des `model_event` pour un `model`.
 
 ## Validé (explicite)
@@ -73,9 +74,10 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 ### Vision globale
 
 - Le système doit reconstruire exactement l'état complet d'un modèle pour toute
-  version (`v1`, `v2`, `v3`) créée par un `model_event` de type `release`.
+  version (`v1`, `v2`, `v3`) créée par un `model_event` avec
+  `event_type = model_release`.
 - Le système doit expliquer précisément les changements entre versions.
-- Une version créée par un `model_event` de type `release` est strictement
+- Une version créée par un `model_event` avec `event_type = model_release` est strictement
   immuable.
 - Le flux est cumulatif et linéaire:
   `(rien) -> model_event -> ... -> release -> model_event -> ... -> release`.
@@ -109,7 +111,8 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 ### Publication de release
 
 - La création d'une release est un `model_event` métier dédié.
-- Le `model_event` de type `release` porte les métadonnées (au minimum version,
+- Le `model_event` avec `event_type = model_release` porte les métadonnées (au
+  minimum version,
   auteur, date) et définit la frontière historique.
 - Pas de redondance de frontière de release (`last_event_id` séparé non retenu
   si la frontière est déjà portée par le `model_event` de release).
@@ -126,7 +129,8 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - Initialisation create/import:
   - `create` et `import` produisent des `model_event` de contenu,
   - Le projecteur construit/met à jour `CURRENT_HEAD` au fil de ces events.
-  - puis un `model_event` de type `release` est créé dans le flux initial, à partir du numéro indiqué dans le `create`ou `import`
+  - puis un `model_event` avec `event_type = model_release` est créé dans le
+    flux initial, à partir du numéro indiqué dans le `create`ou `import`
   - un `model_snapshot` de type `VERSION_SNAPSHOT` est créé à partir du `CURRENT_HEAD`.
   - ainsi `CURRENT_HEAD` existe tout le temsp, y compris avant le premier event `release`
   - atomicité exacte de toute la séquence (tout ou rien) : c'est dans une transaction
@@ -268,7 +272,7 @@ sont pas conservées historiquement.
 
 ### Blocage de publication stricte
 
-La création d'un event `release` peut échouer en cas d'incident de
+La création d'un event `model_release` peut échouer en cas d'incident de
 cohérence (projecteur buggué, migration défectueuse, corruption, validation
 incomplète d'event). Ce blocage est volontaire pour éviter la création d'une
 version non reconstruisible.

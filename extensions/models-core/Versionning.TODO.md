@@ -22,13 +22,13 @@ Items:
 - `[VE-C][DONE]` L'append des events est déjà branché dans `ModelStorageDb` avec ordre canonique protégé par `UNIQUE(model_id, stream_revision)`.
 - `[VE-D][DONE]` Les commandes métier continuent à mettre à jour les tables courantes en parallèle, ce qui permet de construire le système d'events sans casser l'existant.
 - `[VE-E][DONE]` La lecture brute des `model_event` existe déjà via `findAllModelEvents(modelId)`.
-- `[VE-F][PARTIAL]` Le vocabulaire métier n'est pas encore aligné sur `Versionning.md`: le code porte encore `UpdateModelVersion` alors que le concept validé est une `release`.
+- `[VE-F][DONE]` La couche stockage/versionning est alignée sur le vocabulaire `release`: `ModelStorageCmd.ModelRelease` sérialise l'event `model_release`.
 - `[VE-G][PARTIAL]` La validation `ModelVersion` actuelle accepte encore les suffixes SemVer `-pre-release` et `+build`, alors que la V1 de `Versionning.md` impose `MAJOR.MINOR.PATCH` uniquement.
 - `[VE-H][DONE]` Les tests de contrat JSON figés des events existent déjà: vérification de `event_type`, `event_version`, payload JSON figé et round-trip encode/decode.
 - `[VE-L][TODO]` Ajouter les tables SQL de projection `model_snapshot` et associées, sans retirer les tables courantes tant que la projection n'est pas stabilisée.
 - `[VE-M][TODO]` Introduire `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT` et les contraintes SQL minimales associées.
-- `[VE-I][TODO]` Introduire le vrai event métier `release`, distinct des updates courants, avec version portée dans l'event.
-- `[VE-J][TODO]` Remplir `model_version` dans `model_event` uniquement pour les events `release`.
+- `[VE-I][DONE]` Le vrai event de stockage `model_release` existe, distinct des updates courants, avec version portée dans l'event.
+- `[VE-J][DONE]` `model_version` dans `model_event` est rempli pour les events `model_release`.
 - `[VE-K][TODO]` Ajouter les premières règles métier de publication d'une release: version obligatoire, unicité par modèle, refus sans changement depuis la release précédente.
 - `[VE-O][TODO]` Implémenter un projecteur transactionnel `model_event -> CURRENT_HEAD` construit en parallèle de l'écriture actuelle.
 - `[VE-P][TODO]` Créer atomiquement le `VERSION_SNAPSHOT` lors d'une `release`, à partir du `CURRENT_HEAD`.

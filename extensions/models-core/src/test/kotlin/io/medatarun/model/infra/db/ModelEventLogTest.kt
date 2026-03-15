@@ -46,4 +46,33 @@ class ModelEventLogTest {
         assertNotNull(rows[0].actionId)
         assertNotNull(rows[1].actionId)
     }
+
+    @Test
+    fun `update model version appends a model_release event with model_version`() {
+        val env = ModelTestEnv()
+
+        env.dispatch(
+            ModelAction.Model_Create(
+                modelKey = ModelKey("crm"),
+                name = LocalizedTextNotLocalized("CRM"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+
+        val model = env.queries.findModel(ModelRef.ByKey(ModelKey("crm")))
+
+        env.dispatch(
+            ModelAction.Model_UpdateVersion(
+                modelRef = ModelRef.ById(model.id),
+                value = ModelVersion("2.0.0")
+            )
+        )
+
+        val rows = env.storageDb.findAllModelEvents(model.id)
+
+        assertEquals(2, rows.size)
+        assertEquals("model_release", rows[1].eventType)
+        assertEquals("2.0.0", rows[1].modelVersion)
+    }
 }

@@ -335,7 +335,7 @@ class ModelStorageDb(
             is ModelStorageCmd.UpdateModelKey -> updateModelKey(cmd.modelId, cmd.key)
             is ModelStorageCmd.UpdateModelDescription -> updateModelDescription(cmd.modelId, cmd.description)
             is ModelStorageCmd.UpdateModelAuthority -> updateModelAuthority(cmd.modelId, cmd.authority)
-            is ModelStorageCmd.UpdateModelVersion -> updateModelVersion(cmd.modelId, cmd.version)
+            is ModelStorageCmd.ModelRelease -> releaseModel(cmd.modelId, cmd.version)
             is ModelStorageCmd.UpdateModelDocumentationHome -> updateModelDocumentationHome(cmd.modelId, cmd.url)
             is ModelStorageCmd.UpdateModelTagAdd -> addModelTag(cmd.modelId, cmd.tagId)
             is ModelStorageCmd.UpdateModelTagDelete -> deleteModelTag(cmd.modelId, cmd.tagId)
@@ -616,7 +616,7 @@ class ModelStorageDb(
         }
     }
 
-    private fun updateModelVersion(modelId: ModelId, version: ModelVersion) {
+    private fun releaseModel(modelId: ModelId, version: ModelVersion) {
         ModelTable.update(where = { ModelTable.id eq modelId }) { row ->
             row[ModelTable.version] = version.value
         }

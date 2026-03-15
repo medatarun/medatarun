@@ -130,9 +130,9 @@ class ModelEventJsonCodecTest {
                 json = """{"model_id":"00000000-0000-0000-0000-000000000001","authority":"system"}"""
             ),
             CmdTestCase(
-                eventType = "model_version_updated",
+                eventType = "model_release",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateModelVersion(modelId, ModelVersion("2.0.0")),
+                cmd = ModelStorageCmd.ModelRelease(modelId, ModelVersion("2.0.0")),
                 json = """{"model_id":"00000000-0000-0000-0000-000000000001","version":"2.0.0"}"""
             ),
             CmdTestCase(

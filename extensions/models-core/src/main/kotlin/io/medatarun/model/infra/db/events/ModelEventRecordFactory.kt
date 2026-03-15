@@ -23,7 +23,7 @@ class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
             streamRevision = streamRevision,
             eventType = encoded.eventType,
             eventVersion = encoded.eventVersion,
-            modelVersion = null,
+            modelVersion = extractModelVersion(cmdEnv.cmd),
             actorId = cmdEnv.principalId,
             actionId = cmdEnv.actionId.value.toString(),
             createdAt = createdAt,
@@ -39,5 +39,11 @@ class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
                 ?: throw ModelEventRecordFactoryUnsupportedCommandException(cmd::class.qualifiedName ?: "unknown")
         }
     }
-}
 
+    private fun extractModelVersion(cmd: ModelStorageCmd): String? {
+        return when (cmd) {
+            is ModelStorageCmd.ModelRelease -> cmd.version.value
+            else -> null
+        }
+    }
+}

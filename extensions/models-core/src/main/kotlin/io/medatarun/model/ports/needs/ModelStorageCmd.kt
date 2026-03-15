@@ -111,8 +111,8 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_version_updated", eventVersion = 1)
-    data class UpdateModelVersion(
+    @ModelEventContract(eventType = "model_release", eventVersion = 1)
+    data class ModelRelease(
         @Contextual
         @SerialName("model_id")
         override val modelId: ModelId,
