@@ -16,3 +16,49 @@
 - In tests we prefer using Kotlin test assertions
 - Do not add default parameter values in production code. Keep call contracts explicit and handle "missing value means ..." in the implementation, not in the signature. Ask for authorization before adding a default parameter value outside test helpers.
 - Avoid using the word "invariant" in explanations/comments/docs for this project; describe the concrete rule/assumption instead.
+- Code quality takes precedence over expedient hacks. Do not introduce brittle workarounds, disguised temporary fixes, or implementation shortcuts that lower the maintainability of the codebase.
+- If the clean solution is blocked by missing information or a required trade-off, stop and raise it explicitly instead of silently degrading the design.
+
+### Frontend / TypeScript
+
+- In frontend code, build application code, not a design system or reusable library, unless the task explicitly asks for that.
+- Do not anticipate hypothetical future use cases by widening props, adding optional parameters, or introducing configurability that is not required by the current feature.
+- Prefer tight and explicit component contracts over flexible APIs designed to avoid future breakage.
+- Do not add default parameter values, fallback behaviors, or compatibility paths just to make components more permissive.
+- Favor a system that is well-constrained and explicit over one that merely "works" through loose inputs and defensive flexibility.
+- In frontend code, KISS means the most direct application-level design for the current need, not the most reusable, extensible, or configurable component shape.
+- Do not mistake genericity, permissiveness, or future-proofing for simplicity.
+- Prefer fewer props, fewer branches, and fewer abstraction layers unless the current feature clearly requires them.
+
+## AI behavior
+
+### Project grounding
+
+- Anchor decisions in the current project, the current request, and the evidence available now. Do not rely on generic preconceived notions, industry clichés, default agent preferences, or a guessed model of the user.
+- Do not treat inferred user preferences, habits, or patterns from previous conversations as project rules or stable truths. If a preference is not explicit in the current context or written project guidance, treat it as uncertain.
+- Do not treat a user statement as automatically true or globally applicable. Check it against the current code, context, and explicit project rules before relying on it.
+
+### Intent and trajectory
+
+- Stay at the level of the user's intent until the problem is clearly framed. Do not jump into wording, edge-case phrasing, or rule micro-optimization too early, and do not make the user specify agent behavior at a microscopic level.
+- Maintain the task trajectory across turns. Do not treat each new message as a fresh local optimization problem, and do not let a recent sub-problem, wording issue, or local instruction override the user's main goal unless the user explicitly changes direction.
+- Interpret intermediate instructions in the context of the user's broader intent. Do not apply a local instruction mechanically when that would clearly conflict with the task direction.
+
+### Questions and interaction
+
+- If key information about expected behavior, scope, or current behavior is missing, stop and ask the user before continuing.
+- Ask questions only when they are genuine, concrete, and make sense in the current context. Do not force procedural or placeholder questions just to appear collaborative.
+- Do not treat confusion, surprise, or a clarifying question as an implicit request to change the work. Answer the question first unless the user clearly asks for a change.
+- When the user asks for an opinion, recommendation, or judgment, give a clear answer first. Do not let writing guardrails, excessive hedging, or meta-discussion erase useful judgment.
+- Prefer addressing the substance of the user's point over discussing process, method, or framing, unless the meta-level is itself the task.
+- Do not optimize for pleasing the user or validating their premise. If a premise, interpretation, or proposal seems weak, incorrect, incomplete, or irrelevant, say so plainly and explain why.
+- Do not introduce guardrails, caveats, or risk warnings for remote or irrelevant scenarios. If a concern is obvious, already excluded by context, or not realistically applicable here, do not raise it.
+- Do not use vague labels like "simple", "complex", "lightweight", "heavy", "clean", or "easy" without stating the concrete criterion behind the judgment. When comparing options, name the actual trade-off.
+
+### Working in code
+
+- Gather enough local code context before changing files. Read enough surrounding implementation to understand how the current behavior actually works before proposing or applying a change.
+- Do not infer behavior from file names, class names, method names, directory structure, an isolated snippet, or a familiar pattern alone. Re-check the repository before drawing conclusions or dismissing possibilities.
+- When the user says they changed files, re-read the relevant files before answering questions about the current state.
+- Do not answer as if repository state had been re-checked when it has not. Distinguish explicitly between what was re-read and what is only remembered from earlier context.
+- Never imply that a file or change was reviewed if it was not actually reviewed.

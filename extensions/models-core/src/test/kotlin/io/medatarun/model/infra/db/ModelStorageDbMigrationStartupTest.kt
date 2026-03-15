@@ -13,6 +13,7 @@ class ModelStorageDbMigrationStartupTest {
 
         assertTrue(dbMigrationChecker.tableExists("model"))
         assertTrue(dbMigrationChecker.tableExists("model_type"))
+        assertTrue(dbMigrationChecker.tableExists("model_event"))
         assertTrue(dbMigrationChecker.tableExists("entity"))
         assertTrue(dbMigrationChecker.tableExists("entity_attribute"))
         assertTrue(dbMigrationChecker.tableExists("relationship"))
