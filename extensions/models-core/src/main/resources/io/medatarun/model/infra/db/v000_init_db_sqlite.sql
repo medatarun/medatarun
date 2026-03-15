@@ -202,6 +202,18 @@ CREATE INDEX IF NOT EXISTS idx_model_type_model_id
 CREATE INDEX IF NOT EXISTS idx_model_event_model_id
     ON model_event (model_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_model_snapshot_current_head_model_id
+    ON model_snapshot (model_id)
+    WHERE snapshot_kind = 'CURRENT_HEAD';
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_model_snapshot_current_head_key
+    ON model_snapshot (key)
+    WHERE snapshot_kind = 'CURRENT_HEAD';
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_model_snapshot_version_snapshot_release_event_id
+    ON model_snapshot (model_event_release_id)
+    WHERE snapshot_kind = 'VERSION_SNAPSHOT' AND model_event_release_id IS NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_entity_model_id
     ON model_entity_snapshot (model_snapshot_id);
 

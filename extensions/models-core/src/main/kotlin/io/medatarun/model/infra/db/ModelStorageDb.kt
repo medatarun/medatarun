@@ -532,12 +532,21 @@ class ModelStorageDb(
 
     private fun findCurrentHeadModelSnapshotId(modelId: ModelId): ModelId? {
         val row = ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-            (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
+            currentHeadModelSnapshotCriteria(modelId)
         }.singleOrNull()
         if (row == null) {
             return null
         }
         return ModelId.fromString(row[ModelSnapshotTable.id])
+    }
+
+    /**
+     * Mutable model-level state lives only on the current head projection.
+     * Version snapshots must stay immutable once they exist.
+     */
+    private fun currentHeadModelSnapshotCriteria(modelId: ModelId): Op<Boolean> {
+        return (ModelSnapshotTable.modelId eq modelId) and
+            (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
     }
 
     private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
@@ -743,40 +752,40 @@ class ModelStorageDb(
     }
 
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.name] = name
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelKey(modelId: ModelId, key: ModelKey) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.key] = key
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.description] = description
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelAuthority(modelId: ModelId, authority: ModelAuthority) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.authority] = authority
         }
     }
 
     private fun releaseModel(modelId: ModelId, version: ModelVersion) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.version] = version.value
         }
     }
 
     private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
-        ModelSnapshotTable.update(where = { ModelSnapshotTable.modelId eq modelId }) { row ->
+        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.documentationHome] = documentationHome?.toExternalForm()
         }
     }
