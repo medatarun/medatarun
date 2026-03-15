@@ -12,6 +12,7 @@
 - add comments on methods or code when the method or content is not obvious. 
 - Comments shall not repeat code but explain what the code or method does and choices had been made and why.
 - When an interface or method carries a non-obvious contract, document that contract in code comments near the interface or method. Do not leave important local behavior described only in README files.
+- When the user asks for a comment on a code element, write it as KDoc in Kotlin or JSDoc in JavaScript/TypeScript, not as a regular inline or block comment.
 - Logs are produced using slf4j
 - In tests we prefer using Kotlin test assertions
 - Do not add default parameter values in production code. Keep call contracts explicit and handle "missing value means ..." in the implementation, not in the signature. Ask for authorization before adding a default parameter value outside test helpers.
@@ -62,3 +63,16 @@
 - When the user says they changed files, re-read the relevant files before answering questions about the current state.
 - Do not answer as if repository state had been re-checked when it has not. Distinguish explicitly between what was re-read and what is only remembered from earlier context.
 - Never imply that a file or change was reviewed if it was not actually reviewed.
+
+## Validation
+
+- `AGENTS.md` is a blocking and priority constraint.
+- No analysis, plan, response, or code change is allowed if any relevant rule in `AGENTS.md` is not respected.
+- Before each important step `analysis`, `planning`, `response`, `code change`, the agent must re-read the relevant rules in `AGENTS.md` and explicitly verify compliance.
+- If the agent detects that any content, plan, or change is not compliant with `AGENTS.md`, it must stop, discard that work, and restart until it produces a compliant version.
+- The agent must never continue, deliver, defend, keep, or extend a response or change it knows is not compliant with `AGENTS.md`.
+- Any non-compliance with `AGENTS.md` must be treated as a failure of the current response.
+- If the user signals non-compliance with `AGENTS.md`, that signal becomes higher priority than any other task. The agent must immediately stop the current action, re-check the latest message and recent changes, correct what is not compliant, and only then continue.
+- If there is any doubt about how to interpret a rule in `AGENTS.md`, the agent must stop and ask for clarification before continuing.
+- A response or change that is "almost compliant", "temporarily non-compliant", "to be fixed later", or "acceptable despite the deviation" is forbidden.
+- The compliance check against `AGENTS.md` must be repeated until a compliant version is reached before any delivery.

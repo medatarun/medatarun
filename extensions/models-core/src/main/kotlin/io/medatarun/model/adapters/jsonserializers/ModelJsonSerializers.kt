@@ -1,5 +1,6 @@
 package io.medatarun.model.adapters.jsonserializers
 
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.ModelRepoCmdEventInvalidOriginJsonException
 import io.medatarun.model.infra.db.ModelRepoCmdEventUnknownOriginTypeException
@@ -8,6 +9,7 @@ import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.serialization.SerializationUtils.enumWithCodeSerializer
 import io.medatarun.type.commons.serialization.SerializationUtils.stringSerializer
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -36,7 +38,22 @@ object ModelJsonSerializers {
     val relationshipKey = stringSerializer("RelationshipKey", { RelationshipKey(it) }) { it.value }
     val relationshipRoleKey = stringSerializer("RelationshipRoleKey", { RelationshipRoleKey(it) }) { it.value }
     val typeKey = stringSerializer("TypeKey", { TypeKey(it) }) { it.value }
-    val modelVersion = stringSerializer("ModelVersion", { ModelVersion(it) }) { it.value }
+    val modelVersion = object : KSerializer<ModelVersion> {
+        override val descriptor = PrimitiveSerialDescriptor("ModelVersion", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: ModelVersion) {
+            encoder.encodeString(value.value)
+        }
+
+        override fun deserialize(decoder: Decoder): ModelVersion {
+            val rawValue = decoder.decodeString()
+            return try {
+                ModelVersion(rawValue)
+            } catch (e: MedatarunException) {
+                throw SerializationException(e.message ?: "Invalid model version", e)
+            }
+        }
+    }
     val url = stringSerializer("URL", { URL(it) }) { it.toExternalForm() }
 
     val localizedTextAsString = object : KSerializer<LocalizedText> {

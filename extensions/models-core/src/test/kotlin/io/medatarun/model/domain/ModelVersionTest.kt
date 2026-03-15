@@ -15,23 +15,20 @@ class ModelVersionTest {
             "1.2.3-alpha.1",
             "1.2.3-0.3.7",
             "1.2.3-x.7.z-92",
-            "1.2.3+build.1",
-            "1.2.3+001",
-            "1.2.3-alpha+build.1",
         )
 
         valid.forEach { version ->
-            assertDoesNotThrow(version) { ModelVersion(version).validate() }
+            assertDoesNotThrow(version) { ModelVersion(version) }
         }
     }
 
     @Test
     fun `empty model version is rejected`() {
         assertThrows<ModelVersionEmptyException> {
-            ModelVersion("").validate()
+            ModelVersion("")
         }
         assertThrows<ModelVersionEmptyException> {
-            ModelVersion("   ").validate()
+            ModelVersion("   ")
         }
     }
 
@@ -42,6 +39,9 @@ class ModelVersionTest {
             "1.2.3.4",
             "v1.2.3",
             "1.2.3-",
+            "1.2.3+build.1",
+            "1.2.3+001",
+            "1.2.3-alpha+build.1",
             "1.2.3+build..1",
             "1.2.3+build&1",
             "1.2.3-!alpha"
@@ -49,7 +49,7 @@ class ModelVersionTest {
 
         invalid.forEach { version ->
             assertThrows<ModelVersionInvalidFormatException> {
-                ModelVersion(version).validate()
+                ModelVersion(version)
             }
         }
     }
@@ -64,7 +64,7 @@ class ModelVersionTest {
 
         invalid.forEach { version ->
             assertThrows<ModelVersionCoreLeadingZeroException> {
-                ModelVersion(version).validate()
+                ModelVersion(version)
             }
         }
     }
@@ -79,8 +79,66 @@ class ModelVersionTest {
 
         invalid.forEach { version ->
             assertThrows<ModelVersionPreReleaseLeadingZeroException> {
-                ModelVersion(version).validate()
+                ModelVersion(version)
             }
         }
+    }
+
+    @Test
+    fun `stable release is greater than matching pre-release`() {
+        val preRelease = ModelVersion("1.2.3-rc.1")
+        val stable = ModelVersion("1.2.3")
+
+        kotlin.test.assertTrue(stable > preRelease)
+    }
+
+    @Test
+    fun `pre-releases are ordered using semver precedence`() {
+        val versions = listOf(
+            ModelVersion("1.2.3"),
+            ModelVersion("1.2.3-beta.11"),
+            ModelVersion("1.2.3-beta.2"),
+            ModelVersion("1.2.3-beta"),
+            ModelVersion("1.2.3-alpha.beta"),
+            ModelVersion("1.2.3-alpha.1"),
+            ModelVersion("1.2.3-alpha"),
+        )
+
+        val sorted = versions.sorted()
+
+        kotlin.test.assertEquals(
+            listOf(
+                ModelVersion("1.2.3-alpha"),
+                ModelVersion("1.2.3-alpha.1"),
+                ModelVersion("1.2.3-alpha.beta"),
+                ModelVersion("1.2.3-beta"),
+                ModelVersion("1.2.3-beta.2"),
+                ModelVersion("1.2.3-beta.11"),
+                ModelVersion("1.2.3"),
+            ),
+            sorted
+        )
+    }
+
+    @Test
+    fun `major minor and patch are ordered before pre-release comparison`() {
+        val versions = listOf(
+            ModelVersion("2.0.0-alpha"),
+            ModelVersion("1.10.0"),
+            ModelVersion("1.2.4"),
+            ModelVersion("1.2.3"),
+        )
+
+        val sorted = versions.sorted()
+
+        kotlin.test.assertEquals(
+            listOf(
+                ModelVersion("1.2.3"),
+                ModelVersion("1.2.4"),
+                ModelVersion("1.10.0"),
+                ModelVersion("2.0.0-alpha"),
+            ),
+            sorted
+        )
     }
 }
