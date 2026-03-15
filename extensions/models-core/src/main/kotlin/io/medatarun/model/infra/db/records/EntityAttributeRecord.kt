@@ -10,23 +10,25 @@ import io.medatarun.model.infra.db.tables.EntityAttributeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class EntityAttributeRecord(
-    val id: AttributeId,
-    val entityId: EntityId,
+    val snapshotId: AttributeId,
+    val lineageId: AttributeId,
+    val entitySnapshotId: EntityId,
     val key: AttributeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val typeId: TypeId,
+    val typeSnapshotId: TypeId,
     val optional: Boolean
 ) {
     companion object {
         fun read(row: ResultRow): EntityAttributeRecord {
             return EntityAttributeRecord(
-                id = row[EntityAttributeTable.lineageId],
-                entityId = row[EntityAttributeTable.entityId],
+                snapshotId = row[EntityAttributeTable.id],
+                lineageId = row[EntityAttributeTable.lineageId],
+                entitySnapshotId = row[EntityAttributeTable.entityId],
                 key = row[EntityAttributeTable.key],
                 name = row[EntityAttributeTable.name],
                 description = row[EntityAttributeTable.description],
-                typeId = row[EntityAttributeTable.typeId],
+                typeSnapshotId = row[EntityAttributeTable.typeId],
                 optional = row[EntityAttributeTable.optional]
             )
         }

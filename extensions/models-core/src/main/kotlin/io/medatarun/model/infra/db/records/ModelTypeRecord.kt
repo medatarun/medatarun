@@ -9,8 +9,9 @@ import io.medatarun.model.infra.db.tables.ModelTypeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelTypeRecord(
-    val id: TypeId,
-    val modelId: ModelId,
+    val snapshotId: TypeId,
+    val lineageId: TypeId,
+    val modelSnapshotId: ModelId,
     val key: TypeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?
@@ -18,8 +19,9 @@ data class ModelTypeRecord(
     companion object {
         fun read(row: ResultRow): ModelTypeRecord {
             return ModelTypeRecord(
-                id = row[ModelTypeTable.lineageId],
-                modelId = row[ModelTypeTable.modelId],
+                snapshotId = row[ModelTypeTable.id],
+                lineageId = row[ModelTypeTable.lineageId],
+                modelSnapshotId = row[ModelTypeTable.modelId],
                 key = row[ModelTypeTable.key],
                 name = row[ModelTypeTable.name],
                 description = row[ModelTypeTable.description]

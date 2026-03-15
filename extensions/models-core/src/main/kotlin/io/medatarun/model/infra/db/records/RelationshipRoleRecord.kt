@@ -9,20 +9,22 @@ import io.medatarun.model.infra.db.tables.RelationshipRoleTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipRoleRecord(
-    val id: RelationshipRoleId,
-    val relationshipId: RelationshipId,
+    val snapshotId: RelationshipRoleId,
+    val lineageId: RelationshipRoleId,
+    val relationshipSnapshotId: RelationshipId,
     val key: RelationshipRoleKey,
-    val entityId: EntityId,
+    val entitySnapshotId: EntityId,
     val name: LocalizedText?,
     val cardinality: String
 ) {
     companion object {
         fun read(row: ResultRow): RelationshipRoleRecord {
             return RelationshipRoleRecord(
-                id = row[RelationshipRoleTable.lineageId],
-                relationshipId = row[RelationshipRoleTable.relationshipId],
+                snapshotId = row[RelationshipRoleTable.id],
+                lineageId = row[RelationshipRoleTable.lineageId],
+                relationshipSnapshotId = row[RelationshipRoleTable.relationshipId],
                 key = row[RelationshipRoleTable.key],
-                entityId = row[RelationshipRoleTable.entityId],
+                entitySnapshotId = row[RelationshipRoleTable.entityId],
                 name = row[RelationshipRoleTable.name],
                 cardinality = row[RelationshipRoleTable.cardinality]
             )

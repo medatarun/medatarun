@@ -9,8 +9,9 @@ import io.medatarun.model.infra.db.tables.RelationshipTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipRecord(
-    val id: RelationshipId,
-    val modelId: ModelId,
+    val snapshotId: RelationshipId,
+    val lineageId: RelationshipId,
+    val modelSnapshotId: ModelId,
     val key: RelationshipKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?
@@ -18,8 +19,9 @@ data class RelationshipRecord(
     companion object {
         fun read(row: ResultRow): RelationshipRecord {
             return RelationshipRecord(
-                id = row[RelationshipTable.lineageId],
-                modelId = row[RelationshipTable.modelId],
+                snapshotId = row[RelationshipTable.id],
+                lineageId = row[RelationshipTable.lineageId],
+                modelSnapshotId = row[RelationshipTable.modelId],
                 key = row[RelationshipTable.key],
                 name = row[RelationshipTable.name],
                 description = row[RelationshipTable.description]

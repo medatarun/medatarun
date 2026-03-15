@@ -11,24 +11,26 @@ import io.medatarun.model.infra.db.tables.EntityTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class EntityRecord(
-    val id: EntityId,
-    val modelId: ModelId,
+    val snapshotId: EntityId,
+    val lineageId: EntityId,
+    val modelSnapshotId: ModelId,
     val key: EntityKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val identifierAttributeId: AttributeId,
+    val identifierAttributeSnapshotId: AttributeId,
     val origin: EntityOrigin,
     val documentationHome: String?
 ) {
     companion object {
         fun read(row: ResultRow): EntityRecord {
             return EntityRecord(
-                id = row[EntityTable.lineageId],
-                modelId = row[EntityTable.modelId],
+                snapshotId = row[EntityTable.id],
+                lineageId = row[EntityTable.lineageId],
+                modelSnapshotId = row[EntityTable.modelId],
                 key = row[EntityTable.key],
                 name = row[EntityTable.name],
                 description = row[EntityTable.description],
-                identifierAttributeId = row[EntityTable.identifierAttributeId],
+                identifierAttributeSnapshotId = row[EntityTable.identifierAttributeId],
                 origin = row[EntityTable.origin],
                 documentationHome = row[EntityTable.documentationHome]
             )

@@ -10,7 +10,8 @@ import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelRecord(
-    val id: ModelId,
+    val snapshotId: String,
+    val modelId: ModelId,
     val key: ModelKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
@@ -22,7 +23,8 @@ data class ModelRecord(
     companion object {
         fun read(row: ResultRow): ModelRecord {
             return ModelRecord(
-                id = row[ModelSnapshotTable.modelId],
+                snapshotId = row[ModelSnapshotTable.id],
+                modelId = row[ModelSnapshotTable.modelId],
                 key = row[ModelSnapshotTable.key],
                 name = row[ModelSnapshotTable.name],
                 description = row[ModelSnapshotTable.description],
