@@ -1,22 +1,17 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.domain.TypeId
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.RelationshipAttributeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipAttributeRecord(
-    val snapshotId: AttributeId,
+    val snapshotId: AttributeSnapshotId,
     val lineageId: AttributeId,
-    val relationshipSnapshotId: RelationshipId,
+    val relationshipSnapshotId: RelationshipSnapshotId,
     val key: AttributeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val typeSnapshotId: TypeId,
+    val typeSnapshotId: TypeSnapshotId,
     val optional: Boolean
 ) {
     companion object {

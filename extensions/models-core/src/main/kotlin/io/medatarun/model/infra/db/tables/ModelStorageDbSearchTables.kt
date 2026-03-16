@@ -1,13 +1,6 @@
 package io.medatarun.model.infra.db.tables
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 
@@ -15,7 +8,7 @@ import org.jetbrains.exposed.v1.core.Table
 object DenormModelSearchItemTable : Table("model_search_item_snapshot") {
     val id = text("id")
     val itemType = text("item_type")
-    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelId))
+    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val modelKey = text("model_key").transform(KeyTransformer(::ModelKey))
     val modelLabel = text("model_label")
     val entityId = text("entity_id").transform(IdTransformer(::EntityId)).nullable()

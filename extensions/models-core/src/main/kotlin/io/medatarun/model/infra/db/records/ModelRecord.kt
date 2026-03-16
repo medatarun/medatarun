@@ -1,16 +1,11 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.ModelAuthority
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelOrigin
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelRecord(
-    val snapshotId: String,
+    val snapshotId: ModelSnapshotId,
     val modelId: ModelId,
     val key: ModelKey,
     val name: LocalizedText?,

@@ -8,6 +8,7 @@ import io.medatarun.model.infra.db.records.DenormModelSearchItemRecord
 import io.medatarun.model.infra.db.records.DenormModelSearchItemTagRecord
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTagTable
+import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.ports.needs.ModelStorageSearchFilter
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterTags
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterText
@@ -36,7 +37,12 @@ internal class ModelStorageDbSearchRead(
             return SearchResults(emptyList())
         }
 
-        val rows = DenormModelSearchItemTable.selectAll()
+        val rows = DenormModelSearchItemTable.join(
+            ModelSnapshotTable,
+            org.jetbrains.exposed.v1.core.JoinType.INNER,
+            DenormModelSearchItemTable.modelSnapshotId,
+            ModelSnapshotTable.id
+        ).selectAll()
             .where { DenormModelSearchItemTable.id inList matchingIds.toList() }
             .orderBy(
                 DenormModelSearchItemTable.attributeLabel to SortOrder.ASC,
@@ -45,7 +51,7 @@ internal class ModelStorageDbSearchRead(
                 DenormModelSearchItemTable.modelLabel to SortOrder.ASC
             )
             .toList()
-            .map { DenormModelSearchItemRecord.read(it) }
+            .map { row -> DenormModelSearchItemRecord.read(row, row[ModelSnapshotTable.modelId]) }
 
         return SearchResults(
             rows.map { item ->

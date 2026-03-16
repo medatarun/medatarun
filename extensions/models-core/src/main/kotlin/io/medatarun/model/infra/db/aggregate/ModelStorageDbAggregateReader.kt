@@ -1,14 +1,7 @@
 package io.medatarun.model.infra.db.aggregate
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.EntityInMemory
-import io.medatarun.model.infra.ModelAggregateInMemory
-import io.medatarun.model.infra.ModelTypeInMemory
-import io.medatarun.model.infra.RelationshipInMemory
+import io.medatarun.model.domain.*
+import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntity
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntityAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toModel
@@ -16,34 +9,12 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
-import io.medatarun.model.infra.db.records.EntityAttributeRecord
-import io.medatarun.model.infra.db.records.EntityRecord
-import io.medatarun.model.infra.db.records.ModelRecord
-import io.medatarun.model.infra.db.records.ModelTypeRecord
-import io.medatarun.model.infra.db.records.RelationshipAttributeRecord
-import io.medatarun.model.infra.db.records.RelationshipRecord
-import io.medatarun.model.infra.db.records.RelationshipRoleRecord
-import io.medatarun.model.infra.db.tables.EntityAttributeTable
-import io.medatarun.model.infra.db.tables.EntityAttributeTagTable
-import io.medatarun.model.infra.db.tables.EntityTable
-import io.medatarun.model.infra.db.tables.EntityTagTable
-import io.medatarun.model.infra.db.tables.ModelTagTable
-import io.medatarun.model.infra.db.tables.ModelTypeTable
-import io.medatarun.model.infra.db.tables.RelationshipAttributeTable
-import io.medatarun.model.infra.db.tables.RelationshipAttributeTagTable
-import io.medatarun.model.infra.db.tables.RelationshipRoleTable
-import io.medatarun.model.infra.db.tables.RelationshipTable
-import io.medatarun.model.infra.db.tables.RelationshipTagTable
+import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.tables.*
 import io.medatarun.tags.core.domain.TagId
-import org.jetbrains.exposed.v1.core.JoinType
-import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.alias
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.inSubQuery
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import kotlin.collections.map
 
 class ModelStorageDbAggregateReader(
     private val snapshots: ModelStorageDbSnapshots
@@ -67,8 +38,8 @@ class ModelStorageDbAggregateReader(
         )
     }
 
-    private fun loadModelTags(modelSnapshotId: String): List<TagId> {
-        return ModelTagTable.selectAll().where { ModelTagTable.modelSnapshotId eq ModelId.fromString(modelSnapshotId) }
+    private fun loadModelTags(modelSnapshotId: ModelSnapshotId): List<TagId> {
+        return ModelTagTable.selectAll().where { ModelTagTable.modelSnapshotId eq modelSnapshotId }
             .orderBy(ModelTagTable.tagId to SortOrder.ASC).map { it[ModelTagTable.tagId] }
     }
 
@@ -94,7 +65,7 @@ class ModelStorageDbAggregateReader(
                 toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
             }
     }
-    fun loadEntityTags(entityId: EntityId): List<TagId> {
+    fun loadEntityTags(entityId: EntitySnapshotId): List<TagId> {
         return EntityTagTable.selectAll().where { EntityTagTable.entitySnapshotId eq entityId }
             .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { it[EntityTagTable.tagId] }
     }
@@ -123,7 +94,7 @@ class ModelStorageDbAggregateReader(
         }
     }
 
-    fun loadEntityAttributeTags(attributeId: AttributeId): List<TagId> {
+    fun loadEntityAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
         return EntityAttributeTagTable.selectAll().where { EntityAttributeTagTable.attributeSnapshotId eq attributeId }
             .orderBy(EntityAttributeTagTable.tagId to SortOrder.ASC).map { it[EntityAttributeTagTable.tagId] }
     }
@@ -159,7 +130,7 @@ class ModelStorageDbAggregateReader(
             }
     }
 
-    fun loadRelationshipTags(relationshipId: RelationshipId): List<TagId> {
+    fun loadRelationshipTags(relationshipId: RelationshipSnapshotId): List<TagId> {
         return RelationshipTagTable.selectAll().where { RelationshipTagTable.relationshipSnapshotId eq relationshipId }
             .orderBy(RelationshipTagTable.tagId to SortOrder.ASC).map { it[RelationshipTagTable.tagId] }
     }
@@ -189,7 +160,7 @@ class ModelStorageDbAggregateReader(
         }
     }
 
-    fun loadRelationshipAttributeTags(attributeId: AttributeId): List<TagId> {
+    fun loadRelationshipAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
         return RelationshipAttributeTagTable.selectAll()
             .where { RelationshipAttributeTagTable.attributeSnapshotId eq attributeId }
             .orderBy(RelationshipAttributeTagTable.tagId to SortOrder.ASC)

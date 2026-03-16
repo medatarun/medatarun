@@ -1,19 +1,16 @@
 package io.medatarun.model.infra.db
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.EntityId
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.RelationshipId
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.key.Key
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -107,6 +104,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForModel(modelId),
                 itemType = SearchItemType.MODEL,
+                modelSnapshotId = modelRecord.snapshotId,
                 modelId = modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
@@ -122,7 +120,7 @@ internal class ModelStorageDbSearchWrite(
                 searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
             ),
             ModelTagTable.select(ModelTagTable.tagId)
-                .where { ModelTagTable.modelSnapshotId eq ModelId.fromString(modelRecord.snapshotId) }
+                .where { ModelTagTable.modelSnapshotId eq modelRecord.snapshotId }
                 .map { it[ModelTagTable.tagId] }
         )
     }
@@ -143,6 +141,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForEntity(entityId),
                 itemType = SearchItemType.ENTITY,
+                modelSnapshotId = modelRecord.snapshotId,
                 modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
@@ -193,6 +192,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForEntityAttribute(attributeId),
                 itemType = SearchItemType.ENTITY_ATTRIBUTE,
+                modelSnapshotId = modelRecord.snapshotId,
                 modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
@@ -230,6 +230,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForRelationship(relationshipId),
                 itemType = SearchItemType.RELATIONSHIP,
+                modelSnapshotId = modelRecord.snapshotId,
                 modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
@@ -285,6 +286,7 @@ internal class ModelStorageDbSearchWrite(
             DenormModelSearchItemRecord(
                 id = searchItemIdForRelationshipAttribute(attributeId),
                 itemType = SearchItemType.RELATIONSHIP_ATTRIBUTE,
+                modelSnapshotId = modelRecord.snapshotId,
                 modelId = modelRecord.modelId,
                 modelKey = modelRecord.key,
                 modelLabel = modelLabelFromRecord(modelRecord),
@@ -308,11 +310,10 @@ internal class ModelStorageDbSearchWrite(
 
     private fun replaceSearchItem(item: DenormModelSearchItemRecord, tagIds: List<TagId>) {
         deleteSearchItemById(item.id)
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(item.modelId)
         DenormModelSearchItemTable.insert { row ->
             row[id] = item.id
             row[itemType] = item.itemType.code
-            row[modelSnapshotId] = modelSnapshotIdValue
+            row[modelSnapshotId] = item.modelSnapshotId
             row[modelKey] = item.modelKey
             row[modelLabel] = item.modelLabel
             row[entityId] = item.entityId
@@ -336,9 +337,10 @@ internal class ModelStorageDbSearchWrite(
     }
 
     private fun deleteRowsByModelId(modelId: ModelId) {
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
-            .where { DenormModelSearchItemTable.modelSnapshotId eq modelId }
+            .where { DenormModelSearchItemTable.modelSnapshotId eq modelSnapshotIdValue }
             .map { it[DenormModelSearchItemTable.id] }
             .forEach { deleteSearchItemById(it) }
     }
@@ -407,15 +409,15 @@ internal class ModelStorageDbSearchWrite(
         return ModelRecord.read(row)
     }
 
-    private fun loadModelRecordBySnapshotId(modelSnapshotId: ModelId): ModelRecord {
+    private fun loadModelRecordBySnapshotId(modelSnapshotId: ModelSnapshotId): ModelRecord {
         val row = ModelSnapshotTable.selectAll()
-            .where { ModelSnapshotTable.id eq modelSnapshotId.asString() }
+            .where { ModelSnapshotTable.id eq modelSnapshotId }
             .single()
         return ModelRecord.read(row)
     }
 
-    private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
-        return ModelId.fromString(loadModelRecord(modelId).snapshotId)
+    private fun currentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId {
+        return loadModelRecord(modelId).snapshotId
     }
 
     private fun searchItemIdForModel(modelId: ModelId): String {

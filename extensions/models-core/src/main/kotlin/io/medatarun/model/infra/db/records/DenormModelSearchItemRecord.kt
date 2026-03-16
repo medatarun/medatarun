@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 data class DenormModelSearchItemRecord(
     val id: String,
     val itemType: SearchItemType,
+    val modelSnapshotId: ModelSnapshotId,
     val modelId: ModelId,
     val modelKey: ModelKey,
     val modelLabel: String,
@@ -86,11 +87,12 @@ data class DenormModelSearchItemRecord(
     }
 
     companion object {
-        fun read(row: ResultRow): DenormModelSearchItemRecord {
+        fun read(row: ResultRow, modelId: ModelId): DenormModelSearchItemRecord {
             return DenormModelSearchItemRecord(
                 id = row[DenormModelSearchItemTable.id],
                 itemType = SearchItemType.valueOfCode(row[DenormModelSearchItemTable.itemType]),
-                modelId = row[DenormModelSearchItemTable.modelSnapshotId],
+                modelSnapshotId = row[DenormModelSearchItemTable.modelSnapshotId],
+                modelId = modelId,
                 modelKey = row[DenormModelSearchItemTable.modelKey],
                 modelLabel = row[DenormModelSearchItemTable.modelLabel],
                 entityId = row[DenormModelSearchItemTable.entityId],

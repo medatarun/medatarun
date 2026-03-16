@@ -1,17 +1,13 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.TypeId
-import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.ModelTypeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelTypeRecord(
-    val snapshotId: TypeId,
+    val snapshotId: TypeSnapshotId,
     val lineageId: TypeId,
-    val modelSnapshotId: ModelId,
+    val modelSnapshotId: ModelSnapshotId,
     val key: TypeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?
