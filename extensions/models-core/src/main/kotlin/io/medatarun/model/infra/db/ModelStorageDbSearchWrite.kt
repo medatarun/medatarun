@@ -3,8 +3,10 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.records.SearchItemType
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.JoinType
@@ -21,55 +23,6 @@ internal class ModelStorageDbSearchWrite(
 ) {
     fun upsertModelSearchItem(modelId: ModelId) {
         if (!enabled) return
-        upsertModelSearchItemRow(modelId)
-    }
-
-    fun deleteModelBranch(modelId: ModelId) {
-        if (!enabled) return
-        deleteRowsByModelId(modelId)
-    }
-
-    fun upsertEntitySearchItem(modelId: ModelId, entityId: EntityId) {
-        if (!enabled) return
-        upsertEntitySearchItemRow(modelId, entityId)
-    }
-
-    fun deleteEntityBranch(entityId: EntityId) {
-        if (!enabled) return
-        deleteRowsByEntityId(entityId)
-    }
-
-    fun upsertEntityAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
-        if (!enabled) return
-        upsertEntityAttributeSearchItemRow(modelId, attributeId)
-    }
-
-    fun deleteEntityAttributeSearchItem(attributeId: AttributeId) {
-        if (!enabled) return
-        deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
-    }
-
-    fun upsertRelationshipSearchItem(modelId: ModelId, relationshipId: RelationshipId) {
-        if (!enabled) return
-        upsertRelationshipSearchItemRow(modelId, relationshipId)
-    }
-
-    fun deleteRelationshipBranch(relationshipId: RelationshipId) {
-        if (!enabled) return
-        deleteRowsByRelationshipId(relationshipId)
-    }
-
-    fun upsertRelationshipAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
-        if (!enabled) return
-        upsertRelationshipAttributeSearchItemRow(modelId, attributeId)
-    }
-
-    fun deleteRelationshipAttributeSearchItem(attributeId: AttributeId) {
-        if (!enabled) return
-        deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
-    }
-
-    private fun upsertModelSearchItemRow(modelId: ModelId) {
         val row = ModelSnapshotTable.selectAll()
             .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() }
             .singleOrNull()
@@ -104,7 +57,18 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertEntitySearchItemRow(modelId: ModelId, entityId: EntityId) {
+    fun deleteModelBranch(modelId: ModelId) {
+        if (!enabled) return
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
+        DenormModelSearchItemTable
+            .select(DenormModelSearchItemTable.id)
+            .where { DenormModelSearchItemTable.modelSnapshotId eq modelSnapshotIdValue }
+            .map { it[DenormModelSearchItemTable.id] }
+            .forEach { deleteSearchItemById(it) }
+    }
+
+    fun upsertEntitySearchItem(modelId: ModelId, entityId: EntityId) {
+        if (!enabled) return
         val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = EntityTable.selectAll()
             .where { (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotIdValue) }
@@ -142,7 +106,22 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertEntityAttributeSearchItemRow(modelId: ModelId, attributeId: AttributeId) {
+    fun deleteEntityBranch(entityId: EntityId) {
+        if (!enabled) return
+        DenormModelSearchItemTable
+            .select(DenormModelSearchItemTable.id)
+            .where {
+                (DenormModelSearchItemTable.entityId eq entityId) or
+                        ((DenormModelSearchItemTable.itemType eq SearchItemType.ENTITY_ATTRIBUTE.code) and
+                                (DenormModelSearchItemTable.entityId eq entityId))
+            }
+            .map { it[DenormModelSearchItemTable.id] }
+            .forEach { deleteSearchItemById(it) }
+
+    }
+
+    fun upsertEntityAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
+        if (!enabled) return
         val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = EntityAttributeTable.join(
             EntityTable,
@@ -193,7 +172,13 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertRelationshipSearchItemRow(modelId: ModelId, relationshipId: RelationshipId) {
+    fun deleteEntityAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
+        deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
+    }
+
+    fun upsertRelationshipSearchItem(modelId: ModelId, relationshipId: RelationshipId) {
+        if (!enabled) return
         val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = RelationshipTable.selectAll()
             .where { (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotIdValue) }
@@ -235,7 +220,21 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertRelationshipAttributeSearchItemRow(modelId: ModelId, attributeId: AttributeId) {
+    fun deleteRelationshipBranch(relationshipId: RelationshipId) {
+        if (!enabled) return
+        DenormModelSearchItemTable
+            .select(DenormModelSearchItemTable.id)
+            .where {
+                (DenormModelSearchItemTable.relationshipId eq relationshipId) or
+                        ((DenormModelSearchItemTable.itemType eq SearchItemType.RELATIONSHIP_ATTRIBUTE.code) and
+                                (DenormModelSearchItemTable.relationshipId eq relationshipId))
+            }
+            .map { it[DenormModelSearchItemTable.id] }
+            .forEach { deleteSearchItemById(it) }
+    }
+
+    fun upsertRelationshipAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
+        if (!enabled) return
         val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = RelationshipAttributeTable.join(
             RelationshipTable,
@@ -287,6 +286,14 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
+    fun deleteRelationshipAttributeSearchItem(attributeId: AttributeId) {
+        if (!enabled) return
+        deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
+    }
+
+
+
+
     private fun replaceSearchItem(item: DenormModelSearchItemRecord, tagIds: List<TagId>) {
         deleteSearchItemById(item.id)
         DenormModelSearchItemTable.insert { row ->
@@ -315,38 +322,6 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    private fun deleteRowsByModelId(modelId: ModelId) {
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
-        DenormModelSearchItemTable
-            .select(DenormModelSearchItemTable.id)
-            .where { DenormModelSearchItemTable.modelSnapshotId eq modelSnapshotIdValue }
-            .map { it[DenormModelSearchItemTable.id] }
-            .forEach { deleteSearchItemById(it) }
-    }
-
-    private fun deleteRowsByEntityId(entityId: EntityId) {
-        DenormModelSearchItemTable
-            .select(DenormModelSearchItemTable.id)
-            .where {
-                (DenormModelSearchItemTable.entityId eq entityId) or
-                        ((DenormModelSearchItemTable.itemType eq SearchItemType.ENTITY_ATTRIBUTE.code) and
-                                (DenormModelSearchItemTable.entityId eq entityId))
-            }
-            .map { it[DenormModelSearchItemTable.id] }
-            .forEach { deleteSearchItemById(it) }
-    }
-
-    private fun deleteRowsByRelationshipId(relationshipId: RelationshipId) {
-        DenormModelSearchItemTable
-            .select(DenormModelSearchItemTable.id)
-            .where {
-                (DenormModelSearchItemTable.relationshipId eq relationshipId) or
-                        ((DenormModelSearchItemTable.itemType eq SearchItemType.RELATIONSHIP_ATTRIBUTE.code) and
-                                (DenormModelSearchItemTable.relationshipId eq relationshipId))
-            }
-            .map { it[DenormModelSearchItemTable.id] }
-            .forEach { deleteSearchItemById(it) }
-    }
 
     private fun deleteSearchItemById(searchItemId: String) {
         DenormModelSearchItemTagTable.deleteWhere {
