@@ -13,7 +13,6 @@ import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmds
-import io.medatarun.platform.kernel.getService
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -79,7 +78,7 @@ class ModelEventLogTest {
         val model = env.queries.findModel(ModelRef.ByKey(ModelKey("crm")))
 
         env.dispatch(
-            ModelAction.Model_UpdateVersion(
+            ModelAction.Model_Release(
                 modelRef = ModelRef.ById(model.id),
                 value = ModelVersion("2.0.0")
             )

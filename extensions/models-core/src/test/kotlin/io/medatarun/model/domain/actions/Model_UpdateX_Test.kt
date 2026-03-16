@@ -55,7 +55,7 @@ class Model_UpdateX_Test {
         }
         assertFailsWith(ModelNotFoundException::class) {
             env.dispatch(
-                ModelAction.Model_UpdateVersion(
+                ModelAction.Model_Release(
                     modelRef = modelKeyWrong,
                     value = ModelVersion("3.0.0")
                 )

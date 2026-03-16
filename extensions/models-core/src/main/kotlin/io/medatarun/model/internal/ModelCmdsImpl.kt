@@ -46,7 +46,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateModelDescription -> updateModelDescription(cmdEnv, cmd)
                 is ModelCmd.UpdateModelAuthority -> updateModelAuthority(cmdEnv, cmd)
                 is ModelCmd.UpdateModelName -> updateModelName(cmdEnv, cmd)
-                is ModelCmd.UpdateModelVersion -> updateModelVersion(cmdEnv, cmd)
+                is ModelCmd.ModelRelease -> cmdModelRelease(cmdEnv, cmd)
                 is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateModelTagAdd -> updateModelTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateModelTagDelete -> updateModelTagDelete(cmdEnv, cmd)
@@ -432,7 +432,7 @@ class ModelCmdsImpl(
         storageDispatch(cmdEnv, ModelStorageCmd.UpdateModelAuthority(model.id, cmd.authority))
     }
 
-    private fun updateModelVersion(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateModelVersion) {
+    private fun cmdModelRelease(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.ModelRelease) {
         val model = storage.findModel(cmd.modelRef)
         storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, cmd.version))
     }

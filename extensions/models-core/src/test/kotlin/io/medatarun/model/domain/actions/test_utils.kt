@@ -32,7 +32,7 @@ fun createEnv(): ModelTestEnv {
 }
 
 
-class TestEnvOneModel {
+class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
     private val env = createEnv()
     val runtime: ModelTestEnv
         get() = env
@@ -47,7 +47,7 @@ class TestEnvOneModel {
                 modelKey = modelKey,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
-                version = ModelVersion("2.0.0")
+                version = version
             )
         )
         env.dispatch(

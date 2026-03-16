@@ -294,13 +294,13 @@ sealed interface ModelAction {
 
 
     @ActionDoc(
-        key = "model_update_version",
-        title = "Update model version",
-        description = "Changes model version",
+        key = "model_release",
+        title = "Releases a model version",
+        description = "Changes the model version and create a new one. The new version number must be greater than the previous one.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateVersion(
+    data class Model_Release(
         @ActionParamDoc(
             name = "Model reference",
             description = "Reference of the model to be updated",

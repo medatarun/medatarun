@@ -66,7 +66,7 @@ class ModelActionProvider(
             is ModelAction.Model_UpdateDescription -> handler.modelUpdateDescription(action)
             is ModelAction.Model_UpdateAuthority -> handler.modelUpdateAuthority(action)
             is ModelAction.Model_UpdateDocumentationHome -> handler.modelUpdateDocumentationHome(action)
-            is ModelAction.Model_UpdateVersion -> handler.modelUpdateVersion(action)
+            is ModelAction.Model_Release -> handler.modelRelease(action)
             is ModelAction.Model_AddTag -> handler.modelAddTag(action)
             is ModelAction.Model_DeleteTag -> handler.modelDeleteTag(action)
             is ModelAction.Model_Delete -> handler.modelDelete(action)
@@ -264,9 +264,9 @@ class ModelActionHandler(
         )
     }
 
-    fun modelUpdateVersion(cmd: ModelAction.Model_UpdateVersion) {
+    fun modelRelease(cmd: ModelAction.Model_Release) {
         dispatch(
-            ModelCmd.UpdateModelVersion(
+            ModelCmd.ModelRelease(
                 modelRef = cmd.modelRef,
                 version = cmd.value,
             )
