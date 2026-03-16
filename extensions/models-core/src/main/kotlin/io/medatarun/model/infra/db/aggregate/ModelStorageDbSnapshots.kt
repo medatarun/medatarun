@@ -34,6 +34,10 @@ class ModelStorageDbSnapshots {
     }
     fun currentHeadTypeSnapshotId(modelId: ModelId, typeId: TypeId): TypeId {
         val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        return currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
+    }
+
+    fun currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId: ModelId, typeId: TypeId): TypeId {
         val row = ModelTypeTable.select(ModelTypeTable.id).where {
             (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
         }.singleOrNull()
@@ -45,6 +49,10 @@ class ModelStorageDbSnapshots {
 
     fun currentHeadEntitySnapshotId(modelId: ModelId, entityId: EntityId): EntityId {
         val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        return currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+    }
+
+    fun currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId: ModelId, entityId: EntityId): EntityId {
         val row = EntityTable.select(EntityTable.id).where {
             (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
         }.singleOrNull()
@@ -56,6 +64,10 @@ class ModelStorageDbSnapshots {
 
     fun currentHeadAttributeSnapshotId(modelId: ModelId, attributeId: AttributeId): AttributeId {
         val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        return currentHeadAttributeSnapshotIdInModelSnapshot(modelSnapshotId, attributeId)
+    }
+
+    fun currentHeadAttributeSnapshotIdInModelSnapshot(modelSnapshotId: ModelId, attributeId: AttributeId): AttributeId {
         val entityAttributeRow = EntityAttributeTable.join(
             EntityTable,
             JoinType.INNER,
@@ -88,6 +100,10 @@ class ModelStorageDbSnapshots {
 
     fun currentHeadRelationshipSnapshotId(modelId: ModelId, relationshipId: RelationshipId): RelationshipId {
         val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        return currentHeadRelationshipSnapshotIdInModelSnapshot(modelSnapshotId, relationshipId)
+    }
+
+    fun currentHeadRelationshipSnapshotIdInModelSnapshot(modelSnapshotId: ModelId, relationshipId: RelationshipId): RelationshipId {
         val row = RelationshipTable.select(RelationshipTable.id).where {
             (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
         }.singleOrNull()
