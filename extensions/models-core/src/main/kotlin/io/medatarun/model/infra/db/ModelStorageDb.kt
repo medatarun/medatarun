@@ -2,6 +2,7 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
 import io.medatarun.model.infra.db.events.ModelEventStreamNumberContext
 import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.ModelEventRecord
@@ -31,33 +32,170 @@ class ModelStorageDb(
     private val searchWrite = ModelStorageDbSearchWrite()
     private val eventSystem = ModelEventSystem()
     private val snapshots = ModelStorageDbSnapshots()
-    private val read = ModelStorageDbRead(snapshots, eventSystem.registry)
+    private val aggregateReader = ModelStorageDbAggregateReader()
+    private val read = ModelStorageDbRead( eventSystem.registry, aggregateReader)
     private val projection = ModelStorageDbProjection(searchWrite, snapshots, clock)
 
-    override fun existsModelById(id: ModelId): Boolean = db.withExposed { read.existsModelById(id) }
-    override fun existsModelByKey(key: ModelKey): Boolean = db.withExposed { read.existsModelByKey(key) }
-    override fun findAllModelIds(): List<ModelId> = db.withExposed { read.findAllModelIds() }
-    override fun findModelByKeyOptional(key: ModelKey): Model? = db.withExposed { read.findModelByKeyOptional(key) }
-    override fun findModelByIdOptional(id: ModelId): Model? = db.withExposed { read.findModelByIdOptional(id) }
-    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? = db.withExposed { read.findLatestModelReleaseVersionOptional(modelId) }
-    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? = db.withExposed { read.findModelAggregateByIdOptional(id) }
-    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? = db.withExposed { read.findModelAggregateByKeyOptional(key) }
-    override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?  = db.withExposed { read.findTypeByIdOptional(modelId, typeId) }
-    override fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? = db.withExposed { read.findTypeByKeyOptional(modelId, key) }
-    override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?  = db.withExposed { read.findEntityByIdOptional(modelId, entityId) }
-    override fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity? = db.withExposed { read.findEntityByKeyOptional(modelId, entityKey) }
-    override fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?  = db.withExposed { read.findEntityAttributeByIdOptional(modelId, entityId, attributeId) }
-    override fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute? = db.withExposed { read.findEntityAttributeByKeyOptional(modelId, entityId, key) }
-    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? = db.withExposed { read.findRelationshipByIdOptional(modelId, relationshipId) }
-    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? = db.withExposed { read.findRelationshipByKeyOptional(modelId, relationshipKey) }
-    override fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole? = db.withExposed { read.findRelationshipRoleByIdOptional(modelId, relationshipId, roleId) }
-    override fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole? = db.withExposed { read.findRelationshipRoleByKeyOptional(modelId, relationshipId, roleKey) }
-    override fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute? = db.withExposed { read.findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeId) }
-    override fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?  = db.withExposed { read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key) }
-    override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean  = db.withExposed { read.isTypeUsedInEntityAttributes(modelId, typeId) }
-    override fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean  = db.withExposed { read.isTypeUsedInRelationshipAttributes(modelId, typeId) }
+    override fun existsModelById(id: ModelId): Boolean {
+        return db.withExposed {
+            logger.debug("existsModelById id={}", id)
+            read.existsModelById(id)
+        }
+    }
 
-    fun findAllModelEvents(modelId: ModelId) = db.withExposed { read.findAllModelEvents(modelId) }
+    override fun existsModelByKey(key: ModelKey): Boolean {
+        return db.withExposed {
+            logger.debug("existsModelByKey key={}", key)
+            read.existsModelByKey(key)
+        }
+    }
+
+    override fun findAllModelIds(): List<ModelId> {
+        return db.withExposed {
+            logger.debug("findAllModelIds")
+            read.findAllModelIds()
+        }
+    }
+
+    override fun findModelByKeyOptional(key: ModelKey): Model? {
+        return db.withExposed {
+            logger.debug("findModelByKeyOptional key={}", key)
+            read.findModelByKeyOptional(key)
+        }
+    }
+
+    override fun findModelByIdOptional(id: ModelId): Model? {
+        return db.withExposed {
+            logger.debug("findModelByIdOptional id={}", id)
+            read.findModelByIdOptional(id)
+        }
+    }
+
+    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {
+        return db.withExposed {
+            logger.debug("findLatestModelReleaseVersionOptional modelId={}", modelId)
+            read.findLatestModelReleaseVersionOptional(modelId)
+        }
+    }
+
+    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
+        return db.withExposed {
+            logger.debug("findModelAggregateByIdOptional id={}", id)
+            read.findModelAggregateByIdOptional(id)
+        }
+    }
+
+    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
+        return db.withExposed {
+            logger.debug("findModelAggregateByKeyOptional key={}", key)
+            read.findModelAggregateByKeyOptional(key)
+        }
+    }
+
+    override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType? {
+        return db.withExposed {
+            logger.debug("findTypeByIdOptional modelId={} typeId={}", modelId, typeId)
+            read.findTypeByIdOptional(modelId, typeId)
+        }
+    }
+
+    override fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? {
+        return db.withExposed {
+            logger.debug("findTypeByKeyOptional modelId={} key={}", modelId, key)
+            read.findTypeByKeyOptional(modelId, key)
+        }
+    }
+
+    override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity? {
+        return db.withExposed {
+            logger.debug("findEntityByIdOptional modelId={} entityId={}", modelId, entityId)
+            read.findEntityByIdOptional(modelId, entityId)
+        }
+    }
+
+    override fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity? {
+        return db.withExposed {
+            logger.debug("findEntityByKeyOptional modelId={} entityKey={}", modelId, entityKey)
+            read.findEntityByKeyOptional(modelId, entityKey)
+        }
+    }
+
+    override fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute? {
+        return db.withExposed {
+            logger.debug("findEntityAttributeByIdOptional modelId={} entityId={} attributeId={}", modelId, entityId, attributeId)
+            read.findEntityAttributeByIdOptional(modelId, entityId, attributeId)
+        }
+    }
+
+    override fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute? {
+        return db.withExposed {
+            logger.debug("findEntityAttributeByKeyOptional modelId={} entityId={} key={}", modelId, entityId, key)
+            read.findEntityAttributeByKeyOptional(modelId, entityId, key)
+        }
+    }
+
+    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? {
+        return db.withExposed {
+            logger.debug("findRelationshipByIdOptional modelId={} relationshipId={}", modelId, relationshipId)
+            read.findRelationshipByIdOptional(modelId, relationshipId)
+        }
+    }
+
+    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? {
+        return db.withExposed {
+            logger.debug("findRelationshipByKeyOptional modelId={} relationshipKey={}", modelId, relationshipKey)
+            read.findRelationshipByKeyOptional(modelId, relationshipKey)
+        }
+    }
+
+    override fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole? {
+        return db.withExposed {
+            logger.debug("findRelationshipRoleByIdOptional modelId={} relationshipId={} roleId={}", modelId, relationshipId, roleId)
+            read.findRelationshipRoleByIdOptional(modelId, relationshipId, roleId)
+        }
+    }
+
+    override fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole? {
+        return db.withExposed {
+            logger.debug("findRelationshipRoleByKeyOptional modelId={} relationshipId={} roleKey={}", modelId, relationshipId, roleKey)
+            read.findRelationshipRoleByKeyOptional(modelId, relationshipId, roleKey)
+        }
+    }
+
+    override fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute? {
+        return db.withExposed {
+            logger.debug("findRelationshipAttributeByIdOptional modelId={} relationshipId={} attributeId={}", modelId, relationshipId, attributeId)
+            read.findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeId)
+        }
+    }
+
+    override fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute? {
+        return db.withExposed {
+            logger.debug("findRelationshipAttributeByKeyOptional modelId={} relationshipId={} key={}", modelId, relationshipId, key)
+            read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key)
+        }
+    }
+
+    override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean {
+        return db.withExposed {
+            logger.debug("isTypeUsedInEntityAttributes modelId={} typeId={}", modelId, typeId)
+            read.isTypeUsedInEntityAttributes(modelId, typeId)
+        }
+    }
+
+    override fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean {
+        return db.withExposed {
+            logger.debug("isTypeUsedInRelationshipAttributes modelId={} typeId={}", modelId, typeId)
+            read.isTypeUsedInRelationshipAttributes(modelId, typeId)
+        }
+    }
+
+    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
+        return db.withExposed {
+            logger.debug("findAllModelEvents modelId={}", modelId)
+            read.findAllModelEvents(modelId)
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Search
@@ -65,6 +203,7 @@ class ModelStorageDb(
 
     override fun search(query: ModelStorageSearchQuery): SearchResults {
         return db.withExposed {
+            logger.debug("search query={}", query)
             searchRead.search(query)
         }
     }
@@ -75,6 +214,7 @@ class ModelStorageDb(
 
     override fun dispatch(cmdEnv: ModelStorageCmdEnveloppe) {
         db.withExposed {
+            logger.debug("dispatch cmd={}", cmdEnv.cmd)
             dispatchExposed(cmdEnv)
         }
     }

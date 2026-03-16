@@ -9,10 +9,9 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
-import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
-import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.events.ModelEventRegistry
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
 import io.medatarun.model.infra.db.tables.*
 import org.jetbrains.exposed.v1.core.*
@@ -20,11 +19,11 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class ModelStorageDbRead(
-    private val snapshots: ModelStorageDbSnapshots,
-    private val modelEventRegistry: ModelEventRegistry
+    private val modelEventRegistry: ModelEventRegistry,
+    private val aggregateReader: ModelStorageDbAggregateReader
 ) {
 
-    private val aggregateReader = ModelStorageDbAggregateReader( snapshots)
+
 
     // -------------------------------------------------------------------------
     // Queries
