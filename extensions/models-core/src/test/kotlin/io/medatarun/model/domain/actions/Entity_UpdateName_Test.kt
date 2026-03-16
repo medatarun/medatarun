@@ -2,6 +2,7 @@ package io.medatarun.model.domain.actions
 
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelVersion
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -27,5 +28,17 @@ class Entity_UpdateName_Test {
 
         val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
         assertNull(reloaded.name)
+    }
+
+    @Test
+    fun `update entity name after release persists on current model`() {
+        val env = TestEnvEntityUpdate()
+        val newName = LocalizedTextNotLocalized("Entity primary after release")
+
+        env.dispatch(ModelAction.Model_Release(env.modelRef, ModelVersion("1.1.0")))
+        env.dispatch(ModelAction.Entity_UpdateName(env.modelRef, env.primaryEntityRef, newName))
+
+        val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
+        assertEquals(newName, reloaded.name)
     }
 }

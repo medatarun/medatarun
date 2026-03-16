@@ -37,10 +37,10 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    fun upsertEntitySearchItem(entityId: EntityId) {
+    fun upsertEntitySearchItem(modelId: ModelId, entityId: EntityId) {
         if (!enabled) return
         dbConnectionFactory.withExposed {
-            upsertEntitySearchItemRow(entityId)
+            upsertEntitySearchItemRow(modelId, entityId)
         }
     }
 
@@ -51,10 +51,10 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    fun upsertEntityAttributeSearchItem(attributeId: AttributeId) {
+    fun upsertEntityAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
         if (!enabled) return
         dbConnectionFactory.withExposed {
-            upsertEntityAttributeSearchItemRow(attributeId)
+            upsertEntityAttributeSearchItemRow(modelId, attributeId)
         }
     }
 
@@ -65,10 +65,10 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    fun upsertRelationshipSearchItem(relationshipId: RelationshipId) {
+    fun upsertRelationshipSearchItem(modelId: ModelId, relationshipId: RelationshipId) {
         if (!enabled) return
         dbConnectionFactory.withExposed {
-            upsertRelationshipSearchItemRow(relationshipId)
+            upsertRelationshipSearchItemRow(modelId, relationshipId)
         }
     }
 
@@ -79,10 +79,10 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    fun upsertRelationshipAttributeSearchItem(attributeId: AttributeId) {
+    fun upsertRelationshipAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
         if (!enabled) return
         dbConnectionFactory.withExposed {
-            upsertRelationshipAttributeSearchItemRow(attributeId)
+            upsertRelationshipAttributeSearchItemRow(modelId, attributeId)
         }
     }
 
@@ -127,9 +127,10 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertEntitySearchItemRow(entityId: EntityId) {
+    private fun upsertEntitySearchItemRow(modelId: ModelId, entityId: EntityId) {
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = EntityTable.selectAll()
-            .where { EntityTable.lineageId eq entityId }
+            .where { (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotIdValue) }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForEntity(entityId))
@@ -163,9 +164,17 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertEntityAttributeSearchItemRow(attributeId: AttributeId) {
-        val row = EntityAttributeTable.selectAll()
-            .where { EntityAttributeTable.lineageId eq attributeId }
+    private fun upsertEntityAttributeSearchItemRow(modelId: ModelId, attributeId: AttributeId) {
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
+        val row = EntityAttributeTable.join(
+            EntityTable,
+            JoinType.INNER,
+            EntityAttributeTable.entitySnapshotId,
+            EntityTable.id
+        ).selectAll()
+            .where {
+                (EntityAttributeTable.lineageId eq attributeId) and (EntityTable.modelSnapshotId eq modelSnapshotIdValue)
+            }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
@@ -205,9 +214,10 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertRelationshipSearchItemRow(relationshipId: RelationshipId) {
+    private fun upsertRelationshipSearchItemRow(modelId: ModelId, relationshipId: RelationshipId) {
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = RelationshipTable.selectAll()
-            .where { RelationshipTable.lineageId eq relationshipId }
+            .where { (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotIdValue) }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForRelationship(relationshipId))
@@ -245,9 +255,18 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    private fun upsertRelationshipAttributeSearchItemRow(attributeId: AttributeId) {
-        val row = RelationshipAttributeTable.selectAll()
-            .where { RelationshipAttributeTable.lineageId eq attributeId }
+    private fun upsertRelationshipAttributeSearchItemRow(modelId: ModelId, attributeId: AttributeId) {
+        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
+        val row = RelationshipAttributeTable.join(
+            RelationshipTable,
+            JoinType.INNER,
+            RelationshipAttributeTable.relationshipSnapshotId,
+            RelationshipTable.id
+        ).selectAll()
+            .where {
+                (RelationshipAttributeTable.lineageId eq attributeId) and
+                        (RelationshipTable.modelSnapshotId eq modelSnapshotIdValue)
+            }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))

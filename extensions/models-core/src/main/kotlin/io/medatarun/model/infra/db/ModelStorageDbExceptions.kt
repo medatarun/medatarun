@@ -34,6 +34,12 @@ class ModelStorageDbMissingAttributeSnapshotException(attributeId: AttributeId) 
 class ModelStorageDbMissingRelationshipSnapshotException(relationshipId: RelationshipId) :
     MedatarunException("Could not find CURRENT_HEAD relationship snapshot for relationship [${relationshipId.asString()}]")
 
+class ModelStorageDbMissingRelationshipRoleSnapshotException(relationshipRoleId: String) :
+    MedatarunException("Could not find CURRENT_HEAD relationship role snapshot for relationship role [$relationshipRoleId]")
+
+class ModelStorageDbUnsupportedProjectedDeleteException(eventType: String) :
+    MedatarunException("CURRENT_HEAD projector does not handle delete event [$eventType].")
+
 
 class ModelStorageDbSearchUnknownItemTypeException(itemType: String) :
     MedatarunException("Unknown denormalized search item type [$itemType]")
