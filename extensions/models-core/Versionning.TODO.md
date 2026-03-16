@@ -35,19 +35,18 @@ Items DONE:
 - `[VE-N][DONE]` L'écriture actuelle alimente temporairement le schéma final `CURRENT_HEAD` sans attendre le replay complet depuis `model_event`.
 - `[VE-P][DONE]` La `release` crée un `VERSION_SNAPSHOT` à partir du `CURRENT_HEAD` et le rattache à l'event `model_release`.
 - `[VE-R][DONE]` `create` et `import` produisent leur séquence initiale puis la `release` initiale dans la même transaction applicative.
+- `[VE-Y][DONE]` Le stockage et les contraintes de `model_snapshot.version` sont alignés avec la règle actée: valeur présente sur `VERSION_SNAPSHOT` et sur `CURRENT_HEAD`, avec le sens "dernier numéro publié connu" pour `CURRENT_HEAD`.
 
 Items PARTIAL et TODO:
 
-- `[VE-O][TODO]` Remplacer cette alimentation directe temporaire par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 - `[VE-K1][TODO]` Refuser une release si la version demandée existe déjà pour le même modèle.
 - `[VE-K2][TODO]` Refuser une release si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
 - `[VE-K3][TODO]` Refuser une release s'il n'y a eu aucun changement depuis la release précédente.
-- `[VE-K4][TODO]` Refuser une release si la reconstruction `model_event -> CURRENT_HEAD` échoue, quand ce contrôle sera disponible côté application.
-- `[VE-Q][TODO]` Ajouter le replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
-- `[VE-S][TODO]` Ajouter les requêtes de lecture du versionning: liste des releases, chargement d'une version précise, historique et diff entre releases.
-- `[VE-T][TODO]` Basculer les lectures rapides sur `CURRENT_HEAD` et les snapshots de version, puis retirer l'ancienne alimentation directe des tables courantes qui n'ont plus de rôle dans la cible finale.
-- `[VE-U][TODO]` La décision sur la politique historique des tags est actée dans `Versionning.md`: les releases conservent les `TagId` attachés, pas les métadonnées complètes des tags. L'implémentation SQL et applicative de cette règle reste à faire dans les snapshots et les lectures historiques.
-- `[VE-Y][TODO]` Aligner le stockage et les contraintes de `model_snapshot.version` avec la règle actée: valeur présente sur `VERSION_SNAPSHOT` et sur `CURRENT_HEAD`, avec le sens "dernier numéro publié connu" pour `CURRENT_HEAD`, et fallback de lecture `0.0.0` tant qu'aucune release n'existe.
-- `[VE-V][TODO]` Ajouter plus tard des tests dédiés sur `CURRENT_HEAD.up_to_revision`, mais seulement quand la forme finale de projection sera stabilisée pour ne pas figer trop tôt l'implémentation.
-- `[VE-W][TODO]` Ajouter les vrais tests bout en bout du versionning au moment où `ModelQueries` exposera la lecture d'une version précise d'un modèle. Couvrir alors des scénarios du type `modif -> release -> modif -> release -> modif` avec vérification de `CURRENT_HEAD` et des snapshots versionnés.
-- `[VE-X][TODO]` Maintenir les tests métier actuels hors versionning comme filet principal pendant la montée en puissance du chantier versionning, et compléter seulement quand les lectures versionnées seront réellement exposées.
+- `[VE-O][TODO]` Remplacer l'alimentation directe actuelle par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
+- `[VE-Q][TODO]` Ajouter un replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
+- `[VE-K4][TODO]` Refuser une release si la reconstruction `model_event -> CURRENT_HEAD` échoue.
+- `[VE-S][TODO]` Ajouter les lectures versionnées dans `ModelQueries`: liste des releases, chargement d'une version précise, historique des releases.
+- `[VE-U][TODO]` Ajouter la restitution historique des tags dans les lectures versionnées.
+- `[VE-W][TODO]` Ajouter les tests bout en bout du versionning après ajout des lectures versionnées dans `ModelQueries`.
+- `[VE-X][TODO]` Après ajout des lectures versionnées dans `ModelQueries`, compléter les tests métier existants hors versionning pour vérifier aussi le comportement versionné.
+- `[VE-V][TODO]` Ajouter des tests dédiés sur `CURRENT_HEAD.up_to_revision` quand la forme finale de projection sera stabilisée.
