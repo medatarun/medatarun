@@ -434,6 +434,10 @@ class ModelCmdsImpl(
 
     private fun cmdModelRelease(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.ModelRelease) {
         val model = storage.findModel(cmd.modelRef)
+        val previousVersion = storage.findLatestModelReleaseVersionOptional(model.id)
+        if (previousVersion != null && cmd.version <= previousVersion) {
+            throw ModelReleaseVersionMustBeGreaterThanPreviousException(cmd.modelRef, cmd.version, previousVersion)
+        }
         storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, cmd.version))
     }
 

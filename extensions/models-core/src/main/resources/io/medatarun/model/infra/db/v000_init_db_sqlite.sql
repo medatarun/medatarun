@@ -202,6 +202,10 @@ CREATE INDEX IF NOT EXISTS idx_model_type_model_id
 CREATE INDEX IF NOT EXISTS idx_model_event_model_id
     ON model_event (model_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_model_event_release_model_version
+    ON model_event (model_id, model_version)
+    WHERE event_type = 'model_release' AND model_version IS NOT NULL;
+
 CREATE UNIQUE INDEX IF NOT EXISTS ux_model_snapshot_current_head_model_id
     ON model_snapshot (model_id)
     WHERE snapshot_kind = 'CURRENT_HEAD';

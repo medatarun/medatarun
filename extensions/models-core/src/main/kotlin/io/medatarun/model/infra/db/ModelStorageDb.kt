@@ -102,6 +102,24 @@ class ModelStorageDb(
         }
     }
 
+    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {
+        return db.withExposed {
+            ModelEventTable.select(ModelEventTable.modelVersion)
+                .where {
+                    (ModelEventTable.modelId eq modelId) and
+                            (ModelEventTable.eventType eq modelReleaseEventType())
+                }
+                .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
+                .limit(1)
+                .singleOrNull()
+                ?.let { row ->
+                    val modelVersion = row[ModelEventTable.modelVersion]
+                        ?: throw ModelStorageDbInvalidReleaseEventException(modelId, row[ModelEventTable.id])
+                    ModelVersion(modelVersion)
+                }
+        }
+    }
+
     override fun findTypeByKeyOptional(
         modelId: ModelId, key: TypeKey
     ): ModelType? {
@@ -256,7 +274,8 @@ class ModelStorageDb(
                     )
                 }
 
-            RelationshipTable.selectAll().where { (RelationshipTable.modelSnapshotId eq modelSnapshotId) and criterion }.singleOrNull()
+            RelationshipTable.selectAll().where { (RelationshipTable.modelSnapshotId eq modelSnapshotId) and criterion }
+                .singleOrNull()
                 ?.let { row ->
                     val record = RelationshipRecord.read(row)
                     val tags = loadRelationshipTags(record.snapshotId)
@@ -327,7 +346,10 @@ class ModelStorageDb(
             val modelSnapshotId = currentHeadModelSnapshotId(modelId)
             val typeTable = ModelTypeTable.alias("relationship_attribute_type_snapshot")
             RelationshipAttributeTable.join(
-                RelationshipTable, JoinType.INNER, RelationshipAttributeTable.relationshipSnapshotId, RelationshipTable.id
+                RelationshipTable,
+                JoinType.INNER,
+                RelationshipAttributeTable.relationshipSnapshotId,
+                RelationshipTable.id
             ).join(
                 typeTable,
                 JoinType.INNER,
@@ -367,7 +389,10 @@ class ModelStorageDb(
             val modelSnapshotId = currentHeadModelSnapshotId(modelId)
             val typeSnapshotId = currentHeadTypeSnapshotId(typeId)
             EntityAttributeTable.join(
-                EntityTable, JoinType.INNER, onColumn = EntityAttributeTable.entitySnapshotId, otherColumn = EntityTable.id
+                EntityTable,
+                JoinType.INNER,
+                onColumn = EntityAttributeTable.entitySnapshotId,
+                otherColumn = EntityTable.id
             ).selectAll().where {
                 (EntityAttributeTable.typeSnapshotId eq typeSnapshotId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
             }.any()
@@ -548,11 +573,13 @@ class ModelStorageDb(
      */
     private fun currentHeadModelSnapshotCriteria(modelId: ModelId): Op<Boolean> {
         return (ModelSnapshotTable.modelId eq modelId) and
-            (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
+                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
     }
 
     private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
-        return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
+        return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(
+            modelId
+        )
     }
 
     /**
@@ -600,7 +627,8 @@ class ModelStorageDb(
     }
 
     private fun currentHeadRelationshipSnapshotId(relationshipId: RelationshipId): RelationshipId {
-        val row = RelationshipTable.select(RelationshipTable.id).where { RelationshipTable.lineageId eq relationshipId }.singleOrNull()
+        val row = RelationshipTable.select(RelationshipTable.id).where { RelationshipTable.lineageId eq relationshipId }
+            .singleOrNull()
         if (row == null) {
             throw ModelStorageDbMissingRelationshipSnapshotException(relationshipId)
         }
@@ -718,9 +746,9 @@ class ModelStorageDb(
         for (relationship in model.relationships) {
             insertRelationship(
                 record = RelationshipRecord(
-                        snapshotId = relationship.id,
-                        lineageId = relationship.id,
-                        modelSnapshotId = modelSnapshotId,
+                    snapshotId = relationship.id,
+                    lineageId = relationship.id,
+                    modelSnapshotId = modelSnapshotId,
                     key = relationship.key,
                     name = relationship.name,
                     description = relationship.description
@@ -857,8 +885,9 @@ class ModelStorageDb(
      */
     private fun createVersionSnapshotFromCurrentHead(modelId: ModelId, version: ModelVersion) {
         val currentHeadSnapshotId = currentHeadModelSnapshotId(modelId)
-        val currentHeadRow = ModelSnapshotTable.selectAll().where { currentHeadModelSnapshotCriteria(modelId) }.singleOrNull()
-            ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
+        val currentHeadRow =
+            ModelSnapshotTable.selectAll().where { currentHeadModelSnapshotCriteria(modelId) }.singleOrNull()
+                ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
         val currentHeadRecord = ModelRecord.read(currentHeadRow)
         val releaseEvent = findLatestReleaseEvent(modelId, version)
         val versionSnapshotId = ModelId.generate()
@@ -896,8 +925,8 @@ class ModelStorageDb(
     private fun findLatestReleaseEvent(modelId: ModelId, version: ModelVersion): ModelEventRecord {
         val row = ModelEventTable.selectAll().where {
             (ModelEventTable.modelId eq modelId) and
-                (ModelEventTable.eventType eq MODEL_RELEASE_EVENT_TYPE) and
-                (ModelEventTable.modelVersion eq version.value)
+                    (ModelEventTable.eventType eq modelReleaseEventType()) and
+                    (ModelEventTable.modelVersion eq version.value)
         }.orderBy(ModelEventTable.streamRevision to SortOrder.DESC).limit(1).singleOrNull()
         if (row == null) {
             throw ModelStorageDbMissingReleaseEventException(modelId, version.value)
@@ -950,7 +979,8 @@ class ModelStorageDb(
             JoinType.INNER,
             onColumn = EntityAttributeTable.entitySnapshotId,
             otherColumn = EntityTable.id
-        ).selectAll().where { EntityTable.modelSnapshotId eq currentHeadSnapshotId }.map { EntityAttributeRecord.read(it) }
+        ).selectAll().where { EntityTable.modelSnapshotId eq currentHeadSnapshotId }
+            .map { EntityAttributeRecord.read(it) }
 
         val entitySnapshotIdMap = mutableMapOf<EntityId, EntityId>()
         val attributeSnapshotIdMap = mutableMapOf<AttributeId, AttributeId>()
@@ -1519,7 +1549,8 @@ class ModelStorageDb(
     private fun loadRelationships(modelId: ModelId): List<RelationshipInMemory> {
         val modelSnapshotId = currentHeadModelSnapshotId(modelId)
         val relationshipIds =
-            RelationshipTable.select(RelationshipTable.id).where { RelationshipTable.modelSnapshotId eq modelSnapshotId }
+            RelationshipTable.select(RelationshipTable.id)
+                .where { RelationshipTable.modelSnapshotId eq modelSnapshotId }
         val roleEntityTable = EntityTable.alias("relationship_role_entity_snapshot")
 
         val roleRowsByRelationshipId =
@@ -1860,10 +1891,13 @@ class ModelStorageDb(
         searchWrite.upsertRelationshipAttributeSearchItem(attributeId)
     }
 
+    private fun modelReleaseEventType(): String {
+        return eventSystem.registry.findEntryByCmdClass(ModelStorageCmd.ModelRelease::class).eventType
+    }
+
     companion object {
         private const val CURRENT_HEAD_SNAPSHOT_KIND = "CURRENT_HEAD"
         private const val VERSION_SNAPSHOT_KIND = "VERSION_SNAPSHOT"
-        private const val MODEL_RELEASE_EVENT_TYPE = "model_release"
         private val logger: Logger = LoggerFactory.getLogger(ModelStorageDb::class.java)
     }
 

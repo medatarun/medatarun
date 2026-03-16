@@ -13,6 +13,8 @@ data class ModelVersion(val value: String) : Comparable<ModelVersion> {
     val patch: Int = parsed.patch
     val preRelease: String? = parsed.preRelease
 
+    fun asString() = value
+
     override fun compareTo(other: ModelVersion): Int {
         val majorComparison = major.compareTo(other.major)
         if (majorComparison != 0) return majorComparison

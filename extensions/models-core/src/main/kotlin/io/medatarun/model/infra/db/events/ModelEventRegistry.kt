@@ -32,10 +32,12 @@ class ModelEventRegistry(
 
     fun findEntryByCmd(cmd: ModelStorageCmd): ModelEventDescriptor<ModelStorageCmd> {
         val kClass = cmd::class
+        return findEntryByCmdClass(kClass)
+    }
+
+    fun findEntryByCmdClass(kClass: KClass<out ModelStorageCmd>): ModelEventDescriptor<ModelStorageCmd> {
         val entry = entriesByClass[kClass]
-            ?: throw ModelRepoCmdEventCommandNotRegisteredException(
-                kClass.qualifiedName ?: kClass.simpleName ?: "unknown"
-            )
+            ?: throw ModelRepoCmdEventCommandNotRegisteredException(kClass)
         @Suppress("UNCHECKED_CAST")
         return entry as ModelEventDescriptor<ModelStorageCmd>
     }

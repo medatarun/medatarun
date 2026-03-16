@@ -37,6 +37,8 @@ interface ModelStorage {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
 
+    fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion?
+
     // Model aggregate
 
     fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate?

@@ -36,11 +36,11 @@ Items DONE:
 - `[VE-P][DONE]` La `release` crée un `VERSION_SNAPSHOT` à partir du `CURRENT_HEAD` et le rattache à l'event `model_release`.
 - `[VE-R][DONE]` `create` et `import` produisent leur séquence initiale puis la `release` initiale dans la même transaction applicative.
 - `[VE-Y][DONE]` Le stockage et les contraintes de `model_snapshot.version` sont alignés avec la règle actée: valeur présente sur `VERSION_SNAPSHOT` et sur `CURRENT_HEAD`, avec le sens "dernier numéro publié connu" pour `CURRENT_HEAD`.
+- `[VE-K1][DONE]` La release est refusée si la version demandée existe déjà pour le même modèle.
+- `[VE-K2][DONE]` La release est refusée si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
 
 Items PARTIAL et TODO:
 
-- `[VE-K1][TODO]` Refuser une release si la version demandée existe déjà pour le même modèle.
-- `[VE-K2][TODO]` Refuser une release si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
 - `[VE-K3][TODO]` Refuser une release s'il n'y a eu aucun changement depuis la release précédente.
 - `[VE-O][TODO]` Remplacer l'alimentation directe actuelle par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 - `[VE-Q][TODO]` Ajouter un replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.

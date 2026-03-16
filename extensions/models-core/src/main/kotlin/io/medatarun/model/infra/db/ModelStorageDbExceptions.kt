@@ -7,6 +7,7 @@ import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.TypeId
 import io.medatarun.type.commons.id.Id
+import kotlin.reflect.KClass
 
 
 class ModelStorageDbInvalidIdentifierAttributeException(entityId: String) :
@@ -17,6 +18,9 @@ class ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId: ModelId) :
 
 class ModelStorageDbMissingReleaseEventException(modelId: ModelId, version: String) :
     MedatarunException("Could not find model_release event for model [${modelId.asString()}] and version [$version]")
+
+class ModelStorageDbInvalidReleaseEventException(modelId: ModelId, eventId: String) :
+    MedatarunException("model_release event [$eventId] for model [${modelId.asString()}] has no model_version.")
 
 class ModelStorageDbMissingTypeSnapshotException(typeId: TypeId) :
     MedatarunException("Could not find CURRENT_HEAD type snapshot for type [${typeId.asString()}]")
@@ -53,8 +57,8 @@ class ModelRepoCmdEventContractOnNonDataClassException(className: String) :
 class ModelRepoCmdEventDuplicateContractException(eventType: String, eventVersion: Int) :
     MedatarunException("Duplicate model event contract [$eventType@$eventVersion] in ModelRepoCmd event registry.")
 
-class ModelRepoCmdEventCommandNotRegisteredException(className: String) :
-    MedatarunException("ModelRepoCmd class [$className] is not registered in the model event registry.")
+class ModelRepoCmdEventCommandNotRegisteredException(kClass: KClass<*>) :
+    MedatarunException("ModelRepoCmd class [$kClass] is not registered in the model event registry.")
 
 class ModelRepoCmdEventUnknownContractException(eventType: String, eventVersion: Int) :
     MedatarunException("Unknown model event contract [$eventType@$eventVersion].")
