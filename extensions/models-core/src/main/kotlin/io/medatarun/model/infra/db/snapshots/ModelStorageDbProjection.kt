@@ -95,62 +95,6 @@ internal class ModelStorageDbProjection(
         }
     }
 
-    private fun resolveEntityCtx(ctx: ProjectionEventCtx, entityId: EntityId): EntityProjectionCtx {
-        return EntityProjectionCtx(
-            modelSnapshotId = ctx.modelSnapshotId,
-            entityId = entityId,
-            entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, entityId)
-        )
-    }
-
-    private fun resolveEntityAttributeCtx(
-        ctx: ProjectionEventCtx,
-        entityId: EntityId,
-        attributeId: AttributeId
-    ): EntityAttributeProjectionCtx {
-        return EntityAttributeProjectionCtx(
-            entityCtx = resolveEntityCtx(ctx, entityId),
-            attributeId = attributeId
-        )
-    }
-
-    private fun resolveRelationshipCtx(
-        ctx: ProjectionEventCtx,
-        relationshipId: RelationshipId
-    ): RelationshipProjectionCtx {
-        return RelationshipProjectionCtx(
-            modelSnapshotId = ctx.modelSnapshotId,
-            relationshipId = relationshipId,
-            relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
-                ctx.modelSnapshotId,
-                relationshipId
-            )
-        )
-    }
-
-    private fun resolveRelationshipRoleCtx(
-        ctx: ProjectionEventCtx,
-        relationshipId: RelationshipId,
-        relationshipRoleId: RelationshipRoleId
-    ): RelationshipRoleProjectionCtx {
-        return RelationshipRoleProjectionCtx(
-            relationshipCtx = resolveRelationshipCtx(ctx, relationshipId),
-            relationshipRoleId = relationshipRoleId
-        )
-    }
-
-    private fun resolveRelationshipAttributeCtx(
-        ctx: ProjectionEventCtx,
-        relationshipId: RelationshipId,
-        attributeId: AttributeId
-    ): RelationshipAttributeProjectionCtx {
-        return RelationshipAttributeProjectionCtx(
-            relationshipCtx = resolveRelationshipCtx(ctx, relationshipId),
-            attributeId = attributeId
-        )
-    }
-
-
     // Model
     // ------------------------------------------------------------------------
 
@@ -782,12 +726,16 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityIdentifierAttribute
     ) {
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
+        val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
+            (EntityAttributeTable.lineageId eq cmd.value) and
+                    (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
+        }.single()[EntityAttributeTable.id]
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq cmd.entityId) and (EntityTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[EntityTable.identifierAttributeSnapshotId] =
-                snapshots.currentHeadAttributeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
+            row[EntityTable.identifierAttributeSnapshotId] = attributeSnapshotId
         }
     }
 
@@ -804,12 +752,12 @@ internal class ModelStorageDbProjection(
     }
 
     private fun addEntityTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityTagAdd) {
-        val entityCtx = resolveEntityCtx(ctx, cmd.entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         val exists = EntityTagTable.select(EntityTagTable.entitySnapshotId).where {
-            (EntityTagTable.entitySnapshotId eq entityCtx.entitySnapshotId) and (EntityTagTable.tagId eq cmd.tagId)
+            (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq cmd.tagId)
         }.limit(1).any()
         if (!exists) {
-            insertEntityTag(entityCtx.entitySnapshotId, cmd.tagId)
+            insertEntityTag(entitySnapshotId, cmd.tagId)
         }
         searchWrite.upsertEntitySearchItem(cmd.modelId, cmd.entityId)
     }
@@ -822,9 +770,9 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteEntityTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityTagDelete) {
-        val entityCtx = resolveEntityCtx(ctx, cmd.entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityTagTable.deleteWhere {
-            (EntityTagTable.entitySnapshotId eq entityCtx.entitySnapshotId) and (EntityTagTable.tagId eq cmd.tagId)
+            (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq cmd.tagId)
         }
         searchWrite.upsertEntitySearchItem(cmd.modelId, cmd.entityId)
     }
@@ -855,12 +803,12 @@ internal class ModelStorageDbProjection(
 
 
     private fun createEntityAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntityAttribute) {
-        val entityCtx = resolveEntityCtx(ctx, cmd.entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         insertEntityAttribute(
             EntityAttributeRecord(
                 snapshotId = AttributeSnapshotId.generate(),
                 lineageId = cmd.attributeId,
-                entitySnapshotId = entityCtx.entitySnapshotId,
+                entitySnapshotId = entitySnapshotId,
                 key = cmd.key,
                 name = cmd.name,
                 description = cmd.description,
@@ -872,11 +820,11 @@ internal class ModelStorageDbProjection(
     }
 
     private fun updateEntityAttributeKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeKey) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityAttributeTable.update(
             where = {
-                (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+                (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                        (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
             row[EntityAttributeTable.key] = cmd.value
         }
@@ -884,11 +832,11 @@ internal class ModelStorageDbProjection(
     }
 
     private fun updateEntityAttributeName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeName) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityAttributeTable.update(
             where = {
-                (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+                (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                        (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
             row[EntityAttributeTable.name] = cmd.value
         }
@@ -899,11 +847,11 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityAttributeDescription
     ) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityAttributeTable.update(
             where = {
-                (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+                (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                        (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
             row[EntityAttributeTable.description] = cmd.value
         }
@@ -911,11 +859,11 @@ internal class ModelStorageDbProjection(
     }
 
     private fun updateEntityAttributeType(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeType) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityAttributeTable.update(
             where = {
-                (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+                (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                        (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
             row[EntityAttributeTable.typeSnapshotId] =
                 snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
@@ -926,11 +874,11 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityAttributeOptional
     ) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         EntityAttributeTable.update(
             where = {
-                (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+                (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                        (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
             row[EntityAttributeTable.optional] = cmd.value
         }
@@ -953,8 +901,11 @@ internal class ModelStorageDbProjection(
 
 
     private fun addEntityAttributeTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeTagAdd) {
-        val attributeSnapshotId =
-            snapshots.currentHeadAttributeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
+        val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
+            (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                    (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
+        }.single()[EntityAttributeTable.id]
         val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeSnapshotId).where {
             (EntityAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (EntityAttributeTagTable.tagId eq cmd.tagId)
         }.limit(1).any()
@@ -972,8 +923,11 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteEntityAttributeTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeTagDelete) {
-        val attributeSnapshotId =
-            snapshots.currentHeadAttributeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
+        val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
+            (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                    (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
+        }.single()[EntityAttributeTable.id]
         EntityAttributeTagTable.deleteWhere {
             (EntityAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (EntityAttributeTagTable.tagId eq cmd.tagId)
         }
@@ -981,11 +935,11 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteEntityAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteEntityAttribute) {
-        val attributeCtx = resolveEntityAttributeCtx(ctx, cmd.entityId, cmd.attributeId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         searchWrite.deleteEntityAttributeSearchItem(cmd.attributeId)
         EntityAttributeTable.deleteWhere {
-            (EntityAttributeTable.lineageId eq attributeCtx.attributeId) and
-                    (EntityAttributeTable.entitySnapshotId eq attributeCtx.entityCtx.entitySnapshotId)
+            (EntityAttributeTable.lineageId eq cmd.attributeId) and
+                    (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
         }
     }
 
@@ -1052,11 +1006,14 @@ internal class ModelStorageDbProjection(
     }
 
     private fun createRelationshipRole(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateRelationshipRole) {
-        val relationshipCtx = resolveRelationshipCtx(ctx, cmd.relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.insert { row ->
             row[RelationshipRoleTable.id] = RelationshipRoleSnapshotId.generate()
             row[RelationshipRoleTable.lineageId] = cmd.relationshipRoleId
-            row[RelationshipRoleTable.relationshipSnapshotId] = relationshipCtx.relationshipSnapshotId
+            row[RelationshipRoleTable.relationshipSnapshotId] = relationshipSnapshotId
             row[RelationshipRoleTable.key] = cmd.key
             row[RelationshipRoleTable.entitySnapshotId] =
                 snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
@@ -1066,20 +1023,26 @@ internal class ModelStorageDbProjection(
     }
 
     private fun updateRelationshipRoleKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleKey) {
-        val roleCtx = resolveRelationshipRoleCtx(ctx, cmd.relationshipId, cmd.relationshipRoleId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.update(where = {
-            (RelationshipRoleTable.lineageId eq roleCtx.relationshipRoleId) and
-                    (RelationshipRoleTable.relationshipSnapshotId eq roleCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipRoleTable.lineageId eq cmd.relationshipRoleId) and
+                    (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }) { row ->
             row[RelationshipRoleTable.key] = cmd.value
         }
     }
 
     private fun updateRelationshipRoleName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleName) {
-        val roleCtx = resolveRelationshipRoleCtx(ctx, cmd.relationshipId, cmd.relationshipRoleId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.update(where = {
-            (RelationshipRoleTable.lineageId eq roleCtx.relationshipRoleId) and
-                    (RelationshipRoleTable.relationshipSnapshotId eq roleCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipRoleTable.lineageId eq cmd.relationshipRoleId) and
+                    (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }) { row ->
             row[RelationshipRoleTable.name] = cmd.value
         }
@@ -1089,10 +1052,13 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipRoleEntity
     ) {
-        val roleCtx = resolveRelationshipRoleCtx(ctx, cmd.relationshipId, cmd.relationshipRoleId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.update(where = {
-            (RelationshipRoleTable.lineageId eq roleCtx.relationshipRoleId) and
-                    (RelationshipRoleTable.relationshipSnapshotId eq roleCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipRoleTable.lineageId eq cmd.relationshipRoleId) and
+                    (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }) { row ->
             row[RelationshipRoleTable.entitySnapshotId] =
                 snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
@@ -1103,31 +1069,40 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipRoleCardinality
     ) {
-        val roleCtx = resolveRelationshipRoleCtx(ctx, cmd.relationshipId, cmd.relationshipRoleId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.update(where = {
-            (RelationshipRoleTable.lineageId eq roleCtx.relationshipRoleId) and
-                    (RelationshipRoleTable.relationshipSnapshotId eq roleCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipRoleTable.lineageId eq cmd.relationshipRoleId) and
+                    (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }) { row ->
             row[RelationshipRoleTable.cardinality] = cmd.value.code
         }
     }
 
     private fun deleteRelationshipRole(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteRelationshipRole) {
-        val roleCtx = resolveRelationshipRoleCtx(ctx, cmd.relationshipId, cmd.relationshipRoleId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipRoleTable.deleteWhere {
-            (RelationshipRoleTable.lineageId eq roleCtx.relationshipRoleId) and
-                    (RelationshipRoleTable.relationshipSnapshotId eq roleCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipRoleTable.lineageId eq cmd.relationshipRoleId) and
+                    (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }
     }
 
     private fun addRelationshipTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipTagAdd) {
-        val relationshipCtx = resolveRelationshipCtx(ctx, cmd.relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipSnapshotId).where {
-            (RelationshipTagTable.relationshipSnapshotId eq relationshipCtx.relationshipSnapshotId) and
+            (RelationshipTagTable.relationshipSnapshotId eq relationshipSnapshotId) and
                     (RelationshipTagTable.tagId eq cmd.tagId)
         }.limit(1).any()
         if (!exists) {
-            insertRelationshipTag(relationshipCtx.relationshipSnapshotId, cmd.tagId)
+            insertRelationshipTag(relationshipSnapshotId, cmd.tagId)
         }
         searchWrite.upsertRelationshipSearchItem(cmd.modelId, cmd.relationshipId)
     }
@@ -1175,9 +1150,12 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteRelationshipTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipTagDelete) {
-        val relationshipCtx = resolveRelationshipCtx(ctx, cmd.relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipTagTable.deleteWhere {
-            (RelationshipTagTable.relationshipSnapshotId eq relationshipCtx.relationshipSnapshotId) and
+            (RelationshipTagTable.relationshipSnapshotId eq relationshipSnapshotId) and
                     (RelationshipTagTable.tagId eq cmd.tagId)
         }
         searchWrite.upsertRelationshipSearchItem(cmd.modelId, cmd.relationshipId)
@@ -1186,11 +1164,14 @@ internal class ModelStorageDbProjection(
     // ------------------------------------------------------------------------
 
     private fun createRelationshipAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateRelationshipAttribute) {
-        val relationshipCtx = resolveRelationshipCtx(ctx, cmd.relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         val record = RelationshipAttributeRecord(
             snapshotId = AttributeSnapshotId.generate(),
             lineageId = cmd.attributeId,
-            relationshipSnapshotId = relationshipCtx.relationshipSnapshotId,
+            relationshipSnapshotId = relationshipSnapshotId,
             name = cmd.name,
             key = cmd.key,
             description = cmd.description,
@@ -1205,10 +1186,13 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeKey
     ) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipAttributeTable.update(where = {
-            (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                    (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                    (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
         }) { row ->
             row[RelationshipAttributeTable.key] = cmd.value
         }
@@ -1219,11 +1203,14 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeName
     ) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipAttributeTable.update(
             where = {
-                (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+                (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                        (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
             }) { row ->
             row[RelationshipAttributeTable.name] = cmd.value
         }
@@ -1234,11 +1221,14 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeDescription
     ) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipAttributeTable.update(
             where = {
-                (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+                (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                        (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
             }) { row ->
             row[RelationshipAttributeTable.description] = cmd.value
         }
@@ -1249,11 +1239,14 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeType
     ) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipAttributeTable.update(
             where = {
-                (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+                (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                        (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
             }) { row ->
             row[RelationshipAttributeTable.typeSnapshotId] =
                 snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
@@ -1264,11 +1257,14 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeOptional
     ) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         RelationshipAttributeTable.update(
             where = {
-                (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                        (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+                (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                        (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
             }) { row ->
             row[RelationshipAttributeTable.optional] = cmd.value
         }
@@ -1278,8 +1274,14 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeTagAdd
     ) {
-        val attributeSnapshotId =
-            snapshots.currentHeadAttributeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
+        val attributeSnapshotId = RelationshipAttributeTable.select(RelationshipAttributeTable.id).where {
+            (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                    (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
+        }.single()[RelationshipAttributeTable.id]
         val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeSnapshotId).where {
             (RelationshipAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (RelationshipAttributeTagTable.tagId eq cmd.tagId)
         }.limit(1).any()
@@ -1313,11 +1315,14 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteRelationshipAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteRelationshipAttribute) {
-        val attributeCtx = resolveRelationshipAttributeCtx(ctx, cmd.relationshipId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
         searchWrite.deleteRelationshipAttributeSearchItem(cmd.attributeId)
         RelationshipAttributeTable.deleteWhere {
-            (RelationshipAttributeTable.lineageId eq attributeCtx.attributeId) and
-                    (RelationshipAttributeTable.relationshipSnapshotId eq attributeCtx.relationshipCtx.relationshipSnapshotId)
+            (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                    (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
         }
     }
 
@@ -1325,40 +1330,19 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeTagDelete
     ) {
-        val attributeSnapshotId =
-            snapshots.currentHeadAttributeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.attributeId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+            ctx.modelSnapshotId,
+            cmd.relationshipId
+        )
+        val attributeSnapshotId = RelationshipAttributeTable.select(RelationshipAttributeTable.id).where {
+            (RelationshipAttributeTable.lineageId eq cmd.attributeId) and
+                    (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
+        }.single()[RelationshipAttributeTable.id]
         RelationshipAttributeTagTable.deleteWhere {
             (RelationshipAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (RelationshipAttributeTagTable.tagId eq cmd.tagId)
         }
         searchWrite.upsertRelationshipAttributeSearchItem(cmd.modelId, cmd.attributeId)
     }
-
-    private data class EntityProjectionCtx(
-        val modelSnapshotId: ModelSnapshotId,
-        val entityId: EntityId,
-        val entitySnapshotId: EntitySnapshotId
-    )
-
-    private data class EntityAttributeProjectionCtx(
-        val entityCtx: EntityProjectionCtx,
-        val attributeId: AttributeId
-    )
-
-    private data class RelationshipProjectionCtx(
-        val modelSnapshotId: ModelSnapshotId,
-        val relationshipId: RelationshipId,
-        val relationshipSnapshotId: RelationshipSnapshotId
-    )
-
-    private data class RelationshipRoleProjectionCtx(
-        val relationshipCtx: RelationshipProjectionCtx,
-        val relationshipRoleId: RelationshipRoleId
-    )
-
-    private data class RelationshipAttributeProjectionCtx(
-        val relationshipCtx: RelationshipProjectionCtx,
-        val attributeId: AttributeId
-    )
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(ModelStorageDbProjection::class.java)
