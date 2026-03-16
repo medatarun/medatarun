@@ -3,8 +3,9 @@ package io.medatarun.model.infra.db.events
 import io.medatarun.model.domain.ModelEventConcurrentWriteException
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.infra.db.tables.ModelEventTable
+import org.jetbrains.exposed.v1.core.max
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.select
 import java.sql.SQLException
 import java.sql.SQLIntegrityConstraintViolationException
 
@@ -46,10 +47,12 @@ class ModelEventStreamNumberManager {
     }
 
     private fun currentStreamRevision(modelId: ModelId): Int {
-        val currentMax = ModelEventTable.selectAll()
+        val currentMax = ModelEventTable.streamRevision.max()
+        val row = ModelEventTable
+            .select(currentMax)
             .where { ModelEventTable.modelId eq modelId }
-            .maxOfOrNull { it[ModelEventTable.streamRevision] }
-        return currentMax ?: 0
+            .single()
+        return row[currentMax] ?: 0
     }
 
     /**
