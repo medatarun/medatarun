@@ -73,7 +73,7 @@ internal class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
                     "relationship_attribute",
                     "user"
                 ),
-                updateIntentSynonyms = listOf("update", "add_tag", "delete_tag", "disable", "enable", "set_roles"),
+                updateIntentSynonyms = listOf("update", "add_tag", "delete_tag", "disable", "enable", "set_roles", "release"),
                 createIntentSynonyms = listOf("create", "copy", "import"),
                 deleteIntentSynonyms = listOf("delete"),
                 readIntentSynonyms = listOf("list", "export", "search", "inspect", "get")
