@@ -10,6 +10,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
+import io.medatarun.model.infra.db.aggregate.ModelStorageDbSnapshots
 import io.medatarun.model.infra.db.events.ModelEventStreamNumberContext
 import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.*
@@ -31,344 +32,33 @@ class ModelStorageDb(
     private val searchRead = ModelStorageDbSearchRead(db)
     private val searchWrite = ModelStorageDbSearchWrite(db)
     private val eventSystem = ModelEventSystem()
-    // -------------------------------------------------------------------------
-    // Queries
-    // -------------------------------------------------------------------------
+    private val snapshots = ModelStorageDbSnapshots()
+    private val read = ModelStorageDbRead(db, snapshots, eventSystem.registry)
 
-    // Model
+    override fun existsModelById(id: ModelId): Boolean = read.existsModelById(id)
+    override fun existsModelByKey(key: ModelKey): Boolean = read.existsModelByKey(key)
+    override fun findAllModelIds(): List<ModelId> = read.findAllModelIds()
+    override fun findModelByKeyOptional(key: ModelKey): Model? = read.findModelByKeyOptional(key)
+    override fun findModelByIdOptional(id: ModelId): Model? = read.findModelByIdOptional(id)
+    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? = read.findLatestModelReleaseVersionOptional(modelId)
+    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? = read.findModelAggregateByIdOptional(id)
+    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? = read.findModelAggregateByKeyOptional(key)
+    override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?  = read.findTypeByIdOptional(modelId, typeId)
+    override fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? = read.findTypeByKeyOptional(modelId, key)
+    override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?  = read.findEntityByIdOptional(modelId, entityId)
+    override fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity? = read.findEntityByKeyOptional(modelId, entityKey)
+    override fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?  = read.findEntityAttributeByIdOptional(modelId, entityId, attributeId)
+    override fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute? = read.findEntityAttributeByKeyOptional(modelId, entityId, key)
+    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? = read.findRelationshipByIdOptional(modelId, relationshipId)
+    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? = read.findRelationshipByKeyOptional(modelId, relationshipKey)
+    override fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole? = read.findRelationshipRoleByIdOptional(modelId, relationshipId, roleId)
+    override fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole? = read.findRelationshipRoleByKeyOptional(modelId, relationshipId, roleKey)
+    override fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute? = read.findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeId)
+    override fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?  = read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key)
+    override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean  = read.isTypeUsedInEntityAttributes(modelId, typeId)
+    override fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean  = read.isTypeUsedInRelationshipAttributes(modelId, typeId)
 
-    override fun existsModelById(id: ModelId): Boolean {
-        return db.withExposed {
-            ModelTable.select(ModelTable.id).where { ModelTable.id eq id }.limit(1).any()
-        }
-    }
-
-    override fun existsModelByKey(key: ModelKey): Boolean {
-        return db.withExposed {
-            ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
-            }.limit(1).any()
-        }
-    }
-
-    override fun findAllModelIds(): List<ModelId> {
-        return db.withExposed {
-            ModelTable.selectAll().map { it[ModelTable.id] }
-        }
-    }
-
-    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
-        return db.withExposed {
-            val row = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
-            }.singleOrNull()
-            if (row == null) null else loadModelAggregate(row)
-        }
-    }
-
-    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
-        return db.withExposed {
-            val row = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
-            }.singleOrNull()
-            if (row == null) null else loadModelAggregate(row)
-        }
-    }
-
-    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
-        return db.withExposed {
-            ModelEventTable.selectAll()
-                .where { ModelEventTable.modelId eq modelId }
-                .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
-                .map(ModelEventRecord::read)
-        }
-    }
-
-    override fun findModelByKeyOptional(key: ModelKey): Model? {
-        return db.withExposed {
-            val row = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
-            }.singleOrNull()
-            if (row == null) null else toModel(ModelRecord.read(row))
-        }
-    }
-
-    override fun findModelByIdOptional(id: ModelId): Model? {
-        return db.withExposed {
-            val row = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
-            }.singleOrNull()
-            if (row == null) null else toModel(ModelRecord.read(row))
-        }
-    }
-
-    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {
-        return db.withExposed {
-            ModelEventTable.select(ModelEventTable.modelVersion)
-                .where {
-                    (ModelEventTable.modelId eq modelId) and
-                            (ModelEventTable.eventType eq modelReleaseEventType())
-                }
-                .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
-                .limit(1)
-                .singleOrNull()
-                ?.let { row ->
-                    val modelVersion = row[ModelEventTable.modelVersion]
-                        ?: throw ModelStorageDbInvalidReleaseEventException(modelId, row[ModelEventTable.id])
-                    ModelVersion(modelVersion)
-                }
-        }
-    }
-
-    override fun findTypeByKeyOptional(
-        modelId: ModelId, key: TypeKey
-    ): ModelType? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            ModelTypeTable.selectAll().where {
-                (ModelTypeTable.modelSnapshotId eq modelSnapshotId) and (ModelTypeTable.key eq key)
-            }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
-        }
-    }
-
-    override fun findTypeByIdOptional(
-        modelId: ModelId, typeId: TypeId
-    ): ModelType? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            ModelTypeTable.selectAll().where {
-                (ModelTypeTable.modelSnapshotId eq modelSnapshotId) and (ModelTypeTable.lineageId eq typeId)
-            }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
-        }
-    }
-
-    override fun findEntityByIdOptional(
-        modelId: ModelId, entityId: EntityId
-    ): Entity? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
-            EntityTable.join(
-                identifierAttributeTable,
-                JoinType.INNER,
-                onColumn = EntityTable.identifierAttributeSnapshotId,
-                otherColumn = identifierAttributeTable[EntityAttributeTable.id]
-            ).selectAll().where {
-                (EntityTable.modelSnapshotId eq modelSnapshotId) and (EntityTable.lineageId eq entityId)
-            }.singleOrNull()?.let { row ->
-                val record = EntityRecord.read(row)
-                toEntity(
-                    record,
-                    loadEntityTags(record.snapshotId),
-                    row[identifierAttributeTable[EntityAttributeTable.lineageId]]
-                )
-            }
-        }
-    }
-
-    override fun findEntityByKeyOptional(
-        modelId: ModelId, entityKey: EntityKey
-    ): Entity? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
-            EntityTable.join(
-                identifierAttributeTable,
-                JoinType.INNER,
-                onColumn = EntityTable.identifierAttributeSnapshotId,
-                otherColumn = identifierAttributeTable[EntityAttributeTable.id]
-            ).selectAll().where {
-                (EntityTable.modelSnapshotId eq modelSnapshotId) and (EntityTable.key eq entityKey)
-            }.singleOrNull()?.let { row ->
-                val record = EntityRecord.read(row)
-                val tags = loadEntityTags(record.snapshotId)
-                toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
-            }
-        }
-    }
-
-    override fun findEntityAttributeByIdOptional(
-        modelId: ModelId, entityId: EntityId, attributeId: AttributeId
-    ): Attribute? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val typeTable = ModelTypeTable.alias("entity_attribute_type_snapshot")
-            EntityAttributeTable.join(
-                EntityTable, JoinType.INNER, EntityAttributeTable.entitySnapshotId, EntityTable.id
-            ).join(
-                typeTable,
-                JoinType.INNER,
-                onColumn = EntityAttributeTable.typeSnapshotId,
-                otherColumn = typeTable[ModelTypeTable.id]
-            ).selectAll()
-                .where { (EntityTable.modelSnapshotId eq modelSnapshotId) and (EntityTable.lineageId eq entityId) and (EntityAttributeTable.lineageId eq attributeId) }
-                .singleOrNull()?.let { row ->
-                    val record = EntityAttributeRecord.read(row)
-                    val tags = loadEntityAttributeTags(record.snapshotId)
-                    toEntityAttribute(
-                        record,
-                        tags,
-                        row[typeTable[ModelTypeTable.lineageId]],
-                        row[EntityTable.lineageId]
-                    )
-                }
-        }
-    }
-
-    override fun findEntityAttributeByKeyOptional(
-        modelId: ModelId, entityId: EntityId, key: AttributeKey
-    ): Attribute? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val typeTable = ModelTypeTable.alias("entity_attribute_type_snapshot")
-            EntityAttributeTable.join(
-                EntityTable, JoinType.INNER, EntityAttributeTable.entitySnapshotId, EntityTable.id
-            ).join(
-                typeTable,
-                JoinType.INNER,
-                onColumn = EntityAttributeTable.typeSnapshotId,
-                otherColumn = typeTable[ModelTypeTable.id]
-            ).selectAll()
-                .where { (EntityTable.modelSnapshotId eq modelSnapshotId) and (EntityTable.lineageId eq entityId) and (EntityAttributeTable.key eq key) }
-                .singleOrNull()?.let { row ->
-                    val record = EntityAttributeRecord.read(row)
-                    val tags = loadEntityAttributeTags(record.snapshotId)
-                    toEntityAttribute(
-                        record,
-                        tags,
-                        row[typeTable[ModelTypeTable.lineageId]],
-                        row[EntityTable.lineageId]
-                    )
-                }
-        }
-    }
-
-    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? {
-        return findRelationshipByOptional(modelId, RelationshipTable.lineageId eq relationshipId)
-    }
-
-    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? {
-        return findRelationshipByOptional(modelId, RelationshipTable.key eq relationshipKey)
-    }
-
-
-    private fun findRelationshipByOptional(modelId: ModelId, criterion: Expression<Boolean>): Relationship? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val roleEntityTable = EntityTable.alias("relationship_role_entity_snapshot")
-            val roles = RelationshipRoleTable.join(
-                RelationshipTable,
-                JoinType.INNER,
-                onColumn = RelationshipRoleTable.relationshipSnapshotId,
-                otherColumn = RelationshipTable.id
-            ).join(
-                roleEntityTable,
-                JoinType.INNER,
-                onColumn = RelationshipRoleTable.entitySnapshotId,
-                otherColumn = roleEntityTable[EntityTable.id]
-            ).selectAll().where { (RelationshipTable.modelSnapshotId eq modelSnapshotId) and criterion }
-                .map { row ->
-                    toRelationshipRole(
-                        RelationshipRoleRecord.read(row),
-                        row[roleEntityTable[EntityTable.lineageId]]
-                    )
-                }
-
-            RelationshipTable.selectAll().where { (RelationshipTable.modelSnapshotId eq modelSnapshotId) and criterion }
-                .singleOrNull()
-                ?.let { row ->
-                    val record = RelationshipRecord.read(row)
-                    val tags = loadRelationshipTags(record.snapshotId)
-                    toRelationship(record, roles, tags)
-                }
-        }
-    }
-
-    override fun findRelationshipRoleByIdOptional(
-        modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId
-    ): RelationshipRole? {
-        return findRelationshipRoleByOptional(modelId, relationshipId, RelationshipRoleTable.lineageId eq roleId)
-    }
-
-    override fun findRelationshipRoleByKeyOptional(
-        modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey
-    ): RelationshipRole? {
-        return findRelationshipRoleByOptional(modelId, relationshipId, RelationshipRoleTable.key eq roleKey)
-    }
-
-    private fun findRelationshipRoleByOptional(
-        modelId: ModelId, relationshipId: RelationshipId, criterion: Op<Boolean>
-    ): RelationshipRole? {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val roleEntityTable = EntityTable.alias("relationship_role_entity_snapshot")
-        return RelationshipRoleTable.join(
-            RelationshipTable,
-            JoinType.INNER,
-            onColumn = RelationshipRoleTable.relationshipSnapshotId,
-            otherColumn = RelationshipTable.id
-        ).join(
-            roleEntityTable,
-            JoinType.INNER,
-            onColumn = RelationshipRoleTable.entitySnapshotId,
-            otherColumn = roleEntityTable[EntityTable.id]
-        ).selectAll().where {
-            (RelationshipTable.modelSnapshotId eq modelSnapshotId) and (RelationshipTable.lineageId eq relationshipId) and criterion
-        }.singleOrNull()?.let { row ->
-            toRelationshipRole(
-                RelationshipRoleRecord.read(row),
-                row[roleEntityTable[EntityTable.lineageId]]
-            )
-        }
-    }
-
-
-    override fun findRelationshipAttributeByIdOptional(
-        modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId
-    ): Attribute? {
-        return findRelationshipAttributeByOptional(
-            modelId, relationshipId, RelationshipAttributeTable.lineageId eq attributeId
-        )
-    }
-
-    override fun findRelationshipAttributeByKeyOptional(
-        modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey
-    ): Attribute? {
-        return findRelationshipAttributeByOptional(
-            modelId, relationshipId, RelationshipAttributeTable.key eq key
-        )
-    }
-
-
-    fun findRelationshipAttributeByOptional(
-        modelId: ModelId, relationshipId: RelationshipId, criterion: Expression<Boolean>
-    ): Attribute? {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val typeTable = ModelTypeTable.alias("relationship_attribute_type_snapshot")
-            RelationshipAttributeTable.join(
-                RelationshipTable,
-                JoinType.INNER,
-                RelationshipAttributeTable.relationshipSnapshotId,
-                RelationshipTable.id
-            ).join(
-                typeTable,
-                JoinType.INNER,
-                onColumn = RelationshipAttributeTable.typeSnapshotId,
-                otherColumn = typeTable[ModelTypeTable.id]
-            ).selectAll()
-                .where { (RelationshipTable.modelSnapshotId eq modelSnapshotId) and (RelationshipTable.lineageId eq relationshipId) and criterion }
-                .singleOrNull()?.let { row ->
-                    val record = RelationshipAttributeRecord.read(row)
-                    val tags = loadRelationshipAttributeTags(record.snapshotId)
-                    toRelationshipAttribute(
-                        record,
-                        tags,
-                        row[typeTable[ModelTypeTable.lineageId]],
-                        row[RelationshipTable.lineageId]
-                    )
-                }
-        }
-    }
+    fun findAllModelEvents(modelId: ModelId) = read.findAllModelEvents(modelId)
 
     // -------------------------------------------------------------------------
     // Search
@@ -376,45 +66,6 @@ class ModelStorageDb(
 
     override fun search(query: ModelStorageSearchQuery): SearchResults {
         return searchRead.search(query)
-    }
-
-    // -------------------------------------------------------------------------
-    // Analytics
-    // -------------------------------------------------------------------------
-
-    override fun isTypeUsedInEntityAttributes(
-        modelId: ModelId, typeId: TypeId
-    ): Boolean {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val typeSnapshotId = currentHeadTypeSnapshotId(modelId, typeId)
-            EntityAttributeTable.join(
-                EntityTable,
-                JoinType.INNER,
-                onColumn = EntityAttributeTable.entitySnapshotId,
-                otherColumn = EntityTable.id
-            ).selectAll().where {
-                (EntityAttributeTable.typeSnapshotId eq typeSnapshotId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
-            }.any()
-        }
-    }
-
-    override fun isTypeUsedInRelationshipAttributes(
-        modelId: ModelId, typeId: TypeId
-    ): Boolean {
-        return db.withExposed {
-            val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-            val typeSnapshotId = currentHeadTypeSnapshotId(modelId, typeId)
-            RelationshipAttributeTable.join(
-                RelationshipTable,
-                JoinType.INNER,
-                onColumn = RelationshipAttributeTable.relationshipSnapshotId,
-                otherColumn = RelationshipTable.id
-            ).selectAll().where {
-                (RelationshipAttributeTable.typeSnapshotId eq typeSnapshotId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-            }.any()
-        }
-
     }
 
     // -------------------------------------------------------------------------
@@ -582,30 +233,8 @@ class ModelStorageDb(
         return ModelId.generate()
     }
 
-    private fun findCurrentHeadModelSnapshotId(modelId: ModelId): ModelId? {
-        val row = ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-            currentHeadModelSnapshotCriteria(modelId)
-        }.singleOrNull()
-        if (row == null) {
-            return null
-        }
-        return ModelId.fromString(row[ModelSnapshotTable.id])
-    }
 
-    /**
-     * Mutable model-level state lives only on the current head projection.
-     * Version snapshots must stay immutable once they exist.
-     */
-    private fun currentHeadModelSnapshotCriteria(modelId: ModelId): Op<Boolean> {
-        return (ModelSnapshotTable.modelId eq modelId) and
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
-    }
 
-    private fun currentHeadModelSnapshotId(modelId: ModelId): ModelId {
-        return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(
-            modelId
-        )
-    }
 
     /**
      * While CURRENT_HEAD is still fed by direct writes, keep projection metadata
@@ -613,76 +242,12 @@ class ModelStorageDb(
      */
     private fun updateCurrentHeadProjectionMetadata(modelId: ModelId, upToRevision: Int) {
         val now = clock.now().toString()
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.upToRevision] = upToRevision
             row[ModelSnapshotTable.updatedAt] = now
         }
     }
 
-    private fun currentHeadTypeSnapshotId(modelId: ModelId, typeId: TypeId): TypeId {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val row = ModelTypeTable.select(ModelTypeTable.id).where {
-            (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
-        }.singleOrNull()
-        if (row == null) {
-            throw ModelStorageDbMissingTypeSnapshotException(typeId)
-        }
-        return row[ModelTypeTable.id]
-    }
-
-    private fun currentHeadEntitySnapshotId(modelId: ModelId, entityId: EntityId): EntityId {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val row = EntityTable.select(EntityTable.id).where {
-            (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
-        }.singleOrNull()
-        if (row == null) {
-            throw ModelStorageDbMissingEntitySnapshotException(entityId)
-        }
-        return row[EntityTable.id]
-    }
-
-    private fun currentHeadAttributeSnapshotId(modelId: ModelId, attributeId: AttributeId): AttributeId {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val entityAttributeRow = EntityAttributeTable.join(
-            EntityTable,
-            JoinType.INNER,
-            EntityAttributeTable.entitySnapshotId,
-            EntityTable.id
-        ).select(EntityAttributeTable.id)
-            .where {
-                (EntityAttributeTable.lineageId eq attributeId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
-            }
-            .singleOrNull()
-        if (entityAttributeRow != null) {
-            return entityAttributeRow[EntityAttributeTable.id]
-        }
-        val relationshipAttributeRow = RelationshipAttributeTable.join(
-            RelationshipTable,
-            JoinType.INNER,
-            RelationshipAttributeTable.relationshipSnapshotId,
-            RelationshipTable.id
-        ).select(RelationshipAttributeTable.id)
-            .where {
-                (RelationshipAttributeTable.lineageId eq attributeId) and
-                        (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-            }
-            .singleOrNull()
-        if (relationshipAttributeRow != null) {
-            return relationshipAttributeRow[RelationshipAttributeTable.id]
-        }
-        throw ModelStorageDbMissingAttributeSnapshotException(attributeId)
-    }
-
-    private fun currentHeadRelationshipSnapshotId(modelId: ModelId, relationshipId: RelationshipId): RelationshipId {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val row = RelationshipTable.select(RelationshipTable.id).where {
-            (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-        }.singleOrNull()
-        if (row == null) {
-            throw ModelStorageDbMissingRelationshipSnapshotException(relationshipId)
-        }
-        return row[RelationshipTable.id]
-    }
 
     private fun modelIdForEntity(entityId: EntityId): ModelId {
         val row = EntityTable.select(EntityTable.modelSnapshotId).where { EntityTable.lineageId eq entityId }.singleOrNull()
@@ -768,28 +333,6 @@ class ModelStorageDb(
     // Model
     // ------------------------------------------------------------------------
 
-    private fun loadModelAggregate(row: ResultRow): ModelAggregateInMemory {
-        val record = ModelRecord.read(row)
-        val types = loadTypes(record.modelId)
-        val entities = loadEntities(record.modelId)
-        val entityAttributes = loadEntityAttributes(record.modelId)
-        val relationships = loadRelationships(record.modelId)
-        val relationshipAttributes = loadRelationshipAttributes(record.modelId)
-
-        return ModelAggregateInMemory(
-            model = toModel(record),
-            types = types,
-            entities = entities,
-            relationships = relationships,
-            tags = loadModelTags(record.snapshotId),
-            attributes = entityAttributes + relationshipAttributes
-        )
-    }
-
-    private fun loadModelTags(modelSnapshotId: String): List<TagId> {
-        return ModelTagTable.selectAll().where { ModelTagTable.modelSnapshotId eq ModelId.fromString(modelSnapshotId) }
-            .orderBy(ModelTagTable.tagId to SortOrder.ASC).map { it[ModelTagTable.tagId] }
-    }
 
     private fun createModel(cmd: ModelStorageCmd.CreateModel) {
         val inMemoryModel = ModelInMemory(
@@ -922,47 +465,47 @@ class ModelStorageDb(
     }
 
     private fun updateModelName(modelId: ModelId, name: LocalizedText) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.name] = name
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelKey(modelId: ModelId, key: ModelKey) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.key] = key
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelDescription(modelId: ModelId, description: LocalizedMarkdown?) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.description] = description
         }
         searchWrite.upsertModelSearchItem(modelId)
     }
 
     private fun updateModelAuthority(modelId: ModelId, authority: ModelAuthority) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.authority] = authority
         }
     }
 
     private fun releaseModel(modelId: ModelId, version: ModelVersion) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.version] = version.value
         }
         createVersionSnapshotFromCurrentHead(modelId, version)
     }
 
     private fun updateModelDocumentationHome(modelId: ModelId, documentationHome: java.net.URL?) {
-        ModelSnapshotTable.update(where = { currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
             row[ModelSnapshotTable.documentationHome] = documentationHome?.toExternalForm()
         }
     }
 
     private fun addModelTag(modelId: ModelId, tagId: TagId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         val exists = ModelTagTable.select(ModelTagTable.modelSnapshotId).where {
             (ModelTagTable.modelSnapshotId eq modelSnapshotId) and (ModelTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -976,7 +519,7 @@ class ModelStorageDb(
     }
 
     private fun deleteModelTag(modelId: ModelId, tagId: TagId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         ModelTagTable.deleteWhere {
             (ModelTagTable.modelSnapshotId eq modelSnapshotId) and (ModelTagTable.tagId eq tagId)
         }
@@ -994,7 +537,7 @@ class ModelStorageDb(
             row[ModelSnapshotTable.origin] = model.origin
             row[ModelSnapshotTable.authority] = model.authority
             row[ModelSnapshotTable.documentationHome] = model.documentationHome?.toExternalForm()
-            row[ModelSnapshotTable.snapshotKind] = CURRENT_HEAD_SNAPSHOT_KIND
+            row[ModelSnapshotTable.snapshotKind] = snapshots.CURRENT_HEAD_SNAPSHOT_KIND
             row[ModelSnapshotTable.upToRevision] = 0
             row[ModelSnapshotTable.modelEventReleaseId] = null
             row[ModelSnapshotTable.version] = model.version.value
@@ -1009,9 +552,9 @@ class ModelStorageDb(
      * remapping every internal snapshot reference to fresh snapshot ids.
      */
     private fun createVersionSnapshotFromCurrentHead(modelId: ModelId, version: ModelVersion) {
-        val currentHeadSnapshotId = currentHeadModelSnapshotId(modelId)
+        val currentHeadSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         val currentHeadRow =
-            ModelSnapshotTable.selectAll().where { currentHeadModelSnapshotCriteria(modelId) }.singleOrNull()
+            ModelSnapshotTable.selectAll().where { snapshots.currentHeadModelSnapshotCriteria(modelId) }.singleOrNull()
                 ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
         val currentHeadRecord = ModelRecord.read(currentHeadRow)
         val releaseEvent = findLatestReleaseEvent(modelId, version)
@@ -1027,7 +570,7 @@ class ModelStorageDb(
             row[ModelSnapshotTable.origin] = currentHeadRecord.origin
             row[ModelSnapshotTable.authority] = currentHeadRecord.authority
             row[ModelSnapshotTable.documentationHome] = currentHeadRecord.documentationHome
-            row[ModelSnapshotTable.snapshotKind] = VERSION_SNAPSHOT_KIND
+            row[ModelSnapshotTable.snapshotKind] = snapshots.VERSION_SNAPSHOT_KIND
             row[ModelSnapshotTable.upToRevision] = releaseEvent.streamRevision
             row[ModelSnapshotTable.modelEventReleaseId] = releaseEvent.id
             row[ModelSnapshotTable.version] = version.value
@@ -1050,7 +593,7 @@ class ModelStorageDb(
     private fun findLatestReleaseEvent(modelId: ModelId, version: ModelVersion): ModelEventRecord {
         val row = ModelEventTable.selectAll().where {
             (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelReleaseEventType()) and
+                    (ModelEventTable.eventType eq eventSystem.registry.modelReleaseEventType()) and
                     (ModelEventTable.modelVersion eq version.value)
         }.orderBy(ModelEventTable.streamRevision to SortOrder.DESC).limit(1).singleOrNull()
         if (row == null) {
@@ -1280,20 +823,13 @@ class ModelStorageDb(
     // Types
     // ------------------------------------------------------------------------
 
-    private fun loadTypes(modelId: ModelId): List<ModelTypeInMemory> {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        return ModelTypeTable.selectAll().where { ModelTypeTable.modelSnapshotId eq modelSnapshotId }
-            .orderBy(ModelTypeTable.key to SortOrder.ASC).map { row ->
-                toType(ModelTypeRecord.read(row))
-            }
-    }
 
     private fun createType(cmd: ModelStorageCmd.CreateType) {
         val lineageId = TypeId.generate()
         val record = ModelTypeRecord(
             snapshotId = TypeId.generate(),
             lineageId = lineageId,
-            modelSnapshotId = currentHeadModelSnapshotId(cmd.modelId),
+            modelSnapshotId = snapshots.currentHeadModelSnapshotId(cmd.modelId),
             key = cmd.key,
             name = cmd.name,
             description = cmd.description
@@ -1313,7 +849,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeKey(modelId: ModelId, typeId: TypeId, value: TypeKey) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -1323,7 +859,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeName(modelId: ModelId, typeId: TypeId, value: LocalizedText?) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -1333,7 +869,7 @@ class ModelStorageDb(
     }
 
     private fun updateTypeDescription(modelId: ModelId, typeId: TypeId, value: LocalizedMarkdown?) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -1343,7 +879,7 @@ class ModelStorageDb(
     }
 
     private fun deleteType(modelId: ModelId, typeId: TypeId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         ModelTypeTable.deleteWhere {
             (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
         }
@@ -1352,26 +888,6 @@ class ModelStorageDb(
     // Entity
     // ------------------------------------------------------------------------
 
-    private fun loadEntities(modelId: ModelId): List<EntityInMemory> {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
-        return EntityTable.join(
-            identifierAttributeTable,
-            JoinType.INNER,
-            onColumn = EntityTable.identifierAttributeSnapshotId,
-            otherColumn = identifierAttributeTable[EntityAttributeTable.id]
-        ).selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }
-            .orderBy(EntityTable.key to SortOrder.ASC).map { row ->
-                val record = EntityRecord.read(row)
-                val tags = loadEntityTags(record.snapshotId)
-                toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
-            }
-    }
-
-    private fun loadEntityTags(entityId: EntityId): List<TagId> {
-        return EntityTagTable.selectAll().where { EntityTagTable.entitySnapshotId eq entityId }
-            .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { it[EntityTagTable.tagId] }
-    }
 
     private fun createEntity(cmd: ModelStorageCmd.CreateEntity) {
         insertEntity(cmd)
@@ -1379,7 +895,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityKey(modelId: ModelId, entityId: EntityId, value: EntityKey) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -1390,7 +906,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityName(modelId: ModelId, entityId: EntityId, value: LocalizedText?) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -1401,7 +917,7 @@ class ModelStorageDb(
     }
 
     private fun updateEntityDescription(modelId: ModelId, entityId: EntityId, value: LocalizedMarkdown?) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -1412,17 +928,17 @@ class ModelStorageDb(
     }
 
     private fun updateEntityIdentifierAttribute(modelId: ModelId, entityId: EntityId, value: AttributeId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
             }) { row ->
-            row[EntityTable.identifierAttributeSnapshotId] = currentHeadAttributeSnapshotId(modelId, value)
+            row[EntityTable.identifierAttributeSnapshotId] = snapshots.currentHeadAttributeSnapshotId(modelId, value)
         }
     }
 
     private fun updateEntityDocumentationHome(modelId: ModelId, entityId: EntityId, value: java.net.URL?) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -1432,7 +948,7 @@ class ModelStorageDb(
     }
 
     private fun addEntityTag(modelId: ModelId, entityId: EntityId, tagId: TagId) {
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         val exists = EntityTagTable.select(EntityTagTable.entitySnapshotId).where {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -1450,7 +966,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntityTag(modelId: ModelId, entityId: EntityId, tagId: TagId) {
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityTagTable.deleteWhere {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }
@@ -1458,7 +974,7 @@ class ModelStorageDb(
     }
 
     private fun deleteEntity(modelId: ModelId, entityId: EntityId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         searchWrite.deleteEntityBranch(entityId)
         EntityTable.deleteWhere {
             (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -1472,7 +988,7 @@ class ModelStorageDb(
         val record = EntityRecord(
             snapshotId = entitySnapshotId,
             lineageId = cmd.entityId,
-            modelSnapshotId = currentHeadModelSnapshotId(cmd.modelId),
+            modelSnapshotId = snapshots.currentHeadModelSnapshotId(cmd.modelId),
             key = cmd.key,
             name = cmd.name,
             description = cmd.description,
@@ -1491,7 +1007,7 @@ class ModelStorageDb(
                 key = cmd.identityAttributeKey,
                 name = cmd.identityAttributeName,
                 description = cmd.identityAttributeDescription,
-                typeSnapshotId = currentHeadTypeSnapshotId(cmd.modelId, cmd.identityAttributeTypeId),
+                typeSnapshotId = snapshots.currentHeadTypeSnapshotId(cmd.modelId, cmd.identityAttributeTypeId),
                 optional = cmd.identityAttributeIdOptional
             )
         )
@@ -1515,46 +1031,17 @@ class ModelStorageDb(
     // ------------------------------------------------------------------------
 
 
-    private fun loadEntityAttributes(modelId: ModelId): List<AttributeInMemory> {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val typeTable = ModelTypeTable.alias("entity_attribute_type_snapshot")
-        return EntityAttributeTable.join(
-            EntityTable,
-            joinType = JoinType.INNER,
-            onColumn = EntityAttributeTable.entitySnapshotId,
-            otherColumn = EntityTable.id
-        ).join(
-            typeTable,
-            joinType = JoinType.INNER,
-            onColumn = EntityAttributeTable.typeSnapshotId,
-            otherColumn = typeTable[ModelTypeTable.id]
-        ).selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }.map { row ->
-            val record = EntityAttributeRecord.read(row)
-            val tags = loadEntityAttributeTags(record.snapshotId)
-            toEntityAttribute(
-                record,
-                tags,
-                row[typeTable[ModelTypeTable.lineageId]],
-                row[EntityTable.lineageId]
-            )
-        }
-    }
-
-    private fun loadEntityAttributeTags(attributeId: AttributeId): List<TagId> {
-        return EntityAttributeTagTable.selectAll().where { EntityAttributeTagTable.attributeSnapshotId eq attributeId }
-            .orderBy(EntityAttributeTagTable.tagId to SortOrder.ASC).map { it[EntityAttributeTagTable.tagId] }
-    }
 
     private fun createEntityAttribute(cmd: ModelStorageCmd.CreateEntityAttribute) {
         insertEntityAttribute(
             EntityAttributeRecord(
                 snapshotId = AttributeId.generate(),
                 lineageId = cmd.attributeId,
-                entitySnapshotId = currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId),
+                entitySnapshotId = snapshots.currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId),
                 key = cmd.key,
                 name = cmd.name,
                 description = cmd.description,
-                typeSnapshotId = currentHeadTypeSnapshotId(cmd.modelId, cmd.typeId),
+                typeSnapshotId = snapshots.currentHeadTypeSnapshotId(cmd.modelId, cmd.typeId),
                 optional = cmd.optional
             )
         )
@@ -1562,7 +1049,7 @@ class ModelStorageDb(
 
     private fun updateEntityAttributeKey(entityId: EntityId, attributeId: AttributeId, value: AttributeKey) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityAttributeTable.update(
             where = {
                 (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
@@ -1574,7 +1061,7 @@ class ModelStorageDb(
 
     private fun updateEntityAttributeName(entityId: EntityId, attributeId: AttributeId, value: LocalizedText?) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityAttributeTable.update(
             where = {
                 (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
@@ -1588,7 +1075,7 @@ class ModelStorageDb(
         entityId: EntityId, attributeId: AttributeId, value: LocalizedMarkdown?
     ) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityAttributeTable.update(
             where = {
                 (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
@@ -1601,19 +1088,19 @@ class ModelStorageDb(
 
     private fun updateEntityAttributeType(entityId: EntityId, attributeId: AttributeId, value: TypeId) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityAttributeTable.update(
             where = {
                 (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
             }) { row ->
-            row[EntityAttributeTable.typeSnapshotId] = currentHeadTypeSnapshotId(modelId, value)
+            row[EntityAttributeTable.typeSnapshotId] = snapshots.currentHeadTypeSnapshotId(modelId, value)
         }
 
     }
 
     private fun updateEntityAttributeOptional(entityId: EntityId, attributeId: AttributeId, value: Boolean) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         EntityAttributeTable.update(
             where = {
                 (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
@@ -1643,7 +1130,7 @@ class ModelStorageDb(
 
     private fun addEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
         val modelId = modelIdForEntityAttribute(attributeId)
-        val attributeSnapshotId = currentHeadAttributeSnapshotId(modelId, attributeId)
+        val attributeSnapshotId = snapshots.currentHeadAttributeSnapshotId(modelId, attributeId)
         val exists = EntityAttributeTagTable.select(EntityAttributeTagTable.attributeSnapshotId).where {
             (EntityAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (EntityAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -1662,7 +1149,7 @@ class ModelStorageDb(
 
     private fun deleteEntityAttributeTag(attributeId: AttributeId, tagId: TagId) {
         val modelId = modelIdForEntityAttribute(attributeId)
-        val attributeSnapshotId = currentHeadAttributeSnapshotId(modelId, attributeId)
+        val attributeSnapshotId = snapshots.currentHeadAttributeSnapshotId(modelId, attributeId)
         EntityAttributeTagTable.deleteWhere {
             (EntityAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (EntityAttributeTagTable.tagId eq tagId)
         }
@@ -1671,7 +1158,7 @@ class ModelStorageDb(
 
     private fun deleteEntityAttribute(entityId: EntityId, attributeId: AttributeId) {
         val modelId = modelIdForEntity(entityId)
-        val entitySnapshotId = currentHeadEntitySnapshotId(modelId, entityId)
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(modelId, entityId)
         searchWrite.deleteEntityAttributeSearchItem(attributeId)
         EntityAttributeTable.deleteWhere {
             (EntityAttributeTable.lineageId eq attributeId) and (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
@@ -1683,48 +1170,13 @@ class ModelStorageDb(
     // ------------------------------------------------------------------------
 
 
-    private fun loadRelationships(modelId: ModelId): List<RelationshipInMemory> {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val relationshipIds =
-            RelationshipTable.select(RelationshipTable.id)
-                .where { RelationshipTable.modelSnapshotId eq modelSnapshotId }
-        val roleEntityTable = EntityTable.alias("relationship_role_entity_snapshot")
 
-        val roleRowsByRelationshipId =
-            RelationshipRoleTable.join(
-                roleEntityTable,
-                JoinType.INNER,
-                onColumn = RelationshipRoleTable.entitySnapshotId,
-                otherColumn = roleEntityTable[EntityTable.id]
-            ).selectAll().where { RelationshipRoleTable.relationshipSnapshotId inSubQuery relationshipIds }
-                .orderBy(RelationshipRoleTable.key to SortOrder.ASC).toList()
-                .groupBy { it[RelationshipRoleTable.relationshipSnapshotId] }
-
-        return RelationshipTable.selectAll().where { RelationshipTable.modelSnapshotId eq modelSnapshotId }
-            .orderBy(RelationshipTable.key to SortOrder.ASC).map { row ->
-                val relationshipRecord = RelationshipRecord.read(row)
-                val relationshipId = relationshipRecord.snapshotId
-                val roles = (roleRowsByRelationshipId[relationshipId] ?: emptyList()).map { roleRow ->
-                    toRelationshipRole(
-                        RelationshipRoleRecord.read(roleRow),
-                        roleRow[roleEntityTable[EntityTable.lineageId]]
-                    )
-                }
-                val tags = loadRelationshipTags(relationshipRecord.snapshotId)
-                toRelationship(relationshipRecord, roles, tags)
-            }
-    }
-
-    private fun loadRelationshipTags(relationshipId: RelationshipId): List<TagId> {
-        return RelationshipTagTable.selectAll().where { RelationshipTagTable.relationshipSnapshotId eq relationshipId }
-            .orderBy(RelationshipTagTable.tagId to SortOrder.ASC).map { it[RelationshipTagTable.tagId] }
-    }
 
     private fun createRelationship(cmd: ModelStorageCmd.CreateRelationship) {
         val record = RelationshipRecord(
             snapshotId = RelationshipId.generate(),
             lineageId = cmd.relationshipId,
-            modelSnapshotId = currentHeadModelSnapshotId(cmd.modelId),
+            modelSnapshotId = snapshots.currentHeadModelSnapshotId(cmd.modelId),
             key = cmd.key,
             name = cmd.name,
             description = cmd.description
@@ -1736,7 +1188,7 @@ class ModelStorageDb(
                 relationshipSnapshotId = record.snapshotId,
                 key = role.key,
                 name = role.name,
-                entitySnapshotId = currentHeadEntitySnapshotId(cmd.modelId, role.entityId),
+                entitySnapshotId = snapshots.currentHeadEntitySnapshotId(cmd.modelId, role.entityId),
                 cardinality = role.cardinality.code
             )
         }
@@ -1746,7 +1198,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipKey(relationshipId: RelationshipId, value: RelationshipKey) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipTable.update(where = { RelationshipTable.id eq relationshipSnapshotId }) { row ->
             row[RelationshipTable.key] = value
         }
@@ -1755,7 +1207,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipName(relationshipId: RelationshipId, value: LocalizedText?) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipTable.update(where = { RelationshipTable.id eq relationshipSnapshotId }) { row ->
             row[RelationshipTable.name] = value
         }
@@ -1764,7 +1216,7 @@ class ModelStorageDb(
 
     private fun updateRelationshipDescription(relationshipId: RelationshipId, value: LocalizedMarkdown?) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipTable.update(where = { RelationshipTable.id eq relationshipSnapshotId }) { row ->
             row[RelationshipTable.description] = value
         }
@@ -1775,9 +1227,9 @@ class ModelStorageDb(
         RelationshipRoleTable.insert { row ->
             row[RelationshipRoleTable.id] = RelationshipRoleId.generate()
             row[RelationshipRoleTable.lineageId] = cmd.relationshipRoleId
-            row[RelationshipRoleTable.relationshipSnapshotId] = currentHeadRelationshipSnapshotId(cmd.modelId, cmd.relationshipId)
+            row[RelationshipRoleTable.relationshipSnapshotId] = snapshots.currentHeadRelationshipSnapshotId(cmd.modelId, cmd.relationshipId)
             row[RelationshipRoleTable.key] = cmd.key
-            row[RelationshipRoleTable.entitySnapshotId] = currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId)
+            row[RelationshipRoleTable.entitySnapshotId] = snapshots.currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId)
             row[RelationshipRoleTable.name] = cmd.name
             row[RelationshipRoleTable.cardinality] = cmd.cardinality.code
         }
@@ -1798,7 +1250,7 @@ class ModelStorageDb(
     private fun updateRelationshipRoleEntity(relationshipRoleId: RelationshipRoleId, value: EntityId) {
         val modelId = modelIdForRelationshipRole(relationshipRoleId)
         RelationshipRoleTable.update(where = { RelationshipRoleTable.lineageId eq relationshipRoleId }) { row ->
-            row[RelationshipRoleTable.entitySnapshotId] = currentHeadEntitySnapshotId(modelId, value)
+            row[RelationshipRoleTable.entitySnapshotId] = snapshots.currentHeadEntitySnapshotId(modelId, value)
         }
     }
 
@@ -1812,7 +1264,7 @@ class ModelStorageDb(
 
     private fun deleteRelationshipRole(relationshipId: RelationshipId, relationshipRoleId: RelationshipRoleId) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipRoleTable.deleteWhere {
             (RelationshipRoleTable.lineageId eq relationshipRoleId) and (RelationshipRoleTable.relationshipSnapshotId eq relationshipSnapshotId)
         }
@@ -1820,7 +1272,7 @@ class ModelStorageDb(
 
     private fun addRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         val exists = RelationshipTagTable.select(RelationshipTagTable.relationshipSnapshotId).where {
             (RelationshipTagTable.relationshipSnapshotId eq relationshipSnapshotId) and (RelationshipTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -1866,7 +1318,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationship(modelId: ModelId, relationshipId: RelationshipId) {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
+        val modelSnapshotId = snapshots.currentHeadModelSnapshotId(modelId)
         searchWrite.deleteRelationshipBranch(relationshipId)
         RelationshipTable.deleteWhere {
             (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
@@ -1875,7 +1327,7 @@ class ModelStorageDb(
 
     private fun deleteRelationshipTag(relationshipId: RelationshipId, tagId: TagId) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipTagTable.deleteWhere {
             (RelationshipTagTable.relationshipSnapshotId eq relationshipSnapshotId) and (RelationshipTagTable.tagId eq tagId)
         }
@@ -1884,47 +1336,15 @@ class ModelStorageDb(
     // Relationship attribute
     // ------------------------------------------------------------------------
 
-    private fun loadRelationshipAttributes(modelId: ModelId): List<AttributeInMemory> {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        val typeTable = ModelTypeTable.alias("relationship_attribute_type_snapshot")
-        return RelationshipTable.join(
-            RelationshipAttributeTable,
-            joinType = JoinType.INNER,
-            onColumn = RelationshipTable.id,
-            otherColumn = RelationshipAttributeTable.relationshipSnapshotId
-        ).join(
-            typeTable,
-            joinType = JoinType.INNER,
-            onColumn = RelationshipAttributeTable.typeSnapshotId,
-            otherColumn = typeTable[ModelTypeTable.id]
-        ).selectAll().where { RelationshipTable.modelSnapshotId eq modelSnapshotId }.map { row ->
-            val record = RelationshipAttributeRecord.read(row)
-            val tags = loadRelationshipAttributeTags(record.snapshotId)
-            toRelationshipAttribute(
-                record,
-                tags,
-                row[typeTable[ModelTypeTable.lineageId]],
-                row[RelationshipTable.lineageId]
-            )
-        }
-    }
-
-    private fun loadRelationshipAttributeTags(attributeId: AttributeId): List<TagId> {
-        return RelationshipAttributeTagTable.selectAll()
-            .where { RelationshipAttributeTagTable.attributeSnapshotId eq attributeId }
-            .orderBy(RelationshipAttributeTagTable.tagId to SortOrder.ASC)
-            .map { it[RelationshipAttributeTagTable.tagId] }
-    }
-
     private fun createRelationshipAttribute(cmd: ModelStorageCmd.CreateRelationshipAttribute) {
         val record = RelationshipAttributeRecord(
             snapshotId = AttributeId.generate(),
             lineageId = cmd.attributeId,
-            relationshipSnapshotId = currentHeadRelationshipSnapshotId(cmd.modelId, cmd.relationshipId),
+            relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(cmd.modelId, cmd.relationshipId),
             name = cmd.name,
             key = cmd.key,
             description = cmd.description,
-            typeSnapshotId = currentHeadTypeSnapshotId(cmd.modelId, cmd.typeId),
+            typeSnapshotId = snapshots.currentHeadTypeSnapshotId(cmd.modelId, cmd.typeId),
             optional = cmd.optional
         )
         insertRelationshipAttribute(record)
@@ -1935,7 +1355,7 @@ class ModelStorageDb(
         relationshipId: RelationshipId, attributeId: AttributeId, value: AttributeKey
     ) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipAttributeTable.update(where = {
             (RelationshipAttributeTable.lineageId eq attributeId) and
                     (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
@@ -1950,7 +1370,7 @@ class ModelStorageDb(
         relationshipId: RelationshipId, attributeId: AttributeId, value: LocalizedText?
     ) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipAttributeTable.update(
             where = {
                 (RelationshipAttributeTable.lineageId eq attributeId) and
@@ -1965,7 +1385,7 @@ class ModelStorageDb(
         relationshipId: RelationshipId, attributeId: AttributeId, value: LocalizedMarkdown?
     ) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipAttributeTable.update(
             where = {
                 (RelationshipAttributeTable.lineageId eq attributeId) and
@@ -1980,13 +1400,13 @@ class ModelStorageDb(
         relationshipId: RelationshipId, attributeId: AttributeId, value: TypeId
     ) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipAttributeTable.update(
             where = {
                 (RelationshipAttributeTable.lineageId eq attributeId) and
                         (RelationshipAttributeTable.relationshipSnapshotId eq relationshipSnapshotId)
             }) { row ->
-            row[RelationshipAttributeTable.typeSnapshotId] = currentHeadTypeSnapshotId(modelId, value)
+            row[RelationshipAttributeTable.typeSnapshotId] = snapshots.currentHeadTypeSnapshotId(modelId, value)
         }
     }
 
@@ -1994,7 +1414,7 @@ class ModelStorageDb(
         relationshipId: RelationshipId, attributeId: AttributeId, value: Boolean
     ) {
         val modelId = modelIdForRelationship(relationshipId)
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         RelationshipAttributeTable.update(
             where = {
                 (RelationshipAttributeTable.lineageId eq attributeId) and
@@ -2006,7 +1426,7 @@ class ModelStorageDb(
 
     private fun addRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
         val modelId = modelIdForRelationshipAttribute(attributeId)
-        val attributeSnapshotId = currentHeadAttributeSnapshotId(modelId, attributeId)
+        val attributeSnapshotId = snapshots.currentHeadAttributeSnapshotId(modelId, attributeId)
         val exists = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.attributeSnapshotId).where {
             (RelationshipAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (RelationshipAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -2040,7 +1460,7 @@ class ModelStorageDb(
     }
 
     private fun deleteRelationshipAttribute(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId) {
-        val relationshipSnapshotId = currentHeadRelationshipSnapshotId(modelId, relationshipId)
+        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotId(modelId, relationshipId)
         searchWrite.deleteRelationshipAttributeSearchItem(attributeId)
         RelationshipAttributeTable.deleteWhere {
             (RelationshipAttributeTable.lineageId eq attributeId) and
@@ -2050,20 +1470,16 @@ class ModelStorageDb(
 
     private fun deleteRelationshipAttributeTag(attributeId: AttributeId, tagId: TagId) {
         val modelId = modelIdForRelationshipAttribute(attributeId)
-        val attributeSnapshotId = currentHeadAttributeSnapshotId(modelId, attributeId)
+        val attributeSnapshotId = snapshots.currentHeadAttributeSnapshotId(modelId, attributeId)
         RelationshipAttributeTagTable.deleteWhere {
             (RelationshipAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (RelationshipAttributeTagTable.tagId eq tagId)
         }
         searchWrite.upsertRelationshipAttributeSearchItem(modelId, attributeId)
     }
 
-    private fun modelReleaseEventType(): String {
-        return eventSystem.registry.findEntryByCmdClass(ModelStorageCmd.ModelRelease::class).eventType
-    }
+
 
     companion object {
-        private const val CURRENT_HEAD_SNAPSHOT_KIND = "CURRENT_HEAD"
-        private const val VERSION_SNAPSHOT_KIND = "VERSION_SNAPSHOT"
         private val logger: Logger = LoggerFactory.getLogger(ModelStorageDb::class.java)
     }
 

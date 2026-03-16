@@ -49,6 +49,10 @@ class ModelEventRegistry(
         return entry as ModelEventDescriptor<ModelStorageCmd>
     }
 
+    fun modelReleaseEventType(): String {
+        return findEntryByCmdClass(ModelStorageCmd.ModelRelease::class).eventType
+    }
+
     private data class ContractKey(
         val eventType: String,
         val eventVersion: Int
