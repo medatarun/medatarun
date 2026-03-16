@@ -1,11 +1,15 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.AttributeId
+import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbSnapshots
 import io.medatarun.model.infra.db.events.ModelEventStreamNumberContext
 import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.records.EntityAttributeRecord
+import io.medatarun.model.infra.db.records.EntityRecord
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.infra.db.tables.EntityAttributeTable
 import io.medatarun.model.infra.db.tables.EntityAttributeTagTable
@@ -249,24 +253,6 @@ class ModelStorageDb(
         }
     }
 
-
-    private fun modelIdForEntitySnapshot(entitySnapshotId: EntityId): ModelId {
-        val row = EntityTable.select(EntityTable.modelSnapshotId).where { EntityTable.id eq entitySnapshotId }.singleOrNull()
-        if (row == null) {
-            throw ModelStorageDbMissingEntitySnapshotException(entitySnapshotId)
-        }
-        return modelIdForModelSnapshot(row[EntityTable.modelSnapshotId])
-    }
-
-    private fun modelIdForModelSnapshot(modelSnapshotId: ModelId): ModelId {
-        val row = ModelSnapshotTable.select(ModelSnapshotTable.modelId)
-            .where { ModelSnapshotTable.id eq modelSnapshotId.asString() }
-            .singleOrNull()
-        if (row == null) {
-            throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelSnapshotId)
-        }
-        return row[ModelSnapshotTable.modelId]
-    }
 
     // Model
     // ------------------------------------------------------------------------
@@ -828,8 +814,34 @@ class ModelStorageDb(
 
 
     private fun createEntity(cmd: ModelStorageCmd.CreateEntity) {
-        insertEntity(cmd)
+        val entitySnapshotId = EntityId.generate()
+        val identifierAttributeSnapshotId = AttributeId.generate()
+        val record = EntityRecord(
+            snapshotId = entitySnapshotId,
+            lineageId = cmd.entityId,
+            modelSnapshotId = snapshots.currentHeadModelSnapshotId(cmd.modelId),
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description,
+            identifierAttributeSnapshotId = identifierAttributeSnapshotId,
+            origin = cmd.origin,
+            documentationHome = cmd.documentationHome?.toExternalForm()
+        )
+        insertEntity(record)
+        insertEntityAttribute(
+            EntityAttributeRecord(
+                snapshotId = identifierAttributeSnapshotId,
+                lineageId = cmd.identityAttributeId,
+                entitySnapshotId = entitySnapshotId,
+                key = cmd.identityAttributeKey,
+                name = cmd.identityAttributeName,
+                description = cmd.identityAttributeDescription,
+                typeSnapshotId = snapshots.currentHeadTypeSnapshotId(cmd.modelId, cmd.identityAttributeTypeId),
+                optional = cmd.identityAttributeIdOptional
+            )
+        )
         searchWrite.upsertEntitySearchItem(cmd.modelId, cmd.entityId)
+        searchWrite.upsertEntityAttributeSearchItem(cmd.modelId, cmd.identityAttributeId)
     }
 
     private fun updateEntityKey(cmd: ModelStorageCmd.UpdateEntityKey) {
@@ -919,38 +931,6 @@ class ModelStorageDb(
         }
     }
 
-    private fun insertEntity(cmd: ModelStorageCmd.CreateEntity) {
-        val entitySnapshotId = EntityId.generate()
-        val identifierAttributeSnapshotId = AttributeId.generate()
-
-        val record = EntityRecord(
-            snapshotId = entitySnapshotId,
-            lineageId = cmd.entityId,
-            modelSnapshotId = snapshots.currentHeadModelSnapshotId(cmd.modelId),
-            key = cmd.key,
-            name = cmd.name,
-            description = cmd.description,
-            identifierAttributeSnapshotId = identifierAttributeSnapshotId,
-            origin = cmd.origin,
-            documentationHome = cmd.documentationHome?.toExternalForm()
-        )
-
-        insertEntity(record)
-
-        insertEntityAttribute(
-            EntityAttributeRecord(
-                snapshotId = identifierAttributeSnapshotId,
-                lineageId = cmd.identityAttributeId,
-                entitySnapshotId = entitySnapshotId,
-                key = cmd.identityAttributeKey,
-                name = cmd.identityAttributeName,
-                description = cmd.identityAttributeDescription,
-                typeSnapshotId = snapshots.currentHeadTypeSnapshotId(cmd.modelId, cmd.identityAttributeTypeId),
-                optional = cmd.identityAttributeIdOptional
-            )
-        )
-    }
-
     private fun insertEntity(record: EntityRecord) {
         EntityTable.insert { row ->
             row[EntityTable.id] = record.snapshotId
@@ -971,11 +951,12 @@ class ModelStorageDb(
 
 
     private fun createEntityAttribute(cmd: ModelStorageCmd.CreateEntityAttribute) {
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId)
         insertEntityAttribute(
             EntityAttributeRecord(
                 snapshotId = AttributeId.generate(),
                 lineageId = cmd.attributeId,
-                entitySnapshotId = snapshots.currentHeadEntitySnapshotId(cmd.modelId, cmd.entityId),
+                entitySnapshotId = entitySnapshotId,
                 key = cmd.key,
                 name = cmd.name,
                 description = cmd.description,
@@ -983,6 +964,7 @@ class ModelStorageDb(
                 optional = cmd.optional
             )
         )
+        searchWrite.upsertEntityAttributeSearchItem(cmd.modelId, cmd.attributeId)
     }
 
     private fun updateEntityAttributeKey(cmd: ModelStorageCmd.UpdateEntityAttributeKey) {
@@ -1039,10 +1021,7 @@ class ModelStorageDb(
     }
 
 
-    private fun insertEntityAttribute(
-        record: EntityAttributeRecord
-
-    ) {
+    private fun insertEntityAttribute(record: EntityAttributeRecord) {
         EntityAttributeTable.insert { row ->
             row[EntityAttributeTable.id] = record.snapshotId
             row[EntityAttributeTable.lineageId] = record.lineageId
@@ -1053,7 +1032,7 @@ class ModelStorageDb(
             row[EntityAttributeTable.typeSnapshotId] = record.typeSnapshotId
             row[EntityAttributeTable.optional] = record.optional
         }
-        searchWrite.upsertEntityAttributeSearchItem(modelIdForEntitySnapshot(record.entitySnapshotId), record.lineageId)
+
     }
 
 
