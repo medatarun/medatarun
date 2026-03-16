@@ -37,10 +37,6 @@ class ModelStorageDbSnapshots {
             modelId
         )
     }
-    fun currentHeadTypeSnapshotId(modelId: ModelId, typeId: TypeId): TypeSnapshotId {
-        val modelSnapshotId = currentHeadModelSnapshotId(modelId)
-        return currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
-    }
 
     fun currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId: ModelSnapshotId, typeId: TypeId): TypeSnapshotId {
         val row = ModelTypeTable.select(ModelTypeTable.id).where {
