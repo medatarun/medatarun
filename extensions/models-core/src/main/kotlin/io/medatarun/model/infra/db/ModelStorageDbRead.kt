@@ -9,7 +9,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
-import io.medatarun.model.infra.db.aggregate.ModelStorageDbSnapshots
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
 import io.medatarun.model.infra.db.events.ModelEventRegistry
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
