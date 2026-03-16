@@ -21,64 +21,78 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 internal class ModelStorageDbSearchWrite(
     private val enabled: Boolean = true
 ) {
-    fun upsertModelSearchItem(modelId: ModelId) {
+    fun upsertModelSearchItem(modelSnapshotId: ModelSnapshotId) {
         if (!enabled) return
-        val row = ModelSnapshotTable.selectAll()
-            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() }
-            .singleOrNull()
-        if (row == null) {
-            deleteSearchItemById(searchItemIdForModel(modelId))
-            return
-        }
-        val modelRecord = ModelRecord.read(row)
 
-        replaceSearchItem(
-            DenormModelSearchItemRecord(
-                id = searchItemIdForModel(modelId),
-                itemType = SearchItemType.MODEL,
-                modelSnapshotId = modelRecord.snapshotId,
-                modelId = modelId,
-                modelKey = modelRecord.key,
-                modelLabel = modelLabelFromRecord(modelRecord),
-                entityId = null,
-                entityKey = null,
-                entityLabel = null,
-                relationshipId = null,
-                relationshipKey = null,
-                relationshipLabel = null,
-                attributeId = null,
-                attributeKey = null,
-                attributeLabel = null,
-                searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
-            ),
-            ModelTagTable.select(ModelTagTable.tagId)
-                .where { ModelTagTable.modelSnapshotId eq modelRecord.snapshotId }
-                .map { it[ModelTagTable.tagId] }
-        )
+        // Find the model record to update
+        val modelRecord = ModelSnapshotTable.selectAll()
+            .where { SnapshotSelector.ById(modelSnapshotId).criterion() }
+            .singleOrNull()
+            ?.let { ModelRecord.read(it) }
+
+        // If found update it, but ignore issues if not found
+        if (modelRecord != null) {
+            replaceSearchItem(
+                DenormModelSearchItemRecord(
+                    id = searchItemIdForModel(modelRecord.modelId),
+                    itemType = SearchItemType.MODEL,
+                    modelSnapshotId = modelRecord.snapshotId,
+                    modelId = modelRecord.modelId,
+                    modelKey = modelRecord.key,
+                    modelLabel = modelLabelFromRecord(modelRecord),
+                    entityId = null,
+                    entityKey = null,
+                    entityLabel = null,
+                    relationshipId = null,
+                    relationshipKey = null,
+                    relationshipLabel = null,
+                    attributeId = null,
+                    attributeKey = null,
+                    attributeLabel = null,
+                    searchText = buildSearchText(modelRecord.key, modelRecord.name, modelRecord.description)
+                ),
+                ModelTagTable.select(ModelTagTable.tagId)
+                    .where { ModelTagTable.modelSnapshotId eq modelRecord.snapshotId }
+                    .map { it[ModelTagTable.tagId] }
+            )
+        }
     }
 
+
+    /**
+     * Deletes the model and every row that matches branch of this model (entity, attributes, etc.)
+     */
     fun deleteModelBranch(modelId: ModelId) {
         if (!enabled) return
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
-        DenormModelSearchItemTable
-            .select(DenormModelSearchItemTable.id)
-            .where { DenormModelSearchItemTable.modelSnapshotId eq modelSnapshotIdValue }
-            .map { it[DenormModelSearchItemTable.id] }
-            .forEach { deleteSearchItemById(it) }
+        val row = ModelSnapshotTable.select(ModelSnapshotTable.id)
+            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() }
+            .singleOrNull()
+        if (row != null) {
+            val modelSnapshotIdValue = row[ModelSnapshotTable.id]
+            DenormModelSearchItemTable
+                .select(DenormModelSearchItemTable.id)
+                .where { DenormModelSearchItemTable.modelSnapshotId eq modelSnapshotIdValue }
+                .map { it[DenormModelSearchItemTable.id] }
+                .forEach { deleteSearchItemById(it) }
+        }
     }
 
-    fun upsertEntitySearchItem(modelId: ModelId, entityId: EntityId) {
+    fun upsertEntitySearchItem(modelSnapshotId: ModelSnapshotId, entityId: EntityId) {
         if (!enabled) return
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
-        val row = EntityTable.selectAll()
-            .where { (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotIdValue) }
+        val row = EntityTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            EntityTable.modelSnapshotId,
+            ModelSnapshotTable.id
+        ).selectAll()
+            .where { (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId) }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForEntity(entityId))
             return
         }
         val entityRecord = EntityRecord.read(row)
-        val modelRecord = loadModelRecordBySnapshotId(entityRecord.modelSnapshotId)
+        val modelRecord = ModelRecord.read(row)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -120,17 +134,27 @@ internal class ModelStorageDbSearchWrite(
 
     }
 
-    fun upsertEntityAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
+    fun upsertEntityAttributeSearchItem(
+        modelSnapshotId: ModelSnapshotId,
+        entityId: EntityId,
+        attributeId: AttributeId
+    ) {
         if (!enabled) return
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = EntityAttributeTable.join(
             EntityTable,
             JoinType.INNER,
             EntityAttributeTable.entitySnapshotId,
             EntityTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            EntityTable.modelSnapshotId,
+            ModelSnapshotTable.id
         ).selectAll()
             .where {
-                (EntityAttributeTable.lineageId eq attributeId) and (EntityTable.modelSnapshotId eq modelSnapshotIdValue)
+                (EntityAttributeTable.lineageId eq attributeId) and
+                        (EntityTable.lineageId eq entityId) and
+                        (EntityTable.modelSnapshotId eq modelSnapshotId)
             }
             .singleOrNull()
         if (row == null) {
@@ -138,13 +162,8 @@ internal class ModelStorageDbSearchWrite(
             return
         }
         val attributeRecord = EntityAttributeRecord.read(row)
-
-        val entityRow = EntityTable.selectAll()
-            .where { EntityTable.id eq attributeRecord.entitySnapshotId }
-            .singleOrNull()
-            ?: throw ModelStorageDbSearchMissingSourceRowException("entity", attributeRecord.entitySnapshotId)
-        val entityRecord = EntityRecord.read(entityRow)
-        val modelRecord = loadModelRecordBySnapshotId(entityRecord.modelSnapshotId)
+        val entityRecord = EntityRecord.read(row)
+        val modelRecord = ModelRecord.read(row)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -177,18 +196,22 @@ internal class ModelStorageDbSearchWrite(
         deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
     }
 
-    fun upsertRelationshipSearchItem(modelId: ModelId, relationshipId: RelationshipId) {
+    fun upsertRelationshipSearchItem(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId) {
         if (!enabled) return
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
-        val row = RelationshipTable.selectAll()
-            .where { (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotIdValue) }
+        val row = RelationshipTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            RelationshipTable.modelSnapshotId,
+            ModelSnapshotTable.id
+        ).selectAll()
+            .where { (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId) }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForRelationship(relationshipId))
             return
         }
         val relationshipRecord = RelationshipRecord.read(row)
-        val modelRecord = loadModelRecordBySnapshotId(relationshipRecord.modelSnapshotId)
+        val modelRecord = ModelRecord.read(row)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -233,18 +256,27 @@ internal class ModelStorageDbSearchWrite(
             .forEach { deleteSearchItemById(it) }
     }
 
-    fun upsertRelationshipAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
+    fun upsertRelationshipAttributeSearchItem(
+        modelSnapshotId: ModelSnapshotId,
+        relationshipId: RelationshipId,
+        attributeId: AttributeId
+    ) {
         if (!enabled) return
-        val modelSnapshotIdValue = currentHeadModelSnapshotId(modelId)
         val row = RelationshipAttributeTable.join(
             RelationshipTable,
             JoinType.INNER,
             RelationshipAttributeTable.relationshipSnapshotId,
             RelationshipTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            RelationshipTable.modelSnapshotId,
+            ModelSnapshotTable.id
         ).selectAll()
             .where {
                 (RelationshipAttributeTable.lineageId eq attributeId) and
-                        (RelationshipTable.modelSnapshotId eq modelSnapshotIdValue)
+                        (RelationshipTable.lineageId eq relationshipId) and
+                        (RelationshipTable.modelSnapshotId eq modelSnapshotId)
             }
             .singleOrNull()
         if (row == null) {
@@ -252,13 +284,8 @@ internal class ModelStorageDbSearchWrite(
             return
         }
         val attributeRecord = RelationshipAttributeRecord.read(row)
-
-        val relationshipRow = RelationshipTable.selectAll()
-            .where { RelationshipTable.id eq attributeRecord.relationshipSnapshotId }
-            .singleOrNull()
-            ?: throw ModelStorageDbSearchMissingSourceRowException("relationship", attributeRecord.relationshipSnapshotId)
-        val relationshipRecord = RelationshipRecord.read(relationshipRow)
-        val modelRecord = loadModelRecordBySnapshotId(relationshipRecord.modelSnapshotId)
+        val relationshipRecord = RelationshipRecord.read(row)
+        val modelRecord = ModelRecord.read(row)
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -354,26 +381,6 @@ internal class ModelStorageDbSearchWrite(
 
     private fun relationshipAttributeLabelFromRecord(record: RelationshipAttributeRecord): String {
         return record.name?.name ?: record.key.value
-    }
-
-    private fun loadModelRecord(modelId: ModelId): ModelRecord {
-        val row = ModelSnapshotTable.selectAll()
-            .where {
-                SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
-            }
-            .single()
-        return ModelRecord.read(row)
-    }
-
-    private fun loadModelRecordBySnapshotId(modelSnapshotId: ModelSnapshotId): ModelRecord {
-        val row = ModelSnapshotTable.selectAll()
-            .where { ModelSnapshotTable.id eq modelSnapshotId }
-            .single()
-        return ModelRecord.read(row)
-    }
-
-    private fun currentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId {
-        return loadModelRecord(modelId).snapshotId
     }
 
     private fun searchItemIdForModel(modelId: ModelId): String {

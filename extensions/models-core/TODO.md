@@ -230,3 +230,73 @@ Critères de décision pour choisir la vue finale:
 - capacité à servir à la fois:
   - un usage "résumé / message",
   - un usage "analyse détaillée".
+
+## [SEARCH_PROJECTION] Repenser la projection search après le chantier versionning
+
+Règle technique cible:
+
+- la search doit être traitée comme un read model dérivé et reconstructible.
+- sa projection incrémentale doit partir du même flux que la projection du
+  `CURRENT_HEAD`, sans re-découvrir seule le contexte métier déjà connu par le
+  pipeline d'écriture.
+- le contrat des appels doit rester explicite:
+  - ordre des paramètres: `model > entity / relationship / type > attribute / role`
+  - pas de classes de contexte dédiées pour la search.
+
+Constat actuel dans le code:
+
+- `ModelStorageDbProjection` pousse déjà la search après projection du
+  `CURRENT_HEAD`, mais `ModelStorageDbSearchWrite` re-résout encore beaucoup de
+  choses seul. Ca occasionne beaucoup trop de requetes SQL pour rien.
+- une première amélioration a été faite:
+  - `ModelStorageDbSearchWrite` reçoit maintenant `modelSnapshotId` dans ses
+    `upsert...`
+  - et, pour les attributs, reçoit aussi le parent (`entityId` ou
+    `relationshipId`)
+  - ce qui retire une partie des relectures inutiles du `CURRENT_HEAD`.
+- malgré cela, la search reste encore pensée comme une mini reconstruction
+  locale par item:
+  - relecture des lignes source,
+  - suppression de l'item dénormalisé,
+  - réinsertion complète de l'item,
+  - réinsertion complète des tags.
+
+Problème restant à résoudre:
+
+- la search garde une logique héritée de l'ancien modèle stateful:
+  - "un objet change => on supprime l'item search et on le reconstruit".
+- ce fonctionnement masque le vrai statut de la search:
+  - une projection dérivée de l'event et du snapshot courant,
+  - pas une couche autonome qui doit re-déduire seule quoi faire.
+- les coûts restants viennent surtout de là:
+  - lectures redondantes dans `ModelStorageDbSearchWrite`
+  - `delete / insert` systématiques sur `model_search_item_snapshot`
+  - reconstruction complète quand un changement local ne touche qu'une partie
+    de l'item ou seulement ses tags.
+
+Direction retenue pour la suite:
+
+- terminer d'abord le chantier versionning.
+- ensuite, sortir la search de la logique "projection principale appelle un
+  mini recalcul autonome".
+- faire de la search une projection soeur de la projection `CURRENT_HEAD`,
+  orchestrée depuis `ModelStorageDb` dans la même transaction, à partir du même
+  event.
+- garder deux modes explicites:
+  - reconstruction complète depuis un `ModelAggregate` / `CURRENT_HEAD`
+  - projection incrémentale événement par événement
+
+Ce qui manque encore:
+
+- définir le contrat explicite de projection search par type d'event:
+  - quelles commandes produisent un `insert`, un `update`, un `delete`,
+    un changement de tags.
+- supprimer la logique "replace item" systématique quand une mutation ciblée
+  suffit.
+- permettre le rebuild complet de la search sans dépendre de son état courant.
+- réorganiser l'orchestration pour exprimer clairement:
+  - `dispatch`
+  - projection snapshot
+  - projection search
+  comme deux projections dérivées du même flux, et non comme une projection
+  principale suivie d'un recalcul autonome de la search.
