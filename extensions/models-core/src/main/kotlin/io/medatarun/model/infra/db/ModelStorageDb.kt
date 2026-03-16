@@ -69,27 +69,24 @@ class ModelStorageDb(
 
     override fun dispatch(cmdEnv: ModelStorageCmdEnveloppe) {
         db.withExposed {
-            val modelId = extractModelId(cmdEnv.cmd)
-            val streamNumberCtx = eventSystem.eventStreamNumberManager.createNumberContext(modelId)
-            val modelSnapshotId = prepareStorageForAppend(cmdEnv.cmd, modelId)
-            dispatchExposed(cmdEnv, streamNumberCtx, modelSnapshotId)
+            dispatchExposed(cmdEnv)
         }
     }
 
     private fun dispatchExposed(
-        cmdEnv: ModelStorageCmdEnveloppe,
-        streamNumberCtx: ModelEventStreamNumberContext,
-        modelSnapshotId: ModelSnapshotId
+        cmdEnv: ModelStorageCmdEnveloppe
     ) {
         val cmd = cmdEnv.cmd
         if (cmd is ModelStorageCmd.DeleteModel) {
-            appendModelEvent(cmdEnv, streamNumberCtx)
             deleteModel(cmd.modelId)
-            return
+        } else {
+            val modelId = extractModelId(cmdEnv.cmd)
+            val streamNumberCtx = eventSystem.eventStreamNumberManager.createNumberContext(modelId)
+            val modelSnapshotId = prepareStorageForAppend(cmdEnv.cmd, modelId)
+            val record = appendModelEvent(cmdEnv, streamNumberCtx)
+            projectModelEvent(record, modelSnapshotId)
+            updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
         }
-        val record = appendModelEvent(cmdEnv, streamNumberCtx)
-        projectModelEvent(record, modelSnapshotId)
-        updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
     }
 
     private data class ProjectionEventCtx(

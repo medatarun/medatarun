@@ -213,7 +213,9 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - Tradeoff accepté: la reconstruction de `CURRENT_HEAD` peut être longue en
   incident si beaucoup de `model_event` se sont accumulés.
 - Suppression technique d'un `model` par un administrateur:
-  - suppression totale du `model`, de ses `model_event` et de ses `model_snapshot`.
+  - un `model_event` de suppression est d'abord émis dans le flux normal arrivant au storage par le métier;
+  - suppression totale du `model`, de ses `model_event` et de ses `model_snapshot` en cascade.
+  - cet event de suppression n'a pas vocation à survivre à l'opération ni a être conservé car l'historique des events est supprimé lui aussi
 
 ### Serialisation des events
 
