@@ -30,17 +30,24 @@ Items DONE:
 - `[VE-H][DONE]` Les tests de contrat JSON figés des events existent déjà: vérification de `event_type`, `event_version`, payload JSON figé et round-trip encode/decode.
 - `[VE-I][DONE]` Le vrai event de stockage `model_release` existe, distinct des updates courants, avec version portée dans l'event.
 - `[VE-J][DONE]` `model_version` dans `model_event` est rempli pour les events `model_release`.
+- `[VE-L][DONE]` Le schéma SQL final du versionning est posé dans `v000`: `model` réduit à son rôle d'identité stable, tables `model_snapshot` et `*_snapshot`, tables de tags snapshot et tables de recherche snapshot.
+- `[VE-M][DONE]` `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT`, `up_to_revision`, `model_event_release_id`, `version`, `lineage_id` et les contraintes SQL minimales principales sont en place.
+- `[VE-N][DONE]` L'écriture actuelle alimente temporairement le schéma final `CURRENT_HEAD` sans attendre le replay complet depuis `model_event`.
+- `[VE-P][DONE]` La `release` crée un `VERSION_SNAPSHOT` à partir du `CURRENT_HEAD` et le rattache à l'event `model_release`.
+- `[VE-R][DONE]` `create` et `import` produisent leur séquence initiale puis la `release` initiale dans la même transaction applicative.
 
 Items PARTIAL et TODO:
 
-- `[VE-L][TODO]` Poser directement le schéma SQL final du versionning: `model` réduit à son rôle d'identité stable, tables `model_snapshot` et `*_snapshot`, tables de tags snapshot et tables de recherche snapshot.
-- `[VE-M][TODO]` Introduire dans ce schéma final `snapshot_kind = CURRENT_HEAD | VERSION_SNAPSHOT`, `up_to_revision`, `model_event_release_id`, `version`, `lineage_id` et les contraintes SQL minimales associées, en gardant `model_event` comme seule source de vérité de version.
-- `[VE-N][TODO]` Adapter l'écriture actuelle pour alimenter temporairement le schéma final `CURRENT_HEAD` sans attendre le replay complet depuis `model_event`.
 - `[VE-O][TODO]` Remplacer cette alimentation directe temporaire par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
-- `[VE-K][TODO]` Ajouter les premières règles métier de publication d'une release: version obligatoire, unicité par modèle, refus sans changement depuis la release précédente.
-- `[VE-P][TODO]` Créer atomiquement le `VERSION_SNAPSHOT` lors d'une `release`, à partir du `CURRENT_HEAD`.
+- `[VE-K1][TODO]` Refuser une release si la version demandée existe déjà pour le même modèle.
+- `[VE-K2][TODO]` Refuser une release si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
+- `[VE-K3][TODO]` Refuser une release s'il n'y a eu aucun changement depuis la release précédente.
+- `[VE-K4][TODO]` Refuser une release si la reconstruction `model_event -> CURRENT_HEAD` échoue, quand ce contrôle sera disponible côté application.
 - `[VE-Q][TODO]` Ajouter le replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
-- `[VE-R][TODO]` Refaire `create` et `import` pour produire leur séquence initiale d'events puis la `release` initiale dans une seule transaction.
 - `[VE-S][TODO]` Ajouter les requêtes de lecture du versionning: liste des releases, chargement d'une version précise, historique et diff entre releases.
 - `[VE-T][TODO]` Basculer les lectures rapides sur `CURRENT_HEAD` et les snapshots de version, puis retirer l'ancienne alimentation directe des tables courantes qui n'ont plus de rôle dans la cible finale.
 - `[VE-U][TODO]` La décision sur la politique historique des tags est actée dans `Versionning.md`: les releases conservent les `TagId` attachés, pas les métadonnées complètes des tags. L'implémentation SQL et applicative de cette règle reste à faire dans les snapshots et les lectures historiques.
+- `[VE-Y][TODO]` Aligner le stockage et les contraintes de `model_snapshot.version` avec la règle actée: valeur présente sur `VERSION_SNAPSHOT` et sur `CURRENT_HEAD`, avec le sens "dernier numéro publié connu" pour `CURRENT_HEAD`, et fallback de lecture `0.0.0` tant qu'aucune release n'existe.
+- `[VE-V][TODO]` Ajouter plus tard des tests dédiés sur `CURRENT_HEAD.up_to_revision`, mais seulement quand la forme finale de projection sera stabilisée pour ne pas figer trop tôt l'implémentation.
+- `[VE-W][TODO]` Ajouter les vrais tests bout en bout du versionning au moment où `ModelQueries` exposera la lecture d'une version précise d'un modèle. Couvrir alors des scénarios du type `modif -> release -> modif -> release -> modif` avec vérification de `CURRENT_HEAD` et des snapshots versionnés.
+- `[VE-X][TODO]` Maintenir les tests métier actuels hors versionning comme filet principal pendant la montée en puissance du chantier versionning, et compléter seulement quand les lectures versionnées seront réellement exposées.

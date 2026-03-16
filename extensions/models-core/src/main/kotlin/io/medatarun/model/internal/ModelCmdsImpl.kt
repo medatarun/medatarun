@@ -188,6 +188,7 @@ class ModelCmdsImpl(
                 documentationHome = model.documentationHome
             )
         )
+        storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, model.version))
     }
 
 
@@ -399,8 +400,7 @@ class ModelCmdsImpl(
 
             }
         }
-
-
+        storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, model.version))
     }
 
 

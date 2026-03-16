@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS model_snapshot
     snapshot_kind          TEXT    NOT NULL,
     up_to_revision         INTEGER NOT NULL,
     model_event_release_id TEXT,
-    version                TEXT,
+    version                TEXT    NOT NULL,
     created_at             TEXT    NOT NULL,
     updated_at             TEXT    NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,

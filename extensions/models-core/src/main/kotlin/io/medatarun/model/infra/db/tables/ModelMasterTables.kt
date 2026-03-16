@@ -22,7 +22,7 @@ object ModelSnapshotTable : Table("model_snapshot") {
     val snapshotKind = text("snapshot_kind")
     val upToRevision = integer("up_to_revision")
     val modelEventReleaseId = text("model_event_release_id").nullable()
-    val version = text("version").nullable()
+    val version = text("version")
     val createdAt = text("created_at")
     val updatedAt = text("updated_at")
 

@@ -157,8 +157,9 @@ Colonnes:
   le snapshot.
 - Pour un `VERSION_SNAPSHOT`, elle reflète la version portée par le
   `model_event_release_id` associé.
-- Pour un `CURRENT_HEAD`, elle peut contenir la dernière version publiée connue
-  sans devenir la source de vérité de la version.
+- Pour un `CURRENT_HEAD`, elle porte la dernière version publiée connue.
+- Tant qu'aucune release n'existe encore, la lecture applicative courante du
+  modèle restitue `0.0.0`.
 - `created_at` TEXT NOT NULL: date/heure de création du snapshot.
 - `updated_at` TEXT NOT NULL: date/heure de dernière mise à jour (utile surtout
   pour `CURRENT_HEAD`).
@@ -167,9 +168,7 @@ Contraintes:
 
 - Un seul `CURRENT_HEAD` par `model` (index unique partiel recommandé).
 - Un seul `VERSION_SNAPSHOT` par `model_event_release_id`.
-- `version` obligatoire pour `VERSION_SNAPSHOT`.
-- Pour `CURRENT_HEAD`, `version` reste facultative et purement pratique; elle
-  ne doit pas être traitée comme une contrainte métier de frontière historique.
+- `version` obligatoire pour `VERSION_SNAPSHOT` et `CURRENT_HEAD`.
 - Unicité de la clé courante: `key` doit être unique globalement entre tous les
   snapshots `CURRENT_HEAD` (index unique partiel recommandé).
 
