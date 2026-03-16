@@ -4,7 +4,6 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
-import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.JoinType
@@ -17,77 +16,56 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 internal class ModelStorageDbSearchWrite(
-    private val dbConnectionFactory: DbConnectionFactory,
     private val enabled: Boolean = true
 ) {
     fun upsertModelSearchItem(modelId: ModelId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            upsertModelSearchItemRow(modelId)
-        }
+        upsertModelSearchItemRow(modelId)
     }
 
     fun deleteModelBranch(modelId: ModelId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            deleteRowsByModelId(modelId)
-        }
+        deleteRowsByModelId(modelId)
     }
 
     fun upsertEntitySearchItem(modelId: ModelId, entityId: EntityId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            upsertEntitySearchItemRow(modelId, entityId)
-        }
+        upsertEntitySearchItemRow(modelId, entityId)
     }
 
     fun deleteEntityBranch(entityId: EntityId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            deleteRowsByEntityId(entityId)
-        }
+        deleteRowsByEntityId(entityId)
     }
 
     fun upsertEntityAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            upsertEntityAttributeSearchItemRow(modelId, attributeId)
-        }
+        upsertEntityAttributeSearchItemRow(modelId, attributeId)
     }
 
     fun deleteEntityAttributeSearchItem(attributeId: AttributeId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
-        }
+        deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
     }
 
     fun upsertRelationshipSearchItem(modelId: ModelId, relationshipId: RelationshipId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            upsertRelationshipSearchItemRow(modelId, relationshipId)
-        }
+        upsertRelationshipSearchItemRow(modelId, relationshipId)
     }
 
     fun deleteRelationshipBranch(relationshipId: RelationshipId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            deleteRowsByRelationshipId(relationshipId)
-        }
+        deleteRowsByRelationshipId(relationshipId)
     }
 
     fun upsertRelationshipAttributeSearchItem(modelId: ModelId, attributeId: AttributeId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            upsertRelationshipAttributeSearchItemRow(modelId, attributeId)
-        }
+        upsertRelationshipAttributeSearchItemRow(modelId, attributeId)
     }
 
     fun deleteRelationshipAttributeSearchItem(attributeId: AttributeId) {
         if (!enabled) return
-        dbConnectionFactory.withExposed {
-            deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
-        }
+        deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
     }
 
     private fun upsertModelSearchItemRow(modelId: ModelId) {

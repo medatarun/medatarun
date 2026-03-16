@@ -26,44 +26,46 @@ class ModelStorageDb(
     private val clock: ModelClock
 ) : ModelStorage {
 
-    private val searchRead = ModelStorageDbSearchRead(db)
-    private val searchWrite = ModelStorageDbSearchWrite(db)
+    private val searchRead = ModelStorageDbSearchRead()
+    private val searchWrite = ModelStorageDbSearchWrite()
     private val eventSystem = ModelEventSystem()
     private val snapshots = ModelStorageDbSnapshots()
-    private val read = ModelStorageDbRead(db, snapshots, eventSystem.registry)
+    private val read = ModelStorageDbRead(snapshots, eventSystem.registry)
     private val projection = ModelStorageDbProjection(searchWrite, snapshots, clock)
 
-    override fun existsModelById(id: ModelId): Boolean = read.existsModelById(id)
-    override fun existsModelByKey(key: ModelKey): Boolean = read.existsModelByKey(key)
-    override fun findAllModelIds(): List<ModelId> = read.findAllModelIds()
-    override fun findModelByKeyOptional(key: ModelKey): Model? = read.findModelByKeyOptional(key)
-    override fun findModelByIdOptional(id: ModelId): Model? = read.findModelByIdOptional(id)
-    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? = read.findLatestModelReleaseVersionOptional(modelId)
-    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? = read.findModelAggregateByIdOptional(id)
-    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? = read.findModelAggregateByKeyOptional(key)
-    override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?  = read.findTypeByIdOptional(modelId, typeId)
-    override fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? = read.findTypeByKeyOptional(modelId, key)
-    override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?  = read.findEntityByIdOptional(modelId, entityId)
-    override fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity? = read.findEntityByKeyOptional(modelId, entityKey)
-    override fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?  = read.findEntityAttributeByIdOptional(modelId, entityId, attributeId)
-    override fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute? = read.findEntityAttributeByKeyOptional(modelId, entityId, key)
-    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? = read.findRelationshipByIdOptional(modelId, relationshipId)
-    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? = read.findRelationshipByKeyOptional(modelId, relationshipKey)
-    override fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole? = read.findRelationshipRoleByIdOptional(modelId, relationshipId, roleId)
-    override fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole? = read.findRelationshipRoleByKeyOptional(modelId, relationshipId, roleKey)
-    override fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute? = read.findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeId)
-    override fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?  = read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key)
-    override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean  = read.isTypeUsedInEntityAttributes(modelId, typeId)
-    override fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean  = read.isTypeUsedInRelationshipAttributes(modelId, typeId)
+    override fun existsModelById(id: ModelId): Boolean = db.withExposed { read.existsModelById(id) }
+    override fun existsModelByKey(key: ModelKey): Boolean = db.withExposed { read.existsModelByKey(key) }
+    override fun findAllModelIds(): List<ModelId> = db.withExposed { read.findAllModelIds() }
+    override fun findModelByKeyOptional(key: ModelKey): Model? = db.withExposed { read.findModelByKeyOptional(key) }
+    override fun findModelByIdOptional(id: ModelId): Model? = db.withExposed { read.findModelByIdOptional(id) }
+    override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? = db.withExposed { read.findLatestModelReleaseVersionOptional(modelId) }
+    override fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? = db.withExposed { read.findModelAggregateByIdOptional(id) }
+    override fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? = db.withExposed { read.findModelAggregateByKeyOptional(key) }
+    override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType?  = db.withExposed { read.findTypeByIdOptional(modelId, typeId) }
+    override fun findTypeByKeyOptional(modelId: ModelId, key: TypeKey): ModelType? = db.withExposed { read.findTypeByKeyOptional(modelId, key) }
+    override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?  = db.withExposed { read.findEntityByIdOptional(modelId, entityId) }
+    override fun findEntityByKeyOptional(modelId: ModelId, entityKey: EntityKey): Entity? = db.withExposed { read.findEntityByKeyOptional(modelId, entityKey) }
+    override fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?  = db.withExposed { read.findEntityAttributeByIdOptional(modelId, entityId, attributeId) }
+    override fun findEntityAttributeByKeyOptional(modelId: ModelId, entityId: EntityId, key: AttributeKey): Attribute? = db.withExposed { read.findEntityAttributeByKeyOptional(modelId, entityId, key) }
+    override fun findRelationshipByIdOptional(modelId: ModelId, relationshipId: RelationshipId): Relationship? = db.withExposed { read.findRelationshipByIdOptional(modelId, relationshipId) }
+    override fun findRelationshipByKeyOptional(modelId: ModelId, relationshipKey: RelationshipKey): Relationship? = db.withExposed { read.findRelationshipByKeyOptional(modelId, relationshipKey) }
+    override fun findRelationshipRoleByIdOptional(modelId: ModelId, relationshipId: RelationshipId, roleId: RelationshipRoleId): RelationshipRole? = db.withExposed { read.findRelationshipRoleByIdOptional(modelId, relationshipId, roleId) }
+    override fun findRelationshipRoleByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, roleKey: RelationshipRoleKey): RelationshipRole? = db.withExposed { read.findRelationshipRoleByKeyOptional(modelId, relationshipId, roleKey) }
+    override fun findRelationshipAttributeByIdOptional(modelId: ModelId, relationshipId: RelationshipId, attributeId: AttributeId): Attribute? = db.withExposed { read.findRelationshipAttributeByIdOptional(modelId, relationshipId, attributeId) }
+    override fun findRelationshipAttributeByKeyOptional(modelId: ModelId, relationshipId: RelationshipId, key: AttributeKey): Attribute?  = db.withExposed { read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key) }
+    override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean  = db.withExposed { read.isTypeUsedInEntityAttributes(modelId, typeId) }
+    override fun isTypeUsedInRelationshipAttributes(modelId: ModelId, typeId: TypeId): Boolean  = db.withExposed { read.isTypeUsedInRelationshipAttributes(modelId, typeId) }
 
-    fun findAllModelEvents(modelId: ModelId) = read.findAllModelEvents(modelId)
+    fun findAllModelEvents(modelId: ModelId) = db.withExposed { read.findAllModelEvents(modelId) }
 
     // -------------------------------------------------------------------------
     // Search
     // -------------------------------------------------------------------------
 
     override fun search(query: ModelStorageSearchQuery): SearchResults {
-        return searchRead.search(query)
+        return db.withExposed {
+            searchRead.search(query)
+        }
     }
 
     // -------------------------------------------------------------------------

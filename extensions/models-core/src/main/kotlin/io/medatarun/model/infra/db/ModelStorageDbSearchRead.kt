@@ -13,7 +13,6 @@ import io.medatarun.model.ports.needs.ModelStorageSearchFilter
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterTags
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterText
 import io.medatarun.model.ports.needs.ModelStorageSearchQuery
-import io.medatarun.platform.db.DbConnectionFactory
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
@@ -25,13 +24,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * Cleary not good at all, need to redo this properly to get everything in one query
  */
 internal class ModelStorageDbSearchRead(
-    private val dbConnectionFactory: DbConnectionFactory
 ) {
     fun search(query: ModelStorageSearchQuery): SearchResults {
-        return dbConnectionFactory.withExposed { searchT(query) }
-    }
-
-    private fun searchT(query: ModelStorageSearchQuery): SearchResults {
         val matchingIds = resolveMatchingSearchItemIds(query)
         if (matchingIds.isEmpty()) {
             return SearchResults(emptyList())
