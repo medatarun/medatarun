@@ -66,7 +66,7 @@ class ModelStorageDbAggregateReader(
                 toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
             }
     }
-    fun loadEntityTags(entityId: EntitySnapshotId): List<TagId> {
+    private fun loadEntityTags(entityId: EntitySnapshotId): List<TagId> {
         return EntityTagTable.selectAll().where { EntityTagTable.entitySnapshotId eq entityId }
             .orderBy(EntityTagTable.tagId to SortOrder.ASC).map { it[EntityTagTable.tagId] }
     }
@@ -95,7 +95,7 @@ class ModelStorageDbAggregateReader(
         }
     }
 
-    fun loadEntityAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
+    private fun loadEntityAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
         return EntityAttributeTagTable.selectAll().where { EntityAttributeTagTable.attributeSnapshotId eq attributeId }
             .orderBy(EntityAttributeTagTable.tagId to SortOrder.ASC).map { it[EntityAttributeTagTable.tagId] }
     }
@@ -131,7 +131,7 @@ class ModelStorageDbAggregateReader(
             }
     }
 
-    fun loadRelationshipTags(relationshipId: RelationshipSnapshotId): List<TagId> {
+    private fun loadRelationshipTags(relationshipId: RelationshipSnapshotId): List<TagId> {
         return RelationshipTagTable.selectAll().where { RelationshipTagTable.relationshipSnapshotId eq relationshipId }
             .orderBy(RelationshipTagTable.tagId to SortOrder.ASC).map { it[RelationshipTagTable.tagId] }
     }
@@ -161,7 +161,7 @@ class ModelStorageDbAggregateReader(
         }
     }
 
-    fun loadRelationshipAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
+    private fun loadRelationshipAttributeTags(attributeId: AttributeSnapshotId): List<TagId> {
         return RelationshipAttributeTagTable.selectAll()
             .where { RelationshipAttributeTagTable.attributeSnapshotId eq attributeId }
             .orderBy(RelationshipAttributeTagTable.tagId to SortOrder.ASC)

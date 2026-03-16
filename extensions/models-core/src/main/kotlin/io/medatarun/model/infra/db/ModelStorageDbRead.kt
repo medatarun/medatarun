@@ -290,7 +290,14 @@ class ModelStorageDbRead(
                     row[roleEntityTable[EntityTable.lineageId]]
                 )
             }
-        val tags = aggregateReader.loadRelationshipTags(relationshipRecord.snapshotId)
+        // Roles and tags are two independent collections on the same relationship.
+        // Joining both in one query multiplies rows (roles x tags), which makes
+        // reconstruction and deduplication more fragile than a second query.
+        // We had bugs about that before, so the choice is 2 requests.
+        val tags = RelationshipTagTable.selectAll()
+            .where { RelationshipTagTable.relationshipSnapshotId eq relationshipRecord.snapshotId }
+            .orderBy(RelationshipTagTable.tagId to SortOrder.ASC)
+            .map { it[RelationshipTagTable.tagId] }
 
         return toRelationship(relationshipRecord, roles, tags)
     }
