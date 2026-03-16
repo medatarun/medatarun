@@ -123,8 +123,6 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
   si la frontière est déjà portée par le `model_event` de release).
 - La création d'une release ne peut se faire qu'à partir du `CURRENT_HEAD` du
   `model`.
-- Création de release sans changement interdite: impossible de créer une release
-  si aucun `model_event` de contenu n'a été ajouté depuis la release précédente.
 - Mode strict: la création d'une release est refusée si la cohérence
   reconstruction `model_event -> CURRENT_HEAD` échoue.
 - Atomicité: création du `model_event` de release et du `model_snapshot` de type `VERSION_SNAPSHOT` dans

@@ -15,6 +15,7 @@ Le principe de travail actuel est progressif:
 Statuts:
 
 - `[DONE]` déjà en place
+- `[CURRENT]` tache en cours
 - `[PARTIAL]` présent en partie
 - `[TODO]` restant à implémenter
 
@@ -39,9 +40,8 @@ Items DONE:
 - `[VE-K1][DONE]` La release est refusée si la version demandée existe déjà pour le même modèle.
 - `[VE-K2][DONE]` La release est refusée si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
 
-Items PARTIAL et TODO:
+Items CURRENT, PARTIAL et TODO:
 
-- `[VE-K3][TODO]` Refuser une release s'il n'y a eu aucun changement depuis la release précédente.
 - `[VE-O][TODO]` Remplacer l'alimentation directe actuelle par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 - `[VE-Q][TODO]` Ajouter un replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
 - `[VE-K4][TODO]` Refuser une release si la reconstruction `model_event -> CURRENT_HEAD` échoue.
