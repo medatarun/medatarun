@@ -10,8 +10,10 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.events.ModelEventRegistry
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
 import io.medatarun.model.infra.db.tables.*
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
@@ -36,7 +38,7 @@ class ModelStorageDbRead(
 
     fun existsModelByKey(key: ModelKey): Boolean {
         return ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-            (ModelSnapshotTable.snapshotKind eq snapshots.CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
+            (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD) and (ModelSnapshotTable.key eq key)
         }.limit(1).any()
     }
 
@@ -45,17 +47,15 @@ class ModelStorageDbRead(
     }
 
     fun findModelAggregateByKeyOptional(key: ModelKey): ModelAggregate? {
-        val row = ModelSnapshotTable.selectAll().where {
-            (ModelSnapshotTable.snapshotKind eq snapshots.CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
-        }.singleOrNull()
-        return if (row == null) null else aggregateReader.loadModelAggregate(row)
+        return aggregateReader.loadModelAggregateOptional(
+            SnapshotSelector.CurrentHeadByKey(key)
+        )
     }
 
     fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate? {
-        val row = ModelSnapshotTable.selectAll().where {
-            (ModelSnapshotTable.snapshotKind eq snapshots.CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
-        }.singleOrNull()
-        return if (row == null) null else aggregateReader.loadModelAggregate(row)
+        return aggregateReader.loadModelAggregateOptional(
+            SnapshotSelector.CurrentHeadByModelId(id)
+        )
     }
 
     fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
@@ -67,14 +67,14 @@ class ModelStorageDbRead(
 
     fun findModelByKeyOptional(key: ModelKey): Model? {
         val row = ModelSnapshotTable.selectAll().where {
-            (ModelSnapshotTable.snapshotKind eq snapshots.CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.key eq key)
+            (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD) and (ModelSnapshotTable.key eq key)
         }.singleOrNull()
         return if (row == null) null else toModel(ModelRecord.read(row))
     }
 
     fun findModelByIdOptional(id: ModelId): Model? {
         val row = ModelSnapshotTable.selectAll().where {
-            (ModelSnapshotTable.snapshotKind eq snapshots.CURRENT_HEAD_SNAPSHOT_KIND) and (ModelSnapshotTable.modelId eq id)
+            (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD) and (ModelSnapshotTable.modelId eq id)
         }.singleOrNull()
         return if (row == null) null else toModel(ModelRecord.read(row))
     }
@@ -117,7 +117,7 @@ class ModelStorageDbRead(
             onColumn = ModelTypeTable.modelSnapshotId,
             otherColumn = ModelSnapshotTable.id
         ).selectAll().where {
-            snapshots.currentHeadModelSnapshotCriteria(modelId) and criterion
+            CurrentHeadByModelId(modelId).criterion() and criterion
         }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
     }
 
@@ -155,7 +155,7 @@ class ModelStorageDbRead(
             onColumn = EntityTable.id,
             otherColumn = entityTagTable[EntityTagTable.entitySnapshotId]
         ).selectAll().where {
-            snapshots.currentHeadModelSnapshotCriteria(modelId) and criterion
+            CurrentHeadByModelId(modelId).criterion() and criterion
         }.orderBy(entityTagTable[EntityTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -225,7 +225,7 @@ class ModelStorageDbRead(
                 onColumn = EntityAttributeTable.id,
                 otherColumn = attributeTagTable[EntityAttributeTagTable.attributeSnapshotId]
             ).selectAll()
-            .where { snapshots.currentHeadModelSnapshotCriteria(modelId) and (EntityTable.lineageId eq entityId) and criterion }
+            .where { CurrentHeadByModelId(modelId).criterion() and (EntityTable.lineageId eq entityId) and criterion }
             .orderBy(attributeTagTable[EntityAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -273,7 +273,7 @@ class ModelStorageDbRead(
             JoinType.INNER,
             onColumn = RelationshipRoleTable.entitySnapshotId,
             otherColumn = roleEntityTable[EntityTable.id]
-        ).selectAll().where { snapshots.currentHeadModelSnapshotCriteria(modelId) and criterion }
+        ).selectAll().where { CurrentHeadByModelId(modelId).criterion() and criterion }
             .orderBy(RelationshipRoleTable.key to SortOrder.ASC)
             .toList()
 
@@ -334,7 +334,7 @@ class ModelStorageDbRead(
             onColumn = RelationshipRoleTable.entitySnapshotId,
             otherColumn = roleEntityTable[EntityTable.id]
         ).selectAll().where {
-            snapshots.currentHeadModelSnapshotCriteria(modelId) and (RelationshipTable.lineageId eq relationshipId) and criterion
+            CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
         }.singleOrNull()?.let { row ->
             toRelationshipRole(
                 RelationshipRoleRecord.read(row),
@@ -387,7 +387,7 @@ class ModelStorageDbRead(
                 onColumn = RelationshipAttributeTable.id,
                 otherColumn = attributeTagTable[RelationshipAttributeTagTable.attributeSnapshotId]
             ).selectAll()
-            .where { snapshots.currentHeadModelSnapshotCriteria(modelId) and (RelationshipTable.lineageId eq relationshipId) and criterion }
+            .where { CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion }
             .orderBy(attributeTagTable[RelationshipAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -428,8 +428,8 @@ class ModelStorageDbRead(
             onColumn = EntityTable.modelSnapshotId,
             otherColumn = ModelSnapshotTable.id
         ).selectAll().where {
-            snapshots.currentHeadModelSnapshotCriteria(modelId) and
-                (ModelTypeTable.lineageId eq typeId) and
+            CurrentHeadByModelId(modelId).criterion() and
+                    (ModelTypeTable.lineageId eq typeId) and
                 (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }
@@ -453,8 +453,8 @@ class ModelStorageDbRead(
             onColumn = RelationshipTable.modelSnapshotId,
             otherColumn = ModelSnapshotTable.id
         ).selectAll().where {
-            snapshots.currentHeadModelSnapshotCriteria(modelId) and
-                (ModelTypeTable.lineageId eq typeId) and
+            CurrentHeadByModelId(modelId).criterion() and
+                    (ModelTypeTable.lineageId eq typeId) and
                 (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }

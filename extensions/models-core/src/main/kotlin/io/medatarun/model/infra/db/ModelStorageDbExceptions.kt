@@ -6,6 +6,7 @@ import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.TypeId
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.type.commons.id.Id
 import kotlin.reflect.KClass
 
@@ -49,6 +50,9 @@ class ModelStorageDbSearchMissingProjectionReferenceException(columnName: String
 
 class ModelStorageDbSearchMissingSourceRowException(rowType: String, rowId: Id<*>) :
     MedatarunException("Search projection update could not find source [$rowType] row [${rowId.asString()}]")
+
+class ModelStorageDbSearchMissingSnapshotSelectionException(selector: SnapshotSelector) :
+    MedatarunException("Search projection update could not find model snapshot for selector [$selector]")
 
 class ModelEventRecordFactoryUnsupportedCommandException(className: String) :
     MedatarunException("ModelEventRecordFactory cannot extract model id from command [$className].")

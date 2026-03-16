@@ -5,6 +5,7 @@ import io.medatarun.model.domain.AttributeSnapshotId
 import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.EntitySnapshotId
 import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelSnapshotKind
 import io.medatarun.model.domain.ModelSnapshotId
 import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.RelationshipSnapshotId
@@ -28,9 +29,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
 
 class ModelStorageDbSnapshots {
-
-    val CURRENT_HEAD_SNAPSHOT_KIND = "CURRENT_HEAD"
-    val VERSION_SNAPSHOT_KIND = "VERSION_SNAPSHOT"
 
     fun currentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId {
         return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(
@@ -102,21 +100,12 @@ class ModelStorageDbSnapshots {
 
     private fun findCurrentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId? {
         val row = ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-            currentHeadModelSnapshotCriteria(modelId)
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
         }.singleOrNull()
         if (row == null) {
             return null
         }
         return row[ModelSnapshotTable.id]
-    }
-
-    /**
-     * Mutable model-level state lives only on the current head projection.
-     * Version snapshots must stay immutable once they exist.
-     */
-    fun currentHeadModelSnapshotCriteria(modelId: ModelId): Op<Boolean> {
-        return (ModelSnapshotTable.modelId eq modelId) and
-                (ModelSnapshotTable.snapshotKind eq CURRENT_HEAD_SNAPSHOT_KIND)
     }
 
 }

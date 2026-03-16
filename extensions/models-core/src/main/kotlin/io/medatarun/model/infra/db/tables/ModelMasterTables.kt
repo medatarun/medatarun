@@ -19,7 +19,7 @@ object ModelSnapshotTable : Table("model_snapshot") {
     val origin = text("origin").transform(ModelOriginTransformer())
     val authority = text("authority").transform(ModelAuthorityTransformer())
     val documentationHome = text("documentation_home").nullable()
-    val snapshotKind = text("snapshot_kind")
+    val snapshotKind = text("snapshot_kind").transform(ModelSnapshotKindTransformer())
     val upToRevision = integer("up_to_revision")
     val modelEventReleaseId = text("model_event_release_id").nullable()
     val version = text("version")

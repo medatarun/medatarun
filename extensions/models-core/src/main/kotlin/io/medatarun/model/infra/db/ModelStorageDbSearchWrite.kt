@@ -3,6 +3,7 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.key.Key
@@ -70,7 +71,7 @@ internal class ModelStorageDbSearchWrite(
 
     private fun upsertModelSearchItemRow(modelId: ModelId) {
         val row = ModelSnapshotTable.selectAll()
-            .where { (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD") }
+            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() }
             .singleOrNull()
         if (row == null) {
             deleteSearchItemById(searchItemIdForModel(modelId))
@@ -382,7 +383,9 @@ internal class ModelStorageDbSearchWrite(
 
     private fun loadModelRecord(modelId: ModelId): ModelRecord {
         val row = ModelSnapshotTable.selectAll()
-            .where { (ModelSnapshotTable.modelId eq modelId) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD") }
+            .where {
+                SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
+            }
             .single()
         return ModelRecord.read(row)
     }

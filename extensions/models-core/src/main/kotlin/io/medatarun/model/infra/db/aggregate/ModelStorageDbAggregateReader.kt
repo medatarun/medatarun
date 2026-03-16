@@ -10,6 +10,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.tags.core.domain.TagId
@@ -21,7 +22,11 @@ class ModelStorageDbAggregateReader(
     private val snapshots: ModelStorageDbSnapshots
 ) {
 
-    fun loadModelAggregate(row: ResultRow): ModelAggregateInMemory {
+    fun loadModelAggregateOptional(snapshotSelector: SnapshotSelector): ModelAggregateInMemory? {
+        val row = ModelSnapshotTable.selectAll()
+            .where { snapshotSelector.criterion() }
+            .singleOrNull()
+            ?: return null
         val record = ModelRecord.read(row)
         val types = loadTypes(record.modelId)
         val entities = loadEntities(record.modelId)

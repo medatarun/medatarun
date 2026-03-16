@@ -376,7 +376,7 @@ internal class ModelStorageDbProjection(
             row[ModelSnapshotTable.origin] = model.origin
             row[ModelSnapshotTable.authority] = model.authority
             row[ModelSnapshotTable.documentationHome] = model.documentationHome?.toExternalForm()
-            row[ModelSnapshotTable.snapshotKind] = snapshots.CURRENT_HEAD_SNAPSHOT_KIND
+            row[ModelSnapshotTable.snapshotKind] = ModelSnapshotKind.CURRENT_HEAD
             row[ModelSnapshotTable.upToRevision] = 0
             row[ModelSnapshotTable.modelEventReleaseId] = null
             row[ModelSnapshotTable.version] = model.version.value
@@ -408,7 +408,7 @@ internal class ModelStorageDbProjection(
             row[ModelSnapshotTable.origin] = currentHeadRecord.origin
             row[ModelSnapshotTable.authority] = currentHeadRecord.authority
             row[ModelSnapshotTable.documentationHome] = currentHeadRecord.documentationHome
-            row[ModelSnapshotTable.snapshotKind] = snapshots.VERSION_SNAPSHOT_KIND
+            row[ModelSnapshotTable.snapshotKind] = ModelSnapshotKind.VERSION_SNAPSHOT
             row[ModelSnapshotTable.upToRevision] = ctx.streamRevision
             row[ModelSnapshotTable.modelEventReleaseId] = ctx.modelEventId
             row[ModelSnapshotTable.version] = version.value

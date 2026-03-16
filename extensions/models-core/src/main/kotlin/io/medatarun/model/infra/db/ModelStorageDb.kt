@@ -8,6 +8,7 @@ import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection.ProjectionEventCtx
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
+import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.infra.db.tables.ModelTable
@@ -121,7 +122,7 @@ class ModelStorageDb(
      */
     private fun updateCurrentHeadProjectionMetadata(modelId: ModelId, upToRevision: Int) {
         val now = clock.now().toString()
-        ModelSnapshotTable.update(where = { snapshots.currentHeadModelSnapshotCriteria(modelId) }) { row ->
+        ModelSnapshotTable.update(where = { CurrentHeadByModelId(modelId).criterion() }) { row ->
             row[ModelSnapshotTable.upToRevision] = upToRevision
             row[ModelSnapshotTable.updatedAt] = now
         }

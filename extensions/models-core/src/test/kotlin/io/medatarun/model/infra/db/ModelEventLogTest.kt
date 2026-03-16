@@ -6,6 +6,7 @@ import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.ModelSnapshotKind
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.internal.ModelCmdCopyImpl
 import io.medatarun.model.infra.db.tables.ModelEventTable
@@ -92,14 +93,14 @@ class ModelEventLogTest {
 
         env.dbConnectionFactory.withExposed {
             val currentHeadRows = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.modelId eq model.id) and (ModelSnapshotTable.snapshotKind eq "CURRENT_HEAD")
+                (ModelSnapshotTable.modelId eq model.id) and (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
             }.toList()
             val versionSnapshotRows = ModelSnapshotTable.selectAll().where {
-                (ModelSnapshotTable.modelId eq model.id) and (ModelSnapshotTable.snapshotKind eq "VERSION_SNAPSHOT")
+                (ModelSnapshotTable.modelId eq model.id) and (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT)
             }.toList()
             val releaseSnapshotRows = ModelSnapshotTable.selectAll().where {
                 (ModelSnapshotTable.modelId eq model.id) and
-                    (ModelSnapshotTable.snapshotKind eq "VERSION_SNAPSHOT") and
+                    (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT) and
                     (ModelSnapshotTable.version eq "2.0.0")
             }.toList()
             val releaseEventId = ModelEventTable.select(ModelEventTable.id).where {
