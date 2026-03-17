@@ -106,8 +106,8 @@ function ModelRouteComponent() {
 }
 
 function ModelHistoryRouteComponent() {
-  useParams({ from: "/model/$modelId/history" });
-  return <ModelHistoryPage />;
+  const { modelId } = useParams({ from: "/model/$modelId/history" });
+  return <ModelHistoryPage modelId={modelId} />;
 }
 
 function PreferencesRouteComponent() {
