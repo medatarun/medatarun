@@ -1,7 +1,6 @@
 package io.medatarun.model.domain
 
 import io.medatarun.type.commons.ref.Ref
-import java.util.*
 
 sealed interface ModelRef : Ref<ModelRef> {
 

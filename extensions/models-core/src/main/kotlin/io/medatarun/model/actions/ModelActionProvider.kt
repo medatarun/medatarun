@@ -836,11 +836,7 @@ class ModelActionHandler(
         val left: ModelCompareSideDto,
         val right: ModelCompareSideDto,
         val entries: List<ModelCompareEntryDto>
-    ) {
-        fun entriesByObjectType(objectType: String): List<ModelCompareEntryDto> {
-            return entries.filter { it.objectType == objectType }
-        }
-    }
+    )
 
     @Serializable
     data class ModelCompareSideDto(
@@ -862,19 +858,7 @@ class ModelActionHandler(
         val attributeKey: String?,
         val left: JsonObject?,
         val right: JsonObject?
-    ) {
-        fun isModified(): Boolean {
-            return status == "MODIFIED"
-        }
-
-        fun isAdded(): Boolean {
-            return status == "ADDED"
-        }
-
-        fun isDeleted(): Boolean {
-            return status == "DELETED"
-        }
-    }
+    )
 
     fun modelList(@Suppress("unused") cmd: ModelAction.Model_List): ModelListDto {
         val summaries = modelQueries.findAllModelSummaries(locale)
