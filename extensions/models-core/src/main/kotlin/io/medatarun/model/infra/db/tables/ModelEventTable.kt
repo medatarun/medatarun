@@ -9,7 +9,7 @@ object ModelEventTable : Table("model_event") {
     val streamRevision = integer("stream_revision")
     val eventType = text("event_type")
     val eventVersion = integer("event_version")
-    val modelVersion = text("model_version").nullable()
+    val modelVersion = text("model_version").transform(ModelVersionTransformer).nullable()
     val actorId = text("actor_id").transform(AppPrincipalIdTransformer())
     val actionId = text("action_id")
     val createdAt = text("created_at")

@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchModel, fetchModelSummaries } from "./model.api.ts";
-import type { ModelCompareDto, SearchResults } from "./model.dto.ts";
-import { type ActionPayload, executeAction } from "../action_runner";
-import { toProblem } from "@seij/common-types";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {fetchModel, fetchModelSummaries} from "./model.api.ts";
+import type {ModelCompareDto, SearchResults} from "./model.dto.ts";
+import {type ActionPayload, executeAction} from "../action_runner";
+import {toProblem} from "@seij/common-types";
 
 export type ModelSearchOperator = "and" | "or";
 
@@ -144,11 +144,11 @@ export const useModelUpdateKey = () => {
     onSuccess: () => queryClient.invalidateQueries(),
   });
 };
-export const useModelUpdateVersion = () => {
+export const useModelRelease = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_update_version", {
+      executeAction("model", "model_release", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),

@@ -114,6 +114,11 @@ class ModelQueriesImpl(
         }
     }
 
+    override fun findModelVersion(modelRef: ModelRef,  modelVersion: ModelVersion): ModelAggregate {
+        val model = storage.findModel(modelRef)
+        return storage.findModelAggregateVersion(model.id, modelVersion)
+    }
+
     override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {
         return when (modelRef) {
             is ModelRef.ById -> storage.findModelAggregateByIdOptional(modelRef.id)

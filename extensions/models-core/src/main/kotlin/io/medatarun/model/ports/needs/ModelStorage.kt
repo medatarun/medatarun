@@ -37,6 +37,11 @@ interface ModelStorage {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
 
+    fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate?
+
+    fun findModelAggregateVersion(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate=
+        findModelAggregateVersionOptional(modelId, modelVersion) ?: throw ModelNotFoundException(ModelRef.modelRefId(modelId))
+
     fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion?
 
     // Model aggregate
@@ -184,6 +189,7 @@ interface ModelStorage {
      * See [ModelStorageCmd] for the list of supported write operations.
      */
     fun dispatch(cmdEnv: ModelStorageCmdEnveloppe)
+
 
 
 }

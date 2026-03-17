@@ -39,13 +39,13 @@ Items DONE:
 - `[VE-Y][DONE]` Le stockage et les contraintes de `model_snapshot.version` sont alignés avec la règle actée: valeur présente sur `VERSION_SNAPSHOT` et sur `CURRENT_HEAD`, avec le sens "dernier numéro publié connu" pour `CURRENT_HEAD`.
 - `[VE-K1][DONE]` La release est refusée si la version demandée existe déjà pour le même modèle.
 - `[VE-K2][DONE]` La release est refusée si la version demandée n'est pas strictement supérieure à la dernière release du modèle.
+- `[VE-O][DONE]` Remplacer l'alimentation directe actuelle par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 
 Items CURRENT, PARTIAL et TODO:
 
-- `[VE-O][TODO]` Remplacer l'alimentation directe actuelle par un projecteur transactionnel `model_event -> CURRENT_HEAD`.
 - `[VE-Q][TODO]` Ajouter un replay complet depuis `model_event` pour reconstruire un modèle et vérifier la cohérence avec le `CURRENT_HEAD`.
 - `[VE-K4][TODO]` Refuser une release si la reconstruction `model_event -> CURRENT_HEAD` échoue.
-- `[VE-S][TODO]` Ajouter les lectures versionnées dans `ModelQueries`: liste des releases, chargement d'une version précise, historique des releases.
+- `[VE-S][CURRENT]` Ajouter les lectures versionnées dans `ModelQueries`: liste des releases, chargement d'une version précise, historique des releases.
 - `[VE-U][TODO]` Ajouter la restitution historique des tags dans les lectures versionnées.
 - `[VE-W][TODO]` Ajouter les tests bout en bout du versionning après ajout des lectures versionnées dans `ModelQueries`.
 - `[VE-X][TODO]` Après ajout des lectures versionnées dans `ModelQueries`, compléter les tests métier existants hors versionning pour vérifier aussi le comportement versionné.

@@ -2,6 +2,7 @@ package io.medatarun.model.infra.db.events
 
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.ModelId
+import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.db.ModelEventRecordFactoryUnsupportedCommandException
 import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.ports.needs.ModelStorageCmd
@@ -40,9 +41,9 @@ class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
         }
     }
 
-    private fun extractModelVersion(cmd: ModelStorageCmd): String? {
+    private fun extractModelVersion(cmd: ModelStorageCmd): ModelVersion? {
         return when (cmd) {
-            is ModelStorageCmd.ModelRelease -> cmd.version.value
+            is ModelStorageCmd.ModelRelease -> cmd.version
             else -> null
         }
     }

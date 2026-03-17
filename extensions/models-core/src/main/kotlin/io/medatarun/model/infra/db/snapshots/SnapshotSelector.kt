@@ -1,9 +1,6 @@
 package io.medatarun.model.infra.db.snapshots
 
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelSnapshotKind
-import io.medatarun.model.domain.ModelSnapshotId
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
@@ -15,11 +12,22 @@ import org.jetbrains.exposed.v1.core.eq
 sealed interface SnapshotSelector {
     fun criterion(): Op<Boolean>
 
-    data class ById(
+    data class BySnapshotId(
         val modelSnapshotId: ModelSnapshotId
     ) : SnapshotSelector {
         override fun criterion(): Op<Boolean> {
             return ModelSnapshotTable.id eq modelSnapshotId
+        }
+    }
+
+    data class ByVersion (
+        val modelId: ModelId,
+        val version: ModelVersion,
+    ): SnapshotSelector {
+        override fun criterion(): Op<Boolean> {
+            return (ModelSnapshotTable.modelId eq modelId) and
+                    (ModelSnapshotTable.version eq version) and
+                    (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT)
         }
     }
 
@@ -28,7 +36,7 @@ sealed interface SnapshotSelector {
     ) : SnapshotSelector {
         override fun criterion(): Op<Boolean> {
             return (ModelSnapshotTable.modelId eq modelId) and
-                (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
+                    (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
         }
     }
 
@@ -37,7 +45,7 @@ sealed interface SnapshotSelector {
     ) : SnapshotSelector {
         override fun criterion(): Op<Boolean> {
             return (ModelSnapshotTable.key eq key) and
-                (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
+                    (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
         }
     }
 }

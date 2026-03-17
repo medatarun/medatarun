@@ -16,7 +16,7 @@ interface ModelQueries {
     fun findModelById(modelId: ModelId): ModelAggregate
     fun findModel(modelRef: ModelRef): ModelAggregate
     fun findModelOptional(modelRef: ModelRef): ModelAggregate?
-
+    fun findModelVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
 
     /**
@@ -36,4 +36,5 @@ interface ModelQueries {
     fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff
 
     fun search(query: SearchQuery): SearchResults
+
 }

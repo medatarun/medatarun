@@ -112,23 +112,21 @@ internal class ModelStorageDbProjection(
         searchWrite.upsertModelSearchItem(ctx.modelSnapshotId)
     }
 
-    private fun storeModelAggregate(ctx: ProjectionEventCtx, model: ModelStorageCmd.StoreModelAggregate) {
+    private fun storeModelAggregate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.StoreModelAggregate) {
 
-        logger.warn("Storing full aggregate {}", model)
-
-        val modelId = model.model.id
+        logger.warn("Storing full aggregate {}", cmd)
 
         val modelSnapshotId = insertModel(
             ctx.modelSnapshotId,
             ModelInMemory(
-                id = model.model.id,
-                key = model.model.key,
-                name = model.model.name,
-                description = model.model.description,
-                version = model.model.version,
-                origin = model.model.origin,
-                authority = model.model.authority,
-                documentationHome = model.model.documentationHome,
+                id = cmd.model.id,
+                key = cmd.model.key,
+                name = cmd.model.name,
+                description = cmd.model.description,
+                version = cmd.model.version,
+                origin = cmd.model.origin,
+                authority = cmd.model.authority,
+                documentationHome = cmd.model.documentationHome,
             )
         )
 
@@ -138,7 +136,7 @@ internal class ModelStorageDbProjection(
         val relationshipSnapshotIds = mutableMapOf<RelationshipId, RelationshipSnapshotId>()
         val relationshipAttributeSnapshotIds = mutableMapOf<AttributeId, AttributeSnapshotId>()
 
-        for (type in model.types) {
+        for (type in cmd.types) {
             val typeSnapshotId = TypeSnapshotId.generate()
             typeSnapshotIds[type.id] = typeSnapshotId
             insertType(
@@ -153,7 +151,7 @@ internal class ModelStorageDbProjection(
             )
         }
 
-        for (entity in model.entities) {
+        for (entity in cmd.entities) {
             val entitySnapshotId = EntitySnapshotId.generate()
             entitySnapshotIds[entity.id] = entitySnapshotId
             val identifierAttributeSnapshotId = entityAttributeSnapshotIds.getOrPut(entity.identifierAttributeId) {
@@ -174,7 +172,7 @@ internal class ModelStorageDbProjection(
             )
             searchWrite.upsertEntitySearchItem(modelSnapshotId, entity.id)
 
-            for (attr in model.entityAttributes.filter { it.entityId == entity.id }) {
+            for (attr in cmd.entityAttributes.filter { it.entityId == entity.id }) {
                 val attributeSnapshotId = entityAttributeSnapshotIds.getOrPut(attr.id) {
                     AttributeSnapshotId.generate()
                 }
@@ -194,7 +192,7 @@ internal class ModelStorageDbProjection(
             }
         }
 
-        for (relationship in model.relationships) {
+        for (relationship in cmd.relationships) {
             val relationshipSnapshotId = RelationshipSnapshotId.generate()
             relationshipSnapshotIds[relationship.id] = relationshipSnapshotId
             insertRelationship(
@@ -220,7 +218,7 @@ internal class ModelStorageDbProjection(
             )
             searchWrite.upsertRelationshipSearchItem(modelSnapshotId, relationship.id)
 
-            for (attr in model.relationshipAttributes.filter { it.relationshipId == relationship.id }) {
+            for (attr in cmd.relationshipAttributes.filter { it.relationshipId == relationship.id }) {
                 val attributeSnapshotId = relationshipAttributeSnapshotIds.getOrPut(attr.id) {
                     AttributeSnapshotId.generate()
                 }
@@ -274,7 +272,7 @@ internal class ModelStorageDbProjection(
 
     private fun releaseModel(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.ModelRelease) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq ctx.modelSnapshotId }) { row ->
-            row[ModelSnapshotTable.version] = cmd.version.value
+            row[ModelSnapshotTable.version] = cmd.version
         }
         createVersionSnapshotFromCurrentHead(ctx, cmd.version)
     }
@@ -321,7 +319,7 @@ internal class ModelStorageDbProjection(
             row[ModelSnapshotTable.snapshotKind] = ModelSnapshotKind.CURRENT_HEAD
             row[ModelSnapshotTable.upToRevision] = 0
             row[ModelSnapshotTable.modelEventReleaseId] = null
-            row[ModelSnapshotTable.version] = model.version.value
+            row[ModelSnapshotTable.version] = model.version
             row[ModelSnapshotTable.createdAt] = clock.now().toString()
             row[ModelSnapshotTable.updatedAt] = clock.now().toString()
         }
@@ -353,7 +351,7 @@ internal class ModelStorageDbProjection(
             row[ModelSnapshotTable.snapshotKind] = ModelSnapshotKind.VERSION_SNAPSHOT
             row[ModelSnapshotTable.upToRevision] = ctx.streamRevision
             row[ModelSnapshotTable.modelEventReleaseId] = ctx.modelEventId
-            row[ModelSnapshotTable.version] = version.value
+            row[ModelSnapshotTable.version] = version
             row[ModelSnapshotTable.createdAt] = now
             row[ModelSnapshotTable.updatedAt] = now
         }

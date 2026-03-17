@@ -58,6 +58,7 @@ class ModelActionProvider(
 
             is ModelAction.Model_List -> handler.modelList(action)
             is ModelAction.Model_Export -> handler.modelExport(action)
+            is ModelAction.Model_Export_Version -> handler.modelExportVersion(action)
 
             is ModelAction.Model_Create -> handler.modelCreate(action)
             is ModelAction.Model_Copy -> handler.modelCopy(action)
@@ -1158,6 +1159,14 @@ class ModelActionHandler(
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
         val model = modelQueries.findModel(cmd.modelRef)
+        val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
+        return exporter.exportJson(model)
+
+    }
+
+    fun modelExportVersion(cmd: ModelAction.Model_Export_Version): JsonObject {
+        val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
+        val model = modelQueries.findModelVersion(cmd.modelRef, cmd.version)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 

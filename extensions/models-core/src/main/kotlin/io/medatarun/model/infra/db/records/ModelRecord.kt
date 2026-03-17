@@ -10,7 +10,7 @@ data class ModelRecord(
     val key: ModelKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val version: String,
+    val version: ModelVersion,
     val origin: ModelOrigin,
     val authority: ModelAuthority,
     val documentationHome: String?

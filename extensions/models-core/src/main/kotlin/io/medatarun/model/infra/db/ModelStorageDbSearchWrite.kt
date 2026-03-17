@@ -3,10 +3,8 @@ package io.medatarun.model.infra.db
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.normalizeModelSearchText
 import io.medatarun.model.infra.db.records.*
-import io.medatarun.model.infra.db.records.SearchItemType
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
-import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.JoinType
@@ -26,7 +24,7 @@ internal class ModelStorageDbSearchWrite(
 
         // Find the model record to update
         val modelRecord = ModelSnapshotTable.selectAll()
-            .where { SnapshotSelector.ById(modelSnapshotId).criterion() }
+            .where { SnapshotSelector.BySnapshotId(modelSnapshotId).criterion() }
             .singleOrNull()
             ?.let { ModelRecord.read(it) }
 

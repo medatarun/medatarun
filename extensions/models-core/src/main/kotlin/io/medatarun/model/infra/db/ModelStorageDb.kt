@@ -92,6 +92,14 @@ class ModelStorageDb(
         }
     }
 
+    override fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate? {
+        return db.withExposed {
+            logger.debug("findModelAggregateVersionOptional id={} version={}", modelId, modelVersion)
+            read.findModelAggregateVersionOptional(modelId, modelVersion)
+        }
+
+    }
+
     override fun findTypeByIdOptional(modelId: ModelId, typeId: TypeId): ModelType? {
         return db.withExposed {
             logger.debug("findTypeByIdOptional modelId={} typeId={}", modelId, typeId)

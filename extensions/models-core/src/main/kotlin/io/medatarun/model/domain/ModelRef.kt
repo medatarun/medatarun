@@ -30,8 +30,8 @@ sealed interface ModelRef : Ref<ModelRef> {
             return ByKey(value)
         }
 
-        fun modelRefId(value: UUID): ById {
-            return ById(ModelId(value))
+        fun modelRefId(value: ModelId): ById {
+            return ById(value)
         }
     }
 }

@@ -1,8 +1,5 @@
-import { useNavigate } from "@tanstack/react-router";
-import {
-  ActionUILocations,
-  useActionRegistry,
-} from "@/business/action_registry";
+import {useNavigate} from "@tanstack/react-router";
+import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
 import {
   type ElementOrigin,
   Model,
@@ -13,47 +10,31 @@ import {
   useModelUpdateDocumentationHome,
   useModelUpdateKey,
   useModelUpdateName,
-  useModelUpdateVersion,
 } from "@/business/model";
-import {
-  ModelContext,
-  useModelContext,
-} from "@/components/business/model/ModelContext.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { InfoLabel, Text, tokens } from "@fluentui/react-components";
-import { EntityCard } from "@/components/business/model/EntityCard.tsx";
-import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
-import {
-  ActionMenuButton,
-  TypesTable,
-} from "@/components/business/model/TypesTable.tsx";
-import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
-import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
-import { createActionTemplateModel } from "@/components/business/model/model.actions.ts";
-import { createDisplayedSubjectModel } from "@/components/business/model/model.actions.ts";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { createActionTemplateTagFreeList } from "@/components/business/tag/tag.actions.ts";
-import {
-  EntityIcon,
-  RelationshipIcon,
-  TypeIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
+import {ModelContext, useModelContext,} from "@/components/business/model/ModelContext.tsx";
+import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
+import {InfoLabel, Text, tokens} from "@fluentui/react-components";
+import {EntityCard} from "@/components/business/model/EntityCard.tsx";
+import {RelationshipsTable} from "@/components/business/model/RelationshipsTable.tsx";
+import {ActionMenuButton, TypesTable,} from "@/components/business/model/TypesTable.tsx";
+import {TagsTable} from "@/components/business/tag/TagsTable.tsx";
+import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
+import {ViewTitle} from "@/components/core/ViewTitle.tsx";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
+import {MissingInformation} from "@/components/core/MissingInformation.tsx";
+import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
+import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
+import {SectionCards} from "@/components/layout/SectionCards.tsx";
+import {SectionTable} from "@/components/layout/SecionTable.tsx";
+import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
+import {createActionTemplateModel, createDisplayedSubjectModel} from "@/components/business/model/model.actions.ts";
+import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
+import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
+import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
+import {createActionTemplateTagFreeList} from "@/components/business/tag/tag.actions.ts";
+import {EntityIcon, RelationshipIcon, TypeIcon,} from "@/components/business/model/model.icons.tsx";
+import {useAppI18n} from "@/services/appI18n.tsx";
 
 export function ModelPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -254,7 +235,6 @@ export function ModelView() {
 export function ModelOverview() {
   const model = useModelContext();
   const { isDetailLevelTech } = useDetailLevelContext();
-  const modelUpdateVersion = useModelUpdateVersion();
   const modelUpdateKey = useModelUpdateKey();
   const modelUpdateDocumentationHome = useModelUpdateDocumentationHome();
   const modelUpdateAddTag = useModelAddTag();
@@ -266,9 +246,6 @@ export function ModelOverview() {
       ? t("modelPage_authorityCanonical")
       : t("modelPage_authoritySystem");
 
-  const handleChangeVersion = (value: string) => {
-    return modelUpdateVersion.mutateAsync({ modelId: model.id, value: value });
-  };
   const handleChangeKey = (value: string) => {
     return modelUpdateKey.mutateAsync({ modelId: model.id, value: value });
   };
@@ -313,14 +290,7 @@ export function ModelOverview() {
       <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
 
       <div>{t("modelPage_versionLabel")}</div>
-      <div>
-        <InlineEditSingleLine
-          value={model.version}
-          onChange={handleChangeVersion}
-        >
-          <code>{model.version}</code>
-        </InlineEditSingleLine>
-      </div>
+      <div>{model.version}</div>
 
       <div>{t("modelPage_externalLinkLabel")}</div>
       <div>

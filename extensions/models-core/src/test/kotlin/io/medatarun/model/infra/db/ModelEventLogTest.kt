@@ -2,22 +2,19 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelRef
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.ModelSnapshotKind
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import io.medatarun.model.internal.ModelCmdCopyImpl
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
+import io.medatarun.model.internal.ModelCmdCopyImpl
 import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmds
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import java.util.UUID
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -89,7 +86,7 @@ class ModelEventLogTest {
 
         assertEquals(3, rows.size)
         assertEquals("model_release", rows[2].eventType)
-        assertEquals("2.0.0", rows[2].modelVersion)
+        assertEquals(ModelVersion("2.0.0"), rows[2].modelVersion)
 
         env.dbConnectionFactory.withExposed {
             val currentHeadRows = ModelSnapshotTable.selectAll().where {
@@ -101,19 +98,19 @@ class ModelEventLogTest {
             val releaseSnapshotRows = ModelSnapshotTable.selectAll().where {
                 (ModelSnapshotTable.modelId eq model.id) and
                     (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT) and
-                    (ModelSnapshotTable.version eq "2.0.0")
+                    (ModelSnapshotTable.version eq ModelVersion("2.0.0"))
             }.toList()
             val releaseEventId = ModelEventTable.select(ModelEventTable.id).where {
                 (ModelEventTable.modelId eq model.id) and
                     (ModelEventTable.eventType eq "model_release") and
-                    (ModelEventTable.modelVersion eq "2.0.0")
+                    (ModelEventTable.modelVersion eq ModelVersion("2.0.0"))
             }.single()[ModelEventTable.id]
 
             assertEquals(1, currentHeadRows.size)
             assertEquals(2, versionSnapshotRows.size)
             assertEquals(1, releaseSnapshotRows.size)
             assertEquals(3, currentHeadRows.single()[ModelSnapshotTable.upToRevision])
-            assertEquals("2.0.0", releaseSnapshotRows.single()[ModelSnapshotTable.version])
+            assertEquals(ModelVersion("2.0.0"), releaseSnapshotRows.single()[ModelSnapshotTable.version])
             assertEquals(3, releaseSnapshotRows.single()[ModelSnapshotTable.upToRevision])
             assertEquals(releaseEventId, releaseSnapshotRows.single()[ModelSnapshotTable.modelEventReleaseId])
         }
@@ -148,6 +145,6 @@ class ModelEventLogTest {
 
         assertEquals("model_aggregate_stored", rows[0].eventType)
         assertEquals("model_release", rows[1].eventType)
-        assertEquals(imported.version.value, rows[1].modelVersion)
+        assertEquals(imported.version, rows[1].modelVersion)
     }
 }

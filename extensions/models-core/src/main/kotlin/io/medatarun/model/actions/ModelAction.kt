@@ -1,11 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.actions.actions.ActionUILocation
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionDocSemantics
-import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
-import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchFields
@@ -91,6 +87,29 @@ sealed interface ModelAction {
             description = "Reference of the model to export"
         )
         val modelRef: ModelRef,
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "model_export_version",
+        title = "Export model at a specific version",
+        description = "Returns an exporter view of the model",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+
+    data class Model_Export_Version(
+        @ActionParamDoc(
+            order = 1,
+            name = "Model ref",
+            description = "Reference of the model to export"
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            order = 1,
+            name = "Model version",
+            description = "Reference of the model to export"
+        )
+        val version: ModelVersion,
     ) : ModelAction
 
     @ActionDoc(
@@ -295,9 +314,9 @@ sealed interface ModelAction {
 
     @ActionDoc(
         key = "model_release",
-        title = "Releases a model version",
-        description = "Changes the model version and create a new one. The new version number must be greater than the previous one.",
-        uiLocations = [ActionUILocation.model_hidden],
+        title = "Release version",
+        description = "Release a new model version. The new version number must be greater than the previous one.",
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Release(
