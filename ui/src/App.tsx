@@ -40,6 +40,7 @@ import { TagGroupsPage } from "@/views/tags/TagGroupsPage.tsx";
 import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
 import { TagEdit } from "@/views/tags/TagEdit.tsx";
 import { ModelComparePage } from "@/views/ModelComparePage.tsx";
+import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -102,6 +103,11 @@ function ModelCompareRouteComponent() {
 function ModelRouteComponent() {
   const { modelId } = useParams({ from: "/model/$modelId" });
   return <ModelPage modelId={modelId} />;
+}
+
+function ModelHistoryRouteComponent() {
+  useParams({ from: "/model/$modelId/history" });
+  return <ModelHistoryPage />;
 }
 
 function PreferencesRouteComponent() {
@@ -189,6 +195,12 @@ const modelCompareRoute = createRoute({
   component: ModelCompareRouteComponent,
 });
 
+const modelHistoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/model/$modelId/history",
+  component: ModelHistoryRouteComponent,
+});
+
 const preferencesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/preferences",
@@ -274,6 +286,7 @@ const routeTree = rootRoute.addChildren([
   entityAttributeRoute,
   modelRoute,
   modelCompareRoute,
+  modelHistoryRoute,
   modelsRoute,
   preferencesRoute,
   relationshipAttributeRoute,
