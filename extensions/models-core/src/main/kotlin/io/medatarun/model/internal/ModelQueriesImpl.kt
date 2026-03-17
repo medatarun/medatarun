@@ -121,15 +121,24 @@ class ModelQueriesImpl(
 
     override fun findModelVersions(modelRef: ModelRef): List<ModelChangeEvent> {
         val model = storage.findModel(modelRef)
-        return storage.findModelVersions(model.id)
+        return storage
+            .findModelVersions(model.id)
+            .sortedByDescending { it.eventSequenceNumber }
     }
 
-    override fun findModelChangeEventsSinceVersion(
+    override fun findModelChangeEventsInVersion(
         modelRef: ModelRef,
         modelVersion: ModelVersion
     ): List<ModelChangeEvent> {
         val model = storage.findModel(modelRef)
-        return storage.findModelChangeEventsSinceVersion(model.id, modelVersion)
+        return storage.findModelChangeEventsInVersion(model.id, modelVersion)
+    }
+
+    override fun findModelChangeEventsSinceLastReleaseEvent(
+        modelRef: ModelRef
+    ): List<ModelChangeEvent> {
+        val model = storage.findModel(modelRef)
+        return storage.findModelChangeEventsSinceLastReleaseEvent(model.id)
     }
 
     override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {

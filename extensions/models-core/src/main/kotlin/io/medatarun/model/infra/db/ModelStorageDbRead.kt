@@ -14,7 +14,6 @@ import io.medatarun.model.infra.db.events.ModelEventRegistry
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
-import io.medatarun.model.infra.inmemory.ModelChangeEventInMemory
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -478,7 +477,7 @@ class ModelStorageDbRead(
             .map { record -> toModelChangeEvent(record) }
     }
 
-    fun findModelChangeEventsSinceVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
+    fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
         val releaseRevision = ModelEventTable
             .select(ModelEventTable.streamRevision)
             .where {
@@ -491,6 +490,46 @@ class ModelStorageDbRead(
             .singleOrNull()
             ?.let { row -> row[ModelEventTable.streamRevision] }
             ?: throw ModelStorageDbMissingReleaseEventException(modelId, version.asString())
+
+        val previousReleaseRevision = ModelEventTable
+            .select(ModelEventTable.streamRevision)
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType()) and
+                    (ModelEventTable.streamRevision less releaseRevision)
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
+            .limit(1)
+            .singleOrNull()
+            ?.let { row -> row[ModelEventTable.streamRevision] }
+
+        return ModelEventTable.selectAll()
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                    (ModelEventTable.streamRevision lessEq releaseRevision) and
+                    if (previousReleaseRevision == null) {
+                        Op.TRUE
+                    } else {
+                        ModelEventTable.streamRevision greater previousReleaseRevision
+                    }
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+            .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
+    }
+
+    fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent> {
+        val releaseRevision = ModelEventTable
+            .select(ModelEventTable.streamRevision)
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType())
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
+            .limit(1)
+            .singleOrNull()
+            ?.let { row -> row[ModelEventTable.streamRevision] }
+            ?: throw ModelStorageDbNoReleaseException(modelId)
 
         return ModelEventTable.selectAll()
             .where {

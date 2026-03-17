@@ -1225,16 +1225,16 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
-        key = "history_changes_since_version",
-        title = "Changes since version",
-        description = "Lists changes since version",
+        key = "history_version_changes",
+        title = "Version changes",
+        description = "Lists changes included in specified version. When no version number is provided, list changes since the last released version.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
     )
-    data class HistoryChangesSinceVersion(
+    data class HistoryVersionChanges(
         val modelRef: ModelRef,
-        val version: ModelVersion
+        val version: ModelVersion?
     ) : ModelAction
 
 

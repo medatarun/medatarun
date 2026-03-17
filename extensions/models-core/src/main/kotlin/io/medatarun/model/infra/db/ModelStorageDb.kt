@@ -216,10 +216,17 @@ class ModelStorageDb(
         }
     }
 
-    override fun findModelChangeEventsSinceVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
+    override fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
         return db.withExposed {
-            logger.debug("findModelChangeEventsSinceVersion modelId={}", modelId)
-            read.findModelChangeEventsSinceVersion(modelId, version)
+            logger.debug("findModelChangeEventsInVersion modelId={}", modelId)
+            read.findModelChangeEventsInVersion(modelId, version)
+        }
+    }
+
+    override fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent> {
+        return db.withExposed {
+            logger.debug("findModelChangeEventsSinceLastReleaseEvent modelId={}", modelId)
+            read.findModelChangeEventsSinceLastReleaseEvent(modelId)
         }
     }
 

@@ -132,7 +132,7 @@ class ModelActionProvider(
             // History
 
             is ModelAction.HistoryVersions -> handler.historyVersions(action)
-            is ModelAction.HistoryChangesSinceVersion -> handler.historyChangesSinceVersion(action)
+            is ModelAction.HistoryVersionChanges -> handler.historyChangesSinceVersion(action)
         }
         return result
     }

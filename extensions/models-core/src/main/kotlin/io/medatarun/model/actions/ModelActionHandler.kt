@@ -698,8 +698,13 @@ class ModelActionHandler(
         return toModelChangeEventListDto(changes, appPrincipalResolver)
     }
 
-    fun historyChangesSinceVersion(action: ModelAction.HistoryChangesSinceVersion): ModelChangeEventListDto {
-        val changes = modelQueries.findModelChangeEventsSinceVersion(action.modelRef, action.version)
+    fun historyChangesSinceVersion(action: ModelAction.HistoryVersionChanges): ModelChangeEventListDto {
+        val changes = if (action.version == null) {
+            modelQueries.findModelChangeEventsSinceLastReleaseEvent(action.modelRef)
+        } else {
+            modelQueries.findModelChangeEventsInVersion(action.modelRef, action.version)
+        }
+
         val appPrincipalResolver = AppPrincipalResolver()
         return toModelChangeEventListDto(changes, appPrincipalResolver)
     }

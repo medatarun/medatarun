@@ -171,7 +171,8 @@ interface ModelStorage {
     // -------------------------------------------------------------------------
 
     fun findModelVersions(modelId: ModelId): List<ModelChangeEvent>
-    fun findModelChangeEventsSinceVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
+    fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
+    fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent>
 
     // -------------------------------------------------------------------------
     // Search

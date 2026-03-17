@@ -20,6 +20,9 @@ class ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId: ModelId) :
 class ModelStorageDbMissingReleaseEventException(modelId: ModelId, version: String) :
     MedatarunException("Could not find model_release event for model [${modelId.asString()}] and version [$version]")
 
+class ModelStorageDbNoReleaseException(modelId: ModelId) :
+    MedatarunException("Could not find any model_release event for model [${modelId.asString()}]")
+
 class ModelStorageDbInvalidReleaseEventException(modelId: ModelId, eventId: String) :
     MedatarunException("model_release event [$eventId] for model [${modelId.asString()}] has no model_version.")
 
