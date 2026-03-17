@@ -5,5 +5,5 @@ export const modelHistoryPageMessages: ModelHistoryPageMessages = {
   modelHistoryPage_versionsTitle: "Versions",
   modelHistoryPage_changesTitle: "Changes",
   modelHistoryPage_lastChanges: "Last changes",
-  modelHistoryPage_noChanges: "No changes",
+  modelHistoryPage_noChanges: "No changes since last release",
 };

@@ -2,8 +2,8 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequestCtx
+import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
 import org.junit.jupiter.api.Assertions
 import kotlin.test.Test
@@ -46,7 +46,7 @@ class SecurityRuleCtxActionTest {
         override val isAdmin: Boolean,
         override val roles: List<AppPrincipalRole>
     ) : AppPrincipal {
-        override val id = AppPrincipalId("id")
+        override val id = AppActorId.generate()
         override val issuer = "issuer"
         override val subject = "subject"
         override val fullname = "name"

@@ -24,7 +24,7 @@ class ActionAuditRecorderDb(
                 it[actionInstanceId] = event.actionInstanceId.value.toString()
                 it[actionGroupKey] = event.actionGroupKey
                 it[actionKey] = event.actionKey
-                it[principalId] = event.principalId
+                it[actorId] = event.actorId
                 it[sourceValue] = event.source
                 it[payloadSerialized] = event.payloadSerialized
                 it[createdAt] = clock.now()

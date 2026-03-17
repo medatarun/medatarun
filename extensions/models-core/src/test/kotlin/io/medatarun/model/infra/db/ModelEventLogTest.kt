@@ -136,7 +136,7 @@ class ModelEventLogTest {
         modelCmds.dispatch(
             ModelCmdEnveloppe(
                 actionId = ActionInstanceId(UUID.randomUUID()),
-                principal = ModelTestEnv.testPrincipal,
+                actorId = ModelTestEnv.testPrincipal.id,
                 cmd = ModelCmd.ImportModel(imported, emptyList())
             )
         )

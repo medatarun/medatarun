@@ -6,7 +6,7 @@ object ActionAuditEventTable : Table("action_audit_event") {
     val actionInstanceId = varchar("action_instance_id", 36)
     val actionGroupKey = varchar("action_group_key", 255)
     val actionKey = varchar("action_key", 255)
-    val principalId = varchar("principal_id", 255).transform(AppPrincipalIdTransformer()).nullable()
+    val actorId = varchar("actor_id", 255).transform(AppActorIdTransformer()).nullable()
     val sourceValue = varchar("source", 255)
     val payloadSerialized = text("payload_serialized")
     val createdAt = long("created_at").transform(InstantEpochMsTransformer())

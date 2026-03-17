@@ -1,7 +1,7 @@
 package io.medatarun.model.domain
 
 import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppActorId
 import kotlinx.serialization.json.JsonObject
 import java.time.Instant
 
@@ -46,7 +46,7 @@ interface ModelChangeEvent {
     /**
      * Application principal identifier (actor) that made this event
      */
-    val principalId: AppPrincipalId
+    val actorId: AppActorId
 
     /**
      * Event payload

@@ -6,6 +6,7 @@ import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
+import io.medatarun.security.AppActorResolver
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -13,7 +14,8 @@ class ModelActionProvider(
     private val resourceLocator: ResourceLocator,
     private val extensionRegistry: ExtensionRegistry,
     private val modelCmds: ModelCmds,
-    private val modelQueries: ModelQueries
+    private val modelQueries: ModelQueries,
+    private val actorResolver: AppActorResolver
 ) : ActionProvider<ModelAction> {
 
     override val actionGroupKey: String = ACTION_GROUP_KEY
@@ -30,7 +32,7 @@ class ModelActionProvider(
 
         val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries, resourceLocator, locale, actionCtx, extensionRegistry)
+        val handler = ModelActionHandler(modelCmds, modelQueries, resourceLocator, locale, actionCtx, extensionRegistry, actorResolver)
 
         logger.info(action.toString())
 

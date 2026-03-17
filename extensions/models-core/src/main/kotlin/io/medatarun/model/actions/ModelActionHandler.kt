@@ -11,7 +11,6 @@ import io.medatarun.model.actions.history.toModelChangeEventListDto
 import io.medatarun.model.actions.list.ModelListDto
 import io.medatarun.model.actions.list.ModelListDtoAdapters
 import io.medatarun.model.actions.search.ModelSearchDtoAdapters
-import io.medatarun.model.actions.tools.AppPrincipalResolver
 import io.medatarun.model.domain.ModelActionNotAuthorizedException
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
@@ -21,6 +20,7 @@ import io.medatarun.model.ports.needs.ModelExporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
+import io.medatarun.security.AppActorResolver
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 import java.util.*
@@ -31,11 +31,12 @@ class ModelActionHandler(
     private val resourceLocator: ResourceLocator,
     private val locale: Locale,
     private val actionCtx: ActionCtx,
-    private val extensionRegistry: ExtensionRegistry
+    private val extensionRegistry: ExtensionRegistry,
+    private val actorResolver: AppActorResolver
 ) {
     fun dispatch(businessCmd: ModelCmd) {
         val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthorizedException()
-        modelCmds.dispatch(ModelCmdEnveloppe(actionCtx.actionInstanceId, principal, businessCmd))
+        modelCmds.dispatch(ModelCmdEnveloppe(actionCtx.actionInstanceId, principal.id, businessCmd))
     }
 
     fun modelImport(action: ModelAction.Import) {
@@ -694,8 +695,7 @@ class ModelActionHandler(
 
     fun historyVersions(action: ModelAction.HistoryVersions): ModelChangeEventListDto {
         val changes = modelQueries.findModelVersions(action.modelRef)
-        val appPrincipalResolver = AppPrincipalResolver()
-        return toModelChangeEventListDto(changes, appPrincipalResolver)
+        return toModelChangeEventListDto(changes, actorResolver)
     }
 
     fun historyChangesSinceVersion(action: ModelAction.HistoryVersionChanges): ModelChangeEventListDto {
@@ -704,9 +704,7 @@ class ModelActionHandler(
         } else {
             modelQueries.findModelChangeEventsInVersion(action.modelRef, action.version)
         }
-
-        val appPrincipalResolver = AppPrincipalResolver()
-        return toModelChangeEventListDto(changes, appPrincipalResolver)
+        return toModelChangeEventListDto(changes, actorResolver)
     }
 
     fun modelList(@Suppress("unused") cmd: ModelAction.Model_List): ModelListDto {

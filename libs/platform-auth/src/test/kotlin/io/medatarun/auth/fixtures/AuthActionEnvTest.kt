@@ -11,8 +11,8 @@ import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.type.commons.id.Id
 import kotlin.reflect.KClass
@@ -72,7 +72,7 @@ class AuthActionEnvTest(
 
         private fun toAppPrincipal(actor: Actor): AppPrincipal {
             return object : AppPrincipal {
-                override val id: AppPrincipalId = AppPrincipalId(actor.id.value.toString())
+                override val id: AppActorId = AppActorId(actor.id.value)
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
                 override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }

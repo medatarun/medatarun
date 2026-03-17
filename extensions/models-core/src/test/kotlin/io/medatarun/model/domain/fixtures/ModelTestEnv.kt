@@ -20,10 +20,7 @@ import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.PlatformBuilder
 import io.medatarun.platform.kernel.getService
-import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
-import io.medatarun.security.AppPrincipalRole
-import io.medatarun.security.SecurityExtension
+import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
@@ -31,13 +28,14 @@ import io.medatarun.tags.core.adapters.security.TagFreeManageRole
 import io.medatarun.tags.core.adapters.security.TagGroupManageRole
 import io.medatarun.tags.core.adapters.security.TagManagedManageRole
 import io.medatarun.tags.core.domain.*
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.full.findAnnotation
 
 class ModelTestEnv {
     private val extensions = listOf(
         TypeSystemExtension(),
-        SecurityExtension(),
+        SecurityExtension(SecurityExtensionConfig(appActorResolver)),
         ActionsExtension(),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
@@ -122,8 +120,22 @@ class ModelTestEnv {
     }
 
     companion object {
+
+        val appActorResolver = object : AppActorResolver {
+            override fun resolve(appActorId: AppActorId): AppActor {
+                return object : AppActor {
+                    override val id: AppActorId
+                        get() = testPrincipal.id
+                    override val displayName: String
+                        get() = testPrincipal.fullname
+
+                }
+            }
+
+        }
+
         val testPrincipal = object : AppPrincipal {
-            override val id: AppPrincipalId = AppPrincipalId("user")
+            override val id: AppActorId = Id.generate(::AppActorId)
             override val issuer: String = ""
             override val subject: String = ""
             override val isAdmin: Boolean = false

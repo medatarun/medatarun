@@ -23,6 +23,8 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
+import io.medatarun.security.AppActorResolver
+import io.medatarun.security.AppPrincipal
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
@@ -44,10 +46,10 @@ open class ModelExtension(
         val tagCmds = ctx.getService(TagCmds::class)
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val dbTransactionManager = ctx.getService(DbTransactionManager::class)
-
+        val actorResolver = ctx.getService<AppActorResolver>()
         val auditor: ModelAuditor = object : ModelAuditor {
             override fun onCmdProcessed(cmd: ModelCmdEnveloppe) {
-                logger.info("onCmdProcessed: ${cmd.principal.id} ${cmd.principal.fullname} ${cmd.actionId} $cmd")
+                logger.info("onCmdProcessed: ${cmd.actorId} ${actorResolver.resolve(cmd.actorId)?.displayName} ${cmd.actionId} $cmd")
             }
         }
 
@@ -67,6 +69,7 @@ open class ModelExtension(
         val extensionRegistry = ctx.getService<ExtensionRegistry>()
         val modelQueries = ctx.getService<ModelQueries>()
         val modelCmds = ctx.getService<ModelCmds>()
+        val actorResolver = ctx.getService<AppActorResolver>()
         val modelTagScopeManager = object : TagScopeManager {
             override val type: TagScopeType = modelTagScopeType
 
@@ -75,7 +78,8 @@ open class ModelExtension(
                 return modelQueries.findModelOptional(ModelRef.ById(modelId)) != null
             }
         }
-        val actionProvider = ModelActionProvider(ctx.createResourceLocator(), extensionRegistry, modelCmds, modelQueries)
+
+        val actionProvider = ModelActionProvider(ctx.createResourceLocator(), extensionRegistry, modelCmds, modelQueries, actorResolver)
 
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)

@@ -17,7 +17,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity then id and name shall persist`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityId = EntityKey("entity")
         val entityRef = EntityRef.ByKey(entityId)
         val name = LocalizedTextNotLocalized("Order")

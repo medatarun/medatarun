@@ -15,7 +15,7 @@ internal class ActionAuditLoggerRecorder : ActionAuditRecorder {
             event.actionInstanceId.value,
             event.actionGroupKey,
             event.actionKey,
-            event.principalId?.value,
+            event.actorId?.asString(),
             event.source,
             event.payloadSerialized
         )

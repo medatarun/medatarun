@@ -3,6 +3,7 @@ package io.medatarun.auth
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
 import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPrincipalRole
+import io.medatarun.auth.adapters.AppActorResolverAuth
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.ActorId
@@ -41,6 +42,9 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
 import io.medatarun.platform.kernel.getService
+import io.medatarun.security.AppActor
+import io.medatarun.security.AppActorId
+import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
@@ -211,10 +215,13 @@ class AuthExtension(
 
         )
 
+        val appActorResolver = AppActorResolverAuth(actorService)
+
         ctx.register(UserService::class, userService)
         ctx.register(OidcService::class, oidcService)
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
+        ctx.register(AppActorResolver::class, appActorResolver)
 
         // For testing only
         ctx.register(BootstrapSecretLifecycle::class, bootstrapper)

@@ -1,7 +1,7 @@
 package io.medatarun.actions.ports.needs
 
 import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppActorId
 
 /**
  * Records the action lifecycle as seen from the action system.
@@ -23,7 +23,7 @@ data class ActionAuditReceived(
     val actionInstanceId: ActionInstanceId,
     val actionGroupKey: String,
     val actionKey: String,
-    val principalId: AppPrincipalId?,
+    val actorId: AppActorId?,
     val payloadSerialized: String,
     val source: String
 )

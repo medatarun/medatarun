@@ -25,7 +25,7 @@ class ModelCmdsImpl(
     private fun storageCmdEnveloppe(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelStorageCmd): ModelStorageCmdEnveloppe {
         return ModelStorageCmdEnveloppe(
             actionId = cmdEnv.actionId,
-            principalId = cmdEnv.principal.id,
+            principalId = cmdEnv.actorId,
             cmd = repoCmd
         )
     }

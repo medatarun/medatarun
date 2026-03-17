@@ -1,7 +1,9 @@
 package io.medatarun.model.actions.history
 
-import io.medatarun.model.actions.tools.AppPrincipalResolver
+
 import io.medatarun.model.domain.ModelChangeEvent
+import io.medatarun.security.AppActorId
+import io.medatarun.security.AppActorResolver
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
@@ -19,22 +21,26 @@ data class ModelChangeEventDto(
     val createdAt: Long,
     val actionId: String,
     val modelVersion: String?,
-    val principalId: String,
-    val principalDisplayName: String,
+    val actorId: String,
+    val actorDisplayName: String,
     val payload: JsonObject
 )
 
 fun toModelChangeEventListDto(
     evts: List<ModelChangeEvent>,
-    appPrincipalResolver: AppPrincipalResolver
+    actorResolver: AppActorResolver
 ): ModelChangeEventListDto {
-    val list = evts.map { evt -> toModelChangeEventDto(evt, appPrincipalResolver) }
+    val actorMap = mutableMapOf<AppActorId, String>()
+    fun resolve(actorId: AppActorId) =
+        actorMap.getOrPut(actorId) { actorResolver.resolve(actorId)?.displayName ?: "??" }
+
+    val list = evts.map { evt -> toModelChangeEventDto(evt, ::resolve) }
     return ModelChangeEventListDto(list)
 }
 
 fun toModelChangeEventDto(
     evt: ModelChangeEvent,
-    appPrincipalResolver: AppPrincipalResolver
+    actorName: (actorId: AppActorId) -> String
 ): ModelChangeEventDto {
     return ModelChangeEventDto(
         eventId = evt.eventId,
@@ -44,8 +50,8 @@ fun toModelChangeEventDto(
         createdAt = evt.createdAt.toEpochMilli(),
         actionId = evt.actionId.asString(),
         modelVersion = evt.modelVersion?.asString(),
-        principalId = evt.principalId.value,
-        principalDisplayName = appPrincipalResolver.displayName(evt.principalId),
+        actorId = evt.actorId.asString(),
+        actorDisplayName = actorName(evt.actorId),
         payload = evt.payload
     )
 }

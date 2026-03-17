@@ -96,6 +96,10 @@ class ActorServiceImpl(
         return actorStorage.findById(actorId)
     }
 
+    override fun findByIdOptional(actorId: ActorId): Actor? {
+        return actorStorage.findByIdOptional(actorId)
+    }
+
     override fun setRoles(actorId: ActorId, roles: List<ActorRole>) {
         ensureRolesExist(roles)
         val existing = actorStorage.findById(actorId)

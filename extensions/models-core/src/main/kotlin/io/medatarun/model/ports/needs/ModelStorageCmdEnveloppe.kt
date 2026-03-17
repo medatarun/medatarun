@@ -1,7 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppPrincipalId
+import io.medatarun.security.AppActorId
 
 /**
  * Storage envelope for repository commands.
@@ -11,6 +11,6 @@ import io.medatarun.security.AppPrincipalId
  */
 data class ModelStorageCmdEnveloppe(
     val actionId: ActionInstanceId,
-    val principalId: AppPrincipalId,
+    val principalId: AppActorId,
     val cmd: ModelStorageCmd,
 )

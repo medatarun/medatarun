@@ -17,6 +17,11 @@ export class Model {
     return e?.name ?? e?.key ?? null;
   }
 
+  findEntityAttributeNameOrKey(entityId: string, attributeId: string): string | null {
+    const e = this.dto.entities.find((it) => it.id === entityId)?.attributes?.find(it => it.id == attributeId);
+    return e?.name ?? e?.key ?? null;
+  }
+
   findEntityKey(id: string): string | null {
     const e = this.dto.entities.find((it) => it.id === id);
     return e?.key ?? null;

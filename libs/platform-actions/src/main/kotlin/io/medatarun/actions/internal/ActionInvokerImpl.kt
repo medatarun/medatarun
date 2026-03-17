@@ -32,7 +32,7 @@ internal class ActionInvokerImpl(
                 actionInstanceId = actionInstanceId,
                 actionGroupKey = invocation.actionGroupKey,
                 actionKey = invocation.actionKey,
-                principalId = actionRequestCtx.principal.principal?.id,
+                actorId = actionRequestCtx.principal.principal?.id,
                 payloadSerialized = serializePayload(invocation.payload),
                 source = actionRequestCtx.source
             )

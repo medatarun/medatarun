@@ -124,7 +124,7 @@ object ModelStorageAdapters {
             createdAt = record.createdAt,
             actionId = Id.fromString(record.actionId, ::ActionInstanceId),
             modelVersion = record.modelVersion,
-            principalId = record.actorId,
+            actorId = record.actorId,
             payload = Json.decodeFromString(record.payload)
         )
     }

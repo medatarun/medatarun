@@ -5,25 +5,25 @@ import {ViewTitle} from "@/components/core/ViewTitle.tsx";
 import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
 import {useAppI18n} from "@/services/appI18n.tsx";
 import {ModelHistoryVersionInput} from "@/views/model-history/components/ModelHistoryVersionInput.tsx";
-import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem,} from "@fluentui/react-components";
-import {useState} from "react";
+import {Breadcrumb, BreadcrumbButton, BreadcrumbDivider, BreadcrumbItem, tokens,} from "@fluentui/react-components";
+import {useMemo, useState} from "react";
 import {ContainedHumanReadable} from "@/components/layout/Contained.tsx";
-import {FormField} from "@seij/common-ui";
+import {FormField, Loader} from "@seij/common-ui";
 import {ModelHistoryChanges} from "@/views/model-history/components/ModelHistoryChanges.tsx";
+import {ModelContext, useModelContext} from "@/components/business/model/ModelContext.tsx";
+import {sortBy} from "lodash-es";
 
 export function ModelHistoryPage({modelId}: { modelId: string }) {
   const navigate = useNavigate();
   const {data: modelDto} = useModel(modelId);
-  const {data: versionsDto} = useModelHistoryVersions(modelId);
+
   const {t} = useAppI18n();
-  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
-  const {data: changesDto} = useModelHistoryVersionChanges(modelId, selectedVersion);
 
-  if (!modelDto) return null;
 
-  const model = new Model(modelDto);
+  const model = modelDto ? new Model(modelDto) : null;
 
   const handleClickModel = () => {
+    if (!model) return
     navigate({
       to: "/model/$modelId",
       params: {modelId: model.id},
@@ -37,7 +37,7 @@ export function ModelHistoryPage({modelId}: { modelId: string }) {
           <Breadcrumb style={{marginLeft: "-22px"}} size="small">
             <BreadcrumbItem>
               <BreadcrumbButton icon={<ModelIcon/>} onClick={handleClickModel}>
-                {model.nameOrKeyWithAuthorityEmoji}
+                {model?.nameOrKeyWithAuthorityEmoji ?? ""}
               </BreadcrumbButton>
             </BreadcrumbItem>
             <BreadcrumbDivider/>
@@ -46,20 +46,42 @@ export function ModelHistoryPage({modelId}: { modelId: string }) {
         </div>
       }
     >
-      <ContainedHumanReadable>
-        <FormField label={t("modelHistoryPage_versionsTitle")}>
-          <ModelHistoryVersionInput
-            versions={versionsDto?.items ?? []}
-            value={selectedVersion}
-            onChange={setSelectedVersion}
-          />
-        </FormField>
+      {model ?
+        <ModelContext value={model}>
+          <ModelHistoryPageLoaded/>
+        </ModelContext>
+        : <Loader loading={true}/>
+      }
 
-        <div>
-          <div>{t("modelHistoryPage_changesTitle")}</div>
-          <ModelHistoryChanges items={changesDto?.items ?? []}/>
-        </div>
-      </ContainedHumanReadable>
     </ViewLayoutContained>
   );
+}
+
+
+function ModelHistoryPageLoaded() {
+  const model = useModelContext()
+  const modelId = model.id
+  const {data: versionsDto} = useModelHistoryVersions(modelId);
+  const {t} = useAppI18n();
+  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
+  const {data: changesDto} = useModelHistoryVersionChanges(modelId, selectedVersion);
+  const items = useMemo(()=>
+    sortBy(changesDto?.items ?? [], it=>it.eventSequenceNumber).reverse()
+  , [changesDto?.items])
+  return (
+    <ContainedHumanReadable>
+      <FormField label={t("modelHistoryPage_versionsTitle")}>
+        <ModelHistoryVersionInput
+          versions={versionsDto?.items ?? []}
+          value={selectedVersion}
+          onChange={setSelectedVersion}
+        />
+      </FormField>
+      <div style={{marginTop: tokens.spacingVerticalM}}>
+        <div style={{marginBottom: tokens.spacingVerticalM}}>{t("modelHistoryPage_changesTitle")}</div>
+        <ModelHistoryChanges items={items}/>
+      </div>
+    </ContainedHumanReadable>
+
+  )
 }

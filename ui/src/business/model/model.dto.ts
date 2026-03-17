@@ -146,8 +146,8 @@ export interface ModelChangeEventDto {
   createdAt: number;
   actionId: string;
   modelVersion: string | null;
-  principalId: string;
-  principalDisplayName: string;
+  actorId: string;
+  actorDisplayName: string;
   payload: Record<string, unknown>;
 }
 export interface ModelChangeEventWithVersionDto extends ModelChangeEventDto {

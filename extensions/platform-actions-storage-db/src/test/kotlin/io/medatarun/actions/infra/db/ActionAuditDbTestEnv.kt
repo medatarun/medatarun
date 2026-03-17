@@ -13,6 +13,7 @@ import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import java.time.Instant
 import kotlin.reflect.KClass
@@ -160,7 +161,7 @@ class ActionAuditDbTestEnv {
         const val RULE_DENY = "deny"
 
         private val testPrincipal = object : AppPrincipal {
-            override val id: AppPrincipalId = AppPrincipalId("user")
+            override val id: AppActorId = Id.generate(::AppActorId)
             override val issuer: String = ""
             override val subject: String = ""
             override val isAdmin: Boolean = false
