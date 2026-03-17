@@ -128,8 +128,8 @@ sealed interface ModelStorageCmd {
         @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("url")
-        val url: URL?
+        @SerialName("documentationHome")
+        val documentationHome: URL?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -193,8 +193,8 @@ sealed interface ModelStorageCmd {
         @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
-        @SerialName("value")
-        val value: TypeKey
+        @SerialName("key")
+        val key: TypeKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -207,8 +207,8 @@ sealed interface ModelStorageCmd {
         @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -221,8 +221,8 @@ sealed interface ModelStorageCmd {
         @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedMarkdown?
+        @SerialName("description")
+        val description: LocalizedMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -294,8 +294,8 @@ sealed interface ModelStorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("value")
-        val value: EntityKey
+        @SerialName("key")
+        val key: EntityKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -308,8 +308,8 @@ sealed interface ModelStorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -322,8 +322,8 @@ sealed interface ModelStorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedMarkdown?
+        @SerialName("description")
+        val description: LocalizedMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -336,8 +336,8 @@ sealed interface ModelStorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("value")
-        val value: AttributeId
+        @SerialName("identifierAttributeId")
+        val identifierAttributeId: AttributeId
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -350,8 +350,8 @@ sealed interface ModelStorageCmd {
         @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("value")
-        val value: URL?
+        @SerialName("documentationHome")
+        val documentationHome: URL?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -452,8 +452,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: AttributeKey
+        @SerialName("key")
+        val key: AttributeKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -469,8 +469,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -486,8 +486,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedMarkdown?
+        @SerialName("description")
+        val description: LocalizedMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -503,8 +503,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: TypeId
+        @SerialName("typeId")
+        val typeId: TypeId
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -519,8 +519,8 @@ sealed interface ModelStorageCmd {
         @Contextual
         @SerialName("attributeId")
         val attributeId: AttributeId,
-        @SerialName("value")
-        val value: Boolean
+        @SerialName("optional")
+        val optional: Boolean
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -613,8 +613,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("value")
-        val value: RelationshipKey
+        @SerialName("key")
+        val key: RelationshipKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -627,8 +627,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -641,8 +641,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedMarkdown?
+        @SerialName("description")
+        val description: LocalizedMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -684,8 +684,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
-        @SerialName("value")
-        val value: RelationshipRoleKey
+        @SerialName("key")
+        val key: RelationshipRoleKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -701,8 +701,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -718,8 +718,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
-        @SerialName("value")
-        val value: EntityId
+        @SerialName("entityId")
+        val entityId: EntityId
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -735,8 +735,8 @@ sealed interface ModelStorageCmd {
         @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
-        @SerialName("value")
-        val value: RelationshipCardinality
+        @SerialName("cardinality")
+        val cardinality: RelationshipCardinality
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -833,8 +833,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedText?
+        @SerialName("name")
+        val name: LocalizedText?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -850,8 +850,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: LocalizedMarkdown?
+        @SerialName("description")
+        val description: LocalizedMarkdown?
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -867,8 +867,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: AttributeKey
+        @SerialName("key")
+        val key: AttributeKey
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -884,8 +884,8 @@ sealed interface ModelStorageCmd {
         @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("value")
-        val value: TypeId
+        @SerialName("typeId")
+        val typeId: TypeId
     ) : ModelStorageCmdOnModel
 
     @Serializable
@@ -900,8 +900,8 @@ sealed interface ModelStorageCmd {
         @Contextual
         @SerialName("attributeId")
         val attributeId: AttributeId,
-        @SerialName("value")
-        val value: Boolean
+        @SerialName("optional")
+        val optional: Boolean
     ) : ModelStorageCmdOnModel
 
     @Serializable

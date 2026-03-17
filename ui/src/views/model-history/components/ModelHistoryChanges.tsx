@@ -107,7 +107,7 @@ const eventMap: Record<string, EventDisplayMode> = {
     payload: (event: ModelChangeEventDto) => null
   },
   "model_documentation_home_updated": {
-    label: (event: ModelChangeEventDto) => <Text>Changed documentation home to <strong>{"" + event.payload.url}</strong></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Changed documentation home to <strong>{"" + event.payload.documentationHome}</strong></Text>,
     payload: (event: ModelChangeEventDto) => null
   },
   "model_tag_added": {
@@ -126,7 +126,7 @@ const eventMap: Record<string, EventDisplayMode> = {
 
   "entity_name_updated": {
     label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} /></Text>,
-    payload: (event: ModelChangeEventDto) => <span>New name: {event.payload.value as string}</span>
+    payload: (event: ModelChangeEventDto) => <span>New name: {event.payload.name as string}</span>
   },
   "entity_attribute_name_updated": {
     label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entityId as string} attributeId={event.payload.attributeId as string} /></Text>,
@@ -134,6 +134,6 @@ const eventMap: Record<string, EventDisplayMode> = {
   },
   "entity_attribute_description_updated": {
     label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entityId as string} attributeId={event.payload.attributeId as string} /></Text>,
-    payload: (event: ModelChangeEventDto) => <Markdown value={(event.payload.value as string) ?? ""} />
+    payload: (event: ModelChangeEventDto) => <Markdown value={(event.payload.description as string) ?? ""} />
   }
 }

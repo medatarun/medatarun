@@ -282,7 +282,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateModelDocumentationHome
     ) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq ctx.modelSnapshotId }) { row ->
-            row[ModelSnapshotTable.documentationHome] = cmd.url?.toExternalForm()
+            row[ModelSnapshotTable.documentationHome] = cmd.documentationHome?.toExternalForm()
         }
     }
 
@@ -622,7 +622,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (ModelTypeTable.lineageId eq cmd.typeId) and (ModelTypeTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[ModelTypeTable.key] = cmd.value
+            row[ModelTypeTable.key] = cmd.key
         }
     }
 
@@ -631,7 +631,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (ModelTypeTable.lineageId eq cmd.typeId) and (ModelTypeTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[ModelTypeTable.name] = cmd.value
+            row[ModelTypeTable.name] = cmd.name
         }
     }
 
@@ -640,7 +640,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (ModelTypeTable.lineageId eq cmd.typeId) and (ModelTypeTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[ModelTypeTable.description] = cmd.value
+            row[ModelTypeTable.description] = cmd.description
         }
     }
 
@@ -693,7 +693,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (EntityTable.lineageId eq cmd.entityId) and (EntityTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[EntityTable.key] = cmd.value
+            row[EntityTable.key] = cmd.key
         }
         searchWrite.upsertEntitySearchItem(ctx.modelSnapshotId, cmd.entityId)
     }
@@ -703,7 +703,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (EntityTable.lineageId eq cmd.entityId) and (EntityTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[EntityTable.name] = cmd.value
+            row[EntityTable.name] = cmd.name
         }
         searchWrite.upsertEntitySearchItem(ctx.modelSnapshotId, cmd.entityId)
     }
@@ -713,7 +713,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (EntityTable.lineageId eq cmd.entityId) and (EntityTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[EntityTable.description] = cmd.value
+            row[EntityTable.description] = cmd.description
         }
         searchWrite.upsertEntitySearchItem(ctx.modelSnapshotId, cmd.entityId)
     }
@@ -724,7 +724,7 @@ internal class ModelStorageDbProjection(
     ) {
         val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
-            (EntityAttributeTable.lineageId eq cmd.value) and
+            (EntityAttributeTable.lineageId eq cmd.identifierAttributeId) and
                     (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
         }.single()[EntityAttributeTable.id]
         EntityTable.update(
@@ -743,7 +743,7 @@ internal class ModelStorageDbProjection(
             where = {
                 (EntityTable.lineageId eq cmd.entityId) and (EntityTable.modelSnapshotId eq ctx.modelSnapshotId)
             }) { row ->
-            row[EntityTable.documentationHome] = cmd.value?.toExternalForm()
+            row[EntityTable.documentationHome] = cmd.documentationHome?.toExternalForm()
         }
     }
 
@@ -836,14 +836,14 @@ internal class ModelStorageDbProjection(
 
     private fun updateEntityAttributeKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeKey) {
         updateEntityAttribute(ctx, cmd.entityId, cmd.attributeId) { row ->
-            row[EntityAttributeTable.key] = cmd.value
+            row[EntityAttributeTable.key] = cmd.key
         }
         searchWrite.upsertEntityAttributeSearchItem(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
     private fun updateEntityAttributeName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeName) {
         updateEntityAttribute(ctx, cmd.entityId, cmd.attributeId) { row ->
-            row[EntityAttributeTable.name] = cmd.value
+            row[EntityAttributeTable.name] = cmd.name
         }
         searchWrite.upsertEntityAttributeSearchItem(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
@@ -853,7 +853,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateEntityAttributeDescription
     ) {
         updateEntityAttribute(ctx, cmd.entityId, cmd.attributeId) { row ->
-            row[EntityAttributeTable.description] = cmd.value
+            row[EntityAttributeTable.description] = cmd.description
         }
         searchWrite.upsertEntityAttributeSearchItem(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
@@ -861,7 +861,7 @@ internal class ModelStorageDbProjection(
     private fun updateEntityAttributeType(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeType) {
         updateEntityAttribute(ctx, cmd.entityId, cmd.attributeId) { row ->
             row[EntityAttributeTable.typeSnapshotId] =
-                snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
+                snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.typeId)
         }
     }
 
@@ -870,7 +870,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateEntityAttributeOptional
     ) {
         updateEntityAttribute(ctx, cmd.entityId, cmd.attributeId) { row ->
-            row[EntityAttributeTable.optional] = cmd.value
+            row[EntityAttributeTable.optional] = cmd.optional
         }
     }
 
@@ -981,7 +981,7 @@ internal class ModelStorageDbProjection(
             (RelationshipTable.lineageId eq cmd.relationshipId) and
                     (RelationshipTable.modelSnapshotId eq ctx.modelSnapshotId)
         }) { row ->
-            row[RelationshipTable.key] = cmd.value
+            row[RelationshipTable.key] = cmd.key
         }
         searchWrite.upsertRelationshipSearchItem(ctx.modelSnapshotId, cmd.relationshipId)
     }
@@ -991,7 +991,7 @@ internal class ModelStorageDbProjection(
             (RelationshipTable.lineageId eq cmd.relationshipId) and
                     (RelationshipTable.modelSnapshotId eq ctx.modelSnapshotId)
         }) { row ->
-            row[RelationshipTable.name] = cmd.value
+            row[RelationshipTable.name] = cmd.name
         }
         searchWrite.upsertRelationshipSearchItem(ctx.modelSnapshotId, cmd.relationshipId)
     }
@@ -1004,7 +1004,7 @@ internal class ModelStorageDbProjection(
             (RelationshipTable.lineageId eq cmd.relationshipId) and
                     (RelationshipTable.modelSnapshotId eq ctx.modelSnapshotId)
         }) { row ->
-            row[RelationshipTable.description] = cmd.value
+            row[RelationshipTable.description] = cmd.description
         }
         searchWrite.upsertRelationshipSearchItem(ctx.modelSnapshotId, cmd.relationshipId)
     }
@@ -1047,13 +1047,13 @@ internal class ModelStorageDbProjection(
 
     private fun updateRelationshipRoleKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleKey) {
         updateRelationshipRole(ctx, cmd.relationshipId, cmd.relationshipRoleId) { row ->
-            row[RelationshipRoleTable.key] = cmd.value
+            row[RelationshipRoleTable.key] = cmd.key
         }
     }
 
     private fun updateRelationshipRoleName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleName) {
         updateRelationshipRole(ctx, cmd.relationshipId, cmd.relationshipRoleId) { row ->
-            row[RelationshipRoleTable.name] = cmd.value
+            row[RelationshipRoleTable.name] = cmd.name
         }
     }
 
@@ -1063,7 +1063,7 @@ internal class ModelStorageDbProjection(
     ) {
         updateRelationshipRole(ctx, cmd.relationshipId, cmd.relationshipRoleId) { row ->
             row[RelationshipRoleTable.entitySnapshotId] =
-                snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
+                snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
         }
     }
 
@@ -1072,7 +1072,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateRelationshipRoleCardinality
     ) {
         updateRelationshipRole(ctx, cmd.relationshipId, cmd.relationshipRoleId) { row ->
-            row[RelationshipRoleTable.cardinality] = cmd.value.code
+            row[RelationshipRoleTable.cardinality] = cmd.cardinality.code
         }
     }
 
@@ -1203,7 +1203,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateRelationshipAttributeKey
     ) {
         updateRelationshipAttribute(ctx, cmd.relationshipId, cmd.attributeId) { row ->
-            row[RelationshipAttributeTable.key] = cmd.value
+            row[RelationshipAttributeTable.key] = cmd.key
         }
         searchWrite.upsertRelationshipAttributeSearchItem(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
     }
@@ -1213,7 +1213,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateRelationshipAttributeName
     ) {
         updateRelationshipAttribute(ctx, cmd.relationshipId, cmd.attributeId) { row ->
-            row[RelationshipAttributeTable.name] = cmd.value
+            row[RelationshipAttributeTable.name] = cmd.name
         }
         searchWrite.upsertRelationshipAttributeSearchItem(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
     }
@@ -1223,7 +1223,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateRelationshipAttributeDescription
     ) {
         updateRelationshipAttribute(ctx, cmd.relationshipId, cmd.attributeId) { row ->
-            row[RelationshipAttributeTable.description] = cmd.value
+            row[RelationshipAttributeTable.description] = cmd.description
         }
         searchWrite.upsertRelationshipAttributeSearchItem(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
     }
@@ -1234,7 +1234,7 @@ internal class ModelStorageDbProjection(
     ) {
         updateRelationshipAttribute(ctx, cmd.relationshipId, cmd.attributeId) { row ->
             row[RelationshipAttributeTable.typeSnapshotId] =
-                snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.value)
+                snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.typeId)
         }
     }
 
@@ -1243,7 +1243,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.UpdateRelationshipAttributeOptional
     ) {
         updateRelationshipAttribute(ctx, cmd.relationshipId, cmd.attributeId) { row ->
-            row[RelationshipAttributeTable.optional] = cmd.value
+            row[RelationshipAttributeTable.optional] = cmd.optional
         }
     }
 
