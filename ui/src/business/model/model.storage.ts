@@ -1,6 +1,10 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {fetchModel, fetchModelSummaries} from "./model.api.ts";
-import type {ModelCompareDto, SearchResults} from "./model.dto.ts";
+import type {
+  ModelChangeEventListDto, ModelChangeEventListWithVersionDto,
+  ModelCompareDto,
+  SearchResults,
+} from "./model.dto.ts";
 import {type ActionPayload, executeAction} from "../action_runner";
 import {toProblem} from "@seij/common-types";
 
@@ -99,6 +103,60 @@ export const useModelCompare = () => {
     mutationFn: (req: ModelCompareReq) => modelCompare(req),
   });
 };
+
+export async function modelHistoryVersions(
+  modelId: string,
+): Promise<ModelChangeEventListWithVersionDto> {
+  const response = await executeAction<ModelChangeEventListWithVersionDto>(
+    "model",
+    "history_versions",
+    {
+      modelRef: "id:" + modelId,
+    },
+  );
+  if (response.contentType !== "json") {
+    throw Error("Expected JSON response for model/history_versions");
+  }
+  return response.json;
+}
+
+export async function modelHistoryVersionChanges(
+  modelId: string,
+  version: string | null,
+): Promise<ModelChangeEventListDto> {
+  const payload: ActionPayload = {
+    modelRef: "id:" + modelId,
+  };
+  if (version !== null) {
+    payload.version = version;
+  }
+  const response = await executeAction<ModelChangeEventListDto>(
+    "model",
+    "history_version_changes",
+    payload,
+  );
+  if (response.contentType !== "json") {
+    throw Error("Expected JSON response for model/history_version_changes");
+  }
+  return response.json;
+}
+
+export function useModelHistoryVersions(modelId: string) {
+  return useQuery({
+    queryKey: ["model", modelId, "history_versions"],
+    queryFn: () => modelHistoryVersions(modelId),
+  });
+}
+
+export function useModelHistoryVersionChanges(
+  modelId: string,
+  version: string | null,
+) {
+  return useQuery({
+    queryKey: ["model", modelId, "history_version_changes", version],
+    queryFn: () => modelHistoryVersionChanges(modelId, version),
+  });
+}
 
 export const useModelUpdateName = () => {
   const queryClient = useQueryClient();
