@@ -18,6 +18,7 @@ class ModelEventRegistry(
 
     private val entriesByClass: Map<KClass<out ModelStorageCmd>, ModelEventDescriptor<out ModelStorageCmd>>
     private val entriesByContract: Map<ContractKey, ModelEventDescriptor<out ModelStorageCmd>>
+    private val releaseEventType: String
 
     init {
         val duplicates = entries.groupBy { ContractKey(it.eventType, it.eventVersion) }
@@ -28,6 +29,7 @@ class ModelEventRegistry(
         }
         entriesByClass = entries.associateBy { it.kClass }
         entriesByContract = entries.associateBy { ContractKey(it.eventType, it.eventVersion) }
+        releaseEventType = findEntryByCmdClass(ModelStorageCmd.ModelRelease::class).eventType
     }
 
     fun findEntryByCmd(cmd: ModelStorageCmd): ModelEventDescriptor<ModelStorageCmd> {
@@ -50,7 +52,7 @@ class ModelEventRegistry(
     }
 
     fun modelReleaseEventType(): String {
-        return findEntryByCmdClass(ModelStorageCmd.ModelRelease::class).eventType
+        return releaseEventType
     }
 
     private data class ContractKey(

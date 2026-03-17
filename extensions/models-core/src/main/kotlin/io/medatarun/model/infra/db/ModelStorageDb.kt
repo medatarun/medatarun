@@ -206,6 +206,24 @@ class ModelStorageDb(
     }
 
     // -------------------------------------------------------------------------
+    // History
+    // -------------------------------------------------------------------------
+
+    override fun findModelVersions(modelId: ModelId): List<ModelChangeEvent> {
+        return db.withExposed {
+            logger.debug("findModelVersions modelId={}", modelId)
+            read.findModelVersions(modelId)
+        }
+    }
+
+    override fun findModelChangeEventsSinceVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
+        return db.withExposed {
+            logger.debug("findModelChangeEventsSinceVersion modelId={}", modelId)
+            read.findModelChangeEventsSinceVersion(modelId, version)
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Search
     // -------------------------------------------------------------------------
 

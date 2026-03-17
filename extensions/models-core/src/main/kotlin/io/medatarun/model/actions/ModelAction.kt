@@ -1208,4 +1208,34 @@ sealed interface ModelAction {
         val fields: SearchFields,
     ) : ModelAction
 
+    // ------------------------------------------------------------------------
+    // History
+    // ------------------------------------------------------------------------
+
+    @ActionDoc(
+        key = "history_versions",
+        title = "Versions",
+        description = "Lists model released versions",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+    )
+    data class HistoryVersions(
+        val modelRef: ModelRef
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "history_changes_since_version",
+        title = "Changes since version",
+        description = "Lists changes since version",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+    )
+    data class HistoryChangesSinceVersion(
+        val modelRef: ModelRef,
+        val version: ModelVersion
+    ) : ModelAction
+
+
 }

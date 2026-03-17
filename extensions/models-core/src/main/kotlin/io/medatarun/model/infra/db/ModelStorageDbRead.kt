@@ -4,6 +4,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntity
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntityAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toModel
+import io.medatarun.model.infra.db.ModelStorageAdapters.toModelChangeEvent
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
@@ -13,6 +14,7 @@ import io.medatarun.model.infra.db.events.ModelEventRegistry
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.ModelChangeEventInMemory
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -462,6 +464,42 @@ class ModelStorageDbRead(
                     (ModelTypeTable.lineageId eq typeId) and
                 (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
+    }
+
+    fun findModelVersions(modelId: ModelId): List<ModelChangeEvent> {
+        return ModelEventTable.selectAll()
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                        (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType())
+                        (ModelEventTable.modelVersion neq null)
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+            .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
+    }
+
+    fun findModelChangeEventsSinceVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent> {
+        val releaseRevision = ModelEventTable
+            .select(ModelEventTable.streamRevision)
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType()) and
+                    (ModelEventTable.modelVersion eq version)
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+            .limit(1)
+            .singleOrNull()
+            ?.let { row -> row[ModelEventTable.streamRevision] }
+            ?: throw ModelStorageDbMissingReleaseEventException(modelId, version.asString())
+
+        return ModelEventTable.selectAll()
+            .where {
+                (ModelEventTable.modelId eq modelId) and
+                    (ModelEventTable.streamRevision greater releaseRevision)
+            }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
+            .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
     }
 
 }

@@ -16,7 +16,9 @@ interface ModelQueries {
     fun findModelById(modelId: ModelId): ModelAggregate
     fun findModel(modelRef: ModelRef): ModelAggregate
     fun findModelOptional(modelRef: ModelRef): ModelAggregate?
-    fun findModelVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
+    fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
+    fun findModelVersions(modelRef: ModelRef): List<ModelChangeEvent>
+    fun findModelChangeEventsSinceVersion(modelRef: ModelRef, modelVersion: ModelVersion): List<ModelChangeEvent>
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
 
     /**

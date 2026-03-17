@@ -5,6 +5,9 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
+import io.medatarun.model.actions.history.ModelChangeEventListDto
+import io.medatarun.model.actions.history.toModelChangeEventListDto
+import io.medatarun.model.actions.tools.AppPrincipalResolver
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.diff.*
 import io.medatarun.model.domain.search.SearchQuery
@@ -40,7 +43,7 @@ class ModelActionProvider(
 
         val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries,  resourceLocator, locale, actionCtx, extensionRegistry)
+        val handler = ModelActionHandler(modelCmds, modelQueries, resourceLocator, locale, actionCtx, extensionRegistry)
 
         logger.info(action.toString())
 
@@ -135,6 +138,11 @@ class ModelActionProvider(
             is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(action)
             is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(action)
             is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(action)
+
+            // History
+
+            is ModelAction.HistoryVersions -> handler.historyVersions(action)
+            is ModelAction.HistoryChangesSinceVersion -> handler.historyChangesSinceVersion(action)
         }
         return result
     }
@@ -180,7 +188,6 @@ class ModelActionHandler(
         // Save imported model
         dispatch(ModelCmd.ImportModel(modelData.model, modelData.tags))
     }
-
 
 
     fun modelInspectJson(): String = ModelInspectJsonAction(modelQueries).process()
@@ -818,6 +825,19 @@ class ModelActionHandler(
         )
     }
 
+
+    fun historyVersions(action: ModelAction.HistoryVersions): ModelChangeEventListDto {
+        val changes = modelQueries.findModelVersions(action.modelRef)
+        val appPrincipalResolver = AppPrincipalResolver()
+        return toModelChangeEventListDto(changes, appPrincipalResolver)
+    }
+
+    fun historyChangesSinceVersion(action: ModelAction.HistoryChangesSinceVersion): ModelChangeEventListDto {
+        val changes = modelQueries.findModelChangeEventsSinceVersion(action.modelRef, action.version)
+        val appPrincipalResolver = AppPrincipalResolver()
+        return toModelChangeEventListDto(changes, appPrincipalResolver)
+    }
+
     @Serializable
     data class ModelListDto(
         val items: List<ModelListItemDto>
@@ -1150,7 +1170,7 @@ class ModelActionHandler(
 
     fun modelExportVersion(cmd: ModelAction.Model_Export_Version): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModelVersion(cmd.modelRef, cmd.version)
+        val model = modelQueries.findModelAtVersion(cmd.modelRef, cmd.version)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 
@@ -1175,6 +1195,7 @@ class ModelActionHandler(
             }
         }
     }
+
 }
 
 fun createLocation(location: DomainLocation): JsonObject {
@@ -1229,4 +1250,6 @@ fun JsonObjectBuilder.addLocation(location: DomainLocation) {
             put("relationshipAttributeLabel", location.label)
         }
     }
+
+
 }

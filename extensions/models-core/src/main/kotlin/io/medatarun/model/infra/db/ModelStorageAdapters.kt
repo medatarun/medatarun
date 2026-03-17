@@ -1,10 +1,14 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.inmemory.ModelChangeEventInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.id.Id
+import kotlinx.serialization.json.Json
 import java.net.URI
 
 object ModelStorageAdapters {
@@ -108,6 +112,20 @@ object ModelStorageAdapters {
             optional = record.optional,
             tags = tags,
             ownerId = AttributeOwnerId.OwnerRelationshipId(ownerRelationshipId)
+        )
+    }
+
+    fun toModelChangeEvent(record: ModelEventRecord): ModelChangeEventInMemory {
+        return ModelChangeEventInMemory(
+            eventId = record.id,
+            eventType = record.eventType,
+            eventVersion = record.eventVersion,
+            eventSequenceNumber = record.streamRevision,
+            createdAt = record.createdAt,
+            actionId = Id.fromString(record.actionId, ::ActionInstanceId),
+            modelVersion = record.modelVersion,
+            principalId = record.actorId,
+            payload = Json.decodeFromString(record.payload)
         )
     }
 
