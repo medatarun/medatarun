@@ -1,20 +1,10 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.actions.compare.ModelCompareDto
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import io.medatarun.model.domain.typeRef
-import io.medatarun.model.actions.ModelActionHandler
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -38,7 +28,7 @@ class Model_Compare_Test {
             )
         )
 
-        assertIs<ModelActionHandler.ModelCompareDto>(result)
+        assertIs<ModelCompareDto>(result)
     }
 
     @Test
@@ -65,7 +55,7 @@ class Model_Compare_Test {
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
-        val diff = assertIs<ModelActionHandler.ModelCompareDto>(result)
+        val diff = assertIs<ModelCompareDto>(result)
 
         val hasModifiedEmail = diff.entries.any { entry ->
             entry.status == "MODIFIED" &&
@@ -100,7 +90,7 @@ class Model_Compare_Test {
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
-        val structuralDiff = assertIs<ModelActionHandler.ModelCompareDto>(structuralResult)
+        val structuralDiff = assertIs<ModelCompareDto>(structuralResult)
         val structuralEntriesWithoutModel = structuralDiff.entries.filter { it.objectType != "model" }
         assertEquals(0, structuralEntriesWithoutModel.size)
 
@@ -111,7 +101,7 @@ class Model_Compare_Test {
                 scope = ModelDiffScope.COMPLETE
             )
         )
-        val completeDiff = assertIs<ModelActionHandler.ModelCompareDto>(completeResult)
+        val completeDiff = assertIs<ModelCompareDto>(completeResult)
         val hasModifiedEmail = completeDiff.entries.any { entry ->
             entry.status == "MODIFIED" &&
                     entry.objectType == "entityAttribute" &&
