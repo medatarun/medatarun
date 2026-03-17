@@ -29,11 +29,11 @@ sealed interface ModelStorageCmd {
         val types: List<StoreModelAggregateType>,
         @SerialName("entities")
         val entities: List<StoreModelAggregateEntity>,
-        @SerialName("entity_attributes")
+        @SerialName("entityAttributes")
         val entityAttributes: List<StoreModelAggregateEntityAttribute>,
         @SerialName("relationships")
         val relationships: List<StoreModelAggregateRelationship>,
-        @SerialName("relationship_attributes")
+        @SerialName("relationshipAttributes")
         val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
     ) : ModelStorageCmd
 
@@ -62,7 +62,7 @@ sealed interface ModelStorageCmd {
         @SerialName("authority")
         val authority: ModelAuthority,
         @Contextual
-        @SerialName("documentation_home")
+        @SerialName("documentationHome")
         val documentationHome: URL?
     ) : ModelStorageCmd
 
@@ -70,7 +70,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_name_updated", eventVersion = 1)
     data class UpdateModelName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("name")
@@ -81,7 +81,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_key_updated", eventVersion = 1)
     data class UpdateModelKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("key")
@@ -92,7 +92,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_description_updated", eventVersion = 1)
     data class UpdateModelDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("description")
@@ -103,7 +103,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_authority_updated", eventVersion = 1)
     data class UpdateModelAuthority(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("authority")
@@ -114,7 +114,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_release", eventVersion = 1)
     data class ModelRelease(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("version")
@@ -125,7 +125,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_documentation_home_updated", eventVersion = 1)
     data class UpdateModelDocumentationHome(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("url")
@@ -136,10 +136,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_tag_added", eventVersion = 1)
     data class UpdateModelTagAdd(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -147,10 +147,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_tag_deleted", eventVersion = 1)
     data class UpdateModelTagDelete(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -158,7 +158,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "model_deleted", eventVersion = 1)
     data class DeleteModel(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId
     ) : ModelStorageCmdOnModel
 
@@ -170,7 +170,7 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "type_created", eventVersion = 1)
     data class CreateType(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
         @SerialName("key")
@@ -187,10 +187,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "type_key_updated", eventVersion = 1)
     data class UpdateTypeKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
         @SerialName("value")
@@ -201,10 +201,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "type_name_updated", eventVersion = 1)
     data class UpdateTypeName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
         @SerialName("value")
@@ -215,10 +215,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "type_description_updated", eventVersion = 1)
     data class UpdateTypeDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId,
         @Contextual
         @SerialName("value")
@@ -229,10 +229,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "type_deleted", eventVersion = 1)
     data class DeleteType(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId
     ) : ModelStorageCmdOnModel
 
@@ -244,10 +244,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_created", eventVersion = 1)
     data class CreateEntity(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("key")
@@ -259,27 +259,27 @@ sealed interface ModelStorageCmd {
         @SerialName("description")
         val description: LocalizedMarkdown?,
         @Contextual
-        @SerialName("documentation_home")
+        @SerialName("documentationHome")
         val documentationHome: URL?,
         @Contextual
         @SerialName("origin")
         val origin: EntityOrigin,
         @Contextual
-        @SerialName("identity_attribute_id")
+        @SerialName("identityAttributeId")
         val identityAttributeId: AttributeId,
         @Contextual
-        @SerialName("identity_attribute_key")
+        @SerialName("identityAttributeKey")
         val identityAttributeKey: AttributeKey,
         @Contextual
-        @SerialName("identity_attribute_type_id")
+        @SerialName("identityAttributeTypeId")
         val identityAttributeTypeId: TypeId,
         @Contextual
-        @SerialName("identity_attribute_name")
+        @SerialName("identityAttributeName")
         val identityAttributeName: LocalizedText?,
         @Contextual
-        @SerialName("identity_attribute_description")
+        @SerialName("identityAttributeDescription")
         val identityAttributeDescription: LocalizedMarkdown?,
-        @SerialName("identity_attribute_optional")
+        @SerialName("identityAttributeOptional")
         val identityAttributeIdOptional: Boolean,
 
     ) : ModelStorageCmdOnModel
@@ -288,10 +288,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_key_updated", eventVersion = 1)
     data class UpdateEntityKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("value")
@@ -302,10 +302,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_name_updated", eventVersion = 1)
     data class UpdateEntityName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("value")
@@ -316,10 +316,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_description_updated", eventVersion = 1)
     data class UpdateEntityDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("value")
@@ -330,10 +330,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
     data class UpdateEntityIdentifierAttribute(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("value")
@@ -344,10 +344,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_documentation_home_updated", eventVersion = 1)
     data class UpdateEntityDocumentationHome(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("value")
@@ -358,13 +358,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_tag_added", eventVersion = 1)
     data class UpdateEntityTagAdd(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -372,13 +372,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_tag_deleted", eventVersion = 1)
     data class UpdateEntityTagDelete(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -386,10 +386,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_deleted", eventVersion = 1)
     data class DeleteEntity(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId
     ) : ModelStorageCmdOnModel
 
@@ -401,13 +401,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_created", eventVersion = 1)
     data class CreateEntityAttribute(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("key")
@@ -419,7 +419,7 @@ sealed interface ModelStorageCmd {
         @SerialName("description")
         val description: LocalizedMarkdown?,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId,
         @SerialName("optional")
         val optional: Boolean
@@ -429,13 +429,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_deleted", eventVersion = 1)
     data class DeleteEntityAttribute(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId
     ) : ModelStorageCmdOnModel
 
@@ -443,13 +443,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_key_updated", eventVersion = 1)
     data class UpdateEntityAttributeKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -460,13 +460,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_name_updated", eventVersion = 1)
     data class UpdateEntityAttributeName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -477,13 +477,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_description_updated", eventVersion = 1)
     data class UpdateEntityAttributeDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -494,13 +494,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_type_updated", eventVersion = 1)
     data class UpdateEntityAttributeType(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -511,13 +511,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_optional_updated", eventVersion = 1)
     data class UpdateEntityAttributeOptional(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @SerialName("value")
         val value: Boolean
@@ -527,16 +527,16 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_tag_added", eventVersion = 1)
     data class UpdateEntityAttributeTagAdd(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -544,16 +544,16 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "entity_attribute_tag_deleted", eventVersion = 1)
     data class UpdateEntityAttributeTagDelete(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -566,10 +566,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_created", eventVersion = 1)
     data class CreateRelationship(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("key")
@@ -593,7 +593,7 @@ sealed interface ModelStorageCmd {
         @SerialName("key")
         val key: RelationshipRoleKey,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("name")
@@ -607,10 +607,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_key_updated", eventVersion = 1)
     data class UpdateRelationshipKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("value")
@@ -621,10 +621,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_name_updated", eventVersion = 1)
     data class UpdateRelationshipName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("value")
@@ -635,10 +635,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_description_updated", eventVersion = 1)
     data class UpdateRelationshipDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
         @SerialName("value")
@@ -649,19 +649,19 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_created", eventVersion = 1)
     data class CreateRelationshipRole(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("key")
         val key: RelationshipRoleKey,
         @Contextual
-        @SerialName("entity_id")
+        @SerialName("entityId")
         val entityId: EntityId,
         @Contextual
         @SerialName("name")
@@ -675,13 +675,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_key_updated", eventVersion = 1)
     data class UpdateRelationshipRoleKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("value")
@@ -692,13 +692,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_name_updated", eventVersion = 1)
     data class UpdateRelationshipRoleName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("value")
@@ -709,13 +709,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_entity_updated", eventVersion = 1)
     data class UpdateRelationshipRoleEntity(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("value")
@@ -726,13 +726,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_cardinality_updated", eventVersion = 1)
     data class UpdateRelationshipRoleCardinality(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId,
         @Contextual
         @SerialName("value")
@@ -743,13 +743,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_tag_added", eventVersion = 1)
     data class UpdateRelationshipTagAdd(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -757,13 +757,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipTagDelete(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -771,10 +771,10 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_deleted", eventVersion = 1)
     data class DeleteRelationship(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
     ) : ModelStorageCmdOnModel
 
@@ -782,13 +782,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_role_deleted", eventVersion = 1)
     data class DeleteRelationshipRole(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("relationship_role_id")
+        @SerialName("relationshipRoleId")
         val relationshipRoleId: RelationshipRoleId
     ) : ModelStorageCmdOnModel
 
@@ -796,13 +796,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_created", eventVersion = 1)
     data class CreateRelationshipAttribute(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("key")
@@ -814,7 +814,7 @@ sealed interface ModelStorageCmd {
         @SerialName("description")
         val description: LocalizedMarkdown?,
         @Contextual
-        @SerialName("type_id")
+        @SerialName("typeId")
         val typeId: TypeId,
         @SerialName("optional")
         val optional: Boolean,
@@ -824,13 +824,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_name_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeName(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -841,13 +841,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_description_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeDescription(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -858,13 +858,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_key_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeKey(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -875,13 +875,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_type_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeType(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
         @SerialName("value")
@@ -892,13 +892,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_optional_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeOptional(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @SerialName("value")
         val value: Boolean
@@ -908,16 +908,16 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_tag_added", eventVersion = 1)
     data class UpdateRelationshipAttributeTagAdd(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -925,16 +925,16 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipAttributeTagDelete(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
         @Contextual
-        @SerialName("tag_id")
+        @SerialName("tagId")
         val tagId: TagId
     ) : ModelStorageCmdOnModel
 
@@ -942,13 +942,13 @@ sealed interface ModelStorageCmd {
     @ModelEventContract(eventType = "relationship_attribute_deleted", eventVersion = 1)
     data class DeleteRelationshipAttribute(
         @Contextual
-        @SerialName("model_id")
+        @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
-        @SerialName("relationship_id")
+        @SerialName("relationshipId")
         val relationshipId: RelationshipId,
         @Contextual
-        @SerialName("attribute_id")
+        @SerialName("attributeId")
         val attributeId: AttributeId,
     ) : ModelStorageCmdOnModel
 

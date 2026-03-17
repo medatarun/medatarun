@@ -37,7 +37,7 @@ data class StoreModelAggregateModel(
     @SerialName("authority")
     val authority: ModelAuthority,
     @Contextual
-    @SerialName("documentation_home")
+    @SerialName("documentationHome")
     val documentationHome: URL?
 )
 
@@ -72,13 +72,13 @@ data class StoreModelAggregateEntity(
     @SerialName("description")
     val description: LocalizedMarkdown?,
     @Contextual
-    @SerialName("identifier_attribute_id")
+    @SerialName("identifierAttributeId")
     val identifierAttributeId: AttributeId,
     @Contextual
     @SerialName("origin")
     val origin: EntityOrigin,
     @Contextual
-    @SerialName("documentation_home")
+    @SerialName("documentationHome")
     val documentationHome: URL?
 )
 
@@ -88,7 +88,7 @@ data class StoreModelAggregateEntityAttribute(
     @SerialName("id")
     val id: AttributeId,
     @Contextual
-    @SerialName("entity_id")
+    @SerialName("entityId")
     val entityId: EntityId,
     @Contextual
     @SerialName("key")
@@ -100,7 +100,7 @@ data class StoreModelAggregateEntityAttribute(
     @SerialName("description")
     val description: LocalizedMarkdown?,
     @Contextual
-    @SerialName("type_id")
+    @SerialName("typeId")
     val typeId: TypeId,
     @SerialName("optional")
     val optional: Boolean
@@ -133,7 +133,7 @@ data class StoreModelAggregateRelationshipRole(
     @SerialName("key")
     val key: RelationshipRoleKey,
     @Contextual
-    @SerialName("entity_id")
+    @SerialName("entityId")
     val entityId: EntityId,
     @Contextual
     @SerialName("name")
@@ -149,7 +149,7 @@ data class StoreModelAggregateRelationshipAttribute(
     @SerialName("id")
     val id: AttributeId,
     @Contextual
-    @SerialName("relationship_id")
+    @SerialName("relationshipId")
     val relationshipId: RelationshipId,
     @Contextual
     @SerialName("key")
@@ -161,7 +161,7 @@ data class StoreModelAggregateRelationshipAttribute(
     @SerialName("description")
     val description: LocalizedMarkdown?,
     @Contextual
-    @SerialName("type_id")
+    @SerialName("typeId")
     val typeId: TypeId,
     @SerialName("optional")
     val optional: Boolean

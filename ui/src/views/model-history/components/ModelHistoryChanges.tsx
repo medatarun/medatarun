@@ -111,11 +111,11 @@ const eventMap: Record<string, EventDisplayMode> = {
     payload: (event: ModelChangeEventDto) => null
   },
   "model_tag_added": {
-    label: (event: ModelChangeEventDto) => <Text>Add tag <TagNameOf tagId={event.payload.tag_id as string} /></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Add tag <TagNameOf tagId={event.payload.tagId as string} /></Text>,
     payload: (event: ModelChangeEventDto) => null
   },
   "model_tag_deleted": {
-    label: (event: ModelChangeEventDto) => <Text>Deleted tag <TagNameOf tagId={event.payload.tag_id as string} /></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Deleted tag <TagNameOf tagId={event.payload.tagId as string} /></Text>,
     payload: (event: ModelChangeEventDto) => null
   },
 
@@ -125,16 +125,15 @@ const eventMap: Record<string, EventDisplayMode> = {
   },
 
   "entity_name_updated": {
-    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entity_id as string} /></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} /></Text>,
     payload: (event: ModelChangeEventDto) => <span>New name: {event.payload.value as string}</span>
   },
   "entity_attribute_name_updated": {
-    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entity_id as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entity_id as string} attributeId={event.payload.attribute_id as string} /></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entityId as string} attributeId={event.payload.attributeId as string} /></Text>,
     payload: (event: ModelChangeEventDto) => null
   },
   "entity_attribute_description_updated": {
-    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entity_id as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entity_id as string} attributeId={event.payload.attribute_id as string} /></Text>,
+    label: (event: ModelChangeEventDto) => <Text>Changed name of <EntityNameOf entityId={event.payload.entityId as string} />'s attribute <EntityAttributeNameOf entityId={event.payload.entityId as string} attributeId={event.payload.attributeId as string} /></Text>,
     payload: (event: ModelChangeEventDto) => <Markdown value={(event.payload.value as string) ?? ""} />
   }
 }
-

@@ -85,7 +85,7 @@ class ModelEventJsonCodecTest {
                 eventVersion = 1,
                 cmd = sampleStoreModelAggregate(),
                 json = """
-                    {"model":{"id":"00000000-0000-0000-0000-000000000101","key":"billing","name":"Billing","description":"Billing model","version":"1.0.0","origin":{"origin_type":"manual"},"authority":"system","documentation_home":"https://example.com/docs/models/billing"},"types":[{"id":"00000000-0000-0000-0000-000000000102","key":"number","name":"Number","description":"Number type"}],"entities":[{"id":"00000000-0000-0000-0000-000000000103","key":"invoice","name":"Invoice","description":"Invoice entity","identifier_attribute_id":"00000000-0000-0000-0000-000000000106","origin":{"origin_type":"manual"},"documentation_home":"https://example.com/docs/entities/invoice"}],"entity_attributes":[{"id":"00000000-0000-0000-0000-000000000106","entity_id":"00000000-0000-0000-0000-000000000103","key":"invoice_id","name":"Invoice Id","description":"Invoice identity","type_id":"00000000-0000-0000-0000-000000000102","optional":false}],"relationships":[{"id":"00000000-0000-0000-0000-000000000104","key":"invoice_invoice","name":"Invoice Invoice","description":"Self relationship","roles":[{"id":"00000000-0000-0000-0000-000000000105","key":"source","entity_id":"00000000-0000-0000-0000-000000000103","name":"Source","cardinality":"many"}]}],"relationship_attributes":[{"id":"00000000-0000-0000-0000-000000000107","relationship_id":"00000000-0000-0000-0000-000000000104","key":"ratio","name":"Ratio","description":"Relationship ratio","type_id":"00000000-0000-0000-0000-000000000102","optional":true}]}
+                    {"model":{"id":"00000000-0000-0000-0000-000000000101","key":"billing","name":"Billing","description":"Billing model","version":"1.0.0","origin":{"origin_type":"manual"},"authority":"system","documentationHome":"https://example.com/docs/models/billing"},"types":[{"id":"00000000-0000-0000-0000-000000000102","key":"number","name":"Number","description":"Number type"}],"entities":[{"id":"00000000-0000-0000-0000-000000000103","key":"invoice","name":"Invoice","description":"Invoice entity","identifierAttributeId":"00000000-0000-0000-0000-000000000106","origin":{"origin_type":"manual"},"documentationHome":"https://example.com/docs/entities/invoice"}],"entityAttributes":[{"id":"00000000-0000-0000-0000-000000000106","entityId":"00000000-0000-0000-0000-000000000103","key":"invoice_id","name":"Invoice Id","description":"Invoice identity","typeId":"00000000-0000-0000-0000-000000000102","optional":false}],"relationships":[{"id":"00000000-0000-0000-0000-000000000104","key":"invoice_invoice","name":"Invoice Invoice","description":"Self relationship","roles":[{"id":"00000000-0000-0000-0000-000000000105","key":"source","entityId":"00000000-0000-0000-0000-000000000103","name":"Source","cardinality":"many"}]}],"relationshipAttributes":[{"id":"00000000-0000-0000-0000-000000000107","relationshipId":"00000000-0000-0000-0000-000000000104","key":"ratio","name":"Ratio","description":"Relationship ratio","typeId":"00000000-0000-0000-0000-000000000102","optional":true}]}
                 """.trimIndent()
             ),
             CmdTestCase(
@@ -102,62 +102,62 @@ class ModelEventJsonCodecTest {
                     documentationHome = URL("https://example.com/docs/models/crm")
                 ),
                 json = """
-                    {"id":"00000000-0000-0000-0000-000000000001","key":"crm","name":"CRM","description":"CRM model","version":"1.0.0","origin":{"origin_type":"uri","uri":"https://example.com/model/crm"},"authority":"canonical","documentation_home":"https://example.com/docs/models/crm"}
+                    {"id":"00000000-0000-0000-0000-000000000001","key":"crm","name":"CRM","description":"CRM model","version":"1.0.0","origin":{"origin_type":"uri","uri":"https://example.com/model/crm"},"authority":"canonical","documentationHome":"https://example.com/docs/models/crm"}
                 """.trimIndent()
             ),
             CmdTestCase(
                 eventType = "model_name_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelName(modelId, text("CRM")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","name":"CRM"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","name":"CRM"}"""
             ),
             CmdTestCase(
                 eventType = "model_key_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelKey(modelId, ModelKey("crm-v2")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","key":"crm-v2"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","key":"crm-v2"}"""
             ),
             CmdTestCase(
                 eventType = "model_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelDescription(modelId, markdown("Model description")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","description":"Model description"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","description":"Model description"}"""
             ),
             CmdTestCase(
                 eventType = "model_authority_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelAuthority(modelId, ModelAuthority.SYSTEM),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","authority":"system"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","authority":"system"}"""
             ),
             CmdTestCase(
                 eventType = "model_release",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.ModelRelease(modelId, ModelVersion("2.0.0")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","version":"2.0.0"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","version":"2.0.0"}"""
             ),
             CmdTestCase(
                 eventType = "model_documentation_home_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelDocumentationHome(modelId, URL("https://example.com/docs/models/crm")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","url":"https://example.com/docs/models/crm"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","url":"https://example.com/docs/models/crm"}"""
             ),
             CmdTestCase(
                 eventType = "model_tag_added",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelTagAdd(modelId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "model_tag_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateModelTagDelete(modelId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "model_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteModel(modelId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001"}"""
             ),
             CmdTestCase(
                 eventType = "type_created",
@@ -168,31 +168,31 @@ class ModelEventJsonCodecTest {
                     name = text("Boolean"),
                     description = markdown("Boolean type")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","key":"boolean","name":"Boolean","description":"Boolean type"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","key":"boolean","name":"Boolean","description":"Boolean type"}"""
             ),
             CmdTestCase(
                 eventType = "type_key_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateTypeKey(modelId, typeId, TypeKey("string")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","type_id":"00000000-0000-0000-0000-000000000002","value":"string"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","value":"string"}"""
             ),
             CmdTestCase(
                 eventType = "type_name_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateTypeName(modelId, typeId, text("String")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","type_id":"00000000-0000-0000-0000-000000000002","value":"String"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","value":"String"}"""
             ),
             CmdTestCase(
                 eventType = "type_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateTypeDescription(modelId, typeId, markdown("String type")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","type_id":"00000000-0000-0000-0000-000000000002","value":"String type"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","value":"String type"}"""
             ),
             CmdTestCase(
                 eventType = "type_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteType(modelId, typeId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","type_id":"00000000-0000-0000-0000-000000000002"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002"}"""
             ),
             CmdTestCase(
                 eventType = "entity_created",
@@ -213,32 +213,32 @@ class ModelEventJsonCodecTest {
                     identityAttributeIdOptional = false
                 ),
                 json = """
-                    {"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentation_home":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"},"identity_attribute_id":"00000000-0000-0000-0000-000000000006","identity_attribute_key":"customer_id","identity_attribute_type_id":"00000000-0000-0000-0000-000000000002","identity_attribute_name":"Customer Id","identity_attribute_description":"Identity attribute","identity_attribute_optional":false}
+                    {"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"},"identityAttributeId":"00000000-0000-0000-0000-000000000006","identityAttributeKey":"customer_id","identityAttributeTypeId":"00000000-0000-0000-0000-000000000002","identityAttributeName":"Customer Id","identityAttributeDescription":"Identity attribute","identityAttributeOptional":false}
                 """.trimIndent()
             ),
             CmdTestCase(
                 eventType = "entity_key_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityKey(modelId, entityId, EntityKey("client")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","value":"client"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","value":"client"}"""
             ),
             CmdTestCase(
                 eventType = "entity_name_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityName(modelId, entityId, text("Client")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","value":"Client"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","value":"Client"}"""
             ),
             CmdTestCase(
                 eventType = "entity_description_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityDescription(modelId, entityId, markdown("Client entity")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","value":"Client entity"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","value":"Client entity"}"""
             ),
             CmdTestCase(
                 eventType = "entity_identifier_attribute_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityIdentifierAttribute(modelId, entityId, entityAttributeId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","value":"00000000-0000-0000-0000-000000000006"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","value":"00000000-0000-0000-0000-000000000006"}"""
             ),
             CmdTestCase(
                 eventType = "entity_documentation_home_updated",
@@ -248,25 +248,25 @@ class ModelEventJsonCodecTest {
                     entityId,
                     URL("https://example.com/docs/entities/client")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","value":"https://example.com/docs/entities/client"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","value":"https://example.com/docs/entities/client"}"""
             ),
             CmdTestCase(
                 eventType = "entity_tag_added",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityTagAdd(modelId, entityId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "entity_tag_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityTagDelete(modelId, entityId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "entity_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteEntity(modelId, entityId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_created",
@@ -281,13 +281,13 @@ class ModelEventJsonCodecTest {
                     typeId,
                     false
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","key":"code","name":"Code","description":"Entity code","type_id":"00000000-0000-0000-0000-000000000002","optional":false}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","key":"code","name":"Code","description":"Entity code","typeId":"00000000-0000-0000-0000-000000000002","optional":false}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteEntityAttribute(modelId, entityId, entityAttributeId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_key_updated",
@@ -298,7 +298,7 @@ class ModelEventJsonCodecTest {
                     entityAttributeId,
                     AttributeKey("external_code")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","value":"external_code"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","value":"external_code"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_name_updated",
@@ -309,7 +309,7 @@ class ModelEventJsonCodecTest {
                     entityAttributeId,
                     text("External Code")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","value":"External Code"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","value":"External Code"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_description_updated",
@@ -320,31 +320,31 @@ class ModelEventJsonCodecTest {
                     entityAttributeId,
                     markdown("External code attribute")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","value":"External code attribute"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","value":"External code attribute"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_type_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityAttributeType(modelId, entityId, entityAttributeId, typeId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","value":"00000000-0000-0000-0000-000000000002"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","value":"00000000-0000-0000-0000-000000000002"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_optional_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityAttributeOptional(modelId, entityId, entityAttributeId, true),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","value":true}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","value":true}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_tag_added",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityAttributeTagAdd(modelId, entityId, entityAttributeId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "entity_attribute_tag_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityAttributeTagDelete(modelId, entityId, entityAttributeId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","entity_id":"00000000-0000-0000-0000-000000000003","attribute_id":"00000000-0000-0000-0000-000000000006","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeId":"00000000-0000-0000-0000-000000000006","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_created",
@@ -366,20 +366,20 @@ class ModelEventJsonCodecTest {
                     )
                 ),
                 json = """
-                    {"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","key":"customer_order","name":"Customer Order","description":"Customer order relationship","roles":[{"id":"00000000-0000-0000-0000-000000000005","key":"customer","entity_id":"00000000-0000-0000-0000-000000000003","name":"Customer","cardinality":"many"}]}
+                    {"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","key":"customer_order","name":"Customer Order","description":"Customer order relationship","roles":[{"id":"00000000-0000-0000-0000-000000000005","key":"customer","entityId":"00000000-0000-0000-0000-000000000003","name":"Customer","cardinality":"many"}]}
                 """.trimIndent()
             ),
             CmdTestCase(
                 eventType = "relationship_key_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipKey(modelId, relationshipId, RelationshipKey("customer_invoice")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","value":"customer_invoice"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","value":"customer_invoice"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_name_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipName(modelId, relationshipId, text("Customer Invoice")),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","value":"Customer Invoice"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","value":"Customer Invoice"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_description_updated",
@@ -389,7 +389,7 @@ class ModelEventJsonCodecTest {
                     relationshipId,
                     markdown("Customer invoice relationship")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","value":"Customer invoice relationship"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","value":"Customer invoice relationship"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_created",
@@ -403,7 +403,7 @@ class ModelEventJsonCodecTest {
                     text("Buyer"),
                     RelationshipCardinality.One
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005","key":"buyer","entity_id":"00000000-0000-0000-0000-000000000003","name":"Buyer","cardinality":"one"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","key":"buyer","entityId":"00000000-0000-0000-0000-000000000003","name":"Buyer","cardinality":"one"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_key_updated",
@@ -414,7 +414,7 @@ class ModelEventJsonCodecTest {
                     relationshipRoleId,
                     RelationshipRoleKey("seller")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005","value":"seller"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","value":"seller"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_name_updated",
@@ -425,13 +425,13 @@ class ModelEventJsonCodecTest {
                     relationshipRoleId,
                     text("Seller")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005","value":"Seller"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","value":"Seller"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_entity_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipRoleEntity(modelId, relationshipId, relationshipRoleId, entityId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005","value":"00000000-0000-0000-0000-000000000003"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","value":"00000000-0000-0000-0000-000000000003"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_cardinality_updated",
@@ -442,31 +442,31 @@ class ModelEventJsonCodecTest {
                     relationshipRoleId,
                     RelationshipCardinality.ZeroOrOne
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005","value":"zeroOrOne"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","value":"zeroOrOne"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_tag_added",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipTagAdd(modelId, relationshipId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_tag_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateRelationshipTagDelete(modelId, relationshipId, tagId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteRelationship(modelId, relationshipId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_role_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteRelationshipRole(modelId, relationshipId, relationshipRoleId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","relationship_role_id":"00000000-0000-0000-0000-000000000005"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_created",
@@ -481,7 +481,7 @@ class ModelEventJsonCodecTest {
                     typeId,
                     true
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","key":"weight","name":"Weight","description":"Relationship weight","type_id":"00000000-0000-0000-0000-000000000002","optional":true}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","key":"weight","name":"Weight","description":"Relationship weight","typeId":"00000000-0000-0000-0000-000000000002","optional":true}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_name_updated",
@@ -492,7 +492,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     text("Load")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","value":"Load"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","value":"Load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_description_updated",
@@ -503,7 +503,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     markdown("Relationship load")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","value":"Relationship load"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","value":"Relationship load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_key_updated",
@@ -514,7 +514,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     AttributeKey("load")
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","value":"load"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","value":"load"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_type_updated",
@@ -525,7 +525,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     typeId
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","value":"00000000-0000-0000-0000-000000000002"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","value":"00000000-0000-0000-0000-000000000002"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_optional_updated",
@@ -536,7 +536,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     false
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","value":false}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","value":false}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_tag_added",
@@ -547,7 +547,7 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     tagId
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_tag_deleted",
@@ -558,13 +558,13 @@ class ModelEventJsonCodecTest {
                     relationshipAttributeId,
                     tagId
                 ),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007","tag_id":"00000000-0000-0000-0000-000000000008"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007","tagId":"00000000-0000-0000-0000-000000000008"}"""
             ),
             CmdTestCase(
                 eventType = "relationship_attribute_deleted",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.DeleteRelationshipAttribute(modelId, relationshipId, relationshipAttributeId),
-                json = """{"model_id":"00000000-0000-0000-0000-000000000001","relationship_id":"00000000-0000-0000-0000-000000000004","attribute_id":"00000000-0000-0000-0000-000000000007"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007"}"""
             ),
         )
     }
