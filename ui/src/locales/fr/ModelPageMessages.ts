@@ -16,6 +16,7 @@ export const modelPageMessages: ModelPageMessages = {
   modelPage_authorityCanonical: "Canonique",
   modelPage_authoritySystem: "Système",
   modelPage_versionLabel: "Version",
+  modelPage_historyLink: "historique",
   modelPage_externalLinkLabel: "Lien externe",
   modelPage_externalLinkEmpty: "ajouter un lien externe",
   modelPage_tagsLabel: "Tags",

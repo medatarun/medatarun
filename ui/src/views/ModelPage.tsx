@@ -1,4 +1,4 @@
-import {useNavigate} from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
 import {
   type ElementOrigin,
@@ -13,7 +13,8 @@ import {
 } from "@/business/model";
 import {ModelContext, useModelContext,} from "@/components/business/model/ModelContext.tsx";
 import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
-import {InfoLabel, Text, tokens} from "@fluentui/react-components";
+import { InfoLabel, Text, tokens } from "@fluentui/react-components";
+import { HistoryRegular } from "@fluentui/react-icons";
 import {EntityCard} from "@/components/business/model/EntityCard.tsx";
 import {RelationshipsTable} from "@/components/business/model/RelationshipsTable.tsx";
 import {ActionMenuButton, TypesTable,} from "@/components/business/model/TypesTable.tsx";
@@ -290,7 +291,27 @@ export function ModelOverview() {
       <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
 
       <div>{t("modelPage_versionLabel")}</div>
-      <div>{model.version}</div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: tokens.spacingHorizontalM,
+        }}
+      >
+        <span>{model.version}</span>
+        <Link
+          to="/model/$modelId/history"
+          params={{ modelId: model.id }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: tokens.spacingHorizontalXS,
+          }}
+        >
+          <HistoryRegular />
+          <span>{t("modelPage_historyLink")}</span>
+        </Link>
+      </div>
 
       <div>{t("modelPage_externalLinkLabel")}</div>
       <div>
