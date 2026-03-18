@@ -186,13 +186,19 @@ class Model_Compare_Test {
                 value = ModelVersion("2.0.0")
             )
         )
+        env.dispatch(
+            ModelAction.Model_Release(
+                modelRef = modelRefKey(rightKey),
+                value = ModelVersion("2.0.0")
+            )
+        )
 
         val result = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
                 leftModelVersion = ModelVersion("1.0.0"),
                 rightModelRef = modelRefKey(rightKey),
-                rightModelVersion = null,
+                rightModelVersion = ModelVersion("1.0.0"),
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
@@ -206,6 +212,161 @@ class Model_Compare_Test {
         }
         assertFalse(hasModifiedEmail)
         assertEquals("1.0.0", diff.left.modelVersion)
+        assertEquals("1.0.0", diff.right.modelVersion)
+    }
+
+    @Test
+    fun `compare with requested right version ignores changes made after that release`() {
+        val env = ModelTestEnv()
+        val leftKey = ModelKey("crm-canonical")
+        val rightKey = ModelKey("crm-prod")
+        val leftModelRef = modelRefKey(leftKey)
+        val rightModelRef = modelRefKey(rightKey)
+        val customerEntityRef = EntityRef.ByKey(EntityKey("Customer"))
+        val emailAttributeRef = EntityAttributeRef.ByKey(AttributeKey("email"))
+
+        // - create crm-canonical 1.0.0
+        // - crm-canonical create type String
+        // - crm-canonical create entity key=Customer name=Customer identifier=id:String
+        // - crm-canonical create attribute email:String
+        // - crm-canonical release 2.0.0
+
+        // - create crm-prod 1.0.0
+        // - crm-prod create type String
+        // - crm-prod create entity Customer named Customer with id:String
+        // - crm-prod.Customer createAttribute email type String optional false
+        // - crm-prod.Customer.email set optional true
+        // - crm-prod release 2.0.0
+        // - crm-prod.Customer.email set optional false
+
+        env.dispatch(
+            ModelAction.Model_Create(
+                modelKey = leftKey,
+                name = LocalizedTextNotLocalized("Left model"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        env.dispatch(
+            ModelAction.Type_Create(
+                modelRef = leftModelRef,
+                typeKey = TypeKey("String"),
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.Entity_Create(
+                modelRef = leftModelRef,
+                entityKey = EntityKey("Customer"),
+                name = LocalizedTextNotLocalized("Customer"),
+                description = null,
+                identityAttributeKey = AttributeKey("id"),
+                identityAttributeType = typeRef("String"),
+                identityAttributeName = null,
+                documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = leftModelRef,
+                entityRef = customerEntityRef,
+                attributeKey = AttributeKey("email"),
+                type = typeRef("String"),
+                optional = false,
+                name = LocalizedTextNotLocalized("Email"),
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.Model_Release(
+                modelRef = leftModelRef,
+                value = ModelVersion("2.0.0")
+            )
+        )
+
+        env.dispatch(
+            ModelAction.Model_Create(
+                modelKey = rightKey,
+                name = LocalizedTextNotLocalized("Right model"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
+        )
+        env.dispatch(
+            ModelAction.Type_Create(
+                modelRef = rightModelRef,
+                typeKey = TypeKey("String"),
+                name = null,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.Entity_Create(
+                modelRef = rightModelRef,
+                entityKey = EntityKey("Customer"),
+                name = LocalizedTextNotLocalized("Customer"),
+                description = null,
+                identityAttributeKey = AttributeKey("id"),
+                identityAttributeType = typeRef("String"),
+                identityAttributeName = null,
+                documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = rightModelRef,
+                entityRef = customerEntityRef,
+                attributeKey = AttributeKey("email"),
+                type = typeRef("String"),
+                optional = false,
+                name = LocalizedTextNotLocalized("Email"),
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateOptional(
+                modelRef = rightModelRef,
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
+                value = true
+            )
+        )
+        env.dispatch(
+            ModelAction.Model_Release(
+                modelRef = rightModelRef,
+                value = ModelVersion("2.0.0")
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateOptional(
+                modelRef = rightModelRef,
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
+                value = false
+            )
+        )
+
+        val result = env.dispatch(
+            ModelAction.Compare(
+                leftModelRef = leftModelRef,
+                leftModelVersion = ModelVersion("2.0.0"),
+                rightModelRef = rightModelRef,
+                rightModelVersion = ModelVersion("2.0.0"),
+                scope = ModelDiffScope.STRUCTURAL
+            )
+        )
+        val diff = assertIs<ModelCompareDto>(result)
+
+        val hasModifiedEmail = diff.entries.any { entry ->
+            entry.status == "MODIFIED" &&
+                    entry.objectType == "entityAttribute" &&
+                    entry.entityKey == "Customer" &&
+                    entry.attributeKey == "email"
+        }
+        assertTrue(hasModifiedEmail)
+        assertEquals("2.0.0", diff.left.modelVersion)
+        assertEquals("2.0.0", diff.right.modelVersion)
     }
 
     private fun createBaseModel(env: ModelTestEnv, modelKey: ModelKey) {
