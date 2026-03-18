@@ -118,7 +118,7 @@ class CreateAttributeDuplicateKeyException(entityKey: EntityKey, attributeKey: A
     MedatarunException("Another attribute with key [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
 
 class ModelTypeDeleteUsedException(key: TypeKey) :
-    MedatarunException("Type with key [${key.value}] could not be deleted as it's used in entities")
+    MedatarunException("Type with key [${key.value}] could not be deleted as it's used in entities", StatusCode.BAD_REQUEST)
 
 class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] already exists with the same id in model [${modelKey.value}]")
