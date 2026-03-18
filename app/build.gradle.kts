@@ -28,7 +28,6 @@ dependencies {
     implementation(project(":libs:platform-storage-db-sqlite"))
     implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-type-system"))
-    implementation(project(":utils"))
     implementation(libs.kotlinReflect)
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.ktorServerAuth)
