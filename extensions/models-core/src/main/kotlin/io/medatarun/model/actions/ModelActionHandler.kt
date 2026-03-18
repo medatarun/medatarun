@@ -62,7 +62,9 @@ class ModelActionHandler(
     fun modelCompare(action: ModelAction.Compare): ModelCompareDto {
         val diff = modelQueries.diff(
             leftModelRef = action.leftModelRef,
+            leftModelVersion = action.leftModelVersion,
             rightModelRef = action.rightModelRef,
+            rightModelVersion = action.rightModelVersion,
             scope = action.scope
         )
         return ModelCompareDtoAdapters.toCompareDto(diff)

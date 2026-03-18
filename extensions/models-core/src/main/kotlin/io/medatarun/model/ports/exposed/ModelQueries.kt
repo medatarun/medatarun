@@ -60,7 +60,17 @@ interface ModelQueries {
 
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
 
-    fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff
+    /**
+     * Compares the current model state when version is null, otherwise compares the released snapshot
+     * associated with the requested version.
+     */
+    fun diff(
+        leftModelRef: ModelRef,
+        leftModelVersion: ModelVersion?,
+        rightModelRef: ModelRef,
+        rightModelVersion: ModelVersion?,
+        scope: ModelDiffScope
+    ): ModelDiff
 
     fun search(query: SearchQuery): SearchResults
 

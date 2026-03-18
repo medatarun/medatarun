@@ -129,12 +129,24 @@ sealed interface ModelAction {
         val leftModelRef: ModelRef,
         @ActionParamDoc(
             order = 2,
+            name = "Left model version",
+            description = "Specific version of the left model state to compare. If null, the current model state is used."
+        )
+        val leftModelVersion: ModelVersion?,
+        @ActionParamDoc(
+            order = 3,
             name = "Right model ref",
             description = "Reference of the right model state to compare."
         )
         val rightModelRef: ModelRef,
         @ActionParamDoc(
-            order = 3,
+            order = 4,
+            name = "Right model version",
+            description = "Specific version of the right model state to compare. If null, the current model state is used."
+        )
+        val rightModelVersion: ModelVersion?,
+        @ActionParamDoc(
+            order = 5,
             name = "Diff scope",
             description = "Comparison scope to apply: STRUCTURAL or COMPLETE."
         )

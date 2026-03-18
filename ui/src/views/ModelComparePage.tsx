@@ -1,4 +1,10 @@
-import { useModelCompare, useModelSummaries, type ModelSummaryDto } from "@/business/model";
+import {
+  type ModelChangeEventWithVersionDto,
+  useModelCompare,
+  useModelHistoryVersions,
+  useModelSummaries,
+  type ModelSummaryDto,
+} from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { Button, InputCombobox } from "@seij/common-ui";
@@ -11,20 +17,35 @@ import {
 } from "@/views/model-compare/ComparisonModeInput.tsx";
 import { ModelCompareDiffView } from "@/views/model-compare/ModelCompareDiffView.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { ModelHistoryVersionInput } from "@/views/model-history/components/ModelHistoryVersionInput.tsx";
 
 export function ModelComparePage() {
   const { data: modelSummaries = [] } = useModelSummaries();
   const compare = useModelCompare();
   const { t } = useAppI18n();
   const [leftModelId, setLeftModelId] = useState("");
+  const [leftModelVersion, setLeftModelVersion] = useState<string | null>(null);
   const [rightModelId, setRightModelId] = useState("");
+  const [rightModelVersion, setRightModelVersion] = useState<string | null>(null);
   const [comparisonMode, setComparisonMode] =
     useState<ComparisonMode>("structural");
+  const { data: leftVersionsDto } = useModelHistoryVersions(leftModelId);
+  const { data: rightVersionsDto } = useModelHistoryVersions(rightModelId);
+
+  useEffect(() => {
+    setLeftModelVersion(null);
+  }, [leftModelId]);
+
+  useEffect(() => {
+    setRightModelVersion(null);
+  }, [rightModelId]);
 
   const handleCompare = async () => {
     await compare.mutateAsync({
       leftModelId: leftModelId,
+      leftModelVersion: leftModelVersion,
       rightModelId: rightModelId,
+      rightModelVersion: rightModelVersion,
       scope: comparisonMode,
     });
   };
@@ -32,7 +53,6 @@ export function ModelComparePage() {
   const canCompare =
     leftModelId.length > 0 &&
     rightModelId.length > 0 &&
-    leftModelId !== rightModelId &&
     !compare.isPending;
 
   return (
@@ -54,7 +74,7 @@ export function ModelComparePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "2fr 2fr 1.2fr auto",
+            gridTemplateColumns: "1.6fr 1fr 1.6fr 1fr 1.2fr auto",
             gap: tokens.spacingHorizontalM,
             alignItems: "end",
           }}
@@ -68,6 +88,13 @@ export function ModelComparePage() {
             noOptionsMessage={t("modelComparePage_modelsNoOptions")}
           />
 
+          <InputVersion
+            label={t("modelHistoryPage_versionsTitle")}
+            versions={leftVersionsDto?.items ?? []}
+            value={leftModelVersion}
+            onChange={setLeftModelVersion}
+          />
+
           <InputModel
             label={t("modelComparePage_rightModelLabel")}
             modelSummaries={modelSummaries}
@@ -75,6 +102,13 @@ export function ModelComparePage() {
             onChange={setRightModelId}
             placeholder={t("modelComparePage_selectModelPlaceholder")}
             noOptionsMessage={t("modelComparePage_modelsNoOptions")}
+          />
+
+          <InputVersion
+            label={t("modelHistoryPage_versionsTitle")}
+            versions={rightVersionsDto?.items ?? []}
+            value={rightModelVersion}
+            onChange={setRightModelVersion}
           />
 
           <ComparisonModeInput value={comparisonMode} onChange={setComparisonMode} />
@@ -149,6 +183,36 @@ function InputModel({
           if (!matched) return;
           setSearchQuery(matched.label);
         }}
+      />
+    </div>
+  );
+}
+
+function InputVersion({
+  label,
+  versions,
+  value,
+  onChange,
+}: {
+  label: string;
+  versions: ModelChangeEventWithVersionDto[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+}) {
+  return (
+    <div>
+      <Text
+        style={{
+          display: "block",
+          marginBottom: tokens.spacingVerticalXS,
+        }}
+      >
+        {label}
+      </Text>
+      <ModelHistoryVersionInput
+        versions={versions}
+        value={value}
+        onChange={onChange}
       />
     </div>
   );

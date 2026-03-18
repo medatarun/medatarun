@@ -7,6 +7,7 @@ import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -23,7 +24,9 @@ class Model_Compare_Test {
         val result = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = null,
                 rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
@@ -51,7 +54,9 @@ class Model_Compare_Test {
         val result = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = null,
                 rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
@@ -86,7 +91,9 @@ class Model_Compare_Test {
         val structuralResult = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = null,
                 rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
         )
@@ -97,7 +104,9 @@ class Model_Compare_Test {
         val completeResult = env.dispatch(
             ModelAction.Compare(
                 leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = null,
                 rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
                 scope = ModelDiffScope.COMPLETE
             )
         )
@@ -109,6 +118,94 @@ class Model_Compare_Test {
                     entry.attributeKey == "email"
         }
         assertTrue(hasModifiedEmail)
+    }
+
+    @Test
+    fun `compare without requested version uses current model state`() {
+        val env = ModelTestEnv()
+        val leftKey = ModelKey("left-model-current-version")
+        val rightKey = ModelKey("right-model-current-version")
+        createBaseModel(env, leftKey)
+        createBaseModel(env, rightKey)
+
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateOptional(
+                modelRef = modelRefKey(leftKey),
+                entityRef = EntityRef.ByKey(EntityKey("Customer")),
+                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                value = true
+            )
+        )
+        env.dispatch(
+            ModelAction.Model_Release(
+                modelRef = modelRefKey(leftKey),
+                value = ModelVersion("2.0.0")
+            )
+        )
+
+        val result = env.dispatch(
+            ModelAction.Compare(
+                leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = null,
+                rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
+                scope = ModelDiffScope.STRUCTURAL
+            )
+        )
+        val diff = assertIs<ModelCompareDto>(result)
+
+        val hasModifiedEmail = diff.entries.any { entry ->
+            entry.status == "MODIFIED" &&
+                    entry.objectType == "entityAttribute" &&
+                    entry.entityKey == "Customer" &&
+                    entry.attributeKey == "email"
+        }
+        assertTrue(hasModifiedEmail)
+        assertEquals("2.0.0", diff.left.modelVersion)
+    }
+
+    @Test
+    fun `compare with requested version uses released snapshot`() {
+        val env = ModelTestEnv()
+        val leftKey = ModelKey("left-model-requested-version")
+        val rightKey = ModelKey("right-model-requested-version")
+        createBaseModel(env, leftKey)
+        createBaseModel(env, rightKey)
+
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateOptional(
+                modelRef = modelRefKey(leftKey),
+                entityRef = EntityRef.ByKey(EntityKey("Customer")),
+                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                value = true
+            )
+        )
+        env.dispatch(
+            ModelAction.Model_Release(
+                modelRef = modelRefKey(leftKey),
+                value = ModelVersion("2.0.0")
+            )
+        )
+
+        val result = env.dispatch(
+            ModelAction.Compare(
+                leftModelRef = modelRefKey(leftKey),
+                leftModelVersion = ModelVersion("1.0.0"),
+                rightModelRef = modelRefKey(rightKey),
+                rightModelVersion = null,
+                scope = ModelDiffScope.STRUCTURAL
+            )
+        )
+        val diff = assertIs<ModelCompareDto>(result)
+
+        val hasModifiedEmail = diff.entries.any { entry ->
+            entry.status == "MODIFIED" &&
+                    entry.objectType == "entityAttribute" &&
+                    entry.entityKey == "Customer" &&
+                    entry.attributeKey == "email"
+        }
+        assertFalse(hasModifiedEmail)
+        assertEquals("1.0.0", diff.left.modelVersion)
     }
 
     private fun createBaseModel(env: ModelTestEnv, modelKey: ModelKey) {

@@ -82,14 +82,18 @@ export type ModelDiffScopeCode = "structural" | "complete";
 
 export type ModelCompareReq = {
   leftModelId: string;
+  leftModelVersion: string | null;
   rightModelId: string;
+  rightModelVersion: string | null;
   scope: ModelDiffScopeCode;
 };
 
 export async function modelCompare(req: ModelCompareReq): Promise<ModelCompareDto> {
   const result = await executeAction("model", "model_compare", {
     leftModelRef: "id:" + req.leftModelId,
+    leftModelVersion: req.leftModelVersion,
     rightModelRef: "id:" + req.rightModelId,
+    rightModelVersion: req.rightModelVersion,
     scope: req.scope,
   });
   if (result.contentType === "json") {
@@ -145,6 +149,7 @@ export function useModelHistoryVersions(modelId: string) {
   return useQuery({
     queryKey: ["model", modelId, "history_versions"],
     queryFn: () => modelHistoryVersions(modelId),
+    enabled: modelId.length > 0,
   });
 }
 

@@ -91,9 +91,23 @@ class ModelQueriesImpl(
         return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
-    override fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff {
-        val leftModel = findModel(leftModelRef)
-        val rightModel = findModel(rightModelRef)
+    override fun diff(
+        leftModelRef: ModelRef,
+        leftModelVersion: ModelVersion?,
+        rightModelRef: ModelRef,
+        rightModelVersion: ModelVersion?,
+        scope: ModelDiffScope
+    ): ModelDiff {
+        val leftModel = if (leftModelVersion == null) {
+            findModel(leftModelRef)
+        } else {
+            findModelAtVersion(leftModelRef, leftModelVersion)
+        }
+        val rightModel = if (rightModelVersion == null) {
+            findModel(rightModelRef)
+        } else {
+            findModelAtVersion(rightModelRef, rightModelVersion)
+        }
         return diffRunner.diff(leftModel, rightModel, scope)
     }
 
