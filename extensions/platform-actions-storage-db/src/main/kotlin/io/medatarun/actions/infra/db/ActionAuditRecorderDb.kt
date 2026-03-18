@@ -18,7 +18,7 @@ class ActionAuditRecorderDb(
     private val clock: ActionAuditClock
 ) : ActionAuditRecorder {
 
-    override fun recordReceived(event: ActionAuditReceived) {
+    override fun onActionReceived(event: ActionAuditReceived) {
         dbConnectionFactory.withExposed {
             ActionAuditEventTable.insert {
                 it[actionInstanceId] = event.actionInstanceId.value.toString()
@@ -35,15 +35,15 @@ class ActionAuditRecorderDb(
         }
     }
 
-    override fun recordRejected(event: ActionAuditRejected) {
+    override fun onActionRejected(event: ActionAuditRejected) {
         updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_REJECTED, event.code, event.message)
     }
 
-    override fun recordSucceeded(event: ActionAuditSucceeded) {
+    override fun onActionSucceeded(event: ActionAuditSucceeded) {
         updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_SUCCEEDED, null, null)
     }
 
-    override fun recordFailed(event: ActionAuditFailed) {
+    override fun onActionFailed(event: ActionAuditFailed) {
         updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_FAILED, event.code, event.message)
     }
 

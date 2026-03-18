@@ -856,19 +856,19 @@ class ActionInvokerTest {
         val succeeded = mutableListOf<ActionAuditSucceeded>()
         val failed = mutableListOf<ActionAuditFailed>()
 
-        override fun recordReceived(event: ActionAuditReceived) {
+        override fun onActionReceived(event: ActionAuditReceived) {
             received.add(event)
         }
 
-        override fun recordRejected(event: ActionAuditRejected) {
+        override fun onActionRejected(event: ActionAuditRejected) {
             rejected.add(event)
         }
 
-        override fun recordSucceeded(event: ActionAuditSucceeded) {
+        override fun onActionSucceeded(event: ActionAuditSucceeded) {
             succeeded.add(event)
         }
 
-        override fun recordFailed(event: ActionAuditFailed) {
+        override fun onActionFailed(event: ActionAuditFailed) {
             failed.add(event)
         }
     }

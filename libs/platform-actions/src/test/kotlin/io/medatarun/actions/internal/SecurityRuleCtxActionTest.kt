@@ -55,7 +55,7 @@ class SecurityRuleCtxActionTest {
     private class TestRole(override val key: String) : AppPrincipalRole
 
     private class TestActionCtx(principal: AppPrincipal?) : ActionRequestCtx {
-        override val principal = object : ActionPrincipalCtx {
+        override val principalCtx = object : ActionPrincipalCtx {
             override val principal = principal
             override fun ensureIsAdmin() = error("not used")
             override fun ensureSignedIn(): AppPrincipal = error("not used")

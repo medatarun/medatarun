@@ -182,7 +182,7 @@ class ActionAuditDbTestEnv {
         }
 
         val testActionRequestContext = object : ActionRequestCtx {
-            override val principal: ActionPrincipalCtx = testPrincipalCtx
+            override val principalCtx: ActionPrincipalCtx = testPrincipalCtx
             override val source: String = "test"
         }
     }

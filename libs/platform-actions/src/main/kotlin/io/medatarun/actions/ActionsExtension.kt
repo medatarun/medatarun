@@ -2,7 +2,7 @@ package io.medatarun.actions
 
 import io.medatarun.actions.actions.BatchActionProvider
 import io.medatarun.actions.adapters.ActionPlatform
-import io.medatarun.actions.internal.ActionAuditLoggerRecorder
+import io.medatarun.actions.internal.ActionAuditRecorderLogger
 import io.medatarun.actions.ports.needs.ActionAuditRecorder
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
@@ -24,7 +24,7 @@ class ActionsExtension : MedatarunExtension {
         ctx.registerContributionPoint(this.id + ".providers", ActionProvider::class)
         ctx.registerContributionPoint(this.id + ".auditRecorders", ActionAuditRecorder::class)
         ctx.registerContribution(ActionProvider::class, BatchActionProvider())
-        ctx.registerContribution(ActionAuditRecorder::class, ActionAuditLoggerRecorder())
+        ctx.registerContribution(ActionAuditRecorder::class, ActionAuditRecorderLogger())
 
     }
 

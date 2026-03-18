@@ -27,12 +27,13 @@ internal class ActionInvokerImpl(
         val actionInstanceId = Id.generate(::ActionInstanceId)
 
         // Record that the action request reached the action system.
-        actionAuditRecorder.recordReceived(
+        actionAuditRecorder.onActionReceived(
             ActionAuditReceived(
                 actionInstanceId = actionInstanceId,
                 actionGroupKey = invocation.actionGroupKey,
                 actionKey = invocation.actionKey,
-                actorId = actionRequestCtx.principal.principal?.id,
+                actorId = actionRequestCtx.principalCtx.principal?.id,
+                actorDisplayName = actionRequestCtx.principalCtx.principal?.fullname,
                 payloadSerialized = serializePayload(invocation.payload),
                 source = actionRequestCtx.source
             )
@@ -41,11 +42,11 @@ internal class ActionInvokerImpl(
         try {
             val actionInvocationResult = handleInvocationInternal(invocation, actionRequestCtx, actionInstanceId)
             // At this point the action has been accepted and business invocation completed.
-            actionAuditRecorder.recordSucceeded(ActionAuditSucceeded(actionInstanceId))
+            actionAuditRecorder.onActionSucceeded(ActionAuditSucceeded(actionInstanceId))
             return actionInvocationResult
         } catch (exception: ActionInvocationException) {
             // ActionInvocationException belongs to the action system: the request was rejected before business invoke.
-            actionAuditRecorder.recordRejected(
+            actionAuditRecorder.onActionRejected(
                 ActionAuditRejected(
                     actionInstanceId = actionInstanceId,
                     code = exception.status.name,
@@ -55,7 +56,7 @@ internal class ActionInvokerImpl(
             throw exception
         } catch (exception: Exception) {
             // Any other exception comes from business invocation or a deeper technical failure during invoke.
-            actionAuditRecorder.recordFailed(
+            actionAuditRecorder.onActionFailed(
                 ActionAuditFailed(
                     actionInstanceId = actionInstanceId,
                     code = exception::class.simpleName ?: Exception::class.simpleName.toString(),
@@ -107,7 +108,7 @@ internal class ActionInvokerImpl(
                 get() = actionInstanceId
 
             override val principal: ActionPrincipalCtx
-                get() = actionRequestCtx.principal
+                get() = actionRequestCtx.principalCtx
 
         }
 

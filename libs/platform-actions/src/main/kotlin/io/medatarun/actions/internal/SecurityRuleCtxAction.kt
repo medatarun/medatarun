@@ -8,16 +8,16 @@ import io.medatarun.security.SecurityRuleEvaluatorResult
 internal class SecurityRuleCtxAction(private val actionCtx: ActionRequestCtx) : SecurityRuleCtx {
 
     override fun isSignedIn(): Boolean {
-        return actionCtx.principal.principal != null
+        return actionCtx.principalCtx.principal != null
     }
 
     override fun isAdmin(): Boolean {
-        val p = actionCtx.principal.principal
+        val p = actionCtx.principalCtx.principal
         return p != null && p.isAdmin
     }
 
     override fun getRoles(): List<AppPrincipalRole> {
-        return actionCtx.principal.principal?.roles ?: emptyList()
+        return actionCtx.principalCtx.principal?.roles ?: emptyList()
     }
 
     override fun ensureRole(wantedRole: AppPrincipalRole): SecurityRuleEvaluatorResult {

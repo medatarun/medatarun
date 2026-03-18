@@ -7,6 +7,6 @@ package io.medatarun.actions.ports.needs
  * The context of the action caller, so named "Request" context
  */
 interface ActionRequestCtx {
-    val principal: ActionPrincipalCtx
+    val principalCtx: ActionPrincipalCtx
     val source: String
 }

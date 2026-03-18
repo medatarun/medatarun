@@ -59,7 +59,7 @@ class ActionSecurityRuleEvaluatorsTest {
 
     private fun dummyActionCtx(): ActionRequestCtx =
         object : ActionRequestCtx {
-            override val principal = object : ActionPrincipalCtx {
+            override val principalCtx = object : ActionPrincipalCtx {
                 override val principal: AppPrincipal? = null
                 override fun ensureIsAdmin() = error("not used")
                 override fun ensureSignedIn(): AppPrincipal = error("not used")

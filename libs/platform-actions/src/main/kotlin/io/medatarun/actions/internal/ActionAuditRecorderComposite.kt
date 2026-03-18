@@ -9,27 +9,27 @@ import io.medatarun.actions.ports.needs.ActionAuditSucceeded
 internal class ActionAuditRecorderComposite(
     private val recorders: List<ActionAuditRecorder>
 ) : ActionAuditRecorder {
-    override fun recordReceived(event: ActionAuditReceived) {
+    override fun onActionReceived(event: ActionAuditReceived) {
         for (recorder in recorders) {
-            recorder.recordReceived(event)
+            recorder.onActionReceived(event)
         }
     }
 
-    override fun recordRejected(event: ActionAuditRejected) {
+    override fun onActionRejected(event: ActionAuditRejected) {
         for (recorder in recorders) {
-            recorder.recordRejected(event)
+            recorder.onActionRejected(event)
         }
     }
 
-    override fun recordSucceeded(event: ActionAuditSucceeded) {
+    override fun onActionSucceeded(event: ActionAuditSucceeded) {
         for (recorder in recorders) {
-            recorder.recordSucceeded(event)
+            recorder.onActionSucceeded(event)
         }
     }
 
-    override fun recordFailed(event: ActionAuditFailed) {
+    override fun onActionFailed(event: ActionAuditFailed) {
         for (recorder in recorders) {
-            recorder.recordFailed(event)
+            recorder.onActionFailed(event)
         }
     }
 }
