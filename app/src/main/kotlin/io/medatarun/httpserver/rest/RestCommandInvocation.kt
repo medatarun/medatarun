@@ -55,7 +55,6 @@ class RestCommandInvocation(
 
                 else -> call.respond(responsePayload)
             }
-            call.respond(HttpStatusCode.OK, responsePayload)
         } catch (exception: Throwable) {
             val resourceForLog = actionGroupKeyPathValue ?: "unknown"
             val functionForLog = actionKeyPathValue ?: "unknown"
