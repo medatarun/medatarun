@@ -1,32 +1,29 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.AttributeId
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.RelationshipId
-import io.medatarun.model.domain.TypeId
+import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.tables.RelationshipAttributeTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class RelationshipAttributeRecord(
-    val id: AttributeId,
-    val relationshipId: RelationshipId,
+    val snapshotId: AttributeSnapshotId,
+    val lineageId: AttributeId,
+    val relationshipSnapshotId: RelationshipSnapshotId,
     val key: AttributeKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val typeId: TypeId,
+    val typeSnapshotId: TypeSnapshotId,
     val optional: Boolean
 ) {
     companion object {
         fun read(row: ResultRow): RelationshipAttributeRecord {
             return RelationshipAttributeRecord(
-                id = row[RelationshipAttributeTable.id],
-                relationshipId = row[RelationshipAttributeTable.relationshipId],
+                snapshotId = row[RelationshipAttributeTable.id],
+                lineageId = row[RelationshipAttributeTable.lineageId],
+                relationshipSnapshotId = row[RelationshipAttributeTable.relationshipSnapshotId],
                 key = row[RelationshipAttributeTable.key],
                 name = row[RelationshipAttributeTable.name],
                 description = row[RelationshipAttributeTable.description],
-                typeId = row[RelationshipAttributeTable.typeId],
+                typeSnapshotId = row[RelationshipAttributeTable.typeSnapshotId],
                 optional = row[RelationshipAttributeTable.optional]
             )
         }

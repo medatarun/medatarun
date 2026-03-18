@@ -1,6 +1,6 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.domain.ActionCmdDescriptor
+import io.medatarun.actions.domain.ActionDescriptor
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.lang.http.StatusCode
@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
 
-class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
+internal class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
 
     private val jsonValueConverter = ActionParamJsonValueConverter(actionTypesRegistry)
 
@@ -21,7 +21,7 @@ class ActionParamBinder(private val actionTypesRegistry: ActionTypesRegistry) {
         actionClass: KClass<out Any>,
         actionProviderInstance: ActionProvider<Any>,
         actionPayload: JsonObject,
-        actionDescriptor: ActionCmdDescriptor
+        actionDescriptor: ActionDescriptor
     ): ActionParamBindings {
         val callArgs = mutableMapOf<KParameter, ActionParamBindingState>()
 

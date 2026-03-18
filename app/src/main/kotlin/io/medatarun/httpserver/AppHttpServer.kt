@@ -39,11 +39,11 @@ class AppHttpServer(
     private val mcpServerBuilder = McpServerBuilder(
         actionRegistry = services.actionRegistry,
         configAgentInstructions = ConfigAgentInstructions(),
-        actionCtxFactory = services.actionCtxFactory,
+        actionRequestCtxFactory = services.actionRequestCtxFactory,
         actionInvoker = services.actionInvoker,
     )
     private val restApiDoc = RestApiDoc(services.actionRegistry, publicBaseUrl)
-    private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionCtxFactory)
+    private val restCommandInvocation = RestCommandInvocation(services.actionInvoker, services.actionRequestCtxFactory)
 
     private val uiIndexTemplate = UIIndexTemplate()
 

@@ -37,6 +37,13 @@ interface ModelStorage {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
 
+    fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate?
+
+    fun findModelAggregateVersion(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate=
+        findModelAggregateVersionOptional(modelId, modelVersion) ?: throw ModelNotFoundException(ModelRef.modelRefId(modelId))
+
+    fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion?
+
     // Model aggregate
 
     fun findModelAggregateByIdOptional(id: ModelId): ModelAggregate?
@@ -160,6 +167,14 @@ interface ModelStorage {
     }
 
     // -------------------------------------------------------------------------
+    // History
+    // -------------------------------------------------------------------------
+
+    fun findModelVersions(modelId: ModelId): List<ModelChangeEvent>
+    fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
+    fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent>
+
+    // -------------------------------------------------------------------------
     // Search
     // -------------------------------------------------------------------------
 
@@ -179,9 +194,10 @@ interface ModelStorage {
     /**
      * Process one model storage command.
      *
-     * See [ModelRepoCmd] for the list of supported write operations.
+     * See [ModelStorageCmd] for the list of supported write operations.
      */
-    fun dispatch(cmd: ModelRepoCmd)
+    fun dispatch(cmdEnv: ModelStorageCmdEnveloppe)
+
 
 
 }

@@ -13,5 +13,5 @@ interface ModelCmds {
     /**
      * Execute this command
      */
-    fun dispatch(cmd: ModelCmd)
+    fun dispatch(cmdEnv: ModelCmdEnveloppe)
 }

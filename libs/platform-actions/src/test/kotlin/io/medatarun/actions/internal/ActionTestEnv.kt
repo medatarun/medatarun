@@ -3,15 +3,16 @@ package io.medatarun.actions.internal
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.lang.exceptions.MedatarunException
-import io.medatarun.platform.kernel.*
+import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.PlatformBuilder
+import io.medatarun.platform.kernel.getService
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.SecurityExtension
 import io.medatarun.types.TypeSystemExtension
-import kotlin.reflect.KClass
 
 class ActionTestEnv(extensions: List<MedatarunExtension>) {
     val runtime = PlatformBuilder(
@@ -23,24 +24,14 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
         ).plus(extensions)
     ).buildAndStart()
 
-    val actionCtx = TestActionCtx(runtime.extensions, runtime.services)
+    val actionCtx = TestActionCtx()
 
     val actionPlatform = runtime.services.getService<ActionPlatform>()
 
-    class TestActionCtx(
-        override val extensionRegistry: ExtensionRegistry,
-        private val serviceRegistry: MedatarunServiceRegistry
-    ) : ActionCtx {
-
-        override fun dispatchAction(req: ActionRequest): Any? {
-            throw TestActionCtxDispatchException()
-        }
-
-        override fun <T : Any> getService(type: KClass<T>): T {
-            return serviceRegistry.getService(type)
-        }
+    class TestActionCtx : ActionRequestCtx {
 
         override val principal: ActionPrincipalCtx = TestActionPrincipalCtx(null)
+        override val source: String = "test"
     }
 
     private class TestActionPrincipalCtx(private val providedPrincipal: AppPrincipal?) : ActionPrincipalCtx {
@@ -59,7 +50,6 @@ class ActionTestEnv(extensions: List<MedatarunExtension>) {
         }
     }
 
-    private class TestActionCtxDispatchException : MedatarunException("dispatch not supported for tests")
     private class TestPrincipalNotAdminException : MedatarunException("Principal is not admin")
     private class TestPrincipalMissingException : MedatarunException("Principal is missing")
 }

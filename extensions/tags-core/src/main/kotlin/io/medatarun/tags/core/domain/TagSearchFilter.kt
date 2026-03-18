@@ -1,11 +1,13 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.type.commons.enums.EnumWithCode
+
 data class TagSearchFilters(
     val operator: TagSearchFiltersLogicalOperator,
     val items: List<TagSearchFilter>
 )
 
-enum class TagSearchFiltersLogicalOperator(val code: String) {
+enum class TagSearchFiltersLogicalOperator(override val code: String): EnumWithCode {
     AND("and"),
     OR("or");
 

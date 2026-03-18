@@ -1,12 +1,13 @@
 package io.medatarun.httpserver.mcp
 
 
-import io.medatarun.actions.domain.ActionCmdDescriptor
-import io.medatarun.actions.domain.ActionInvocationException
-import io.medatarun.actions.internal.ActionInvoker
-import io.medatarun.actions.internal.ActionRegistry
+import io.medatarun.actions.domain.ActionDescriptor
+import io.medatarun.actions.domain.ActionExceptionInterpreter
+import io.medatarun.actions.domain.ActionInvoker
+import io.medatarun.actions.domain.ActionRegistry
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
+import io.medatarun.actions.runtime.ActionRequestCtxFactory
 import io.medatarun.security.AppPrincipal
 import io.metadatarun.ext.config.actions.ConfigAgentInstructions
 import io.modelcontextprotocol.kotlin.sdk.*
@@ -28,7 +29,7 @@ class McpServerBuilder(
     private val actionRegistry: ActionRegistry,
     private val actionInvoker: ActionInvoker,
     private val configAgentInstructions: ConfigAgentInstructions,
-    private val actionCtxFactory: ActionCtxFactory,
+    private val actionRequestCtxFactory: ActionRequestCtxFactory,
 ) {
 
     private val serverInfo = Implementation(
@@ -88,23 +89,16 @@ class McpServerBuilder(
         val invocationRequest = ActionRequest(
             actionGroupKey = actionGroupKey,
             actionKey = actionKey,
-            payload = request.arguments
+            payload = ActionPayload.AsJson(request.arguments)
         )
 
         return try {
-            val result = actionInvoker.handleInvocation(invocationRequest, actionCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(invocationRequest, actionRequestCtxFactory.create(principal, "mcp"))
             toCallToolResult(result)
-        } catch (exception: ActionInvocationException) {
+        } catch(t: Throwable) {
+            val i = ActionExceptionInterpreter(t)
             CallToolResult(
-                content = listOf(TextContent(buildMcpErrorMessage(exception))),
-                isError = true
-            )
-        } catch (throwable: Throwable) {
-            logger.error("Unhandled error while invoking $actionGroupKey.$actionKey", throwable)
-            CallToolResult(
-                content = listOf(
-                    TextContent("Invocation failed: ${throwable.message ?: throwable::class.simpleName}")
-                ),
+                content = listOf(TextContent(buildMcpErrorMessage(i))),
                 isError = true
             )
         }
@@ -181,9 +175,9 @@ class McpServerBuilder(
         }
     }
 
-    private fun buildMcpErrorMessage(exception: ActionInvocationException): String {
-        val parts = mutableListOf(exception.message ?: "Invocation error")
-        exception.payload.forEach { (key, value) ->
+    private fun buildMcpErrorMessage(exception: ActionExceptionInterpreter): String {
+        val parts = mutableListOf(exception.publicErrorMessage())
+        exception.details().forEach { (key, value) ->
             parts += "$key: $value"
         }
         return parts.joinToString(separator = "\n")
@@ -199,17 +193,17 @@ class McpServerBuilder(
      * Builds the description of the tool as the MCPInspector see it or the MCP client
      * will handle it.
      */
-    private fun buildToolInput(actionDescriptor: ActionCmdDescriptor): Tool.Input {
+    private fun buildToolInput(actionDescriptor: ActionDescriptor): Tool.Input {
         val properties = buildJsonObject {
             actionDescriptor.parameters.forEach { param ->
-                put(param.name, buildJsonObject {
+                put(param.key, buildJsonObject {
                     put("type", mapParameterType(param.type))
                 })
             }
         }
         val required = actionDescriptor.parameters
             .filterNot { it.optional }
-            .map { it.name }
+            .map { it.key }
 
         return Tool.Input(
             properties = properties,

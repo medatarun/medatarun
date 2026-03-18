@@ -6,10 +6,10 @@ import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 /**
  * AUTO mode semantics inference only.
  */
-class ActionSemanticsInferer(
+internal class ActionSemanticsInferer(
     private val vocabulary: SemanticsVocabulary
 ) {
-    fun infer(action: ActionCmdDescriptor): ActionSemantics {
+    fun infer(action: ActionDescriptor): ActionSemantics {
         val intent = inferIntent(action.key)
         if (intent == ActionDocSemanticsIntent.READ) {
             val returnType = inferSubject(action.key)
@@ -73,15 +73,15 @@ class ActionSemanticsInferer(
     }
 
     private fun inferReferencingParams(
-        action: ActionCmdDescriptor,
+        action: ActionDescriptor,
     ): List<ActionSemanticsSubjectReferencingParam> {
         val referencingParams = mutableListOf<ActionSemanticsSubjectReferencingParam>()
         for (parameter in action.parameters) {
-            val kind = vocabulary.toReferencingParamKindOptional(parameter.name)
+            val kind = vocabulary.toReferencingParamKindOptional(parameter.key)
             if (kind != null) {
                 referencingParams.add(
                     ActionSemanticsSubjectReferencingParam(
-                        name = parameter.name,
+                        name = parameter.key,
                         kind = kind
                     )
                 )

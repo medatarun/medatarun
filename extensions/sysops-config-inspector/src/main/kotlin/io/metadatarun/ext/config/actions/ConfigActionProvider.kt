@@ -1,26 +1,26 @@
 package io.metadatarun.ext.config.actions
 
-import io.medatarun.actions.internal.ActionRegistry
-import io.medatarun.actions.internal.ActionSecurityRuleEvaluators
-import io.medatarun.actions.internal.ActionSemanticsResolver
-import io.medatarun.actions.internal.ActionTypesRegistry
+import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.security.SecurityRulesProvider
-import io.medatarun.types.TypeDescriptor
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
 
-class ConfigActionProvider : ActionProvider<ConfigAction> {
+class ConfigActionProvider(
+    private val extensionRegistry: ExtensionRegistry,
+    private val actionRegistry: Lazy<ActionRegistry>
+) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
 
     override fun findCommandClass() = ConfigAction::class
-    override fun dispatch(cmd: ConfigAction, actionCtx: ActionCtx): Any {
-        return when (cmd) {
+    override fun dispatch(action: ConfigAction, actionCtx: ActionCtx): Any {
+        return when (action) {
             is ConfigAction.AIAgentsInstructions -> ConfigAgentInstructions().process()
-            is ConfigAction.Inspect -> actionCtx.extensionRegistry.inspectHumanReadable()
-            is ConfigAction.InspectJson -> actionCtx.extensionRegistry.inspectJson()
+            is ConfigAction.Inspect -> extensionRegistry.inspectHumanReadable()
+            is ConfigAction.InspectJson -> extensionRegistry.inspectJson()
             is ConfigAction.InspectActions -> inspectActions(actionCtx)
             is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
         }
@@ -28,7 +28,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
 
     private fun inspectSecurityRules(actionCtx: ActionCtx): SecurityRulesDescriptionsResp =
         SecurityRulesDescriptionsResp(
-            items = actionCtx.extensionRegistry
+            items = extensionRegistry
                 .findContributionsFlat(SecurityRulesProvider::class)
                 .flatMap { it.getRules() }
                 // Keep one entry per key if multiple providers expose same rule.
@@ -47,22 +47,8 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.
      */
     private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
-        val ruleEvaluators = ActionSecurityRuleEvaluators(
-            actionCtx.extensionRegistry
-                .findContributionsFlat(SecurityRulesProvider::class)
-                .flatMap { it.getRules() }
-        )
-        val typeRegistry = ActionTypesRegistry(
-            actionCtx.extensionRegistry.findContributionsFlat(TypeDescriptor::class)
-        )
-        val actionRegistry = ActionRegistry(
-            actionSecurityRuleEvaluators = ruleEvaluators,
-            actionTypesRegistry = typeRegistry,
-            actionProviderContributions = actionCtx.extensionRegistry.findContributionsFlat(ActionProvider::class),
-            vocabulary = ActionSemanticsResolver.buildDefaultVocabulary()
-        )
 
-        val items = actionRegistry.findAllActions().map { actionRegistered ->
+        val items = actionRegistry.value.findAllActions().map { actionRegistered ->
             val descriptor = actionRegistered.descriptor
             val semantics = actionRegistered.semantics
             ActionDescriptorDto(
@@ -75,7 +61,7 @@ class ConfigActionProvider : ActionProvider<ConfigAction> {
                 securityRule = descriptor.securityRule,
                 parameters = descriptor.parameters.map { parameter ->
                     ActionParamDescriptorDto(
-                        name = parameter.name,
+                        name = parameter.key,
                         type = parameter.multiplatformType,
                         jsonType = parameter.jsonType.code,
                         optional = parameter.optional,

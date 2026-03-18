@@ -1,5 +1,6 @@
 package io.medatarun.ext.frictionlessdata
 
+import io.medatarun.type.commons.enums.EnumWithCode
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -9,7 +10,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = TableSchemaFormatSerializer::class)
-enum class TableSchemaFormat(val code: String) {
+enum class TableSchemaFormat(override val code: String): EnumWithCode {
     DEFAULT("default"),
     EMAIL("email"),
     URI("uri"),

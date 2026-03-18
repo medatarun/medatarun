@@ -66,6 +66,15 @@ class ModelNotFoundByIdException(id: ModelId) :
 class ModelDuplicateKeyException(key: ModelKey) :
     MedatarunException("Model with key [${key.value}] already exists", StatusCode.BAD_REQUEST)
 
+class ModelReleaseVersionMustBeGreaterThanPreviousException(
+    modelRef: ModelRef,
+    version: ModelVersion,
+    previousVersion: ModelVersion
+) : MedatarunException(
+    "Cannot release model [${modelRef.asString()}] with version [${version.asString()}] because it must be strictly greater than the previous released version [${previousVersion.asString()}].",
+    StatusCode.BAD_REQUEST
+)
+
 class ModelVersionEmptyException :
     MedatarunException("Model version can not be empty", StatusCode.BAD_REQUEST)
 
@@ -80,6 +89,15 @@ class ModelVersionPreReleaseLeadingZeroException :
         "Model version pre-release numeric identifiers must not include leading zeros.",
         StatusCode.BAD_REQUEST
     )
+
+class ModelEventConcurrentWriteException(
+    modelId: ModelId,
+    expectedRevision: Int,
+    conflictingRevision: Int
+) : MedatarunException(
+    "Cannot append a model event to model [${modelId.value}] at expected revision [$expectedRevision] because revision [$conflictingRevision] was written concurrently.",
+    StatusCode.CONFLICT
+)
 
 
 class LocalizedTextMapEmptyException :
@@ -113,7 +131,10 @@ class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef,
     MedatarunException("Can not delete attribute [${attributeRef.asString()}] in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
 
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
-    MedatarunException("Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message }, StatusCode.UNPROCESSABLE_CONTENT)
+    MedatarunException(
+        "Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message },
+        StatusCode.UNPROCESSABLE_CONTENT
+    )
 
 
 class RelationshipDuplicateIdException(modelId: ModelId, relationshipKey: RelationshipKey) :
@@ -170,3 +191,5 @@ class CopyModelIdConversionFailedException(name: String, oldId: String) :
 
 class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
     MedatarunException("Could not resolve tag reference [${tagRef.asString()}")
+
+class ModelActionNotAuthorizedException : MedatarunException("Not authorized", StatusCode.UNAUTHORIZED)

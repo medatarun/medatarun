@@ -1,11 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.actions.actions.ActionUILocation
-import io.medatarun.actions.ports.needs.ActionDoc
-import io.medatarun.actions.ports.needs.ActionDocSemantics
-import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
-import io.medatarun.actions.ports.needs.ActionParamDoc
-import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
+import io.medatarun.actions.ports.needs.*
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchFields
@@ -94,6 +90,29 @@ sealed interface ModelAction {
     ) : ModelAction
 
     @ActionDoc(
+        key = "model_export_version",
+        title = "Export model at a specific version",
+        description = "Returns an exporter view of the model",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN
+    )
+
+    data class Model_Export_Version(
+        @ActionParamDoc(
+            order = 1,
+            name = "Model ref",
+            description = "Reference of the model to export"
+        )
+        val modelRef: ModelRef,
+        @ActionParamDoc(
+            order = 1,
+            name = "Model version",
+            description = "Reference of the model to export"
+        )
+        val version: ModelVersion,
+    ) : ModelAction
+
+    @ActionDoc(
         key = "model_compare",
         title = "Compare models",
         description = "Compares two model states and returns their differences.",
@@ -110,12 +129,24 @@ sealed interface ModelAction {
         val leftModelRef: ModelRef,
         @ActionParamDoc(
             order = 2,
+            name = "Left model version",
+            description = "Specific version of the left model state to compare. If null, the current model state is used."
+        )
+        val leftModelVersion: ModelVersion?,
+        @ActionParamDoc(
+            order = 3,
             name = "Right model ref",
             description = "Reference of the right model state to compare."
         )
         val rightModelRef: ModelRef,
         @ActionParamDoc(
-            order = 3,
+            order = 4,
+            name = "Right model version",
+            description = "Specific version of the right model state to compare. If null, the current model state is used."
+        )
+        val rightModelVersion: ModelVersion?,
+        @ActionParamDoc(
+            order = 5,
             name = "Diff scope",
             description = "Comparison scope to apply: STRUCTURAL or COMPLETE."
         )
@@ -294,13 +325,13 @@ sealed interface ModelAction {
 
 
     @ActionDoc(
-        key = "model_update_version",
-        title = "Update model version",
-        description = "Changes model version",
-        uiLocations = [ActionUILocation.model_hidden],
+        key = "model_release",
+        title = "Release version",
+        description = "Release a new model version. The new version number must be greater than the previous one.",
+        uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    data class Model_UpdateVersion(
+    data class Model_Release(
         @ActionParamDoc(
             name = "Model reference",
             description = "Reference of the model to be updated",
@@ -1188,5 +1219,35 @@ sealed interface ModelAction {
         val filters: SearchFilters,
         val fields: SearchFields,
     ) : ModelAction
+
+    // ------------------------------------------------------------------------
+    // History
+    // ------------------------------------------------------------------------
+
+    @ActionDoc(
+        key = "history_versions",
+        title = "Versions",
+        description = "Lists model released versions",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+    )
+    data class HistoryVersions(
+        val modelRef: ModelRef
+    ) : ModelAction
+
+    @ActionDoc(
+        key = "history_version_changes",
+        title = "Version changes",
+        description = "Lists changes included in specified version. When no version number is provided, list changes since the last released version.",
+        uiLocations = [ActionUILocation.model_overview],
+        securityRule = SecurityRuleNames.SIGNED_IN,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+    )
+    data class HistoryVersionChanges(
+        val modelRef: ModelRef,
+        val version: ModelVersion?
+    ) : ModelAction
+
 
 }

@@ -3,11 +3,11 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.*
 import kotlin.reflect.KType
 
-data class ActionDescriptorImpl(
+internal data class ActionDescriptorImpl(
     val base: ActionDescriptorBase,
-    val params: List<ActionParamDescriptorImpl>,
+    val params: List<ActionDescriptorParamImpl>,
     override val semantics: ActionSemanticsConfig
-) : ActionCmdDescriptor {
+) : ActionDescriptor {
     override val id: ActionId = base.id
     override val key: String = base.key
     override val actionClassName: String = base.actionClassName
@@ -15,8 +15,8 @@ data class ActionDescriptorImpl(
     override val title: String? = base.title
     override val description: String? = base.description
     override val resultType: KType = base.resultType
-    override val parameters: List<ActionCmdParamDescriptor> = params
-    override val accessType: ActionCmdAccessType = base.accessType
+    override val parameters: List<ActionDescriptorParam> = params
+    override val accessType: ActionAccessType = base.accessType
     override val uiLocations: Set<String> = base.uiLocations
     override val securityRule: String = base.securityRule
 }

@@ -92,7 +92,7 @@ class FrictionlessConverter(
                 name = datapackage.title?.let { LocalizedTextNotLocalized(it) },
                 description = datapackage.description?.let { LocalizedMarkdownNotLocalized(it) },
                 version = try {
-                    ModelVersion(datapackage.version ?: "0.0.0").validate()
+                    ModelVersion(datapackage.version ?: "0.0.0")
                 } catch (_: Exception) {
                     ModelVersion("0.0.0")
                 },

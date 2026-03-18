@@ -2,6 +2,7 @@ package io.medatarun.tags.core
 
 import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
@@ -16,10 +17,12 @@ import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
+import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
+import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.KClass
 
@@ -117,18 +120,20 @@ class TagTestEnv(
         ), extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()
+    private val tagCmds get() = platform.services.getService<TagCmds>()
     val vehicleService get() = platform.services.getService<VehicleService>()
     val recipeService get() = platform.services.getService<RecipeService>()
     val dbMigrationChecker get() = platform.services.getService<DbMigrationChecker>()
 
-    private val provider = TagActionProvider()
+    private val provider = TagActionProvider(tagCmds, tagQueries)
 
     fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
-        override val extensionRegistry: ExtensionRegistry = platform.extensions
+
+        override val actionInstanceId = Id.generate(::ActionInstanceId)
+
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
 
-        override fun <T : Any> getService(type: KClass<T>): T = platform.services.getService(type)
         override val principal: ActionPrincipalCtx
             get() = throw TagTestIllegalStateException("Should not be called")
 

@@ -50,7 +50,7 @@ sealed interface ModelCmd {
         val authority: ModelAuthority
     ) : ModelCmdOnModel
 
-    data class UpdateModelVersion(
+    data class ModelRelease(
         override val modelRef: ModelRef,
         val version: ModelVersion
     ) : ModelCmdOnModel

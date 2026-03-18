@@ -2,6 +2,8 @@ package io.medatarun.platform.kernel.internal
 
 import io.medatarun.platform.kernel.*
 import kotlinx.serialization.json.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.io.path.absolute
 import kotlin.reflect.KClass
 
@@ -15,6 +17,7 @@ class ExtensionRegistryImpl(
     private val contributionPointsByClass: MutableMap<KClass<*>, ContributionPoint<*>> = mutableMapOf()
     private val contributions: MutableMap<ContributionPointId, List<ContributionImpl<*>>> = mutableMapOf()
 
+    private var initialized: Boolean = false
 
     fun init() {
         val counts = extensions.groupBy { it.id }.mapValues { it.value.size }.filter { it.value > 1 }
@@ -23,6 +26,7 @@ class ExtensionRegistryImpl(
         }
 
         extensions.forEach { extension ->
+            logger.info("Registering contributions for {}", extension.id)
             extension.initContributions(
                 MedatarunExtensionCtxImpl(
                     extension = extension,
@@ -32,13 +36,14 @@ class ExtensionRegistryImpl(
                 )
             )
         }
+        initialized = true
     }
 
     inner class ExtensionRegistrar {
 
         fun internalRegisterContributionPoint(e: MedatarunExtension, c: ContributionPoint<*>) {
             if (!c.id.startsWith(e.id + ".")) throw ContributionPointIdMismatch(e.id, c.id)
-            if (contributionPoints.containsKey(e.id)) throw ContributionPointDuplicateId(e.id, c.id)
+            if (contributionPoints.containsKey(c.id)) throw ContributionPointDuplicateId(e.id, c.id)
             if (contributionPointsByClass.containsKey(c.api)) {
                 val other = contributionPointsByClass[c.api]?.id ?: "unknown"
                 throw ContributionPointDuplicateInterface(e.id, c.id, c.api, other)
@@ -66,7 +71,12 @@ class ExtensionRegistryImpl(
 
     }
 
+    private fun ensureInitialized() {
+        if (!initialized) throw ContributionAccessWhileNotInitializedException()
+    }
+
     override fun <CONTRIB : Any> findContributionsFlat(api: KClass<CONTRIB>): List<CONTRIB> {
+        ensureInitialized()
         val c = contributionPointsByClass[api] ?: throw ContributionPointNotFoundByApiException(api)
         return (contributions[c.id] ?: emptyList()).map {
             @Suppress("UNCHECKED_CAST")
@@ -75,6 +85,7 @@ class ExtensionRegistryImpl(
     }
 
     override fun inspectHumanReadable(): String {
+        ensureInitialized()
         val report = StringBuilder()
         for (extension in extensions) {
             report.appendLine("📦 ${extension.id}")
@@ -96,6 +107,7 @@ class ExtensionRegistryImpl(
     }
 
     override fun inspectJson(): JsonObject {
+        ensureInitialized()
         return buildJsonObject {
             put("homeDirectory", config.applicationHomeDir.absolute().toString())
             put("applicationDataDirectory", config.projectDir.absolute().toString())
@@ -126,5 +138,8 @@ class ExtensionRegistryImpl(
                 }
             }
         }
+    }
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(ExtensionRegistryImpl::class.java)
     }
 }

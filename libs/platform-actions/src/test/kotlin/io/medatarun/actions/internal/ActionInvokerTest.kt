@@ -2,11 +2,15 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.actions.ports.needs.*
-import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
-import io.medatarun.platform.kernel.*
-import io.medatarun.security.*
+import io.medatarun.platform.kernel.MedatarunExtension
+import io.medatarun.platform.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.security.SecurityRuleCtx
+import io.medatarun.security.SecurityRuleEvaluator
+import io.medatarun.security.SecurityRuleEvaluatorResult
+import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
 import kotlinx.serialization.json.*
@@ -452,17 +456,72 @@ class ActionInvokerTest {
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
     }
 
+    @Test
+    fun `audit records received and succeeded`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject {
+            put("name", JsonPrimitive("alpha"))
+            put("count", JsonPrimitive(2))
+        }
+
+        runtime.invoke("alpha", payload)
+
+        val recorder = runtime.auditRecorder()
+        assertEquals(1, recorder.received.size)
+        assertEquals(1, recorder.succeeded.size)
+        assertEquals(0, recorder.rejected.size)
+        assertEquals(0, recorder.failed.size)
+        assertEquals("test", recorder.received.single().source)
+        assertEquals(payload.toString(), recorder.received.single().payloadSerialized)
+        assertEquals(recorder.received.single().actionInstanceId, recorder.succeeded.single().actionInstanceId)
+    }
+
+    @Test
+    fun `audit records rejected before business invoke`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        assertThrows<ActionInvocationException> {
+            runtime.invoke("denied", payload)
+        }
+
+        val recorder = runtime.auditRecorder()
+        assertEquals(1, recorder.received.size)
+        assertEquals(1, recorder.rejected.size)
+        assertEquals(0, recorder.succeeded.size)
+        assertEquals(0, recorder.failed.size)
+        assertEquals(recorder.received.single().actionInstanceId, recorder.rejected.single().actionInstanceId)
+    }
+
+    @Test
+    fun `audit records failed when business invoke throws`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        assertThrows<TestActionDispatchFailedException> {
+            runtime.invoke("crash", payload)
+        }
+
+        val recorder = runtime.auditRecorder()
+        assertEquals(1, recorder.received.size)
+        assertEquals(0, recorder.rejected.size)
+        assertEquals(0, recorder.succeeded.size)
+        assertEquals(1, recorder.failed.size)
+        assertEquals(recorder.received.single().actionInstanceId, recorder.failed.single().actionInstanceId)
+        assertEquals(TestActionDispatchFailedException::class.simpleName, recorder.failed.single().code)
+    }
+
     private class TestRuntime {
 
         private val env = ActionTestEnv(listOf(TestActionsExtension()))
 
         fun invoke(actionKey: String, payload: JsonObject): Any? {
             return env.actionPlatform.invoker.handleInvocation(
-                ActionRequest("test", actionKey, payload), env.actionCtx)
+                ActionRequest("test", actionKey, ActionPayload.AsJson(payload)), env.actionCtx)
         }
 
         fun invokeWithGroup(actionGroupKey: String, actionKey: String, payload: JsonObject): Any? {
-            val request = ActionRequest(actionGroupKey, actionKey, payload)
+            val request = ActionRequest(actionGroupKey, actionKey, ActionPayload.AsJson(payload))
             return env.actionPlatform.invoker.handleInvocation(request, env.actionCtx)
         }
 
@@ -473,6 +532,10 @@ class ActionInvokerTest {
         fun lastActionCtx(): ActionCtx? {
             return env.runtime.services.getService(TestActionProvider::class).lastActionCtx
         }
+
+        fun auditRecorder(): TestActionAuditRecorder {
+            return env.runtime.services.getService(TestActionAuditRecorder::class)
+        }
     }
 
     private class TestActionsExtension : MedatarunExtension {
@@ -480,11 +543,14 @@ class ActionInvokerTest {
 
         override fun initServices(ctx: MedatarunServiceCtx) {
             val actionProvider = TestActionProvider()
+            val actionAuditRecorder = TestActionAuditRecorder()
             ctx.register(TestActionProvider::class, actionProvider)
+            ctx.register(TestActionAuditRecorder::class, actionAuditRecorder)
         }
 
         override fun initContributions(ctx: MedatarunExtensionCtx) {
             ctx.registerContribution(ActionProvider::class, ctx.getService(TestActionProvider::class))
+            ctx.registerContribution(ActionAuditRecorder::class, ctx.getService(TestActionAuditRecorder::class))
             ctx.registerContribution(TypeDescriptor::class, ComplexPayloadTypeDescriptor)
             ctx.registerContribution(TypeDescriptor::class, AbbreviationTypeDescriptor)
             ctx.registerContribution(SecurityRulesProvider::class, DefaultTestSecurityRulesProvider)
@@ -537,6 +603,16 @@ class ActionInvokerTest {
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
         class Denied : TestAction
+
+        @ActionDoc(
+            key = "crash",
+            title = "Crash",
+            description = "Action that throws during business invoke",
+            uiLocations = [""],
+            securityRule = RULE_ALLOW,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+        )
+        class Crash : TestAction
 
         @ActionDoc(
             key = "collections",
@@ -752,6 +828,9 @@ class ActionInvokerTest {
     private class AbbreviationTooLongException :
         MedatarunException("Abbreviation must be at most 4 chars")
 
+    private class TestActionDispatchFailedException :
+        MedatarunException("boom")
+
     private class TestActionProvider : ActionProvider<TestAction> {
         override val actionGroupKey: String = "test"
         var lastCommand: TestAction? = null
@@ -761,10 +840,36 @@ class ActionInvokerTest {
             return TestAction::class
         }
 
-        override fun dispatch(cmd: TestAction, actionCtx: ActionCtx): Any {
-            lastCommand = cmd
+        override fun dispatch(action: TestAction, actionCtx: ActionCtx): Any {
+            lastCommand = action
             lastActionCtx = actionCtx
+            if (action is TestAction.Crash) {
+                throw TestActionDispatchFailedException()
+            }
             return "ok"
+        }
+    }
+
+    private class TestActionAuditRecorder : ActionAuditRecorder {
+        val received = mutableListOf<ActionAuditReceived>()
+        val rejected = mutableListOf<ActionAuditRejected>()
+        val succeeded = mutableListOf<ActionAuditSucceeded>()
+        val failed = mutableListOf<ActionAuditFailed>()
+
+        override fun recordReceived(event: ActionAuditReceived) {
+            received.add(event)
+        }
+
+        override fun recordRejected(event: ActionAuditRejected) {
+            rejected.add(event)
+        }
+
+        override fun recordSucceeded(event: ActionAuditSucceeded) {
+            succeeded.add(event)
+        }
+
+        override fun recordFailed(event: ActionAuditFailed) {
+            failed.add(event)
         }
     }
 

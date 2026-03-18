@@ -13,9 +13,9 @@ class BatchActionProvider : ActionProvider<BatchAction> {
      * with user facing actions.
      */
     override fun findCommandClass() = BatchAction::class
-    override fun dispatch(cmd: BatchAction, actionCtx: ActionCtx): Any {
-        return when (cmd) {
-            is BatchAction.BatchRun -> runActions(cmd, actionCtx)
+    override fun dispatch(action: BatchAction, actionCtx: ActionCtx): Any {
+        return when (action) {
+            is BatchAction.BatchRun -> runActions(action, actionCtx)
         }
     }
 

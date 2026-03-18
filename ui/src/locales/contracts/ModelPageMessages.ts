@@ -14,6 +14,7 @@ export interface ModelPageMessages {
   modelPage_authorityCanonical: string;
   modelPage_authoritySystem: string;
   modelPage_versionLabel: string;
+  modelPage_historyLink: string;
   modelPage_externalLinkLabel: string;
   modelPage_externalLinkEmpty: string;
   modelPage_tagsLabel: string;

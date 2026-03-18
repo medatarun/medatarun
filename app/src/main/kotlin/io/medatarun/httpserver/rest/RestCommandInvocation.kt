@@ -4,11 +4,12 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.medatarun.actions.domain.ActionExceptionInterpreter
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.actions.domain.ActionInvoker
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionRequest
-import io.medatarun.actions.runtime.ActionCtxFactory
-import io.medatarun.actions.internal.ActionInvoker
-import io.medatarun.httpserver.commons.HttpAdapters
+import io.medatarun.actions.runtime.ActionRequestCtxFactory
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.security.AppPrincipal
 import kotlinx.serialization.json.*
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory
 
 class RestCommandInvocation(
     private val actionInvoker: ActionInvoker,
-    private val actionCtxFactory: ActionCtxFactory
+    private val actionRequestCtxFactory: ActionRequestCtxFactory
 ) {
 
     suspend fun processInvocation(call: ApplicationCall, principal: AppPrincipal?) {
@@ -35,78 +36,56 @@ class RestCommandInvocation(
                 )
 
             val body = call.receiveText()
-            val json = if (body.isNullOrBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
+            val json = if (body.isBlank()) buildJsonObject { } else Json.parseToJsonElement(body).jsonObject
 
             val request = ActionRequest(
                 actionGroupKey = actionGroupKey,
                 actionKey = actionKey,
-                payload = json
+                payload = ActionPayload.AsJson(json)
             )
 
-            val result = actionInvoker.handleInvocation(request, actionCtxFactory.create(principal))
+            val result = actionInvoker.handleInvocation(request, actionRequestCtxFactory.create(principal, "api"))
             val responsePayload = buildResponsePayload(result)
             when (responsePayload) {
                 is String -> call.respondText(responsePayload, ContentType.Text.Plain)
-                is JsonObject, is JsonArray -> call.respondText(responsePayload.toString(), ContentType.Application.Json)
+                is JsonObject, is JsonArray -> call.respondText(
+                    responsePayload.toString(),
+                    ContentType.Application.Json
+                )
+
                 else -> call.respond(responsePayload)
             }
             call.respond(HttpStatusCode.OK, responsePayload)
-        } catch (exception: ActionInvocationException) {
+        } catch (exception: Throwable) {
             val resourceForLog = actionGroupKeyPathValue ?: "unknown"
             val functionForLog = actionKeyPathValue ?: "unknown"
-            if (exception.status.httpStatusCode >= 500) {
+            val i = ActionExceptionInterpreter(exception)
+            if (i.isInternal()) {
                 logger.error(
                     "Invocation failed for $resourceForLog.$functionForLog",
                     exception
                 )
             } else {
                 logger.warn(
-                    "Invocation error for $resourceForLog/$functionForLog: ${exception.message}"
+                    "Invocation error for $resourceForLog/$functionForLog: ${i.privateErrorMessage()}"
                 )
             }
 
             val payloadJson = buildJsonObject {
                 put("type", "about:blank")
-                put("title", exception.msg)
-                put("status", exception.status.httpStatusCode)
-                exception.payload.forEach { (k, v) ->
-                    put(k,v)
+                put("title", i.publicErrorMessage())
+                put("status", i.statusCode)
+                i.details().forEach { (k, v) ->
+                    put(k, v)
                 }
             }
             call.respondText(
-                status = HttpStatusCode(exception.status.httpStatusCode, exception.status.message),
+                status = HttpStatusCode(i.statusCode, i.statusName),
                 text = payloadJson.toString(),
                 contentType = ContentType.Application.Json
             )
         }
     }
-
-    private suspend fun readBodyParameters(call: ApplicationCall): Map<String, String> {
-        if (!allowsBody(call.request.httpMethod)) return emptyMap()
-        val contentType = call.request.contentType()
-        return when {
-            contentType.match(ContentType.Application.Json) ->
-                runCatching { call.receiveNullable<JsonObject>() }.getOrNull()?.let(HttpAdapters::jsonObjectToStringMap)
-                    .orEmpty()
-
-            contentType.match(ContentType.Application.FormUrlEncoded) ->
-                runCatching { call.receiveParameters() }
-                    .map { parameters -> toSingleValueMap(parameters) }
-                    .getOrNull()
-                    .orEmpty()
-
-            else -> emptyMap()
-        }
-    }
-
-
-    private fun toSingleValueMap(parameters: Parameters): Map<String, String> =
-        parameters.entries().mapNotNull { entry ->
-            entry.value.lastOrNull()?.let { value -> entry.key to value }
-        }.toMap()
-
-    private fun allowsBody(method: HttpMethod): Boolean =
-        method == HttpMethod.Post || method == HttpMethod.Put || method == HttpMethod.Patch || method == HttpMethod.Delete
 
     private fun buildResponsePayload(result: Any?): Any = when (result) {
         null, Unit -> mapOf("status" to "ok")

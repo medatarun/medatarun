@@ -3,13 +3,13 @@ package io.medatarun.actions.internal
 import io.medatarun.actions.domain.*
 import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 
-class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
+internal class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
 
 
     val subjectDecoder = ActionSemanticsSubjectDecoder(vocabulary)
 
     fun createSemantics(
-        action: ActionCmdDescriptor,
+        action: ActionDescriptor,
     ): ActionSemantics {
         val semantics = action.semantics
         return when (semantics) {
@@ -20,7 +20,7 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
     }
 
     private fun createSemanticsDeclared(
-        action: ActionCmdDescriptor,
+        action: ActionDescriptor,
         declaration: ActionSemanticsConfig.Declared
     ): ActionSemantics {
         return ActionSemanticsResolved(
@@ -31,7 +31,7 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
     }
 
     private fun createSemanticsInferred(
-        action: ActionCmdDescriptor,
+        action: ActionDescriptor,
         declaration: ActionSemanticsConfig.Auto
     ): ActionSemantics {
         val semantics = ActionSemanticsInferer(vocabulary).infer(action)
@@ -45,7 +45,7 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
     }
 
     private fun createSemanticsNone(
-        action: ActionCmdDescriptor,
+        action: ActionDescriptor,
         declaration: ActionSemanticsConfig.None
     ): ActionSemantics {
         return ActionSemanticsResolved(
@@ -73,7 +73,7 @@ class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
                     "relationship_attribute",
                     "user"
                 ),
-                updateIntentSynonyms = listOf("update", "add_tag", "delete_tag", "disable", "enable", "set_roles"),
+                updateIntentSynonyms = listOf("update", "add_tag", "delete_tag", "disable", "enable", "set_roles", "release"),
                 createIntentSynonyms = listOf("create", "copy", "import"),
                 deleteIntentSynonyms = listOf("delete"),
                 readIntentSynonyms = listOf("list", "export", "search", "inspect", "get")

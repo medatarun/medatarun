@@ -6,22 +6,30 @@ import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.MedatarunServiceCtx
 
-class SecurityExtension : MedatarunExtension {
+class SecurityExtension(
+    val config: SecurityExtensionConfig? = null
+) : MedatarunExtension {
     override val id: ExtensionId = "platform-security"
+
     override fun initContributions(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".security_rules_providers", SecurityRulesProvider::class)
         ctx.registerContributionPoint(this.id + ".security_roles_providers", SecurityRolesProvider::class)
         ctx.registerContribution(SecurityRulesProvider::class, SecurityRulesProviderBase())
-
     }
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val securityRolesRegistry = SecurityRolesRegistryImpl(extensionRegistry)
         ctx.register(SecurityRolesRegistry::class, securityRolesRegistry)
+        if (config?.appActorResolver != null) {
+            ctx.register(AppActorResolver::class, config.appActorResolver)
+        }
     }
 }
 
+data class SecurityExtensionConfig(
+    val appActorResolver: AppActorResolver?
+)
 
 class SecurityRulesProviderBase : SecurityRulesProvider {
 

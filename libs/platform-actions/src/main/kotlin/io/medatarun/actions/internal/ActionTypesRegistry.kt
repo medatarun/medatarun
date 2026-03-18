@@ -12,7 +12,7 @@ import java.time.LocalDate
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
+internal class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
 
     private val typeDescriptors = typeContributions.associateBy { it.target }
 

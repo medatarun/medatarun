@@ -8,7 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.metadatarun.ext.config.actions.dto.ActionRegistryDto
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
@@ -77,7 +77,7 @@ class AppCLIRunner(
         val parameterArgs = args.copyOfRange(2, args.size)
         val rawParameters = parser.parseParameters(parameterArgs, action)
 
-        val request = ActionRequest(
+        val request = AppCliRequest(
             actionGroupKey = actionGroupKey,
             actionKey = actionKey,
             payload = rawParameters
@@ -111,12 +111,18 @@ class AppCLIRunner(
         }
     }
 
+    data class AppCliRequest(
+        val actionGroupKey: String,
+        val actionKey: String,
+        val payload: JsonObject
+    )
+
     sealed interface RemoteInvocationResult {
         class OK(val body: String) : RemoteInvocationResult
         class Error(val status: Int, val body: String) : RemoteInvocationResult
     }
 
-    private suspend fun invokeRemoteAction(request: ActionRequest, authenticationToken: String?): RemoteInvocationResult {
+    private suspend fun invokeRemoteAction(request: AppCliRequest, authenticationToken: String?): RemoteInvocationResult {
         val url = "$publicBaseUrl/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {
             contentType(ContentType.Application.Json)
@@ -142,10 +148,10 @@ class AppCLIRunner(
     }
 
     private suspend fun fetchActionRegistry(): ActionRegistryDto {
-        val request = ActionRequest(
+        val request = AppCliRequest(
             actionGroupKey = "config",
             actionKey = "inspect_actions",
-            payload = buildJsonObject { }
+            payload = buildJsonObject {  }
         )
         val url = "$publicBaseUrl/api/${request.actionGroupKey}/${request.actionKey}"
         val response = httpClient.post(url) {

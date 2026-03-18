@@ -91,9 +91,23 @@ class ModelQueriesImpl(
         return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
-    override fun diff(leftModelRef: ModelRef, rightModelRef: ModelRef, scope: ModelDiffScope): ModelDiff {
-        val leftModel = findModel(leftModelRef)
-        val rightModel = findModel(rightModelRef)
+    override fun diff(
+        leftModelRef: ModelRef,
+        leftModelVersion: ModelVersion?,
+        rightModelRef: ModelRef,
+        rightModelVersion: ModelVersion?,
+        scope: ModelDiffScope
+    ): ModelDiff {
+        val leftModel = if (leftModelVersion == null) {
+            findModel(leftModelRef)
+        } else {
+            findModelAtVersion(leftModelRef, leftModelVersion)
+        }
+        val rightModel = if (rightModelVersion == null) {
+            findModel(rightModelRef)
+        } else {
+            findModelAtVersion(rightModelRef, rightModelVersion)
+        }
         return diffRunner.diff(leftModel, rightModel, scope)
     }
 
@@ -112,6 +126,33 @@ class ModelQueriesImpl(
             is ModelRef.ById -> findModelById(modelRef.id)
             is ModelRef.ByKey -> findModelByKey(modelRef.key)
         }
+    }
+
+    override fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {
+        val model = storage.findModel(modelRef)
+        return storage.findModelAggregateVersion(model.id, modelVersion)
+    }
+
+    override fun findModelVersions(modelRef: ModelRef): List<ModelChangeEvent> {
+        val model = storage.findModel(modelRef)
+        return storage
+            .findModelVersions(model.id)
+            .sortedByDescending { it.eventSequenceNumber }
+    }
+
+    override fun findModelChangeEventsInVersion(
+        modelRef: ModelRef,
+        modelVersion: ModelVersion
+    ): List<ModelChangeEvent> {
+        val model = storage.findModel(modelRef)
+        return storage.findModelChangeEventsInVersion(model.id, modelVersion)
+    }
+
+    override fun findModelChangeEventsSinceLastReleaseEvent(
+        modelRef: ModelRef
+    ): List<ModelChangeEvent> {
+        val model = storage.findModel(modelRef)
+        return storage.findModelChangeEventsSinceLastReleaseEvent(model.id)
     }
 
     override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {

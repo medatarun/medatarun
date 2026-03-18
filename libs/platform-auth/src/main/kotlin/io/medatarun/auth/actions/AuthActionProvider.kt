@@ -3,7 +3,6 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.actions.ports.needs.getService
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.actor.Actor
@@ -16,37 +15,38 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import kotlin.reflect.KClass
 
-class AuthEmbeddedActionsProvider : ActionProvider<AuthAction<*>> {
+class AuthEmbeddedActionsProvider(
+    private val userService: UserService,
+    private val oidcService: OidcService,
+    private val oauthService: OAuthService,
+    private val actorService: ActorService
+) : ActionProvider<AuthAction<*>> {
     override val actionGroupKey: String = "auth"
     override fun findCommandClass(): KClass<AuthAction<*>> {
         return AuthAction::class
     }
 
     override fun dispatch(
-        cmd: AuthAction<*>,
+        action: AuthAction<*>,
         actionCtx: ActionCtx
     ): Any {
-        val userService = actionCtx.getService<UserService>()
-        val oidcService = actionCtx.getService<OidcService>()
-        val oauthService = actionCtx.getService<OAuthService>()
-        val actorService = actionCtx.getService<ActorService>()
         val launcher =
             AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal)
-        return when (cmd) {
-            is AuthAction.AdminBootstrap -> launcher.adminBootstrap(cmd)
-            is AuthAction.UserCreate -> launcher.createUser(cmd)
-            is AuthAction.Login -> launcher.login(cmd)
-            is AuthAction.WhoAmI -> launcher.whoami(cmd)
-            is AuthAction.ChangeMyPassword -> launcher.changeOwnPassword(cmd)
-            is AuthAction.UserChangePassword -> launcher.changeUserPassword(cmd)
-            is AuthAction.UserDisable -> launcher.disableUser(cmd)
-            is AuthAction.UserEnable -> launcher.enableUser(cmd)
-            is AuthAction.UserChangeFullname -> launcher.changeUserFullname(cmd)
-            is AuthAction.ActorList -> launcher.listActors(cmd)
-            is AuthAction.ActorGet -> launcher.getActor(cmd)
-            is AuthAction.ActorSetRoles -> launcher.setActorRoles(cmd)
-            is AuthAction.ActorDisable -> launcher.disableActor(cmd)
-            is AuthAction.ActorEnable -> launcher.enableActor(cmd)
+        return when (action) {
+            is AuthAction.AdminBootstrap -> launcher.adminBootstrap(action)
+            is AuthAction.UserCreate -> launcher.createUser(action)
+            is AuthAction.Login -> launcher.login(action)
+            is AuthAction.WhoAmI -> launcher.whoami(action)
+            is AuthAction.ChangeMyPassword -> launcher.changeOwnPassword(action)
+            is AuthAction.UserChangePassword -> launcher.changeUserPassword(action)
+            is AuthAction.UserDisable -> launcher.disableUser(action)
+            is AuthAction.UserEnable -> launcher.enableUser(action)
+            is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
+            is AuthAction.ActorList -> launcher.listActors(action)
+            is AuthAction.ActorGet -> launcher.getActor(action)
+            is AuthAction.ActorSetRoles -> launcher.setActorRoles(action)
+            is AuthAction.ActorDisable -> launcher.disableActor(action)
+            is AuthAction.ActorEnable -> launcher.enableActor(action)
         }
     }
 

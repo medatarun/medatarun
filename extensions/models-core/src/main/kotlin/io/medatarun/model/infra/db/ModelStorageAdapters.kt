@@ -1,85 +1,97 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.inmemory.ModelChangeEventInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.id.Id
+import kotlinx.serialization.json.Json
 import java.net.URI
 
 object ModelStorageAdapters {
 
     fun toModel(record: ModelRecord): ModelInMemory {
         return ModelInMemory(
-            id = record.id,
+            id = record.modelId,
             key = record.key,
             name = record.name,
             description = record.description,
-            version = ModelVersion(record.version),
-            origin = stringToModelOrigin(record.origin),
+            version = record.version,
+            origin = record.origin,
             authority = record.authority,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
         )
     }
 
     fun toType(record: ModelTypeRecord): ModelTypeInMemory = ModelTypeInMemory(
-        id = record.id,
+        id = record.lineageId,
         key = record.key,
         name = record.name,
         description = record.description
     )
 
-    fun toEntity(record: EntityRecord, tags: List<TagId>): EntityInMemory {
-        val entityId = record.id
-        val identifierAttributeIdString = record.identifierAttributeId
-
+    fun toEntity(
+        record: EntityRecord,
+        tags: List<TagId>,
+        identifierAttributeId: AttributeId
+    ): EntityInMemory {
         return EntityInMemory(
-            id = entityId,
+            id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            identifierAttributeId = identifierAttributeIdString,
-            origin = stringToEntityOrigin(record.origin),
+            identifierAttributeId = identifierAttributeId,
+            origin = record.origin,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = tags
         )
     }
 
-    fun toEntityAttribute(record: EntityAttributeRecord, tags: List<TagId>): AttributeInMemory {
+    fun toEntityAttribute(
+        record: EntityAttributeRecord,
+        tags: List<TagId>,
+        typeId: TypeId,
+        ownerEntityId: EntityId
+    ): AttributeInMemory {
         return AttributeInMemory(
-            id = record.id,
+            id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            typeId = record.typeId,
+            typeId = typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerEntityId(record.entityId)
+            ownerId = AttributeOwnerId.OwnerEntityId(ownerEntityId)
         )
     }
 
     fun toRelationship(
         record: RelationshipRecord,
-        roles: List<RelationshipRoleRecord>,
+        roles: List<RelationshipRoleInMemory>,
         tags: List<TagId>
     ): RelationshipInMemory {
         return RelationshipInMemory(
-            id = record.id,
+            id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            roles = roles.map { toRelationshipRole(it) },
+            roles = roles,
             tags = tags
         )
     }
 
 
-    fun toRelationshipRole(record: RelationshipRoleRecord): RelationshipRoleInMemory {
-
+    fun toRelationshipRole(
+        record: RelationshipRoleRecord,
+        entityId: EntityId
+    ): RelationshipRoleInMemory {
         return RelationshipRoleInMemory(
-            id = record.id,
+            id = record.lineageId,
             key = record.key,
-            entityId = record.entityId,
+            entityId = entityId,
             name = record.name,
             cardinality = RelationshipCardinality.valueOfCode(record.cardinality)
         )
@@ -87,29 +99,34 @@ object ModelStorageAdapters {
 
     fun toRelationshipAttribute(
         record: RelationshipAttributeRecord,
-        tags: List<TagId>
+        tags: List<TagId>,
+        typeId: TypeId,
+        ownerRelationshipId: RelationshipId
     ): AttributeInMemory {
         return AttributeInMemory(
-            id = record.id,
+            id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            typeId = record.typeId,
+            typeId = typeId,
             optional = record.optional,
             tags = tags,
-            ownerId = AttributeOwnerId.OwnerRelationshipId(record.relationshipId)
+            ownerId = AttributeOwnerId.OwnerRelationshipId(ownerRelationshipId)
         )
     }
 
-
-    private fun stringToModelOrigin(origin: String?): ModelOrigin {
-        return if (origin == null) ModelOrigin.Manual else ModelOrigin.Uri(URI(origin))
+    fun toModelChangeEvent(record: ModelEventRecord): ModelChangeEventInMemory {
+        return ModelChangeEventInMemory(
+            eventId = record.id,
+            eventType = record.eventType,
+            eventVersion = record.eventVersion,
+            eventSequenceNumber = record.streamRevision,
+            createdAt = record.createdAt,
+            actionId = Id.fromString(record.actionId, ::ActionInstanceId),
+            modelVersion = record.modelVersion,
+            actorId = record.actorId,
+            payload = Json.decodeFromString(record.payload)
+        )
     }
-
-    private fun stringToEntityOrigin(origin: String?): EntityOrigin {
-        return if (origin == null) EntityOrigin.Manual else EntityOrigin.Uri(URI(origin))
-    }
-
-
 
 }

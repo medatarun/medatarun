@@ -1,8 +1,9 @@
 package io.medatarun.model.infra.db.records
 
 import io.medatarun.model.infra.db.ModelStorageDbSearchUnknownItemTypeException
+import io.medatarun.type.commons.enums.EnumWithCode
 
-enum class SearchItemType(val code: String) {
+enum class SearchItemType(override val code: String): EnumWithCode {
     MODEL("model"),
     ENTITY("entity"),
     ENTITY_ATTRIBUTE("entity_attribute"),

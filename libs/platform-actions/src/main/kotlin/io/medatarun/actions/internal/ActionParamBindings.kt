@@ -2,10 +2,9 @@ package io.medatarun.actions.internal
 
 import io.medatarun.actions.domain.ActionInvocationException
 import io.medatarun.lang.http.StatusCode
-import kotlin.collections.iterator
 import kotlin.reflect.KParameter
 
-data class ActionParamBindings(
+internal data class ActionParamBindings(
     val paramStates: Map<KParameter, ActionParamBindingState>,
 ) {
 

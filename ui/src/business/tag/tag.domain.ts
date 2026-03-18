@@ -150,6 +150,20 @@ export class Tags {
   }
 
   /**
+   * If not found returns the tag id.
+   */
+  nameOrKeyOrId(tagId: string): string {
+    const tag = this.findTag(tagId);
+    if (!tag) {
+      return tagId;
+    }
+    if (!tag.groupKey) {
+      return tag.name ?? tag.key;
+    }
+    return `${tag.groupName ?? tag.groupKey} / ${tag.name ?? tag.key}`;
+  }
+
+  /**
    * Search is based on the technical fields that users already understand today:
    * tag key, optional tag name, managed group key, and optional managed group name.
    */

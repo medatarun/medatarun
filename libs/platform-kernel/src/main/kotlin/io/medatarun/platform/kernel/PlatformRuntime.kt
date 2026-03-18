@@ -24,7 +24,7 @@ internal class PlatformRuntimeImpl(
                 this@PlatformRuntimeImpl.extensions
         }
         for (s in startListeners) {
-            logger.info("Starting contribution: ${s.javaClass.simpleName}")
+            logger.info("Platform started event for contribution: ${s.javaClass}")
             s.onPlatformStarted(ctx)
         }
     }

@@ -22,3 +22,6 @@ interface MedatarunServiceCtx : MedatarunExtensionCtxConfig {
      */
     fun <T : Any> register(service: KClass<T>, implem: T)
 }
+inline fun <reified T : Any> MedatarunServiceCtx.getService(): T {
+    return this.getService(T::class)
+}

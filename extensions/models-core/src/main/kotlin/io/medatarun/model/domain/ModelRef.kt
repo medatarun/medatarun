@@ -1,7 +1,6 @@
 package io.medatarun.model.domain
 
 import io.medatarun.type.commons.ref.Ref
-import java.util.*
 
 sealed interface ModelRef : Ref<ModelRef> {
 
@@ -30,8 +29,8 @@ sealed interface ModelRef : Ref<ModelRef> {
             return ByKey(value)
         }
 
-        fun modelRefId(value: UUID): ById {
-            return ById(ModelId(value))
+        fun modelRefId(value: ModelId): ById {
+            return ById(value)
         }
     }
 }

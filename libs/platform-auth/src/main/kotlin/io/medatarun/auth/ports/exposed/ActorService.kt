@@ -56,6 +56,11 @@ interface ActorService {
     fun findById(actorId: ActorId): Actor
 
     /**
+     * Finds an actor based on its unique identifier and returns null if not found
+     */
+    fun findByIdOptional(actorId: ActorId): Actor?
+
+    /**
      * Lists all actors currently known
      */
     fun listActors(): List<Actor>

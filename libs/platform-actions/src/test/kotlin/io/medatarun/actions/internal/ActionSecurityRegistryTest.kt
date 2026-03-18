@@ -1,14 +1,12 @@
 package io.medatarun.actions.internal
 
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
-import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.*
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.reflect.KClass
 
 class ActionSecurityRuleEvaluatorsTest {
 
@@ -59,16 +57,13 @@ class ActionSecurityRuleEvaluatorsTest {
         }
     }
 
-    private fun dummyActionCtx(): ActionCtx =
-        object : ActionCtx {
+    private fun dummyActionCtx(): ActionRequestCtx =
+        object : ActionRequestCtx {
             override val principal = object : ActionPrincipalCtx {
                 override val principal: AppPrincipal? = null
                 override fun ensureIsAdmin() = error("not used")
                 override fun ensureSignedIn(): AppPrincipal = error("not used")
             }
-
-            override val extensionRegistry get() = error("not used")
-            override fun dispatchAction(req: ActionRequest): Any = error("not used")
-            override fun <T : Any> getService(type: KClass<T>): T = error("not used")
+            override val source: String = "test"
         }
 }

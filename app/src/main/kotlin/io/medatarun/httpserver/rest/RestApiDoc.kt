@@ -1,12 +1,7 @@
 package io.medatarun.httpserver.rest
 
-import io.medatarun.actions.internal.ActionRegistry
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
+import io.medatarun.actions.domain.ActionRegistry
+import kotlinx.serialization.json.*
 import java.net.URI
 
 class RestApiDoc(
@@ -64,7 +59,7 @@ class RestApiDoc(
                                                 descriptor.parameters
                                                     .sortedBy { it.order }
                                                     .forEach { parameter ->
-                                                        putJsonObject(parameter.name) {
+                                                        putJsonObject(parameter.key) {
                                                             put("type", parameter.jsonType.code)
                                                             parameter.description?.let { put("description", it) }
                                                         }
@@ -73,7 +68,7 @@ class RestApiDoc(
                                             val requiredParams = descriptor.parameters
                                                 .sortedBy { it.order }
                                                 .filter { !it.optional }
-                                                .map { it.name }
+                                                .map { it.key }
                                             if (requiredParams.isNotEmpty()) {
                                                 putJsonArray("required") {
                                                     requiredParams.forEach { add(JsonPrimitive(it)) }

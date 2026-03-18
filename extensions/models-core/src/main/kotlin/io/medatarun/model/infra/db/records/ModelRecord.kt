@@ -1,34 +1,32 @@
 package io.medatarun.model.infra.db.records
 
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.ModelAuthority
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.infra.db.tables.ModelTable
+import io.medatarun.model.domain.*
+import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class ModelRecord(
-    val id: ModelId,
+    val snapshotId: ModelSnapshotId,
+    val modelId: ModelId,
     val key: ModelKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val version: String,
-    val origin: String?,
+    val version: ModelVersion,
+    val origin: ModelOrigin,
     val authority: ModelAuthority,
     val documentationHome: String?
 ) {
     companion object {
         fun read(row: ResultRow): ModelRecord {
             return ModelRecord(
-                id = row[ModelTable.id],
-                key = row[ModelTable.key],
-                name = row[ModelTable.name],
-                description = row[ModelTable.description],
-                version = row[ModelTable.version],
-                origin = row[ModelTable.origin],
-                authority = row[ModelTable.authority],
-                documentationHome = row[ModelTable.documentationHome]
+                snapshotId = row[ModelSnapshotTable.id],
+                modelId = row[ModelSnapshotTable.modelId],
+                key = row[ModelSnapshotTable.key],
+                name = row[ModelSnapshotTable.name],
+                description = row[ModelSnapshotTable.description],
+                version = row[ModelSnapshotTable.version],
+                origin = row[ModelSnapshotTable.origin],
+                authority = row[ModelSnapshotTable.authority],
+                documentationHome = row[ModelSnapshotTable.documentationHome]
             )
         }
     }

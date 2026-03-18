@@ -1,6 +1,9 @@
 package io.medatarun.lang.uuid
 
 import com.github.f4b6a3.uuid.UuidCreator
+import com.github.f4b6a3.uuid.enums.UuidVersion
+import com.github.f4b6a3.uuid.exception.InvalidUuidException
+import com.github.f4b6a3.uuid.util.UuidValidator
 import java.util.*
 
 object UuidUtils {
@@ -15,5 +18,15 @@ object UuidUtils {
 
     fun fromString(value: String): UUID {
         return UUID.fromString(value)
+    }
+
+    fun fromStringSafe(value: String): UUID {
+        val uuid = UuidCreator.fromString(value)
+        if (!UuidValidator.isValid(
+                uuid,
+                UuidVersion.VERSION_TIME_ORDERED_EPOCH.value
+            )
+        ) throw InvalidUuidException(value)
+        return uuid
     }
 }

@@ -43,6 +43,8 @@ class TagsCoreExtension : MedatarunExtension {
     }
 
     override fun initContributions(ctx: MedatarunExtensionCtx) {
+        val tagCmds= ctx.getService<TagCmds>()
+        val tagQueries= ctx.getService<TagQueries>()
         ctx.registerContributionPoint("$id.tag-scope-manager", TagScopeManager::class)
         ctx.registerContribution(TypeDescriptor::class, TagIdTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, TagKeyTypeDescriptor())
@@ -51,7 +53,7 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.registerContribution(TypeDescriptor::class, TagGroupKeyTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, TagGroupRefTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, TagSearchFiltersDescriptor())
-        ctx.registerContribution(ActionProvider::class, TagActionProvider())
+        ctx.registerContribution(ActionProvider::class, TagActionProvider(tagCmds, tagQueries))
         ctx.registerContribution(SecurityRolesProvider::class, TagSecurityRolesProvider())
         ctx.registerContribution(SecurityRulesProvider::class, TagSecurityRulesprovider())
         ctx.registerContribution(DbMigration::class, TagsCoreDbMigration(id))

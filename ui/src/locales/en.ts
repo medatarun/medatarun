@@ -13,6 +13,7 @@ import { layoutMessages } from "./en/LayoutMessages";
 import { loginPageMessages } from "./en/LoginPageMessages";
 import { modelPageMessages } from "./en/ModelPageMessages";
 import { modelComparePageMessages } from "./en/ModelComparePageMessages";
+import { modelHistoryPageMessages } from "./en/ModelHistoryPageMessages";
 import { modelReportsPageMessages } from "./en/ModelReportsPageMessages";
 import { modelsPageMessages } from "./en/ModelsPageMessages";
 import { preferencesPageMessages } from "./en/PreferencesPageMessages";
@@ -44,6 +45,7 @@ export const messages = {
   ...layoutMessages,
   ...modelsPageMessages,
   ...modelComparePageMessages,
+  ...modelHistoryPageMessages,
   ...modelPageMessages,
   ...modelReportsPageMessages,
   ...entityPageMessages,

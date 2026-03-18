@@ -137,3 +137,27 @@ export interface ModelCompareDto {
   right: ModelCompareSideDto;
   entries: ModelCompareEntryDto[];
 }
+
+export interface ModelChangeEventDto {
+  eventId: string;
+  eventType: string;
+  eventVersion: number;
+  eventSequenceNumber: number;
+  createdAt: number;
+  actionId: string;
+  modelVersion: string | null;
+  actorId: string;
+  actorDisplayName: string;
+  payload: Record<string, unknown>;
+}
+export interface ModelChangeEventWithVersionDto extends ModelChangeEventDto {
+  modelVersion: string
+}
+
+export interface ModelChangeEventListDto {
+  items: ModelChangeEventDto[];
+}
+
+export interface ModelChangeEventListWithVersionDto {
+  items: ModelChangeEventWithVersionDto[];
+}

@@ -8,8 +8,8 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
+import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalId
 import io.medatarun.security.AppPrincipalRole
 import java.time.Instant
 
@@ -63,7 +63,7 @@ class AppPrincipalFactory(
 
     private fun toAppPrincipal(actor: Actor): AppPrincipal {
         return object : AppPrincipal {
-            override val id: AppPrincipalId = AppPrincipalId(actor.id.value.toString())
+            override val id: AppActorId = AppActorId(actor.id.value)
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
             override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }

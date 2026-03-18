@@ -1,11 +1,14 @@
 package io.medatarun.security
 
 /**
- * Defines what is a principal from a business perspective
- * across application.
+ * Defines what is **the** principal from a business perspective
+ * across application. The principal is the signed-in actor that holds the permissions.
  *
- * Do not confuse with "actors" from the auth module,
- * this one is for business use and limited to that.
+ * Do not confuse with [AppActor] which represents any actor that can act on the
+ * application.
+ *
+ * Do not confuse with "actors" from the auth module because nobody
+ * should know those actors except the auth module itself.
  *
  * At the end, when the application is fully built, [AppPrincipal] is derived from an actor,
  * but don't rely on that, since we need to limit system boundaries for tests and integration.
@@ -25,7 +28,7 @@ interface AppPrincipal {
     /**
      * Unique identifier for the principal in our system.
      */
-    val id: AppPrincipalId
+    val id: AppActorId
 
     /**
      * Issuer

@@ -8,11 +8,11 @@ import io.medatarun.model.infra.db.records.DenormModelSearchItemRecord
 import io.medatarun.model.infra.db.records.DenormModelSearchItemTagRecord
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTagTable
+import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.ports.needs.ModelStorageSearchFilter
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterTags
 import io.medatarun.model.ports.needs.ModelStorageSearchFilterText
 import io.medatarun.model.ports.needs.ModelStorageSearchQuery
-import io.medatarun.platform.db.DbConnectionFactory
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
@@ -24,19 +24,19 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
  * Cleary not good at all, need to redo this properly to get everything in one query
  */
 internal class ModelStorageDbSearchRead(
-    private val dbConnectionFactory: DbConnectionFactory
 ) {
     fun search(query: ModelStorageSearchQuery): SearchResults {
-        return dbConnectionFactory.withExposed { searchT(query) }
-    }
-
-    private fun searchT(query: ModelStorageSearchQuery): SearchResults {
         val matchingIds = resolveMatchingSearchItemIds(query)
         if (matchingIds.isEmpty()) {
             return SearchResults(emptyList())
         }
 
-        val rows = DenormModelSearchItemTable.selectAll()
+        val rows = DenormModelSearchItemTable.join(
+            ModelSnapshotTable,
+            org.jetbrains.exposed.v1.core.JoinType.INNER,
+            DenormModelSearchItemTable.modelSnapshotId,
+            ModelSnapshotTable.id
+        ).selectAll()
             .where { DenormModelSearchItemTable.id inList matchingIds.toList() }
             .orderBy(
                 DenormModelSearchItemTable.attributeLabel to SortOrder.ASC,
@@ -45,7 +45,7 @@ internal class ModelStorageDbSearchRead(
                 DenormModelSearchItemTable.modelLabel to SortOrder.ASC
             )
             .toList()
-            .map { DenormModelSearchItemRecord.read(it) }
+            .map { row -> DenormModelSearchItemRecord.read(row, row[ModelSnapshotTable.modelId]) }
 
         return SearchResults(
             rows.map { item ->
