@@ -166,13 +166,13 @@ sealed interface ModelAction {
     )
     data class Model_Create(
         @ActionParamDoc(
-            order = 1,
+            order = 2,
             name = "Model key",
             description = "A key that uniquely names your model across all your models. Two models can not share the same key. Keys are limited to caracters and numbers, as well as some separators."
         )
         val modelKey: ModelKey,
 
-        @ActionParamDoc(order = 2, name = "Name", description = "Human readable name of your model.")
+        @ActionParamDoc(order = 1, name = "Name", description = "Name of the model.")
         val name: LocalizedText,
 
         @ActionParamDoc(
@@ -427,13 +427,13 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Key",
             description = "Key of the type to be created. Must be unique in the model.",
-            order = 20
+            order = 30
         )
         val typeKey: TypeKey,
         @ActionParamDoc(
             name = "Name",
             description = "Display name of the type.",
-            order = 30
+            order = 20
         )
         val name: LocalizedText?,
         @ActionParamDoc(
@@ -518,13 +518,13 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Key",
             description = "Unique key of entity in the model.",
-            order = 20
+            order = 30
         )
         val entityKey: EntityKey,
         @ActionParamDoc(
             name = "Name",
             description = "Display name of entity.",
-            order = 30
+            order = 20
         )
         val name: LocalizedText?,
         @ActionParamDoc(
@@ -536,19 +536,19 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Identity attribute key",
             description = "Key of the attribute that will be created that acts as the entity's identifier.",
-            order = 50
+            order = 51
         )
         val identityAttributeKey: AttributeKey,
         @ActionParamDoc(
             name = "Identity attribute type",
             description = "Type of the attribute that will be created that acts as the entity's identifier.",
-            order = 60
+            order = 52
         )
         val identityAttributeType: TypeRef,
         @ActionParamDoc(
             name = "Identity attribute name",
             description = "Display name of the attribute that will be created that acts as the entity's identifier.",
-            order = 70
+            order = 50
         )
         val identityAttributeName: LocalizedText?,
         @ActionParamDoc(
@@ -1213,7 +1213,12 @@ sealed interface ModelAction {
         description = "Search",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+        semantics = ActionDocSemantics(
+            ActionDocSemanticsMode.DECLARED,
+            ActionDocSemanticsIntent.READ,
+            [],
+            ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"]
+        )
     )
     data class Search(
         val filters: SearchFilters,
@@ -1230,7 +1235,12 @@ sealed interface ModelAction {
         description = "Lists model released versions",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+        semantics = ActionDocSemantics(
+            ActionDocSemanticsMode.DECLARED,
+            ActionDocSemanticsIntent.READ,
+            [],
+            ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"]
+        )
     )
     data class HistoryVersions(
         val modelRef: ModelRef
@@ -1242,7 +1252,12 @@ sealed interface ModelAction {
         description = "Lists changes included in specified version. When no version number is provided, list changes since the last released version.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN,
-        semantics = ActionDocSemantics(ActionDocSemanticsMode.DECLARED, ActionDocSemanticsIntent.READ, [], ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"])
+        semantics = ActionDocSemantics(
+            ActionDocSemanticsMode.DECLARED,
+            ActionDocSemanticsIntent.READ,
+            [],
+            ["model", "tag", "entity", "entity_attribute", "relationship", "relationship_attribute"]
+        )
     )
     data class HistoryVersionChanges(
         val modelRef: ModelRef,
