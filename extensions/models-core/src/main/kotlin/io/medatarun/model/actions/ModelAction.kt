@@ -1175,19 +1175,19 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Role A key",
             description = "Provide a stable code for the first role in this relationship. This code is used to identify the role within the relationship.",
-            order = 50
+            order = 60
         )
         val roleAKey: RelationshipRoleKey,
         @ActionParamDoc(
             name = "Role A entity",
             description = "Entity that participates in this relationship through the first role.",
-            order = 60
+            order = 70
         )
         val roleAEntityRef: EntityRef,
         @ActionParamDoc(
             name = "Role A name",
             description = "Name of the first role. Use it to express how this entity participates in the relationship.",
-            order = 70
+            order = 50
         )
         val roleAName: LocalizedText?,
         @ActionParamDoc(
@@ -1199,19 +1199,19 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Role B key",
             description = "Provide a stable code for the second role in this relationship. This code is used to identify the role within the relationship.",
-            order = 90
+            order = 100
         )
         val roleBKey: RelationshipRoleKey,
         @ActionParamDoc(
             name = "Role B entity",
             description = "Entity that participates in this relationship through the second role.",
-            order = 100
+            order = 110
         )
         val roleBEntityRef: EntityRef,
         @ActionParamDoc(
             name = "Role B name",
             description = "Name of the second role. Use it to express how this entity participates in the relationship.",
-            order = 110
+            order = 90
         )
         val roleBName: LocalizedText?,
         @ActionParamDoc(
@@ -1329,19 +1329,19 @@ sealed interface ModelAction {
         @ActionParamDoc(
             name = "Role key",
             description = "Provide a stable code for this role. This code is used to identify the role within the relationship.",
-            order = 30
+            order = 40
         )
         val roleKey: RelationshipRoleKey,
         @ActionParamDoc(
             name = "Entity",
             description = "Entity that participates in the relationship through this role.",
-            order = 40
+            order = 50
         )
         val roleEntityRef: EntityRef,
         @ActionParamDoc(
             name = "Role name",
             description = "Name of this role. Use it to express how the entity participates in the relationship.",
-            order = 50
+            order = 30
         )
         val roleName: LocalizedText?,
         @ActionParamDoc(
