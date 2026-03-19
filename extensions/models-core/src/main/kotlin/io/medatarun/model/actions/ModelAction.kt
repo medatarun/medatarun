@@ -159,32 +159,35 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_create",
         title = "Create model",
-        description = "Initializes a new model with the provided identifier, display name, optional description, and version.",
+        description = "Creates a new model with a key, a name, an optional description, and an optional version.",
         uiLocations = [ActionUILocation.models],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Create(
         @ActionParamDoc(
-            order = 2,
+            order = 20,
+            name = "Name",
+            description = "Name of this model."
+        )
+        val name: LocalizedText,
+        @ActionParamDoc(
+            order = 30,
             name = "Model key",
-            description = "A key that uniquely names your model across all your models. Two models can not share the same key. Keys are limited to caracters and numbers, as well as some separators."
+            description = "Provide a stable code for this model. This code is used to identify it uniquely across all models. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters."
         )
         val modelKey: ModelKey,
 
-        @ActionParamDoc(order = 1, name = "Name", description = "Name of the model.")
-        val name: LocalizedText,
-
         @ActionParamDoc(
-            order = 3,
+            order = 40,
             name = "Description",
-            description = "Provide a comprehensive description of your model, what is its purpose and usage."
+            description = "Provide a comprehensive description of this model, including what it represents, its business meaning, its role in the company or in the application, its context, its rules, its usage, and any other useful information for someone discovering it."
         )
         val description: LocalizedMarkdown?,
 
         @ActionParamDoc(
-            order = 4,
+            order = 50,
             name = "Version",
-            description = "Initial version number, using semantic-version format."
+            description = "Initial version of this model, using semantic-version format. If not specified, the version will be `0.0.1`."
         )
         val version: ModelVersion?
     ) : ModelAction
@@ -192,21 +195,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_copy",
         title = "Copy model",
-        description = "Make a copy of a model, giving him a new name. The copied model lifecycle will be independant",
+        description = "Creates a copy of a model with a new key. The copied model keeps the same name and has its own lifecycle.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Copy(
         @ActionParamDoc(
-            name = "Source model reference",
-            description = "Reference of the model to be copied",
-            order = 0
+            name = "Model",
+            description = "Model to copy.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "New model key",
-            description = "Key of the new model. Must be unique across all models.",
-            order = 1
+            description = "Provide a stable code for the copied model. This code is used to identify it uniquely across all models. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 20
         )
         val modelNewKey: ModelKey
     ) : ModelAction
@@ -214,21 +217,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_update_key",
         title = "Update model key",
-        description = "Changes model key",
+        description = "Updates the key of a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateKey(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "New model key",
-            description = "New model key value. Must be unique across all models.",
-            order = 1
+            name = "Key",
+            description = "Provide the stable code used to identify this model. It must be unique across all models. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 20
         )
         val value: ModelKey
     ) : ModelAction
@@ -236,21 +239,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_update_name",
         title = "Update model name",
-        description = "Changes model name",
+        description = "Updates the name of a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateName(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "New model name",
-            description = "New model name.",
-            order = 1
+            name = "Name",
+            description = "Name of this model.",
+            order = 20
         )
         val value: LocalizedText
     ) : ModelAction
@@ -258,21 +261,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_update_description",
         title = "Update model description",
-        description = "Changes model description",
+        description = "Updates the description of a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateDescription(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "New description",
-            description = "Fulltext rich description.",
-            order = 1
+            name = "Description",
+            description = "Provide a comprehensive description of this model, including what it represents, its business meaning, its role in the company or in the application, its context, its rules, its usage, and any other useful information for someone discovering it.",
+            order = 20
         )
         val value: LocalizedMarkdown?
     ) : ModelAction
@@ -280,21 +283,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_update_authority",
         title = "Update model authority",
-        description = "Changes model authority between system and canonical.",
+        description = "Updates whether this model serves as a canonical business reference or describes an existing system.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateAuthority(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "New model authority",
-            description = "New model authority value.",
-            order = 1
+            name = "Authority",
+            description = "Choose whether this model serves as a canonical business reference or describes an existing system.",
+            order = 20
         )
         val value: ModelAuthority
     ) : ModelAction
@@ -303,21 +306,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_update_documentation_link",
         title = "Update model external documentation",
-        description = "Provides a link to an external documentation.",
+        description = "Updates the external documentation link of a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_UpdateDocumentationHome(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "URL",
-            description = "Link to the external documentation.",
-            order = 1
+            description = "Link to the external documentation of this model.",
+            order = 20
         )
         val value: String?
     ) : ModelAction
@@ -326,21 +329,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_release",
         title = "Release version",
-        description = "Release a new model version. The new version number must be greater than the previous one.",
+        description = "Releases a new version of a model. The new version must be greater than the previous one.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Release(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to release.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "New model version",
-            description = "New model version.",
-            order = 1
+            name = "Version",
+            description = "New version of this model.",
+            order = 20
         )
         val value: ModelVersion
     ) : ModelAction
@@ -348,21 +351,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_add_tag",
         title = "Add tag to model",
-        description = "Adds a tag to a model",
+        description = "Adds a tag to a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_AddTag(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "Tag to add",
-            description = "Tag to add",
-            order = 1
+            name = "Tag",
+            description = "Tag to add to this model.",
+            order = 20
         )
         val tag: TagRef
     ) : ModelAction
@@ -370,21 +373,21 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_delete_tag",
         title = "Delete tag from model",
-        description = "Deletes a tag from a model.",
+        description = "Removes a tag from a model.",
         uiLocations = [ActionUILocation.model_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_DeleteTag(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be updated",
-            order = 0
+            name = "Model",
+            description = "Model to update.",
+            order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            name = "Tag to delete",
-            description = "Tag to delete",
-            order = 1
+            name = "Tag",
+            description = "Tag to remove from this model.",
+            order = 20
         )
         val tag: TagRef
     ) : ModelAction
@@ -398,9 +401,9 @@ sealed interface ModelAction {
     )
     data class Model_Delete(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to be delete",
-            order = 0
+            name = "Model",
+            description = "Model to delete.",
+            order = 10
         )
         val modelRef: ModelRef
     ) : ModelAction
