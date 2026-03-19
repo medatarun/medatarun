@@ -500,9 +500,9 @@ export function useModelSummaries() {
   });
 }
 
-export function useModel(modelKey: string) {
+export function useModel(modelId: string) {
   return useQuery({
-    queryKey: ["model", modelKey],
-    queryFn: () => fetchModel(modelKey),
+    queryKey: ["model", modelId],
+    queryFn: () => fetchModel(modelId),
   });
 }
