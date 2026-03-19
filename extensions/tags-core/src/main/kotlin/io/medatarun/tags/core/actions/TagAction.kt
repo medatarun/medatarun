@@ -93,7 +93,13 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_free_detail],
         securityRule = TagSecurityRules.TAG_FREE_MANAGE
     )
-    class TagFreeDelete(val tagRef: TagRef) : TagAction
+    class TagFreeDelete(
+        @ActionParamDoc(
+            name = "Tag",
+            description = "Reference of the tag to delete."
+        )
+        val tagRef: TagRef
+    ) : TagAction
 
     // ------------------------------------------------------------------------
     // ManagedTagGroup
@@ -106,7 +112,25 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_group_list],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
-    class TagGroupCreate(val key: TagGroupKey, val name: String?, val description: String?) : TagAction
+    class TagGroupCreate(
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of the tag.",
+            order = 1,
+        )
+        val name: String?,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Unique key for this group. Keys must be unique across all groups.",
+            order = 2,
+        )
+        val key: TagGroupKey,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Description of usages and meaning of this group, what kind of tags it can contain.",
+            order = 3,
+        )
+        val description: String?) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_name",
@@ -115,7 +139,19 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
         securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
     )
-    class TagGroupUpdateName(val tagGroupRef: TagGroupRef, val value: String) : TagAction
+    class TagGroupUpdateName(
+        @ActionParamDoc(
+            name = "Tag group",
+            description = "Reference of the group to update",
+            order = 1,
+        )
+        val tagGroupRef: TagGroupRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "New name of the group",
+            order = 2,
+        )
+        val value: String) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_description",
@@ -124,7 +160,19 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
         securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
     )
-    class TagGroupUpdateDescription(val tagGroupRef: TagGroupRef, val value: String) : TagAction
+    class TagGroupUpdateDescription(
+        @ActionParamDoc(
+            name = "Tag group",
+            description = "Reference of the group to update",
+            order = 1,
+        )
+        val tagGroupRef: TagGroupRef,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Description of usages and meaning of this group, what kind of tags it can contain.",
+            order = 2,
+        )
+        val value: String) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_key",
@@ -133,7 +181,19 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_group_detail],
         securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
     )
-    class TagGroupUpdateKey(val tagGroupRef: TagGroupRef, val value: TagGroupKey) : TagAction
+    class TagGroupUpdateKey(
+        @ActionParamDoc(
+            name = "Tag group",
+            description = "Reference of the group to update",
+            order = 1,
+        )
+        val tagGroupRef: TagGroupRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "New group key. Must be unique across all groups.",
+            order = 2,
+        )
+        val value: TagGroupKey) : TagAction
 
     @ActionDoc(
         key = "tag_group_delete",
@@ -155,7 +215,8 @@ sealed interface TagAction {
         uiLocations = [TagActionUILocation.tag_managed_list],
         securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
     )
-    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagKey, val name: String?, val description: String?) : TagAction
+    class TagManagedCreate(val groupRef: TagGroupRef, val key: TagKey, val name: String?, val description: String?) :
+        TagAction
 
     @ActionDoc(
         key = "tag_managed_update_name",
@@ -206,10 +267,11 @@ sealed interface TagAction {
     )
     class TagSearch(
         @ActionParamDoc(
-            name="filters",
+            name = "filters",
             description = ""
         )
-        val filters: TagSearchFilters?) : TagAction
+        val filters: TagSearchFilters?
+    ) : TagAction
 
     @ActionDoc(
         key = "tag_group_list",
