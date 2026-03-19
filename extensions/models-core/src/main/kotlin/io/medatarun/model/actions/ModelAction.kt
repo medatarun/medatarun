@@ -66,7 +66,7 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_list",
         title = "Models list",
-        description = "Returns a summary list of the models",
+        description = "Returns a summary list of the models.",
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
@@ -75,15 +75,15 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_export",
         title = "Export model",
-        description = "Returns an exporter view of the model",
+        description = "Returns the exported view of a model.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Model_Export(
         @ActionParamDoc(
-            order = 1,
-            name = "Model ref",
-            description = "Reference of the model to export"
+            order = 10,
+            name = "Model",
+            description = "Model to export."
         )
         val modelRef: ModelRef,
     ) : ModelAction
@@ -91,22 +91,22 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "model_export_version",
         title = "Export model at a specific version",
-        description = "Returns an exporter view of the model",
+        description = "Returns the exported view of a model at a specific version.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
 
     data class Model_Export_Version(
         @ActionParamDoc(
-            order = 1,
-            name = "Model ref",
-            description = "Reference of the model to export"
+            order = 10,
+            name = "Model",
+            description = "Model to export."
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
-            order = 1,
-            name = "Model version",
-            description = "Reference of the model to export"
+            order = 20,
+            name = "Version",
+            description = "Version of the model to export."
         )
         val version: ModelVersion,
     ) : ModelAction
@@ -121,33 +121,33 @@ sealed interface ModelAction {
     )
     data class Compare(
         @ActionParamDoc(
-            order = 1,
-            name = "Left model ref",
-            description = "Reference of the left model state to compare."
+            order = 10,
+            name = "Left model",
+            description = "Left model to compare."
         )
         val leftModelRef: ModelRef,
         @ActionParamDoc(
-            order = 2,
-            name = "Left model version",
-            description = "Specific version of the left model state to compare. If null, the current model state is used."
+            order = 20,
+            name = "Left version",
+            description = "Version of the left model to compare. If not specified, the current state is used."
         )
         val leftModelVersion: ModelVersion?,
         @ActionParamDoc(
-            order = 3,
-            name = "Right model ref",
-            description = "Reference of the right model state to compare."
+            order = 30,
+            name = "Right model",
+            description = "Right model to compare."
         )
         val rightModelRef: ModelRef,
         @ActionParamDoc(
-            order = 4,
-            name = "Right model version",
-            description = "Specific version of the right model state to compare. If null, the current model state is used."
+            order = 40,
+            name = "Right version",
+            description = "Version of the right model to compare. If not specified, the current state is used."
         )
         val rightModelVersion: ModelVersion?,
         @ActionParamDoc(
-            order = 5,
-            name = "Diff scope",
-            description = "Comparison scope to apply: STRUCTURAL or COMPLETE."
+            order = 50,
+            name = "Comparison scope",
+            description = "Choose whether to compare only the structure of the two models, or the structure together with their names, descriptions, and other texts."
         )
         val scope: ModelDiffScope
     ) : ModelAction
