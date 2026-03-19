@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelVersion
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class Entity_UpdateName_Test {
 
     @Test
     fun `update entity name not null persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val newName = LocalizedTextNotLocalized("Entity primary updated")
 
         env.dispatch(ModelAction.Entity_UpdateName(env.modelRef, env.primaryEntityRef, newName))
@@ -22,7 +21,7 @@ class Entity_UpdateName_Test {
 
     @Test
     fun `update entity name null then name is null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
 
         env.dispatch(ModelAction.Entity_UpdateName(env.modelRef, env.primaryEntityRef, null))
 
@@ -32,7 +31,7 @@ class Entity_UpdateName_Test {
 
     @Test
     fun `update entity name after release persists on current model`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val newName = LocalizedTextNotLocalized("Entity primary after release")
 
         env.dispatch(ModelAction.Model_Release(env.modelRef, ModelVersion("1.1.0")))

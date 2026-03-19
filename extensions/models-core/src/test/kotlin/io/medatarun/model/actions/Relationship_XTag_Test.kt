@@ -1,17 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipAttributeRef
-import io.medatarun.model.domain.RelationshipCardinality
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipRef
-import io.medatarun.model.domain.RelationshipRoleKey
-import io.medatarun.model.domain.typeRef
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -23,7 +13,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add and delete tag on relationship persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("works-with")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val managedTag = env.runtime.createManagedTag("g-rel", "t-rel")
@@ -54,7 +44,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add local tag of same model on relationship persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("works-with")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-rel-tag")
@@ -82,7 +72,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add local tag of another model on relationship then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("works-with")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val foreignModelRef = modelRefKey("model-rel-2")
@@ -105,7 +95,7 @@ class Relationship_XTag_Test {
         )
         env.runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("model-rel-2"),
+                key = ModelKey("model-rel-2"),
                 name = LocalizedTextNotLocalized("Model rel 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -120,7 +110,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add and delete tag on relationship attribute persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("employs")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
@@ -181,7 +171,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add local tag of same model on relationship attribute persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("employs")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
@@ -230,7 +220,7 @@ class Relationship_XTag_Test {
 
     @Test
     fun `add local tag of another model on relationship attribute then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("employs")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
@@ -265,7 +255,7 @@ class Relationship_XTag_Test {
         )
         env.runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("model-rel-attr-2"),
+                key = ModelKey("model-rel-attr-2"),
                 name = LocalizedTextNotLocalized("Model rel attr 2"),
                 description = null,
                 version = ModelVersion("1.0.0")

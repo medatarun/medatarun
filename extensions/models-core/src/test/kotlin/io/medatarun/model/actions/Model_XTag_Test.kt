@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
@@ -15,7 +14,7 @@ class Model_XTag_Test {
 
     @Test
     fun `add and delete tag on model persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val managedTag = env.runtime.createManagedTag("g-model", "t-model")
 
         env.dispatch(ModelAction.Model_AddTag(env.modelRef, managedTag.ref))
@@ -27,7 +26,7 @@ class Model_XTag_Test {
 
     @Test
     fun `add local tag of same model on model persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-model-tag")
 
         env.dispatch(ModelAction.Model_AddTag(env.modelRef, localTag.ref))
@@ -36,11 +35,11 @@ class Model_XTag_Test {
 
     @Test
     fun `add local tag of another model on model then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val foreignModelRef = modelRefKey("m2")
         env.runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("m2"),
+                key = ModelKey("m2"),
                 name = LocalizedTextNotLocalized("Model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")

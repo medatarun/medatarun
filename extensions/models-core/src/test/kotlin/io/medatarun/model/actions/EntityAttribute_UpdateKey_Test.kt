@@ -12,7 +12,7 @@ class EntityAttribute_UpdateKey_Test {
 
     @Test
     fun `update attribute key with duplicate key throws exception`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("lastname"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))
@@ -35,7 +35,7 @@ class EntityAttribute_UpdateKey_Test {
 
     @Test
     fun `update attribute key with correct key works`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute(AttributeKey("lastname"))
         env.createAttribute(AttributeKey("firstname"))
@@ -56,7 +56,7 @@ class EntityAttribute_UpdateKey_Test {
 
     @Test
     fun `update attribute key does not loose entity identifier attribute`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val e = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
         val attrId = e.identifierAttributeId

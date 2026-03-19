@@ -10,7 +10,7 @@ class EntityAttribute_UpdateOptional_Test {
 
     @Test
     fun `update attribute optional true to false is persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(optional = true)
         val nextValue = false
@@ -24,7 +24,7 @@ class EntityAttribute_UpdateOptional_Test {
 
     @Test
     fun `update attribute optional false to true is persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(optional = false)
         val nextValue = true

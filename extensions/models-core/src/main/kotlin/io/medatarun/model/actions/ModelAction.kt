@@ -165,18 +165,17 @@ sealed interface ModelAction {
     )
     data class Model_Create(
         @ActionParamDoc(
+            order = 30,
+            name = "Model key",
+            description = "Provide a stable code for this model. This code is used to identify it uniquely across all models. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters."
+        )
+        val key: ModelKey,
+        @ActionParamDoc(
             order = 20,
             name = "Name",
             description = "Name of this model."
         )
         val name: LocalizedText,
-        @ActionParamDoc(
-            order = 30,
-            name = "Model key",
-            description = "Provide a stable code for this model. This code is used to identify it uniquely across all models. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters."
-        )
-        val modelKey: ModelKey,
-
         @ActionParamDoc(
             order = 40,
             name = "Description",
@@ -415,33 +414,33 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "type_create",
         title = "Create type",
-        description = "Create type definition in an existing model, optionally supplying user-facing name and description.",
+        description = "Creates a data type in an existing model.",
         uiLocations = [ActionUILocation.model_types],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_Create(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to which the type will be added.",
+            name = "Model",
+            description = "Model where this data type will be created.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Key",
-            description = "Key of the type to be created. Must be unique in the model.",
+            description = "Provide a stable code for this data type. This code is used to identify it uniquely in the model. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
             order = 30
         )
         val typeKey: TypeKey,
         @ActionParamDoc(
             name = "Name",
-            description = "Display name of the type.",
+            description = "Name of this data type.",
             order = 20
         )
         val name: LocalizedText?,
         @ActionParamDoc(
-            "Description",
-            "Description of the type, when and what for it should be used. Express constraints and rules for this type.",
-            order = 50
+            name = "Description",
+            description = "Provide a comprehensive description of this data type, including what it represents, its business meaning, its context, its rules, how it should be used, and any other useful information for someone discovering it.",
+            order = 40
         )
         val description: LocalizedMarkdown?
     ) : ModelAction
@@ -450,39 +449,84 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "type_update_key",
         title = "Update type key",
-        description = "Updates a type key",
+        description = "Updates the key of a data type.",
         uiLocations = [ActionUILocation.type_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateKey(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this data type is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Type",
+            description = "Data type to update.",
+            order = 20
+        )
         val typeRef: TypeRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide the stable code used to identify this data type. It must be unique in the model. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 30
+        )
         val value: TypeKey
     ) : ModelAction
 
     @ActionDoc(
         key = "type_update_name",
         title = "Update type name",
-        description = "Updates a type name",
+        description = "Updates the name of a data type.",
         uiLocations = [ActionUILocation.type_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateName(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this data type is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Type",
+            description = "Data type to update.",
+            order = 20
+        )
         val typeRef: TypeRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this data type.",
+            order = 30
+        )
         val value: LocalizedText?
     ) : ModelAction
 
     @ActionDoc(
         key = "type_update_description",
         title = "Update type description",
-        description = "Updates a type description",
+        description = "Updates the description of a data type.",
         uiLocations = [ActionUILocation.type_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_UpdateDescription(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this data type is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Type",
+            description = "Data type to update.",
+            order = 20
+        )
         val typeRef: TypeRef,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Provide a comprehensive description of this data type, including what it represents, its business meaning, its context, its rules, how it should be used, and any other useful information for someone discovering it.",
+            order = 30
+        )
         val value: LocalizedMarkdown?
     ) :
         ModelAction
@@ -490,12 +534,22 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "type_delete",
         title = "Delete type",
-        description = "Delete type definition from an existing model. This will fail if this type is used in entity definition's attributes.",
+        description = "Deletes a data type from a model. This action fails if the data type is still used by entity attributes.",
         uiLocations = [ActionUILocation.type],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Type_Delete(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this data type is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Type",
+            description = "Data type to delete.",
+            order = 20
+        )
         val typeRef: TypeRef
     ) : ModelAction
 

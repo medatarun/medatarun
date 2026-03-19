@@ -1,6 +1,9 @@
 package io.medatarun.model.infra.db.aggregate
 
-import io.medatarun.model.domain.*
+import io.medatarun.model.domain.AttributeSnapshotId
+import io.medatarun.model.domain.EntitySnapshotId
+import io.medatarun.model.domain.ModelSnapshotId
+import io.medatarun.model.domain.RelationshipSnapshotId
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntity
 import io.medatarun.model.infra.db.ModelStorageAdapters.toEntityAttribute
@@ -17,8 +20,7 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
-class ModelStorageDbAggregateReader(
-) {
+class ModelStorageDbAggregateReader {
 
     fun loadModelAggregateOptional(snapshotSelector: SnapshotSelector): ModelAggregateInMemory? {
         val row = ModelSnapshotTable.selectAll()

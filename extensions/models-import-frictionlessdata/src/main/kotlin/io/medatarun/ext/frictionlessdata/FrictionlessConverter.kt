@@ -13,9 +13,7 @@ import io.medatarun.tags.core.domain.TagId
 import org.slf4j.LoggerFactory
 import java.net.URI
 
-class FrictionlessConverter(
-
-) {
+class FrictionlessConverter {
     val ser = DataPackageSerializer()
 
     fun isCompatible(path: String, resourceLocator: ResourceLocator): Boolean {

@@ -5,7 +5,7 @@ import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.security.AppPrincipal
 
-class ActionRequestCtxFactory() {
+class ActionRequestCtxFactory {
     fun create(principal: AppPrincipal?, source: String): ActionRequestCtx {
         return object : ActionRequestCtx {
 

@@ -1,37 +1,14 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.AttributeOwnerId
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.ModelAuthority
-import io.medatarun.model.domain.ModelDuplicateKeyException
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipAttributeRef
-import io.medatarun.model.domain.RelationshipCardinality
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipRef
-import io.medatarun.model.domain.RelationshipRoleKey
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
 import org.junit.jupiter.api.Test
 import java.net.URI
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 
 class Model_Copy_Test {
@@ -42,14 +19,14 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model creates an independent model with the requested key`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-core")
         val copiedKey = ModelKey("copy-target-core")
         val sourceName = LocalizedTextNotLocalized("Source model")
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = sourceName,
                 description = LocalizedMarkdownNotLocalized("Source description"),
                 version = ModelVersion("1.2.3")
@@ -72,13 +49,13 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model does not modify the source model`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-unchanged")
         val copiedKey = ModelKey("copy-target-unchanged")
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = LocalizedTextNotLocalized("Source model"),
                 description = LocalizedMarkdownNotLocalized("Before copy"),
                 version = ModelVersion("2.0.0")
@@ -110,7 +87,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model assigns new ids to copied model, types, entities, relationships, roles and attributes`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-ids")
         val copiedKey = ModelKey("copy-target-ids")
         val sourceRef = modelRefKey(sourceKey)
@@ -229,12 +206,12 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model is rejected when destination key already exists`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-dup")
         val existingTargetKey = ModelKey("copy-target-dup")
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = LocalizedTextNotLocalized("Source"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -242,7 +219,7 @@ class Model_Copy_Test {
         )
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = existingTargetKey,
+                key = existingTargetKey,
                 name = LocalizedTextNotLocalized("Already exists"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -261,7 +238,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model is rejected when source model does not exist`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
 
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
@@ -275,12 +252,12 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model works for a minimal model without entities relationships or attributes`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-min")
         val copiedKey = ModelKey("copy-target-min")
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = LocalizedTextNotLocalized("Minimal model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -302,7 +279,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same model name description version origin and documentationHome`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-model-fields")
         val copiedKey = ModelKey("copy-target-model-fields")
         val sourceRef = modelRefKey(sourceKey)
@@ -313,7 +290,7 @@ class Model_Copy_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = sourceName,
                 description = sourceDescription,
                 version = sourceVersion
@@ -334,14 +311,14 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model always sets copied model authority to system`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-model-authority")
         val copiedKey = ModelKey("copy-target-model-authority")
         val sourceRef = modelRefKey(sourceKey)
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = LocalizedTextNotLocalized("Source model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -363,13 +340,13 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same type keys names and descriptions`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-types")
         val copiedKey = ModelKey("copy-target-types")
         val sourceRef = modelRefKey(sourceKey)
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = sourceKey,
+                key = sourceKey,
                 name = LocalizedTextNotLocalized("Type source"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -410,7 +387,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same entity keys names descriptions and documentationHome`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-entity-fields")
         val copiedKey = ModelKey("copy-target-entity-fields")
         val sourceRef = modelRefKey(sourceKey)
@@ -445,7 +422,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps each entity identity attribute pointing to an attribute of that copied entity`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-identity-attr")
         val copiedKey = ModelKey("copy-target-identity-attr")
         val sourceRef = modelRefKey(sourceKey)
@@ -481,7 +458,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same entity attribute keys names descriptions optional flags and owner entity`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-entity-attrs")
         val copiedKey = ModelKey("copy-target-entity-attrs")
         val sourceRef = modelRefKey(sourceKey)
@@ -528,7 +505,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model entity attributes point to copied types with the same type keys`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-entity-attr-type")
         val copiedKey = ModelKey("copy-target-entity-attr-type")
         val sourceRef = modelRefKey(sourceKey)
@@ -577,7 +554,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same relationship keys names and descriptions`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-rel-fields")
         val copiedKey = ModelKey("copy-target-rel-fields")
         val sourceRef = modelRefKey(sourceKey)
@@ -617,7 +594,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps relationship roles with same keys names and cardinalities`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-role-fields")
         val copiedKey = ModelKey("copy-target-role-fields")
         val sourceRef = modelRefKey(sourceKey)
@@ -658,7 +635,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps each relationship role pointing to the copied entity matching the same entity key`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-role-entity")
         val copiedKey = ModelKey("copy-target-role-entity")
         val sourceRef = modelRefKey(sourceKey)
@@ -714,7 +691,7 @@ class Model_Copy_Test {
      */
     @Test
     fun `copy model keeps roles targeting same entity key on copied self reference relationships`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-self-rel")
         val copiedKey = ModelKey("copy-target-self-rel")
         val sourceRef = modelRefKey(sourceKey)
@@ -762,7 +739,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same relationship attribute keys names descriptions optional flags and owner relationship`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-rel-attrs")
         val copiedKey = ModelKey("copy-target-rel-attrs")
         val sourceRef = modelRefKey(sourceKey)
@@ -814,7 +791,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model relationship attributes point to copied types with the same type keys`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-rel-attr-type")
         val copiedKey = ModelKey("copy-target-rel-attr-type")
         val sourceRef = modelRefKey(sourceKey)
@@ -868,7 +845,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model recreates local model tags with same keys names descriptions new ids and copied model local scope`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-model-tag")
         val copiedKey = ModelKey("copy-target-local-model-tag")
         val sourceRef = modelRefKey(sourceKey)
@@ -899,7 +876,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model recreates local entity tags with same keys names descriptions new ids and copied model local scope`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-entity-tag")
         val copiedKey = ModelKey("copy-target-local-entity-tag")
         val sourceRef = modelRefKey(sourceKey)
@@ -930,7 +907,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model recreates local entity attribute tags with same keys names descriptions new ids and copied model local scope`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-entity-attr-tag")
         val copiedKey = ModelKey("copy-target-local-entity-attr-tag")
         val sourceRef = modelRefKey(sourceKey)
@@ -964,7 +941,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model recreates local relationship tags with same keys names descriptions new ids and copied model local scope`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-rel-tag")
         val copiedKey = ModelKey("copy-target-local-rel-tag")
         val sourceRef = modelRefKey(sourceKey)
@@ -1013,7 +990,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model recreates local relationship attribute tags with same keys names descriptions new ids and copied model local scope`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-rel-attr-tag")
         val copiedKey = ModelKey("copy-target-local-rel-attr-tag")
         val sourceRef = modelRefKey(sourceKey)
@@ -1075,7 +1052,7 @@ class Model_Copy_Test {
 
     @Test
     fun `copy model keeps same global tag ids on model entities entity attributes relationships and relationship attributes`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val sourceKey = ModelKey("copy-source-global-tags")
         val copiedKey = ModelKey("copy-target-global-tags")
         val sourceRef = modelRefKey(sourceKey)

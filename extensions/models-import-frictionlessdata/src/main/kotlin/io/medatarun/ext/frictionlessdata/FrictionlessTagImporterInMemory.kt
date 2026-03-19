@@ -8,8 +8,7 @@ import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.internal.TagInMemory
 import io.medatarun.type.commons.id.Id
 
-class FrictionlessTagImporterInMemory(
-) : FrictionlessTagImporter {
+class FrictionlessTagImporterInMemory : FrictionlessTagImporter {
 
     val tags = mutableMapOf<String, TagInMemory>()
 

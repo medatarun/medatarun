@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateType
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeNotFoundException
@@ -14,7 +13,7 @@ class EntityAttribute_UpdateType_Test {
 
     @Test
     fun `update attribute type is persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val typeMarkdownKey = TypeKey("Markdown")
         env.dispatch(ModelAction.Type_Create(env.sampleModelRef, typeMarkdownKey, null, null))
@@ -38,13 +37,13 @@ class EntityAttribute_UpdateType_Test {
 
     @Test
     fun `update attribute unknown type then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         val attr = env.createAttribute(type = typeRef(type.id))
         assertThrows<TypeNotFoundException> {
             env.dispatch(
-                ModelAction.EntityAttribute_UpdateType(
+                EntityAttribute_UpdateType(
                     env.sampleModelRef,
                     env.sampleEntityRef,
                     entityAttributeRef(attr.key),

@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelDuplicateKeyException
 import io.medatarun.model.domain.ModelKey
@@ -15,7 +14,7 @@ class Model_UpdateKey_Test {
 
     @Test
     fun `updates on model key persists the key`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val oldKey = ModelKey("m1")
         val newKey = ModelKey("m1-renamed")
 
@@ -32,13 +31,13 @@ class Model_UpdateKey_Test {
 
     @Test
     fun `updates on model key throws when key is already used by another model`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val firstModelKey = ModelKey("m1")
         val secondModelKey = ModelKey("m2")
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = firstModelKey,
+                key = firstModelKey,
                 name = LocalizedTextNotLocalized("Model 1"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -46,7 +45,7 @@ class Model_UpdateKey_Test {
         )
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = secondModelKey,
+                key = secondModelKey,
                 name = LocalizedTextNotLocalized("Model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")

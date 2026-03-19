@@ -73,7 +73,7 @@ class ModelActionHandler(
     fun modelCreate(action: ModelAction.Model_Create) {
         dispatch(
             ModelCmd.CreateModel(
-                modelKey = action.modelKey,
+                modelKey = action.key,
                 name = action.name,
                 description = action.description,
                 version = action.version ?: ModelVersion("0.0.1")

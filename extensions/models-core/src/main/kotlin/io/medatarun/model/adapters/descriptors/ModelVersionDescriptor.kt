@@ -16,5 +16,5 @@ class ModelVersionDescriptor : TypeDescriptor<ModelVersion> {
     }
     override val jsonConverter: TypeJsonConverter<ModelVersion> = ModelVersionTypeJsonConverter()
 
-    override val description: String = ModelVersion.Companion.DESCRIPTION
+    override val description: String = ModelVersion.DESCRIPTION
 }

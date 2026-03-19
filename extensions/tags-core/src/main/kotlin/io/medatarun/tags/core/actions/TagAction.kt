@@ -156,12 +156,6 @@ sealed interface TagAction {
     )
     class TagGroupCreate(
         @ActionParamDoc(
-            name = "Name",
-            description = "Name of this group.",
-            order = 20,
-        )
-        val name: String?,
-        @ActionParamDoc(
             name = "Key",
             description = """
                 Stable business code used to identify this group.
@@ -171,6 +165,12 @@ sealed interface TagAction {
             order = 30,
         )
         val key: TagGroupKey,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this group.",
+            order = 20,
+        )
+        val name: String?,
         @ActionParamDoc(
             name = "Description",
             description = "Explain what this group is for and which tags belong in it.",
@@ -280,12 +280,6 @@ sealed interface TagAction {
         )
         val groupRef: TagGroupRef,
         @ActionParamDoc(
-            name = "Name",
-            description = "Name of this tag.",
-            order = 20,
-        )
-        val name: String?,
-        @ActionParamDoc(
             name = "Key",
             description = """
                 Stable business code used to identify this tag inside its group.
@@ -295,6 +289,12 @@ sealed interface TagAction {
             order = 30,
         )
         val key: TagKey,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this tag.",
+            order = 20,
+        )
+        val name: String?,
         @ActionParamDoc(
             name = "Description",
             description = "Explain what this tag means and when it should be used.",
@@ -416,5 +416,5 @@ sealed interface TagAction {
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
-    class TagGroupList() : TagAction
+    class TagGroupList : TagAction
 }

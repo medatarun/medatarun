@@ -27,7 +27,7 @@ class ModelEventLogTest {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("crm"),
+                key = ModelKey("crm"),
                 name = LocalizedTextNotLocalized("CRM"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -66,7 +66,7 @@ class ModelEventLogTest {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("crm"),
+                key = ModelKey("crm"),
                 name = LocalizedTextNotLocalized("CRM"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -122,7 +122,7 @@ class ModelEventLogTest {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("source"),
+                key = ModelKey("source"),
                 name = LocalizedTextNotLocalized("Source"),
                 description = null,
                 version = ModelVersion("1.0.0")

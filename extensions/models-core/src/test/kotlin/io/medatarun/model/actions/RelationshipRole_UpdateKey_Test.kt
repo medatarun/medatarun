@@ -1,8 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.RelationshipRoleUpdateDuplicateKeyException
 import io.medatarun.model.domain.RelationshipRoleKey
+import io.medatarun.model.domain.RelationshipRoleUpdateDuplicateKeyException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -11,7 +10,7 @@ class RelationshipRole_UpdateKey_Test {
 
     @Test
     fun `update relationship role key persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val newRoleKey = RelationshipRoleKey("buyer-updated")
         val updatedRoleId = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
@@ -31,7 +30,7 @@ class RelationshipRole_UpdateKey_Test {
 
     @Test
     fun `update relationship role key with duplicate key then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<RelationshipRoleUpdateDuplicateKeyException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateKey(

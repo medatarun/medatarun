@@ -1,16 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipNotFoundException
-import io.medatarun.model.domain.RelationshipRef
-import io.medatarun.model.domain.RelationshipRoleKey
-import io.medatarun.model.domain.RelationshipRoleNotFoundException
-import io.medatarun.model.domain.RelationshipRoleRef
-import io.medatarun.model.domain.modelRef
+import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -19,7 +9,7 @@ class RelationshipRole_UpdateX_Test {
 
     @Test
     fun `update relationship role using relationship role ref by key resolved`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val newName = LocalizedTextNotLocalized("Buyer by key")
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
@@ -37,7 +27,7 @@ class RelationshipRole_UpdateX_Test {
 
     @Test
     fun `update relationship role using relationship role ref by id resolved`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val roleId = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == env.roleAKey }
             .id
@@ -59,7 +49,7 @@ class RelationshipRole_UpdateX_Test {
 
     @Test
     fun `update relationship role with wrong model id throws ModelNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateName(
@@ -74,7 +64,7 @@ class RelationshipRole_UpdateX_Test {
 
     @Test
     fun `update relationship role with wrong relationship id throws RelationshipNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<RelationshipNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateName(
@@ -89,7 +79,7 @@ class RelationshipRole_UpdateX_Test {
 
     @Test
     fun `update relationship role with wrong role id throws RelationshipRoleNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<RelationshipRoleNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateName(

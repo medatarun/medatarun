@@ -5,9 +5,7 @@ import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.model.ports.needs.ModelImporterData
 import io.medatarun.platform.kernel.ResourceLocator
 
-class FrictionlessdataModelImporter(
-
-) : ModelImporter {
+class FrictionlessdataModelImporter : ModelImporter {
     val converter = FrictionlessConverter()
     override fun accept(
         path: String,

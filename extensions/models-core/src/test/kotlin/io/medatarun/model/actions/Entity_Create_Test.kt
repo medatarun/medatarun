@@ -1,13 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityOrigin
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.typeRef
+import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
@@ -52,7 +45,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity with null name then name shall be null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityKey = EntityKey("entity-null-name")
         val entityRef = EntityRef.ByKey(entityKey)
         val description = LocalizedMarkdownNotLocalized("Entity without name")
@@ -81,7 +74,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity with null description then description shall be null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityKey = EntityKey("entity-null-description")
         val entityRef = EntityRef.ByKey(entityKey)
         val name = LocalizedTextNotLocalized("Entity without description")
@@ -108,7 +101,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity with null attribute name and description then name and desc shall be null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityKey = EntityKey("entity-null-attr-name")
         val entityRef = EntityRef.ByKey(entityKey)
         val description = LocalizedMarkdownNotLocalized("Entity without name")
@@ -134,7 +127,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity with documentation home null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityKey = EntityKey("entity-null-attr-name")
         val entityRef = EntityRef.ByKey(entityKey)
         env.dispatch(
@@ -154,7 +147,7 @@ class Entity_Create_Test {
 
     @Test
     fun `create entity with documentation home not null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityKey = EntityKey("entity-null-attr-name")
         val entityRef = EntityRef.ByKey(entityKey)
         val url = URI("http://localhost:8080").toURL()

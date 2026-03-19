@@ -1,23 +1,8 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelId
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipAttributeRef
-import io.medatarun.model.domain.RelationshipCardinality
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipRef
-import io.medatarun.model.domain.RelationshipRoleKey
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
@@ -307,47 +292,47 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
     }
 
     class Builder {
-        private val fixture = SearchFixture(_root_ide_package_.io.medatarun.model.actions.createEnv())
+        private val fixture = SearchFixture(createEnv())
 
         fun addGlobalTags(): Builder {
             createTagGroup(
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.key,
+                key = refs.tags.global.gdpr.key,
                 name = "GDPR",
                 description = "Managed tags used to classify data under GDPR-related categories."
             )
             createManagedTag(
-                groupKey = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.key,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.personal_data.key,
+                groupKey = refs.tags.global.gdpr.key,
+                key = refs.tags.global.gdpr.personal_data.key,
                 name = "Personal data",
                 description = "Data related to an identified or identifiable natural person."
             )
             createManagedTag(
-                groupKey = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.key,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.special_category_data.key,
+                groupKey = refs.tags.global.gdpr.key,
+                key = refs.tags.global.gdpr.special_category_data.key,
                 name = "Special category data",
                 description = "Special categories of personal data under GDPR article 9 (health, religion, political opinions, biometrics, etc.)."
             )
 
             createTagGroup(
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.key,
+                key = refs.tags.global.security.key,
                 name = "Security",
                 description = "Managed tags used to classify security exposure and visibility levels."
             )
             createManagedTag(
-                groupKey = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.key,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.public.key,
+                groupKey = refs.tags.global.security.key,
+                key = refs.tags.global.security.public.key,
                 name = "Public",
                 description = "Data intentionally public outside the company."
             )
             createManagedTag(
-                groupKey = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.key,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.internal.key,
+                groupKey = refs.tags.global.security.key,
+                key = refs.tags.global.security.internal.key,
                 name = "Internal",
                 description = "Internal company data that is not public."
             )
             createManagedTag(
-                groupKey = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.key,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.confidential.key,
+                groupKey = refs.tags.global.security.key,
+                key = refs.tags.global.security.confidential.key,
                 name = "Confidential",
                 description = "Data with limited or hidden visibility, such as passwords or PINs."
             )
@@ -376,16 +361,16 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref).id
+            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
             createLocalTag(
                 modelId = modelId,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.crm.ui_result.key,
+                key = refs.tags.local.crm.ui_result.key,
                 name = "UI result",
                 description = "Displayed as a result item in CRM screens."
             )
             createLocalTag(
                 modelId = modelId,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.crm.ui_search.key,
+                key = refs.tags.local.crm.ui_search.key,
                 name = "UI search",
                 description = "Used as a search criterion in CRM screens."
             )
@@ -393,10 +378,10 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref).id
+            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
             createLocalTag(
                 modelId = modelId,
-                key = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.cooking.imported.key,
+                key = refs.tags.local.cooking.imported.key,
                 name = "Imported",
                 description = "Imported from another system in the Cooking model."
             )
@@ -404,50 +389,50 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun tagWithCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref).id
-            val uiResult = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.crm.ui_result.ref(modelId)
-            val uiSearch = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.crm.ui_search.ref(modelId)
-            val gdprPersonalData = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.personal_data.ref
-            val securityInternal = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.internal.ref
-            val securityPublic = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.public.ref
-            val securityConfidential = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.confidential.ref
+            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
+            val uiResult = refs.tags.local.crm.ui_result.ref(modelId)
+            val uiSearch = refs.tags.local.crm.ui_search.ref(modelId)
+            val gdprPersonalData = refs.tags.global.gdpr.personal_data.ref
+            val securityInternal = refs.tags.global.security.internal.ref
+            val securityPublic = refs.tags.global.security.public.ref
+            val securityConfidential = refs.tags.global.security.confidential.ref
 
             //@formatter:off
-            fixture.env.dispatch(ModelAction.Entity_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, uiResult))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.name.ref, gdprPersonalData))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.name.ref, securityInternal))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.name.ref, uiSearch))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.email.ref, gdprPersonalData))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.email.ref, securityInternal))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.email.ref, uiSearch))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.person.attr.password.ref, securityConfidential))
+            fixture.env.dispatch(ModelAction.Entity_AddTag(refs.crm.ref, refs.crm.person.ref, uiResult))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.name.ref, gdprPersonalData))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.name.ref, securityInternal))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.name.ref, uiSearch))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.email.ref, gdprPersonalData))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.email.ref, securityInternal))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.email.ref, uiSearch))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.person.ref, refs.crm.person.attr.password.ref, securityConfidential))
 
-            fixture.env.dispatch(ModelAction.Entity_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, uiResult))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.attr.name.ref, securityPublic))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.attr.name.ref, uiSearch))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.attr.website.ref, securityPublic))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.attr.website.ref, uiSearch))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.company.attr.website.ref, uiResult))
+            fixture.env.dispatch(ModelAction.Entity_AddTag(refs.crm.ref, refs.crm.company.ref, uiResult))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.company.ref, refs.crm.company.attr.name.ref, securityPublic))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.company.ref, refs.crm.company.attr.name.ref, uiSearch))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.company.ref, refs.crm.company.attr.website.ref, securityPublic))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.company.ref, refs.crm.company.attr.website.ref, uiSearch))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.crm.ref, refs.crm.company.ref, refs.crm.company.attr.website.ref, uiResult))
 
-            fixture.env.dispatch(ModelAction.Relationship_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.employment.ref, uiResult))
-            fixture.env.dispatch(ModelAction.RelationshipAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.employment.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.employment.attr.since.ref, securityInternal))
-            fixture.env.dispatch(ModelAction.RelationshipAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.crm.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.employment.ref, _root_ide_package_.io.medatarun.model.actions.refs.crm.employment.attr.since.ref, uiResult))
+            fixture.env.dispatch(ModelAction.Relationship_AddTag(refs.crm.ref, refs.crm.employment.ref, uiResult))
+            fixture.env.dispatch(ModelAction.RelationshipAttribute_AddTag(refs.crm.ref, refs.crm.employment.ref, refs.crm.employment.attr.since.ref, securityInternal))
+            fixture.env.dispatch(ModelAction.RelationshipAttribute_AddTag(refs.crm.ref, refs.crm.employment.ref, refs.crm.employment.attr.since.ref, uiResult))
             //@formatter:on
             return this
         }
 
         fun tagWithCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref).id
-            val imported = _root_ide_package_.io.medatarun.model.actions.refs.tags.local.cooking.imported.ref(modelId)
-            val gdprSpecialCategoryData = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.gdpr.special_category_data.ref
-            val securityPublic = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.public.ref
-            val securityInternal = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.internal.ref
-            val securityConfidential = _root_ide_package_.io.medatarun.model.actions.refs.tags.global.security.confidential.ref
+            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
+            val imported = refs.tags.local.cooking.imported.ref(modelId)
+            val gdprSpecialCategoryData = refs.tags.global.gdpr.special_category_data.ref
+            val securityPublic = refs.tags.global.security.public.ref
+            val securityInternal = refs.tags.global.security.internal.ref
+            val securityConfidential = refs.tags.global.security.confidential.ref
             //@formatter:off
-            fixture.env.dispatch(ModelAction.Model_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref, imported))
-            fixture.env.dispatch(ModelAction.Entity_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref, _root_ide_package_.io.medatarun.model.actions.refs.cooking.ingredient.ref, imported))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref, _root_ide_package_.io.medatarun.model.actions.refs.cooking.ingredient.ref, _root_ide_package_.io.medatarun.model.actions.refs.cooking.ingredient.attr.name.ref, securityPublic))
-            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(_root_ide_package_.io.medatarun.model.actions.refs.cooking.ref, _root_ide_package_.io.medatarun.model.actions.refs.cooking.ingredient.ref, _root_ide_package_.io.medatarun.model.actions.refs.cooking.ingredient.attr.name.ref, imported))
+            fixture.env.dispatch(ModelAction.Model_AddTag(refs.cooking.ref, imported))
+            fixture.env.dispatch(ModelAction.Entity_AddTag(refs.cooking.ref, refs.cooking.ingredient.ref, imported))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.cooking.ref, refs.cooking.ingredient.ref, refs.cooking.ingredient.attr.name.ref, securityPublic))
+            fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.cooking.ref, refs.cooking.ingredient.ref, refs.cooking.ingredient.attr.name.ref, imported))
             fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.cooking.ref, refs.cooking.ingredient.ref, refs.cooking.ingredient.attr.code.ref, securityInternal))
             fixture.env.dispatch(ModelAction.EntityAttribute_AddTag(refs.cooking.ref, refs.cooking.ingredient.ref, refs.cooking.ingredient.attr.code.ref, imported))
 
@@ -517,7 +502,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
     private fun createCrm() {
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = refs.crm.key,
+                key = refs.crm.key,
                 name = LocalizedTextNotLocalized("CRM"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -638,7 +623,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
     private fun createCooking() {
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = refs.cooking.key,
+                key = refs.cooking.key,
                 name = LocalizedTextNotLocalized("Cooking"),
                 description = null,
                 version = ModelVersion("1.0.0")

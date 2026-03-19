@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.RelationshipRoleDeleteMinimumRolesException
 import io.medatarun.model.domain.RelationshipRoleKey
 import io.medatarun.model.domain.RelationshipRoleNotFoundException
@@ -13,7 +12,7 @@ class RelationshipRole_Delete_Test {
 
     @Test
     fun `delete relationship role removes role from relationship`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val roleKey = RelationshipRoleKey("observer")
         env.dispatch(
             ModelAction.RelationshipRole_Create(
@@ -38,7 +37,7 @@ class RelationshipRole_Delete_Test {
 
     @Test
     fun `delete relationship role by id removes role from relationship`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val roleKey = RelationshipRoleKey("auditor")
         env.dispatch(
             ModelAction.RelationshipRole_Create(
@@ -66,7 +65,7 @@ class RelationshipRole_Delete_Test {
 
     @Test
     fun `delete relationship role with unknown role then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val roleKey = RelationshipRoleKey("observer")
         env.dispatch(
             ModelAction.RelationshipRole_Create(
@@ -91,7 +90,7 @@ class RelationshipRole_Delete_Test {
 
     @Test
     fun `delete relationship role when relationship would keep less than two roles then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<RelationshipRoleDeleteMinimumRolesException> {
             env.dispatch(
                 ModelAction.RelationshipRole_Delete(

@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 
 class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
-    private class TagStorageSQLiteInvalidLookupException() : MedatarunException("Global tag lookup requires groupId")
+    private class TagStorageSQLiteInvalidLookupException : MedatarunException("Global tag lookup requires groupId")
 
     override fun findAllTag(): List<Tag> {
         return dbConnectionFactory.withExposed {
@@ -160,8 +160,8 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
 
     private fun tagGroupFromRow(row: ResultRow): TagGroup {
         return TagGroupInMemory(
-            id = Id.Companion.fromString(row[TagGroupTable.id], ::TagGroupId),
-            key = Key.Companion.fromString(row[TagGroupTable.key], ::TagGroupKey),
+            id = Id.fromString(row[TagGroupTable.id], ::TagGroupId),
+            key = Key.fromString(row[TagGroupTable.key], ::TagGroupKey),
             name = row[TagGroupTable.name],
             description = row[TagGroupTable.description]
         )
@@ -176,15 +176,15 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             val localScopeId = requireNotNull(scopeIdString) {
                 "Local tag row missing scope_id"
             }
-            TagScopeRef.Local(scopeType, Id.Companion.fromString(localScopeId, ::TagScopeId))
+            TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
         }
         val groupIdString = row[TagTable.tagGroupId]
-        val groupId = if (groupIdString == null) null else Id.Companion.fromString(groupIdString, ::TagGroupId)
+        val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)
         return TagInMemory(
-            id = Id.Companion.fromString(row[TagTable.id], ::TagId),
+            id = Id.fromString(row[TagTable.id], ::TagId),
             scope = scope,
             groupId = groupId,
-            key = Key.Companion.fromString(row[TagTable.key], ::TagKey),
+            key = Key.fromString(row[TagTable.key], ::TagKey),
             name = row[TagTable.name],
             description = row[TagTable.description]
         )

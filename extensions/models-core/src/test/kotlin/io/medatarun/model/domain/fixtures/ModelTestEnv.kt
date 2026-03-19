@@ -155,7 +155,7 @@ class ModelTestEnv {
                 return testPrincipal
             }
 
-            override val principal: AppPrincipal?
+            override val principal: AppPrincipal
                 get() = testPrincipal
 
         }

@@ -1,12 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelAuthority
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelOrigin
-import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.*
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -16,7 +10,7 @@ class Model_Create_Test {
 
     @Test
     fun `create model with name description and version when present`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m-")
@@ -37,7 +31,7 @@ class Model_Create_Test {
     @Test
     fun `create model keeps values without optional description`() {
 
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m")

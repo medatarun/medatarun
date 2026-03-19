@@ -1,13 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelAuthority
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -16,13 +10,13 @@ import kotlin.test.assertFailsWith
 class Model_UpdateX_Test {
     @Test
     fun `updates on model fails if model not found`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val query: ModelQueries = env.queries
 
         val modelKey = ModelKey("m1")
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
                 version = ModelVersion("2.0.0")

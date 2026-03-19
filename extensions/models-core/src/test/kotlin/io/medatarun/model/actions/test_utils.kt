@@ -1,29 +1,8 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.Attribute
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityAttributeNotFoundException
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedMarkdown
-import io.medatarun.model.domain.LocalizedText
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelAggregate
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.RelationshipCardinality
-import io.medatarun.model.domain.RelationshipKey
-import io.medatarun.model.domain.RelationshipRef
-import io.medatarun.model.domain.RelationshipRoleKey
-import io.medatarun.model.domain.RelationshipRoleRef
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.TypeRef
-import io.medatarun.model.domain.modelRef
-import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.exposed.ModelQueries
 
 
@@ -44,7 +23,7 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
     init {
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
                 version = version
@@ -72,7 +51,7 @@ class TestEnvTypes {
     init {
         runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
                 version = ModelVersion("2.0.0")
@@ -181,7 +160,7 @@ class TestEnvRelationshipRole {
     init {
         runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model relationship role"),
                 description = null,
                 version = ModelVersion("1.0.0")

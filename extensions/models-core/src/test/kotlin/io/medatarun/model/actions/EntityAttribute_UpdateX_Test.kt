@@ -1,14 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.EntityAttributeNotFoundException
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityNotFoundException
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
@@ -17,7 +10,7 @@ class EntityAttribute_UpdateX_Test {
 
     @Test
     fun `update attribute with wrong model id throws ModelNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<ModelNotFoundException> {
@@ -35,7 +28,7 @@ class EntityAttribute_UpdateX_Test {
 
     @Test
     fun `update attribute with wrong entity id throws ModelEntityNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<EntityNotFoundException> {
@@ -53,7 +46,7 @@ class EntityAttribute_UpdateX_Test {
 
     @Test
     fun `update attribute with wrong attribute id throws ModelEntityNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute()
         assertFailsWith<EntityAttributeNotFoundException> {
