@@ -585,7 +585,7 @@ sealed interface ModelAction {
         val name: LocalizedText?,
         @ActionParamDoc(
             name = "Description",
-            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information that helps someone new to understand it.",
+            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, etc.",
             order = 40
         )
         val description: LocalizedMarkdown?,
@@ -694,7 +694,7 @@ sealed interface ModelAction {
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Description",
-            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information that helps someone new to understand it.",
+            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information.",
             order = 30
         )
         val value: LocalizedMarkdown?
@@ -816,51 +816,51 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_attribute_create",
         title = "Create entity attribute",
-        description = "Declares an attribute on an entity with its type, optional flag, and optional metadata.",
+        description = "Creates an attribute on an entity.",
         uiLocations = [ActionUILocation.entity_attributes],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_Create(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity is.",
+            description = "Model where the entity that will contain attribute is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity where to create attribute.",
-            order = 11
+            description = "Entity where this attribute will be created.",
+            order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Name",
-            description = "Name of the attribute, human-readable.",
-            order = 20
+            description = "Name of this attribute.",
+            order = 30
         )
         val name: LocalizedText?,
         @ActionParamDoc(
             name = "Attribute key",
-            description = "Unique key of the attribute in its entity.",
-            order = 30
+            description = "Provide a stable code for this attribute. This code is used to identify it uniquely in the entity. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 40
         )
         val attributeKey: AttributeKey,
         @ActionParamDoc(
             name = "Data type",
-            description = "Data type of this attribute, choosed from the types of the model.",
-            order = 40
+            description = "Choose the data type of the information carried by this attribute.",
+            order = 50
         )
         val type: TypeRef,
         @ActionParamDoc(
-            name = "Attribute is optional",
-            description = "Indicates this attribute is not required.",
-            order = 45
+            name = "Optional",
+            description = "Choose whether this attribute is is optional for some occurrences of the entity.",
+            order = 60
         )
         val optional: Boolean = false,
         @ActionParamDoc(
             name = "Description",
-            description = "Attribute's full description.",
-            order = 50
+            description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
+            order = 70
         )
         val description: LocalizedMarkdown?,
         ) : ModelAction
@@ -869,28 +869,68 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_attribute_update_key",
         title = "Update entity attribute key",
-        description = "Changes the key of an entity attribute.",
+        description = "Updates the key of an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateKey(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide the stable code used to identify this attribute. It must be unique in the entity. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 40
+        )
         val value: AttributeKey
     ) : ModelAction
 
     @ActionDoc(
         key = "entity_attribute_update_name",
         title = "Update entity attribute name",
-        description = "Changes the display title of an entity attribute.",
+        description = "Updates the name of an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateName(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this attribute.",
+            order = 40
+        )
         val value: LocalizedText?
     ) : ModelAction
 
@@ -898,14 +938,34 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_attribute_update_description",
         title = "Update entity attribute description",
-        description = "Changes the description of an entity attribute.",
+        description = "Updates the description of an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateDescription(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
+            order = 40
+        )
         val value: LocalizedMarkdown?
     ) : ModelAction
 
@@ -913,14 +973,34 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_attribute_update_type",
         title = "Update entity attribute type",
-        description = "Changes the declared type of an entity attribute.",
+        description = "Updates the data type of an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateType(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Data type",
+            description = "Choose the data type of the information carried by this attribute.",
+            order = 40
+        )
         val value: TypeRef
     ) : ModelAction
 
@@ -928,55 +1008,130 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_attribute_update_optional",
         title = "Update entity attribute optionality",
-        description = "Changes whether an entity attribute is optional.",
+        description = "Updates whether an entity attribute is optional.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_UpdateOptional(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Optional",
+            description = "Choose whether this attribute may be left empty for some occurrences of the entity.",
+            order = 40
+        )
         val value: Boolean
     ) : ModelAction
 
     @ActionDoc(
         key = "entity_attribute_add_tag",
         title = "Add tag to entity attribute",
-        description = "Add tag to entity attribute",
+        description = "Adds a tag to an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_AddTag(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Tag",
+            description = "Tag to add to this attribute.",
+            order = 40
+        )
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "entity_attribute_delete_tag",
         title = "Delete tag from entity attribute",
-        description = "Delete tag from entity attribute",
+        description = "Removes a tag from an entity attribute.",
         uiLocations = [ActionUILocation.entity_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_DeleteTag(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to update.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
+        @ActionParamDoc(
+            name = "Tag",
+            description = "Tag to remove from this attribute.",
+            order = 40
+        )
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "entity_attribute_delete",
         title = "Delete entity attribute",
-        description = "Removes an attribute from an entity within a model.",
+        description = "Deletes an attribute from an entity.",
         uiLocations = [ActionUILocation.entity_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_Delete(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where the entity containing this attribute is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity where this attribute is located.",
+            order = 20
+        )
         val entityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Attribute",
+            description = "Attribute to delete.",
+            order = 30
+        )
         val attributeRef: EntityAttributeRef,
     ) : ModelAction
 
