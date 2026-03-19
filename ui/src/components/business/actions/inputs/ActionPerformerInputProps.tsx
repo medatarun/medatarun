@@ -1,10 +1,10 @@
-import type {Ref} from "react";
-import type {ActionPerformerRequest} from "../ActionPerformer.tsx";
+import type { Ref } from "react";
+import type { ActionPerformerRequest } from "../ActionPerformer.tsx";
 
 export interface ActionPerformerInputProps<T = unknown> {
-  request: ActionPerformerRequest
-  inputRef: Ref<HTMLInputElement> | undefined
-  value: T | null
-  disabled: boolean
-  onValueChange: (value: unknown) => void
+  request: ActionPerformerRequest;
+  inputRef: Ref<HTMLInputElement> | undefined;
+  value: T | null;
+  disabled: boolean;
+  onValueChange: (value: unknown) => void;
 }

@@ -1,5 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import {ActionUILocations, useActionRegistry,} from "@/business/action_registry";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
 import {
   type ElementOrigin,
   Model,
@@ -11,31 +14,48 @@ import {
   useModelUpdateKey,
   useModelUpdateName,
 } from "@/business/model";
-import {ModelContext, useModelContext,} from "@/components/business/model/ModelContext.tsx";
-import {modelTagScope, Tags} from "@/components/core/Tag.tsx";
+import {
+  ModelContext,
+  useModelContext,
+} from "@/components/business/model/ModelContext.tsx";
+import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
 import { InfoLabel, Text, tokens } from "@fluentui/react-components";
 import { HistoryRegular } from "@fluentui/react-icons";
-import {EntityCard} from "@/components/business/model/EntityCard.tsx";
-import {RelationshipsTable} from "@/components/business/model/RelationshipsTable.tsx";
-import {ActionMenuButton, TypesTable,} from "@/components/business/model/TypesTable.tsx";
-import {TagsTable} from "@/components/business/tag/TagsTable.tsx";
-import {ViewLayoutContained} from "@/components/layout/ViewLayoutContained.tsx";
-import {ViewTitle} from "@/components/core/ViewTitle.tsx";
-import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
-import {SectionTitle} from "@/components/layout/SectionTitle.tsx";
-import {MissingInformation} from "@/components/core/MissingInformation.tsx";
-import {ContainedHumanReadable, ContainedMixedScrolling, ContainedScrollable,} from "@/components/layout/Contained.tsx";
-import {SectionPaper} from "@/components/layout/SectionPaper.tsx";
-import {SectionCards} from "@/components/layout/SectionCards.tsx";
-import {SectionTable} from "@/components/layout/SecionTable.tsx";
-import {PropertiesForm} from "@/components/layout/PropertiesForm.tsx";
-import {createActionTemplateModel, createDisplayedSubjectModel} from "@/components/business/model/model.actions.ts";
-import {InlineEditDescription} from "@/components/core/InlineEditDescription.tsx";
-import {InlineEditSingleLine} from "@/components/core/InlineEditSingleLine.tsx";
-import {InlineEditTags} from "@/components/core/InlineEditTags.tsx";
-import {createActionTemplateTagFreeList} from "@/components/business/tag/tag.actions.ts";
-import {EntityIcon, RelationshipIcon, TypeIcon,} from "@/components/business/model/model.icons.tsx";
-import {useAppI18n} from "@/services/appI18n.tsx";
+import { EntityCard } from "@/components/business/model/EntityCard.tsx";
+import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
+import {
+  ActionMenuButton,
+  TypesTable,
+} from "@/components/business/model/TypesTable.tsx";
+import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
+import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
+import { SectionCards } from "@/components/layout/SectionCards.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import {
+  createActionTemplateModel,
+  createDisplayedSubjectModel,
+} from "@/components/business/model/model.actions.ts";
+import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+import { createActionTemplateTagFreeList } from "@/components/business/tag/tag.actions.ts";
+import {
+  EntityIcon,
+  RelationshipIcon,
+  TypeIcon,
+} from "@/components/business/model/model.icons.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
 
 export function ModelPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);

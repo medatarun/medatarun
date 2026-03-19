@@ -33,7 +33,7 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Problem, type ProblemJson } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
-import {sortBy} from "lodash-es";
+import { sortBy } from "lodash-es";
 
 const useActionTreeStyles = makeStyles({
   root: {
@@ -349,7 +349,10 @@ function ActionLaucher({
       ),
     );
   };
-  const sortedParams = sortBy(selectedActionDescriptor?.parameters ?? [], it => it.order);
+  const sortedParams = sortBy(
+    selectedActionDescriptor?.parameters ?? [],
+    (it) => it.order,
+  );
   return (
     <div className={styles.root}>
       <div className={styles.titleRow}>

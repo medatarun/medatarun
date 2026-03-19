@@ -26,7 +26,9 @@ export function ModelComparePage() {
   const [leftModelId, setLeftModelId] = useState("");
   const [leftModelVersion, setLeftModelVersion] = useState<string | null>(null);
   const [rightModelId, setRightModelId] = useState("");
-  const [rightModelVersion, setRightModelVersion] = useState<string | null>(null);
+  const [rightModelVersion, setRightModelVersion] = useState<string | null>(
+    null,
+  );
   const [comparisonMode, setComparisonMode] =
     useState<ComparisonMode>("structural");
   const { data: leftVersionsDto } = useModelHistoryVersions(leftModelId);
@@ -51,9 +53,7 @@ export function ModelComparePage() {
   };
 
   const canCompare =
-    leftModelId.length > 0 &&
-    rightModelId.length > 0 &&
-    !compare.isPending;
+    leftModelId.length > 0 && rightModelId.length > 0 && !compare.isPending;
 
   return (
     <ViewLayoutContained
@@ -111,7 +111,10 @@ export function ModelComparePage() {
             onChange={setRightModelVersion}
           />
 
-          <ComparisonModeInput value={comparisonMode} onChange={setComparisonMode} />
+          <ComparisonModeInput
+            value={comparisonMode}
+            onChange={setComparisonMode}
+          />
 
           <div>
             <Button disabled={!canCompare} onClick={handleCompare}>
@@ -123,7 +126,9 @@ export function ModelComparePage() {
         {compare.data ? (
           <ModelCompareDiffView diff={compare.data} />
         ) : (
-          <MissingInformation>{t("modelComparePage_emptyState")}</MissingInformation>
+          <MissingInformation>
+            {t("modelComparePage_emptyState")}
+          </MissingInformation>
         )}
       </div>
     </ViewLayoutContained>

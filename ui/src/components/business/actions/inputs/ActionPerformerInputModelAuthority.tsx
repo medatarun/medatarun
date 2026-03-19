@@ -1,17 +1,20 @@
-import {useEffect, useState} from "react";
-import {InputCombobox} from "@seij/common-ui";
-import type {ActionPerformerInputProps} from "./ActionPerformerInputProps.tsx";
-import {normalizeValueStringOrEmpty} from "./ActionPerformerInput.utils.ts";
+import { useEffect, useState } from "react";
+import { InputCombobox } from "@seij/common-ui";
+import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
+import { normalizeValueStringOrEmpty } from "./ActionPerformerInput.utils.ts";
 
-export function ActionPerformerInputModelAuthority ({value, disabled, onValueChange}: ActionPerformerInputProps) {
-
+export function ActionPerformerInputModelAuthority({
+  value,
+  disabled,
+  onValueChange,
+}: ActionPerformerInputProps) {
   // TODO InputCombobox does not expose an input ref yet, so we cannot wire this forwarded ref for now.
 
-  const valueSafe = normalizeValueStringOrEmpty(value)
+  const valueSafe = normalizeValueStringOrEmpty(value);
 
   const options = [
-    {code: "system", label: "System"},
-    {code: "canonical", label: "Canonical"},
+    { code: "system", label: "System" },
+    { code: "canonical", label: "Canonical" },
   ];
 
   const [searchQuery, setSearchQuery] = useState<string>(() => {

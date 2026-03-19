@@ -1,12 +1,13 @@
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {fetchModel, fetchModelSummaries} from "./model.api.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchModel, fetchModelSummaries } from "./model.api.ts";
 import type {
-  ModelChangeEventListDto, ModelChangeEventListWithVersionDto,
+  ModelChangeEventListDto,
+  ModelChangeEventListWithVersionDto,
   ModelCompareDto,
   SearchResults,
 } from "./model.dto.ts";
-import {type ActionPayload, executeAction} from "../action_runner";
-import {toProblem} from "@seij/common-types";
+import { type ActionPayload, executeAction } from "../action_runner";
+import { toProblem } from "@seij/common-types";
 
 export type ModelSearchOperator = "and" | "or";
 
@@ -88,7 +89,9 @@ export type ModelCompareReq = {
   scope: ModelDiffScopeCode;
 };
 
-export async function modelCompare(req: ModelCompareReq): Promise<ModelCompareDto> {
+export async function modelCompare(
+  req: ModelCompareReq,
+): Promise<ModelCompareDto> {
   const result = await executeAction("model", "model_compare", {
     leftModelRef: "id:" + req.leftModelId,
     leftModelVersion: req.leftModelVersion,

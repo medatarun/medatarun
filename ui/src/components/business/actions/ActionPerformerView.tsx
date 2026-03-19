@@ -1,4 +1,4 @@
-import {useActionPerformer} from "./ActionPerformerHook.tsx";
+import { useActionPerformer } from "./ActionPerformerHook.tsx";
 import {
   Dialog,
   DialogActions,
@@ -14,34 +14,54 @@ import {
   tokens,
 } from "@fluentui/react-components";
 
-import {type FunctionComponent, type Ref, useEffect, useRef, useState} from "react";
-import {ActionOutputBox} from "./ActionOutput.tsx";
-import {type ActionResp} from "@/business/action_runner";
-import {type FormDataType, type FormFieldType, validateForm,} from "@/business/action_form";
-import {ActionDescriptor, useActionRegistry,} from "@/business/action_registry";
-import type {ActionPerformerRequest, ActionPerformerRequestParams, ActionPerformerState,} from "./ActionPerformer.tsx";
+import {
+  type FunctionComponent,
+  type Ref,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { ActionOutputBox } from "./ActionOutput.tsx";
+import { type ActionResp } from "@/business/action_runner";
+import {
+  type FormDataType,
+  type FormFieldType,
+  validateForm,
+} from "@/business/action_form";
+import {
+  ActionDescriptor,
+  useActionRegistry,
+} from "@/business/action_registry";
+import type {
+  ActionPerformerRequest,
+  ActionPerformerRequestParams,
+  ActionPerformerState,
+} from "./ActionPerformer.tsx";
 import ReactMarkdown from "react-markdown";
-import {combineValidationResults, type ValidationResult,} from "@seij/common-validation";
-import {Button, ErrorBox} from "@seij/common-ui";
-import {formDataNormalize} from "@/business/action_form/action_form.normalize.ts";
-import {isNil, isPlainObject} from "lodash-es";
-import {toProblem} from "@seij/common-types";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {useNavigate} from "@tanstack/react-router";
-import {ActionPerformerInputTypeRef} from "./inputs/ActionPerformerInputTypeRef.tsx";
-import {ActionPerformerInputModelAuthority} from "./inputs/ActionPerformerInputModelAuthority.tsx";
-import {ActionPerformerInputTextBase} from "./inputs/ActionPerformerInputTextBase.tsx";
-import type {ActionPerformerInputProps} from "./inputs/ActionPerformerInputProps.tsx";
-import {ActionPerformerInputBoolean} from "./inputs/ActionPerformerInputBoolean.tsx";
+import {
+  combineValidationResults,
+  type ValidationResult,
+} from "@seij/common-validation";
+import { Button, ErrorBox } from "@seij/common-ui";
+import { formDataNormalize } from "@/business/action_form/action_form.normalize.ts";
+import { isNil, isPlainObject } from "lodash-es";
+import { toProblem } from "@seij/common-types";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { useNavigate } from "@tanstack/react-router";
+import { ActionPerformerInputTypeRef } from "./inputs/ActionPerformerInputTypeRef.tsx";
+import { ActionPerformerInputModelAuthority } from "./inputs/ActionPerformerInputModelAuthority.tsx";
+import { ActionPerformerInputTextBase } from "./inputs/ActionPerformerInputTextBase.tsx";
+import type { ActionPerformerInputProps } from "./inputs/ActionPerformerInputProps.tsx";
+import { ActionPerformerInputBoolean } from "./inputs/ActionPerformerInputBoolean.tsx";
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
-  const {state} = useActionPerformer();
+  const { state } = useActionPerformer();
   const actionRegistry = useActionRegistry();
 
   if (state.kind === "idle") return null;
 
-  const {request} = state; // request.location, request.params
+  const { request } = state; // request.location, request.params
   const action = actionRegistry.findActionOptional(
     request.actionGroupKey,
     request.actionKey,
@@ -67,23 +87,22 @@ export function ActionPerformerView() {
   );
 }
 
-export function ActionPerformerViewLoaded(
-  {
-    request,
-    state,
-    action,
-    defaultFormData,
-    formFields,
-  }: {
-    request: ActionPerformerRequest,
-    state: ActionPerformerState;
-    action: ActionDescriptor;
-    defaultFormData: FormDataType;
-    formFields: FormFieldType[];
-  }) {
-  const {t} = useAppI18n();
+export function ActionPerformerViewLoaded({
+  request,
+  state,
+  action,
+  defaultFormData,
+  formFields,
+}: {
+  request: ActionPerformerRequest;
+  state: ActionPerformerState;
+  action: ActionDescriptor;
+  defaultFormData: FormDataType;
+  formFields: FormFieldType[];
+}) {
+  const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
-  const {confirmAction, cancelAction, finishAction, postHooks} =
+  const { confirmAction, cancelAction, finishAction, postHooks } =
     useActionPerformer();
   const navigate = useNavigate();
   const [actionResp, setActionResp] = useState<ActionResp | null>(null);
@@ -97,7 +116,7 @@ export function ActionPerformerViewLoaded(
     state.kind == "error";
   const displayFinish = state.kind == "done";
 
-  const validationResults = validateForm({formData, formFields});
+  const validationResults = validateForm({ formData, formFields });
   const validationResult = combineValidationResults([
     ...validationResults.values(),
   ]);
@@ -123,7 +142,7 @@ export function ActionPerformerViewLoaded(
   };
 
   const handleChangeFormFieldInput = (field: FormFieldType, value: unknown) => {
-    setFormData({...formData, [field.key]: value});
+    setFormData({ ...formData, [field.key]: value });
   };
 
   useEffect(() => {
@@ -186,9 +205,9 @@ export function ActionPerformerViewLoaded(
                 ))}
 
               {state.kind === "error" ? (
-                <ErrorBox error={toProblem(state.error)}/>
+                <ErrorBox error={toProblem(state.error)} />
               ) : null}
-              {actionResp ? <ActionOutputBox resp={actionResp}/> : null}
+              {actionResp ? <ActionOutputBox resp={actionResp} /> : null}
             </div>
           </DialogContent>
         </DialogBody>
@@ -218,23 +237,22 @@ export function ActionPerformerViewLoaded(
   );
 }
 
-function FormFieldInput(
-  {
-    request,
-    field,
-    value,
-    validationResult,
-    inputRef,
-    onChange,
-  }: {
-    request: ActionPerformerRequest,
-    field: FormFieldType;
-    value: unknown;
-    validationResult: ValidationResult | undefined;
-    onChange: (field: FormFieldType, value: unknown) => void;
-    inputRef?: Ref<HTMLInputElement>;
-  }) {
-  const valueNormalized = (value === null || value === undefined) ? null : value;
+function FormFieldInput({
+  request,
+  field,
+  value,
+  validationResult,
+  inputRef,
+  onChange,
+}: {
+  request: ActionPerformerRequest;
+  field: FormFieldType;
+  value: unknown;
+  validationResult: ValidationResult | undefined;
+  onChange: (field: FormFieldType, value: unknown) => void;
+  inputRef?: Ref<HTMLInputElement>;
+}) {
+  const valueNormalized = value === null || value === undefined ? null : value;
   const validationState: FieldProps["validationState"] =
     validationResult === undefined
       ? "none"
@@ -250,14 +268,17 @@ function FormFieldInput(
     value: valueNormalized,
     disabled: disabled,
     onValueChange: (nextValue) => onChange(field, nextValue),
-  }
-  const componentSelect = (fieldType: string): FunctionComponent<ActionPerformerInputProps> => {
-    if (fieldType === "Boolean") return ActionPerformerInputBoolean
-    if (fieldType === "ModelAuthority") return ActionPerformerInputModelAuthority
-    if (fieldType === "TypeRef") return ActionPerformerInputTypeRef
-    return ActionPerformerInputTextBase
-  }
-  const ActionPerformerInputComponent = componentSelect(field.type)
+  };
+  const componentSelect = (
+    fieldType: string,
+  ): FunctionComponent<ActionPerformerInputProps> => {
+    if (fieldType === "Boolean") return ActionPerformerInputBoolean;
+    if (fieldType === "ModelAuthority")
+      return ActionPerformerInputModelAuthority;
+    if (fieldType === "TypeRef") return ActionPerformerInputTypeRef;
+    return ActionPerformerInputTextBase;
+  };
+  const ActionPerformerInputComponent = componentSelect(field.type);
 
   return (
     <div>

@@ -49,10 +49,15 @@ export function ModelCompareDiffView({ diff }: { diff: ModelCompareDto }) {
     );
   }
 
-  const modelEntries = diff.entries.filter((entry) => entry.objectType === "model");
-  const typeEntries = diff.entries.filter((entry) => entry.objectType === "type");
+  const modelEntries = diff.entries.filter(
+    (entry) => entry.objectType === "model",
+  );
+  const typeEntries = diff.entries.filter(
+    (entry) => entry.objectType === "type",
+  );
   const entityEntries = diff.entries.filter(
-    (entry) => entry.objectType === "entity" || entry.objectType === "entityAttribute",
+    (entry) =>
+      entry.objectType === "entity" || entry.objectType === "entityAttribute",
   );
   const relationshipEntries = diff.entries.filter(
     (entry) =>
@@ -99,7 +104,9 @@ export function ModelCompareDiffView({ diff }: { diff: ModelCompareDto }) {
 function SummaryBar({ entries }: { entries: ModelCompareEntryDto[] }) {
   const added = entries.filter((entry) => entry.status === "ADDED").length;
   const deleted = entries.filter((entry) => entry.status === "DELETED").length;
-  const modified = entries.filter((entry) => entry.status === "MODIFIED").length;
+  const modified = entries.filter(
+    (entry) => entry.status === "MODIFIED",
+  ).length;
 
   return (
     <div
@@ -214,7 +221,11 @@ function GroupedSectionRows({
       {Array.from(grouped.entries())
         .sort((left, right) => left[0].localeCompare(right[0]))
         .map(([groupKey, groupedEntries]) => (
-          <GroupRows key={title + "-" + groupKey} groupKey={groupKey} entries={groupedEntries} />
+          <GroupRows
+            key={title + "-" + groupKey}
+            groupKey={groupKey}
+            entries={groupedEntries}
+          />
         ))}
     </>
   );
@@ -257,9 +268,11 @@ function GroupRows({
   });
   const children = entries.filter((entry) => entry !== parentEntry);
   const sorted = sortEntries(children);
-  const parentVisual = parentEntry == null ? null : toStatusVisual(parentEntry.status);
+  const parentVisual =
+    parentEntry == null ? null : toStatusVisual(parentEntry.status);
   const parentAccent = parentVisual == null ? undefined : parentVisual.accent;
-  const parentBackground = parentVisual == null ? undefined : parentVisual.backgroundStrong;
+  const parentBackground =
+    parentVisual == null ? undefined : parentVisual.backgroundStrong;
   const parentFieldRows = parentEntry == null ? [] : toFieldRows(parentEntry);
   const defaultOpen =
     parentEntry == null ? true : parentEntry.status === "MODIFIED";
@@ -291,7 +304,9 @@ function GroupRows({
           </IndentedText>
         }
         status={
-          parentEntry == null ? null : <StatusDot accentColor={parentAccent ?? "inherit"} />
+          parentEntry == null ? null : (
+            <StatusDot accentColor={parentAccent ?? "inherit"} />
+          )
         }
         left={null}
         right={null}
@@ -311,19 +326,27 @@ function GroupRows({
             status={null}
             left={<Text>{fieldRow.leftValue}</Text>}
             right={<Text>{fieldRow.rightValue}</Text>}
-            background={parentVisual == null ? undefined : parentVisual.backgroundSubtle}
+            background={
+              parentVisual == null ? undefined : parentVisual.backgroundSubtle
+            }
             hierarchyAccent={parentAccent}
           />
         ))}
       {isOpen &&
         sorted.map((entry, index) => (
-        <EntryRows key={groupKey + "-" + index} entry={entry} level={2} />
-      ))}
+          <EntryRows key={groupKey + "-" + index} entry={entry} level={2} />
+        ))}
     </>
   );
 }
 
-function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: number }) {
+function EntryRows({
+  entry,
+  level,
+}: {
+  entry: ModelCompareEntryDto;
+  level: number;
+}) {
   const label = lineObjectLabel(entry);
   const objectLabel = toObjectBusinessLabel(entry);
   const fieldRows = toFieldRows(entry);
@@ -332,7 +355,9 @@ function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: numbe
   const canExpand = fieldRows.length > 0;
   const visual = toStatusVisual(entry.status);
   const parentLevel = isPrimaryObjectType(entry.objectType);
-  const rowBackground = parentLevel ? visual.backgroundStrong : visual.backgroundSoft;
+  const rowBackground = parentLevel
+    ? visual.backgroundStrong
+    : visual.backgroundSoft;
   const rowAccent = parentLevel ? visual.accent : visual.accentSoft;
 
   return (
@@ -377,20 +402,20 @@ function EntryRows({ entry, level }: { entry: ModelCompareEntryDto; level: numbe
       />
       {isOpen &&
         fieldRows.map((fieldRow) => (
-        <DiffRow
-          key={objectLabel + "-" + fieldRow.field}
-          hierarchy={
-            <IndentedText level={level + 1} kind="field">
-              ↳ {toBusinessFieldLabel(fieldRow.field)}
-            </IndentedText>
-          }
-          status={null}
-          left={<Text>{fieldRow.leftValue}</Text>}
-          right={<Text>{fieldRow.rightValue}</Text>}
-          background={visual.backgroundSubtle}
-          hierarchyAccent={rowAccent}
-        />
-      ))}
+          <DiffRow
+            key={objectLabel + "-" + fieldRow.field}
+            hierarchy={
+              <IndentedText level={level + 1} kind="field">
+                ↳ {toBusinessFieldLabel(fieldRow.field)}
+              </IndentedText>
+            }
+            status={null}
+            left={<Text>{fieldRow.leftValue}</Text>}
+            right={<Text>{fieldRow.rightValue}</Text>}
+            background={visual.backgroundSubtle}
+            hierarchyAccent={rowAccent}
+          />
+        ))}
     </>
   );
 }
@@ -419,9 +444,7 @@ function DiffRow({
         background: background,
       }}
     >
-      <Cell leftAccentColor={hierarchyAccent}>
-        {hierarchy}
-      </Cell>
+      <Cell leftAccentColor={hierarchyAccent}>{hierarchy}</Cell>
       <Cell>{status}</Cell>
       <Cell>{left}</Cell>
       <Cell>{right}</Cell>
@@ -445,7 +468,9 @@ function Cell({
         borderRight: "1px solid var(--colorNeutralStroke2)",
         background: background,
         boxShadow:
-          leftAccentColor == null ? undefined : "inset 3px 0 0 " + leftAccentColor,
+          leftAccentColor == null
+            ? undefined
+            : "inset 3px 0 0 " + leftAccentColor,
       }}
     >
       {children}
@@ -510,7 +535,9 @@ function toFieldRows(entry: ModelCompareEntryDto): FieldRow[] {
   return toModifiedFieldRows(entry.left, entry.right);
 }
 
-function toAddedFieldRows(snapshot: Record<string, unknown> | null): FieldRow[] {
+function toAddedFieldRows(
+  snapshot: Record<string, unknown> | null,
+): FieldRow[] {
   if (snapshot == null) return [];
   const keys = sortedFieldKeys(snapshot);
   const rows: FieldRow[] = [];
@@ -524,7 +551,9 @@ function toAddedFieldRows(snapshot: Record<string, unknown> | null): FieldRow[] 
   return rows;
 }
 
-function toDeletedFieldRows(snapshot: Record<string, unknown> | null): FieldRow[] {
+function toDeletedFieldRows(
+  snapshot: Record<string, unknown> | null,
+): FieldRow[] {
   if (snapshot == null) return [];
   const keys = sortedFieldKeys(snapshot);
   const rows: FieldRow[] = [];
@@ -600,7 +629,9 @@ function sortEntries(entries: ModelCompareEntryDto[]): ModelCompareEntryDto[] {
     if (leftPriority !== rightPriority) {
       return leftPriority - rightPriority;
     }
-    return toObjectBusinessLabel(left).localeCompare(toObjectBusinessLabel(right));
+    return toObjectBusinessLabel(left).localeCompare(
+      toObjectBusinessLabel(right),
+    );
   });
 }
 
@@ -684,7 +715,12 @@ function lineObjectLabel(entry: ModelCompareEntryDto): ReactNode {
       }}
     >
       {icon != null && (
-        <span style={{ display: "inline-flex", color: "var(--colorNeutralForeground3)" }}>
+        <span
+          style={{
+            display: "inline-flex",
+            color: "var(--colorNeutralForeground3)",
+          }}
+        >
           {icon}
         </span>
       )}
@@ -697,10 +733,14 @@ function toObjectBusinessLabel(entry: ModelCompareEntryDto): string {
   if (entry.objectType === "model") return "Model";
   if (entry.objectType === "type") return entry.typeKey ?? "unknown";
   if (entry.objectType === "entity") return entry.entityKey ?? "unknown";
-  if (entry.objectType === "entityAttribute") return entry.attributeKey ?? "unknown";
-  if (entry.objectType === "relationship") return entry.relationshipKey ?? "unknown";
-  if (entry.objectType === "relationshipRole") return entry.roleKey ?? "unknown";
-  if (entry.objectType === "relationshipAttribute") return entry.attributeKey ?? "unknown";
+  if (entry.objectType === "entityAttribute")
+    return entry.attributeKey ?? "unknown";
+  if (entry.objectType === "relationship")
+    return entry.relationshipKey ?? "unknown";
+  if (entry.objectType === "relationshipRole")
+    return entry.roleKey ?? "unknown";
+  if (entry.objectType === "relationshipAttribute")
+    return entry.attributeKey ?? "unknown";
   return entry.objectType;
 }
 
@@ -721,7 +761,12 @@ function groupHeaderLabel(
       }}
     >
       {icon != null && (
-        <span style={{ display: "inline-flex", color: "var(--colorNeutralForeground3)" }}>
+        <span
+          style={{
+            display: "inline-flex",
+            color: "var(--colorNeutralForeground3)",
+          }}
+        >
           {icon}
         </span>
       )}
@@ -736,8 +781,10 @@ function toObjectIcon(objectType: string): ReactNode | null {
   if (objectType === "entity") return <EntityIcon fontSize={14} />;
   if (objectType === "entityAttribute") return <AttributeIcon fontSize={14} />;
   if (objectType === "relationship") return <RelationshipIcon fontSize={14} />;
-  if (objectType === "relationshipRole") return <RelationshipIcon fontSize={14} />;
-  if (objectType === "relationshipAttribute") return <AttributeIcon fontSize={14} />;
+  if (objectType === "relationshipRole")
+    return <RelationshipIcon fontSize={14} />;
+  if (objectType === "relationshipAttribute")
+    return <AttributeIcon fontSize={14} />;
   return null;
 }
 
@@ -751,11 +798,7 @@ function SpacerRow({ height }: { height: string }) {
   return <div style={{ height: height }} />;
 }
 
-function StatusDot({
-  accentColor,
-}: {
-  accentColor: string;
-}) {
+function StatusDot({ accentColor }: { accentColor: string }) {
   return (
     <span
       style={{

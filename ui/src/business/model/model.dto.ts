@@ -151,7 +151,7 @@ export interface ModelChangeEventDto {
   payload: Record<string, unknown>;
 }
 export interface ModelChangeEventWithVersionDto extends ModelChangeEventDto {
-  modelVersion: string
+  modelVersion: string;
 }
 
 export interface ModelChangeEventListDto {
