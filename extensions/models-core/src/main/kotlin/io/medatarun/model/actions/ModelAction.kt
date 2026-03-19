@@ -439,7 +439,7 @@ sealed interface ModelAction {
         val name: LocalizedText?,
         @ActionParamDoc(
             name = "Description",
-            description = "Provide a comprehensive description of this data type, including what it represents, its business meaning, its context, its rules, how it should be used, and any other useful information for someone discovering it.",
+            description = "Provide a comprehensive description of this data type, including how and where to use it, business rules, constraints or possible values.",
             order = 40
         )
         val description: LocalizedMarkdown?
@@ -524,7 +524,7 @@ sealed interface ModelAction {
         val typeRef: TypeRef,
         @ActionParamDoc(
             name = "Description",
-            description = "Provide a comprehensive description of this data type, including what it represents, its business meaning, its context, its rules, how it should be used, and any other useful information for someone discovering it.",
+            description = "Provide a comprehensive description of this data type, including how and where to use it, business rules, constraints or possible values.",
             order = 30
         )
         val value: LocalizedMarkdown?
@@ -559,57 +559,57 @@ sealed interface ModelAction {
 
     @ActionDoc(
         key = "entity_create",
-        title = "Create model entity",
-        description = "Adds an entity to an existing model, optionally supplying user-facing name and description.",
+        title = "Create entity",
+        description = "Creates an entity in an existing model.",
         uiLocations = [ActionUILocation.model_entities],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_Create(
         @ActionParamDoc(
-            name = "Model reference",
-            description = "Reference of the model to which the new entity will be added.",
+            name = "Model",
+            description = "Model where this entity will be created.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Key",
-            description = "Unique key of entity in the model.",
+            description = "Provide a stable code for this entity. This code is used to identify it uniquely in the model. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
             order = 30
         )
         val entityKey: EntityKey,
         @ActionParamDoc(
             name = "Name",
-            description = "Display name of entity.",
+            description = "Name of this entity.",
             order = 20
         )
         val name: LocalizedText?,
         @ActionParamDoc(
             name = "Description",
-            description = "Entity's description",
+            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information that helps someone new to understand it.",
             order = 40
         )
         val description: LocalizedMarkdown?,
         @ActionParamDoc(
             name = "Identity attribute key",
-            description = "Key of the attribute that will be created that acts as the entity's identifier.",
-            order = 51
+            description = "Provide a stable code for the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
+            order = 60
         )
         val identityAttributeKey: AttributeKey,
         @ActionParamDoc(
             name = "Identity attribute type",
-            description = "Type of the attribute that will be created that acts as the entity's identifier.",
-            order = 52
+            description = "Choose the data type of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
+            order = 70
         )
         val identityAttributeType: TypeRef,
         @ActionParamDoc(
             name = "Identity attribute name",
-            description = "Display name of the attribute that will be created that acts as the entity's identifier.",
+            description = "Name of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
             order = 50
         )
         val identityAttributeName: LocalizedText?,
         @ActionParamDoc(
             name = "External documentation",
-            description = "Link to an external documentation.",
+            description = "Link to external documentation for this entity.",
             order = 80
         )
         val documentationHome: String?
@@ -618,26 +618,26 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_update_key",
         title = "Update entity key",
-        description = "Changes entity key.",
+        description = "Updates the key of an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateKey(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Key",
-            description = "New key value. The key shall not be used for another entity",
+            description = "Provide the stable code used to identify this entity. It must be unique in the model. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
             order = 30
         )
         val value: EntityKey
@@ -647,26 +647,26 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_update_name",
         title = "Update entity name",
-        description = "Changes the display name of an entity.",
+        description = "Updates the name of an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateName(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Name",
-            description = "New display name.",
+            description = "Name of this entity.",
             order = 30
         )
         val value: LocalizedText?
@@ -675,26 +675,26 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_update_description",
         title = "Update entity description",
-        description = "Changes the description of an entity.",
+        description = "Updates the description of an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateDescription(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
-            name = "Name",
-            description = "New description.",
+            name = "Description",
+            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, and any other information that helps someone new to understand it.",
             order = 30
         )
         val value: LocalizedMarkdown?
@@ -703,27 +703,27 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_update_documentation_link",
         title = "Update entity external documentation",
-        description = "Provides a link to an external documentation.",
+        description = "Updates the external documentation link of an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_UpdateDocumentationHome(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "URL",
-            description = "Link to the external documentation.",
-            order = 1
+            description = "Link to external documentation for this entity.",
+            order = 30
         )
         val value: String?
     ) : ModelAction
@@ -731,26 +731,26 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_add_tag",
         title = "Add entity tag",
-        description = "Add a tag to an entity.",
+        description = "Adds a tag to an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_AddTag(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Tag",
-            description = "Tag to add to entity.",
+            description = "Tag to add to this entity.",
             order = 30
         )
         val tag: TagRef
@@ -760,26 +760,26 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "entity_delete_tag",
         title = "Delete entity tag",
-        description = "Changes the description of an entity.",
+        description = "Removes a tag from an entity.",
         uiLocations = [ActionUILocation.entity_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Entity_DeleteTag(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to update is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to update.",
+            description = "Entity to update.",
             order = 20
         )
         val entityRef: EntityRef,
         @ActionParamDoc(
             name = "Tag",
-            description = "Tag to delete.",
+            description = "Tag to remove from this entity.",
             order = 30
         )
         val tag: TagRef
@@ -796,13 +796,13 @@ sealed interface ModelAction {
     data class Entity_Delete(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the entity to delete is located.",
+            description = "Model where this entity is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Entity",
-            description = "Reference of the entity to delete.",
+            description = "Entity to delete.",
             order = 20
         )
         val entityRef: EntityRef,
