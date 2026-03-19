@@ -18,36 +18,35 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "import",
         title = "Import model",
-        description = "Import a new model. Detection is made based on the content of the file to detect original format. See installed plugins for supported formats.",
+        description = "Imports a model from various locations.",
         uiLocations = [ActionUILocation.models],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
     )
     data class Import(
         @ActionParamDoc(
-            name = "URL to import from",
+            name = "Source to import from",
             description = """
-                        Provide an URL `https://...` to import from a remote location. 
+                        Source to import from.
                         
-                        Provide a filesystem path `/path/to/file` to import from a local file of your installation.
-                        
-                        Provide a `datasource:<datasource_name>` to import from a database. Available datasources are listed in configuration tools.     
+                        - Use an URL `https://...` to import from a remote location.
+                        - Use `datasource:<datasource_name>` to import from a database. Available datasources are listed in configuration tools.
                         """,
-            order = 1
+            order = 10
         )
         val from: String,
         @ActionParamDoc(
-            name = "Model key after import",
-            description = """Key of the model once imported. If not specified, the model key will be auto generated.""",
-            order = 2
-        )
-        val modelKey: ModelKey?,
-        @ActionParamDoc(
             name = "Model name after import",
-            description = """Name of the model once imported. If not specified, the name will be auto generated.""",
-            order = 3
+            description = """Name of the model once imported. If not specified, the name is generated automatically.""",
+            order = 20
         )
         val modelName: String?,
+        @ActionParamDoc(
+            name = "Model key after import",
+            description = """Stable business code of the model once imported. If not specified, the key is generated automatically.""",
+            order = 30
+        )
+        val modelKey: ModelKey?,
     ) : ModelAction
 
     // ------------------------------------------------------------------------
