@@ -765,14 +765,49 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class EntityAttribute_Create(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the entity is.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Reference of the entity where to create attribute.",
+            order = 11
+        )
         val entityRef: EntityRef,
-        val attributeKey: AttributeKey,
-        val type: TypeRef,
-        val optional: Boolean = false,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of the attribute, human-readable.",
+            order = 20
+        )
         val name: LocalizedText?,
-        val description: LocalizedMarkdown?
-    ) : ModelAction
+        @ActionParamDoc(
+            name = "Attribute key",
+            description = "Unique key of the attribute in its entity.",
+            order = 30
+        )
+        val attributeKey: AttributeKey,
+        @ActionParamDoc(
+            name = "Data type",
+            description = "Data type of this attribute, choosed from the types of the model.",
+            order = 40
+        )
+        val type: TypeRef,
+        @ActionParamDoc(
+            name = "Attribute is optional",
+            description = "Indicates this attribute is not required.",
+            order = 45
+        )
+        val optional: Boolean = false,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Attribute's full description.",
+            order = 50
+        )
+        val description: LocalizedMarkdown?,
+        ) : ModelAction
 
 
     @ActionDoc(
@@ -1087,12 +1122,47 @@ sealed interface ModelAction {
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_Create(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Reference of the model where the relationship is.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Reference of the relationship where to create attribute.",
+            order = 11
+        )
         val relationshipRef: RelationshipRef,
-        val attributeKey: AttributeKey,
-        val type: TypeRef,
-        val optional: Boolean,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of the attribute, human-readable.",
+            order = 20
+        )
         val name: LocalizedText?,
+        @ActionParamDoc(
+            name = "Attribute key",
+            description = "Unique key of the attribute in its relationship.",
+            order = 30
+        )
+        val attributeKey: AttributeKey,
+        @ActionParamDoc(
+            name = "Data type",
+            description = "Data type of this attribute, choosed from the types of the model.",
+            order = 40
+        )
+        val type: TypeRef,
+        @ActionParamDoc(
+            name = "Attribute is optional",
+            description = "Indicates this attribute is not required.",
+            order = 45
+        )
+        val optional: Boolean,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Attribute's full description.",
+            order = 50
+        )
         val description: LocalizedMarkdown?,
     ) : ModelAction
 

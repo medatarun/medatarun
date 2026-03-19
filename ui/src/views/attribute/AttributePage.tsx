@@ -290,7 +290,7 @@ export function AttributeView({
                     icon={<EntityIcon />}
                     onClick={handleClickEntity}
                   >
-                    {parentAsEntity.name ?? parentAsEntity.id}
+                    {model.findEntityNameOrKey(parentAsEntity.id)}
                   </BreadcrumbButton>
                 </BreadcrumbItem>
               )}
@@ -300,7 +300,7 @@ export function AttributeView({
                     icon={<RelationshipIcon />}
                     onClick={handleClickRelationship}
                   >
-                    {parentAsRelationship.name ?? parentAsRelationship.id}
+                    {model.findRelationshipNameOrKey(parentAsRelationship.id)}
                   </BreadcrumbButton>
                 </BreadcrumbItem>
               )}
