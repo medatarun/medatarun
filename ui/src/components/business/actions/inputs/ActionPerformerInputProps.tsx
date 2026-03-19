@@ -6,5 +6,5 @@ export interface ActionPerformerInputProps<T = unknown> {
   inputRef: Ref<HTMLInputElement> | undefined;
   value: T | null;
   disabled: boolean;
-  onValueChange: (value: unknown) => void;
+  onValueChange: (value: T) => void;
 }

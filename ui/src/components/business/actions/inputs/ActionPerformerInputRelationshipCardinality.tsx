@@ -5,12 +5,12 @@ import {
   normalizeValueStringOrEmpty,
 } from "./ActionPerformerInput.utils.ts";
 
-export function ActionPerformerInputModelAuthority(
+export function ActionPerformerInputRelationshipCardinality(
   props: ActionPerformerInputProps,
 ) {
   const wrappedProps = adaptPropsValueNullableToValueEmpty(props);
   const valueSafe = normalizeValueStringOrEmpty(wrappedProps.value);
-  const options = createAuthorityOptions();
+  const options = createRelationshipCardinalityOptions();
 
   return (
     <InputSelect
@@ -22,19 +22,27 @@ export function ActionPerformerInputModelAuthority(
   );
 }
 
-function createAuthorityOptions(): InputSelectOption[] {
+function createRelationshipCardinalityOptions(): InputSelectOption[] {
   return [
     {
       code: "",
       label: "--",
     },
     {
-      code: "system",
-      label: "System",
+      code: "zeroOrOne",
+      label: "Maybe one",
     },
     {
-      code: "canonical",
-      label: "Canonical",
+      code: "many",
+      label: "Many",
+    },
+    {
+      code: "one",
+      label: "One",
+    },
+    {
+      code: "unknown",
+      label: "Unknown number of",
     },
   ];
 }

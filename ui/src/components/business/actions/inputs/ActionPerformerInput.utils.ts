@@ -70,7 +70,24 @@ export function adaptPropsRefIdToRawId(
   return {
     ...props,
     value: id,
-    onValueChange: (value: unknown) =>
+    onValueChange: (value: string) =>
       props.onValueChange(rawIdToRefId(normalizeValueStringOrNull(value))),
+  };
+}
+
+/**
+ * Utility wrapper that exposes nullable string values as empty strings for
+ * select-like components and converts the empty selection back to null.
+ */
+export function adaptPropsValueNullableToValueEmpty(
+  props: ActionPerformerInputProps,
+): ActionPerformerInputProps<string> {
+  return {
+    ...props,
+    value: normalizeValueStringOrEmpty(props.value),
+    onValueChange: (value: string) => {
+      const valueSafe = normalizeValueStringOrEmpty(value);
+      props.onValueChange(valueSafe === "" ? null : valueSafe);
+    },
   };
 }
