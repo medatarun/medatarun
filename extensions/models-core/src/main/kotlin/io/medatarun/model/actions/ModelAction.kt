@@ -1683,8 +1683,8 @@ sealed interface ModelAction {
 
     @ActionDoc(
         key = "search",
-        title = "search",
-        description = "Search",
+        title = "Search",
+        description = "Searches models and model objects.",
         uiLocations = [ActionUILocation.global],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(
@@ -1695,7 +1695,17 @@ sealed interface ModelAction {
         )
     )
     data class Search(
+        @ActionParamDoc(
+            name = "Filters",
+            description = "Filters used to narrow the search result. You can combine text filters and tag filters with AND or OR.",
+            order = 10
+        )
         val filters: SearchFilters,
+        @ActionParamDoc(
+            name = "Fields",
+            description = "Fields returned for each search result. Use this to choose which information is included in the result, for example the location.",
+            order = 20
+        )
         val fields: SearchFields,
     ) : ModelAction
 
@@ -1706,7 +1716,7 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "history_versions",
         title = "Versions",
-        description = "Lists model released versions",
+        description = "Lists the released versions of a model.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(
@@ -1717,13 +1727,18 @@ sealed interface ModelAction {
         )
     )
     data class HistoryVersions(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model whose released versions you want to list.",
+            order = 10
+        )
         val modelRef: ModelRef
     ) : ModelAction
 
     @ActionDoc(
         key = "history_version_changes",
         title = "Version changes",
-        description = "Lists changes included in specified version. When no version number is provided, list changes since the last released version.",
+        description = "Lists the changes included in a version. When no version is provided, lists the changes since the last released version.",
         uiLocations = [ActionUILocation.model_overview],
         securityRule = SecurityRuleNames.SIGNED_IN,
         semantics = ActionDocSemantics(
@@ -1734,7 +1749,17 @@ sealed interface ModelAction {
         )
     )
     data class HistoryVersionChanges(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model whose changes you want to inspect.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Version",
+            description = "Version whose changes you want to list. If not specified, the result shows the changes since the last released version. Use semantic-version format.",
+            order = 20
+        )
         val version: ModelVersion?
     ) : ModelAction
 
