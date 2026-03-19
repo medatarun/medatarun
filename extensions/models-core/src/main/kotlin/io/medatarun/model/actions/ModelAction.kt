@@ -853,7 +853,7 @@ sealed interface ModelAction {
         val type: TypeRef,
         @ActionParamDoc(
             name = "Optional",
-            description = "Choose whether this attribute is is optional for some occurrences of the entity.",
+            description = "Choose whether this attribute is required for all occurrences of the entity, or optional for some of them.",
             order = 60
         )
         val optional: Boolean = false,
@@ -1033,7 +1033,7 @@ sealed interface ModelAction {
         val attributeRef: EntityAttributeRef,
         @ActionParamDoc(
             name = "Optional",
-            description = "Choose whether this attribute may be left empty for some occurrences of the entity.",
+            description = "Choose whether this attribute is required for all occurrences of the entity, or optional for some of them.",
             order = 40
         )
         val value: Boolean
@@ -1143,184 +1143,346 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "relationship_create",
         title = "Create relationship",
-        description = "Create a new relationship between entities within a model.",
+        description = "Creates a relationship between entities in a model.",
         uiLocations = [ActionUILocation.model_relationships, ActionUILocation.entity_relationships],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_Create(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this relationship will be created.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide a stable code for this relationship. This code is used to identify it uniquely in the model. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 30
+        )
         val relationshipKey: RelationshipKey,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this relationship.",
+            order = 20
+        )
         val name: LocalizedText?,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Provide a comprehensive description of what this relationship represents in the domain. Explain what link or fact it expresses between entities, the main rules that apply to it, how to read it, and any useful examples or notes.",
+            order = 40
+        )
         val description: LocalizedMarkdown?,
+        @ActionParamDoc(
+            name = "Role A key",
+            description = "Provide a stable code for the first role in this relationship. This code is used to identify the role within the relationship.",
+            order = 50
+        )
         val roleAKey: RelationshipRoleKey,
+        @ActionParamDoc(
+            name = "Role A entity",
+            description = "Entity that participates in this relationship through the first role.",
+            order = 60
+        )
         val roleAEntityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Role A name",
+            description = "Name of the first role. Use it to express how this entity participates in the relationship.",
+            order = 70
+        )
         val roleAName: LocalizedText?,
+        @ActionParamDoc(
+            name = "Role A cardinality",
+            description = "Choose how many occurrences of this entity may participate through the first role in one occurrence of the relationship.",
+            order = 80
+        )
         val roleACardinality: RelationshipCardinality,
+        @ActionParamDoc(
+            name = "Role B key",
+            description = "Provide a stable code for the second role in this relationship. This code is used to identify the role within the relationship.",
+            order = 90
+        )
         val roleBKey: RelationshipRoleKey,
+        @ActionParamDoc(
+            name = "Role B entity",
+            description = "Entity that participates in this relationship through the second role.",
+            order = 100
+        )
         val roleBEntityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Role B name",
+            description = "Name of the second role. Use it to express how this entity participates in the relationship.",
+            order = 110
+        )
         val roleBName: LocalizedText?,
+        @ActionParamDoc(
+            name = "Role B cardinality",
+            description = "Choose how many occurrences of this entity may participate through the second role in one occurrence of the relationship.",
+            order = 120
+        )
         val roleBCardinality: RelationshipCardinality,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_update_key",
         title = "Update relationship key",
-        description = "Changes the key of the relationship",
+        description = "Updates the key of a relationship.",
         uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateKey(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this relationship is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship to update.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(
+            name = "Key",
+            description = "Provide the stable code used to identify this relationship. It must be unique in the model. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 30
+        )
         val value: RelationshipKey,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_update_name",
         title = "Update relationship name",
-        description = "Changes the name of the relationship",
+        description = "Updates the name of a relationship.",
         uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateName(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this relationship is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship to update.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(
+            name = "Name",
+            description = "Name of this relationship.",
+            order = 30
+        )
         val value: LocalizedText?,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_update_description",
         title = "Update relationship description",
-        description = "Changes the description of the relationship",
+        description = "Updates the description of a relationship.",
         uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_UpdateDescription(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this relationship is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship to update.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(
+            name = "Description",
+            description = "Provide a comprehensive description of what this relationship represents in the domain. Explain what link or fact it expresses between entities, the main rules that apply to it, how to read it, and any useful examples or notes.",
+            order = 30
+        )
         val value: LocalizedMarkdown?,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_create",
         title = "Create relationship role",
-        description = "Creates a new relationship role in relationship",
+        description = "Creates a role in a relationship.",
         uiLocations = [ActionUILocation.relationship_roles],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Create(
+        @ActionParamDoc(
+            name = "Model",
+            description = "Model where this relationship is located.",
+            order = 10
+        )
         val modelRef: ModelRef,
+        @ActionParamDoc(
+            name = "Relationship",
+            description = "Relationship where this role will be created.",
+            order = 20
+        )
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(
+            name = "Role key",
+            description = "Provide a stable code for this role. This code is used to identify the role within the relationship.",
+            order = 30
+        )
         val roleKey: RelationshipRoleKey,
+        @ActionParamDoc(
+            name = "Entity",
+            description = "Entity that participates in the relationship through this role.",
+            order = 40
+        )
         val roleEntityRef: EntityRef,
+        @ActionParamDoc(
+            name = "Role name",
+            description = "Name of this role. Use it to express how the entity participates in the relationship.",
+            order = 50
+        )
         val roleName: LocalizedText?,
+        @ActionParamDoc(
+            name = "Cardinality",
+            description = "Choose how many occurrences of this entity may participate through this role in one occurrence of the relationship.",
+            order = 60
+        )
         val roleCardinality: RelationshipCardinality,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_update_key",
         title = "Update relationship role key",
-        description = "Changes the key of the relationship role",
+        description = "Updates the key of a relationship role.",
         uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateKey(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this role is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
+        @ActionParamDoc(name = "Key", description = "Provide the stable code used to identify this role within the relationship.", order = 40)
         val value: RelationshipRoleKey,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_update_entity",
         title = "Update relationship role entity",
-        description = "Changes the entity that the relationship role represents",
+        description = "Updates which entity participates through a relationship role.",
         uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateEntity(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this role is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
+        @ActionParamDoc(name = "Entity", description = "Entity that participates in the relationship through this role.", order = 40)
         val value: EntityRef,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_update_name",
         title = "Update relationship role name",
-        description = "Changes the name of the relationship role.",
+        description = "Updates the name of a relationship role.",
         uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateName(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this role is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
+        @ActionParamDoc(name = "Name", description = "Name of this role. Use it to express how the entity participates in the relationship.", order = 40)
         val value: LocalizedText?,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_update_cardinality",
         title = "Update relationship role cardinality",
-        description = "Changes the cardinality of the role within the relationship.",
+        description = "Updates the cardinality of a relationship role.",
         uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_UpdateCardinality(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this role is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Role", description = "Role to update.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
+        @ActionParamDoc(name = "Cardinality", description = "Choose how many occurrences of this entity may participate through this role in one occurrence of the relationship.", order = 40)
         val value: RelationshipCardinality,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_role_delete",
         title = "Delete relationship role",
-        description = "Deletes relationship role. There must be at least two roles in a relationship left, otherwise this will fail.",
+        description = "Deletes a role from a relationship. This action fails if fewer than two roles would remain.",
         uiLocations = [ActionUILocation.relationship_role],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipRole_Delete(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this role is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Role", description = "Role to delete.", order = 30)
         val relationshipRoleRef: RelationshipRoleRef,
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_add_tag",
         title = "Add tag to relationship",
-        description = "Add tag to relationship",
+        description = "Adds a tag to a relationship.",
         uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_AddTag(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship to update.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Tag", description = "Tag to add to this relationship.", order = 30)
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_delete_tag",
         title = "Delete relationship tag",
-        description = "Delete tag from relationship",
+        description = "Removes a tag from a relationship.",
         uiLocations = [ActionUILocation.relationship_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_DeleteTag(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship to update.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Tag", description = "Tag to remove from this relationship.", order = 30)
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_delete",
         title = "Delete relationship",
-        description = "Delete this relationship",
+        description = "Deletes a relationship.",
         uiLocations = [ActionUILocation.relationship],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class Relationship_Delete(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship to delete.", order = 20)
         val relationshipRef: RelationshipRef,
     ) : ModelAction
 
@@ -1328,51 +1490,51 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "relationship_attribute_create",
         title = "Create relationship attribute",
-        description = "Creates a new relationship attribute",
+        description = "Creates an attribute on a relationship.",
         uiLocations = [ActionUILocation.relationship_attributes],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_Create(
         @ActionParamDoc(
             name = "Model",
-            description = "Reference of the model where the relationship is.",
+            description = "Model where this relationship is located.",
             order = 10
         )
         val modelRef: ModelRef,
         @ActionParamDoc(
             name = "Relationship",
-            description = "Reference of the relationship where to create attribute.",
-            order = 11
+            description = "Relationship where this attribute will be created.",
+            order = 20
         )
         val relationshipRef: RelationshipRef,
         @ActionParamDoc(
             name = "Name",
-            description = "Name of the attribute, human-readable.",
-            order = 20
+            description = "Name of this attribute.",
+            order = 30
         )
         val name: LocalizedText?,
         @ActionParamDoc(
             name = "Attribute key",
-            description = "Unique key of the attribute in its relationship.",
-            order = 30
+            description = "Provide a stable code for this attribute. This code is used to identify it uniquely in the relationship. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
+            order = 40
         )
         val attributeKey: AttributeKey,
         @ActionParamDoc(
             name = "Data type",
-            description = "Data type of this attribute, choosed from the types of the model.",
-            order = 40
+            description = "Choose the data type of the information carried by this attribute.",
+            order = 50
         )
         val type: TypeRef,
         @ActionParamDoc(
-            name = "Attribute is optional",
-            description = "Indicates this attribute is not required.",
-            order = 45
+            name = "Optional",
+            description = "Choose whether this attribute is required for all occurrences of the relationship, or optional for some of them.",
+            order = 60
         )
         val optional: Boolean,
         @ActionParamDoc(
             name = "Description",
-            description = "Attribute's full description.",
-            order = 50
+            description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.",
+            order = 70
         )
         val description: LocalizedMarkdown?,
     ) : ModelAction
@@ -1380,111 +1542,142 @@ sealed interface ModelAction {
     @ActionDoc(
         key = "relationship_attribute_update_key",
         title = "Update relationship attribute key",
-        description = "Changes key of a relationship attribute.",
+        description = "Updates the key of a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateKey(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Key", description = "Provide the stable code used to identify this attribute. It must be unique in the relationship. Keep it stable over time, and avoid quotes, backslashes, and unusual special characters.", order = 40)
         val value: AttributeKey
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_update_name",
         title = "Update relationship attribute name",
-        description = "Changes the display title of a relationship attribute.",
+        description = "Updates the name of a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateName(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Name", description = "Name of this attribute.", order = 40)
         val value: LocalizedText?
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_update_description",
         title = "Update relationship attribute description",
-        description = "Changes the description of a relationship attribute.",
+        description = "Updates the description of a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateDescription(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Description", description = "Provide a comprehensive description of what this attribute represents, what information it contains, which values are expected, the main rules that apply to it, and any useful examples or notes.", order = 40)
         val value: LocalizedMarkdown?
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_update_type",
         title = "Update relationship attribute type",
-        description = "Changes the declared type of a relationship attribute.",
+        description = "Updates the data type of a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateType(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Data type", description = "Choose the data type of the information carried by this attribute.", order = 40)
         val value: TypeRef
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_update_optional",
         title = "Update relationship attribute optionality",
-        description = "Changes whether a relationship attribute is optional.",
+        description = "Updates whether a relationship attribute is optional.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_UpdateOptional(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Optional", description = "Choose whether this attribute is required for all occurrences of the relationship, or optional for some of them.", order = 40)
         val value: Boolean
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_add_tag",
         title = "Add tag to relationship attribute",
-        description = "Add a new tag to relationship attribute",
+        description = "Adds a tag to a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_AddTag(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Tag", description = "Tag to add to this attribute.", order = 40)
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_delete_tag",
         title = "Delete tag from relationship attribute",
-        description = "Delete tag from relationship attribute",
+        description = "Removes a tag from a relationship attribute.",
         uiLocations = [ActionUILocation.relationship_attribute_hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_DeleteTag(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to update.", order = 30)
         val attributeRef: RelationshipAttributeRef,
+        @ActionParamDoc(name = "Tag", description = "Tag to remove from this attribute.", order = 40)
         val tag: TagRef
     ) : ModelAction
 
     @ActionDoc(
         key = "relationship_attribute_delete",
         title = "Delete relationship attribute",
-        description = "Delete relationship attribute",
+        description = "Deletes an attribute from a relationship.",
         uiLocations = [ActionUILocation.relationship_attribute],
         securityRule = SecurityRuleNames.SIGNED_IN
     )
     data class RelationshipAttribute_Delete(
+        @ActionParamDoc(name = "Model", description = "Model where this relationship is located.", order = 10)
         val modelRef: ModelRef,
+        @ActionParamDoc(name = "Relationship", description = "Relationship where this attribute is located.", order = 20)
         val relationshipRef: RelationshipRef,
+        @ActionParamDoc(name = "Attribute", description = "Attribute to delete.", order = 30)
         val attributeRef: RelationshipAttributeRef,
     ) : ModelAction
 
