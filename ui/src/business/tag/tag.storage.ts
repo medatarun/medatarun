@@ -24,20 +24,6 @@ export type TagSearchResp = {
 export type TagGroupListResp = {
   items: TagGroupDto[];
 };
-export function tagSearchByScope(scope: TagScopeRef) {
-  return {
-    filters: {
-      operator: "and" as const,
-      items: [
-        {
-          type: "scopeRef" as const,
-          condition: "is" as const,
-          value: scope,
-        },
-      ],
-    },
-  };
-}
 
 export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
   return useQuery({
