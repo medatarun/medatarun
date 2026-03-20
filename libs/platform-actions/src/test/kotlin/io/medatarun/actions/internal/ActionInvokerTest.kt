@@ -31,19 +31,18 @@ class ActionInvokerTest {
     @Test
     fun `dispatch uses the action class resolved from json`() {
         val runtime = TestRuntime()
-        val payload = buildJsonObject {
-            put("name", JsonPrimitive("alpha"))
-            put("count", JsonPrimitive(2))
-        }
 
-        val result = runtime.invoke("alpha", payload)
+        val result = runtime.invoke(ACTION_NAME_ALPHA, buildJsonObject {
+            put("name", JsonPrimitive("My Name"))
+            put("count", JsonPrimitive(2))
+        })
 
         assertEquals("ok", result)
-        val cmd = runtime.lastCommand()
-        assertTrue(cmd is TestAction.Alpha)
-        assertEquals("alpha", cmd.name)
-        assertEquals(2, cmd.count)
-        assertEquals(null, cmd.note)
+        val resultPayload = runtime.lastCommand()
+        assertTrue(resultPayload is TestAction.Alpha)
+        assertEquals("My Name", resultPayload.name)
+        assertEquals(2, resultPayload.count)
+        assertEquals(null, resultPayload.note)
         assertNotNull(runtime.lastActionCtx())
     }
 
@@ -55,12 +54,12 @@ class ActionInvokerTest {
     fun `optional params are respected when provided`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
-            put("name", JsonPrimitive("alpha"))
+            put("name", JsonPrimitive("My Name"))
             put("count", JsonPrimitive(2))
             put("note", JsonPrimitive("memo"))
         }
 
-        runtime.invoke("alpha", payload)
+        runtime.invoke(ACTION_NAME_ALPHA, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.Alpha)
@@ -76,21 +75,21 @@ class ActionInvokerTest {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
             put("names", buildJsonArray {
-                add(JsonPrimitive("alpha"))
-                add(JsonPrimitive("beta"))
+                add(JsonPrimitive("Marie"))
+                add(JsonPrimitive("Jean"))
             })
             put("counts", buildJsonObject {
-                put("alpha", JsonPrimitive(1))
-                put("beta", JsonPrimitive(2))
+                put("Pierre", JsonPrimitive(1))
+                put("Marcel", JsonPrimitive(2))
             })
         }
 
-        runtime.invoke("collections", payload)
+        runtime.invoke(ACTION_NAME_COLLECTIONS, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithCollections)
-        assertEquals(listOf("alpha", "beta"), cmd.names)
-        assertEquals(mapOf("alpha" to 1, "beta" to 2), cmd.counts)
+        assertEquals(listOf("Marie", "Jean"), cmd.names)
+        assertEquals(mapOf("Pierre" to 1, "Marcel" to 2), cmd.counts)
     }
 
     // ------------------------------------------------------------------------
@@ -103,7 +102,7 @@ class ActionInvokerTest {
         val payload = buildJsonObject {
         }
 
-        runtime.invoke("string_optional", payload)
+        runtime.invoke(ACTION_NAME_STRING_OPTIONAL, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithStringOptional)
@@ -117,7 +116,7 @@ class ActionInvokerTest {
             put("value", JsonNull)
         }
 
-        runtime.invoke("string_optional", payload)
+        runtime.invoke(ACTION_NAME_STRING_OPTIONAL, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithStringOptional)
@@ -128,14 +127,14 @@ class ActionInvokerTest {
     fun `string optional when provided then found`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
-            put("value", JsonPrimitive("alpha"))
+            put("value", JsonPrimitive("this is a string"))
         }
 
-        runtime.invoke("string_optional", payload)
+        runtime.invoke(ACTION_NAME_STRING_OPTIONAL, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithStringOptional)
-        assertEquals("alpha", cmd.value)
+        assertEquals("this is a string", cmd.value)
     }
 
 
@@ -151,7 +150,7 @@ class ActionInvokerTest {
             put("price", JsonPrimitive("12.50"))
         }
 
-        runtime.invoke("decimal", payload)
+        runtime.invoke(ACTION_NAME_DECIMAL, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDecimal)
@@ -165,7 +164,7 @@ class ActionInvokerTest {
             put("price", JsonPrimitive(12.50))
         }
 
-        runtime.invoke("decimal", payload)
+        runtime.invoke(ACTION_NAME_DECIMAL, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDecimal)
@@ -179,7 +178,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive("12345678901234567890"))
         }
 
-        runtime.invoke("big_integer", payload)
+        runtime.invoke(ACTION_NAME_BIG_INTEGER, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithBigInteger)
@@ -193,7 +192,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive(1234567890))
         }
 
-        runtime.invoke("big_integer", payload)
+        runtime.invoke(ACTION_NAME_BIG_INTEGER, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithBigInteger)
@@ -207,7 +206,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive("abcd"))
         }
 
-        runtime.invoke("abbreviation", payload)
+        runtime.invoke(ACTION_NAME_ABBREVIATION, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithAbbreviation)
@@ -221,7 +220,7 @@ class ActionInvokerTest {
 
         }
         assertThrows<ActionInvocationException> {
-            runtime.invoke("abbreviation", payload)
+            runtime.invoke(ACTION_NAME_ABBREVIATION, payload)
         }
     }
 
@@ -232,7 +231,7 @@ class ActionInvokerTest {
             put("value", JsonNull)
         }
         assertThrows<ActionInvocationException> {
-            runtime.invoke("abbreviation", payload)
+            runtime.invoke(ACTION_NAME_ABBREVIATION, payload)
         }
     }
 
@@ -241,7 +240,7 @@ class ActionInvokerTest {
         val runtime = TestRuntime()
         val payload = buildJsonObject { }
 
-        runtime.invoke("optional_abbreviation", payload)
+        runtime.invoke(ACTION_NAME_OPTIONAL_ABBREVIATION, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithOptionalAbbreviation)
@@ -255,7 +254,7 @@ class ActionInvokerTest {
             put("value", JsonNull)
         }
 
-        runtime.invoke("optional_abbreviation", payload)
+        runtime.invoke(ACTION_NAME_OPTIONAL_ABBREVIATION, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithOptionalAbbreviation)
@@ -269,7 +268,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive("abcd"))
         }
 
-        runtime.invoke("optional_abbreviation", payload)
+        runtime.invoke(ACTION_NAME_OPTIONAL_ABBREVIATION, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithOptionalAbbreviation)
@@ -283,7 +282,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive("12.75"))
         }
 
-        runtime.invoke("double", payload)
+        runtime.invoke(ACTION_NAME_DOUBLE, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDouble)
@@ -297,7 +296,7 @@ class ActionInvokerTest {
             put("value", JsonPrimitive(12.75))
         }
 
-        runtime.invoke("double", payload)
+        runtime.invoke(ACTION_NAME_DOUBLE, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithDouble)
@@ -311,7 +310,7 @@ class ActionInvokerTest {
             put("at", JsonPrimitive("2023-11-14T00:00:00Z"))
         }
 
-        runtime.invoke("instant", payload)
+        runtime.invoke(ACTION_NAME_INSTANT, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithInstant)
@@ -325,7 +324,7 @@ class ActionInvokerTest {
             put("at", JsonPrimitive(1700000000123))
         }
 
-        runtime.invoke("instant", payload)
+        runtime.invoke(ACTION_NAME_INSTANT, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithInstant)
@@ -339,7 +338,7 @@ class ActionInvokerTest {
             put("date", JsonPrimitive("2023-11-14"))
         }
 
-        runtime.invoke("local_date", payload)
+        runtime.invoke(ACTION_NAME_LOCAL_DATE, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithLocalDate)
@@ -354,7 +353,7 @@ class ActionInvokerTest {
         }
 
         val ex = assertThrows<ActionInvocationException> {
-            runtime.invoke("abbreviation", payload)
+            runtime.invoke(ACTION_NAME_ABBREVIATION, payload)
         }
 
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
@@ -380,7 +379,7 @@ class ActionInvokerTest {
             })
         }
 
-        runtime.invoke("complex", payload)
+        runtime.invoke(ACTION_NAME_COMPLEX, payload)
 
         val cmd = runtime.lastCommand()
         assertTrue(cmd is TestAction.WithComplex)
@@ -409,33 +408,45 @@ class ActionInvokerTest {
         val payload = buildJsonObject { }
 
         val ex = assertThrows<ActionInvocationException> {
-            runtime.invoke("missing", payload)
+            runtime.invoke(ACTION_NAME_MISSING, payload)
         }
 
         assertEquals(StatusCode.NOT_FOUND, ex.status)
     }
 
     @Test
-    fun `security rule error returns unauthorized`() {
+    fun `authentication security rule error returns unauthorized`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject { }
 
         val ex = assertThrows<ActionInvocationException> {
-            runtime.invoke("denied", payload)
+            runtime.invoke(ACTION_NAME_DENIED_AUTHENTICATION, payload)
         }
 
         assertEquals(StatusCode.UNAUTHORIZED, ex.status)
     }
 
     @Test
+    fun `authorization security rule error returns forbidden`() {
+        val runtime = TestRuntime()
+        val payload = buildJsonObject { }
+
+        val ex = assertThrows<ActionInvocationException> {
+            runtime.invoke(ACTION_NAME_DENIED_AUTHORIZATION, payload)
+        }
+
+        assertEquals(StatusCode.FORBIDDEN, ex.status)
+    }
+
+    @Test
     fun `missing required param is rejected`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
-            put("name", JsonPrimitive("alpha"))
+            put("name", JsonPrimitive("My Name"))
         }
 
         val ex = assertThrows<ActionInvocationException> {
-            runtime.invoke("alpha", payload)
+            runtime.invoke(ACTION_NAME_ALPHA, payload)
         }
 
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
@@ -445,12 +456,12 @@ class ActionInvokerTest {
     fun `invalid parameter type is rejected`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
-            put("name", JsonPrimitive("alpha"))
+            put("name", JsonPrimitive("my name"))
             put("count", JsonPrimitive("wrong"))
         }
 
         val ex = assertThrows<ActionInvocationException> {
-            runtime.invoke("alpha", payload)
+            runtime.invoke(ACTION_NAME_ALPHA, payload)
         }
 
         assertEquals(StatusCode.BAD_REQUEST, ex.status)
@@ -460,11 +471,11 @@ class ActionInvokerTest {
     fun `audit records received and succeeded`() {
         val runtime = TestRuntime()
         val payload = buildJsonObject {
-            put("name", JsonPrimitive("alpha"))
+            put("name", JsonPrimitive("my name"))
             put("count", JsonPrimitive(2))
         }
 
-        runtime.invoke("alpha", payload)
+        runtime.invoke(ACTION_NAME_ALPHA, payload)
 
         val recorder = runtime.auditRecorder()
         assertEquals(1, recorder.received.size)
@@ -482,7 +493,7 @@ class ActionInvokerTest {
         val payload = buildJsonObject { }
 
         assertThrows<ActionInvocationException> {
-            runtime.invoke("denied", payload)
+            runtime.invoke(ACTION_NAME_DENIED_AUTHENTICATION, payload)
         }
 
         val recorder = runtime.auditRecorder()
@@ -499,7 +510,7 @@ class ActionInvokerTest {
         val payload = buildJsonObject { }
 
         assertThrows<TestActionDispatchFailedException> {
-            runtime.invoke("crash", payload)
+            runtime.invoke(ACTION_NAME_CRASH, payload)
         }
 
         val recorder = runtime.auditRecorder()
@@ -559,14 +570,18 @@ class ActionInvokerTest {
 
     private object DefaultTestSecurityRulesProvider : SecurityRulesProvider {
         override fun getRules(): List<SecurityRuleEvaluator> {
-            return listOf(AllowSecurityRuleEvaluator(), DenySecurityRuleEvaluator())
+            return listOf(
+                AllowSecurityRuleEvaluator(),
+                DenyAuthorizationSecurityRuleEvaluator(),
+                DenyAuthenticationSecurityRuleEvaluator()
+            )
         }
     }
 
     @Suppress("unused") // Remove unused because "key" launches actions, doesn't mean the action is not used.
     private sealed interface TestAction {
         @ActionDoc(
-            key = "alpha",
+            key = ACTION_NAME_ALPHA,
             title = "Alpha",
             description = "Test action",
             uiLocations = [""],
@@ -576,36 +591,46 @@ class ActionInvokerTest {
         class Alpha(
             @ActionParamDoc(
                 name = "name",
-                description = "Action name",
+                description = "Name",
                 order = 1
             )
             val name: String,
             @ActionParamDoc(
                 name = "count",
-                description = "Action count",
+                description = "Count",
                 order = 2
             )
             val count: Int,
             @ActionParamDoc(
                 name = "note",
-                description = "Optional note",
+                description = "Note",
                 order = 3
             )
             val note: String?
         ) : TestAction
 
         @ActionDoc(
-            key = "denied",
-            title = "Denied",
+            key = ACTION_NAME_DENIED_AUTHORIZATION,
+            title = "Denied authorization",
             description = "Action denied by security",
             uiLocations = [""],
-            securityRule = RULE_DENY,
+            securityRule = RULE_DENY_AUTHORIZATION,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        class Denied : TestAction
+        class DeniedAuthorization : TestAction
 
         @ActionDoc(
-            key = "crash",
+            key = ACTION_NAME_DENIED_AUTHENTICATION,
+            title = "Denied authentication",
+            description = "Action denied by security",
+            uiLocations = [""],
+            securityRule = RULE_DENY_AUTHENTICATION,
+            semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+        )
+        class DeniedAuthentication : TestAction
+
+        @ActionDoc(
+            key = ACTION_NAME_CRASH,
             title = "Crash",
             description = "Action that throws during business invoke",
             uiLocations = [""],
@@ -615,7 +640,7 @@ class ActionInvokerTest {
         class Crash : TestAction
 
         @ActionDoc(
-            key = "collections",
+            key = ACTION_NAME_COLLECTIONS,
             title = "Collections",
             description = "Action with list and map",
             uiLocations = [""],
@@ -638,7 +663,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "decimal",
+            key = ACTION_NAME_DECIMAL,
             title = "Decimal",
             description = "Action with BigDecimal",
             uiLocations = [""],
@@ -655,7 +680,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "big_integer",
+            key = ACTION_NAME_BIG_INTEGER,
             title = "BigInteger",
             description = "Action with BigInteger",
             uiLocations = [""],
@@ -672,7 +697,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "double",
+            key = ACTION_NAME_DOUBLE,
             title = "Double",
             description = "Action with Double",
             uiLocations = [""],
@@ -689,7 +714,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "instant",
+            key = ACTION_NAME_INSTANT,
             title = "Instant",
             description = "Action with Instant",
             uiLocations = [""],
@@ -706,7 +731,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "local_date",
+            key = ACTION_NAME_LOCAL_DATE,
             title = "LocalDate",
             description = "Action with LocalDate",
             uiLocations = [""],
@@ -723,7 +748,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "string_optional",
+            key = ACTION_NAME_STRING_OPTIONAL,
             title = "String",
             description = "Action with String",
             uiLocations = [""],
@@ -740,7 +765,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "abbreviation",
+            key = ACTION_NAME_ABBREVIATION,
             title = "Abbreviation",
             description = "Action with validated abbreviation",
             uiLocations = [""],
@@ -757,7 +782,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "optional_abbreviation",
+            key = ACTION_NAME_OPTIONAL_ABBREVIATION,
             title = "Optional abbreviation",
             description = "Action with optional abbreviation",
             uiLocations = [""],
@@ -774,7 +799,7 @@ class ActionInvokerTest {
         ) : TestAction
 
         @ActionDoc(
-            key = "complex",
+            key = ACTION_NAME_COMPLEX,
             title = "Complex",
             description = "Action with complex payload",
             uiLocations = [""],
@@ -885,13 +910,23 @@ class ActionInvokerTest {
         }
     }
 
-    private class DenySecurityRuleEvaluator : SecurityRuleEvaluator {
-        override val key: String = RULE_DENY
-        override val name: String = "Deny"
+    private class DenyAuthenticationSecurityRuleEvaluator : SecurityRuleEvaluator {
+        override val key: String = RULE_DENY_AUTHENTICATION
+        override val name: String = "Deny by authentication"
         override val description: String = "Deny all in tests."
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
-            return SecurityRuleEvaluatorResult.Error("blocked")
+            return SecurityRuleEvaluatorResult.AuthenticationError("blocked")
+        }
+    }
+
+    private class DenyAuthorizationSecurityRuleEvaluator : SecurityRuleEvaluator {
+        override val key: String = RULE_DENY_AUTHORIZATION
+        override val name: String = "Deny by authorization"
+        override val description: String = "Deny all in tests."
+
+        override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
+            return SecurityRuleEvaluatorResult.AuthorizationError("blocked")
         }
     }
 
@@ -899,6 +934,25 @@ class ActionInvokerTest {
 
     private companion object {
         const val RULE_ALLOW = "allow"
-        const val RULE_DENY = "deny"
+        const val RULE_DENY_AUTHORIZATION = "deny-authorization"
+        const val RULE_DENY_AUTHENTICATION = "deny-authentication"
+        const val ACTION_NAME_ALPHA = "alpha"
+        const val ACTION_NAME_COLLECTIONS = "collections"
+        const val ACTION_NAME_STRING_OPTIONAL = "string_optional"
+        const val ACTION_NAME_DECIMAL = "decimal"
+        const val ACTION_NAME_BIG_INTEGER = "big_integer"
+        const val ACTION_NAME_ABBREVIATION = "abbreviation"
+        const val ACTION_NAME_DENIED_AUTHORIZATION = "denied_authorization"
+        const val ACTION_NAME_OPTIONAL_ABBREVIATION = "optional_abbreviation"
+        const val ACTION_NAME_COMPLEX = "complex"
+        const val ACTION_NAME_LOCAL_DATE = "local_date"
+        const val ACTION_NAME_DOUBLE = "double"
+        const val ACTION_NAME_INSTANT = "instant"
+        const val ACTION_NAME_DENIED_AUTHENTICATION = "denied_authentication"
+        const val ACTION_NAME_CRASH = "crash"
+
+        // There is no action with this name because it is used to test not found actions
+        const val ACTION_NAME_MISSING = "missing"
+
     }
 }

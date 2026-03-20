@@ -11,6 +11,7 @@ import io.medatarun.model.actions.history.toModelChangeEventListDto
 import io.medatarun.model.actions.list.ModelListDto
 import io.medatarun.model.actions.list.ModelListDtoAdapters
 import io.medatarun.model.actions.search.ModelSearchDtoAdapters
+import io.medatarun.model.domain.ModelActionNotAuthenticatedException
 import io.medatarun.model.domain.ModelActionNotAuthorizedException
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
@@ -35,7 +36,7 @@ class ModelActionHandler(
     private val actorResolver: AppActorResolver
 ) {
     fun dispatch(businessCmd: ModelCmd) {
-        val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthorizedException()
+        val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthenticatedException()
         modelCmds.dispatch(ModelCmdEnveloppe(actionCtx.actionInstanceId, principal.id, businessCmd))
     }
 

@@ -23,7 +23,7 @@ internal class SecurityRuleCtxAction(private val actionCtx: ActionRequestCtx) : 
     override fun ensureRole(wantedRole: AppPrincipalRole): SecurityRuleEvaluatorResult {
 
             val ok = getRoles().any { it.key == wantedRole.key }
-            return if (ok) SecurityRuleEvaluatorResult.Ok() else SecurityRuleEvaluatorResult.Error("Not authorized. Role [${wantedRole.key}] is needed.")
+            return if (ok) SecurityRuleEvaluatorResult.Ok() else SecurityRuleEvaluatorResult.AuthorizationError("Not authorized. Role [${wantedRole.key}] is needed.")
 
     }
 }

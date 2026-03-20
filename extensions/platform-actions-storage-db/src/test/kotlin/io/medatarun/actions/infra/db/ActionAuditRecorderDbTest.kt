@@ -35,7 +35,7 @@ class ActionAuditRecorderDbTest {
         val row = env.auditRows().single()
         assertEquals("security-denied", row.actionKey)
         assertEquals("REJECTED", row.status)
-        assertEquals("UNAUTHORIZED", row.errorCode)
+        assertEquals("FORBIDDEN", row.errorCode)
         assertEquals("Unauthorized", row.errorMessage)
     }
 

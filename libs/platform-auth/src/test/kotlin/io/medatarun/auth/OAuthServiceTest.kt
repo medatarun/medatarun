@@ -2,7 +2,7 @@ package io.medatarun.auth
 
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.ConfigProperties
-import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -30,14 +30,14 @@ class OAuthServiceTest {
 
         @Test
         fun `admin cannot log in with bad login`() {
-            assertThrows<AuthUnauthorizedException> {
+            assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(Username(env.adminUsername.value + "--"), env.adminPassword)
             }
         }
 
         @Test
         fun `admin cannot log in with bad password`() {
-            assertThrows<AuthUnauthorizedException> {
+            assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(env.adminUsername, PasswordClear(env.adminPassword.value + "---"))
             }
         }

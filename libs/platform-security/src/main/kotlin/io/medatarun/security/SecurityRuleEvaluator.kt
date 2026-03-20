@@ -25,5 +25,7 @@ interface SecurityRuleEvaluator {
 
 sealed interface SecurityRuleEvaluatorResult {
     class Ok: SecurityRuleEvaluatorResult
+    class AuthenticationError(val msg: String): SecurityRuleEvaluatorResult
+    class AuthorizationError(val msg: String): SecurityRuleEvaluatorResult
     class Error(val msg: String): SecurityRuleEvaluatorResult
 }

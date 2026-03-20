@@ -20,8 +20,11 @@ class BootstrapSecretBadSecretException :
 class UserCreatePasswordFailException(reason: UserPasswordEncrypter.PasswordPolicyFailReason) :
     MedatarunException("Bad password: " + reason.label, StatusCode.BAD_REQUEST)
 
-class AuthUnauthorizedException :
+class AuthNotAuthenticatedException :
     MedatarunException("Bad credentials.", StatusCode.UNAUTHORIZED)
+
+class AuthNotAuthorizedException :
+    MedatarunException("Bad credentials.", StatusCode.FORBIDDEN)
 
 class UserNotFoundException :
     MedatarunException("User not found.", StatusCode.NOT_FOUND)

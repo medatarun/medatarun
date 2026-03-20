@@ -83,9 +83,16 @@ internal class ActionInvokerImpl(
         // Evaluate security first, before any attempt to decode the payload
         val securityRuleEvaluationResult =
             actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
-        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
+        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthenticationError) {
             throw ActionInvocationException(
                 StatusCode.UNAUTHORIZED,
+                "Unauthorized",
+                mapOf("details" to securityRuleEvaluationResult.msg)
+            )
+        }
+        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthorizationError) {
+            throw ActionInvocationException(
+                StatusCode.FORBIDDEN,
                 "Unauthorized",
                 mapOf("details" to securityRuleEvaluationResult.msg)
             )

@@ -75,9 +75,9 @@ class UserServiceImpl(
     }
 
     override fun changeOwnPassword(username: Username, oldPassword: PasswordClear, newPassword: PasswordClear) {
-        val user = userStorage.findByLogin(username) ?: throw AuthUnauthorizedException()
+        val user = userStorage.findByLogin(username) ?: throw AuthNotAuthenticatedException()
         val valid = userPasswordEncrypter.verifyPassword(user.passwordHash, oldPassword)
-        if (!valid) throw AuthUnauthorizedException()
+        if (!valid) throw AuthNotAuthorizedException()
         val policyCheck = userPasswordEncrypter.checkPasswordPolicy(newPassword, username)
         if (policyCheck is UserPasswordEncrypter.PasswordCheck.Fail)
             throw UserCreatePasswordFailException(policyCheck.reason)
@@ -118,10 +118,10 @@ class UserServiceImpl(
     }
 
     override fun loginUser(username: Username, password: PasswordClear): User {
-        val user = userStorage.findByLogin(username) ?: throw AuthUnauthorizedException()
-        if (user.disabledDate != null) throw AuthUnauthorizedException()
+        val user = userStorage.findByLogin(username) ?: throw AuthNotAuthenticatedException()
+        if (user.disabledDate != null) throw AuthNotAuthenticatedException()
         val valid = userPasswordEncrypter.verifyPassword(user.passwordHash, password)
-        if (!valid) throw AuthUnauthorizedException()
+        if (!valid) throw AuthNotAuthenticatedException()
         return user
     }
 }
