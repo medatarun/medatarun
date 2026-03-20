@@ -111,6 +111,9 @@ internal class ActionInvokerImpl(
                 return handleInvocation(req, actionRequestCtx)
             }
 
+            override val requestCtx: ActionRequestCtx
+                get() = actionRequestCtx
+
             override val actionInstanceId: ActionInstanceId
                 get() = actionInstanceId
 
@@ -121,6 +124,18 @@ internal class ActionInvokerImpl(
 
         // Invoke business action
         return specializedInvoker.invoke(deserializedPayload, actionCtx)
+    }
+
+    override fun evaluateSecurity(
+        actionGroupKey: String,
+        actionKey: String,
+        actionRequestCtx: ActionRequestCtx
+    ): Boolean {
+        val action = registry.findActionOptional(actionGroupKey, actionKey)
+            ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Unknown action '$actionGroupKey/$actionKey'")
+        val securityRuleEvaluationResult =
+            actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
+        return securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Ok
     }
 
     private fun serializePayload(payload: ActionPayload): String {

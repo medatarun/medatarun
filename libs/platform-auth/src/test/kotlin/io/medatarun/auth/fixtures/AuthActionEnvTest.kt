@@ -4,6 +4,7 @@ import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
@@ -66,6 +67,11 @@ class AuthActionEnvTest(
         }
 
         override val principal: ActionPrincipalCtx = actionPrincipal
+        override val requestCtx: ActionRequestCtx
+            get() = object : ActionRequestCtx {
+                override val principalCtx: ActionPrincipalCtx = actionPrincipal
+                override val source: String = "tests"
+            }
     }
 
     companion object {

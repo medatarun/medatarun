@@ -6,6 +6,7 @@ import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
+import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -24,7 +25,6 @@ import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
-import kotlin.reflect.KClass
 
 class VehicleExtension : MedatarunExtension {
     override val id: String = "vehicle"
@@ -133,6 +133,12 @@ class TagTestEnv(
 
         override fun dispatchAction(req: ActionRequest): Any =
             throw IllegalStateException("Should not be called in tests")
+
+        override val requestCtx: ActionRequestCtx
+            get() = object: ActionRequestCtx {
+                override val principalCtx: ActionPrincipalCtx get() = throw TagTestIllegalStateException("Should not be called")
+                override val source: String = "tests"
+            }
 
         override val principal: ActionPrincipalCtx
             get() = throw TagTestIllegalStateException("Should not be called")

@@ -17,4 +17,5 @@ interface ActionCtx {
     val actionInstanceId: ActionInstanceId
     val principal: ActionPrincipalCtx
     fun dispatchAction(req: ActionRequest): Any?
+    val requestCtx: ActionRequestCtx
 }
