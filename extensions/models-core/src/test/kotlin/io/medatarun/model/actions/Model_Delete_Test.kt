@@ -1,12 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.modelRef
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,7 +12,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model fails if model Id not found in any storage`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("m-to-delete-1"),
@@ -41,7 +36,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model removes it from storage`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val env = createEnv()
         val query: ModelQueries = env.queries
 
         env.dispatch(

@@ -1,15 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
@@ -20,7 +12,7 @@ class Entity_Delete_Test {
 
     @Test
     fun `delete entity in model then entity removed`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         val entityId = EntityKey("entity-to-delete")
         val entityRef = EntityRef.ByKey(entityId)
 
@@ -44,7 +36,7 @@ class Entity_Delete_Test {
 
     @Test
     fun `delete entity with same key in two models then only entity in the specified model is removed`() {
-        val runtime = _root_ide_package_.io.medatarun.model.actions.createEnv()
+        val runtime = createEnv()
         val query: ModelQueries = runtime.queries
 
         val modelKey1 = ModelKey("model-1")

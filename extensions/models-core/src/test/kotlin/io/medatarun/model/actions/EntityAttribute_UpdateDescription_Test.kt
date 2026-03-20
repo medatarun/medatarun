@@ -13,7 +13,7 @@ class EntityAttribute_UpdateDescription_Test {
 
     @Test
     fun `update attribute description is persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
@@ -27,7 +27,7 @@ class EntityAttribute_UpdateDescription_Test {
 
     @Test
     fun `update attribute description to null stays null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(description = LocalizedMarkdownNotLocalized("New description"))
         val attributeRef = entityAttributeRef(attr.key)

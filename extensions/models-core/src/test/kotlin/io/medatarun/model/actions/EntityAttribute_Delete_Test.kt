@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.DeleteAttributeIdentifierException
 import io.medatarun.model.domain.EntityAttributeRef
@@ -15,7 +14,7 @@ class EntityAttribute_Delete_Test {
 
     @Test
     fun `delete entity attribute in model then attribute removed`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("bk"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))
@@ -55,7 +54,7 @@ class EntityAttribute_Delete_Test {
 
     @Test
     fun `delete entity attribute used as identifier throws error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("bk"))
         env.createAttribute(attributeKey = AttributeKey("firstname"))

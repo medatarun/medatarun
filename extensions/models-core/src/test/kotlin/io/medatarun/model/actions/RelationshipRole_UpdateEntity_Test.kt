@@ -1,16 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityNotFoundException
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.modelRef
-import io.medatarun.model.domain.typeRef
+import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -19,7 +9,7 @@ class RelationshipRole_UpdateEntity_Test {
 
     @Test
     fun `update relationship role entity persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val targetEntityId = env.query.findEntity(env.modelRef, env.secondaryEntityRef).id
 
         env.dispatch(
@@ -38,7 +28,7 @@ class RelationshipRole_UpdateEntity_Test {
 
     @Test
     fun `update relationship role entity with unknown entity then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         assertFailsWith<EntityNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateEntity(
@@ -53,14 +43,14 @@ class RelationshipRole_UpdateEntity_Test {
 
     @Test
     fun `update relationship role entity with entity from another model then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
 
         val otherModelKey = ModelKey("other-model")
         val otherModelRef = modelRef(otherModelKey)
         val otherEntityRef = EntityRef.ByKey(EntityKey("other-entity"))
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = otherModelKey,
+                key = otherModelKey,
                 name = LocalizedTextNotLocalized("Other model"),
                 description = null,
                 version = ModelVersion("1.0.0")

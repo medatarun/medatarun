@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityUpdateKeyDuplicateKeyException
 import org.junit.jupiter.api.Test
@@ -12,7 +11,7 @@ class Entity_UpdateKey_Test {
 
     @Test
     fun `update entity key with duplicate key throws exception`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val duplicateId = env.secondaryEntityKey
 
         assertFailsWith<EntityUpdateKeyDuplicateKeyException> {
@@ -28,7 +27,7 @@ class Entity_UpdateKey_Test {
 
     @Test
     fun `update entity key with correct key ok`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val newId = EntityKey("entity-renamed")
 
         env.dispatch(ModelAction.Entity_UpdateKey(env.modelRef, env.primaryEntityRef, newId))

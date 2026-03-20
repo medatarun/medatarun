@@ -118,7 +118,10 @@ class CreateAttributeDuplicateKeyException(entityKey: EntityKey, attributeKey: A
     MedatarunException("Another attribute with key [${attributeKey.value}] already exists with the same id in entity [${entityKey.value}]")
 
 class ModelTypeDeleteUsedException(key: TypeKey) :
-    MedatarunException("Type with key [${key.value}] could not be deleted as it's used in entities", StatusCode.BAD_REQUEST)
+    MedatarunException(
+        "Type with key [${key.value}] could not be deleted as it's used in entities",
+        StatusCode.BAD_REQUEST
+    )
 
 class TypeCreateDuplicateException(modelKey: ModelKey, typeId: TypeKey) :
     MedatarunException("Type with id [${typeId.value}] already exists with the same id in model [${modelKey.value}]")
@@ -149,7 +152,8 @@ class RelationshipRoleCreateDuplicateKeyException(
     roleKey: RelationshipRoleKey
 ) :
     MedatarunException(
-        "Cannot create relationship role in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] because key [${roleKey.value}] already exists."
+        "Cannot create relationship role in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] because key [${roleKey.value}] already exists.",
+        StatusCode.BAD_REQUEST
     )
 
 class RelationshipRoleUpdateDuplicateKeyException(
@@ -157,35 +161,39 @@ class RelationshipRoleUpdateDuplicateKeyException(
     relationshipRef: RelationshipRef,
     roleRef: RelationshipRoleRef,
     roleKey: RelationshipRoleKey
-) :
-    MedatarunException(
-        "Cannot update relationship role [${roleRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to key [${roleKey.value}] because this key already exists."
-    )
+) : MedatarunException(
+    "Cannot update relationship role [${roleRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to key [${roleKey.value}] because this key already exists.",
+    StatusCode.BAD_REQUEST
+)
 
 class RelationshipRoleDeleteMinimumRolesException(
     modelRef: ModelRef,
     relationshipRef: RelationshipRef
-) :
-    MedatarunException(
-        "Cannot delete a relationship role from relationship [${relationshipRef.asString()}] in model [${modelRef.asString()}] because a relationship must keep at least two roles."
-    )
+) : MedatarunException(
+    "Cannot delete a relationship role from relationship [${relationshipRef.asString()}] in model [${modelRef.asString()}] because a relationship must keep at least two roles.",
+    StatusCode.BAD_REQUEST
+)
 
 class RelationshipAttributeCreateDuplicateKeyException(
     modelRef: ModelRef,
     relationshipRef: RelationshipRef,
     newKey: AttributeKey
-) :
-    MedatarunException("Cannot attribute in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] because the key [${newKey.value}] is already used by another attribute.")
+) : MedatarunException(
+    "Cannot attribute in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] because the key [${newKey.value}] is already used by another attribute.",
+    StatusCode.BAD_REQUEST
+)
 
 class RelationshipAttributeUpdateDuplicateKeyException(
     modelRef: ModelRef,
     relationshipRef: RelationshipRef,
     attributeRef: RelationshipAttributeRef,
     newKey: AttributeKey
-) :
-    MedatarunException("Cannot change key of attribute [${attributeRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to value [${newKey.value}] because it is already used by another attribute.")
+) : MedatarunException(
+    "Cannot change key of attribute [${attributeRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to value [${newKey.value}] because it is already used by another attribute.",
+    StatusCode.BAD_REQUEST
+)
 
-class ModelExportNoPluginFoundException() : MedatarunException("No model exporters found in extensions")
+class ModelExportNoPluginFoundException : MedatarunException("No model exporters found in extensions")
 class CopyModelIdConversionFailedException(name: String, oldId: String) :
     MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
 

@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -10,7 +9,7 @@ class RelationshipRole_UpdateName_Test {
 
     @Test
     fun `update relationship role name not null persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         val newName = LocalizedTextNotLocalized("Buyer updated")
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
@@ -28,7 +27,7 @@ class RelationshipRole_UpdateName_Test {
 
     @Test
     fun `update relationship role name null then name is null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         env.dispatch(
             ModelAction.RelationshipRole_UpdateName(
                 modelRef = env.modelRef,

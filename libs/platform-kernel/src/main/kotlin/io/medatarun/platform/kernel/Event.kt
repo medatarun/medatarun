@@ -6,5 +6,4 @@ package io.medatarun.platform.kernel
  * Please don't use this concept in a module for itself, the goal is to communicate mostly business events
  * across the extension platform. No infrastructure here, just business events.
  */
-interface Event {
-}
+interface Event

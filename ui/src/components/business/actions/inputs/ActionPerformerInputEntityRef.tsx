@@ -13,11 +13,13 @@ import {
 } from "./ActionPerformerInput.utils.ts";
 
 /**
- * Selects a type in the model types.
+ * Selects an entity in the current model.
  *
- * This works only if the action definition has a modelRef and the request caller specified a modelId
+ * This works only if the action definition has a modelRef and the request caller specified a modelId.
  */
-export function ActionPerformerInputTypeRef(props: ActionPerformerInputProps) {
+export function ActionPerformerInputEntityRef(
+  props: ActionPerformerInputProps,
+) {
   const modelId =
     props.request.displayedSubject.kind === "resource"
       ? (props.request.displayedSubject.refs["modelId"] ?? null)
@@ -26,15 +28,17 @@ export function ActionPerformerInputTypeRef(props: ActionPerformerInputProps) {
     return (
       <ErrorBox
         error={toProblem(
-          "Can not create input for type. Can not find modelId on which operate in action performer request",
+          "Can not create input for entity. Can not find modelId on which operate in action performer request",
         )}
       />
     );
   const wrappedProps = adaptPropsRefIdToRawId(props);
-  return <ActionPerformerInputTypeIdSafe {...wrappedProps} modelId={modelId} />;
+  return (
+    <ActionPerformerInputEntityIdSafe {...wrappedProps} modelId={modelId} />
+  );
 }
 
-function ActionPerformerInputTypeIdSafe({
+function ActionPerformerInputEntityIdSafe({
   modelId,
   value,
   onValueChange,
@@ -46,7 +50,7 @@ function ActionPerformerInputTypeIdSafe({
   const { data: modelDto } = useModel(modelId);
   if (modelDto == null) return <Loader loading={true} />;
   const model = new Model(modelDto);
-  const options = createTypeOptions(model);
+  const options = createEntityOptions(model);
   return (
     <InputSelect
       value={valueSafe}
@@ -57,12 +61,12 @@ function ActionPerformerInputTypeIdSafe({
   );
 }
 
-function createTypeOptions(model: Model): InputSelectOption[] {
+function createEntityOptions(model: Model): InputSelectOption[] {
   return [
     {
       code: "",
       label: "--",
     },
-    ...model.findTypeOptions(),
+    ...model.findEntityOptions(),
   ];
 }

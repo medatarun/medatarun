@@ -1,14 +1,6 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.CreateAttributeDuplicateKeyException
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.TypeNotFoundException
-import io.medatarun.model.domain.TypeRef
-import io.medatarun.model.domain.typeRef
+import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -20,7 +12,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute then id name and description shall persist`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val reloaded = env.createAttribute(
             attributeKey = AttributeKey("businesskey"),
@@ -39,7 +31,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute with null name then name shall be null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val reloaded = env.createAttribute(name = null)
         assertNull(reloaded.name)
@@ -47,7 +39,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute with null description then description shall be null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val reloaded = env.createAttribute(description = null)
         assertNull(reloaded.description)
@@ -55,7 +47,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute with optional true description then optional is true`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val reloaded = env.createAttribute(optional = true)
         assertTrue(reloaded.optional)
@@ -63,7 +55,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute with type boolean then type found`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val typeKey = TypeKey("Boolean")
         env.dispatch(ModelAction.Type_Create(env.sampleModelRef, typeKey, null, null))
@@ -75,7 +67,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute with duplicate key then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         env.createAttribute(attributeKey = AttributeKey("lastname"))
         assertFailsWith<CreateAttributeDuplicateKeyException> {
@@ -85,7 +77,7 @@ class EntityAttribute_Create_Test {
 
     @Test
     fun `create attribute unknown type then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         assertFailsWith<TypeNotFoundException> {
             env.createAttribute(attributeKey = AttributeKey("lastname"), type = typeRef("UnknownType"))

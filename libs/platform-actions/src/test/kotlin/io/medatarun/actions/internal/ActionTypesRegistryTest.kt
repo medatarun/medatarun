@@ -148,13 +148,13 @@ class ActionTypesRegistryTest {
     }
 
     private fun listType(elementType: KType): KType {
-        return List::class.createType(listOf(KTypeProjection.Companion.invariant(elementType)))
+        return List::class.createType(listOf(KTypeProjection.invariant(elementType)))
     }
 
     private fun mapType(keyType: KType, valueType: KType): KType {
         val arguments = listOf(
-            KTypeProjection.Companion.invariant(keyType),
-            KTypeProjection.Companion.invariant(valueType)
+            KTypeProjection.invariant(keyType),
+            KTypeProjection.invariant(valueType)
         )
         return Map::class.createType(arguments)
     }

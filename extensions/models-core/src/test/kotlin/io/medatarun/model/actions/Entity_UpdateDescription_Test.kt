@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -10,7 +9,7 @@ class Entity_UpdateDescription_Test {
 
     @Test
     fun `update entity description not null persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val newDescription = LocalizedMarkdownNotLocalized("Primary entity updated description")
 
         env.dispatch(ModelAction.Entity_UpdateDescription(env.modelRef, env.primaryEntityRef, newDescription))
@@ -21,7 +20,7 @@ class Entity_UpdateDescription_Test {
 
     @Test
     fun `update entity description with null then description is null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
 
         env.dispatch(ModelAction.Entity_UpdateDescription(env.modelRef, env.primaryEntityRef, null))
 

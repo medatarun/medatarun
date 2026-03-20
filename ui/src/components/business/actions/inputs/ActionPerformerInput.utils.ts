@@ -1,31 +1,31 @@
-import type {ActionPerformerInputProps} from "./ActionPerformerInputProps.tsx";
+import type { ActionPerformerInputProps } from "./ActionPerformerInputProps.tsx";
 
 /**
  * Takes the undefined value from {@link ActionPerformerInputProps} and convert
  * it to a safe string or empty
  */
 export function normalizeValueStringOrEmpty(value: unknown) {
-  if (value === null) return ""
-  if (value === undefined) return ""
-  return "" + value
+  if (value === null) return "";
+  if (value === undefined) return "";
+  return "" + value;
 }
 /**
  * Takes the undefined value from {@link ActionPerformerInputProps} and convert
  * it to a safe string or empty
  */
 export function normalizeValueBooleanOrNull(value: unknown) {
-  if (value === null) return null
-  if (value === undefined) return null
-  return value === true
+  if (value === null) return null;
+  if (value === undefined) return null;
+  return value === true;
 }
 /**
  * Takes the undefined value from {@link ActionPerformerInputProps} and convert
  * it to a string or null
  */
 export function normalizeValueStringOrNull(value: unknown) {
-  if (value === null) return null
-  if (value === undefined) return null
-  return "" + value
+  if (value === null) return null;
+  if (value === undefined) return null;
+  return "" + value;
 }
 
 /**
@@ -34,8 +34,8 @@ export function normalizeValueStringOrNull(value: unknown) {
  * If value is null returns null
  */
 export function refIdToRawId(value: string | null): string | null {
-  if (value == null) return null
-  return value.replace(/^id:/, "")
+  if (value == null) return null;
+  return value.replace(/^id:/, "");
 }
 
 /**
@@ -44,8 +44,8 @@ export function refIdToRawId(value: string | null): string | null {
  * For example, "xxx" -> "id:xxx"
  */
 export function rawIdToRefId(value: string | null): string | null {
-  if (value == null) return null
-  return "id:" + value
+  if (value == null) return null;
+  return "id:" + value;
 }
 
 /**
@@ -62,12 +62,32 @@ export function rawIdToRefId(value: string | null): string | null {
  * - the onValueChange is adapted to convert value as "id" to a "ref by id"
  *
  */
-export function adaptPropsRefIdToRawId(props: ActionPerformerInputProps): ActionPerformerInputProps<string> {
-  const valueSafe = normalizeValueStringOrNull(props.value)
-  const id = refIdToRawId(valueSafe)
+export function adaptPropsRefIdToRawId(
+  props: ActionPerformerInputProps,
+): ActionPerformerInputProps<string> {
+  const valueSafe = normalizeValueStringOrNull(props.value);
+  const id = refIdToRawId(valueSafe);
   return {
     ...props,
     value: id,
-    onValueChange: (value: unknown) => props.onValueChange(rawIdToRefId(normalizeValueStringOrNull(value)))
-  }
+    onValueChange: (value: string) =>
+      props.onValueChange(rawIdToRefId(normalizeValueStringOrNull(value))),
+  };
+}
+
+/**
+ * Utility wrapper that exposes nullable string values as empty strings for
+ * select-like components and converts the empty selection back to null.
+ */
+export function adaptPropsValueNullableToValueEmpty(
+  props: ActionPerformerInputProps,
+): ActionPerformerInputProps<string> {
+  return {
+    ...props,
+    value: normalizeValueStringOrEmpty(props.value),
+    onValueChange: (value: string) => {
+      const valueSafe = normalizeValueStringOrEmpty(value);
+      props.onValueChange(valueSafe === "" ? null : valueSafe);
+    },
+  };
 }

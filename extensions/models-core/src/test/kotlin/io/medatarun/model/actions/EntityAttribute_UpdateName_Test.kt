@@ -11,7 +11,7 @@ class EntityAttribute_UpdateName_Test {
 
     @Test
     fun `update attribute name is persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(name = null)
         val nextValue = LocalizedTextNotLocalized("New name")
@@ -30,7 +30,7 @@ class EntityAttribute_UpdateName_Test {
 
     @Test
     fun `update attribute name to null stays null`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(name = LocalizedTextNotLocalized("Name"))
         val attributeRef = entityAttributeRef(attr.key)

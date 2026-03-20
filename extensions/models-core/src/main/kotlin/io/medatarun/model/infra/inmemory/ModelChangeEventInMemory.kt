@@ -17,5 +17,4 @@ data class ModelChangeEventInMemory(
     override val modelVersion: ModelVersion?,
     override val actorId: AppActorId,
     override val payload: JsonObject
-) : ModelChangeEvent {
-}
+) : ModelChangeEvent

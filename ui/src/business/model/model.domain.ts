@@ -5,6 +5,11 @@ export interface TypeOption {
   label: string;
 }
 
+export interface EntityOption {
+  code: string;
+  label: string;
+}
+
 export class Model {
   public dto: ModelDto;
 
@@ -17,8 +22,13 @@ export class Model {
     return e?.name ?? e?.key ?? null;
   }
 
-  findEntityAttributeNameOrKey(entityId: string, attributeId: string): string | null {
-    const e = this.dto.entities.find((it) => it.id === entityId)?.attributes?.find(it => it.id == attributeId);
+  findEntityAttributeNameOrKey(
+    entityId: string,
+    attributeId: string,
+  ): string | null {
+    const e = this.dto.entities
+      .find((it) => it.id === entityId)
+      ?.attributes?.find((it) => it.id == attributeId);
     return e?.name ?? e?.key ?? null;
   }
 
@@ -171,6 +181,22 @@ export class Model {
       .map((type) => ({
         code: type.id,
         label: type.name ?? type.key ?? type.id,
+      }));
+  }
+
+  /**
+   * Returns entity options sorted by their display label to keep combobox choices stable.
+   */
+  findEntityOptions(): EntityOption[] {
+    return [...this.dto.entities]
+      .sort((left, right) => {
+        const leftLabel = left.name ?? left.key ?? left.id;
+        const rightLabel = right.name ?? right.key ?? right.id;
+        return leftLabel.localeCompare(rightLabel);
+      })
+      .map((entity) => ({
+        code: entity.id,
+        label: entity.name ?? entity.key ?? entity.id,
       }));
   }
 }

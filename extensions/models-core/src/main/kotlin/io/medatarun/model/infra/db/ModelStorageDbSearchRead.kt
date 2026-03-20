@@ -23,8 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 /**
  * Cleary not good at all, need to redo this properly to get everything in one query
  */
-internal class ModelStorageDbSearchRead(
-) {
+internal class ModelStorageDbSearchRead {
     fun search(query: ModelStorageSearchQuery): SearchResults {
         val matchingIds = resolveMatchingSearchItemIds(query)
         if (matchingIds.isEmpty()) {

@@ -15,7 +15,5 @@ data class SearchResultItem(
      * This is not yet used. The goal is to let users define what fields should be displayed in the results.
      */
     val fields: Map<String, SearchResultFieldValue>
-) {
-
-}
+)
 

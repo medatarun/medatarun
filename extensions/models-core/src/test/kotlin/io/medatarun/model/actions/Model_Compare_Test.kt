@@ -5,11 +5,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class Model_Compare_Test {
 
@@ -241,7 +237,7 @@ class Model_Compare_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = leftKey,
+                key = leftKey,
                 name = LocalizedTextNotLocalized("Left model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -287,7 +283,7 @@ class Model_Compare_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = rightKey,
+                key = rightKey,
                 name = LocalizedTextNotLocalized("Right model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -375,7 +371,7 @@ class Model_Compare_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model ${modelKey.value}"),
                 description = null,
                 version = ModelVersion("1.0.0")

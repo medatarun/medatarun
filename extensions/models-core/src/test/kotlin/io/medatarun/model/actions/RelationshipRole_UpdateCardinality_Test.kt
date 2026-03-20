@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.RelationshipCardinality
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -9,7 +8,7 @@ class RelationshipRole_UpdateCardinality_Test {
 
     @Test
     fun `update relationship role cardinality persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         env.dispatch(
             ModelAction.RelationshipRole_UpdateCardinality(
                 modelRef = env.modelRef,
@@ -25,7 +24,7 @@ class RelationshipRole_UpdateCardinality_Test {
 
     @Test
     fun `update relationship role cardinality with all enum values persisted`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvRelationshipRole()
+        val env = TestEnvRelationshipRole()
         for (cardinality in RelationshipCardinality.entries) {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateCardinality(

@@ -1,18 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityKey
-import io.medatarun.model.domain.EntityNotFoundException
-import io.medatarun.model.domain.EntityRef
-import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
-import io.medatarun.model.domain.ModelNotFoundException
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
-import io.medatarun.model.domain.TypeKey
-import io.medatarun.model.domain.typeRef
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
@@ -21,7 +10,7 @@ class Entity_UpdateX_Test {
 
     @Test
     fun `update entity with wrong model id throws ModelNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val wrongModelKey = modelRefKey("unknown-model")
 
         assertFailsWith<ModelNotFoundException> {
@@ -37,7 +26,7 @@ class Entity_UpdateX_Test {
 
     @Test
     fun `update entity with wrong entity id throws EntityNotFoundException`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val wrongEntityId = EntityKey("unknown-entity")
         val wrongEntityRef = EntityRef.ByKey(wrongEntityId)
 
@@ -56,7 +45,7 @@ class Entity_UpdateX_Test {
 }
 
 class TestEnvEntityUpdate {
-    val runtime = _root_ide_package_.io.medatarun.model.actions.createEnv()
+    val runtime = createEnv()
     val dispatch = runtime::dispatch
     val query: ModelQueries = runtime.queries
     private val modelKey = ModelKey("model-entity-update")
@@ -69,7 +58,7 @@ class TestEnvEntityUpdate {
     init {
         runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = modelKey,
+                key = modelKey,
                 name = LocalizedTextNotLocalized("Model entity update"),
                 description = null,
                 version = ModelVersion("1.0.0")

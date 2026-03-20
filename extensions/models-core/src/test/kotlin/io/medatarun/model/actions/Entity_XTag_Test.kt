@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
@@ -16,7 +15,7 @@ class Entity_XTag_Test {
 
     @Test
     fun `add and delete tag on entity persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val managedTag = env.runtime.createManagedTag("g-entity", "t-entity")
 
         env.dispatch(ModelAction.Entity_AddTag(env.modelRef, env.primaryEntityRef, managedTag.ref))
@@ -28,7 +27,7 @@ class Entity_XTag_Test {
 
     @Test
     fun `add local tag of same model on entity persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-entity-tag")
 
         env.dispatch(ModelAction.Entity_AddTag(env.modelRef, env.primaryEntityRef, localTag.ref))
@@ -37,11 +36,11 @@ class Entity_XTag_Test {
 
     @Test
     fun `add local tag of another model on entity then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityUpdate()
+        val env = TestEnvEntityUpdate()
         val foreignModelRef = modelRefKey("model-entity-update-2")
         env.runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("model-entity-update-2"),
+                key = ModelKey("model-entity-update-2"),
                 name = LocalizedTextNotLocalized("Model entity update 2"),
                 description = null,
                 version = ModelVersion("1.0.0")

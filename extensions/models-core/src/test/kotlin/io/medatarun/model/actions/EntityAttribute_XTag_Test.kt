@@ -1,12 +1,7 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
-import io.medatarun.model.domain.AttributeKey
-import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.ModelVersion
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -17,7 +12,7 @@ class EntityAttribute_XTag_Test {
 
     @Test
     fun `add and delete tag on entity attribute persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
         val managedTag = env.runtime.createManagedTag("g-ea", "t-ea")
@@ -55,7 +50,7 @@ class EntityAttribute_XTag_Test {
 
     @Test
     fun `add local tag of same model on entity attribute persists tag ids`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
         val localTag = env.runtime.createFreeTagInModelScope(env.sampleModelRef, "local-ea-tag")
@@ -78,13 +73,13 @@ class EntityAttribute_XTag_Test {
 
     @Test
     fun `add local tag of another model on entity attribute then error`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvEntityAttribute()
+        val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
         val foreignModelRef = modelRefKey("sample-model-2")
         env.runtime.dispatch(
             ModelAction.Model_Create(
-                modelKey = ModelKey("sample-model-2"),
+                key = ModelKey("sample-model-2"),
                 name = LocalizedTextNotLocalized("Sample model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")

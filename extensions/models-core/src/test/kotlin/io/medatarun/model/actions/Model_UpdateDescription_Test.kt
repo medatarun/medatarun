@@ -1,6 +1,5 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -11,7 +10,7 @@ class Model_UpdateDescription_Test {
 
     @Test
     fun `updates on model description persists the description`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         env.dispatch(
             ModelAction.Model_UpdateDescription(
                 modelRef = env.modelRef,
@@ -26,7 +25,7 @@ class Model_UpdateDescription_Test {
 
     @Test
     fun `updates on model description to null persists the description`() {
-        val env = _root_ide_package_.io.medatarun.model.actions.TestEnvOneModel()
+        val env = TestEnvOneModel()
         env.dispatch(
             ModelAction.Model_UpdateDescription(
                 modelRef = env.modelRef,
