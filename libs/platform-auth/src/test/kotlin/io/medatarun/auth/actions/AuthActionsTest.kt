@@ -1,7 +1,7 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.auth.domain.ActorRole
-import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -115,7 +115,7 @@ class AuthActionsTest {
             )
         )
         env.logout()
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.dispatch(AuthAction.WhoAmI())
         }
 
@@ -157,7 +157,7 @@ class AuthActionsTest {
         @Suppress("UnusedVariable", "unused")
         val result: Unit = env.dispatch(AuthAction.ChangeMyPassword(password, passwordNext))
         // Allow testing that we didn't invert passwords
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.dispatch(AuthAction.Login(username, password))
         }
         assertDoesNotThrow {
@@ -189,7 +189,7 @@ class AuthActionsTest {
 
         env.logout()
         // Allow testing that we didn't invert passwords
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.dispatch(AuthAction.Login(username, password))
         }
         assertDoesNotThrow {
@@ -218,7 +218,7 @@ class AuthActionsTest {
         @Suppress("UnusedVariable", "unused")
         val result: Unit = env.dispatch(AuthAction.UserDisable(username))
 
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.dispatch(AuthAction.Login(username, password))
         }
 
@@ -289,7 +289,7 @@ class AuthActionsTest {
         env.dispatch(AuthAction.ActorDisable(actor.id))
 
         env.logout()
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.dispatch(AuthAction.Login(username, password))
         }
 

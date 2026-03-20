@@ -1,5 +1,6 @@
 package io.metadatarun.ext.config.actions
 
+import io.medatarun.actions.domain.ActionInvoker
 import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
@@ -10,7 +11,8 @@ import kotlinx.serialization.Serializable
 
 class ConfigActionProvider(
     private val extensionRegistry: ExtensionRegistry,
-    private val actionRegistry: Lazy<ActionRegistry>
+    private val actionRegistry: Lazy<ActionRegistry>,
+    private val actionInvoker: Lazy<ActionInvoker>
 ) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
@@ -48,46 +50,55 @@ class ConfigActionProvider(
      */
     private fun inspectActions(actionCtx: ActionCtx): ActionRegistryDto {
 
-        val items = actionRegistry.value.findAllActions().map { actionRegistered ->
-            val descriptor = actionRegistered.descriptor
-            val semantics = actionRegistered.semantics
-            ActionDescriptorDto(
-                id = descriptor.id.asString(),
-                actionKey = descriptor.key,
-                groupKey = descriptor.group,
-                title = descriptor.title ?: descriptor.key,
-                description = descriptor.description,
-                uiLocations = descriptor.uiLocations,
-                securityRule = descriptor.securityRule,
-                parameters = descriptor.parameters.map { parameter ->
-                    ActionParamDescriptorDto(
-                        name = parameter.key,
-                        type = parameter.multiplatformType,
-                        jsonType = parameter.jsonType.code,
-                        optional = parameter.optional,
-                        title = parameter.title,
-                        description = parameter.description,
-                        order = parameter.order
-                    )
-                },
-                semantics = ActionDescriptorSemanticsDto(
-                    intent = semantics.intent.code,
-                    subjects = semantics.subjects.map { subject ->
-                        ActionDescriptorSemanticsSubjectDto(
-                            type = subject.type,
-                            referencingParams = subject.referencingParams.map { param ->
-                                ActionDescriptorSemanticsSubjectReferencingParamDto(
-                                    name = param.name,
-                                    kind = param.kind.name.lowercase()
-                                )
-                            }
+        val items = actionRegistry.value.findAllActions()
+            .filter {
+                actionInvoker.value.evaluateSecurity(
+                    it.descriptor.group,
+                    it.descriptor.key,
+                    actionCtx.requestCtx
+                )
+            }
+            .map { actionRegistered ->
+                val descriptor = actionRegistered.descriptor
+                val semantics = actionRegistered.semantics
+
+                ActionDescriptorDto(
+                    id = descriptor.id.asString(),
+                    actionKey = descriptor.key,
+                    groupKey = descriptor.group,
+                    title = descriptor.title ?: descriptor.key,
+                    description = descriptor.description,
+                    uiLocations = descriptor.uiLocations,
+                    securityRule = descriptor.securityRule,
+                    parameters = descriptor.parameters.map { parameter ->
+                        ActionParamDescriptorDto(
+                            name = parameter.key,
+                            type = parameter.multiplatformType,
+                            jsonType = parameter.jsonType.code,
+                            optional = parameter.optional,
+                            title = parameter.title,
+                            description = parameter.description,
+                            order = parameter.order
                         )
                     },
-                    returns = semantics.returns
-                )
+                    semantics = ActionDescriptorSemanticsDto(
+                        intent = semantics.intent.code,
+                        subjects = semantics.subjects.map { subject ->
+                            ActionDescriptorSemanticsSubjectDto(
+                                type = subject.type,
+                                referencingParams = subject.referencingParams.map { param ->
+                                    ActionDescriptorSemanticsSubjectReferencingParamDto(
+                                        name = param.name,
+                                        kind = param.kind.name.lowercase()
+                                    )
+                                }
+                            )
+                        },
+                        returns = semantics.returns
+                    )
 
-            )
-        }
+                )
+            }
 
         return ActionRegistryDto(items = items)
     }

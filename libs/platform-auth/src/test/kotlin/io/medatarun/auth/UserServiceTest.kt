@@ -1,7 +1,7 @@
 package io.medatarun.auth
 
 import com.auth0.jwt.JWT
-import io.medatarun.auth.domain.AuthUnauthorizedException
+import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.UserAlreadyExistsException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
@@ -49,7 +49,7 @@ class UserServiceTest {
     fun `john cannot log in with bad login`() {
         val env = AuthEnvTest()
         createJohn(env)
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(Username(johnUsername.value + "--"), johnPassword)
         }
     }
@@ -58,7 +58,7 @@ class UserServiceTest {
     fun `john cannot log in with bad password`() {
         val env = AuthEnvTest()
         createJohn(env)
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, PasswordClear(johnPassword.value + "---"))
         }
     }
@@ -67,7 +67,7 @@ class UserServiceTest {
     fun `john cannot log in with admin password`() {
         val env = AuthEnvTest()
         createJohn(env)
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, env.adminPassword)
         }
     }
@@ -76,7 +76,7 @@ class UserServiceTest {
     fun `john cannot fake admin with its password`() {
         val env = AuthEnvTest()
         createJohn(env)
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(env.adminUsername, johnPassword)
         }
     }
@@ -88,13 +88,13 @@ class UserServiceTest {
         val newJohnPassword = PasswordClear(johnPassword.value + ".new")
         env.userService.changeOwnPassword(johnUsername, johnPassword, newJohnPassword)
         // Old password shall not work again
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
         }
         // New password works
         env.oauthService.oauthLogin(johnUsername, newJohnPassword)
         // Didn't changed by mistake admin password
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(env.adminUsername, newJohnPassword)
         }
         val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
@@ -108,13 +108,13 @@ class UserServiceTest {
         val newJohnPassword = PasswordClear(johnPassword.value + ".new")
         env.userService.changeUserPassword(johnUsername, newJohnPassword)
         // Old password shall not work again
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
         }
         // New password works
         env.oauthService.oauthLogin(johnUsername, newJohnPassword)
         // Didn't changed by mistake admin password
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(env.adminUsername, newJohnPassword)
         }
         val adminToken = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
@@ -127,7 +127,7 @@ class UserServiceTest {
         createJohn(env)
         env.userService.disableUser(johnUsername)
         // login shall fail
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
         }
         // Didn't changed by mistake admin login
@@ -141,7 +141,7 @@ class UserServiceTest {
         createJohn(env)
         env.userService.disableUser(johnUsername)
         // login shall fail while disabled
-        assertThrows<AuthUnauthorizedException> {
+        assertThrows<AuthNotAuthenticatedException> {
             env.oauthService.oauthLogin(johnUsername, johnPassword)
         }
 

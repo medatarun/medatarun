@@ -150,7 +150,7 @@ class ActionAuditDbTestEnv {
         override val description: String = "Deny all in tests."
 
         override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
-            return SecurityRuleEvaluatorResult.Error("blocked")
+            return SecurityRuleEvaluatorResult.AuthorizationError("blocked")
         }
     }
 

@@ -83,9 +83,16 @@ internal class ActionInvokerImpl(
         // Evaluate security first, before any attempt to decode the payload
         val securityRuleEvaluationResult =
             actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
-        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Error) {
+        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthenticationError) {
             throw ActionInvocationException(
                 StatusCode.UNAUTHORIZED,
+                "Unauthorized",
+                mapOf("details" to securityRuleEvaluationResult.msg)
+            )
+        }
+        if (securityRuleEvaluationResult is SecurityRuleEvaluatorResult.AuthorizationError) {
+            throw ActionInvocationException(
+                StatusCode.FORBIDDEN,
                 "Unauthorized",
                 mapOf("details" to securityRuleEvaluationResult.msg)
             )
@@ -104,6 +111,9 @@ internal class ActionInvokerImpl(
                 return handleInvocation(req, actionRequestCtx)
             }
 
+            override val requestCtx: ActionRequestCtx
+                get() = actionRequestCtx
+
             override val actionInstanceId: ActionInstanceId
                 get() = actionInstanceId
 
@@ -114,6 +124,18 @@ internal class ActionInvokerImpl(
 
         // Invoke business action
         return specializedInvoker.invoke(deserializedPayload, actionCtx)
+    }
+
+    override fun evaluateSecurity(
+        actionGroupKey: String,
+        actionKey: String,
+        actionRequestCtx: ActionRequestCtx
+    ): Boolean {
+        val action = registry.findActionOptional(actionGroupKey, actionKey)
+            ?: throw ActionInvocationException(StatusCode.NOT_FOUND, "Unknown action '$actionGroupKey/$actionKey'")
+        val securityRuleEvaluationResult =
+            actionSecurityRuleEvaluators.evaluateSecurity(action.descriptor.securityRule, actionRequestCtx)
+        return securityRuleEvaluationResult is SecurityRuleEvaluatorResult.Ok
     }
 
     private fun serializePayload(payload: ActionPayload): String {

@@ -48,7 +48,7 @@ class SecurityRulesProviderBase : SecurityRulesProvider {
             override val description: String =
                 "Authenticated actors (users or tools) are authorized."
             override fun evaluate(ctx: SecurityRuleCtx) =
-                if (ctx.isSignedIn()) SecurityRuleEvaluatorResult.Ok() else SecurityRuleEvaluatorResult.Error("You must be signed in.")
+                if (ctx.isSignedIn()) SecurityRuleEvaluatorResult.Ok() else SecurityRuleEvaluatorResult.AuthenticationError("You must be signed in.")
         }
         val ruleAdmin: SecurityRuleEvaluator = object : SecurityRuleEvaluator {
             override val key: String = SecurityRuleNames.ADMIN
@@ -56,8 +56,11 @@ class SecurityRulesProviderBase : SecurityRulesProvider {
             override val description: String =
                 "Only actors (users or tools) with the administrator role are authorized.\n\n" +
                     "Required role: `admin`."
-            override fun evaluate(ctx: SecurityRuleCtx) =
-                if (ctx.isAdmin()) SecurityRuleEvaluatorResult.Ok() else SecurityRuleEvaluatorResult.Error("You must have an administrator role.")
+            override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
+                if (!ctx.isSignedIn()) return SecurityRuleEvaluatorResult.AuthenticationError("You must be signed in.")
+                if (!ctx.isAdmin()) return SecurityRuleEvaluatorResult.AuthorizationError("You must have an administrator role.")
+                return SecurityRuleEvaluatorResult.Ok()
+            }
         }
         return listOf(rulePublic, ruleAdmin, ruleSignedIn)
     }
