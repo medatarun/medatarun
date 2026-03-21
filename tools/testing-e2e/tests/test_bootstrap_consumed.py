@@ -17,7 +17,7 @@ BOOTSTRAP_CONSUMED_CLIENTS = [
 
 
 @pytest.mark.parametrize("client_variant", BOOTSTRAP_CONSUMED_CLIENTS)
-def test_bootstrap_consumed(run_config: RunConfig, client_variant: ClientVariant) -> None:
+def test_bootstrap_create_admin(run_config: RunConfig, client_variant: ClientVariant) -> None:
     expected_success_code = 200 if client_variant == ClientVariant.API else 0
     expected_failure_code = 410 if client_variant == ClientVariant.API else 1
 
