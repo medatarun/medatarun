@@ -18,10 +18,6 @@ class CommandResult(ActionResult):
     _stdout: str
     _stderr: str
 
-    @property
-    def stderr(self) -> str:
-        return self._stderr
-
     def json(self) -> Any:
         return json.loads(self._stdout)
 
@@ -29,6 +25,9 @@ class CommandResult(ActionResult):
         if status_code == 200:
             return self._exit_code == 0
         return self._exit_code != 0
+
+    def has_error_text(self, message: str) -> bool:
+        return message in self._stderr
 
 
 @dataclass(frozen=True)

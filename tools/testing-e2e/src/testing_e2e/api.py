@@ -13,15 +13,17 @@ class HttpResult(ActionResult):
     _status_code: int
     _body: str
 
-    @property
-    def stderr(self) -> str:
-        raise NotImplementedError("HTTP results do not expose stderr")
-
     def json(self) -> Any:
         return json.loads(self._body)
 
     def is_status_code(self, status_code: int) -> bool:
         return self._status_code == status_code
+
+    def has_error_text(self, message: str) -> bool:
+        try:
+            return self.json()["details"] == message
+        except Exception:
+            return False
 
 
 @dataclass(frozen=True)

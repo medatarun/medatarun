@@ -42,14 +42,8 @@ def test_bootstrap_invalid_secret(run_config: RunConfig, client_variant: ClientV
 
         bootstrap_result = client.admin_bootstrap(username, fullname, password, wrong_secret)
         assert bootstrap_result.is_status_code(401)
-        if client_variant == ClientVariant.API:
-            assert bootstrap_result.json()["details"] == "Bad bootstrap secret."
-        else:
-            assert "Bad bootstrap secret." in bootstrap_result.stderr
+        assert bootstrap_result.has_error_text("Bad bootstrap secret.")
 
         login_result = client.login(username, password)
         assert login_result.is_status_code(401)
-        if client_variant == ClientVariant.API:
-            assert login_result.json()["details"] == "Bad credentials."
-        else:
-            assert "Bad credentials." in login_result.stderr
+        assert login_result.has_error_text("Bad credentials.")

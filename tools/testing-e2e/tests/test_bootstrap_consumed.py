@@ -42,10 +42,7 @@ def test_bootstrap_consumed(run_config: RunConfig, client_variant: ClientVariant
 
         second_bootstrap = client.admin_bootstrap(username, fullname, second_password, secret)
         assert second_bootstrap.is_status_code(410)
-        if client_variant == ClientVariant.API:
-            assert second_bootstrap.json()["details"] == "Bootstrap already consumed."
-        else:
-            assert "Bootstrap already consumed." in second_bootstrap.stderr
+        assert second_bootstrap.has_error_text("Bootstrap already consumed.")
 
         login_result = client.login(username, first_password)
         assert login_result.is_status_code(200)
