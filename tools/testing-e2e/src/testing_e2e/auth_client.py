@@ -37,3 +37,26 @@ class AuthClient:
 
     def whoami(self, access_token: str) -> ActionResult:
         return self.transport.invoke("auth", "whoami", {}, access_token)
+
+    def user_create(
+        self,
+        username: str,
+        fullname: str,
+        password: str,
+        admin: bool,
+        access_token: str,
+    ) -> ActionResult:
+        return self.transport.invoke(
+            "auth",
+            "user_create",
+            {
+                "username": username,
+                "fullname": fullname,
+                "password": password,
+                "admin": admin,
+            },
+            access_token,
+        )
+
+    def actor_list(self, access_token: str) -> ActionResult:
+        return self.transport.invoke("auth", "actor_list", {}, access_token)
