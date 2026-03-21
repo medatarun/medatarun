@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import os
 import subprocess
-import tempfile
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -54,6 +53,8 @@ class DistributionResolver:
 
     @staticmethod
     def _cache_dir() -> Path:
-        cache_root = Path(tempfile.gettempdir()) / "medatarun-testing-e2e-cache"
+        # Keep downloaded archives outside the temporary test workspace so they
+        # survive between test runs and do not get deleted with the workspace.
+        cache_root = Path.home() / ".cache" / "medatarun" / "testing-e2e"
         cache_root.mkdir(parents=True, exist_ok=True)
         return cache_root
