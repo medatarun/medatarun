@@ -8,16 +8,26 @@ from testing_e2e.run_config import RunConfig
 from testing_e2e.scenario import ClientVariant, SecretVariant
 from testing_e2e.test_environment import TestEnvironment
 
-
 BOOTSTRAP_CONSUMED_CLIENTS = [
     pytest.param(ClientVariant.API, id="api"),
     pytest.param(ClientVariant.CLI_CONTAINER, id="cli-container"),
     pytest.param(ClientVariant.CLI_TEST_ENV, id="cli-test-env"),
 ]
 
+# Boostrap consumed
+#
+# - Start the application with a predefined secret
+# - create an admin user (depending on the client variant) with `medatarun auth
+#   admin_bootstrap`, which must succeed
+# - create an admin user again with `medatarun auth admin_bootstrap`
+#   (depending on the client) and a new password, which must fail with
+#   `title = Bootstrap already consumed` in the returned JSON
+# - try to log in with `admin` and the first password (depending on the client)
+# - verify with `medatarun auth whoami` (depending on the client) that the right
+#   user is returned and that it is an admin in the JSON result
 
 @pytest.mark.parametrize("client_variant", BOOTSTRAP_CONSUMED_CLIENTS)
-def test_bootstrap_create_admin(run_config: RunConfig, client_variant: ClientVariant) -> None:
+def test_bootstrap_consumed(run_config: RunConfig, client_variant: ClientVariant) -> None:
     expected_success_code = 200 if client_variant == ClientVariant.API else 0
     expected_failure_code = 410 if client_variant == ClientVariant.API else 1
 

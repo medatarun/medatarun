@@ -95,36 +95,8 @@ This test comes in several variants:
   - predefined secret: run the test with the environment variable
     `$MEDATARUN_AUTH_BOOTSTRAP_SECRET` already set
 
-- Start the application (depending on the secret variant)
-- create an admin with (depending on the client variant)
-  `medatarun auth admin_bootstrap --username=admin --fullname="Administrator" --password="..." --secret=...`
-- request an access token (depending on the client variant)
-  `medatarun auth login --username=admin --password="..."` which returns a
-  JSON object with `.access_token`
-- check with the client (depending on the client variant)
-  `medatarun auth whoami` that the result is a JSON object with `sub == admin`
-  and `admin == true` as a boolean in the output
 
 ## Bootstrap invalid secret
 
-- Start the application with a predefined secret
-- Verify that the predefined secret appears in the logs
-- create an admin with a wrong secret (depending on the client variant)
-  `medatarun auth admin_bootstrap --username=admin --fullname="Administrator" --password="..." --secret=...`
-- verify that the error `Bad bootstrap secret` is returned, depending on the
-  client variant
-- request an access token (depending on the client variant)
-  `medatarun auth login --username=admin --password="..."`, which must return a
-  JSON object with `title = Bad credentials`
 
 ## Bootstrap consumed
-
-- Start the application with a predefined secret
-- create an admin user (depending on the client variant) with
-  `medatarun auth admin_bootstrap`, which must succeed
-- create an admin user again with `medatarun auth admin_bootstrap` (depending
-  on the client) and a new password, which must fail with
-  `title = Bootstrap already consumed` in the returned JSON
-- try to log in with `admin` and the first password (depending on the client)
-- verify with `medatarun auth whoami` (depending on the client) that the right
-  user is returned and that it is an admin in the JSON result

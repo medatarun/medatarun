@@ -36,9 +36,20 @@ ADMIN_BOOTSTRAP_SCENARIOS = [
     ),
 ]
 
+# Create admin
+#
+# - Start the application (depending on the secret variant)
+# - create an admin with (depending on the client variant)
+#   `medatarun auth admin_bootstrap --username=admin --fullname="Administrator" --password="..." --secret=...`
+# - request an access token (depending on the client variant)
+#   `medatarun auth login --username=admin --password="..."` which returns a
+#   JSON object with `.access_token`
+# - check with the client (depending on the client variant)
+#   `medatarun auth whoami` that the result is a JSON object with `sub == admin`
+#   and `admin == true` as a boolean in the output
 
 @pytest.mark.parametrize("scenario", ADMIN_BOOTSTRAP_SCENARIOS)
-def test_admin_bootstrap(run_config: RunConfig, scenario: AdminBootstrapScenario) -> None:
+def test_bootstrap_create_admin(run_config: RunConfig, scenario: AdminBootstrapScenario) -> None:
     expected_success_code = 200 if scenario.client == ClientVariant.API else 0
     with TestEnvironment(run_config, scenario.client, scenario.secret) as env:
         client = env.client()
