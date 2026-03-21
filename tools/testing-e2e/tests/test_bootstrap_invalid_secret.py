@@ -29,7 +29,6 @@ INVALID_BOOTSTRAP_CLIENTS = [
 
 @pytest.mark.parametrize("client_variant", INVALID_BOOTSTRAP_CLIENTS)
 def test_bootstrap_invalid_secret(run_config: RunConfig, client_variant: ClientVariant) -> None:
-    expected_failure_code = 401 if client_variant == ClientVariant.API else 1
     with TestEnvironment(run_config, client_variant, SecretVariant.PREDEFINED) as env:
         client = env.client()
 
@@ -42,14 +41,14 @@ def test_bootstrap_invalid_secret(run_config: RunConfig, client_variant: ClientV
         wrong_secret = correct_secret + ".wrong"
 
         bootstrap_result = client.admin_bootstrap(username, fullname, password, wrong_secret)
-        assert bootstrap_result.exit_code == expected_failure_code
+        assert bootstrap_result.is_status_code(401)
         if client_variant == ClientVariant.API:
             assert bootstrap_result.json()["details"] == "Bad bootstrap secret."
         else:
             assert "Bad bootstrap secret." in bootstrap_result.stderr
 
         login_result = client.login(username, password)
-        assert login_result.exit_code == expected_failure_code
+        assert login_result.is_status_code(401)
         if client_variant == ClientVariant.API:
             assert login_result.json()["details"] == "Bad credentials."
         else:

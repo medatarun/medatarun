@@ -6,19 +6,22 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any
 
-from testing_e2e.transport import ActionTransport
+from testing_e2e.transport import ActionResult, ActionTransport
 
 @dataclass(frozen=True)
-class HttpResult:
-    status_code: int
-    body: str
+class HttpResult(ActionResult):
+    _status_code: int
+    _body: str
 
     @property
-    def exit_code(self) -> int:
-        return self.status_code
+    def stderr(self) -> str:
+        raise NotImplementedError("HTTP results do not expose stderr")
 
     def json(self) -> Any:
-        return json.loads(self.body)
+        return json.loads(self._body)
+
+    def is_status_code(self, status_code: int) -> bool:
+        return self._status_code == status_code
 
 
 @dataclass(frozen=True)

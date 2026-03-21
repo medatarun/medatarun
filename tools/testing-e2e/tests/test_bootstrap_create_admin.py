@@ -50,7 +50,6 @@ ADMIN_BOOTSTRAP_SCENARIOS = [
 
 @pytest.mark.parametrize("scenario", ADMIN_BOOTSTRAP_SCENARIOS)
 def test_bootstrap_create_admin(run_config: RunConfig, scenario: AdminBootstrapScenario) -> None:
-    expected_success_code = 200 if scenario.client == ClientVariant.API else 0
     with TestEnvironment(run_config, scenario.client, scenario.secret) as env:
         client = env.client()
 
@@ -60,14 +59,14 @@ def test_bootstrap_create_admin(run_config: RunConfig, scenario: AdminBootstrapS
         secret = env.application.bootstrap_secret
 
         bootstrap_result = client.admin_bootstrap(username, fullname, password, secret)
-        assert bootstrap_result.exit_code == expected_success_code
+        assert bootstrap_result.is_status_code(200)
 
         login_result = client.login(username, password)
-        assert login_result.exit_code == expected_success_code
+        assert login_result.is_status_code(200)
         access_token = login_result.json()["access_token"]
 
         whoami_result = client.whoami(access_token)
-        assert whoami_result.exit_code == expected_success_code
+        assert whoami_result.is_status_code(200)
         whoami = whoami_result.json()
         assert whoami["sub"] == username
         assert whoami["admin"] is True

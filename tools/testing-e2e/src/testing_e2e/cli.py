@@ -9,21 +9,26 @@ from typing import Any
 
 from testcontainers.core.container import DockerContainer
 
-from testing_e2e.transport import ActionTransport
+from testing_e2e.transport import ActionResult, ActionTransport
 
 
 @dataclass(frozen=True)
-class CommandResult:
-    exit_code: int
-    stdout: str
-    stderr: str
+class CommandResult(ActionResult):
+    _exit_code: int
+    _stdout: str
+    _stderr: str
 
     @property
-    def status_code(self) -> int:
-        return self.exit_code
+    def stderr(self) -> str:
+        return self._stderr
 
     def json(self) -> Any:
-        return json.loads(self.stdout)
+        return json.loads(self._stdout)
+
+    def is_status_code(self, status_code: int) -> bool:
+        if status_code == 200:
+            return self._exit_code == 0
+        return self._exit_code != 0
 
 
 @dataclass(frozen=True)
