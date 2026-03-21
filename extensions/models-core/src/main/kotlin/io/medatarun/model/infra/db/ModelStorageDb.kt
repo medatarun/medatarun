@@ -15,6 +15,7 @@ import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.infra.db.tables.ModelTable
 import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -181,6 +182,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findRelationshipAttributeByKeyOptional modelId={} relationshipId={} key={}", modelId, relationshipId, key)
             read.findRelationshipAttributeByKeyOptional(modelId, relationshipId, key)
+        }
+    }
+
+    override fun findDomainTagLocationsByTagId(tagId: TagId): List<DomainTagLocation> {
+        return db.withExposed {
+            logger.debug("findDomainTagLocationsByTagId tagId={}", tagId)
+            read.findDomainTagLocationsByTagId(tagId)
         }
     }
 

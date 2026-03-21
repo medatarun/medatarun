@@ -101,6 +101,131 @@ class ModelStorageDbRead(
             }
     }
 
+    fun findDomainTagLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        val locations = mutableListOf<DomainTagLocation>()
+        locations.addAll(findModelLocationsByTagId(tagId))
+        locations.addAll(findEntityLocationsByTagId(tagId))
+        locations.addAll(findEntityAttributeLocationsByTagId(tagId))
+        locations.addAll(findRelationshipLocationsByTagId(tagId))
+        locations.addAll(findRelationshipAttributeLocationsByTagId(tagId))
+        return locations
+    }
+
+    private fun findModelLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        return ModelTagTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = ModelTagTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            (ModelTagTable.tagId eq tagId) and (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD)
+        }.map { row ->
+            DomainTagLocation.Model(row[ModelSnapshotTable.modelId])
+        }
+    }
+
+    private fun findEntityLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        val modelTable = ModelSnapshotTable.alias("tag_model_snapshot")
+        return EntityTagTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = EntityTagTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).join(
+            modelTable,
+            JoinType.INNER,
+            onColumn = EntityTable.modelSnapshotId,
+            otherColumn = modelTable[ModelSnapshotTable.id]
+        ).selectAll().where {
+            (EntityTagTable.tagId eq tagId) and (modelTable[ModelSnapshotTable.snapshotKind] eq ModelSnapshotKind.CURRENT_HEAD)
+        }.map { row ->
+            DomainTagLocation.Entity(
+                modelId = row[modelTable[ModelSnapshotTable.modelId]],
+                entityId = row[EntityTable.lineageId]
+            )
+        }
+    }
+
+    private fun findEntityAttributeLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        val modelTable = ModelSnapshotTable.alias("tag_entity_attribute_model_snapshot")
+        val entityTable = EntityTable.alias("tag_entity_attribute_entity_snapshot")
+        return EntityAttributeTagTable.join(
+            EntityAttributeTable,
+            JoinType.INNER,
+            onColumn = EntityAttributeTagTable.attributeSnapshotId,
+            otherColumn = EntityAttributeTable.id
+        ).join(
+            entityTable,
+            JoinType.INNER,
+            onColumn = EntityAttributeTable.entitySnapshotId,
+            otherColumn = entityTable[EntityTable.id]
+        ).join(
+            modelTable,
+            JoinType.INNER,
+            onColumn = entityTable[EntityTable.modelSnapshotId],
+            otherColumn = modelTable[ModelSnapshotTable.id]
+        ).selectAll().where {
+            (EntityAttributeTagTable.tagId eq tagId) and (modelTable[ModelSnapshotTable.snapshotKind] eq ModelSnapshotKind.CURRENT_HEAD)
+        }.map { row ->
+            DomainTagLocation.EntityAttribute(
+                modelId = row[modelTable[ModelSnapshotTable.modelId]],
+                entityId = row[entityTable[EntityTable.lineageId]],
+                attributeId = row[EntityAttributeTable.lineageId]
+            )
+        }
+    }
+
+    private fun findRelationshipLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        val modelTable = ModelSnapshotTable.alias("tag_relationship_model_snapshot")
+        return RelationshipTagTable.join(
+            RelationshipTable,
+            JoinType.INNER,
+            onColumn = RelationshipTagTable.relationshipSnapshotId,
+            otherColumn = RelationshipTable.id
+        ).join(
+            modelTable,
+            JoinType.INNER,
+            onColumn = RelationshipTable.modelSnapshotId,
+            otherColumn = modelTable[ModelSnapshotTable.id]
+        ).selectAll().where {
+            (RelationshipTagTable.tagId eq tagId) and (modelTable[ModelSnapshotTable.snapshotKind] eq ModelSnapshotKind.CURRENT_HEAD)
+        }.map { row ->
+            DomainTagLocation.Relationship(
+                modelId = row[modelTable[ModelSnapshotTable.modelId]],
+                relationshipId = row[RelationshipTable.lineageId]
+            )
+        }
+    }
+
+    private fun findRelationshipAttributeLocationsByTagId(tagId: io.medatarun.tags.core.domain.TagId): List<DomainTagLocation> {
+        val modelTable = ModelSnapshotTable.alias("tag_relationship_attribute_model_snapshot")
+        val relationshipTable = RelationshipTable.alias("tag_relationship_attribute_relationship_snapshot")
+        return RelationshipAttributeTagTable.join(
+            RelationshipAttributeTable,
+            JoinType.INNER,
+            onColumn = RelationshipAttributeTagTable.attributeSnapshotId,
+            otherColumn = RelationshipAttributeTable.id
+        ).join(
+            relationshipTable,
+            JoinType.INNER,
+            onColumn = RelationshipAttributeTable.relationshipSnapshotId,
+            otherColumn = relationshipTable[RelationshipTable.id]
+        ).join(
+            modelTable,
+            JoinType.INNER,
+            onColumn = relationshipTable[RelationshipTable.modelSnapshotId],
+            otherColumn = modelTable[ModelSnapshotTable.id]
+        ).selectAll().where {
+            (RelationshipAttributeTagTable.tagId eq tagId) and (modelTable[ModelSnapshotTable.snapshotKind] eq ModelSnapshotKind.CURRENT_HEAD)
+        }.map { row ->
+            DomainTagLocation.RelationshipAttribute(
+                modelId = row[modelTable[ModelSnapshotTable.modelId]],
+                relationshipId = row[relationshipTable[RelationshipTable.lineageId]],
+                attributeId = row[RelationshipAttributeTable.lineageId]
+            )
+        }
+    }
+
     fun findTypeByKeyOptional(
         modelId: ModelId, key: TypeKey
     ): ModelType? {

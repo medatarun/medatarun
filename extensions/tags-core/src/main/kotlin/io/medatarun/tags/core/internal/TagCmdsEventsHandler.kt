@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.internal
 
 import io.medatarun.platform.kernel.EventSystem
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
@@ -13,8 +14,7 @@ class TagCmdsEventsHandler(
     eventSystem: EventSystem
 ) : TagCmdsEvents {
     val tagBeofreDeleteEvtHandler = eventSystem.createNotifier(TagBeforeDeleteEvt::class)
-    override fun onBeforeDelete(tagId: TagId) {
-        tagBeofreDeleteEvtHandler.fire(TagBeforeDeleteEvt(tagId))
+    override fun onBeforeDelete(traceabilityRecord: AppTraceabilityRecord, tagId: TagId) {
+        tagBeofreDeleteEvtHandler.fire(TagBeforeDeleteEvt(tagId, traceabilityRecord))
     }
 }
-

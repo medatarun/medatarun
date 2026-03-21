@@ -2,6 +2,7 @@ package io.medatarun.model.ports.exposed
 
 import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.Tag
+import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagRef
 import java.net.URL
 
@@ -59,6 +60,16 @@ sealed interface ModelCmd {
 
     data class UpdateModelTagAdd(override val modelRef: ModelRef, val tagRef: TagRef) : ModelCmdOnModel
     data class UpdateModelTagDelete(override val modelRef: ModelRef, val tagRef: TagRef) : ModelCmdOnModel
+
+    /**
+     * Remove one tag from every place in the current head snapshot that still references it.
+     *
+     * The command is intentionally broad so the model layer can resolve the affected locations
+     * from storage and remove the tag links through the regular command pipeline.
+     */
+    data class RemoveTagReferences(
+        val tagId: TagId
+    ) : ModelCmd
 
     class CopyModel(
         override val modelRef: ModelRef,

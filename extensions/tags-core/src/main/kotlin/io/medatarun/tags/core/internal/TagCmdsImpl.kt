@@ -132,7 +132,7 @@ class TagCmdsImpl(
 
     private fun tagFreeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeDelete) {
         val existing = findTagFree(cmd.ref)
-        evts.onBeforeDelete(existing.id)
+        evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 
@@ -178,7 +178,7 @@ class TagCmdsImpl(
         // Business rule: deleting a group deletes its managed tags and notifies cleanup listeners for each tag.
         // This behavior is implemented here and does not rely on SQL cascade support.
         groupTags.forEach {
-            evts.onBeforeDelete(it.id)
+            evts.onBeforeDelete(cmdEnv.traceabilityRecord, it.id)
             storage.dispatch(TagRepoCmd.TagDelete(it.id))
         }
         storage.dispatch(TagRepoCmd.TagGroupDelete(existing.id))
@@ -227,7 +227,7 @@ class TagCmdsImpl(
 
     private fun tagManagedDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedDelete) {
         val existing = findTagManaged(cmd.tagRef)
-        evts.onBeforeDelete(existing.id)
+        evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
 }

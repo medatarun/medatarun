@@ -11,6 +11,7 @@ import io.medatarun.model.internal.ModelAuditor
 import io.medatarun.model.internal.ModelCmdsImpl
 import io.medatarun.model.internal.ModelQueriesImpl
 import io.medatarun.model.internal.ModelValidationImpl
+import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.exposed.ModelCmds
 import io.medatarun.model.ports.exposed.ModelQueries
@@ -24,6 +25,7 @@ import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
+import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
@@ -43,6 +45,7 @@ open class ModelExtension(
     override fun initServices(ctx: MedatarunServiceCtx) {
         val tagQueries = ctx.getService(TagQueries::class)
         val tagCmds = ctx.getService(TagCmds::class)
+        val eventSystem = ctx.getService<EventSystem>()
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val dbTransactionManager = ctx.getService(DbTransactionManager::class)
         val actorResolver = ctx.getService<AppActorResolver>()
@@ -63,6 +66,15 @@ open class ModelExtension(
         val storage: ModelStorage = ModelStorageDb(dbConnectionFactory, config.modelClock)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)
+
+        eventSystem.registerObserver(TagBeforeDeleteEvt::class) { evt ->
+            modelCmdsImpl.dispatch(
+                ModelCmdEnveloppe(
+                    traceabilityRecord = evt.traceabilityRecord,
+                    cmd = ModelCmd.RemoveTagReferences(evt.id)
+                )
+            )
+        }
 
         ctx.register(ModelCmds::class, modelCmdsImpl)
         ctx.register(ModelQueries::class, modelQueriesImpl)
