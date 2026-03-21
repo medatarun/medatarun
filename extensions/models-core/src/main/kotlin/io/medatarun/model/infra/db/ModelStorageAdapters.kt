@@ -122,7 +122,7 @@ object ModelStorageAdapters {
             eventVersion = record.eventVersion,
             eventSequenceNumber = record.streamRevision,
             createdAt = record.createdAt,
-            actionId = Id.fromString(record.actionId, ::ActionInstanceId),
+            actionId = Id.fromString(record.traceabilityOrigin, ::ActionInstanceId),
             modelVersion = record.modelVersion,
             actorId = record.actorId,
             payload = Json.decodeFromString(record.payload)

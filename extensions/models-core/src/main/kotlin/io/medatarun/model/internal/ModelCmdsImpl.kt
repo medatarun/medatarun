@@ -24,8 +24,7 @@ class ModelCmdsImpl(
 
     private fun storageCmdEnveloppe(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelStorageCmd): ModelStorageCmdEnveloppe {
         return ModelStorageCmdEnveloppe(
-            actionId = cmdEnv.actionId,
-            principalId = cmdEnv.actorId,
+            traceabilityRecord = cmdEnv.traceabilityRecord,
             cmd = repoCmd
         )
     }
@@ -213,7 +212,13 @@ class ModelCmdsImpl(
 
             val sourceTag = tagResolver.findTagById(sourceTagId)
             val mappedTagId = if (sourceTag.scope == sourceScopeRef) {
-                tagResolver.create(copied.id, sourceTag.key, sourceTag.name, sourceTag.description)
+                tagResolver.create(
+                    cmdEnv.traceabilityRecord,
+                    copied.id,
+                    sourceTag.key,
+                    sourceTag.name,
+                    sourceTag.description
+                )
                 tagResolver.resolveTagId(TagRef.ByKey(copiedScopeRef, null, sourceTag.key))
             } else {
                 sourceTagId
@@ -321,7 +326,15 @@ class ModelCmdsImpl(
         val newtags = cmd.tags
 
         // Register each found tag
-        newtags.forEach { tag -> tagResolver.create(cmd.model.id, tag.key, tag.name, tag.description) }
+        newtags.forEach { tag ->
+            tagResolver.create(
+                cmdEnv.traceabilityRecord,
+                cmd.model.id,
+                tag.key,
+                tag.name,
+                tag.description
+            )
+        }
 
         // Read the model and temporary tag ids inside, then apply the tags to model elements
         fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef.ByKey) -> Unit) {

@@ -1,6 +1,7 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.ModelId
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
@@ -48,9 +49,12 @@ interface ModelTagResolver {
     fun resolveTagIdCompatible(modelId: ModelId, tagRef: TagRef): TagId
 
     /**
-     * Create a new tag in the local scope of the model
+     * Create a new tag in the local scope of the model.
+     *
+     * The caller must forward the traceability record that triggered the model command so the tag
+     * layer keeps the original call identity.
      */
-    fun create(modelId: ModelId, key: TagKey, name: String?, description: String?)
+    fun create(traceabilityRecord: AppTraceabilityRecord, modelId: ModelId, key: TagKey, name: String?, description: String?)
 
     companion object {
         val modelTagScopeType = TagScopeType("model")

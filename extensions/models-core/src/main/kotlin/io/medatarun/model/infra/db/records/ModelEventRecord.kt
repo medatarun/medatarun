@@ -15,7 +15,7 @@ data class ModelEventRecord(
     val eventVersion: Int,
     val modelVersion: ModelVersion?,
     val actorId: AppActorId,
-    val actionId: String,
+    val traceabilityOrigin: String,
     val createdAt: Instant,
     val payload: String,
 ) {
@@ -29,7 +29,7 @@ data class ModelEventRecord(
                 eventVersion = row[ModelEventTable.eventVersion],
                 modelVersion = row[ModelEventTable.modelVersion],
                 actorId = row[ModelEventTable.actorId],
-                actionId = row[ModelEventTable.actionId],
+                traceabilityOrigin = row[ModelEventTable.traceabilityOrigin],
                 createdAt = Instant.parse(row[ModelEventTable.createdAt]),
                 payload = row[ModelEventTable.payload]
             )

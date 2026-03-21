@@ -331,7 +331,7 @@ class ModelStorageDb(
                 row[ModelEventTable.eventVersion] = record.eventVersion
                 row[ModelEventTable.modelVersion] = record.modelVersion
                 row[ModelEventTable.actorId] = record.actorId
-                row[ModelEventTable.actionId] = record.actionId
+                row[ModelEventTable.traceabilityOrigin] = record.traceabilityOrigin
                 row[ModelEventTable.createdAt] = record.createdAt.toString()
                 row[ModelEventTable.payload] = record.payload
             }

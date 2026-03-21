@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.domain
 
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.platform.kernel.Event
 
 /**
@@ -12,6 +13,8 @@ import io.medatarun.platform.kernel.Event
  * - emitted by the module that owns the scope (for example, a model/prompt/recipe/vehicle module)
  * - emitted before the scope root is deleted
  * - expresses the owner's intent to delete the whole scope and the objects it contains
+ * - carries the original traceability record so `tags-core` can forward the same call identity to
+ *   `TagCmd.TagScopeDelete`
  *
  * Consumer contract:
  * - `tags-core` consumes this event and performs a scope-level tag cleanup (`TagCmd.TagScopeDelete`)
@@ -23,4 +26,7 @@ import io.medatarun.platform.kernel.Event
  *
  * This event is a bulk scope-deletion signal. It is not equivalent to a sequence of explicit per-tag deletions.
  */
-data class TagScopeBeforeDeleteEvent(val tagScopeRef: TagScopeRef): Event
+data class TagScopeBeforeDeleteEvent(
+    val tagScopeRef: TagScopeRef,
+    val traceabilityRecord: AppTraceabilityRecord
+) : Event

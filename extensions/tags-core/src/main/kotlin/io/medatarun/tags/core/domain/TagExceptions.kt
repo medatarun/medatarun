@@ -6,6 +6,7 @@ import io.medatarun.lang.http.StatusCode
 class TagFreeDuplicateKeyException : MedatarunException("Free tag with same key already exists", StatusCode.BAD_REQUEST)
 class TagFreeNotFoundException(ref:String): MedatarunException("Free tag [${ref}] was not found", StatusCode.NOT_FOUND)
 class TagNotFoundException(ref:String): MedatarunException("Tag [${ref}] was not found", StatusCode.NOT_FOUND)
+class TagActionNotAuthenticatedException : MedatarunException("Not authenticated", StatusCode.UNAUTHORIZED)
 class TagRefGlobalByKeyMissingGroupKeyException : MedatarunException("Global tag ref by key requires a group key", StatusCode.BAD_REQUEST)
 class TagRefLocalByKeyUnexpectedGroupKeyException : MedatarunException("Local tag ref by key can not provide a group key", StatusCode.BAD_REQUEST)
 class TagRefGlobalByKeySerializationMissingGroupKeyException : MedatarunException("Global tag ref by key requires a group key to serialize", StatusCode.INTERNAL_SERVER_ERROR)

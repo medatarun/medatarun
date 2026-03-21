@@ -25,8 +25,8 @@ class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
             eventType = encoded.eventType,
             eventVersion = encoded.eventVersion,
             modelVersion = extractModelVersion(cmdEnv.cmd),
-            actorId = cmdEnv.principalId,
-            actionId = cmdEnv.actionId.value.toString(),
+            actorId = cmdEnv.traceabilityRecord.actorId,
+            traceabilityOrigin = cmdEnv.traceabilityRecord.origin,
             createdAt = createdAt,
             payload = encoded.payload
         )

@@ -1,6 +1,7 @@
 package io.medatarun.model.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
@@ -37,7 +38,12 @@ class ModelActionHandler(
 ) {
     fun dispatch(businessCmd: ModelCmd) {
         val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthenticatedException()
-        modelCmds.dispatch(ModelCmdEnveloppe(actionCtx.actionInstanceId, principal.id, businessCmd))
+        modelCmds.dispatch(
+            ModelCmdEnveloppe(
+                traceabilityRecord = ActionTraceabilityRecord(actionCtx.actionInstanceId, principal.id),
+                cmd = businessCmd
+            )
+        )
     }
 
     fun modelImport(action: ModelAction.Import) {

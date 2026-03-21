@@ -24,7 +24,6 @@ import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
-import io.medatarun.security.AppPrincipal
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeRef
@@ -49,7 +48,13 @@ open class ModelExtension(
         val actorResolver = ctx.getService<AppActorResolver>()
         val auditor: ModelAuditor = object : ModelAuditor {
             override fun onCmdProcessed(cmd: ModelCmdEnveloppe) {
-                logger.info("onCmdProcessed: ${cmd.actorId} ${actorResolver.resolve(cmd.actorId)?.displayName} ${cmd.actionId} $cmd")
+                val traceabilityRecord = cmd.traceabilityRecord
+                val actorId = traceabilityRecord.actorId
+                val actorDisplayName = actorResolver.resolve(traceabilityRecord.actorId)?.displayName
+                val origin = traceabilityRecord.origin
+                logger.info(
+                    "onCmdProcessed: actor=$actorDisplayName actorId=$actorId origin=$origin $cmd"
+                )
             }
         }
 

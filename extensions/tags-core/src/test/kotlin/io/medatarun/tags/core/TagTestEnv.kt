@@ -2,12 +2,14 @@ package io.medatarun.tags.core
 
 import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
+import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -48,7 +50,12 @@ class VehicleExtension : MedatarunExtension {
         val eventSystem = ctx.getService(EventSystem::class)
         val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
         val vehicleService = VehicleService { id ->
-            vehicleServiceDeletedNotifier.fire(TagScopeBeforeDeleteEvent(vehicleScopeRef(id)))
+            vehicleServiceDeletedNotifier.fire(
+                TagScopeBeforeDeleteEvent(
+                    vehicleScopeRef(id),
+                    TestTraceabilityRecord()
+                )
+            )
         }
 
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
@@ -73,7 +80,12 @@ class RecipeExtension : MedatarunExtension {
         val eventSystem = ctx.getService(EventSystem::class)
         val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
         val recipeService = RecipeService(onBeforeDelete = { id ->
-            recipeEventNotifier.fire(TagScopeBeforeDeleteEvent(recipeScopeRef(id)))
+            recipeEventNotifier.fire(
+                TagScopeBeforeDeleteEvent(
+                    recipeScopeRef(id),
+                    TestTraceabilityRecord()
+                )
+            )
         })
 
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
@@ -191,3 +203,4 @@ class TagTestEnv(
     }
 
 }
+

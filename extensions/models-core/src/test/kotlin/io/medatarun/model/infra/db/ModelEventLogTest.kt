@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.*
@@ -19,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+// TODO this is not correct, see val modelCmds = env.platform.services.getService(ModelCmds::class) in the last test shall not happen
 class ModelEventLogTest {
 
     @Test
@@ -55,9 +57,9 @@ class ModelEventLogTest {
         assertEquals(ModelTestEnv.testPrincipal.id, rows[0].actorId)
         assertEquals(ModelTestEnv.testPrincipal.id, rows[1].actorId)
         assertEquals(ModelTestEnv.testPrincipal.id, rows[2].actorId)
-        assertNotNull(rows[0].actionId)
-        assertNotNull(rows[1].actionId)
-        assertNotNull(rows[2].actionId)
+        assertNotNull(rows[0].traceabilityOrigin)
+        assertNotNull(rows[1].traceabilityOrigin)
+        assertNotNull(rows[2].traceabilityOrigin)
     }
 
     @Test
@@ -97,13 +99,13 @@ class ModelEventLogTest {
             }.toList()
             val releaseSnapshotRows = ModelSnapshotTable.selectAll().where {
                 (ModelSnapshotTable.modelId eq model.id) and
-                    (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT) and
-                    (ModelSnapshotTable.version eq ModelVersion("2.0.0"))
+                        (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.VERSION_SNAPSHOT) and
+                        (ModelSnapshotTable.version eq ModelVersion("2.0.0"))
             }.toList()
             val releaseEventId = ModelEventTable.select(ModelEventTable.id).where {
                 (ModelEventTable.modelId eq model.id) and
-                    (ModelEventTable.eventType eq "model_release") and
-                    (ModelEventTable.modelVersion eq ModelVersion("2.0.0"))
+                        (ModelEventTable.eventType eq "model_release") and
+                        (ModelEventTable.modelVersion eq ModelVersion("2.0.0"))
             }.single()[ModelEventTable.id]
 
             assertEquals(1, currentHeadRows.size)
@@ -135,8 +137,10 @@ class ModelEventLogTest {
 
         modelCmds.dispatch(
             ModelCmdEnveloppe(
-                actionId = ActionInstanceId(UUID.randomUUID()),
-                actorId = ModelTestEnv.testPrincipal.id,
+                traceabilityRecord = ActionTraceabilityRecord(
+                    ActionInstanceId(UUID.randomUUID()),
+                    ModelTestEnv.testPrincipal.id
+                ),
                 cmd = ModelCmd.ImportModel(imported, emptyList())
             )
         )
