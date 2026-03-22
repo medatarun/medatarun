@@ -8,7 +8,7 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
     override fun getRules(): List<SecurityRuleEvaluator> {
         return listOf(
             object : SecurityRuleEvaluator {
-                override val key: String = TagSecurityRules.TAG_MANAGED_MANAGE
+                override val key: String = TagSecurityRules.TAG_GLOBAL_MANAGE
                 override val name: String = "Manage Managed Tags"
                 override val description: String =
                     "Actors (users and tools) can manage managed tags.\n\n" +
@@ -16,7 +16,7 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
             },
             object : SecurityRuleEvaluator {
-                override val key: String = TagSecurityRules.TAG_FREE_MANAGE
+                override val key: String = TagSecurityRules.TAG_LOCAL_MANAGE
                 override val name: String = "Manage Free Tags"
                 override val description: String =
                     "Actors (users and tools) can manage free tags.\n\n" +

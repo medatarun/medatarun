@@ -286,7 +286,7 @@ class ModelAndTag_Event_Test {
 
         env.dispatch(ModelAction.Entity_AddTag(cooking.modelRef, cooking.recipeRef, publicVisibilityTag.ref))
         // Delete the tag through the tag module so the model-side cleanup is triggered by the event bridge.
-        env.dispatchTag(TagAction.TagManagedDelete(personalDataTag.ref))
+        env.dispatchTag(TagAction.TagGlobalDelete(personalDataTag.ref))
 
         // Only the removed tag disappears. Tags that were not part of the deletion stay attached.
         assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
@@ -328,8 +328,8 @@ class ModelAndTag_Event_Test {
         val specialCategoryDataTagKey = TagKey("special-category-data")
 
         env.dispatchTag(TagAction.TagGroupCreate(groupKey, null, null))
-        env.dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), personalDataTagKey, null, null))
-        env.dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), specialCategoryDataTagKey, null, null))
+        env.dispatchTag(TagAction.TagGlobalCreate(TagGroupRef.ByKey(groupKey), personalDataTagKey, null, null))
+        env.dispatchTag(TagAction.TagGlobalCreate(TagGroupRef.ByKey(groupKey), specialCategoryDataTagKey, null, null))
 
         val personalDataTagRef = TagRef.ByKey(TagScopeRef.Global, groupKey, personalDataTagKey)
         val specialCategoryDataTagRef = TagRef.ByKey(TagScopeRef.Global, groupKey, specialCategoryDataTagKey)
@@ -437,7 +437,7 @@ class ModelAndTag_Event_Test {
         )
 
         // Deleting the scoped tag must clean every attachment inside the model and keep the sibling tag alive.
-        env.dispatchTag(TagAction.TagFreeDelete(draftOnlyTag.ref))
+        env.dispatchTag(TagAction.TagLocalDelete(draftOnlyTag.ref))
 
         assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
         assertEquals(listOf(reviewedTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)

@@ -477,7 +477,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
 
         private fun createManagedTag(groupKey: TagGroupKey, key: TagKey, name: String, description: String) {
             fixture.env.dispatchTag(
-                TagAction.TagManagedCreate(
+                TagAction.TagGlobalCreate(
                     groupRef = TagGroupRef.ByKey(groupKey),
                     key = key,
                     name = name,
@@ -489,7 +489,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         private fun createLocalTag(modelId: ModelId, key: TagKey, name: String, description: String) {
             val scopeRef = modelTagScopeRef(modelId)
             fixture.env.dispatchTag(
-                TagAction.TagFreeCreate(
+                TagAction.TagLocalCreate(
                     scopeRef = scopeRef,
                     key = key,
                     name = name,

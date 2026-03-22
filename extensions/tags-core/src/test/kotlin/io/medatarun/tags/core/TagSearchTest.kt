@@ -24,9 +24,9 @@ class TagSearchTest {
         val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
 
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("global-tag"), null, null))
-        env.dispatch(TagAction.TagFreeCreate(recipeScope, TagKey("recipe-tag"), null, null))
-        env.dispatch(TagAction.TagFreeCreate(vehicleScope, TagKey("vehicle-tag"), null, null))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), TagKey("global-tag"), null, null))
+        env.dispatch(TagAction.TagLocalCreate(recipeScope, TagKey("recipe-tag"), null, null))
+        env.dispatch(TagAction.TagLocalCreate(vehicleScope, TagKey("vehicle-tag"), null, null))
 
         val items = tagSearchItems(env.dispatch(TagAction.TagSearch(filters = null)))
         assertEquals(3, items.size)
@@ -62,8 +62,8 @@ class TagSearchTest {
         val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
         assertNotNull(group)
 
-        env.dispatch(TagAction.TagManagedCreate(TagGroupRef.ById(group.id), TagKey("global-tag"), null, null))
-        env.dispatch(TagAction.TagFreeCreate(recipeScope, TagKey("recipe-tag"), null, null))
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), TagKey("global-tag"), null, null))
+        env.dispatch(TagAction.TagLocalCreate(recipeScope, TagKey("recipe-tag"), null, null))
 
         val items = tagSearchItems(env.dispatch(TagAction.TagSearch(filters = scopeIsFilter(TagScopeRef.Global))))
         assertEquals(1, items.size)
@@ -82,8 +82,8 @@ class TagSearchTest {
         env.vehicleService.createVehicle(Vehicle(vehicleId, "vehicle-1", emptyList()))
         val vehicleScope = vehicleScopeRef(vehicleId)
 
-        env.dispatch(TagAction.TagFreeCreate(recipeScope, TagKey("recipe-tag"), null, null))
-        env.dispatch(TagAction.TagFreeCreate(vehicleScope, TagKey("vehicle-tag"), null, null))
+        env.dispatch(TagAction.TagLocalCreate(recipeScope, TagKey("recipe-tag"), null, null))
+        env.dispatch(TagAction.TagLocalCreate(vehicleScope, TagKey("vehicle-tag"), null, null))
 
         val items = tagSearchItems(env.dispatch(TagAction.TagSearch(filters = scopeIsFilter(recipeScope))))
         assertEquals(1, items.size)

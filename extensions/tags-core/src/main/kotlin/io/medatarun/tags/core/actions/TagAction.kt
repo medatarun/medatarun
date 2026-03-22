@@ -8,17 +8,19 @@ import io.medatarun.tags.core.adapters.security.TagSecurityRules
 import io.medatarun.tags.core.domain.*
 
 sealed interface TagAction {
+
     // ------------------------------------------------------------------------
-    // Free tag
+    // Local tags
     // ------------------------------------------------------------------------
+
     @ActionDoc(
-        key = "tag_free_create",
-        title = "Create a free tag",
-        description = "Creates a tag that can be used directly in a scope, without belonging to a managed group.",
-        uiLocations = [TagActionUILocation.tag_free_list],
-        securityRule = TagSecurityRules.TAG_FREE_MANAGE
+        key = "tag_local_create",
+        title = "Create a local tag",
+        description = "Creates a tag, local to a scope (a model for example), without belonging to a group.",
+        uiLocations = [TagActionUILocation.tag_local_list],
+        securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
-    data class TagFreeCreate(
+    data class TagLocalCreate(
         @ActionParamDoc(
             order = 10,
             name = "Scope",
@@ -58,13 +60,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_free_update_name",
-        title = "Update free tag name",
-        description = "Updates the name of a free tag.",
-        uiLocations = [TagActionUILocation.tag_free_detail],
-        securityRule = TagSecurityRules.TAG_FREE_MANAGE
+        key = "tag_local_update_name",
+        title = "Update local tag name",
+        description = "Updates the name of a local tag.",
+        uiLocations = [TagActionUILocation.tag_local_detail],
+        securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
-    class TagFreeUpdateName(
+    class TagLocalUpdateName(
         @ActionParamDoc(
             order = 10,
             name = "Tag",
@@ -80,13 +82,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_free_update_description",
-        title = "Update free tag description",
-        description = "Updates the description of a free tag.",
-        uiLocations = [TagActionUILocation.tag_free_detail],
-        securityRule = TagSecurityRules.TAG_FREE_MANAGE
+        key = "tag_local_update_description",
+        title = "Update local tag description",
+        description = "Updates the description of a local tag.",
+        uiLocations = [TagActionUILocation.tag_local_detail],
+        securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
-    class TagFreeUpdateDescription(
+    class TagLocalUpdateDescription(
         @ActionParamDoc(
             order = 10,
             name = "Tag",
@@ -102,13 +104,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_free_update_key",
-        title = "Update free tag key",
-        description = "Updates the key of a free tag.",
-        uiLocations = [TagActionUILocation.tag_free_detail],
-        securityRule = TagSecurityRules.TAG_FREE_MANAGE
+        key = "tag_local_update_key",
+        title = "Update local tag key",
+        description = "Updates the key of a local tag.",
+        uiLocations = [TagActionUILocation.tag_local_detail],
+        securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
-    class TagFreeUpdateKey(
+    class TagLocalUpdateKey(
         @ActionParamDoc(
             order = 10,
             name = "Tag",
@@ -128,13 +130,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_free_delete",
-        title = "Delete free tag",
-        description = "Deletes a free tag from its scope.",
-        uiLocations = [TagActionUILocation.tag_free_detail],
-        securityRule = TagSecurityRules.TAG_FREE_MANAGE
+        key = "tag_local_delete",
+        title = "Delete local tag",
+        description = "Deletes a local tag from its scope.",
+        uiLocations = [TagActionUILocation.tag_local_detail],
+        securityRule = TagSecurityRules.TAG_LOCAL_MANAGE
     )
-    class TagFreeDelete(
+    class TagLocalDelete(
         @ActionParamDoc(
             order = 10,
             name = "Tag",
@@ -144,14 +146,14 @@ sealed interface TagAction {
     ) : TagAction
 
     // ------------------------------------------------------------------------
-    // ManagedTagGroup
+    // Tag Groups
     // ------------------------------------------------------------------------
 
     @ActionDoc(
         key = "tag_group_create",
-        title = "Create a managed tag group",
-        description = "Creates a group used to organize managed tags that belong together.",
-        uiLocations = [TagActionUILocation.tag_managed_group_list],
+        title = "Create a tag group",
+        description = "Creates a group used to organize gloabl tags that belong together.",
+        uiLocations = [TagActionUILocation.tag_group_list],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupCreate(
@@ -176,14 +178,15 @@ sealed interface TagAction {
             description = "Explain what this group is for and which tags belong in it.",
             order = 40,
         )
-        val description: String?) : TagAction
+        val description: String?
+    ) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_name",
-        title = "Update managed tag group name",
-        description = "Updates the name of a managed tag group.",
-        uiLocations = [TagActionUILocation.tag_managed_group_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        title = "Update global tag group name",
+        description = "Updates the name of a tag group.",
+        uiLocations = [TagActionUILocation.tag_group_detail],
+        securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateName(
         @ActionParamDoc(
@@ -197,14 +200,15 @@ sealed interface TagAction {
             description = "Name of this group.",
             order = 20,
         )
-        val value: String) : TagAction
+        val value: String
+    ) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_description",
-        title = "Update managed tag group description",
-        description = "Updates the description of a managed tag group.",
-        uiLocations = [TagActionUILocation.tag_managed_group_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        title = "Update tag group description",
+        description = "Updates the description of a tag group.",
+        uiLocations = [TagActionUILocation.tag_group_detail],
+        securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateDescription(
         @ActionParamDoc(
@@ -218,14 +222,15 @@ sealed interface TagAction {
             description = "Explain what this group is for and which tags belong in it.",
             order = 20,
         )
-        val value: String) : TagAction
+        val value: String
+    ) : TagAction
 
     @ActionDoc(
         key = "tag_group_update_key",
-        title = "Update managed tag group key",
-        description = "Updates the key of a managed tag group.",
-        uiLocations = [TagActionUILocation.tag_managed_group_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        title = "Update tag group key",
+        description = "Updates the key of a tag group.",
+        uiLocations = [TagActionUILocation.tag_group_detail],
+        securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupUpdateKey(
         @ActionParamDoc(
@@ -243,14 +248,15 @@ sealed interface TagAction {
             """,
             order = 20,
         )
-        val value: TagGroupKey) : TagAction
+        val value: TagGroupKey
+    ) : TagAction
 
     @ActionDoc(
         key = "tag_group_delete",
-        title = "Delete managed tag group",
-        description = "Deletes a managed tag group.",
-        uiLocations = [TagActionUILocation.tag_managed_group_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        title = "Delete tag group",
+        description = "Deletes a tag group.",
+        uiLocations = [TagActionUILocation.tag_group_detail],
+        securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
     class TagGroupDelete(
         @ActionParamDoc(
@@ -262,17 +268,17 @@ sealed interface TagAction {
     ) : TagAction
 
     // ------------------------------------------------------------------------
-    // ManagedTag
+    // Global Tags
     // ------------------------------------------------------------------------
 
     @ActionDoc(
-        key = "tag_managed_create",
-        title = "Create a managed tag",
-        description = "Creates a tag inside a managed group.",
-        uiLocations = [TagActionUILocation.tag_managed_list],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        key = "tag_global_create",
+        title = "Create a global tag",
+        description = "Creates a tag inside a group.",
+        uiLocations = [TagActionUILocation.tag_global_list],
+        securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
-    class TagManagedCreate(
+    class TagGlobalCreate(
         @ActionParamDoc(
             name = "Group",
             description = "Group that will contain this tag.",
@@ -304,13 +310,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_update_name",
-        title = "Update managed tag name",
-        description = "Updates the name of a managed tag.",
-        uiLocations = [TagActionUILocation.tag_managed_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        key = "tag_global_update_name",
+        title = "Update global tag name",
+        description = "Updates the name of a global tag.",
+        uiLocations = [TagActionUILocation.tag_global_detail],
+        securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
-    class TagManagedUpdateName(
+    class TagGlobalUpdateName(
         @ActionParamDoc(
             name = "Tag",
             description = "Tag to update.",
@@ -326,13 +332,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_update_description",
-        title = "Update managed tag description",
-        description = "Updates the description of a managed tag.",
-        uiLocations = [TagActionUILocation.tag_managed_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        key = "tag_global_update_description",
+        title = "Update global tag description",
+        description = "Updates the description of a global tag.",
+        uiLocations = [TagActionUILocation.tag_global_detail],
+        securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
-    class TagManagedUpdateDescription(
+    class TagGlobalUpdateDescription(
         @ActionParamDoc(
             name = "Tag",
             description = "Tag to update.",
@@ -348,13 +354,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_update_key",
-        title = "Update managed tag key",
-        description = "Updates the key of a managed tag.",
-        uiLocations = [TagActionUILocation.tag_managed_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        key = "tag_global_update_key",
+        title = "Update global tag key",
+        description = "Updates the key of a global tag.",
+        uiLocations = [TagActionUILocation.tag_global_detail],
+        securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
-    class TagManagedUpdateKey(
+    class TagGlobalUpdateKey(
         @ActionParamDoc(
             name = "Tag",
             description = "Tag to update.",
@@ -374,13 +380,13 @@ sealed interface TagAction {
     ) : TagAction
 
     @ActionDoc(
-        key = "tag_managed_delete",
-        title = "Delete managed tag",
-        description = "Deletes a managed tag.",
-        uiLocations = [TagActionUILocation.tag_managed_detail],
-        securityRule = TagSecurityRules.TAG_MANAGED_MANAGE
+        key = "tag_global_delete",
+        title = "Delete global tag",
+        description = "Deletes a global tag.",
+        uiLocations = [TagActionUILocation.tag_global_detail],
+        securityRule = TagSecurityRules.TAG_GLOBAL_MANAGE
     )
-    class TagManagedDelete(
+    class TagGlobalDelete(
         @ActionParamDoc(
             name = "Tag",
             description = "Tag to delete.",
@@ -412,7 +418,7 @@ sealed interface TagAction {
     @ActionDoc(
         key = "tag_group_list",
         title = "Tag group list",
-        description = "Lists all managed tag groups.",
+        description = "Lists all tag groups.",
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.SIGNED_IN
     )

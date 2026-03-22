@@ -113,17 +113,17 @@ export const useTagGroupUpdateKey = () => {
 };
 
 export const useTagManagedUpdateName = () => {
-  return useManagedTagMutation("tag_managed_update_name");
+  return useManagedTagMutation("tag_global_update_name");
 };
 
 export const useTagManagedUpdateDescription = () => {
-  return useManagedTagMutation("tag_managed_update_description");
+  return useManagedTagMutation("tag_global_update_description");
 };
 
 export const useTagFreeUpdateName = () => {
-  return useFreeTagMutation("tag_free_update_name");
+  return useFreeTagMutation("tag_local_update_name");
 };
 
 export const useTagFreeUpdateDescription = () => {
-  return useFreeTagMutation("tag_free_update_description");
+  return useFreeTagMutation("tag_local_update_description");
 };

@@ -272,9 +272,9 @@ class ActionSemanticsResolverTest {
         }
 
         @Test
-        fun `auto should infer tag free create from tag_free_create`() {
+        fun `auto should infer tag free create from tag_local_create`() {
             val action = createAutoActionDescriptor(
-                key = "tag_free_create",
+                key = "tag_local_create",
                 group = "tag",
                 paramNames = listOf("scopeRef", "key", "name", "description")
             )

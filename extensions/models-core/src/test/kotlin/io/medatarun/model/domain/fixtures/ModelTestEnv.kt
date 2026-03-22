@@ -97,7 +97,7 @@ class ModelTestEnv {
         )
 
         dispatchTag(TagAction.TagGroupCreate(groupKey, null, null))
-        dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
+        dispatchTag(TagAction.TagGlobalCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
 
         return tagQueries.findTagByRef(tagRef)
     }
@@ -115,7 +115,7 @@ class ModelTestEnv {
             groupKey = null,
             key = tagKey
         )
-        dispatchTag(TagAction.TagFreeCreate(scopeRef, tagKey, null, null))
+        dispatchTag(TagAction.TagLocalCreate(scopeRef, tagKey, null, null))
         return tagQueries.findTagByRef(tagRef)
     }
 
