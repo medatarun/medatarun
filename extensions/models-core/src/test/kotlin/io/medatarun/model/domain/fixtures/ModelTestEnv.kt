@@ -84,10 +84,10 @@ class ModelTestEnv {
     }
 
     /**
-     * Creates a managed tag in global scope and returns the created tag from queries.
-     * Tests use this helper to attach globally managed tags to model artifacts.
+     * Creates a global tag in global scope and returns the created tag from queries.
+     * Tests use this helper to attach global tags to model artifacts.
      */
-    fun createManagedTag(groupKeyValue: String, tagKeyValue: String): Tag {
+    fun createGlobalTag(groupKeyValue: String, tagKeyValue: String): Tag {
         val groupKey = TagGroupKey(groupKeyValue)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(
@@ -103,10 +103,10 @@ class ModelTestEnv {
     }
 
     /**
-     * Creates a free tag inside the provided model scope and returns the created tag.
+     * Creates a local tag inside the provided model scope and returns the created tag.
      * This keeps scope checks explicit in tests that validate tag attachment rules.
      */
-    fun createFreeTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
+    fun createLocalTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
         val modelId = queries.findModel(modelRef).id
         val scopeRef = ModelTagResolver.modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)

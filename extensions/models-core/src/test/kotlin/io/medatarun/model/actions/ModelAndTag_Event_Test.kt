@@ -254,8 +254,8 @@ class ModelAndTag_Event_Test {
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
 
-        val publicVisibilityTag = env.createManagedTag("security", "public")
-        val personalDataTag = env.createManagedTag("gdpr", "personal-data")
+        val publicVisibilityTag = env.createGlobalTag("security", "public")
+        val personalDataTag = env.createGlobalTag("gdpr", "personal-data")
         env.dispatch(ModelAction.Model_AddTag(cooking.modelRef, personalDataTag.ref))
         env.dispatch(ModelAction.Entity_AddTag(cooking.modelRef, cooking.recipeRef, personalDataTag.ref))
         env.dispatch(
@@ -312,13 +312,13 @@ class ModelAndTag_Event_Test {
     }
 
     /**
-     * Verifies that deleting a group cascades to all managed tags from that group and only those tags.
+     * Verifies that deleting a group cascades to all global tags from that group and only those tags.
      *
-     * The setup uses two managed tags from the same group and one unrelated tag from another group to prove that
+     * The setup uses two global tags from the same group and one unrelated tag from another group to prove that
      * cleanup is scoped to the deleted group only.
      */
     @Test
-    fun `delete a tag group removes its managed tags from all model locations`() {
+    fun `delete a tag group removes its global tags from all model locations`() {
         val env = createEnv()
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
@@ -336,7 +336,7 @@ class ModelAndTag_Event_Test {
         val personalDataTag = env.tagQueries.findTagByRef(personalDataTagRef)
         val specialCategoryDataTag = env.tagQueries.findTagByRef(specialCategoryDataTagRef)
 
-        val securityPublicTag = env.createManagedTag("security", "public")
+        val securityPublicTag = env.createGlobalTag("security", "public")
 
         env.dispatch(ModelAction.Model_AddTag(cooking.modelRef, personalDataTag.ref))
         env.dispatch(ModelAction.Entity_AddTag(cooking.modelRef, cooking.recipeRef, personalDataTag.ref))
@@ -358,7 +358,7 @@ class ModelAndTag_Event_Test {
         )
         env.dispatch(ModelAction.Relationship_AddTag(crm.modelRef, crm.employmentRef, securityPublicTag.ref))
 
-        // Group deletion should emit a before-delete event for each managed tag in the group.
+        // Group deletion should emit a before-delete event for each global tag in the group.
         env.dispatchTag(TagAction.TagGroupDelete(TagGroupRef.ByKey(groupKey)))
 
         // The deleted group tags disappear everywhere, but the unrelated tag remains attached.
@@ -397,8 +397,8 @@ class ModelAndTag_Event_Test {
         val env = createEnv()
         val cooking = CookingModelSetup(env)
 
-        val draftOnlyTag = env.createFreeTagInModelScope(cooking.modelRef, "draft-only")
-        val reviewedTag = env.createFreeTagInModelScope(cooking.modelRef, "reviewed")
+        val draftOnlyTag = env.createLocalTagInModelScope(cooking.modelRef, "draft-only")
+        val reviewedTag = env.createLocalTagInModelScope(cooking.modelRef, "reviewed")
 
         env.dispatch(ModelAction.Model_AddTag(cooking.modelRef, draftOnlyTag.ref))
         env.dispatch(ModelAction.Entity_AddTag(cooking.modelRef, cooking.recipeRef, draftOnlyTag.ref))

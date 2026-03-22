@@ -1060,7 +1060,7 @@ class Model_Copy_Test {
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val entityAttributeRef = EntityAttributeRef.ByKey(AttributeKey("id"))
         val relationshipAttributeRef = RelationshipAttributeRef.ByKey(AttributeKey("confirmed"))
-        val globalTag = env.createManagedTag("copy-global-group", "copy-global-tag")
+        val globalTag = env.createGlobalTag("copy-global-group", "copy-global-tag")
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))

@@ -89,7 +89,7 @@ Les paramètres de tags dans `ModelAction` sont toujours des `TagRef`.
   spécifié n'existe pas, une erreur de type NotFound est levée.
 - règle `models-core` de compatibilité des tags:
     - `resolveTagIdCompatible(modelId, tagRef)` accepte:
-        - tags globaux (managed)
+        - tags globaux
         - tags locaux du scope `model/<modelId>`
     - rejette un tag local d'un autre scope avec
       `TagAttachScopeMismatchException`
