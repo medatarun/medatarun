@@ -12,14 +12,6 @@ Quand on rédige ce README:
 - éviter l'enrobage; préférer des phrases courtes, directes, actionnables
 - poser des questions sur les éléments qui paraissent flous avant de rédiger
 
-## Convention README / TODO
-
-Ce README décrit le contrat fonctionnel cible du module (comportement attendu
-une fois le lot finalisé).
-
-Le fichier `TODO.md` liste uniquement le travail restant et les écarts entre ce
-contrat cible et l'état actuel du code.
-
 ## But du module
 
 `tags-core` est le module transversal qui centralise la gestion des tags dans
