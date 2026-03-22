@@ -12,10 +12,6 @@ sealed interface TagScopeRef : Ref<TagScopeRef> {
         get() = this is Global
     val isLocal: Boolean
         get() = this is Local
-    val isManaged: Boolean
-        get() = isGlobal
-    val isFree: Boolean
-        get() = isLocal
 
     object Global : TagScopeRef {
         override val type: TagScopeType = TagScopeType("global")

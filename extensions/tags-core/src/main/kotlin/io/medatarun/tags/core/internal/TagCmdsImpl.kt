@@ -52,7 +52,7 @@ class TagCmdsImpl(
             throw TagFreeCommandIncompatibleTagRefException(ref.asString())
         }
         val tag = findTagByRefOptional(ref) ?: return null
-        if (tag.isManaged) {
+        if (tag.isGlobal) {
             throw TagFreeCommandIncompatibleTagRefException(ref.asString())
         }
         return tag
@@ -82,7 +82,7 @@ class TagCmdsImpl(
             throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
         }
         val tag = findTagByRefOptional(tagRef) ?: return null
-        if (!tag.isManaged) {
+        if (!tag.isGlobal) {
             throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
         }
         return tag

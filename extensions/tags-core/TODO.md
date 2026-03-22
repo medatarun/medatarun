@@ -21,11 +21,6 @@ Il reste du nettoyage/alignement autour de modules adjacents et de l'expérience
 Le travail à faire n'est pas une migration de données : le logiciel est en cours de construction.
 On peut faire évoluer le modèle et le code sans gérer de migration.
 
-Travail restant sur ce point :
-- UI sur le nouveau système: détails dans [TAGS_UI.md](./TAGS_UI.md)
-
-Voir [TAGS_UI.md](./TAGS_UI.md) pour le détail UI (décisions, tâches, questions ouvertes).
-
 ## 2) Recherche de `models-core` avec filtres tags (migration vers `TagRef`) à consolider
 
 L'action `ModelAction.Search` a été migrée vers des filtres tags `SearchFilterTags` en `TagRef` (au lieu de strings de hashtags) et la couverture de tests backend

@@ -41,7 +41,7 @@ class TagTest {
         env.dispatch(TagAction.TagFreeCreate(scopeRef, key, "name", "description"))
         val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
-        assertFalse(found.isManaged)
+        assertFalse(found.isGlobal)
         assertEquals(scopeRef, found.scope)
         assertNull(found.groupId)
         assertEquals("name", found.name)
@@ -51,7 +51,7 @@ class TagTest {
         env.dispatch(TagAction.TagFreeCreate(scopeRef, key2, "name2", "description2"))
         val found2 = env.tagQueries.findTagByRef(tagRef(scopeRef, key2))
         assertEquals(key2, found2.key)
-        assertFalse(found2.isManaged)
+        assertFalse(found2.isGlobal)
         assertEquals(scopeRef, found2.scope)
         assertNull(found2.groupId)
         assertEquals("name2", found2.name)
@@ -69,7 +69,7 @@ class TagTest {
         env.dispatch(TagAction.TagFreeCreate(scopeRef, key, null, null))
         val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
         assertEquals(key, found.key)
-        assertFalse(found.isManaged)
+        assertFalse(found.isGlobal)
         assertEquals(scopeRef, found.scope)
         assertNull(found.groupId)
         assertNull(found.name)
@@ -100,7 +100,7 @@ class TagTest {
         fun assertTagName(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.name)
-            assertFalse(found.isManaged)
+            assertFalse(found.isGlobal)
         }
 
         // Update tag1 name
@@ -146,7 +146,7 @@ class TagTest {
         fun assertTagDescription(expected: String?, key: TagKey) {
             val found = env.tagQueries.findTagByRef(tagRef(scopeRef, key))
             assertEquals(expected, found.description)
-            assertFalse(found.isManaged)
+            assertFalse(found.isGlobal)
         }
 
         // Update tag1 description
@@ -194,7 +194,7 @@ class TagTest {
         fun assertTagKey(expected: String, id: TagId) {
             val found = env.tagQueries.findTagByRef(tagRefId(id))
             assertEquals(TagKey(expected), found.key)
-            assertFalse(found.isManaged)
+            assertFalse(found.isGlobal)
         }
 
         // Update tag1 key
@@ -518,7 +518,7 @@ class TagTest {
         val found = env.tagQueries.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
         assertEquals(TagScopeRef.Global, found.scope)
-        assertTrue(found.isManaged)
+        assertTrue(found.isGlobal)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
         assertEquals("name", found.name)
@@ -527,7 +527,7 @@ class TagTest {
         val found2 = env.tagQueries.findTagByKeyOptional(group.id, managedKey2)
         assertNotNull(found2)
         assertEquals(TagScopeRef.Global, found2.scope)
-        assertTrue(found2.isManaged)
+        assertTrue(found2.isGlobal)
         assertEquals(group.id, found2.groupId)
         assertEquals(managedKey2, found2.key)
         assertEquals("name2", found2.name)
@@ -549,7 +549,7 @@ class TagTest {
         val found = env.tagQueries.findTagByKeyOptional(group.id, managedKey)
         assertNotNull(found)
         assertEquals(TagScopeRef.Global, found.scope)
-        assertTrue(found.isManaged)
+        assertTrue(found.isGlobal)
         assertEquals(group.id, found.groupId)
         assertEquals(managedKey, found.key)
         assertNull(found.name)
