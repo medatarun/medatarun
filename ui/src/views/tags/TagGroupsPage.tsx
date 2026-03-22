@@ -30,7 +30,7 @@ export function TagGroupsPage() {
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
   const actions = actionRegistry.findActions(
-    ActionUILocations.tag_managed_group_list,
+    ActionUILocations.tag_group_list,
   );
 
   const handleClickTagGroup = (tagGroupId: string) => {
@@ -74,7 +74,7 @@ export function TagGroupsPage() {
 
             <SectionTitle
               icon={<TagGroupIcon />}
-              location={ActionUILocations.tag_managed_group_list}
+              location={ActionUILocations.tag_group_list}
               actionParams={createActionTemplateTagGroupList()}
               displayedSubject={displaySubjectNone}
             >

@@ -17,12 +17,12 @@ export const ActionUILocations = {
   relationship_attributes: "relationship.attributes",
   relationship_roles: "relationship.roles",
   relationship_role: "relationship.role",
-  tag_free_detail: "tag_free_detail",
-  tag_free_list: "tag_free_list",
-  tag_managed_detail: "tag_managed_detail",
-  tag_managed_group_detail: "tag_managed_group_detail",
-  tag_managed_group_list: "tag_managed_group_list",
-  tag_managed_list: "tag_managed_list",
+  tag_local_detail: "tag_local_detail",
+  tag_local_list: "tag_local_list",
+  tag_global_detail: "tag_global_detail",
+  tag_group_detail: "tag_group_detail",
+  tag_group_list: "tag_group_list",
+  tag_global_list: "tag_global_list",
   type: "type",
 } as const;
 

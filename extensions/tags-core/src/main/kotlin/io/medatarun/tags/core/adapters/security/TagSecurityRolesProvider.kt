@@ -5,6 +5,6 @@ import io.medatarun.security.SecurityRolesProvider
 
 class TagSecurityRolesProvider : SecurityRolesProvider {
     override fun getRoles(): List<AppPrincipalRole> {
-        return listOf(TagFreeManageRole, TagManagedManageRole, TagGroupManageRole)
+        return listOf(TagLocalManageRole, TagGlobalManageRole, TagGroupManageRole)
     }
 }

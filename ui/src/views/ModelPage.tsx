@@ -49,7 +49,7 @@ import {
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import { createActionTemplateTagFreeList } from "@/components/business/tag/tag.actions.ts";
+import { createActionTemplateTagLocalList } from "@/components/business/tag/tag.actions.ts";
 import {
   EntityIcon,
   RelationshipIcon,
@@ -231,10 +231,10 @@ export function ModelView() {
 
             <SectionTitle
               icon={<TypeIcon />}
-              actionParams={createActionTemplateTagFreeList(
+              actionParams={createActionTemplateTagLocalList(
                 modelTagScope(model.id),
               )}
-              location={ActionUILocations.tag_free_list}
+              location={ActionUILocations.tag_local_list}
               displayedSubject={displayedSubject}
             >
               {t("modelPage_localTagsTitle")}

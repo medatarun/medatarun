@@ -62,8 +62,8 @@ internal class ActionSemanticsResolver(val vocabulary: SemanticsVocabulary) {
                 knownSubjects = listOf(
                     "actor",
                     "tag",
-                    "tag_free",
-                    "tag_managed",
+                    "tag_local",
+                    "tag_global",
                     "tag_group",
                     "model",
                     "type",

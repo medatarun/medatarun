@@ -272,9 +272,9 @@ class ActionSemanticsResolverTest {
         }
 
         @Test
-        fun `auto should infer tag free create from tag_free_create`() {
+        fun `auto should infer tag local create from tag_local_create`() {
             val action = createAutoActionDescriptor(
-                key = "tag_free_create",
+                key = "tag_local_create",
                 group = "tag",
                 paramNames = listOf("scopeRef", "key", "name", "description")
             )
@@ -282,7 +282,7 @@ class ActionSemanticsResolverTest {
             val semantics = semantics(action)
 
             assertEquals(ActionDocSemanticsIntent.CREATE, semantics.intent)
-            assertEquals("tag_free", semantics.subjects[0].type)
+            assertEquals("tag_local", semantics.subjects[0].type)
             assertEquals(
                 listOf(
                     ActionSemanticsSubjectReferencingParam(

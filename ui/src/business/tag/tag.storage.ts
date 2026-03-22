@@ -76,7 +76,7 @@ function useTagGroupMutation(actionKey: string) {
   });
 }
 
-function useManagedTagMutation(actionKey: string) {
+function useTagGlobalMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
@@ -88,7 +88,7 @@ function useManagedTagMutation(actionKey: string) {
   });
 }
 
-function useFreeTagMutation(actionKey: string) {
+function useTagLocalMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
@@ -112,18 +112,18 @@ export const useTagGroupUpdateKey = () => {
   return useTagGroupMutation("tag_group_update_key");
 };
 
-export const useTagManagedUpdateName = () => {
-  return useManagedTagMutation("tag_managed_update_name");
+export const useTagGlobalUpdateName = () => {
+  return useTagGlobalMutation("tag_global_update_name");
 };
 
-export const useTagManagedUpdateDescription = () => {
-  return useManagedTagMutation("tag_managed_update_description");
+export const useTagGlobalUpdateDescription = () => {
+  return useTagGlobalMutation("tag_global_update_description");
 };
 
-export const useTagFreeUpdateName = () => {
-  return useFreeTagMutation("tag_free_update_name");
+export const useTagLocalUpdateName = () => {
+  return useTagLocalMutation("tag_local_update_name");
 };
 
-export const useTagFreeUpdateDescription = () => {
-  return useFreeTagMutation("tag_free_update_description");
+export const useTagLocalUpdateDescription = () => {
+  return useTagLocalMutation("tag_local_update_description");
 };

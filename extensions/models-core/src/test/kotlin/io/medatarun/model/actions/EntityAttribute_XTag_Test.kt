@@ -15,14 +15,14 @@ class EntityAttribute_XTag_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
-        val managedTag = env.runtime.createManagedTag("g-ea", "t-ea")
+        val globalTag = env.runtime.createGlobalTag("g-ea", "t-ea")
 
         env.dispatch(
             ModelAction.EntityAttribute_AddTag(
                 env.sampleModelRef,
                 env.sampleEntityRef,
                 EntityAttributeRef.ById(attribute.id),
-                managedTag.ref
+                globalTag.ref
             )
         )
         val added = env.query.findEntityAttribute(
@@ -30,14 +30,14 @@ class EntityAttribute_XTag_Test {
             env.sampleEntityRef,
             EntityAttributeRef.ById(attribute.id)
         )
-        assertEquals(listOf(managedTag.id), added.tags)
+        assertEquals(listOf(globalTag.id), added.tags)
 
         env.dispatch(
             ModelAction.EntityAttribute_DeleteTag(
                 env.sampleModelRef,
                 env.sampleEntityRef,
                 EntityAttributeRef.ById(attribute.id),
-                managedTag.ref
+                globalTag.ref
             )
         )
         val deleted = env.query.findEntityAttribute(
@@ -53,7 +53,7 @@ class EntityAttribute_XTag_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
-        val localTag = env.runtime.createFreeTagInModelScope(env.sampleModelRef, "local-ea-tag")
+        val localTag = env.runtime.createLocalTagInModelScope(env.sampleModelRef, "local-ea-tag")
 
         env.dispatch(
             ModelAction.EntityAttribute_AddTag(
@@ -85,7 +85,7 @@ class EntityAttribute_XTag_Test {
                 version = ModelVersion("1.0.0")
             )
         )
-        val foreignTag = env.runtime.createFreeTagInModelScope(foreignModelRef, "foreign-ea-tag")
+        val foreignTag = env.runtime.createLocalTagInModelScope(foreignModelRef, "foreign-ea-tag")
 
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(

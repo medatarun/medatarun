@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.domain
 
 /**
- * Group of managed tags, e.g. a category. It helps grouping tags related to the
+ * Group of global tags, e.g. a category. It helps grouping tags related to the
  * same subjects and provide a way to control the tag forms.
  *
  * For example, you could create a "location" tag group with countries, a "security"
@@ -16,7 +16,7 @@ interface TagGroup {
     val id: TagGroupId
 
     /**
-     * Unique key of the group, acts a prefix for [TagManaged] keys
+     * Unique key of the group
      */
     val key: TagGroupKey
 

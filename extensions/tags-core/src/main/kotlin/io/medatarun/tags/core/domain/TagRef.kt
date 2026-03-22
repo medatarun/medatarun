@@ -14,8 +14,8 @@ sealed interface TagRef : Ref<TagRef> {
 
     /**
      * Key reference format:
-     * - managed/global tag: "global/<groupKey>/<tagKey>"
-     * - local/free tag: "<scopeType>/<scopeId>/<tagKey>"
+     * - global tag: "global/<groupKey>/<tagKey>"
+     * - local tag: "<scopeType>/<scopeId>/<tagKey>"
      */
     data class ByKey(
         val scopeRef: TagScopeRef,

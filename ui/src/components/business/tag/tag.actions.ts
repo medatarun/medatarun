@@ -13,8 +13,8 @@ import { refid } from "@/business/action_runner";
  */
 export function detailActionLocation(tag: Tag) {
   return tag.isGlobal
-    ? ActionUILocations.tag_managed_detail
-    : ActionUILocations.tag_free_detail;
+    ? ActionUILocations.tag_global_detail
+    : ActionUILocations.tag_local_detail;
 }
 
 export const createActionTemplateTagGroup = (
@@ -30,7 +30,7 @@ export const createActionTemplateTagGroupList =
     return {};
   };
 
-export const createActionTemplateTagManagedList = (
+export const createActionTemplateTagGlobalList = (
   tagGroupId: string,
 ): ActionPerformerRequestParams => {
   return {
@@ -46,7 +46,7 @@ export const createActionTemplateTag = (
   };
 };
 
-export const createActionTemplateTagFreeList = (scope: {
+export const createActionTemplateTagLocalList = (scope: {
   type: string;
   id: string | null;
 }): ActionPerformerRequestParams => {

@@ -59,7 +59,7 @@ internal class ModelTagResolverWithQueries(
         tagCmds.dispatch(
             TagCmdEnveloppe(
                 traceabilityRecord = traceabilityRecord,
-                cmd = TagCmd.TagFreeCreate(
+                cmd = TagCmd.TagLocalCreate(
                     scopeRef = modelTagScopeRef(modelId),
                     key = key,
                     name = name,

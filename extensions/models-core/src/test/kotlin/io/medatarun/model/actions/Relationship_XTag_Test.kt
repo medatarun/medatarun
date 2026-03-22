@@ -16,7 +16,7 @@ class Relationship_XTag_Test {
         val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("works-with")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
-        val managedTag = env.runtime.createManagedTag("g-rel", "t-rel")
+        val globalTag = env.runtime.createGlobalTag("g-rel", "t-rel")
 
         env.dispatch(
             ModelAction.Relationship_Create(
@@ -35,10 +35,10 @@ class Relationship_XTag_Test {
             )
         )
 
-        env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, managedTag.ref))
-        assertEquals(listOf(managedTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
+        env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, globalTag.ref))
+        assertEquals(listOf(globalTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
 
-        env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, managedTag.ref))
+        env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, globalTag.ref))
         assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
     }
 
@@ -47,7 +47,7 @@ class Relationship_XTag_Test {
         val env = TestEnvEntityUpdate()
         val relationshipKey = RelationshipKey("works-with")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
-        val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-rel-tag")
+        val localTag = env.runtime.createLocalTagInModelScope(env.modelRef, "local-rel-tag")
 
         env.dispatch(
             ModelAction.Relationship_Create(
@@ -101,7 +101,7 @@ class Relationship_XTag_Test {
                 version = ModelVersion("1.0.0")
             )
         )
-        val foreignTag = env.runtime.createFreeTagInModelScope(foreignModelRef, "foreign-rel-tag")
+        val foreignTag = env.runtime.createLocalTagInModelScope(foreignModelRef, "foreign-rel-tag")
 
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, foreignTag.ref))
@@ -114,7 +114,7 @@ class Relationship_XTag_Test {
         val relationshipKey = RelationshipKey("employs")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
-        val managedTag = env.runtime.createManagedTag("g-ra", "t-ra")
+        val globalTag = env.runtime.createGlobalTag("g-ra", "t-ra")
 
         env.dispatch(
             ModelAction.Relationship_Create(
@@ -149,19 +149,19 @@ class Relationship_XTag_Test {
                 env.modelRef,
                 relationshipRef,
                 attributeRef,
-                managedTag.ref
+                globalTag.ref
             )
         )
         val added = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(added)
-        assertEquals(listOf(managedTag.id), added.tags)
+        assertEquals(listOf(globalTag.id), added.tags)
 
         env.dispatch(
             ModelAction.RelationshipAttribute_DeleteTag(
                 env.modelRef,
                 relationshipRef,
                 attributeRef,
-                managedTag.ref
+                globalTag.ref
             )
         )
         val deleted = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
@@ -175,7 +175,7 @@ class Relationship_XTag_Test {
         val relationshipKey = RelationshipKey("employs")
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startDate"))
-        val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-rel-attr-tag")
+        val localTag = env.runtime.createLocalTagInModelScope(env.modelRef, "local-rel-attr-tag")
 
         env.dispatch(
             ModelAction.Relationship_Create(
@@ -261,7 +261,7 @@ class Relationship_XTag_Test {
                 version = ModelVersion("1.0.0")
             )
         )
-        val foreignTag = env.runtime.createFreeTagInModelScope(foreignModelRef, "foreign-rel-attr-tag")
+        val foreignTag = env.runtime.createLocalTagInModelScope(foreignModelRef, "foreign-rel-attr-tag")
 
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(

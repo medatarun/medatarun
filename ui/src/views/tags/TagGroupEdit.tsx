@@ -37,7 +37,7 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateTagGroup,
-  createActionTemplateTagManagedList,
+  createActionTemplateTagGlobalList,
   createDisplayedSubjectTagGroup,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
@@ -62,7 +62,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
     );
 
   const actions = actionRegistry.findActions(
-    ActionUILocations.tag_managed_group_detail,
+    ActionUILocations.tag_group_detail,
   );
 
   const handleClickTagGroups = () => {
@@ -161,8 +161,8 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
 
             <SectionTitle
               icon={<TagGroupIcon />}
-              location={ActionUILocations.tag_managed_list}
-              actionParams={createActionTemplateTagManagedList(tagGroup.id)}
+              location={ActionUILocations.tag_global_list}
+              actionParams={createActionTemplateTagGlobalList(tagGroup.id)}
               displayedSubject={displayedSubject}
             >
               {t("tagGroupEdit_tagsTitle")}

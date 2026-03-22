@@ -24,9 +24,9 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagFreeManageRole
+import io.medatarun.tags.core.adapters.security.TagLocalManageRole
 import io.medatarun.tags.core.adapters.security.TagGroupManageRole
-import io.medatarun.tags.core.adapters.security.TagManagedManageRole
+import io.medatarun.tags.core.adapters.security.TagGlobalManageRole
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -84,10 +84,10 @@ class ModelTestEnv {
     }
 
     /**
-     * Creates a managed tag in global scope and returns the created tag from queries.
-     * Tests use this helper to attach globally managed tags to model artifacts.
+     * Creates a global tag in global scope and returns the created tag from queries.
+     * Tests use this helper to attach global tags to model artifacts.
      */
-    fun createManagedTag(groupKeyValue: String, tagKeyValue: String): Tag {
+    fun createGlobalTag(groupKeyValue: String, tagKeyValue: String): Tag {
         val groupKey = TagGroupKey(groupKeyValue)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(
@@ -97,16 +97,16 @@ class ModelTestEnv {
         )
 
         dispatchTag(TagAction.TagGroupCreate(groupKey, null, null))
-        dispatchTag(TagAction.TagManagedCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
+        dispatchTag(TagAction.TagGlobalCreate(TagGroupRef.ByKey(groupKey), tagKey, null, null))
 
         return tagQueries.findTagByRef(tagRef)
     }
 
     /**
-     * Creates a free tag inside the provided model scope and returns the created tag.
+     * Creates a local tag inside the provided model scope and returns the created tag.
      * This keeps scope checks explicit in tests that validate tag attachment rules.
      */
-    fun createFreeTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
+    fun createLocalTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
         val modelId = queries.findModel(modelRef).id
         val scopeRef = ModelTagResolver.modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)
@@ -115,7 +115,7 @@ class ModelTestEnv {
             groupKey = null,
             key = tagKey
         )
-        dispatchTag(TagAction.TagFreeCreate(scopeRef, tagKey, null, null))
+        dispatchTag(TagAction.TagLocalCreate(scopeRef, tagKey, null, null))
         return tagQueries.findTagByRef(tagRef)
     }
 
@@ -141,9 +141,9 @@ class ModelTestEnv {
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
             override val roles: List<AppPrincipalRole> = listOf(
-                TagFreeManageRole,
+                TagLocalManageRole,
                 TagGroupManageRole,
-                TagManagedManageRole
+                TagGlobalManageRole
             )
         }
         val testPrincipalCtx = object : ActionPrincipalCtx {

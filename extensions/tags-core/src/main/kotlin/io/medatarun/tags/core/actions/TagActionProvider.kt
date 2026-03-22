@@ -24,17 +24,17 @@ class TagActionProvider(
 
         val result = when (action) {
 
-            is TagAction.TagManagedCreate -> handler.tagManagedCreate(action)
-            is TagAction.TagManagedDelete -> handler.tagManagedDelete(action)
-            is TagAction.TagManagedUpdateKey -> handler.tagManagedUpdateKey(action)
-            is TagAction.TagManagedUpdateName -> handler.tagManagedUpdateName(action)
-            is TagAction.TagManagedUpdateDescription -> handler.tagManagedUpdateDescription(action)
+            is TagAction.TagGlobalCreate -> handler.tagGlobalCreate(action)
+            is TagAction.TagGlobalDelete -> handler.tagGlobalDelete(action)
+            is TagAction.TagGlobalUpdateKey -> handler.tagGlobalUpdateKey(action)
+            is TagAction.TagGlobalUpdateName -> handler.tagGlobalUpdateName(action)
+            is TagAction.TagGlobalUpdateDescription -> handler.tagGlobalUpdateDescription(action)
 
-            is TagAction.TagFreeCreate -> handler.tagFreeCreate(action)
-            is TagAction.TagFreeDelete -> handler.tagFreeDelete(action)
-            is TagAction.TagFreeUpdateKey -> handler.tagFreeUpdateKey(action)
-            is TagAction.TagFreeUpdateName -> handler.tagFreeUpdateName(action)
-            is TagAction.TagFreeUpdateDescription -> handler.tagFreeUpdateDescription(action)
+            is TagAction.TagLocalCreate -> handler.tagLocalCreate(action)
+            is TagAction.TagLocalDelete -> handler.tagLocalDelete(action)
+            is TagAction.TagLocalUpdateKey -> handler.tagLocalUpdateKey(action)
+            is TagAction.TagLocalUpdateName -> handler.tagLocalUpdateName(action)
+            is TagAction.TagLocalUpdateDescription -> handler.tagLocalUpdateDescription(action)
 
             is TagAction.TagGroupCreate -> handler.tagGroupCreate(action)
             is TagAction.TagGroupDelete -> handler.tagGroupDelete(action)
@@ -92,45 +92,45 @@ class TagActionHandler(
     }
 
 
-    fun tagManagedCreate(cmd: TagAction.TagManagedCreate) {
-        dispatch(TagCmd.TagManagedCreate(cmd.groupRef, cmd.key, cmd.name, cmd.description))
+    fun tagGlobalCreate(cmd: TagAction.TagGlobalCreate) {
+        dispatch(TagCmd.TagGlobalCreate(cmd.groupRef, cmd.key, cmd.name, cmd.description))
     }
 
-    fun tagManagedUpdateDescription(cmd: TagAction.TagManagedUpdateDescription) {
-        dispatch(TagCmd.TagManagedUpdateDescription(cmd.tagRef, cmd.value))
+    fun tagGlobalUpdateDescription(cmd: TagAction.TagGlobalUpdateDescription) {
+        dispatch(TagCmd.TagGlobalUpdateDescription(cmd.tagRef, cmd.value))
     }
 
-    fun tagManagedUpdateKey(cmd: TagAction.TagManagedUpdateKey) {
-        dispatch(TagCmd.TagManagedUpdateKey(cmd.tagRef, cmd.value))
+    fun tagGlobalUpdateKey(cmd: TagAction.TagGlobalUpdateKey) {
+        dispatch(TagCmd.TagGlobalUpdateKey(cmd.tagRef, cmd.value))
     }
 
-    fun tagManagedUpdateName(cmd: TagAction.TagManagedUpdateName) {
-        dispatch(TagCmd.TagManagedUpdateName(cmd.tagRef, cmd.value))
+    fun tagGlobalUpdateName(cmd: TagAction.TagGlobalUpdateName) {
+        dispatch(TagCmd.TagGlobalUpdateName(cmd.tagRef, cmd.value))
     }
 
-    fun tagManagedDelete(cmd: TagAction.TagManagedDelete) {
-        dispatch(TagCmd.TagManagedDelete(cmd.tagRef))
+    fun tagGlobalDelete(cmd: TagAction.TagGlobalDelete) {
+        dispatch(TagCmd.TagGlobalDelete(cmd.tagRef))
     }
 
 
-    fun tagFreeCreate(cmd: TagAction.TagFreeCreate) {
-        dispatch(TagCmd.TagFreeCreate(cmd.scopeRef, cmd.key, cmd.name, cmd.description))
+    fun tagLocalCreate(cmd: TagAction.TagLocalCreate) {
+        dispatch(TagCmd.TagLocalCreate(cmd.scopeRef, cmd.key, cmd.name, cmd.description))
     }
 
-    fun tagFreeDelete(cmd: TagAction.TagFreeDelete) {
-        dispatch(TagCmd.TagFreeDelete(cmd.tagRef))
+    fun tagLocalDelete(cmd: TagAction.TagLocalDelete) {
+        dispatch(TagCmd.TagLocalDelete(cmd.tagRef))
     }
 
-    fun tagFreeUpdateDescription(cmd: TagAction.TagFreeUpdateDescription) {
-        dispatch(TagCmd.TagFreeUpdateDescription(cmd.tagRef, cmd.value))
+    fun tagLocalUpdateDescription(cmd: TagAction.TagLocalUpdateDescription) {
+        dispatch(TagCmd.TagLocalUpdateDescription(cmd.tagRef, cmd.value))
     }
 
-    fun tagFreeUpdateKey(cmd: TagAction.TagFreeUpdateKey) {
-        dispatch(TagCmd.TagFreeUpdateKey(cmd.tagRef, cmd.value))
+    fun tagLocalUpdateKey(cmd: TagAction.TagLocalUpdateKey) {
+        dispatch(TagCmd.TagLocalUpdateKey(cmd.tagRef, cmd.value))
     }
 
-    fun tagFreeUpdateName(cmd: TagAction.TagFreeUpdateName) {
-        dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
+    fun tagLocalUpdateName(cmd: TagAction.TagLocalUpdateName) {
+        dispatch(TagCmd.TagLocalUpdateName(cmd.tagRef, cmd.value))
     }
 
     fun tagSearch(cmd: TagAction.TagSearch): JsonObject {

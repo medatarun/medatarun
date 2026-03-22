@@ -15,19 +15,19 @@ class Model_XTag_Test {
     @Test
     fun `add and delete tag on model persists tag ids`() {
         val env = TestEnvOneModel()
-        val managedTag = env.runtime.createManagedTag("g-model", "t-model")
+        val globalTag = env.runtime.createGlobalTag("g-model", "t-model")
 
-        env.dispatch(ModelAction.Model_AddTag(env.modelRef, managedTag.ref))
-        assertEquals(listOf(managedTag.id), env.query.findModel(env.modelRef).tags)
+        env.dispatch(ModelAction.Model_AddTag(env.modelRef, globalTag.ref))
+        assertEquals(listOf(globalTag.id), env.query.findModel(env.modelRef).tags)
 
-        env.dispatch(ModelAction.Model_DeleteTag(env.modelRef, managedTag.ref))
+        env.dispatch(ModelAction.Model_DeleteTag(env.modelRef, globalTag.ref))
         assertTrue(env.query.findModel(env.modelRef).tags.isEmpty())
     }
 
     @Test
     fun `add local tag of same model on model persists tag ids`() {
         val env = TestEnvOneModel()
-        val localTag = env.runtime.createFreeTagInModelScope(env.modelRef, "local-model-tag")
+        val localTag = env.runtime.createLocalTagInModelScope(env.modelRef, "local-model-tag")
 
         env.dispatch(ModelAction.Model_AddTag(env.modelRef, localTag.ref))
         assertEquals(listOf(localTag.id), env.query.findModel(env.modelRef).tags)
@@ -45,7 +45,7 @@ class Model_XTag_Test {
                 version = ModelVersion("1.0.0")
             )
         )
-        val foreignTag = env.runtime.createFreeTagInModelScope(foreignModelRef, "foreign-model-tag")
+        val foreignTag = env.runtime.createLocalTagInModelScope(foreignModelRef, "foreign-model-tag")
 
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(ModelAction.Model_AddTag(env.modelRef, foreignTag.ref))

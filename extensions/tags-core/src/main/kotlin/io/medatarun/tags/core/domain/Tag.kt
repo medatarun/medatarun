@@ -1,10 +1,10 @@
 package io.medatarun.tags.core.domain
 
 /**
- * Unified tag model used as migration target for both free tags and managed tags.
+ * Unified tag model used as migration target for both local tags and global tags.
  *
- * A free tag is represented with a local [scope].
- * A managed tag is represented with the global [scope].
+ * A local tag is represented with a local [scope].
+ * A global tag is represented with the global [scope].
  */
 interface Tag {
     /**
@@ -38,10 +38,10 @@ interface Tag {
     val description: String?
 
     /**
-     * True when the tag is attached to a group and is therefore managed.
+     * True when the tag is attached to a group and is therefore a global tag.
      */
-    val isManaged: Boolean
-        get() = scope.isManaged
+    val isGlobal: Boolean
+        get() = scope.isGlobal
 
     /**
      * Stable reference to the tag.

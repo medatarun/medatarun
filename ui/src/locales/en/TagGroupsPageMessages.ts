@@ -5,6 +5,6 @@ export const tagGroupsPageMessages: TagGroupsPageMessages = {
   tagGroupsPage_title: "Tag groups",
   tagGroupsPage_actions: "Actions",
   tagGroupsPage_description:
-    "Global scope tag groups centralize the managed vocabularies shared across Medatarun.",
+    "Tag groups are used to contain and organize global tags, those tags you can place everywhere.",
   tagGroupsPage_sectionTitle: "Tag groups",
 };

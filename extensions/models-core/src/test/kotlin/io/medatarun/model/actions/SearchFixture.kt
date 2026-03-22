@@ -298,15 +298,15 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             createTagGroup(
                 key = refs.tags.global.gdpr.key,
                 name = "GDPR",
-                description = "Managed tags used to classify data under GDPR-related categories."
+                description = "Global tags used to classify data under GDPR-related categories."
             )
-            createManagedTag(
+            createGlobalTag(
                 groupKey = refs.tags.global.gdpr.key,
                 key = refs.tags.global.gdpr.personal_data.key,
                 name = "Personal data",
                 description = "Data related to an identified or identifiable natural person."
             )
-            createManagedTag(
+            createGlobalTag(
                 groupKey = refs.tags.global.gdpr.key,
                 key = refs.tags.global.gdpr.special_category_data.key,
                 name = "Special category data",
@@ -316,21 +316,21 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             createTagGroup(
                 key = refs.tags.global.security.key,
                 name = "Security",
-                description = "Managed tags used to classify security exposure and visibility levels."
+                description = "Global tags used to classify security exposure and visibility levels."
             )
-            createManagedTag(
+            createGlobalTag(
                 groupKey = refs.tags.global.security.key,
                 key = refs.tags.global.security.public.key,
                 name = "Public",
                 description = "Data intentionally public outside the company."
             )
-            createManagedTag(
+            createGlobalTag(
                 groupKey = refs.tags.global.security.key,
                 key = refs.tags.global.security.internal.key,
                 name = "Internal",
                 description = "Internal company data that is not public."
             )
-            createManagedTag(
+            createGlobalTag(
                 groupKey = refs.tags.global.security.key,
                 key = refs.tags.global.security.confidential.key,
                 name = "Confidential",
@@ -475,9 +475,9 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
             )
         }
 
-        private fun createManagedTag(groupKey: TagGroupKey, key: TagKey, name: String, description: String) {
+        private fun createGlobalTag(groupKey: TagGroupKey, key: TagKey, name: String, description: String) {
             fixture.env.dispatchTag(
-                TagAction.TagManagedCreate(
+                TagAction.TagGlobalCreate(
                     groupRef = TagGroupRef.ByKey(groupKey),
                     key = key,
                     name = name,
@@ -489,7 +489,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         private fun createLocalTag(modelId: ModelId, key: TagKey, name: String, description: String) {
             val scopeRef = modelTagScopeRef(modelId)
             fixture.env.dispatchTag(
-                TagAction.TagFreeCreate(
+                TagAction.TagLocalCreate(
                     scopeRef = scopeRef,
                     key = key,
                     name = name,

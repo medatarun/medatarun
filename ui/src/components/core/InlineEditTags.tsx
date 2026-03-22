@@ -60,7 +60,7 @@ export function InlineEditTags({
       previousStateKind === "running" &&
       state.kind === "done" &&
       state.request.actionGroupKey === "tag" &&
-      state.request.actionKey === "tag_free_create";
+      state.request.actionKey === "tag_local_create";
 
     if (actionFinished) {
       setWaitingCreatedTagResolution(true);
@@ -105,7 +105,7 @@ export function InlineEditTags({
     setWaitingCreatedTagResolution(false);
     performAction({
       actionGroupKey: "tag",
-      actionKey: "tag_free_create",
+      actionKey: "tag_local_create",
       params: {
         scopeRef: { value: scope, readonly: true },
         key: { value: key, readonly: false },

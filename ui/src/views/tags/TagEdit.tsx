@@ -4,10 +4,10 @@ import { Model, useModel } from "@/business/model";
 import {
   type Tag,
   useTags,
-  useTagFreeUpdateDescription,
-  useTagFreeUpdateName,
-  useTagManagedUpdateDescription,
-  useTagManagedUpdateName,
+  useTagLocalUpdateDescription,
+  useTagLocalUpdateName,
+  useTagGlobalUpdateDescription,
+  useTagGlobalUpdateName,
 } from "@/business/tag";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
@@ -46,10 +46,10 @@ export function TagEdit({ tagId }: { tagId: string }) {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
-  const tagManagedUpdateName = useTagManagedUpdateName();
-  const tagManagedUpdateDescription = useTagManagedUpdateDescription();
-  const tagFreeUpdateName = useTagFreeUpdateName();
-  const tagFreeUpdateDescription = useTagFreeUpdateDescription();
+  const tagGlobalUpdateName = useTagGlobalUpdateName();
+  const tagGlobalUpdateDescription = useTagGlobalUpdateDescription();
+  const tagLocalUpdateName = useTagLocalUpdateName();
+  const tagLocalUpdateDescription = useTagLocalUpdateDescription();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
@@ -79,19 +79,19 @@ export function TagEdit({ tagId }: { tagId: string }) {
 
   const handleChangeName = (value: string) => {
     if (isGlobalTag) {
-      return tagManagedUpdateName.mutateAsync({ tagId: tag.id, value: value });
+      return tagGlobalUpdateName.mutateAsync({ tagId: tag.id, value: value });
     }
-    return tagFreeUpdateName.mutateAsync({ tagId: tag.id, value: value });
+    return tagLocalUpdateName.mutateAsync({ tagId: tag.id, value: value });
   };
 
   const handleChangeDescription = (value: string) => {
     if (isGlobalTag) {
-      return tagManagedUpdateDescription.mutateAsync({
+      return tagGlobalUpdateDescription.mutateAsync({
         tagId: tag.id,
         value: value,
       });
     }
-    return tagFreeUpdateDescription.mutateAsync({
+    return tagLocalUpdateDescription.mutateAsync({
       tagId: tag.id,
       value: value,
     });

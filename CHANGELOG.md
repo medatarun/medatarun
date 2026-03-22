@@ -6,6 +6,22 @@
 
 - Changelog file
 
+### Breaking changes
+
+- In actions (CLI, UI, API) `managed` tags vocabulary had been consistently
+  replaced by `global` (`tag_managed_create` becomes `tag_global_create` for
+  example). `free` tags vocabulary had been replaced by `local`. For example
+  `tag_free_create` replaced by `tag_local_create`
+
+### Changes
+
+- The `free tag` and `managed tag` wording had been replaced by `local tag` and
+  `global tag` everywhere. UI, API, CLI, MCP reflect changes in tag vocabulary.
+  The idea is that the fact that a tag is free to create or managed are linked
+  permissions, and it is not intrinsic of where the tag belongs. So the feature
+  is the same, with the same organization possibilities, but the wording changes to
+  reflect the reality.
+
 ### Changed - architecture
 
 - Improved traceability by grouping together `actorId` + `actionInstanceId` into
@@ -25,6 +41,14 @@ released.)
 alter table model_event rename column traceability_origin2 to traceability_origin;
 update model_event set traceability_origin = concat('action:', traceability_origin) where substring(traceability_origin, 0, 8) <> 'action:';
 ```
+
+- Role name changes
+
+```sqlite
+update actors set roles_json = replace(roles_json, '"tag_free_manage"', '"tag_local_manage"') where true;
+update actors set roles_json = replace(roles_json, '"tag_managed_manage"', '"tag_global_manage"') where true;
+```
+
 
 ### Fixed
 
@@ -72,7 +96,6 @@ update model_event set traceability_origin = concat('action:', traceability_orig
 - Action system improvement on all channels (better error reports, improved
   usage on CLI, API, MCP)
 - Audit record of all actions by everybody (humans and actors)
- 
 
 ### Security
 
