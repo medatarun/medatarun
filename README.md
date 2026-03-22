@@ -1,12 +1,30 @@
 # medatarun
 
-**Medatarun** gives the business, developers, ops, data governance, security teams, and AI agents a single place to work
-on the same living domain models : the actual structures of your domain—multiple models with their entities, relationships, attributes, types, tags, and the documentation that ties them together.
+**Medatarun** is an application to manage conceptual data models: 
+the meaning and description of models, entities, relationships, attributes, data types, etc.
 
-You import the schemas you already have, or create new ones, express the business meaning where it
-belongs, add tags for governance and sensitivity, enrich types, and keep everything versioned, navigable, and consistent.
+You can tag, compare, historize the models, and write your documentation. 
 
-Humans and agents use the same operations, so the model is not just documented — it’s operational.
+UI is made to be shown to business users so they can read, complete, and think 
+about data. Reveal technical details when tech is your job.
+
+API, CLI, UI, MCP (for AI Agents) share the exact same actions. It is tracked, 
+versionned, auditable with precise history. You know _who_ or _what_ did what, when. 
+
+To start, you can import the schemas you already have, or manually create new ones. 
+Then express the business meaning where it belongs, transform it, add tags for 
+governance needs and security, enrich types. 
+
+This makes Medatarun a **live reference** for AI. Agents manipulating your data
+can get the meaning _live_ from Medatarun, replacing their deductions with knowledge.
+
+Humans and agents use the same operations, so a model is not just documented — it’s operational.
+
+When time passes and your own apps evolve, re-import your database schema and
+compare: actual versus wanted, staging versus production, decided versus next
+release. You get the elements to act yourself, complete or discuss with your teams,
+automate reporting in CI/CD, post or your Slack/Teams, or ask AI to operate itself.
+
 
 [🌍 Website](https://www.medatarun.com/) • 
 [📘 Documentation](https://docs.medatarun.com/) • 
@@ -26,37 +44,60 @@ expect them to act on.
 
 Read more on [The Missing Operational Data Model](https://docs.medatarun.com/docs/resources/problem_en/)
 
+> Said differently: you can give your AI access to your PostgreSQL, but without somewhere describing whether this column is tax included or not, your AI will not guess. Give it Medatarun.
+
 ## Key features
 
 - **Web UI for large, evolving models**.
 
-  Enables browsing, inspecting, updating, and annotating complex structures at scale.
-  Business users can understand and adjust the model directly, which turns it into a shared workspace
-  instead of an engineering artefact.
+  Browse, inspect, update models, write documentation, add tags, and manage the models.
+  Business users can really understand and adjust the models directly. 
+  You get comparison tools, search, and history of changes. 
+  In Medatarun, the meaning and understanding of the data comes first.
 
 - **Rich, in-model documentation** without breaking structure
 
-  Medatarun is made to carry real explanations: names, descriptions and long-form texts (Markdown) live directly on
-  models, entities, relationships, and attributes, so business meaning and context are written where they apply.
+  Medatarun is made to carry real explanations: add understandable names, write
+  descriptions with long-form texts (Markdown) directly on models, entities,
+  relationships, and attributes. Business meaning and context
+  are written where they apply.
 
-  At the same time, text does not define identity. Operations, automation, and model comparisons rely on explicit
-  structural keys, so structural changes (including renamed columns/tables on import) surface as real diffs that can’t
-  be hidden by wording, and can be reviewed alongside the documentation they impact.
+  At the same time, text does not define structure. Operations, automation, and
+  model comparisons rely on explicit structural keys (like product codes in ERP).
+  So you can get comparisons of structural changes (including renamed
+  columns/tables on import) as well as full text comparison of your models.
 
 - **Support for many models and many entities**
 
-  tailored for real business domains and bounded contexts.
+  Each model can contain many entities and relationships, making documentation
+  of your applications complete.
+  Medatarun allows you to manage all your models at the same place, with clear hints on what
+  models are canonicals (what you want) versus observed on your systems (what you have).
 
-- **Extended and customizable type system** (Email, PhoneNumber, URL, RichText…)
+- **Extended and customizable type system**
 
-  Adds explicit semantics that improve validation, cross-team understanding, and AI reasoning.
+  Models contain types. Associated with entity attributes or relationships, 
+  you can express data not just with String and Int, but rich ones like Email, 
+  PhoneNumber, URL, RichText, etc.
 
-- **Free tagging on every element (models, entities, relationships, attributes)**
+  Types are first grade model elements and can be documented with their 
+  values, usages, business rules, validation rules. It largely helps team understanding and AI reasoning. 
 
-  Lets teams express semantics, organisational constraints, and regulatory obligations directly
-  inside the model instead of in scattered documents.
+- **Tags on elements (models, entities, relationships, attributes)**
 
-  Tagging is free, choose your own vocabulary to adjust to your governance needs.
+  Create and apply tags. Use them for semantics, data location (in
+  which apps, which infra), regulatory obligations (GDPR, security),
+  whatever you need to get organized.
+
+  There are two kinds of tags: 
+
+    - **local tags** belong to one model only. When you can manage the model,
+      you can create local tags on it.
+    - **global tags** are managed at the application level, organized by groups,
+      with specific permissions, shared by all models.
+
+  Use global tags for governance, regulations, overviews: no pollution inside. 
+  Still, let your teams tag themselves in their perimeter for their needs, without waiting for someone else's approval.
 
 - **Tag based search**.
 
@@ -65,9 +106,16 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 
 - **Unified operations for UI, CLI, APIs, and AI Agents**
 
-  The same operations are exposed everywhere: user interface, command line, REST APIs, and AI Agents via MCP Protocol.
-  Humans and automation act on the exact same primitives, ensuring consistency, traceability, and no divergence
-  between workflows: no glue code, no custom API surface, no bespoke parsing layer... and a linear learning curve for you.
+  The same operations are exposed everywhere: user interface, command line, REST
+  APIs, and AI Agents via MCP Protocol. An important point for tools and agents:
+  it is the exact same syntax, parameters, and security everywhere. Because
+  humans and automation act on the exact same primitives, it ensures
+  consistency, traceability, and no difference between workflows: no glue code,
+  no custom API, no parsing layer...
+
+  For you, it is easier too. Medatarun user-interface has an _action runner_
+  with live action documentation, parameters, types, and a "run" button. 
+  CLI also gives this documentation. 
 
   Builtin commands allow to view and manipulate
 
@@ -79,7 +127,7 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 
  - **Import models**
 
-  Quickly start by importing your existing schemas from [your existing databases with JDBC support](https://docs.medatarun.com/docs/installation/databases) or from [Frictionless TableSchema or Data Packages](./extensions/models-import-frictionlessdata/README.md).
+  Quickly start by importing your existing schemas from [your existing databases (JDBC support](https://docs.medatarun.com/docs/installation/databases) or from [Frictionless TableSchema or Data Packages](./extensions/models-import-frictionlessdata/README.md).
   After import, you get the structure that the importer inferred from the source. Then, you can
   refine it: adjust types and relationships, add tags and descriptions, and reshape entities or attributes when the
   import didn’t capture enough information.
@@ -99,10 +147,13 @@ Read more on [The Missing Operational Data Model](https://docs.medatarun.com/doc
 
 - **Version control**
 
-  Data stored by Medatarun on your project directories are meant to be version-controlled, in plain text and
-  human-readable formats.
-  Over a GIT repository, every change—human or AI—is diffable, reviewable, reversible, and auditable
-  in the same workflow.
+  Medatarun has a built-in version management: it stores its data in its own
+  database as a history of events. Releasing a model version is like creating a 
+  Git tag: it puts a version number on a specific point in history.
+
+  Additionally, you can export your models versions (or the current unreleased version).
+  This format is documented (JSON Schema) and compatible with GIT repositories:
+  full text, sorted, diffable, reviewable. 
 
 - **Open source**
 
