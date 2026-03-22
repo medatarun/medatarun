@@ -9,26 +9,26 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
         return listOf(
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_GLOBAL_MANAGE
-                override val name: String = "Manage Managed Tags"
+                override val name: String = "Manage global tags"
                 override val description: String =
-                    "Actors (users and tools) can manage managed tags.\n\n" +
-                        "Required role: `tag_managed_manage`."
-                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagManagedManageRole)
+                    "Actors (users and tools) can manage global tags.\n\n" +
+                        "Required permission: `${TagGlobalManageRole.key}`."
+                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGlobalManageRole)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_LOCAL_MANAGE
-                override val name: String = "Manage Free Tags"
+                override val name: String = "Manage local tags"
                 override val description: String =
-                    "Actors (users and tools) can manage free tags.\n\n" +
-                        "Required role: `tag_free_manage`."
-                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagFreeManageRole)
+                    "Actors (users and tools) can manage local tags.\n\n" +
+                        "Required permission: `${TagLocalManageRole.key}`."
+                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagLocalManageRole)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_GROUP_MANAGE
                 override val name: String = "Manage Tag Groups"
                 override val description: String =
                     "Actors (users and tools) can manage tag groups.\n\n" +
-                        "Required role: `tag_group_manage`."
+                        "Required permission: `${TagGroupManageRole.key}`."
                 override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
             }
         )

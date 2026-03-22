@@ -62,7 +62,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
     );
 
   const actions = actionRegistry.findActions(
-    ActionUILocations.tag_managed_group_detail,
+    ActionUILocations.tag_group_detail,
   );
 
   const handleClickTagGroups = () => {
@@ -161,7 +161,7 @@ export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
 
             <SectionTitle
               icon={<TagGroupIcon />}
-              location={ActionUILocations.tag_managed_list}
+              location={ActionUILocations.tag_global_list}
               actionParams={createActionTemplateTagManagedList(tagGroup.id)}
               displayedSubject={displayedSubject}
             >

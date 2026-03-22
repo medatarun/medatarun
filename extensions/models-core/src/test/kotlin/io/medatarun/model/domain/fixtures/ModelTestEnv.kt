@@ -24,9 +24,9 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagFreeManageRole
+import io.medatarun.tags.core.adapters.security.TagLocalManageRole
 import io.medatarun.tags.core.adapters.security.TagGroupManageRole
-import io.medatarun.tags.core.adapters.security.TagManagedManageRole
+import io.medatarun.tags.core.adapters.security.TagGlobalManageRole
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -141,9 +141,9 @@ class ModelTestEnv {
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
             override val roles: List<AppPrincipalRole> = listOf(
-                TagFreeManageRole,
+                TagLocalManageRole,
                 TagGroupManageRole,
-                TagManagedManageRole
+                TagGlobalManageRole
             )
         }
         val testPrincipalCtx = object : ActionPrincipalCtx {

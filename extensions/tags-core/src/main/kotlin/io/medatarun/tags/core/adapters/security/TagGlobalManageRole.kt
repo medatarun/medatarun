@@ -2,7 +2,7 @@ package io.medatarun.tags.core.adapters.security
 
 import io.medatarun.security.AppPrincipalRole
 
-object TagManagedManageRole : AppPrincipalRole {
+object TagGlobalManageRole : AppPrincipalRole {
     override val key: String
-        get() = "tag_managed_manage"
+        get() = "tag_global_manage"
 }

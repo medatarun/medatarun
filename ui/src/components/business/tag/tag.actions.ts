@@ -13,8 +13,8 @@ import { refid } from "@/business/action_runner";
  */
 export function detailActionLocation(tag: Tag) {
   return tag.isGlobal
-    ? ActionUILocations.tag_managed_detail
-    : ActionUILocations.tag_free_detail;
+    ? ActionUILocations.tag_global_detail
+    : ActionUILocations.tag_local_detail;
 }
 
 export const createActionTemplateTagGroup = (

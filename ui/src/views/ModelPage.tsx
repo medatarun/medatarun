@@ -234,7 +234,7 @@ export function ModelView() {
               actionParams={createActionTemplateTagFreeList(
                 modelTagScope(model.id),
               )}
-              location={ActionUILocations.tag_free_list}
+              location={ActionUILocations.tag_local_list}
               displayedSubject={displayedSubject}
             >
               {t("modelPage_localTagsTitle")}

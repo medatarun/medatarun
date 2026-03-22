@@ -18,11 +18,11 @@ class TagCmdsImpl(
     override fun dispatch(cmdEnv: TagCmdEnveloppe) {
         return txManager.runInTransaction {
             when (val cmd = cmdEnv.cmd) {
-                is TagCmd.TagFreeCreate -> tagFreeCreate(cmdEnv, cmd)
-                is TagCmd.TagFreeDelete -> tagFreeDelete(cmdEnv, cmd)
-                is TagCmd.TagFreeUpdateDescription -> tagFreeUpdateDescription(cmdEnv, cmd)
-                is TagCmd.TagFreeUpdateKey -> tagFreeUpdateKey(cmdEnv, cmd)
-                is TagCmd.TagFreeUpdateName -> tagFreeUpdateName(cmdEnv, cmd)
+                is TagCmd.TagLocalCreate -> tagLocalCreate(cmdEnv, cmd)
+                is TagCmd.TagLocalDelete -> tagLocalDelete(cmdEnv, cmd)
+                is TagCmd.TagLocalUpdateDescription -> tagLocalUpdateDescription(cmdEnv, cmd)
+                is TagCmd.TagLocalUpdateKey -> tagLocalUpdateKey(cmdEnv, cmd)
+                is TagCmd.TagLocalUpdateName -> tagLocalUpdateName(cmdEnv, cmd)
 
                 is TagCmd.TagGroupCreate -> tagGroupCreate(cmdEnv, cmd)
                 is TagCmd.TagGroupDelete -> tagGroupDelete(cmdEnv, cmd)
@@ -30,11 +30,11 @@ class TagCmdsImpl(
                 is TagCmd.TagGroupUpdateKey -> tagGroupUpdateKey(cmdEnv, cmd)
                 is TagCmd.TagGroupUpdateName -> tagGroupUpdateName(cmdEnv, cmd)
 
-                is TagCmd.TagManagedCreate -> tagManagedCreate(cmdEnv, cmd)
-                is TagCmd.TagManagedDelete -> tagManagedDelete(cmdEnv, cmd)
-                is TagCmd.TagManagedUpdateDescription -> tagManagedUpdateDescription(cmdEnv, cmd)
-                is TagCmd.TagManagedUpdateKey -> tagManagedUpdateKey(cmdEnv, cmd)
-                is TagCmd.TagManagedUpdateName -> tagManagedUpdateName(cmdEnv, cmd)
+                is TagCmd.TagGlobalCreate -> tagGlobalCreate(cmdEnv, cmd)
+                is TagCmd.TagGlobalDelete -> tagGlobalDelete(cmdEnv, cmd)
+                is TagCmd.TagGlobalUpdateDescription -> tagGlobalUpdateDescription(cmdEnv, cmd)
+                is TagCmd.TagGlobalUpdateKey -> tagGlobalUpdateKey(cmdEnv, cmd)
+                is TagCmd.TagGlobalUpdateName -> tagGlobalUpdateName(cmdEnv, cmd)
 
                 is TagCmd.TagScopeDelete -> tagScopeDelete(cmdEnv, cmd)
             }
@@ -47,19 +47,19 @@ class TagCmdsImpl(
         }
     }
 
-    private fun findTagFreeOptional(ref: TagRef): Tag? {
+    private fun findTagLocalOptional(ref: TagRef): Tag? {
         if (ref is TagRef.ByKey && ref.scopeRef.isGlobal) {
-            throw TagFreeCommandIncompatibleTagRefException(ref.asString())
+            throw TagLocalCommandIncompatibleTagRefException(ref.asString())
         }
         val tag = findTagByRefOptional(ref) ?: return null
         if (tag.isGlobal) {
-            throw TagFreeCommandIncompatibleTagRefException(ref.asString())
+            throw TagLocalCommandIncompatibleTagRefException(ref.asString())
         }
         return tag
     }
 
-    private fun findTagFree(ref: TagRef): Tag {
-        return findTagFreeOptional(ref) ?: throw TagFreeNotFoundException(ref.asString())
+    private fun findTagLocal(ref: TagRef): Tag {
+        return findTagLocalOptional(ref) ?: throw TagLocalNotFoundException(ref.asString())
     }
 
     private fun findTagGroupOptional(ref: TagGroupRef): TagGroup? {
@@ -77,28 +77,28 @@ class TagCmdsImpl(
         return tagRefResolver.findTagByRefOptional(tagRef)
     }
 
-    private fun findTagManagedOptional(tagRef: TagRef): Tag? {
+    private fun findTagGlobalOptional(tagRef: TagRef): Tag? {
         if (tagRef is TagRef.ByKey && tagRef.scopeRef.isLocal) {
-            throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
+            throw TagGlobalCommandIncompatibleTagRefException(tagRef.asString())
         }
         val tag = findTagByRefOptional(tagRef) ?: return null
         if (!tag.isGlobal) {
-            throw TagManagedCommandIncompatibleTagRefException(tagRef.asString())
+            throw TagGlobalCommandIncompatibleTagRefException(tagRef.asString())
         }
         return tag
     }
 
-    private fun findTagManaged(tagRef: TagRef): Tag {
-        return findTagManagedOptional(tagRef)
-            ?: throw TagManagedNotFoundException(tagRef.asString())
+    private fun findTagGlobal(tagRef: TagRef): Tag {
+        return findTagGlobalOptional(tagRef)
+            ?: throw TagGlobalNotFoundException(tagRef.asString())
     }
 
-    private fun tagFreeCreate(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeCreate) {
-        if (cmd.scopeRef.isGlobal) throw TagFreeCommandIncompatibleTagScopeRefException(cmd.scopeRef.asString())
+    private fun tagLocalCreate(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalCreate) {
+        if (cmd.scopeRef.isGlobal) throw TagLocalCommandIncompatibleTagScopeRefException(cmd.scopeRef.asString())
         val tagScope = cmd.scopeRef
         tagScopes.ensureLocalScopeExists(tagScope)
         val existing = storage.findTagByKeyOptional(tagScope, null, cmd.key)
-        if (existing != null) throw TagFreeDuplicateKeyException()
+        if (existing != null) throw TagLocalDuplicateKeyException()
         storage.dispatch(
             TagRepoCmd.TagCreate(
                 TagInMemory(
@@ -113,25 +113,25 @@ class TagCmdsImpl(
         )
     }
 
-    private fun tagFreeUpdateKey(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeUpdateKey) {
-        val existing = findTagFree(cmd.ref)
+    private fun tagLocalUpdateKey(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalUpdateKey) {
+        val existing = findTagLocal(cmd.ref)
         val duplicate = storage.findTagByKeyOptional(existing.scope, null, cmd.value)
-        if (duplicate != null && duplicate.id != existing.id) throw TagFreeDuplicateKeyException()
+        if (duplicate != null && duplicate.id != existing.id) throw TagLocalDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))
     }
 
-    private fun tagFreeUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeUpdateName) {
-        val existing = findTagFree(cmd.ref)
+    private fun tagLocalUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalUpdateName) {
+        val existing = findTagLocal(cmd.ref)
         storage.dispatch(TagRepoCmd.TagUpdateName(existing.id, cmd.value))
     }
 
-    private fun tagFreeUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeUpdateDescription) {
-        val existing = findTagFree(cmd.ref)
+    private fun tagLocalUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalUpdateDescription) {
+        val existing = findTagLocal(cmd.ref)
         storage.dispatch(TagRepoCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
-    private fun tagFreeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagFreeDelete) {
-        val existing = findTagFree(cmd.ref)
+    private fun tagLocalDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalDelete) {
+        val existing = findTagLocal(cmd.ref)
         evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }
@@ -175,7 +175,7 @@ class TagCmdsImpl(
         val groupTags = storage.findAllTag()
             .filter { it.groupId == existing.id }
 
-        // Business rule: deleting a group deletes its managed tags and notifies cleanup listeners for each tag.
+        // Business rule: deleting a group deletes its tags and notifies cleanup listeners for each tag.
         // This behavior is implemented here and does not rely on SQL cascade support.
         groupTags.forEach {
             evts.onBeforeDelete(cmdEnv.traceabilityRecord, it.id)
@@ -185,11 +185,11 @@ class TagCmdsImpl(
     }
 
 
-    private fun tagManagedCreate(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedCreate) {
+    private fun tagGlobalCreate(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalCreate) {
         val group = findTagGroup(cmd.groupRef)
 
         val existing = storage.findTagByKeyOptional(group.id, cmd.key)
-        if (existing != null) throw TagManagedDuplicateKeyException()
+        if (existing != null) throw TagGlobalDuplicateKeyException()
 
         storage.dispatch(
             TagRepoCmd.TagCreate(
@@ -205,28 +205,28 @@ class TagCmdsImpl(
         )
     }
 
-    private fun tagManagedUpdateKey(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedUpdateKey) {
-        val existing = findTagManaged(cmd.tagRef)
+    private fun tagGlobalUpdateKey(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalUpdateKey) {
+        val existing = findTagGlobal(cmd.tagRef)
         val existingGroupId =
-            existing.groupId ?: throw TagManagedCommandIncompatibleTagRefException(cmd.tagRef.asString())
+            existing.groupId ?: throw TagGlobalCommandIncompatibleTagRefException(cmd.tagRef.asString())
         val duplicate = storage.findTagByKeyOptional(existingGroupId, cmd.value)
-        if (duplicate != null && duplicate.id != existing.id) throw TagManagedDuplicateKeyException()
+        if (duplicate != null && duplicate.id != existing.id) throw TagGlobalDuplicateKeyException()
         storage.dispatch(TagRepoCmd.TagUpdateKey(existing.id, cmd.value))
 
     }
 
-    private fun tagManagedUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedUpdateName) {
-        val existing = findTagManaged(cmd.tagRef)
+    private fun tagGlobalUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalUpdateName) {
+        val existing = findTagGlobal(cmd.tagRef)
         storage.dispatch(TagRepoCmd.TagUpdateName(existing.id, cmd.value))
     }
 
-    private fun tagManagedUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedUpdateDescription) {
-        val existing = findTagManaged(cmd.tagRef)
+    private fun tagGlobalUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalUpdateDescription) {
+        val existing = findTagGlobal(cmd.tagRef)
         storage.dispatch(TagRepoCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
-    private fun tagManagedDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagManagedDelete) {
-        val existing = findTagManaged(cmd.tagRef)
+    private fun tagGlobalDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalDelete) {
+        val existing = findTagGlobal(cmd.tagRef)
         evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
         storage.dispatch(TagRepoCmd.TagDelete(existing.id))
     }

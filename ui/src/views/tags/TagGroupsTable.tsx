@@ -56,7 +56,7 @@ export function TagGroupsTable({
   const { t } = useAppI18n();
   const actionRegistry = useActionRegistry();
   const itemActions = actionRegistry.findActions(
-    ActionUILocations.tag_managed_group_detail,
+    ActionUILocations.tag_group_detail,
   );
   const styles = useStyles();
 

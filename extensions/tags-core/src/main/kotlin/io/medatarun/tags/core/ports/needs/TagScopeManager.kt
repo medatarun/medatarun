@@ -11,8 +11,8 @@ interface TagScopeManager {
     val type: TagScopeType
 
     /**
-     * Ensures a local scope exists before a tag is created in it or a tag is managed
-     * relatively to this scope
+     * Ensures a local scope exists before a tag is created inside it or before a tag is processed in operations
+     * relative to this scope
      */
     fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean
 

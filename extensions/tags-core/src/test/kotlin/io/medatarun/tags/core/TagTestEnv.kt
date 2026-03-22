@@ -2,14 +2,12 @@ package io.medatarun.tags.core
 
 import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
-import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
-import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -24,9 +22,9 @@ import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPrincipal
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityExtensionConfig
-import io.medatarun.tags.core.adapters.security.TagFreeManageRole
+import io.medatarun.tags.core.adapters.security.TagLocalManageRole
 import io.medatarun.tags.core.adapters.security.TagGroupManageRole
-import io.medatarun.tags.core.adapters.security.TagManagedManageRole
+import io.medatarun.tags.core.adapters.security.TagGlobalManageRole
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
@@ -177,9 +175,9 @@ class TagTestEnv(
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
             override val roles: List<AppPrincipalRole> = listOf(
-                TagFreeManageRole,
+                TagLocalManageRole,
                 TagGroupManageRole,
-                TagManagedManageRole
+                TagGlobalManageRole
             )
         }
 

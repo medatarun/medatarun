@@ -11,8 +11,8 @@ import io.medatarun.security.AppTraceabilityRecord
  * - allow listeners to veto the deletion by throwing before storage mutation happens
  *
  * Emission contract:
- * - emitted for explicit tag deletions handled as tag operations (`TagFreeDelete`, `TagManagedDelete`)
- * - emitted for managed-tag deletions caused by `TagGroupDelete` (one event per managed tag)
+ * - emitted for explicit tag deletions handled as tag operations (`TagLocalDelete`, `TagGlobalDelete`)
+ * - emitted for global-tag deletions caused by `TagGroupDelete` (one event per global tag)
  * - not emitted for bulk scope cleanup triggered by `TagScopeBeforeDeleteEvent` / `TagCmd.TagScopeDelete`
  *
  * Consumer contract:

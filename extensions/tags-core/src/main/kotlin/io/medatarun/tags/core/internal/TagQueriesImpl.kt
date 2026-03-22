@@ -66,8 +66,8 @@ class TagQueriesImpl(
         return findTagByRefOptional(tagRef) ?: throw TagNotFoundException(tagRef.asString())
     }
 
-    override fun findTagByKeyOptional(id: TagGroupId, managedKey: TagKey): Tag? {
-        return storage.findTagByKeyOptional(id, managedKey)
+    override fun findTagByKeyOptional(id: TagGroupId, tagKey: TagKey): Tag? {
+        return storage.findTagByKeyOptional(id, tagKey)
     }
 
     override fun findTagGroupByKeyOptional(groupKey: TagGroupKey): TagGroup? {
