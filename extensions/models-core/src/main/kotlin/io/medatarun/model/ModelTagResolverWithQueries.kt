@@ -4,6 +4,7 @@ import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.*
 
 internal class ModelTagResolverWithQueries(
@@ -48,11 +49,22 @@ internal class ModelTagResolverWithQueries(
         return tag.id
     }
 
-    override fun create(modelId: ModelId, key: TagKey, name: String?, description: String?) {
+    override fun create(
+        traceabilityRecord: AppTraceabilityRecord,
+        modelId: ModelId,
+        key: TagKey,
+        name: String?,
+        description: String?
+    ) {
         tagCmds.dispatch(
-            TagCmd.TagFreeCreate(
-                scopeRef = modelTagScopeRef(modelId),
-                key = key, name = name, description = description
+            TagCmdEnveloppe(
+                traceabilityRecord = traceabilityRecord,
+                cmd = TagCmd.TagFreeCreate(
+                    scopeRef = modelTagScopeRef(modelId),
+                    key = key,
+                    name = name,
+                    description = description
+                )
             )
         )
     }

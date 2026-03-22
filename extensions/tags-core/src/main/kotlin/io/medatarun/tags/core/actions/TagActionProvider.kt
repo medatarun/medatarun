@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.tags.core.domain.*
 import kotlinx.serialization.json.*
@@ -19,7 +20,7 @@ class TagActionProvider(
         action: TagAction,
         actionCtx: ActionCtx
     ): Any {
-        val handler = TagActionHandler(tagCmds, tagQueries)
+        val handler = TagActionHandler(tagCmds, tagQueries, actionCtx)
 
         val result = when (action) {
 
@@ -52,70 +53,84 @@ class TagActionProvider(
     }
 }
 
-class TagActionHandler(private val tagCmds: TagCmds, private val tagQueries: TagQueries) {
+class TagActionHandler(
+    private val tagCmds: TagCmds,
+    private val tagQueries: TagQueries,
+    private val actionCtx: ActionCtx
+) {
+
+    fun dispatch(businessCmd: TagCmd) {
+        val principal = actionCtx.principal.principal ?: throw TagActionNotAuthenticatedException()
+        tagCmds.dispatch(
+            TagCmdEnveloppe(
+                traceabilityRecord = ActionTraceabilityRecord(actionCtx.actionInstanceId, principal.id),
+                cmd = businessCmd
+            )
+        )
+    }
 
 
     fun tagGroupCreate(cmd: TagAction.TagGroupCreate) {
-        tagCmds.dispatch(TagCmd.TagGroupCreate(cmd.key, cmd.name, cmd.description))
+        dispatch(TagCmd.TagGroupCreate(cmd.key, cmd.name, cmd.description))
     }
 
     fun tagGroupUpdateDescription(cmd: TagAction.TagGroupUpdateDescription) {
-        tagCmds.dispatch(TagCmd.TagGroupUpdateDescription(cmd.tagGroupRef, cmd.value))
+        dispatch(TagCmd.TagGroupUpdateDescription(cmd.tagGroupRef, cmd.value))
     }
 
     fun tagGroupUpdateKey(cmd: TagAction.TagGroupUpdateKey) {
-        tagCmds.dispatch(TagCmd.TagGroupUpdateKey(cmd.tagGroupRef, cmd.value))
+        dispatch(TagCmd.TagGroupUpdateKey(cmd.tagGroupRef, cmd.value))
     }
 
     fun tagGroupUpdateName(cmd: TagAction.TagGroupUpdateName) {
-        tagCmds.dispatch(TagCmd.TagGroupUpdateName(cmd.tagGroupRef, cmd.value))
+        dispatch(TagCmd.TagGroupUpdateName(cmd.tagGroupRef, cmd.value))
     }
 
 
     fun tagGroupDelete(cmd: TagAction.TagGroupDelete) {
-        tagCmds.dispatch(TagCmd.TagGroupDelete(cmd.tagGroupRef))
+        dispatch(TagCmd.TagGroupDelete(cmd.tagGroupRef))
     }
 
 
     fun tagManagedCreate(cmd: TagAction.TagManagedCreate) {
-        tagCmds.dispatch(TagCmd.TagManagedCreate(cmd.groupRef, cmd.key, cmd.name, cmd.description))
+        dispatch(TagCmd.TagManagedCreate(cmd.groupRef, cmd.key, cmd.name, cmd.description))
     }
 
     fun tagManagedUpdateDescription(cmd: TagAction.TagManagedUpdateDescription) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateDescription(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagManagedUpdateDescription(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedUpdateKey(cmd: TagAction.TagManagedUpdateKey) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateKey(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagManagedUpdateKey(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedUpdateName(cmd: TagAction.TagManagedUpdateName) {
-        tagCmds.dispatch(TagCmd.TagManagedUpdateName(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagManagedUpdateName(cmd.tagRef, cmd.value))
     }
 
     fun tagManagedDelete(cmd: TagAction.TagManagedDelete) {
-        tagCmds.dispatch(TagCmd.TagManagedDelete(cmd.tagRef))
+        dispatch(TagCmd.TagManagedDelete(cmd.tagRef))
     }
 
 
     fun tagFreeCreate(cmd: TagAction.TagFreeCreate) {
-        tagCmds.dispatch(TagCmd.TagFreeCreate(cmd.scopeRef, cmd.key, cmd.name, cmd.description))
+        dispatch(TagCmd.TagFreeCreate(cmd.scopeRef, cmd.key, cmd.name, cmd.description))
     }
 
     fun tagFreeDelete(cmd: TagAction.TagFreeDelete) {
-        tagCmds.dispatch(TagCmd.TagFreeDelete(cmd.tagRef))
+        dispatch(TagCmd.TagFreeDelete(cmd.tagRef))
     }
 
     fun tagFreeUpdateDescription(cmd: TagAction.TagFreeUpdateDescription) {
-        tagCmds.dispatch(TagCmd.TagFreeUpdateDescription(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagFreeUpdateDescription(cmd.tagRef, cmd.value))
     }
 
     fun tagFreeUpdateKey(cmd: TagAction.TagFreeUpdateKey) {
-        tagCmds.dispatch(TagCmd.TagFreeUpdateKey(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagFreeUpdateKey(cmd.tagRef, cmd.value))
     }
 
     fun tagFreeUpdateName(cmd: TagAction.TagFreeUpdateName) {
-        tagCmds.dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
+        dispatch(TagCmd.TagFreeUpdateName(cmd.tagRef, cmd.value))
     }
 
     fun tagSearch(cmd: TagAction.TagSearch): JsonObject {

@@ -43,14 +43,14 @@ class TagSearchTest {
         assertTrue(recipeItem["groupId"] is JsonNull)
         val recipeScopeRef = recipeItem["tagScopeRef"]!!.jsonObject
         assertEquals(recipeScope.type.value, jsonString(recipeScopeRef, "type"))
-        assertEquals(recipeScope.scopeId!!.asString(), jsonString(recipeScopeRef, "id"))
+        assertEquals(recipeScope.scopeId.asString(), jsonString(recipeScopeRef, "id"))
 
         val vehicleItem = findTagSearchItemByKey(items, "vehicle-tag")
         assertNotNull(vehicleItem)
         assertTrue(vehicleItem["groupId"] is JsonNull)
         val vehicleScopeRefJson = vehicleItem["tagScopeRef"]!!.jsonObject
         assertEquals(vehicleScope.type.value, jsonString(vehicleScopeRefJson, "type"))
-        assertEquals(vehicleScope.scopeId!!.asString(), jsonString(vehicleScopeRefJson, "id"))
+        assertEquals(vehicleScope.scopeId.asString(), jsonString(vehicleScopeRefJson, "id"))
     }
 
     @Test
@@ -120,7 +120,7 @@ class TagSearchTest {
         extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
     ): TagTestEnv = TagTestEnv(extraScopeManagers, extraListeners)
 
-    private fun tagSearchItems(result: Any): JsonArray {
+    private fun tagSearchItems(result: Any?): JsonArray {
         val json = result as? JsonObject ?: fail("TagSearch response should be a JsonObject")
         return json["items"]?.jsonArray ?: fail("TagSearch response should contain items")
     }

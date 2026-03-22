@@ -11,7 +11,7 @@ object ModelEventTable : Table("model_event") {
     val eventVersion = integer("event_version")
     val modelVersion = text("model_version").transform(ModelVersionTransformer).nullable()
     val actorId = text("actor_id").transform(AppActorIdTransformer())
-    val actionId = text("action_id")
+    val traceabilityOrigin = text("traceability_origin")
     val createdAt = text("created_at")
     val payload = text("payload")
 

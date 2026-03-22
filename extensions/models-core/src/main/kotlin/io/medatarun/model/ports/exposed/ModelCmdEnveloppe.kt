@@ -1,11 +1,8 @@
 package io.medatarun.model.ports.exposed
 
-import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppActorId
-import io.medatarun.security.AppPrincipal
+import io.medatarun.security.AppTraceabilityRecord
 
 data class ModelCmdEnveloppe(
-    val actionId: ActionInstanceId,
-    val actorId: AppActorId,
+    val traceabilityRecord: AppTraceabilityRecord,
     val cmd: ModelCmd,
 )

@@ -2,11 +2,14 @@ package io.medatarun.tags.core
 
 import com.google.common.jimfs.Jimfs.newFileSystem
 import io.medatarun.actions.ActionsExtension
-import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.actions.ports.needs.ActionCtx
+import io.medatarun.actions.adapters.ActionTraceabilityRecord
+import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionPayload
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequest
 import io.medatarun.actions.ports.needs.ActionRequestCtx
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
@@ -14,17 +17,26 @@ import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension.Companion.JDBC_URL_PROPERTY
 import io.medatarun.platform.kernel.*
 import io.medatarun.platform.kernel.MedatarunConfig.Companion.createTempConfig
+import io.medatarun.security.AppActor
 import io.medatarun.security.SecurityExtension
+import io.medatarun.security.AppActorId
+import io.medatarun.security.AppActorResolver
+import io.medatarun.security.AppPrincipal
+import io.medatarun.security.AppPrincipalRole
+import io.medatarun.security.SecurityExtensionConfig
+import io.medatarun.tags.core.adapters.security.TagFreeManageRole
+import io.medatarun.tags.core.adapters.security.TagGroupManageRole
+import io.medatarun.tags.core.adapters.security.TagManagedManageRole
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
-import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
+import kotlin.reflect.full.findAnnotation
 
 class VehicleExtension : MedatarunExtension {
     override val id: String = "vehicle"
@@ -38,7 +50,12 @@ class VehicleExtension : MedatarunExtension {
         val eventSystem = ctx.getService(EventSystem::class)
         val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
         val vehicleService = VehicleService { id ->
-            vehicleServiceDeletedNotifier.fire(TagScopeBeforeDeleteEvent(vehicleScopeRef(id)))
+            vehicleServiceDeletedNotifier.fire(
+                TagScopeBeforeDeleteEvent(
+                    vehicleScopeRef(id),
+                    TestTraceabilityRecord()
+                )
+            )
         }
 
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
@@ -63,7 +80,12 @@ class RecipeExtension : MedatarunExtension {
         val eventSystem = ctx.getService(EventSystem::class)
         val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
         val recipeService = RecipeService(onBeforeDelete = { id ->
-            recipeEventNotifier.fire(TagScopeBeforeDeleteEvent(recipeScopeRef(id)))
+            recipeEventNotifier.fire(
+                TagScopeBeforeDeleteEvent(
+                    recipeScopeRef(id),
+                    TestTraceabilityRecord()
+                )
+            )
         })
 
         eventSystem.registerObserver(TagBeforeDeleteEvt::class, object : EventObserver<TagBeforeDeleteEvt> {
@@ -103,7 +125,7 @@ class TagTestEnv(
     val extensions = listOf(
         TypeSystemExtension(),
         ActionsExtension(),
-        SecurityExtension(),
+        SecurityExtension(SecurityExtensionConfig(appActorResolver)),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
         TagsCoreExtension(),
@@ -120,29 +142,65 @@ class TagTestEnv(
         ), extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()
-    private val tagCmds get() = platform.services.getService<TagCmds>()
     val vehicleService get() = platform.services.getService<VehicleService>()
     val recipeService get() = platform.services.getService<RecipeService>()
     val dbMigrationChecker get() = platform.services.getService<DbMigrationChecker>()
+    private val actionPlatform get() = platform.services.getService<ActionPlatform>()
 
-    private val provider = TagActionProvider(tagCmds, tagQueries)
+    fun dispatch(cmd: TagAction): Any? {
+        val request = ActionRequest(
+            TagActionProvider.ACTION_GROUP_KEY,
+            cmd::class.findAnnotation<ActionDoc>()!!.key,
+            ActionPayload.AsRaw(cmd)
+        )
+        return actionPlatform.invoker.handleInvocation(request, testActionRequestContext)
+    }
 
-    fun dispatch(cmd: TagAction) = provider.dispatch(cmd, object : ActionCtx {
+    companion object {
 
-        override val actionInstanceId = Id.generate(::ActionInstanceId)
+        val appActorResolver = object : AppActorResolver {
+            override fun resolve(appActorId: AppActorId): AppActor {
+                return object : AppActor {
+                    override val id: AppActorId
+                        get() = testPrincipal.id
+                    override val displayName: String
+                        get() = testPrincipal.fullname
 
-        override fun dispatchAction(req: ActionRequest): Any =
-            throw IllegalStateException("Should not be called in tests")
-
-        override val requestCtx: ActionRequestCtx
-            get() = object: ActionRequestCtx {
-                override val principalCtx: ActionPrincipalCtx get() = throw TagTestIllegalStateException("Should not be called")
-                override val source: String = "tests"
+                }
             }
 
-        override val principal: ActionPrincipalCtx
-            get() = throw TagTestIllegalStateException("Should not be called")
+        }
+        private val testPrincipal = object : AppPrincipal {
+            override val id: AppActorId = Id.generate(::AppActorId)
+            override val issuer: String = ""
+            override val subject: String = ""
+            override val isAdmin: Boolean = false
+            override val fullname: String = "user"
+            override val roles: List<AppPrincipalRole> = listOf(
+                TagFreeManageRole,
+                TagGroupManageRole,
+                TagManagedManageRole
+            )
+        }
 
-    })
+        private val testPrincipalCtx = object : ActionPrincipalCtx {
+            override fun ensureIsAdmin() {
+            }
+
+            override fun ensureSignedIn(): AppPrincipal {
+                return testPrincipal
+            }
+
+            override val principal: AppPrincipal
+                get() = testPrincipal
+        }
+
+        val testActionRequestContext = object : ActionRequestCtx {
+            override val principalCtx: ActionPrincipalCtx
+                get() = testPrincipalCtx
+            override val source: String = "test"
+        }
+    }
 
 }
+

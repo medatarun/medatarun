@@ -144,7 +144,6 @@ export interface ModelChangeEventDto {
   eventVersion: number;
   eventSequenceNumber: number;
   createdAt: number;
-  actionId: string;
   modelVersion: string | null;
   actorId: string;
   actorDisplayName: string;

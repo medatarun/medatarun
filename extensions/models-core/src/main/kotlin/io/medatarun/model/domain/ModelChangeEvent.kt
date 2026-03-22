@@ -1,7 +1,6 @@
 package io.medatarun.model.domain
 
-import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppActorId
+import io.medatarun.security.AppTraceabilityRecord
 import kotlinx.serialization.json.JsonObject
 import java.time.Instant
 
@@ -34,19 +33,14 @@ interface ModelChangeEvent {
     val createdAt: Instant
 
     /**
-     * Original action that made the event
+     * Trace of the origin of the event (actor and origin)
      */
-    val actionId: ActionInstanceId
+    val traceabilityRecord: AppTraceabilityRecord
 
     /**
      * Model version, present if the event is of `model_release` type
      */
     val modelVersion: ModelVersion?
-
-    /**
-     * Application principal identifier (actor) that made this event
-     */
-    val actorId: AppActorId
 
     /**
      * Event payload

@@ -186,10 +186,10 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 ### Sécurité, traçabilité et opérations
 
 - Chaque `model_event` doit porter l'identité de l'actor qui a initié l'action.
-- Chaque `model_event` doit porter un `action_id` système permettant
-  d'identifier l'action source.
-- `action_id` est un UUIDv7 attribué par la plateforme d'actions.
-- Les métadonnées `actor_id` et `action_id` doivent être propagées de bout en
+- Chaque `model_event` doit porter un `traceability_origin` système permettant
+  d'identifier l'action source via le mécanisme de tracabilité. 
+- `traceability_origin` est une string avec `action:<UUIDv7>` attribué par la plateforme d'actions (`actionInstanceId` dans le langage des actions).
+- Les métadonnées `actor_id` et `traceability_origin` doivent être propagées de bout en
   bout: `ModelAction` -> `ModelActionProvider` -> `ModelCmdsImpl` ->
   `ModelStorage` -> `ModelRepoCmd` -> `ModelStorageDb` -> `model_event`.
 - Le point d'entrée unique du logiciel, tous canaux confondus (UI, API, MCP),
@@ -221,7 +221,7 @@ ici `model_event`) et de snapshots temporels (`model_snapshot`).
 - Chaque event a un event_type explicite et immuable (ex: entity_attribute_added), jamais le nom de classe Kotlin.
 - Chaque event a un schema_version entier dans l’enveloppe.
 - Payload JSON avec champs nommés explicitement et stables en utilisant les annotations des data classe, Pas de sérialisation auto des data classes non annotées. Une classe ne peut pas être sérialisée si elle n'a pas les annotations qui figent le nommage.
-- Ajouter occurred_at, actor_id, action_id, model_id, stream_revision dans l’enveloppe, pas dans le payload métier.
+- Ajouter occurred_at, actor_id, traceability_origin, model_id, stream_revision dans l’enveloppe, pas dans le payload métier.
 - Règle: ajout de champ = compatible; renommage/suppression = nouvelle schema_version.
 - Registry explicite: (event_type, schema_version) -> decoder.
 - Tests unitaires de round-trip et upcast figés écrits JSON (pas en dataclass) pour tous les events.

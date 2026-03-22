@@ -2,6 +2,7 @@ package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.tags.core.domain.TagId
 
 /**
  * Model storage allows accessing and modifying stored models.
@@ -165,6 +166,8 @@ interface ModelStorage {
         return findRelationshipAttributeOptional(modelId, relationshipId, attributeRef)
             ?: throw RelationshipAttributeNotFoundException(ModelRef.ById(modelId), RelationshipRef.ById(relationshipId), attributeRef)
     }
+
+    fun findDomainTagLocationsByTagId(tagId: TagId): List<DomainTagLocation>
 
     // -------------------------------------------------------------------------
     // History

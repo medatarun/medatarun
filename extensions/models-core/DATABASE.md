@@ -99,7 +99,7 @@ Colonnes:
   `ModelVersion`.
 - `actor_id` TEXT NOT NULL: identifiant stable de l'acteur qui a initié l'
   action.
-- `action_id` TEXT NOT NULL: identifiant système de l'action source, fourni par
+- `traceability_origin` TEXT NOT NULL: indique l'origine de l'évènement noté `action:<id>`. Pour une action c'est l'identifiant système de l'action source, fourni par
   la plateforme d'actions.
 - `created_at` TEXT NOT NULL: date/heure de création de l'event.
 - `payload` TEXT NOT NULL: contenu détaillé de l'event (JSON texte).
@@ -112,7 +112,7 @@ Règle de mapping:
   implicitement des noms de classes/propriétés Kotlin.
 - `actor_id` ne porte pas de FK vers le module auth (pas de contrainte
   cross-zone).
-- `action_id` vient des identifiants d'actions de la plateforme et sert la
+- `traceability_origin` vient des identifiants d'actions de la plateforme et sert la
   traçabilité opérationnelle (relier un `model_event` à l'action source).
 
 Contraintes:

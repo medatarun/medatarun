@@ -1,16 +1,14 @@
 package io.medatarun.model.ports.needs
 
-import io.medatarun.actions.domain.ActionInstanceId
-import io.medatarun.security.AppActorId
+import io.medatarun.security.AppTraceabilityRecord
 
 /**
  * Storage envelope for repository commands.
  *
- * The storage layer needs the action and actor identifiers to persist the event log
+ * The storage layer needs the action traceability record to persist the event log
  * without depending on the action system types above this boundary.
  */
 data class ModelStorageCmdEnveloppe(
-    val actionId: ActionInstanceId,
-    val principalId: AppActorId,
+    val traceabilityRecord: AppTraceabilityRecord,
     val cmd: ModelStorageCmd,
 )

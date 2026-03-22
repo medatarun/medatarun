@@ -24,8 +24,7 @@ class ModelCmdsImpl(
 
     private fun storageCmdEnveloppe(cmdEnv: ModelCmdEnveloppe, repoCmd: ModelStorageCmd): ModelStorageCmdEnveloppe {
         return ModelStorageCmdEnveloppe(
-            actionId = cmdEnv.actionId,
-            principalId = cmdEnv.actorId,
+            traceabilityRecord = cmdEnv.traceabilityRecord,
             cmd = repoCmd
         )
     }
@@ -50,6 +49,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateModelDocumentationHome -> updateDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateModelTagAdd -> updateModelTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateModelTagDelete -> updateModelTagDelete(cmdEnv, cmd)
+                is ModelCmd.RemoveTagReferences -> removeTagReferences(cmdEnv, cmd)
                 is ModelCmd.DeleteModel -> deleteModel(cmdEnv, cmd)
                 is ModelCmd.CreateType -> createType(cmdEnv, cmd)
                 is ModelCmd.UpdateTypeKey -> updateTypeKey(cmdEnv, cmd)
@@ -98,6 +98,66 @@ class ModelCmdsImpl(
                 is ModelCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(cmdEnv, cmd)
             }
             auditor.onCmdProcessed(cmdEnv)
+        }
+    }
+
+    private fun removeTagReferences(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.RemoveTagReferences) {
+        val locations = storage.findDomainTagLocationsByTagId(cmd.tagId)
+        locations.forEach { location ->
+            when (location) {
+                is DomainTagLocation.Model -> {
+                    storageDispatch(
+                        cmdEnv,
+                        ModelStorageCmd.UpdateModelTagDelete(location.modelId, cmd.tagId)
+                    )
+                }
+
+                is DomainTagLocation.Entity -> {
+                    storageDispatch(
+                        cmdEnv,
+                        ModelStorageCmd.UpdateEntityTagDelete(
+                            location.modelId,
+                            location.entityId,
+                            cmd.tagId
+                        )
+                    )
+                }
+
+                is DomainTagLocation.EntityAttribute -> {
+                    storageDispatch(
+                        cmdEnv,
+                        ModelStorageCmd.UpdateEntityAttributeTagDelete(
+                            location.modelId,
+                            location.entityId,
+                            location.attributeId,
+                            cmd.tagId
+                        )
+                    )
+                }
+
+                is DomainTagLocation.Relationship -> {
+                    storageDispatch(
+                        cmdEnv,
+                        ModelStorageCmd.UpdateRelationshipTagDelete(
+                            location.modelId,
+                            location.relationshipId,
+                            cmd.tagId
+                        )
+                    )
+                }
+
+                is DomainTagLocation.RelationshipAttribute -> {
+                    storageDispatch(
+                        cmdEnv,
+                        ModelStorageCmd.UpdateRelationshipAttributeTagDelete(
+                            location.modelId,
+                            location.relationshipId,
+                            location.attributeId,
+                            cmd.tagId
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -213,7 +273,13 @@ class ModelCmdsImpl(
 
             val sourceTag = tagResolver.findTagById(sourceTagId)
             val mappedTagId = if (sourceTag.scope == sourceScopeRef) {
-                tagResolver.create(copied.id, sourceTag.key, sourceTag.name, sourceTag.description)
+                tagResolver.create(
+                    cmdEnv.traceabilityRecord,
+                    copied.id,
+                    sourceTag.key,
+                    sourceTag.name,
+                    sourceTag.description
+                )
                 tagResolver.resolveTagId(TagRef.ByKey(copiedScopeRef, null, sourceTag.key))
             } else {
                 sourceTagId
@@ -321,7 +387,15 @@ class ModelCmdsImpl(
         val newtags = cmd.tags
 
         // Register each found tag
-        newtags.forEach { tag -> tagResolver.create(cmd.model.id, tag.key, tag.name, tag.description) }
+        newtags.forEach { tag ->
+            tagResolver.create(
+                cmdEnv.traceabilityRecord,
+                cmd.model.id,
+                tag.key,
+                tag.name,
+                tag.description
+            )
+        }
 
         // Read the model and temporary tag ids inside, then apply the tags to model elements
         fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef.ByKey) -> Unit) {

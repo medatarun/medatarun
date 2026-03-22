@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.ports.needs
 
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.TagId
 
 /**
@@ -7,5 +8,5 @@ import io.medatarun.tags.core.domain.TagId
  * Implementations may throw exceptions to veto the underlying command.
  */
 interface TagCmdsEvents {
-    fun onBeforeDelete(tagId: TagId)
+    fun onBeforeDelete(traceabilityRecord: AppTraceabilityRecord, tagId: TagId)
 }

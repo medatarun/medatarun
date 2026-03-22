@@ -15,6 +15,7 @@ import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.infra.db.tables.ModelTable
 import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -184,6 +185,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findDomainTagLocationsByTagId(tagId: TagId): List<DomainTagLocation> {
+        return db.withExposed {
+            logger.debug("findDomainTagLocationsByTagId tagId={}", tagId)
+            read.findDomainTagLocationsByTagId(tagId)
+        }
+    }
+
     override fun isTypeUsedInEntityAttributes(modelId: ModelId, typeId: TypeId): Boolean {
         return db.withExposed {
             logger.debug("isTypeUsedInEntityAttributes modelId={} typeId={}", modelId, typeId)
@@ -331,7 +339,7 @@ class ModelStorageDb(
                 row[ModelEventTable.eventVersion] = record.eventVersion
                 row[ModelEventTable.modelVersion] = record.modelVersion
                 row[ModelEventTable.actorId] = record.actorId
-                row[ModelEventTable.actionId] = record.actionId
+                row[ModelEventTable.traceabilityOrigin] = record.traceabilityOrigin
                 row[ModelEventTable.createdAt] = record.createdAt.toString()
                 row[ModelEventTable.payload] = record.payload
             }
