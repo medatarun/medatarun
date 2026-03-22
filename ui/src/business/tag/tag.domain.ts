@@ -51,14 +51,6 @@ export class Tag {
     return !this.isGlobal;
   }
 
-  get isManaged(): boolean {
-    return this.isGlobal;
-  }
-
-  get isFree(): boolean {
-    return this.isLocal;
-  }
-
   get scopeLabel(): string {
     if (this.isGlobal) {
       return "Global";
@@ -165,7 +157,7 @@ export class Tags {
 
   /**
    * Search is based on the technical fields that users already understand today:
-   * tag key, optional tag name, managed group key, and optional managed group name.
+   * tag key, optional tag name, group key, and optional group name.
    */
   search(query: string, excludedTagIds: string[]): Tag[] {
     const normalizedQuery = query.trim().toLocaleLowerCase();

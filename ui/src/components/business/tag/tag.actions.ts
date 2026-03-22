@@ -30,7 +30,7 @@ export const createActionTemplateTagGroupList =
     return {};
   };
 
-export const createActionTemplateTagManagedList = (
+export const createActionTemplateTagGlobalList = (
   tagGroupId: string,
 ): ActionPerformerRequestParams => {
   return {
@@ -46,7 +46,7 @@ export const createActionTemplateTag = (
   };
 };
 
-export const createActionTemplateTagFreeList = (scope: {
+export const createActionTemplateTagLocalList = (scope: {
   type: string;
   id: string | null;
 }): ActionPerformerRequestParams => {

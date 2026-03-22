@@ -32,8 +32,8 @@ export const tagActionPostHook: ActionPostHook = {
 
 const TAG_SUBJECT_TYPES = new Set([
   "tag",
-  "tag_free",
-  "tag_managed",
+  "tag_local",
+  "tag_global",
   "tag_group",
 ]);
 

@@ -152,7 +152,7 @@ sealed interface TagAction {
     @ActionDoc(
         key = "tag_group_create",
         title = "Create a tag group",
-        description = "Creates a group used to organize gloabl tags that belong together.",
+        description = "Creates a group used to organize global tags that belong together.",
         uiLocations = [TagActionUILocation.tag_group_list],
         securityRule = TagSecurityRules.TAG_GROUP_MANAGE
     )
