@@ -21,7 +21,7 @@ Statuts:
 
 Items DONE:
 
-- `[VE-A][DONE]` La table `model_event` existe avec `event_type`, `event_version`, `stream_revision`, `actor_id`, `action_id`, `created_at` et `payload`.
+- `[VE-A][DONE]` La table `model_event` existe avec `event_type`, `event_version`, `stream_revision`, `actor_id`, `traceability_origin`, `created_at` et `payload`.
 - `[VE-B][DONE]` Le mapping `ModelStorageCmd -> event` est explicite via `@ModelEventContract`, registry dédiée et codec JSON versionné.
 - `[VE-C][DONE]` L'append des events est déjà branché dans `ModelStorageDb` avec ordre canonique protégé par `UNIQUE(model_id, stream_revision)`.
 - `[VE-D][DONE]` Les commandes métier continuent à écrire un état courant en parallèle du log d'events; ce branchement temporaire sert de point d'appui pour migrer ensuite vers l'alimentation du schéma final.
