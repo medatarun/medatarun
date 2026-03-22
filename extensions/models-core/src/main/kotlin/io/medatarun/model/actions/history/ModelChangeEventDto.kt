@@ -19,7 +19,6 @@ data class ModelChangeEventDto(
     val eventVersion: Int,
     val eventSequenceNumber: Int,
     val createdAt: Long,
-    val actionId: String,
     val modelVersion: String?,
     val actorId: String,
     val actorDisplayName: String,
@@ -48,10 +47,9 @@ fun toModelChangeEventDto(
         eventVersion = evt.eventVersion,
         eventSequenceNumber = evt.eventSequenceNumber,
         createdAt = evt.createdAt.toEpochMilli(),
-        actionId = evt.actionId.asString(),
         modelVersion = evt.modelVersion?.asString(),
-        actorId = evt.actorId.asString(),
-        actorDisplayName = actorName(evt.actorId),
+        actorId = evt.traceabilityRecord.actorId.asString(),
+        actorDisplayName = actorName(evt.traceabilityRecord.actorId),
         payload = evt.payload
     )
 }

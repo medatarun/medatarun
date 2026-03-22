@@ -1,13 +1,12 @@
 package io.medatarun.model.infra.db
 
-import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.inmemory.ModelChangeEventInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.TagId
-import io.medatarun.type.commons.id.Id
 import kotlinx.serialization.json.Json
 import java.net.URI
 
@@ -122,9 +121,8 @@ object ModelStorageAdapters {
             eventVersion = record.eventVersion,
             eventSequenceNumber = record.streamRevision,
             createdAt = record.createdAt,
-            actionId = Id.fromString(record.traceabilityOrigin, ::ActionInstanceId),
+            traceabilityRecord = AppTraceabilityRecord.fromRaw(origin = record.traceabilityOrigin, actorId = record.actorId),
             modelVersion = record.modelVersion,
-            actorId = record.actorId,
             payload = Json.decodeFromString(record.payload)
         )
     }

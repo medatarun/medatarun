@@ -19,4 +19,19 @@ interface AppTraceabilityRecord {
      * traceability.
      */
     val origin: String
+
+    companion object {
+        /**
+         * Creates a traceability record. Default variant is used
+         *
+         * Typically used when reading records from storage or external sources.
+         *
+         * Please don't use it to create new records. Use specialized versions
+         * like ActionTraceabilityRecord for actions. Specialized versions carry
+         * more information.
+         */
+        fun fromRaw(origin: String, actorId: AppActorId): AppTraceabilityRecord {
+            return AppTraceabilityRecordDefault(origin, actorId)
+        }
+    }
 }
