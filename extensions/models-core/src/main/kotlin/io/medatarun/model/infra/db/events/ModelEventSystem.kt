@@ -1,23 +1,33 @@
 package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.adapters.jsonserializers.ModelJsonSerializers
-import io.medatarun.model.infra.db.events.ModelEventStreamNumberManager
-import io.medatarun.model.infra.db.events.ModelEventRegistryBuilder
+import io.medatarun.model.ports.needs.ModelStorageCmd
+import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
+import io.medatarun.storage.eventsourcing.StorageEventRegistry
+import io.medatarun.storage.eventsourcing.StorageEventRegistryBuilder
 import kotlinx.serialization.json.Json
 
 class ModelEventSystem {
-    val registry: ModelEventRegistry = ModelEventRegistryBuilder().build()
+
+    private val registryEntries = StorageEventRegistryBuilder<ModelStorageCmd>()
+        .build(ModelStorageCmd::class)
+
+    private val storageEventRegistry: StorageEventRegistry<ModelStorageCmd> =
+        StorageEventRegistry("ModelEventRegistry", registryEntries)
+
+    val registry = ModelEventKnownTypes(storageEventRegistry)
+
     val jsonSerializer = Json {
         prettyPrint = false
         ignoreUnknownKeys = false
         encodeDefaults = true
         serializersModule = ModelJsonSerializers.module()
     }
-    val codec = ModelEventJsonCodec(
-        registry = registry,
-        json = jsonSerializer
-    )
+    val codec: StorageEventJsonCodec<ModelStorageCmd> =
+        StorageEventJsonCodec(registry = storageEventRegistry, json = jsonSerializer)
+
     val recordFactory = ModelEventRecordFactory(codec)
+
     val eventStreamNumberManager = ModelEventStreamNumberManager()
 
 }

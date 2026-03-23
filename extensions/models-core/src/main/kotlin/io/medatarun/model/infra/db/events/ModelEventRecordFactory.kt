@@ -8,13 +8,14 @@ import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.ports.needs.ModelStorageCmd
 import io.medatarun.model.ports.needs.ModelStorageCmdEnveloppe
 import io.medatarun.model.ports.needs.ModelStorageCmdOnModel
+import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
 import java.time.Instant
 
 /**
  * Builds the SQL event envelope and delegates payload serialization to the
  * dedicated ModelRepoCmd event codec.
  */
-class ModelEventRecordFactory(private val codec:ModelEventJsonCodec) {
+class ModelEventRecordFactory(private val codec: StorageEventJsonCodec<ModelStorageCmd>) {
 
     fun create(cmdEnv: ModelStorageCmdEnveloppe, streamRevision: Int, createdAt: Instant): ModelEventRecord {
         val encoded = codec.encode(cmdEnv.cmd)

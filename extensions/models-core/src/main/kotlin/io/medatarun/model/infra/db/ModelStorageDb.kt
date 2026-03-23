@@ -15,6 +15,7 @@ import io.medatarun.model.infra.db.tables.ModelSnapshotTable
 import io.medatarun.model.infra.db.tables.ModelTable
 import io.medatarun.model.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -280,7 +281,7 @@ class ModelStorageDb(
 
     fun projectModelEvent(record: ModelEventRecord, modelSnapshotId: ModelSnapshotId) {
         val cmd = eventSystem.codec.decode(
-            io.medatarun.model.infra.db.events.ModelEventEncoded(
+            StorageEventEncoded(
                 eventType = record.eventType,
                 eventVersion = record.eventVersion,
                 payload = record.payload

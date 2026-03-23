@@ -2,8 +2,9 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.events.ModelEventSystem
-import io.medatarun.model.infra.db.events.ModelEventEncoded
+import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.model.ports.needs.*
+import io.medatarun.storage.eventsourcing.StorageEventUnknownContractException
 import io.medatarun.tags.core.domain.TagId
 import kotlinx.serialization.json.Json
 import java.net.URI
@@ -37,7 +38,7 @@ class ModelEventJsonCodecTest {
         val testCases = cmdTestCases()
 
         for (testCase in testCases) {
-            val evt = ModelEventEncoded(testCase.eventType, testCase.eventVersion, testCase.json)
+            val evt = StorageEventEncoded(testCase.eventType, testCase.eventVersion, testCase.json)
             val decoded = codec.decode(evt)
             assertEquals(testCase.cmd, decoded, "Wrong decoded command for ${testCase.eventType}")
         }
@@ -45,8 +46,8 @@ class ModelEventJsonCodecTest {
 
     @Test
     fun `decode unknown event contract throws dedicated exception`() {
-        assertFailsWith<ModelRepoCmdEventUnknownContractException> {
-            val evt = ModelEventEncoded("unknown_event", 1, "{}")
+        assertFailsWith<StorageEventUnknownContractException> {
+            val evt = StorageEventEncoded("unknown_event", 1, "{}")
             codec.decode(evt)
         }
     }

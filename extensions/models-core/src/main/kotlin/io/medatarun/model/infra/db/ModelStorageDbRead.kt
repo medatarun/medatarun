@@ -10,7 +10,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
-import io.medatarun.model.infra.db.events.ModelEventRegistry
+import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
@@ -19,7 +19,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class ModelStorageDbRead(
-    private val modelEventRegistry: ModelEventRegistry,
+    private val modelEventKnownTypes: ModelEventKnownTypes,
     private val aggregateReader: ModelStorageDbAggregateReader
 ) {
 
@@ -89,7 +89,7 @@ class ModelStorageDbRead(
         return ModelEventTable.select(ModelEventTable.modelVersion)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType())
+                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -594,7 +594,7 @@ class ModelStorageDbRead(
         return ModelEventTable.selectAll()
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                        (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType())
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
                         (ModelEventTable.modelVersion neq null)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
@@ -607,7 +607,7 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType()) and
+                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
                     (ModelEventTable.modelVersion eq version)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
@@ -620,7 +620,7 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType()) and
+                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
                     (ModelEventTable.streamRevision less releaseRevision)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
@@ -648,7 +648,7 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventRegistry.modelReleaseEventType())
+                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)

@@ -1,9 +1,9 @@
-package io.medatarun.model.infra.db.events
+package io.medatarun.storage.eventsourcing
 
 /**
  * Base data of a serialized event. JSON is encoded.
  */
-data class ModelEventEncoded(
+data class StorageEventEncoded(
     /**
      * Event type
      */

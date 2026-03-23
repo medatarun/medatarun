@@ -1,6 +1,5 @@
-package io.medatarun.model.infra.db.events
+package io.medatarun.storage.eventsourcing
 
-import io.medatarun.model.ports.needs.ModelStorageCmd
 import kotlinx.serialization.KSerializer
 import kotlin.reflect.KClass
 
@@ -10,17 +9,17 @@ import kotlin.reflect.KClass
  * An event is identified by an [eventType] and [eventVersion].
  * This pair is unique amongst all model events.
  *
- * It is the result of a storage command [ModelStorageCmd], and when used to
+ * It is the result of a storage command [StorageCmd], and when used to
  * create an event instance, this storage command's data becomes the
  * payload of the event.
  *
  * To transform a command into the resulting event payload, we need
  * a [serializer] which is a Kotlin serializer.
  *
- * This is the base item for [ModelEventRegistry]
+ * This is the base item for [StorageEventRegistry]
  *
  */
-data class ModelEventDescriptor<T : ModelStorageCmd>(
+data class StorageEventDescriptor<T : StorageCmd>(
     /**
      * Class that holds the payload
      */

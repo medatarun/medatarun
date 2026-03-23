@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":libs:platform-type-commons"))
     implementation(project(":libs:platform-storage-db"))
     implementation(project(":libs:platform-storage-db-sqlite"))
+    implementation(project(":libs:platform-storage-event-sourcing"))
     testImplementation(kotlin("test"))
     testImplementation(libs.logback)
     testImplementation(libs.jimfs)

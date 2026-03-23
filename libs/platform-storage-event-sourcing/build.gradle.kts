@@ -10,17 +10,8 @@ dependencies {
     // Apply the kotlinx bundle of dependencies from the version catalog (`gradle/libs.versions.toml`).
     implementation(libs.bundles.kotlinxEcosystem)
     implementation(libs.slf4j)
+    implementation(libs.kotlinReflect)
     implementation(project(":libs:lang"))
     implementation(project(":libs:platform-kernel"))
-    implementation(project(":libs:platform-actions"))
-    implementation(project(":libs:platform-security"))
-    implementation(project(":libs:platform-type-commons"))
-    implementation(project(":libs:platform-type-system"))
-    implementation(project(":libs:platform-storage-db"))
-    implementation(project(":libs:platform-storage-db-sqlite"))
-    implementation(project(":libs:platform-storage-event-sourcing"))
-    implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
-    testImplementation(libs.jimfs)
-    testImplementation(libs.logback)
 }
