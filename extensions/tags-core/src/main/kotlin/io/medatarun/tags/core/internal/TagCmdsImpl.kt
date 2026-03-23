@@ -3,9 +3,9 @@ package io.medatarun.tags.core.internal
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
+import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
-import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 
 class TagCmdsImpl(
