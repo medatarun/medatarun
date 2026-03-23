@@ -2,8 +2,11 @@ package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.security.AppActorId
+import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.events.TagEventSystem
+import io.medatarun.tags.core.infra.db.records.TagEventRecord
 import io.medatarun.tags.core.infra.db.tables.TagEventTable
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
@@ -22,6 +25,7 @@ import java.time.Instant.now
 
 class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagStorage {
     private class TagStorageSQLiteInvalidLookupException : MedatarunException("Global tag lookup requires groupId")
+    private class TagStorageDbEventNotFoundException(eventId: String) : MedatarunException("Tag event [$eventId] was appended but cannot be read back from storage.")
     private data class EventScope(
         val scopeType: String,
         val scopeId: String?
@@ -94,15 +98,14 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
     }
 
     override fun dispatch(cmdEnv: TagStorageCmdEnveloppe) {
-        val cmd = cmdEnv.cmd
-        logger.debug(cmd.toString())
+        logger.debug(cmdEnv.cmd.toString())
         dbConnectionFactory.withExposed {
-            storeEvent(cmdEnv)
-            storeProjection(cmd)
+            val eventRecord = storeEvent(cmdEnv)
+            storeProjection(eventRecord)
         }
     }
 
-    private fun storeEvent(cmdEnv: TagStorageCmdEnveloppe) {
+    private fun storeEvent(cmdEnv: TagStorageCmdEnveloppe): TagEventRecord {
         val cmd = cmdEnv.cmd
         val scope = cmd.scope
         val eventScope = toEventScope(scope)
@@ -139,9 +142,17 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
             throw e
         }
         eventSystem.eventStreamRevisionManager.onAppendCommitted(streamRevisionCtx, record.streamRevision)
+        return findEventById(record.id)
     }
 
-    private fun storeProjection(cmd: TagStorageCmd) {
+    private fun storeProjection(eventRecord: TagEventRecord) {
+        val cmd = eventSystem.codec.decode(
+            StorageEventEncoded(
+                eventType = eventRecord.eventType,
+                eventVersion = eventRecord.eventVersion,
+                payload = eventRecord.payload
+            )
+        )
         val scope = cmd.scope
         when (cmd) {
             is TagStorageCmd.TagCreate -> {
@@ -227,6 +238,28 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
             )
         }
 
+    }
+
+    private fun findEventById(eventId: String): TagEventRecord {
+        return TagEventTable.selectAll().where { TagEventTable.id eq eventId }
+            .singleOrNull()
+            ?.let { eventRecordFromRow(it) }
+            ?: throw TagStorageDbEventNotFoundException(eventId)
+    }
+
+    private fun eventRecordFromRow(row: ResultRow): TagEventRecord {
+        return TagEventRecord(
+            id = row[TagEventTable.id],
+            scopeType = row[TagEventTable.scopeType],
+            scopeId = row[TagEventTable.scopeId],
+            streamRevision = row[TagEventTable.streamRevision],
+            eventType = row[TagEventTable.eventType],
+            eventVersion = row[TagEventTable.eventVersion],
+            actorId = Id.fromString(row[TagEventTable.actorId], ::AppActorId),
+            traceabilityOrigin = row[TagEventTable.traceabilityOrigin],
+            createdAt = java.time.Instant.parse(row[TagEventTable.createdAt]),
+            payload = row[TagEventTable.payload]
+        )
     }
 
     private fun tagGroupFromRow(row: ResultRow): TagGroup {
