@@ -19,10 +19,6 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     private val json = Json { encodeDefaults = true }
 
-    fun initSchema() {
-        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v001_actors)
-    }
-
     override fun insert(
         id: ActorId,
         issuer: String,

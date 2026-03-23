@@ -12,11 +12,6 @@ import java.time.Instant
 
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
-    fun initSchema() {
-        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v001_users)
-    }
-
-
     override fun insert(
         id: UserId,
         login: Username,
