@@ -16,7 +16,7 @@ import io.medatarun.tags.core.domain.TagCmdEnveloppe
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
 import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
-import io.medatarun.tags.core.infra.db.TagStorageSQLite
+import io.medatarun.tags.core.infra.db.TagStorageDb
 import io.medatarun.tags.core.infra.db.TagsCoreDbMigration
 import io.medatarun.tags.core.internal.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
@@ -28,7 +28,7 @@ class TagsCoreExtension : MedatarunExtension {
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val dbTransactionManager = ctx.getService(DbTransactionManager::class)
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
-        val storage = TagStorageSQLite(dbConnectionFactory)
+        val storage = TagStorageDb(dbConnectionFactory)
         val tagScopeRegistry = TagScopeRegistryImpl(TagScopeManagerResolverImpl(extensionRegistry))
         val eventSystem = ctx.getService(EventSystem::class)
         val tagCmdEvents = TagCmdsEventsHandler(eventSystem)

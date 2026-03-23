@@ -16,7 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 
-class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
+class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
     private class TagStorageSQLiteInvalidLookupException : MedatarunException("Global tag lookup requires groupId")
 
     override fun findAllTag(): List<Tag> {
@@ -212,7 +212,7 @@ class TagStorageSQLite(private val dbConnectionFactory: DbConnectionFactory): Ta
             override val primaryKey = PrimaryKey(id)
         }
 
-        private val logger = LoggerFactory.getLogger(TagStorageSQLite::class.java)
+        private val logger = LoggerFactory.getLogger(TagStorageDb::class.java)
     }
 
 }
