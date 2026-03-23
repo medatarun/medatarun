@@ -69,7 +69,8 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
         logger.debug(cmdEnv.cmd.toString())
         dbConnectionFactory.withExposed {
             val eventRecord = storeEvent(cmdEnv)
-            projection.projectCommand(decodeTagStorageCmd(eventRecord))
+            val cmdFromEvent = decodeTagStorageCmd(eventRecord)
+            projection.projectCommand(cmdFromEvent)
         }
     }
 

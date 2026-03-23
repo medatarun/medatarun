@@ -1,8 +1,8 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.infra.db.tables.TagGroupTable
-import io.medatarun.tags.core.infra.db.tables.TagTable
+import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
+import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -15,71 +15,71 @@ internal class TagStorageDbProjection {
         val scope = cmd.scope
         when (cmd) {
             is TagStorageCmd.TagCreate -> {
-                TagTable.insert { row ->
-                    row[TagTable.id] = cmd.tagId.asString()
-                    row[TagTable.scopeType] = cmd.scope.type.value
+                TagProjectionTable.insert { row ->
+                    row[TagProjectionTable.id] = cmd.tagId.asString()
+                    row[TagProjectionTable.scopeType] = cmd.scope.type.value
                     when (scope) {
-                        is TagScopeRef.Global -> row[TagTable.scopeId] = null
-                        is TagScopeRef.Local -> row[TagTable.scopeId] = scope.localScopeId.asString()
+                        is TagScopeRef.Global -> row[TagProjectionTable.scopeId] = null
+                        is TagScopeRef.Local -> row[TagProjectionTable.scopeId] = scope.localScopeId.asString()
                     }
-                    row[TagTable.tagGroupId] = cmd.groupId?.asString()
-                    row[TagTable.key] = cmd.key.asString()
-                    row[TagTable.name] = cmd.name
-                    row[TagTable.description] = cmd.description
+                    row[TagProjectionTable.tagGroupId] = cmd.groupId?.asString()
+                    row[TagProjectionTable.key] = cmd.key.asString()
+                    row[TagProjectionTable.name] = cmd.name
+                    row[TagProjectionTable.description] = cmd.description
                 }
             }
 
             is TagStorageCmd.TagUpdateKey -> {
-                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                    row[TagTable.key] = cmd.key.asString()
+                TagProjectionTable.update(where = { TagProjectionTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagProjectionTable.key] = cmd.key.asString()
                 }
             }
 
             is TagStorageCmd.TagUpdateName -> {
-                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                    row[TagTable.name] = cmd.name
+                TagProjectionTable.update(where = { TagProjectionTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagProjectionTable.name] = cmd.name
                 }
             }
 
             is TagStorageCmd.TagUpdateDescription -> {
-                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                    row[TagTable.description] = cmd.description
+                TagProjectionTable.update(where = { TagProjectionTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagProjectionTable.description] = cmd.description
                 }
             }
 
             is TagStorageCmd.TagDelete -> {
-                TagTable.deleteWhere { id eq cmd.tagId.asString() }
+                TagProjectionTable.deleteWhere { id eq cmd.tagId.asString() }
             }
 
             is TagStorageCmd.TagGroupCreate -> {
-                TagGroupTable.insert { row ->
-                    row[TagGroupTable.id] = cmd.tagGroupId.asString()
-                    row[TagGroupTable.key] = cmd.key.asString()
-                    row[TagGroupTable.name] = cmd.name
-                    row[TagGroupTable.description] = cmd.description
+                TagGroupProjectionTable.insert { row ->
+                    row[TagGroupProjectionTable.id] = cmd.tagGroupId.asString()
+                    row[TagGroupProjectionTable.key] = cmd.key.asString()
+                    row[TagGroupProjectionTable.name] = cmd.name
+                    row[TagGroupProjectionTable.description] = cmd.description
                 }
             }
 
             is TagStorageCmd.TagGroupUpdateKey -> {
-                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                    row[TagGroupTable.key] = cmd.key.asString()
+                TagGroupProjectionTable.update(where = { TagGroupProjectionTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupProjectionTable.key] = cmd.key.asString()
                 }
             }
 
             is TagStorageCmd.TagGroupUpdateName -> {
-                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                    row[TagGroupTable.name] = cmd.name
+                TagGroupProjectionTable.update(where = { TagGroupProjectionTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupProjectionTable.name] = cmd.name
                 }
             }
 
             is TagStorageCmd.TagGroupUpdateDescription -> {
-                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                    row[TagGroupTable.description] = cmd.description
+                TagGroupProjectionTable.update(where = { TagGroupProjectionTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupProjectionTable.description] = cmd.description
                 }
             }
 
             is TagStorageCmd.TagGroupDelete -> {
-                TagGroupTable.deleteWhere { id eq cmd.tagGroupId.asString() }
+                TagGroupProjectionTable.deleteWhere { id eq cmd.tagGroupId.asString() }
             }
         }
     }
