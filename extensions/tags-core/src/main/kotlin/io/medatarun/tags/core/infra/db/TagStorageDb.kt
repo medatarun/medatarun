@@ -3,11 +3,13 @@ package io.medatarun.tags.core.infra.db
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.infra.db.events.TagEventSystem
+import io.medatarun.tags.core.infra.db.tables.TagEventTable
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
+import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
-import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.*
@@ -16,9 +18,16 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
+import java.time.Instant.now
 
-class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagStorage {
+class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagStorage {
     private class TagStorageSQLiteInvalidLookupException : MedatarunException("Global tag lookup requires groupId")
+    private data class EventScope(
+        val scopeType: String,
+        val scopeId: String?
+    )
+
+    private val eventSystem = TagEventSystem()
 
     override fun findAllTag(): List<Tag> {
         return dbConnectionFactory.withExposed {
@@ -33,9 +42,9 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
                 is TagScopeRef.Local -> {
                     TagTable.selectAll().where {
                         (TagTable.scopeType eq scope.type.value) and
-                            (TagTable.scopeId eq scope.localScopeId.asString()) and
-                            TagTable.tagGroupId.isNull() and
-                            (TagTable.key eq key.value)
+                                (TagTable.scopeId eq scope.localScopeId.asString()) and
+                                TagTable.tagGroupId.isNull() and
+                                (TagTable.key eq key.value)
                     }.singleOrNull()?.let { tagFromRow(it) }
                 }
 
@@ -44,9 +53,9 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
                         ?: throw TagStorageSQLiteInvalidLookupException()
                     TagTable.selectAll().where {
                         (TagTable.scopeType eq scope.type.value) and
-                            TagTable.scopeId.isNull() and
-                            (TagTable.tagGroupId eq effectiveGroupId.asString()) and
-                            (TagTable.key eq key.value)
+                                TagTable.scopeId.isNull() and
+                                (TagTable.tagGroupId eq effectiveGroupId.asString()) and
+                                (TagTable.key eq key.value)
                     }.singleOrNull()?.let { tagFromRow(it) }
                 }
             }
@@ -88,76 +97,136 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
         val cmd = cmdEnv.cmd
         logger.debug(cmd.toString())
         dbConnectionFactory.withExposed {
-            when (cmd) {
-                is TagStorageCmd.TagCreate -> {
-                    TagTable.insert { row ->
-                        row[TagTable.id] = cmd.item.id.asString()
-                        row[TagTable.scopeType] = cmd.item.scope.type.value
-                        when (val scope = cmd.item.scope) {
-                            is TagScopeRef.Global -> row[TagTable.scopeId] = null
-                            is TagScopeRef.Local -> row[TagTable.scopeId] = scope.localScopeId.asString()
-                        }
-                        row[TagTable.tagGroupId] = cmd.item.groupId?.asString()
-                        row[TagTable.key] = cmd.item.key.asString()
-                        row[TagTable.name] = cmd.item.name
-                        row[TagTable.description] = cmd.item.description
+            storeEvent(cmdEnv)
+            storeProjection(cmd)
+        }
+    }
+
+    private fun storeEvent(cmdEnv: TagStorageCmdEnveloppe) {
+        val cmd = cmdEnv.cmd
+        val scope = cmd.scope
+        val eventScope = toEventScope(scope)
+        val streamRevisionCtx = eventSystem.eventStreamRevisionManager.createRevisionContext(
+            scopeType = eventScope.scopeType,
+            scopeId = eventScope.scopeId
+        )
+        val record = eventSystem.recordFactory.create(
+            cmdEnv = cmdEnv,
+            scopeType = eventScope.scopeType,
+            scopeId = eventScope.scopeId,
+            streamRevision = streamRevisionCtx.nextRevision(),
+            createdAt = now()
+        )
+        try {
+            TagEventTable.insert { row ->
+                row[TagEventTable.id] = record.id
+                row[TagEventTable.scopeType] = record.scopeType
+                row[TagEventTable.scopeId] = record.scopeId
+                row[TagEventTable.streamRevision] = record.streamRevision
+                row[TagEventTable.eventType] = record.eventType
+                row[TagEventTable.eventVersion] = record.eventVersion
+                row[TagEventTable.actorId] = record.actorId.asString()
+                row[TagEventTable.traceabilityOrigin] = record.traceabilityOrigin
+                row[TagEventTable.createdAt] = record.createdAt.toString()
+                row[TagEventTable.payload] = record.payload
+            }
+        } catch (e: Exception) {
+            eventSystem.eventStreamRevisionManager.rethrowIfStreamRevisionConflict(
+                exception = e,
+                revisionContext = streamRevisionCtx,
+                conflictingRevision = record.streamRevision
+            )
+            throw e
+        }
+        eventSystem.eventStreamRevisionManager.onAppendCommitted(streamRevisionCtx, record.streamRevision)
+    }
+
+    private fun storeProjection(cmd: TagStorageCmd) {
+        val scope = cmd.scope
+        when (cmd) {
+            is TagStorageCmd.TagCreate -> {
+                TagTable.insert { row ->
+                    row[TagTable.id] = cmd.tagId.asString()
+                    row[TagTable.scopeType] = cmd.scope.type.value
+                    when (scope) {
+                        is TagScopeRef.Global -> row[TagTable.scopeId] = null
+                        is TagScopeRef.Local -> row[TagTable.scopeId] = scope.localScopeId.asString()
                     }
-                }
-
-                is TagStorageCmd.TagUpdateKey -> {
-                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[TagTable.key] = cmd.value.asString()
-                    }
-                }
-
-                is TagStorageCmd.TagUpdateName -> {
-                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[TagTable.name] = cmd.value
-                    }
-                }
-
-                is TagStorageCmd.TagUpdateDescription -> {
-                    TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
-                        row[TagTable.description] = cmd.value
-                    }
-                }
-
-                is TagStorageCmd.TagDelete -> {
-                    TagTable.deleteWhere { id eq cmd.tagId.asString() }
-                }
-
-                is TagStorageCmd.TagGroupCreate -> {
-                    TagGroupTable.insert { row ->
-                        row[TagGroupTable.id] = cmd.item.id.asString()
-                        row[TagGroupTable.key] = cmd.item.key.asString()
-                        row[TagGroupTable.name] = cmd.item.name
-                        row[TagGroupTable.description] = cmd.item.description
-                    }
-                }
-
-                is TagStorageCmd.TagGroupUpdateKey -> {
-                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[TagGroupTable.key] = cmd.value.asString()
-                    }
-                }
-
-                is TagStorageCmd.TagGroupUpdateName -> {
-                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[TagGroupTable.name] = cmd.value
-                    }
-                }
-
-                is TagStorageCmd.TagGroupUpdateDescription -> {
-                    TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
-                        row[TagGroupTable.description] = cmd.value
-                    }
-                }
-
-                is TagStorageCmd.TagGroupDelete -> {
-                    TagGroupTable.deleteWhere { id eq cmd.tagGroupId.asString() }
+                    row[TagTable.tagGroupId] = cmd.groupId?.asString()
+                    row[TagTable.key] = cmd.key.asString()
+                    row[TagTable.name] = cmd.name
+                    row[TagTable.description] = cmd.description
                 }
             }
+
+            is TagStorageCmd.TagUpdateKey -> {
+                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagTable.key] = cmd.key.asString()
+                }
+            }
+
+            is TagStorageCmd.TagUpdateName -> {
+                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagTable.name] = cmd.name
+                }
+            }
+
+            is TagStorageCmd.TagUpdateDescription -> {
+                TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
+                    row[TagTable.description] = cmd.description
+                }
+            }
+
+            is TagStorageCmd.TagDelete -> {
+                TagTable.deleteWhere { id eq cmd.tagId.asString() }
+            }
+
+            is TagStorageCmd.TagGroupCreate -> {
+                TagGroupTable.insert { row ->
+                    row[TagGroupTable.id] = cmd.tagGroupId.asString()
+                    row[TagGroupTable.key] = cmd.key.asString()
+                    row[TagGroupTable.name] = cmd.name
+                    row[TagGroupTable.description] = cmd.description
+                }
+            }
+
+            is TagStorageCmd.TagGroupUpdateKey -> {
+                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupTable.key] = cmd.key.asString()
+                }
+            }
+
+            is TagStorageCmd.TagGroupUpdateName -> {
+                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupTable.name] = cmd.name
+                }
+            }
+
+            is TagStorageCmd.TagGroupUpdateDescription -> {
+                TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
+                    row[TagGroupTable.description] = cmd.description
+                }
+            }
+
+            is TagStorageCmd.TagGroupDelete -> {
+                TagGroupTable.deleteWhere { id eq cmd.tagGroupId.asString() }
+            }
         }
+    }
+
+    private fun toEventScope(scope: TagScopeRef): EventScope {
+        return when (scope) {
+            is TagScopeRef.Global -> EventScope(
+                scopeType = TagScopeRef.Global.type.value,
+                scopeId = null
+            )
+
+            is TagScopeRef.Local -> EventScope(
+                scopeType = scope.type.value,
+                scopeId = scope.localScopeId.asString()
+            )
+        }
+
     }
 
     private fun tagGroupFromRow(row: ResultRow): TagGroup {

@@ -6,7 +6,6 @@ import io.medatarun.model.infra.db.ModelRepoCmdEventInvalidOriginJsonException
 import io.medatarun.model.infra.db.ModelRepoCmdEventUnknownOriginTypeException
 import io.medatarun.tags.core.adapters.jsonserializers.TagsJsonSerializers
 import io.medatarun.tags.core.domain.TagId
-import io.medatarun.type.commons.serialization.SerializationUtils.enumWithCodeSerializer
 import io.medatarun.type.commons.serialization.SerializationUtils.stringSerializer
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -98,17 +97,21 @@ object ModelJsonSerializers {
         }
 
         override fun deserialize(decoder: Decoder): ModelOrigin {
-            val element = decoder.decodeSerializableValue(JsonElement.serializer()).jsonObject
-            val originType = element["origin_type"]?.jsonPrimitive?.content
-                ?: throw ModelRepoCmdEventInvalidOriginJsonException("model", "origin_type")
-            return when (originType) {
-                "manual" -> ModelOrigin.Manual
-                "uri" -> {
-                    val uri = element["uri"]?.jsonPrimitive?.content
-                        ?: throw ModelRepoCmdEventInvalidOriginJsonException("model", "uri")
-                    ModelOrigin.Uri(URI(uri))
+            return try {
+                val element = decoder.decodeSerializableValue(JsonElement.serializer()).jsonObject
+                val originType = element["origin_type"]?.jsonPrimitive?.content
+                    ?: throw ModelRepoCmdEventInvalidOriginJsonException("model", "origin_type")
+                when (originType) {
+                    "manual" -> ModelOrigin.Manual
+                    "uri" -> {
+                        val uri = element["uri"]?.jsonPrimitive?.content
+                            ?: throw ModelRepoCmdEventInvalidOriginJsonException("model", "uri")
+                        ModelOrigin.Uri(URI(uri))
+                    }
+                    else -> throw ModelRepoCmdEventUnknownOriginTypeException("model", originType)
                 }
-                else -> throw ModelRepoCmdEventUnknownOriginTypeException("model", originType)
+            } catch (e: MedatarunException) {
+                throw SerializationException(e.message ?: "Invalid model origin", e)
             }
         }
     }
@@ -130,24 +133,58 @@ object ModelJsonSerializers {
         }
 
         override fun deserialize(decoder: Decoder): EntityOrigin {
-            val element = decoder.decodeSerializableValue(JsonElement.serializer()).jsonObject
-            val originType = element["origin_type"]?.jsonPrimitive?.content
-                ?: throw ModelRepoCmdEventInvalidOriginJsonException("entity", "origin_type")
-            return when (originType) {
-                "manual" -> EntityOrigin.Manual
-                "uri" -> {
-                    val uri = element["uri"]?.jsonPrimitive?.content
-                        ?: throw ModelRepoCmdEventInvalidOriginJsonException("entity", "uri")
-                    EntityOrigin.Uri(URI(uri))
+            return try {
+                val element = decoder.decodeSerializableValue(JsonElement.serializer()).jsonObject
+                val originType = element["origin_type"]?.jsonPrimitive?.content
+                    ?: throw ModelRepoCmdEventInvalidOriginJsonException("entity", "origin_type")
+                when (originType) {
+                    "manual" -> EntityOrigin.Manual
+                    "uri" -> {
+                        val uri = element["uri"]?.jsonPrimitive?.content
+                            ?: throw ModelRepoCmdEventInvalidOriginJsonException("entity", "uri")
+                        EntityOrigin.Uri(URI(uri))
+                    }
+                    else -> throw ModelRepoCmdEventUnknownOriginTypeException("entity", originType)
                 }
-                else -> throw ModelRepoCmdEventUnknownOriginTypeException("entity", originType)
+            } catch (e: MedatarunException) {
+                throw SerializationException(e.message ?: "Invalid entity origin", e)
             }
         }
     }
 
-    val modelAuthority = enumWithCodeSerializer("ModelAuthority", ModelAuthority.Companion::valueOfCode)
-    val relationshipCardinality =
-        enumWithCodeSerializer("RelationshipCardinality", RelationshipCardinality.Companion::valueOfCode)
+    val modelAuthority = object : KSerializer<ModelAuthority> {
+        override val descriptor = PrimitiveSerialDescriptor("ModelAuthority", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: ModelAuthority) {
+            encoder.encodeString(value.code)
+        }
+
+        override fun deserialize(decoder: Decoder): ModelAuthority {
+            val raw = decoder.decodeString()
+            return try {
+                ModelAuthority.valueOfCode(raw)
+            } catch (e: MedatarunException) {
+                throw SerializationException(e.message ?: "Invalid model authority", e)
+            }
+        }
+    }
+
+    val relationshipCardinality = object : KSerializer<RelationshipCardinality> {
+        override val descriptor = PrimitiveSerialDescriptor("RelationshipCardinality", PrimitiveKind.STRING)
+
+        override fun serialize(encoder: Encoder, value: RelationshipCardinality) {
+            encoder.encodeString(value.code)
+        }
+
+        override fun deserialize(decoder: Decoder): RelationshipCardinality {
+            val raw = decoder.decodeString()
+            return try {
+                RelationshipCardinality.valueOfCode(raw)
+            } catch (e: MedatarunException) {
+                throw SerializationException(e.message ?: "Invalid relationship cardinality", e)
+            }
+        }
+    }
 
     fun module(): SerializersModule {
         return SerializersModule {
