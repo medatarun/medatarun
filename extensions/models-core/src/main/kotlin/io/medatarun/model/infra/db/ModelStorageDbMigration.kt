@@ -6,21 +6,24 @@ import io.medatarun.platform.db.DbMigrationContext
 class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(V000_INIT_DB_SQLITE)
+        ctx.applySqlResource(v001)
+        ctx.applySqlResource(v002)
     }
 
     override fun latestVersion(): Int {
-        return 1
+        return 2
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
-            1 -> ctx.throwUnknownVersionException()
+            1 -> ctx.applySqlResource(v001)
+            2 -> ctx.applySqlResource(v002)
             else -> ctx.throwUnknownVersionException()
         }
     }
 
     companion object {
-        const val V000_INIT_DB_SQLITE = "io/medatarun/model/infra/db/v000_init_db_sqlite.sql"
+        const val v001 = "io/medatarun/model/infra/db/v001__models_init_db_sqlite.sql"
+        const val v002 = "io/medatarun/model/infra/db/v002__models_upgrade_traceability.sql"
     }
 }

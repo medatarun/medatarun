@@ -48,6 +48,7 @@ import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.security.SecurityRolesRegistryImpl
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
 import java.time.Instant
@@ -62,6 +63,8 @@ class AuthExtension(
         val oidcService = ctx.getService<OidcService>()
         val oauthService = ctx.getService<OAuthService>()
         val actorService = ctx.getService<ActorService>()
+        val securityRolesRegistry = ctx.getService<SecurityRolesRegistry>()
+        val actorStorage = ctx.getService<ActorStorageSQLite>()
 
         val actionProvider = AuthEmbeddedActionsProvider(
             userService, oidcService, oauthService, actorService
@@ -77,7 +80,7 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.registerContribution(DbMigration::class, AuthDbMigration())
+        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage))
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -222,6 +225,9 @@ class AuthExtension(
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
         ctx.register(AppActorResolver::class, appActorResolver)
+
+        // Because migrations need it
+        ctx.register(ActorStorageSQLite::class, actorStorage)
 
         // For testing only
         ctx.register(BootstrapSecretLifecycle::class, bootstrapper)

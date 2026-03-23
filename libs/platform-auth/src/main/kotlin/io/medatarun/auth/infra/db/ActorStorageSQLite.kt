@@ -20,7 +20,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     private val json = Json { encodeDefaults = true }
 
     fun initSchema() {
-        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v000__init_actors_sqlite)
+        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v001_actors)
     }
 
     override fun insert(
@@ -141,6 +141,34 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     private fun decodeRoles(rolesJson: String): List<ActorRole> {
         return json.decodeFromString(listStringSerializer, rolesJson)
             .map { ActorRole(it) }
+    }
+
+    fun renameRoles(oldToNewRoles: Map<String, String>) {
+        if (oldToNewRoles.isEmpty()) {
+            return
+        }
+        dbConnectionFactory.withExposed {
+            ActorsTable.selectAll().forEach { row ->
+                val actorId = row[ActorsTable.idColumn]
+                val currentRoles = decodeRoles(row[ActorsTable.rolesJsonColumn])
+                var hasChanges = false
+                val renamedRoles = mutableListOf<ActorRole>()
+                currentRoles.forEach { role ->
+                    val newRoleName = oldToNewRoles[role.key]
+                    if (newRoleName != null) {
+                        hasChanges = true
+                        renamedRoles.add(ActorRole(newRoleName))
+                    } else {
+                        renamedRoles.add(role)
+                    }
+                }
+                if (hasChanges) {
+                    ActorsTable.update(where = { ActorsTable.idColumn eq actorId }) { updateRow ->
+                        updateRow[rolesJsonColumn] = encodeRoles(renamedRoles)
+                    }
+                }
+            }
+        }
     }
 
     companion object {

@@ -5,16 +5,16 @@ CREATE TABLE IF NOT EXISTS model
 
 CREATE TABLE IF NOT EXISTS model_event
 (
-    id                  TEXT PRIMARY KEY UNIQUE,
-    model_id            TEXT    NOT NULL,
-    stream_revision     INTEGER NOT NULL,
-    event_type          TEXT    NOT NULL,
-    event_version       INTEGER NOT NULL,
-    model_version       TEXT,
-    actor_id            TEXT    NOT NULL,
-    traceability_origin TEXT    NOT NULL,
-    created_at          TEXT    NOT NULL,
-    payload             TEXT    NOT NULL,
+    id              TEXT PRIMARY KEY UNIQUE,
+    model_id        TEXT    NOT NULL,
+    stream_revision INTEGER NOT NULL,
+    event_type      TEXT    NOT NULL,
+    event_version   INTEGER NOT NULL,
+    model_version   TEXT,
+    actor_id        TEXT    NOT NULL,
+    action_id       TEXT    NOT NULL,
+    created_at      TEXT    NOT NULL,
+    payload         TEXT    NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
     UNIQUE (model_id, stream_revision)
 );

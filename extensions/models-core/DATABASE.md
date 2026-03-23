@@ -382,7 +382,7 @@ Tables cibles:
 - `model_search_item_snapshot`
 - `model_search_item_tag_snapshot`
 
-Transformations depuis `v000_init_db_sqlite.sql`:
+Transformations depuis `v001__models_init_db_sqlite.sql`:
 
 - renommer `denorm_model_search_item` en `model_search_item_snapshot`;
 - renommer `denorm_model_search_item_tag` en `model_search_item_tag_snapshot`;

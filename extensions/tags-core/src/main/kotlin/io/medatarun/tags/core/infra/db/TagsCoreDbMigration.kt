@@ -7,22 +7,25 @@ class TagsCoreDbMigration(override val pluginId: String) : DbMigration {
 
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(v000_init_tags_sqlite)
+        ctx.applySqlResource(v001)
+        ctx.applySqlResource(v002)
     }
 
     override fun latestVersion(): Int {
-        return 1
+        return 2
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
-            1 -> ctx.throwUnknownVersionException()
+            1 -> ctx.applySqlResource(v001)
+            2 -> ctx.applySqlResource(v002)
             else -> ctx.throwUnknownVersionException()
         }
     }
 
     companion object {
-        const val v000_init_tags_sqlite = "io/medatarun/tags/core/infra/db/v000__init_tags_sqlite.sql"
+        const val v001 = "io/medatarun/tags/core/infra/db/v001__tags_init_sqlite.sql"
+        const val v002 = "io/medatarun/tags/core/infra/db/v002__tags_events_and_projection_sqlite.sql"
     }
 
 

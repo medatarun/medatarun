@@ -20,7 +20,7 @@ class TagsCoreDbMigrationStartupTest {
         assertTrue(dbMigrationChecker.tableExists("tag_projection"))
         assertTrue(dbMigrationChecker.tableExists("tag_event"))
         assertEquals(1, dbMigrationChecker.migrationCount("tags-core"))
-        assertEquals(1, dbMigrationChecker.currentVersion("tags-core"))
+        assertEquals(2, dbMigrationChecker.currentVersion("tags-core"))
 
     }
 

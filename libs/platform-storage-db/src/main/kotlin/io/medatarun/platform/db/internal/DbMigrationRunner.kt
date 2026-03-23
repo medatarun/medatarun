@@ -18,18 +18,41 @@ class DbMigrationRunner(
     private val dbConnectionFactory: DbConnectionFactory,
     private val dbTransactionManager: DbTransactionManager
 ) {
+    /**
+     * Call when the platform just started, just after everything had been
+     * initialized (contributions, services, etc.)
+     *
+     * Takes all extensions that provide [DbMigration] and run them
+     */
     fun runAll() {
         val migrations = extensionRegistry.findContributionsFlat(DbMigration::class)
         ensureHistoryTable()
         migrations.forEach { migration ->
+
+            // For a migration shard, get the latest known version in database
             val currentVersion = dbConnectionFactory.withConnection { connection ->
                 readCurrentVersion(connection, migration.pluginId)
             }
+
             if (currentVersion == 0) {
+                // If there is no version in database, install fully the shard
                 installMigration(migration)
             } else {
+                // If there is a version number, call migrations on the shard
+                // for each missing version up to its latest declared version
                 applyPendingVersions(migration, currentVersion)
             }
+
+            // Each time after this had been completed, call the post-migration
+            // scripts, often that manage data cleanup or regular adjustments
+            migration.applyAlwaysAfterMigrations(
+                DbMigrationContextImpl(
+                    pluginId = migration.pluginId,
+                    currentVersion = migration.latestVersion(),
+                    dbConnectionFactory = dbConnectionFactory,
+                    versionToApply = migration.latestVersion()
+                )
+            )
         }
     }
 
@@ -133,6 +156,10 @@ VALUES (?, ?, ?)
 
         override fun <T> withConnection(block: (Connection) -> T): T {
             return dbConnectionFactory.withConnection(block)
+        }
+
+        override fun <T> withExposed(block: () -> T): T {
+            return dbConnectionFactory.withExposed(block)
         }
 
         override fun applySqlResource(resourcePath: String) {

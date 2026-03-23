@@ -13,7 +13,7 @@ import java.time.Instant
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
     fun initSchema() {
-        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v000__init_users_sqlite)
+        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v001_users)
     }
 
 
