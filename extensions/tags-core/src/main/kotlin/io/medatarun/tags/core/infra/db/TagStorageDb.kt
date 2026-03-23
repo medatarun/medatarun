@@ -5,7 +5,7 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
-import io.medatarun.tags.core.ports.needs.TagRepoCmd
+import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
@@ -83,11 +83,11 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
         }
     }
 
-    override fun dispatch(cmd: TagRepoCmd) {
+    override fun dispatch(cmd: TagStorageCmd) {
         logger.debug(cmd.toString())
         dbConnectionFactory.withExposed {
             when (cmd) {
-                is TagRepoCmd.TagCreate -> {
+                is TagStorageCmd.TagCreate -> {
                     TagTable.insert { row ->
                         row[TagTable.id] = cmd.item.id.asString()
                         row[TagTable.scopeType] = cmd.item.scope.type.value
@@ -102,29 +102,29 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
                     }
                 }
 
-                is TagRepoCmd.TagUpdateKey -> {
+                is TagStorageCmd.TagUpdateKey -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
                         row[TagTable.key] = cmd.value.asString()
                     }
                 }
 
-                is TagRepoCmd.TagUpdateName -> {
+                is TagStorageCmd.TagUpdateName -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
                         row[TagTable.name] = cmd.value
                     }
                 }
 
-                is TagRepoCmd.TagUpdateDescription -> {
+                is TagStorageCmd.TagUpdateDescription -> {
                     TagTable.update(where = { TagTable.id eq cmd.tagId.asString() }) { row ->
                         row[TagTable.description] = cmd.value
                     }
                 }
 
-                is TagRepoCmd.TagDelete -> {
+                is TagStorageCmd.TagDelete -> {
                     TagTable.deleteWhere { id eq cmd.tagId.asString() }
                 }
 
-                is TagRepoCmd.TagGroupCreate -> {
+                is TagStorageCmd.TagGroupCreate -> {
                     TagGroupTable.insert { row ->
                         row[TagGroupTable.id] = cmd.item.id.asString()
                         row[TagGroupTable.key] = cmd.item.key.asString()
@@ -133,25 +133,25 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
                     }
                 }
 
-                is TagRepoCmd.TagGroupUpdateKey -> {
+                is TagStorageCmd.TagGroupUpdateKey -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
                         row[TagGroupTable.key] = cmd.value.asString()
                     }
                 }
 
-                is TagRepoCmd.TagGroupUpdateName -> {
+                is TagStorageCmd.TagGroupUpdateName -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
                         row[TagGroupTable.name] = cmd.value
                     }
                 }
 
-                is TagRepoCmd.TagGroupUpdateDescription -> {
+                is TagStorageCmd.TagGroupUpdateDescription -> {
                     TagGroupTable.update(where = { TagGroupTable.id eq cmd.tagGroupId.asString() }) { row ->
                         row[TagGroupTable.description] = cmd.value
                     }
                 }
 
-                is TagRepoCmd.TagGroupDelete -> {
+                is TagStorageCmd.TagGroupDelete -> {
                     TagGroupTable.deleteWhere { id eq cmd.tagGroupId.asString() }
                 }
             }

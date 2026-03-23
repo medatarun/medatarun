@@ -16,7 +16,7 @@ interface TagStorage {
     fun findTagGroupByIdOptional(id: TagGroupId): TagGroup?
     fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup?
 
-    fun dispatch(cmd: TagRepoCmd)
+    fun dispatch(cmd: TagStorageCmd)
 
 
 }
