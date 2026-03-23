@@ -4,6 +4,7 @@ import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagCmdsEvents
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
+import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 
@@ -14,6 +15,17 @@ class TagCmdsImpl(
     private val txManager: DbTransactionManager
 ) : TagCmds {
     private val tagRefResolver = TagRefResolver(storage)
+
+    private fun storageCmdEnveloppe(cmdEnv: TagCmdEnveloppe, repoCmd: TagStorageCmd): TagStorageCmdEnveloppe {
+        return TagStorageCmdEnveloppe(
+            traceabilityRecord = cmdEnv.traceabilityRecord,
+            cmd = repoCmd
+        )
+    }
+
+    private fun storageDispatch(cmdEnv: TagCmdEnveloppe, repoCmd: TagStorageCmd) {
+        storage.dispatch(storageCmdEnveloppe(cmdEnv, repoCmd))
+    }
 
     override fun dispatch(cmdEnv: TagCmdEnveloppe) {
         return txManager.runInTransaction {
@@ -43,7 +55,7 @@ class TagCmdsImpl(
 
     private fun tagScopeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagScopeDelete) {
         storage.findAllTag().filter { it.scope == cmd.scopeRef }.forEach {
-            storage.dispatch(TagStorageCmd.TagDelete(it.id))
+            storageDispatch(cmdEnv, TagStorageCmd.TagDelete(it.id))
         }
     }
 
@@ -99,7 +111,8 @@ class TagCmdsImpl(
         tagScopes.ensureLocalScopeExists(tagScope)
         val existing = storage.findTagByKeyOptional(tagScope, null, cmd.key)
         if (existing != null) throw TagLocalDuplicateKeyException()
-        storage.dispatch(
+        storageDispatch(
+            cmdEnv,
             TagStorageCmd.TagCreate(
                 TagInMemory(
                     id = Id.generate(::TagId),
@@ -117,30 +130,31 @@ class TagCmdsImpl(
         val existing = findTagLocal(cmd.ref)
         val duplicate = storage.findTagByKeyOptional(existing.scope, null, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagLocalDuplicateKeyException()
-        storage.dispatch(TagStorageCmd.TagUpdateKey(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateKey(existing.id, cmd.value))
     }
 
     private fun tagLocalUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalUpdateName) {
         val existing = findTagLocal(cmd.ref)
-        storage.dispatch(TagStorageCmd.TagUpdateName(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateName(existing.id, cmd.value))
     }
 
     private fun tagLocalUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalUpdateDescription) {
         val existing = findTagLocal(cmd.ref)
-        storage.dispatch(TagStorageCmd.TagUpdateDescription(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
     private fun tagLocalDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalDelete) {
         val existing = findTagLocal(cmd.ref)
         evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
-        storage.dispatch(TagStorageCmd.TagDelete(existing.id))
+        storageDispatch(cmdEnv, TagStorageCmd.TagDelete(existing.id))
     }
 
 
     private fun tagGroupCreate(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGroupCreate) {
         val existing = storage.findTagGroupByKeyOptional(cmd.key)
         if (existing != null) throw TagGroupDuplicateKeyException()
-        storage.dispatch(
+        storageDispatch(
+            cmdEnv,
             TagStorageCmd.TagGroupCreate(
                 TagGroupInMemory(
                     id = Id.generate(::TagGroupId),
@@ -154,7 +168,7 @@ class TagCmdsImpl(
 
     private fun tagGroupUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGroupUpdateName) {
         val existing = findTagGroup(cmd.ref)
-        storage.dispatch(TagStorageCmd.TagGroupUpdateName(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagGroupUpdateName(existing.id, cmd.value))
 
     }
 
@@ -162,12 +176,12 @@ class TagCmdsImpl(
         val existing = findTagGroup(cmd.ref)
         val duplicate = storage.findTagGroupByKeyOptional(cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagGroupDuplicateKeyException()
-        storage.dispatch(TagStorageCmd.TagGroupUpdateKey(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagGroupUpdateKey(existing.id, cmd.value))
     }
 
     private fun tagGroupUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGroupUpdateDescription) {
         val existing = findTagGroup(cmd.ref)
-        storage.dispatch(TagStorageCmd.TagGroupUpdateDescription(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagGroupUpdateDescription(existing.id, cmd.value))
     }
 
     private fun tagGroupDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGroupDelete) {
@@ -179,9 +193,9 @@ class TagCmdsImpl(
         // This behavior is implemented here and does not rely on SQL cascade support.
         groupTags.forEach {
             evts.onBeforeDelete(cmdEnv.traceabilityRecord, it.id)
-            storage.dispatch(TagStorageCmd.TagDelete(it.id))
+            storageDispatch(cmdEnv, TagStorageCmd.TagDelete(it.id))
         }
-        storage.dispatch(TagStorageCmd.TagGroupDelete(existing.id))
+        storageDispatch(cmdEnv, TagStorageCmd.TagGroupDelete(existing.id))
     }
 
 
@@ -191,7 +205,8 @@ class TagCmdsImpl(
         val existing = storage.findTagByKeyOptional(group.id, cmd.key)
         if (existing != null) throw TagGlobalDuplicateKeyException()
 
-        storage.dispatch(
+        storageDispatch(
+            cmdEnv,
             TagStorageCmd.TagCreate(
                 TagInMemory(
                     id = Id.generate(::TagId),
@@ -211,23 +226,23 @@ class TagCmdsImpl(
             existing.groupId ?: throw TagGlobalCommandIncompatibleTagRefException(cmd.tagRef.asString())
         val duplicate = storage.findTagByKeyOptional(existingGroupId, cmd.value)
         if (duplicate != null && duplicate.id != existing.id) throw TagGlobalDuplicateKeyException()
-        storage.dispatch(TagStorageCmd.TagUpdateKey(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateKey(existing.id, cmd.value))
 
     }
 
     private fun tagGlobalUpdateName(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalUpdateName) {
         val existing = findTagGlobal(cmd.tagRef)
-        storage.dispatch(TagStorageCmd.TagUpdateName(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateName(existing.id, cmd.value))
     }
 
     private fun tagGlobalUpdateDescription(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalUpdateDescription) {
         val existing = findTagGlobal(cmd.tagRef)
-        storage.dispatch(TagStorageCmd.TagUpdateDescription(existing.id, cmd.value))
+        storageDispatch(cmdEnv, TagStorageCmd.TagUpdateDescription(existing.id, cmd.value))
     }
 
     private fun tagGlobalDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagGlobalDelete) {
         val existing = findTagGlobal(cmd.tagRef)
         evts.onBeforeDelete(cmdEnv.traceabilityRecord, existing.id)
-        storage.dispatch(TagStorageCmd.TagDelete(existing.id))
+        storageDispatch(cmdEnv, TagStorageCmd.TagDelete(existing.id))
     }
 }

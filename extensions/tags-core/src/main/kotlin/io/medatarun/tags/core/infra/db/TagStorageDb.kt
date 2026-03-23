@@ -6,6 +6,7 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
+import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
@@ -83,7 +84,8 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory): TagSto
         }
     }
 
-    override fun dispatch(cmd: TagStorageCmd) {
+    override fun dispatch(cmdEnv: TagStorageCmdEnveloppe) {
+        val cmd = cmdEnv.cmd
         logger.debug(cmd.toString())
         dbConnectionFactory.withExposed {
             when (cmd) {
