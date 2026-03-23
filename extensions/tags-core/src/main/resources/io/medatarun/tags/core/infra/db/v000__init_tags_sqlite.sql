@@ -1,11 +1,11 @@
-CREATE TABLE IF NOT EXISTS tag_group (
+CREATE TABLE IF NOT EXISTS tag_group_projection (
   id TEXT PRIMARY KEY UNIQUE,
   key TEXT NOT NULL UNIQUE,
   name TEXT,
   description TEXT
 );
 
-CREATE TABLE IF NOT EXISTS tag (
+CREATE TABLE IF NOT EXISTS tag_projection (
   id TEXT PRIMARY KEY UNIQUE,
   scope_type TEXT NOT NULL,
   scope_id TEXT,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tag (
   key TEXT NOT NULL,
   name TEXT,
   description TEXT,
-  FOREIGN KEY (tag_group_id) REFERENCES tag_group(id) ON DELETE CASCADE
+  FOREIGN KEY (tag_group_id) REFERENCES tag_group_projection(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tag_event
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS tag_event
     UNIQUE (scope_type, scope_id, stream_revision)
 );
 
-CREATE INDEX IF NOT EXISTS idx_tag_scope_key
-ON tag(scope_type, scope_id, key);
+CREATE INDEX IF NOT EXISTS idx_tag_projection_scope_key
+ON tag_projection(scope_type, scope_id, key);
 
-CREATE INDEX IF NOT EXISTS idx_tag_group_key
-ON tag(tag_group_id, key);
+CREATE INDEX IF NOT EXISTS idx_tag_projection_group_key
+ON tag_projection(tag_group_id, key);

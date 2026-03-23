@@ -2,7 +2,7 @@ package io.medatarun.tags.core.infra.db.tables
 
 import org.jetbrains.exposed.v1.core.Table
 
-internal object TagTable : Table("tag") {
+internal object TagTable : Table("tag_projection") {
     val id = text("id")
     val scopeType = text("scope_type")
     val scopeId = text("scope_id").nullable()

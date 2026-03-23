@@ -49,6 +49,18 @@ update actors set roles_json = replace(roles_json, '"tag_free_manage"', '"tag_lo
 update actors set roles_json = replace(roles_json, '"tag_managed_manage"', '"tag_global_manage"') where true;
 ```
 
+- Tags projection tables rename
+
+```sqlite
+alter table tag_group rename to tag_group_projection;
+alter table tag rename to tag_projection;
+
+drop index if exists idx_tag_scope_key;
+drop index if exists idx_tag_group_key;
+create index if not exists idx_tag_projection_scope_key on tag_projection(scope_type, scope_id, key);
+create index if not exists idx_tag_projection_group_key on tag_projection(tag_group_id, key);
+```
+
 
 ### Fixed
 

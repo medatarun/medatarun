@@ -7,7 +7,7 @@ class TagsCoreDbMigration(override val pluginId: String) : DbMigration {
 
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(v000_init_db_sqlite)
+        ctx.applySqlResource(v000_init_tags_sqlite)
     }
 
     override fun latestVersion(): Int {
@@ -22,7 +22,7 @@ class TagsCoreDbMigration(override val pluginId: String) : DbMigration {
     }
 
     companion object {
-        const val v000_init_db_sqlite = "io/medatarun/tags/core/infra/db/v000_init_db_sqlite.sql"
+        const val v000_init_tags_sqlite = "io/medatarun/tags/core/infra/db/v000__init_tags_sqlite.sql"
     }
 
 
