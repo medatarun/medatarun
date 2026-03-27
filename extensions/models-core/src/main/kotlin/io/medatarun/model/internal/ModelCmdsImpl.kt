@@ -261,20 +261,39 @@ class ModelCmdsImpl(
     private fun copyModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.CopyModel) {
         val source = storage.findModelAggregate(cmd.modelRef)
         if (storage.existsModelByKey(cmd.modelNewKey)) throw ModelDuplicateKeyException(cmd.modelNewKey)
-        val copied = modelCopyDelegate.copy(source, cmd.modelNewKey)
-        storageDispatch(cmdEnv, StoreModelAggregatePayloadFactory.create(copied))
-        storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(copied.id, copied.version))
-        modelCopyDelegate.retag(
+        val copied = modelCopyDelegate.copyAndRetag(
             cmdEnv,
             source,
-            copied,
-            ::updateModelTagAdd,
-            ::updateEntityTagAdd,
-            ::updateRelationshipTagAdd,
-            ::updateEntityAttributeTagAdd,
-            ::updateRelationshipAttributeTagAdd
+            cmd.modelNewKey,
+            { aggregate -> storageDispatch(cmdEnv, StoreModelAggregatePayloadFactory.create(aggregate)) },
+            createTagWriter(cmdEnv)
         )
+        storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(copied.id, copied.version))
 
+    }
+
+    private fun createTagWriter(cmdEnv: ModelCmdEnveloppe): ModelTaggerImpl.ModelTagWriter {
+        return object : ModelTaggerImpl.ModelTagWriter {
+            override fun addModelTag(cmd: ModelCmd.UpdateModelTagAdd) {
+                updateModelTagAdd(cmdEnv, cmd)
+            }
+
+            override fun addEntityTag(cmd: ModelCmd.UpdateEntityTagAdd) {
+                updateEntityTagAdd(cmdEnv, cmd)
+            }
+
+            override fun addRelationshipTag(cmd: ModelCmd.UpdateRelationshipTagAdd) {
+                updateRelationshipTagAdd(cmdEnv, cmd)
+            }
+
+            override fun addEntityAttributeTag(cmd: ModelCmd.UpdateEntityAttributeTagAdd) {
+                updateEntityAttributeTagAdd(cmdEnv, cmd)
+            }
+
+            override fun addRelationshipAttributeTag(cmd: ModelCmd.UpdateRelationshipAttributeTagAdd) {
+                updateRelationshipAttributeTagAdd(cmdEnv, cmd)
+            }
+        }
     }
 
     private fun importModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.ImportModel) {
@@ -302,7 +321,7 @@ class ModelCmdsImpl(
         }
 
         // Read the model and temporary tag ids inside, then apply the tags to model elements
-        fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef.ByKey) -> Unit) {
+        fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef) -> Unit) {
             for (tagId in tagIds) {
                 val tagKey = newtags.firstOrNull { it.id == tagId }?.key
                 if (tagKey != null) {
@@ -312,9 +331,11 @@ class ModelCmdsImpl(
             }
         }
 
+        val tagWriter =  createTagWriter(cmdEnv)
+        val destModelRef = ModelRef.ById(model.id)
+
         applyTags(model.tags) { tagRef ->
-            updateModelTagAdd(
-                cmdEnv,
+            tagWriter.addModelTag(
                 ModelCmd.UpdateModelTagAdd(
                     ModelRef.ById(model.id),
                     tagRef
@@ -324,10 +345,9 @@ class ModelCmdsImpl(
 
         for (entity in model.entities) {
             applyTags(entity.tags) { tagRef ->
-                updateEntityTagAdd(
-                    cmdEnv,
+                tagWriter.addEntityTag(
                     ModelCmd.UpdateEntityTagAdd(
-                        ModelRef.ById(model.id),
+                        destModelRef,
                         EntityRef.ById(entity.id), tagRef
                     )
                 )
@@ -336,10 +356,9 @@ class ModelCmdsImpl(
 
         for (relationship in model.relationships) {
             applyTags(relationship.tags) { tagRef ->
-                updateRelationshipTagAdd(
-                    cmdEnv,
+                tagWriter.addRelationshipTag(
                     ModelCmd.UpdateRelationshipTagAdd(
-                        ModelRef.ById(model.id),
+                        destModelRef,
                         RelationshipRef.ById(relationship.id),
                         tagRef
                     )
@@ -352,10 +371,9 @@ class ModelCmdsImpl(
                 val owner = attribute.ownerId
                 when (owner) {
                     is AttributeOwnerId.OwnerEntityId -> {
-                        updateEntityAttributeTagAdd(
-                            cmdEnv,
+                        tagWriter.addEntityAttributeTag(
                             ModelCmd.UpdateEntityAttributeTagAdd(
-                                ModelRef.ById(model.id),
+                                destModelRef,
                                 EntityRef.ById(owner.id),
                                 EntityAttributeRef.ById(attribute.id),
                                 tagRef
@@ -364,10 +382,9 @@ class ModelCmdsImpl(
                     }
 
                     is AttributeOwnerId.OwnerRelationshipId -> {
-                        updateRelationshipAttributeTagAdd(
-                            cmdEnv,
+                        tagWriter.addRelationshipAttributeTag(
                             ModelCmd.UpdateRelationshipAttributeTagAdd(
-                                ModelRef.ById(model.id),
+                                destModelRef,
                                 RelationshipRef.ById(owner.id),
                                 RelationshipAttributeRef.ById(attribute.id),
                                 tagRef
