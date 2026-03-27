@@ -26,6 +26,22 @@ internal class TagStorageDbRead {
         return TagProjectionTable.selectAll().map { row -> tagFromRow(row) }
     }
 
+    fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag> {
+        return when (scopeRef) {
+            is TagScopeRef.Global -> {
+                TagProjectionTable.selectAll().where {
+                    (TagProjectionTable.scopeType eq TagScopeRef.Global.type.value) and TagProjectionTable.scopeId.isNull()
+                }.map { row -> tagFromRow(row) }
+            }
+            is TagScopeRef.Local -> {
+                TagProjectionTable.selectAll().where {
+                    (TagProjectionTable.scopeType eq scopeRef.type.value) and
+                        (TagProjectionTable.scopeId eq scopeRef.localScopeId.asString())
+                }.map { row -> tagFromRow(row) }
+            }
+        }
+    }
+
     fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
         return when (scope) {
             is TagScopeRef.Local -> {

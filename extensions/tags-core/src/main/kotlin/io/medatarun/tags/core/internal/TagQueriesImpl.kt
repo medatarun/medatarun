@@ -13,6 +13,10 @@ class TagQueriesImpl(
         return storage.findAllTag()
     }
 
+    override fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag> {
+        return storage.findAllTagByScopeRef(scopeRef)
+    }
+
     override fun search(query: TagSearchFilters): List<Tag> {
         if (query.items.isEmpty()) {
             return findAllTags()
@@ -27,6 +31,7 @@ class TagQueriesImpl(
                 }
             }
         }
+
         val items = findAllTags()
         return when (query.operator) {
             TagSearchFiltersLogicalOperator.AND -> items.filter { item ->
