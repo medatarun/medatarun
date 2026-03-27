@@ -11,7 +11,7 @@ import io.medatarun.model.domain.RelationshipAttributeRef
 /**
  * Resolves destination refs from source ids when tags are applied on copied/imported models.
  */
-interface ModelSourceDestIdMaps {
+interface ModelSourceDestIdConv {
     fun getDestEntityRef(sourceId: EntityId): EntityRef
     fun getDestRelationshipRef(sourceId: RelationshipId): RelationshipRef
     fun getDestEntityAttributeRef(sourceId: AttributeId): EntityAttributeRef

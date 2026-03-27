@@ -18,6 +18,10 @@ internal class ModelTagResolverWithQueries(
         return tag ?: throw TagNotFoundException(tagId.asString())
     }
 
+    override fun findTagsByScope(scopeRef: TagScopeRef): List<Tag> {
+        return tagQueries.findAllTags().filter { tag -> tag.scope == scopeRef }
+    }
+
     override fun resolveTagId(tagRef: TagRef): TagId {
         return tagQueries.findTagByRef(tagRef).id
     }

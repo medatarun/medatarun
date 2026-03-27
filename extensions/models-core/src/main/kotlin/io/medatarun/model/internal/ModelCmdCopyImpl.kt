@@ -8,6 +8,7 @@ import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagRef
+import io.medatarun.type.commons.id.Id
 
 class ModelCmdCopyImpl(
     private val tagResolver: ModelTagResolver,
@@ -31,7 +32,7 @@ class ModelCmdCopyImpl(
             cmdEnv = cmdEnv,
             source = source,
             copied = copied,
-            idMaps = copyResult.idMaps,
+            idConv = copyResult.idMaps,
             tagWriter = tagWriter
         )
         return copied
@@ -45,44 +46,44 @@ class ModelCmdCopyImpl(
             return newId
         }
 
+        fun register(old: T, new: T) {
+            map[old] = new
+        }
+
         fun convert(old: T): T {
             return map[old] ?: throw CopyModelIdConversionFailedException(name, old.toString())
         }
     }
 
-    private class CopyModelSourceDestIdMaps(
-        private val entityIds: Map<EntityId, EntityId>,
-        private val relationshipIds: Map<RelationshipId, RelationshipId>,
-        private val attributeIds: Map<AttributeId, AttributeId>,
-    ) : ModelSourceDestIdMaps {
+    private class CopyModelSourceDestIdConv(
+        private val entityIds: IdConv<EntityId>,
+        private val relationshipIds: IdConv<RelationshipId>,
+        private val attributeIds: IdConv<AttributeId>,
+    ) : ModelSourceDestIdConv {
         override fun getDestEntityRef(sourceId: EntityId): EntityRef {
-            val destId = entityIds[sourceId]
-                ?: throw CopyModelIdConversionFailedException("entity", sourceId.toString())
+            val destId = entityIds.convert(sourceId)
             return EntityRef.ById(destId)
         }
 
         override fun getDestRelationshipRef(sourceId: RelationshipId): RelationshipRef {
-            val destId = relationshipIds[sourceId]
-                ?: throw CopyModelIdConversionFailedException("relationship", sourceId.toString())
+            val destId = relationshipIds.convert(sourceId)
             return RelationshipRef.ById(destId)
         }
 
         override fun getDestEntityAttributeRef(sourceId: AttributeId): EntityAttributeRef {
-            val destId = attributeIds[sourceId]
-                ?: throw CopyModelIdConversionFailedException("attribute", sourceId.toString())
+            val destId = attributeIds.convert(sourceId)
             return EntityAttributeRef.ById(destId)
         }
 
         override fun getDestRelationshipAttributeRef(sourceId: AttributeId): RelationshipAttributeRef {
-            val destId = attributeIds[sourceId]
-                ?: throw CopyModelIdConversionFailedException("attribute", sourceId.toString())
+            val destId = attributeIds.convert(sourceId)
             return RelationshipAttributeRef.ById(destId)
         }
     }
 
     private data class CopyResult(
         val copied: ModelAggregate,
-        val idMaps: ModelSourceDestIdMaps,
+        val idMaps: ModelSourceDestIdConv,
     )
 
     /**
@@ -153,10 +154,10 @@ class ModelCmdCopyImpl(
                 relationships = newRelationships,
                 attributes = attributes
             )
-        val idMaps = CopyModelSourceDestIdMaps(
-            entityIds = entityIds.map.toMap(),
-            relationshipIds = relationshipId.map.toMap(),
-            attributeIds = attributeIds.map.toMap()
+        val idMaps = CopyModelSourceDestIdConv(
+            entityIds = entityIds,
+            relationshipIds = relationshipId,
+            attributeIds = attributeIds
         )
         return CopyResult(next, idMaps)
     }
@@ -168,47 +169,51 @@ class ModelCmdCopyImpl(
         cmdEnv: ModelCmdEnveloppe,
         source: ModelAggregate,
         copied: ModelAggregate,
-        idMaps: ModelSourceDestIdMaps,
+        idConv: ModelSourceDestIdConv,
         tagWriter: ModelTaggerImpl.ModelTagWriter,
     ) {
 
         val destModelRef = ModelRef.ById(copied.id)
         val sourceScopeRef = modelTagScopeRef(source.id)
         val copiedScopeRef = modelTagScopeRef(copied.id)
-        val copiedTagIdsBySourceTagId = mutableMapOf<TagId, TagId>()
+        val tagIdConv = IdConv("tag") { Id.generate(::TagId) }
+
+        // Takes all tags from original model and copy them to the new one
+        // Keep track of id changes tagIdConv
+        val sourceScopeTags = tagResolver.findTagsByScope(sourceScopeRef)
+        for (sourceScopeTag in sourceScopeTags) {
+            tagResolver.create(
+                cmdEnv.traceabilityRecord,
+                copied.id,
+                sourceScopeTag.key,
+                sourceScopeTag.name,
+                sourceScopeTag.description
+            )
+            val copiedTagId = tagResolver.resolveTagId(TagRef.ByKey(copiedScopeRef, null, sourceScopeTag.key))
+            tagIdConv.register(sourceScopeTag.id, copiedTagId)
+        }
 
         /**
-         * For tags local to the source model scope, create an equivalent local tag in the copied model scope.
+         * For tags local to the source model scope, use the precomputed source->copied id mapping.
          * For all other scopes, keep the same tag id.
          *
-         * Uses the copy map to avoid fetching multiple times the same tag id
+         * All local tags are created before attachment replay, so local tags without
+         * current usages are still copied to the destination scope.
          */
         fun resolveTag(sourceTagId: TagId): TagRef.ById {
-            val existing = copiedTagIdsBySourceTagId[sourceTagId]
-            if (existing != null) return TagRef.ById(existing)
-
             val sourceTag = tagResolver.findTagById(sourceTagId)
-            val mappedTagId = if (sourceTag.scope == sourceScopeRef) {
-                tagResolver.create(
-                    cmdEnv.traceabilityRecord,
-                    copied.id,
-                    sourceTag.key,
-                    sourceTag.name,
-                    sourceTag.description
-                )
-                tagResolver.resolveTagId(TagRef.ByKey(copiedScopeRef, null, sourceTag.key))
+            return if (sourceTag.scope == sourceScopeRef) {
+                TagRef.ById(tagIdConv.convert(sourceTagId))
             } else {
-                sourceTagId
+                TagRef.ById(sourceTagId)
             }
-            copiedTagIdsBySourceTagId[sourceTagId] = mappedTagId
-            return TagRef.ById(mappedTagId)
         }
 
         ModelTaggerImpl().applyAllTags(
             source = source,
             destModelRef = destModelRef,
             tagWriter = tagWriter,
-            idMaps = idMaps,
+            idMaps = idConv,
             resolveTag = ::resolveTag)
 
     }

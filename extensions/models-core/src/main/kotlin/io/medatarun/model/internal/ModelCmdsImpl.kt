@@ -301,8 +301,8 @@ class ModelCmdsImpl(
         }
     }
 
-    private fun createIdentityModelSourceDestIdMaps(): ModelSourceDestIdMaps {
-        return object : ModelSourceDestIdMaps {
+    private fun createIdentityModelSourceDestIdMaps(): ModelSourceDestIdConv {
+        return object : ModelSourceDestIdConv {
             override fun getDestEntityRef(sourceId: EntityId): EntityRef {
                 return EntityRef.ById(sourceId)
             }
