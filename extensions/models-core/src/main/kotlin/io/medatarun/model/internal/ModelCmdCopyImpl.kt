@@ -3,7 +3,6 @@ package io.medatarun.model.internal
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
-import io.medatarun.model.ports.exposed.ModelCmd
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
@@ -51,11 +50,35 @@ class ModelCmdCopyImpl(
         }
     }
 
-    data class ModelSourceDestIdMaps(
-        val entityIds: Map<EntityId, EntityId>,
-        val relationshipIds: Map<RelationshipId, RelationshipId>,
-        val attributeIds: Map<AttributeId, AttributeId>,
-    )
+    private class CopyModelSourceDestIdMaps(
+        private val entityIds: Map<EntityId, EntityId>,
+        private val relationshipIds: Map<RelationshipId, RelationshipId>,
+        private val attributeIds: Map<AttributeId, AttributeId>,
+    ) : ModelSourceDestIdMaps {
+        override fun getDestEntityRef(sourceId: EntityId): EntityRef {
+            val destId = entityIds[sourceId]
+                ?: throw CopyModelIdConversionFailedException("entity", sourceId.toString())
+            return EntityRef.ById(destId)
+        }
+
+        override fun getDestRelationshipRef(sourceId: RelationshipId): RelationshipRef {
+            val destId = relationshipIds[sourceId]
+                ?: throw CopyModelIdConversionFailedException("relationship", sourceId.toString())
+            return RelationshipRef.ById(destId)
+        }
+
+        override fun getDestEntityAttributeRef(sourceId: AttributeId): EntityAttributeRef {
+            val destId = attributeIds[sourceId]
+                ?: throw CopyModelIdConversionFailedException("attribute", sourceId.toString())
+            return EntityAttributeRef.ById(destId)
+        }
+
+        override fun getDestRelationshipAttributeRef(sourceId: AttributeId): RelationshipAttributeRef {
+            val destId = attributeIds[sourceId]
+                ?: throw CopyModelIdConversionFailedException("attribute", sourceId.toString())
+            return RelationshipAttributeRef.ById(destId)
+        }
+    }
 
     private data class CopyResult(
         val copied: ModelAggregate,
@@ -130,7 +153,7 @@ class ModelCmdCopyImpl(
                 relationships = newRelationships,
                 attributes = attributes
             )
-        val idMaps = ModelSourceDestIdMaps(
+        val idMaps = CopyModelSourceDestIdMaps(
             entityIds = entityIds.map.toMap(),
             relationshipIds = relationshipId.map.toMap(),
             attributeIds = attributeIds.map.toMap()
@@ -160,9 +183,9 @@ class ModelCmdCopyImpl(
          *
          * Uses the copy map to avoid fetching multiple times the same tag id
          */
-        fun mapTagId(sourceTagId: TagId): TagId {
+        fun resolveTag(sourceTagId: TagId): TagRef.ById {
             val existing = copiedTagIdsBySourceTagId[sourceTagId]
-            if (existing != null) return existing
+            if (existing != null) return TagRef.ById(existing)
 
             val sourceTag = tagResolver.findTagById(sourceTagId)
             val mappedTagId = if (sourceTag.scope == sourceScopeRef) {
@@ -178,90 +201,15 @@ class ModelCmdCopyImpl(
                 sourceTagId
             }
             copiedTagIdsBySourceTagId[sourceTagId] = mappedTagId
-            return mappedTagId
+            return TagRef.ById(mappedTagId)
         }
 
-        fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef) -> Unit) {
-            for(tagId in tagIds) {
-                val tagRef = TagRef.ById(mapTagId(tagId))
-                block(tagRef)
-            }
-        }
+        ModelTaggerImpl().applyAllTags(
+            source = source,
+            destModelRef = destModelRef,
+            tagWriter = tagWriter,
+            idMaps = idMaps,
+            resolveTag = ::resolveTag)
 
-        applyTags(source.tags) { tagRef ->
-            tagWriter.addModelTag(
-                ModelCmd.UpdateModelTagAdd(
-                    destModelRef,
-                    tagRef
-                )
-            )
-        }
-
-        for (entity in source.entities) {
-            val copiedEntityId = idMaps.entityIds[entity.id]
-                ?: throw CopyModelIdConversionFailedException("entity", entity.id.toString())
-            applyTags(entity.tags) { tagRef ->
-                tagWriter.addEntityTag(
-                    ModelCmd.UpdateEntityTagAdd(
-                        destModelRef,
-                        EntityRef.ById(copiedEntityId),
-                        tagRef
-                    )
-                )
-            }
-        }
-
-        for (relationship in source.relationships) {
-            val copiedRelationshipId = idMaps.relationshipIds[relationship.id]
-                ?: throw CopyModelIdConversionFailedException("relationship", relationship.id.toString())
-            applyTags(relationship.tags) { tagRef ->
-                tagWriter.addRelationshipTag(
-                    ModelCmd.UpdateRelationshipTagAdd(
-                        destModelRef,
-                        RelationshipRef.ById(copiedRelationshipId),
-                        tagRef
-                    )
-                )
-            }
-        }
-
-        for (attribute in source.attributes) {
-            val owner = attribute.ownerId
-            when (owner) {
-                is AttributeOwnerId.OwnerEntityId -> {
-                    val copiedEntityId = idMaps.entityIds[owner.id]
-                        ?: throw CopyModelIdConversionFailedException("entity", owner.id.toString())
-                    val copiedAttributeId = idMaps.attributeIds[attribute.id]
-                        ?: throw CopyModelIdConversionFailedException("attribute", attribute.id.toString())
-                    applyTags(attribute.tags) { tagRef ->
-                        tagWriter.addEntityAttributeTag(
-                            ModelCmd.UpdateEntityAttributeTagAdd(
-                                destModelRef,
-                                EntityRef.ById(copiedEntityId),
-                                EntityAttributeRef.ById(copiedAttributeId),
-                                tagRef
-                            )
-                        )
-                    }
-                }
-
-                is AttributeOwnerId.OwnerRelationshipId -> {
-                    val copiedRelationshipId = idMaps.relationshipIds[owner.id]
-                        ?: throw CopyModelIdConversionFailedException("relationship", owner.id.toString())
-                    val copiedAttributeId = idMaps.attributeIds[attribute.id]
-                        ?: throw CopyModelIdConversionFailedException("attribute", attribute.id.toString())
-                    applyTags(attribute.tags) { tagRef ->
-                        tagWriter.addRelationshipAttributeTag(
-                            ModelCmd.UpdateRelationshipAttributeTagAdd(
-                                destModelRef,
-                                RelationshipRef.ById(copiedRelationshipId),
-                                RelationshipAttributeRef.ById(copiedAttributeId),
-                                tagRef
-                            )
-                        )
-                    }
-                }
-            }
-        }
     }
 }

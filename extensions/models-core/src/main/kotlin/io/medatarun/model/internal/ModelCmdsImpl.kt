@@ -262,11 +262,16 @@ class ModelCmdsImpl(
         val source = storage.findModelAggregate(cmd.modelRef)
         if (storage.existsModelByKey(cmd.modelNewKey)) throw ModelDuplicateKeyException(cmd.modelNewKey)
         val copied = modelCopyDelegate.copyAndRetag(
-            cmdEnv,
-            source,
-            cmd.modelNewKey,
-            { aggregate -> storageDispatch(cmdEnv, StoreModelAggregatePayloadFactory.create(aggregate)) },
-            createTagWriter(cmdEnv)
+            cmdEnv = cmdEnv,
+            source = source,
+            modelNewKey = cmd.modelNewKey,
+            persistCopied = { aggregate ->
+                storageDispatch(
+                    cmdEnv,
+                    StoreModelAggregatePayloadFactory.create(aggregate)
+                )
+            },
+            tagWriter = createTagWriter(cmdEnv)
         )
         storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(copied.id, copied.version))
 
@@ -296,6 +301,26 @@ class ModelCmdsImpl(
         }
     }
 
+    private fun createIdentityModelSourceDestIdMaps(): ModelSourceDestIdMaps {
+        return object : ModelSourceDestIdMaps {
+            override fun getDestEntityRef(sourceId: EntityId): EntityRef {
+                return EntityRef.ById(sourceId)
+            }
+
+            override fun getDestRelationshipRef(sourceId: RelationshipId): RelationshipRef {
+                return RelationshipRef.ById(sourceId)
+            }
+
+            override fun getDestEntityAttributeRef(sourceId: AttributeId): EntityAttributeRef {
+                return EntityAttributeRef.ById(sourceId)
+            }
+
+            override fun getDestRelationshipAttributeRef(sourceId: AttributeId): RelationshipAttributeRef {
+                return RelationshipAttributeRef.ById(sourceId)
+            }
+        }
+    }
+
     private fun importModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.ImportModel) {
 
         // Makes sure that imported models are always with a SYSTEM authority
@@ -309,7 +334,10 @@ class ModelCmdsImpl(
 
         val newtags = cmd.tags
 
-        // Register each found tag
+        // Register each found tag. At this point we don't know the tag id,
+        // only the key. Only tags in the model scope are created with imports.
+        // So, when we need to address a tag later, we will need to create
+        // tag refs by key (and not ids)
         newtags.forEach { tag ->
             tagResolver.create(
                 cmdEnv.traceabilityRecord,
@@ -320,81 +348,28 @@ class ModelCmdsImpl(
             )
         }
 
+        fun resolveTag(tagId: TagId): TagRef? {
+            // As said before, we don't know the tag ids, only their keys in
+            // the imported model scope. So we need to resolve the tagId from
+            // the imported model aggregate to a ref by key. Hopefully, we have
+            // the "ref" mechanism that avoids doing a lookup in the database
+            // in this resolver.
+            val tagKey = newtags.firstOrNull { it.id == tagId }?.key
+            return if (tagKey != null) {
+                tagRefKey(modelTagScopeRef(model.id), null, tagKey)
+            } else null
+        }
+
         // Read the model and temporary tag ids inside, then apply the tags to model elements
-        fun applyTags(tagIds: List<TagId>, block: (tagRef: TagRef) -> Unit) {
-            for (tagId in tagIds) {
-                val tagKey = newtags.firstOrNull { it.id == tagId }?.key
-                if (tagKey != null) {
-                    val tagRef = tagRefKey(modelTagScopeRef(model.id), null, tagKey)
-                    block(tagRef)
-                }
-            }
-        }
 
-        val tagWriter =  createTagWriter(cmdEnv)
-        val destModelRef = ModelRef.ById(model.id)
+        ModelTaggerImpl().applyAllTags(
+            source = model,
+            destModelRef = ModelRef.ById(model.id),
+            tagWriter = createTagWriter(cmdEnv),
+            idMaps = createIdentityModelSourceDestIdMaps(),
+            resolveTag = ::resolveTag
+        )
 
-        applyTags(model.tags) { tagRef ->
-            tagWriter.addModelTag(
-                ModelCmd.UpdateModelTagAdd(
-                    ModelRef.ById(model.id),
-                    tagRef
-                )
-            )
-        }
-
-        for (entity in model.entities) {
-            applyTags(entity.tags) { tagRef ->
-                tagWriter.addEntityTag(
-                    ModelCmd.UpdateEntityTagAdd(
-                        destModelRef,
-                        EntityRef.ById(entity.id), tagRef
-                    )
-                )
-            }
-        }
-
-        for (relationship in model.relationships) {
-            applyTags(relationship.tags) { tagRef ->
-                tagWriter.addRelationshipTag(
-                    ModelCmd.UpdateRelationshipTagAdd(
-                        destModelRef,
-                        RelationshipRef.ById(relationship.id),
-                        tagRef
-                    )
-                )
-            }
-        }
-
-        for (attribute in model.attributes) {
-            applyTags(attribute.tags) { tagRef ->
-                val owner = attribute.ownerId
-                when (owner) {
-                    is AttributeOwnerId.OwnerEntityId -> {
-                        tagWriter.addEntityAttributeTag(
-                            ModelCmd.UpdateEntityAttributeTagAdd(
-                                destModelRef,
-                                EntityRef.ById(owner.id),
-                                EntityAttributeRef.ById(attribute.id),
-                                tagRef
-                            )
-                        )
-                    }
-
-                    is AttributeOwnerId.OwnerRelationshipId -> {
-                        tagWriter.addRelationshipAttributeTag(
-                            ModelCmd.UpdateRelationshipAttributeTagAdd(
-                                destModelRef,
-                                RelationshipRef.ById(owner.id),
-                                RelationshipAttributeRef.ById(attribute.id),
-                                tagRef
-                            )
-                        )
-                    }
-                }
-
-            }
-        }
         storageDispatch(cmdEnv, ModelStorageCmd.ModelRelease(model.id, model.version))
     }
 
