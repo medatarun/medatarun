@@ -879,6 +879,41 @@ class Model_Copy_Test {
     }
 
     @Test
+    fun `copy model recreates unassigned local model tags in copied model local scope`() {
+        val env = createEnv()
+        val sourceKey = ModelKey("model-source")
+        val copiedKey = ModelKey("model-dest")
+        val sourceRef = modelRefKey(sourceKey)
+        val localTagKey = TagKey("rgpd")
+        val localTagName = "RGPD"
+        val localTagDescription = "Personal data"
+
+        // Arrange: create source model and a local tag in its scope, without attaching it.
+        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        val sourceModelId = env.queries.findModel(sourceRef).id
+        val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
+        val sourceTagRef = TagRef.ByKey(sourceScope, null, localTagKey)
+        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, localTagKey, localTagName, localTagDescription))
+        val sourceLocalTag = env.tagQueries.findTagByRef(sourceTagRef)
+
+        // Act: copy the model.
+        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
+
+        // Assert: the unassigned tag must remain unassigned in the copied model aggregate.
+        val copiedAggregate = env.queries.findModelByKey(copiedKey)
+        assertTrue(copiedAggregate.tags.isEmpty())
+
+        // Assert: the copied model local scope contains an equivalent recreated tag.
+        val copiedScope = ModelTagResolver.modelTagScopeRef(copiedAggregate.id)
+        val copiedLocalTags = env.tagQueries.findAllTags().filter { tag -> tag.scope == copiedScope }
+        val copiedLocalTag = copiedLocalTags.firstOrNull { tag -> tag.key == localTagKey }
+        assertNotNull(copiedLocalTag)
+        assertNotEquals(sourceLocalTag.id, copiedLocalTag.id)
+        assertEquals(localTagName, copiedLocalTag.name)
+        assertEquals(localTagDescription, copiedLocalTag.description)
+    }
+
+    @Test
     fun `copy model recreates local entity tags with same keys names descriptions new ids and copied model local scope`() {
         val env = createEnv()
         val sourceKey = ModelKey("copy-source-local-entity-tag")

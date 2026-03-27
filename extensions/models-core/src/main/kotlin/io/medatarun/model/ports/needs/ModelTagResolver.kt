@@ -31,6 +31,14 @@ interface ModelTagResolver {
     fun findTagById(tagId: TagId): Tag
 
     /**
+     * Lists all tags in the specified scope.
+     *
+     * This is used by model copy to duplicate the full local tag catalog
+     * of the source model, including tags that are not currently attached.
+     */
+    fun findTagsByScope(scopeRef: TagScopeRef): List<Tag>
+
+    /**
      * Resolves this [tagRef] as a [TagId] whatever the tag scope is.
      *
      * When the [tagRef] is already a [TagRef.ById], no lookup is done. It means the tag may not exist at all, which can be

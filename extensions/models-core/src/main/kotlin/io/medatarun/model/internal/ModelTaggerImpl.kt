@@ -23,7 +23,7 @@ class ModelTaggerImpl {
         source: ModelAggregate,
         destModelRef: ModelRef,
         tagWriter: ModelTagWriter,
-        idMaps: ModelSourceDestIdMaps,
+        idMaps: ModelSourceDestIdConv,
         resolveTag: (tagId: TagId) -> TagRef?
     ) {
 
