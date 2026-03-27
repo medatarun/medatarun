@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.domain
 
-import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.platform.kernel.Event
+import io.medatarun.security.AppTraceabilityRecord
 
 /**
  * Event emitted by the owner of a local scope before deleting that scope root.
@@ -14,10 +14,10 @@ import io.medatarun.platform.kernel.Event
  * - emitted before the scope root is deleted
  * - expresses the owner's intent to delete the whole scope and the objects it contains
  * - carries the original traceability record so `tags-core` can forward the same call identity to
- *   `TagCmd.TagScopeDelete`
+ *   `TagCmd.TagLocalScopeDelete`
  *
  * Consumer contract:
- * - `tags-core` consumes this event and performs a scope-level tag cleanup (`TagCmd.TagScopeDelete`)
+ * - `tags-core` consumes this event and performs a scope-level tag cleanup (`TagCmd.TagLocalScopeDelete`)
  * - consumers must not assume `TagBeforeDeleteEvt` will be emitted for each tag deleted through this scope event
  *
  * Responsibility split:
@@ -26,7 +26,7 @@ import io.medatarun.platform.kernel.Event
  *
  * This event is a bulk scope-deletion signal. It is not equivalent to a sequence of explicit per-tag deletions.
  */
-data class TagScopeBeforeDeleteEvent(
+data class TagLocalScopeBeforeDeleteEvent(
     val tagScopeRef: TagScopeRef,
     val traceabilityRecord: AppTraceabilityRecord
 ) : Event

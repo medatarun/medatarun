@@ -15,7 +15,7 @@ import io.medatarun.tags.core.domain.TagCmd
 import io.medatarun.tags.core.domain.TagCmdEnveloppe
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
+import io.medatarun.tags.core.domain.TagLocalScopeBeforeDeleteEvent
 import io.medatarun.tags.core.infra.db.TagStorageDb
 import io.medatarun.tags.core.infra.db.TagsCoreDbMigration
 import io.medatarun.tags.core.internal.*
@@ -35,11 +35,11 @@ class TagsCoreExtension : MedatarunExtension {
         val tagScopes = TagScopesImpl(tagScopeRegistry)
         val tagCmds = TagCmdsImpl(storage, tagScopes, tagCmdEvents, dbTransactionManager)
         val tagQueries = TagQueriesImpl(storage, tagScopes)
-        eventSystem.registerObserver(TagScopeBeforeDeleteEvent::class) { evt ->
+        eventSystem.registerObserver(TagLocalScopeBeforeDeleteEvent::class) { evt ->
             tagCmds.dispatch(
                 TagCmdEnveloppe(
                     traceabilityRecord = evt.traceabilityRecord,
-                    cmd = TagCmd.TagScopeDelete(evt.tagScopeRef)
+                    cmd = TagCmd.TagLocalScopeDelete(evt.tagScopeRef)
                 )
             )
         }

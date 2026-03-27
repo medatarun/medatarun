@@ -13,6 +13,7 @@ import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
 import io.medatarun.type.commons.id.Id
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.slf4j.LoggerFactory
@@ -68,9 +69,29 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
     override fun dispatch(cmdEnv: TagStorageCmdEnveloppe) {
         logger.debug(cmdEnv.cmd.toString())
         dbConnectionFactory.withExposed {
-            val eventRecord = storeEvent(cmdEnv)
-            val cmdFromEvent = decodeTagStorageCmd(eventRecord)
-            projection.projectCommand(cmdFromEvent)
+            val cmd = cmdEnv.cmd
+            if (cmd is TagStorageCmd.TagLocalScopeDelete) {
+                deleteScope(cmd.scope)
+            } else {
+                val eventRecord = storeEvent(cmdEnv)
+                val cmdFromEvent = decodeTagStorageCmd(eventRecord)
+                projection.projectCommand(cmdFromEvent)
+            }
+        }
+    }
+
+    private fun deleteScope(scope: TagScopeRef) {
+        if (scope is TagScopeRef.Global) {
+            throw TagLocalScopeDeleteGlobalScopeException(scope.asString())
+        }
+        projection.projectCommand(TagStorageCmd.TagLocalScopeDelete(scope))
+        when (scope) {
+            is TagScopeRef.Local -> {
+                val scopeId = scope.localScopeId.asString()
+                TagEventTable.deleteWhere {
+                    (TagEventTable.scopeType eq scope.type.value) and (TagEventTable.scopeId eq scopeId)
+                }
+            }
         }
     }
 

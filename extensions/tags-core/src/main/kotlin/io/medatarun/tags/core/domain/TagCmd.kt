@@ -20,5 +20,5 @@ sealed interface TagCmd {
     class TagGlobalUpdateKey(val tagRef: TagRef, val value: TagKey): TagCmd
     class TagGlobalDelete(val tagRef: TagRef): TagCmd
 
-    class TagScopeDelete(val scopeRef: TagScopeRef): TagCmd
+    class TagLocalScopeDelete(val scopeRef: TagScopeRef): TagCmd
 }

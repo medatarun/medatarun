@@ -13,7 +13,7 @@ import io.medatarun.security.AppTraceabilityRecord
  * Emission contract:
  * - emitted for explicit tag deletions handled as tag operations (`TagLocalDelete`, `TagGlobalDelete`)
  * - emitted for global-tag deletions caused by `TagGroupDelete` (one event per global tag)
- * - not emitted for bulk scope cleanup triggered by `TagScopeBeforeDeleteEvent` / `TagCmd.TagScopeDelete`
+ * - not emitted for bulk scope cleanup triggered by `TagLocalScopeBeforeDeleteEvent` / `TagCmd.TagLocalScopeDelete`
  *
  * Consumer contract:
  * - listeners should only handle cleanup/veto logic related to the provided tag id

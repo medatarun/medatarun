@@ -84,6 +84,14 @@ sealed interface TagStorageCmd: StorageCmd {
     ) : TagStorageCmd
 
     @Serializable
+    @StorageEventContract(eventType = "tag_local_scope_deleted", eventVersion = 1)
+    data class TagLocalScopeDelete(
+        @Contextual
+        @SerialName("scope")
+        override val scope: TagScopeRef
+    ) : TagStorageCmd
+
+    @Serializable
     @StorageEventContract(eventType = "tag_group_created", eventVersion = 1)
     data class TagGroupCreate(
         @Contextual

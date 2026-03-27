@@ -48,15 +48,13 @@ class TagCmdsImpl(
                 is TagCmd.TagGlobalUpdateKey -> tagGlobalUpdateKey(cmdEnv, cmd)
                 is TagCmd.TagGlobalUpdateName -> tagGlobalUpdateName(cmdEnv, cmd)
 
-                is TagCmd.TagScopeDelete -> tagScopeDelete(cmdEnv, cmd)
+                is TagCmd.TagLocalScopeDelete -> tagLocalScopeDelete(cmdEnv, cmd)
             }
         }
     }
 
-    private fun tagScopeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagScopeDelete) {
-        storage.findAllTag().filter { it.scope == cmd.scopeRef }.forEach {
-            storageDispatch(cmdEnv, TagStorageCmd.TagDelete(it.id, it.scope))
-        }
+    private fun tagLocalScopeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalScopeDelete) {
+        storageDispatch(cmdEnv, TagStorageCmd.TagLocalScopeDelete(cmd.scopeRef))
     }
 
     private fun findTagLocalOptional(ref: TagRef): Tag? {
