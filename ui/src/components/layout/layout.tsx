@@ -1,56 +1,58 @@
-import {
-  Outlet,
-  useLocation,
-  useMatchRoute,
-  useNavigate,
-} from "@tanstack/react-router";
-import { MessageBar } from "@fluentui/react-components";
-import { useEffect, useMemo, useState } from "react";
-import {
-  ActionRegistry,
-  ActionsContext,
-  fetchActionDescriptors,
-} from "@/business/action_registry";
-import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
-import { ActionProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
+import { Outlet, useLocation, useMatchRoute, useNavigate } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { ActionRegistry, ActionsContext, useActionRegistryQuery } from "@/business/action_registry";
+import {ActionPerformerView} from "@/components/business/actions/ActionPerformerView.tsx";
+import {ActionProvider} from "@/components/business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg";
-import { ErrorBoundary } from "./ErrorBoundary.tsx";
-import { Loader, type NavigationTreeItem } from "@seij/common-ui";
-import { ApplicationShellSecured } from "@seij/common-ui-auth";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
-import { useAppI18n } from "@/services/appI18n.tsx";
-import { modelActionPostHook } from "@/business/model";
-import { tagActionPostHook } from "@/business/tag";
-import { ActionPostHooks } from "@/components/business/actions/ActionPostHook.ts";
+import {ErrorBoundary} from "./ErrorBoundary.tsx";
+import {ErrorBox, Loader, type NavigationTreeItem} from "@seij/common-ui";
+import {ApplicationShellSecured, useAuthentication} from "@seij/common-ui-auth";
+import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
+import {UnauthorizedHandler} from "@/components/auth/UnauthorizedHandler.tsx";
+import {useAppI18n} from "@/services/appI18n.tsx";
+import {modelActionPostHook} from "@/business/model";
+import {tagActionPostHook} from "@/business/tag";
+import {ActionPostHooks} from "@/components/business/actions/ActionPostHook.ts";
+import { toProblem } from "@seij/common-types";
 
-export function Layout2() {
-  const [actions, setActions] = useState<ActionRegistry>();
-  const [error, setError] = useState<any | null>(null);
+const EMPTY_ACTION_REGISTRY = new ActionRegistry({ items: [] });
+
+export function Layout() {
+  // Navigation tools
   const navigate = useNavigate();
   const matchRoute = useMatchRoute();
   const { pathname } = useLocation();
+
+  // Used to filter out navigation items if user is not technical
   const { isDetailLevelTech } = useDetailLevelContext();
+
+  // Translations
   const { t } = useAppI18n();
-  const postHooks = useMemo(
+
+  // Tooling for action managers so they can provide context and adapt their
+  // behavior when action succeeds (post actions)
+  const actionPostHooks = useMemo(
     () => new ActionPostHooks([modelActionPostHook, tagActionPostHook]),
     [],
   );
 
-  useEffect(() => {
-    fetchActionDescriptors()
-      .then((dto) => {
-        const ar = new ActionRegistry(dto);
-        setActions(ar);
-      })
-      .catch((err) => {
-        setError(err);
-        console.log(err);
-      });
-  }, []);
+  // Authentication needed to reload actions when user token is refreshed or
+  // created, so the action list matches current user permissions.
+  const authentication = useAuthentication();
+  const actionAccessScope = authentication.isAuthenticated
+    ? "authenticated"
+    : "public";
+
+  // Action registry is loaded depending on current authentication state
+  // and reloaded when it changes
+  const actionsQuery = useActionRegistryQuery(actionAccessScope);
+
+  const actions = actionsQuery.data ?? EMPTY_ACTION_REGISTRY;
+  const error = actionsQuery.error ? toProblem(actionsQuery.error) : null;
 
   const matchPath = (path: string | undefined) =>
     !!matchRoute({ to: path, fuzzy: true });
+
   const navigationItemsBase: NavigationTreeItem[] = [
     {
       id: "home",
@@ -145,9 +147,9 @@ export function Layout2() {
         pathname={pathname}
         outlet={
           <>
-            {actions && (
+            {actions.isNotEmpty() && (
               <ActionsContext value={actions}>
-                <ActionProvider postHooks={postHooks}>
+                <ActionProvider postHooks={actionPostHooks}>
                   <ErrorBoundary>
                     <Outlet />
                     <ActionPerformerView />
@@ -155,11 +157,11 @@ export function Layout2() {
                 </ActionProvider>
               </ActionsContext>
             )}
-            {!actions && <Loader loading={true} />}
+            {actionsQuery.isLoading && <Loader loading={true} />}
             {error && (
               <div>
                 <p>{t("layout_loadingErrorMessage")}</p>
-                <MessageBar intent="error">{JSON.stringify(error)}</MessageBar>
+                <ErrorBox error={error} />
               </div>
             )}
           </>
