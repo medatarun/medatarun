@@ -29,6 +29,7 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
     private val eventSystem = TagEventSystem()
     private val read = TagStorageDbRead()
     private val projection = TagStorageDbProjection()
+    private val historyProjection = TagStorageDbHistoryProjection()
 
     override fun findAllTag(): List<Tag> {
         return dbConnectionFactory.withExposed {
@@ -88,6 +89,7 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
                 val eventRecord = storeEvent(cmdEnv)
                 val cmdFromEvent = decodeTagStorageCmd(eventRecord)
                 projection.projectCommand(cmdFromEvent)
+                historyProjection.projectCommandFromEvent(cmdFromEvent, eventRecord.id, eventRecord.createdAt)
             }
         }
     }
