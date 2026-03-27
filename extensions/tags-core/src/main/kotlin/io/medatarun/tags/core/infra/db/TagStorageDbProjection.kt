@@ -1,9 +1,11 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.tags.core.domain.TagScopeRef
+import io.medatarun.tags.core.domain.TagLocalScopeDeleteGlobalScopeException
 import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -51,6 +53,14 @@ internal class TagStorageDbProjection {
                 TagProjectionTable.deleteWhere { id eq cmd.tagId.asString() }
             }
 
+            is TagStorageCmd.TagLocalScopeDelete -> {
+                val cmdScope = cmd.scope as? TagScopeRef.Local
+                    ?: throw TagLocalScopeDeleteGlobalScopeException(cmd.scope.asString())
+                TagProjectionTable.deleteWhere {
+                    (scopeType eq cmdScope.type.value) and (scopeId eq cmdScope.localScopeId.asString())
+                }
+            }
+
             is TagStorageCmd.TagGroupCreate -> {
                 TagGroupProjectionTable.insert { row ->
                     row[TagGroupProjectionTable.id] = cmd.tagGroupId.asString()
@@ -84,4 +94,3 @@ internal class TagStorageDbProjection {
         }
     }
 }
-

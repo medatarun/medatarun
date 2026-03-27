@@ -4,12 +4,14 @@ import io.medatarun.model.domain.ModelId
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeType
+import io.medatarun.platform.kernel.EventNotifier
 import io.medatarun.security.AppTraceabilityRecord
 import io.medatarun.tags.core.domain.*
 
 internal class ModelTagResolverWithQueries(
     private val tagQueries: TagQueries,
-    private val tagCmds: TagCmds
+    private val tagCmds: TagCmds,
+    private val tagScopeBeforeDeleteNotifier: EventNotifier<TagLocalScopeBeforeDeleteEvent>
 ) : ModelTagResolver {
     override fun findTagById(tagId: TagId): Tag {
         val tag = tagQueries.findTagByIdOptional(tagId)
@@ -65,6 +67,15 @@ internal class ModelTagResolverWithQueries(
                     name = name,
                     description = description
                 )
+            )
+        )
+    }
+
+    override fun onModelDelete(traceabilityRecord: AppTraceabilityRecord, modelId: ModelId) {
+        tagScopeBeforeDeleteNotifier.fire(
+            TagLocalScopeBeforeDeleteEvent(
+                tagScopeRef = modelTagScopeRef(modelId),
+                traceabilityRecord = traceabilityRecord
             )
         )
     }

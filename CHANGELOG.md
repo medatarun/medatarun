@@ -53,6 +53,7 @@
 - Deleting local tags, global tags and groups of tags now removes included tags
   from everywhere on models and their elements.
 - Copying models now creates a release event
+- Tag scope deletion on model delete
 
 ## [0.8.0]
 

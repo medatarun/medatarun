@@ -376,6 +376,7 @@ class ModelCmdsImpl(
 
     private fun deleteModel(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteModel) {
         val model = storage.findModel(cmd.modelRef)
+        tagResolver.onModelDelete(cmdEnv.traceabilityRecord, model.id)
         storageDispatch(cmdEnv, ModelStorageCmd.DeleteModel(model.id))
     }
 

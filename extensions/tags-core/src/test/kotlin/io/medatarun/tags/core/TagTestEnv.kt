@@ -29,7 +29,7 @@ import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagQueries
-import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
+import io.medatarun.tags.core.domain.TagLocalScopeBeforeDeleteEvent
 import io.medatarun.tags.core.fixtures.*
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import io.medatarun.type.commons.id.Id
@@ -46,10 +46,10 @@ class VehicleExtension : MedatarunExtension {
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val eventSystem = ctx.getService(EventSystem::class)
-        val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+        val vehicleServiceDeletedNotifier = eventSystem.createNotifier(TagLocalScopeBeforeDeleteEvent::class)
         val vehicleService = VehicleService { id ->
             vehicleServiceDeletedNotifier.fire(
-                TagScopeBeforeDeleteEvent(
+                TagLocalScopeBeforeDeleteEvent(
                     vehicleScopeRef(id),
                     TestTraceabilityRecord()
                 )
@@ -76,10 +76,10 @@ class RecipeExtension : MedatarunExtension {
 
     override fun initServices(ctx: MedatarunServiceCtx) {
         val eventSystem = ctx.getService(EventSystem::class)
-        val recipeEventNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
+        val recipeEventNotifier = eventSystem.createNotifier(TagLocalScopeBeforeDeleteEvent::class)
         val recipeService = RecipeService(onBeforeDelete = { id ->
             recipeEventNotifier.fire(
-                TagScopeBeforeDeleteEvent(
+                TagLocalScopeBeforeDeleteEvent(
                     recipeScopeRef(id),
                     TestTraceabilityRecord()
                 )
@@ -201,4 +201,3 @@ class TagTestEnv(
     }
 
 }
-

@@ -21,4 +21,5 @@ class TagGlobalNotFoundException(tagRef: String): MedatarunException("Global tag
 class TagDuplicateScopeManagerException(scopeType: String): MedatarunException("Multiple TagScopeManager registered for scope type [$scopeType]", StatusCode.INTERNAL_SERVER_ERROR)
 class TagScopeManagerNotFoundException(scopeType: String): MedatarunException("No TagScopeManager registered for scope type [$scopeType]", StatusCode.BAD_REQUEST)
 class TagScopeNotFoundException(scopeRef: String): MedatarunException("Tag scope [$scopeRef] was not found", StatusCode.BAD_REQUEST)
+class TagLocalScopeDeleteGlobalScopeException(scopeRef: String): MedatarunException("Tag local scope delete can not target global scope [$scopeRef]", StatusCode.BAD_REQUEST)
 class TagAttachScopeMismatchException(targetScope: String, tagScope: String, tagRef: String): MedatarunException("Tag [$tagRef] belongs to scope [$tagScope] and can not be attached to target scope [$targetScope]", StatusCode.BAD_REQUEST)
