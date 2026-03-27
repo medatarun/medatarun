@@ -43,12 +43,14 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "ModelRef") return normalizeRef(param, value);
   if (param.type == "ModelAuthority") return normalizeString(param, value);
   if (param.type == "ModelVersion") return normalizeVersion(param, value);
-  if (param.type == "RelationshipCardinality") return normalizeString(param, value);
+  if (param.type == "RelationshipCardinality")
+    return normalizeString(param, value);
   if (param.type == "RelationshipKey") return normalizeKey(param, value);
   if (param.type == "RelationshipRef") return normalizeRef(param, value);
   if (param.type == "RelationshipRoleKey") return normalizeKey(param, value);
   if (param.type == "RelationshipRoleRef") return normalizeRef(param, value);
-  if (param.type == "RelationshipAttributeRef") return normalizeRef(param, value);
+  if (param.type == "RelationshipAttributeRef")
+    return normalizeRef(param, value);
   if (param.type == "TagGroupKey") return normalizeKey(param, value);
   if (param.type == "TagGroupRef") return normalizeRef(param, value);
   if (param.type == "TagKey") return normalizeKey(param, value);

@@ -3,11 +3,11 @@ import { useActionRegistry } from "@/business/action_registry";
 import { Model, useModel } from "@/business/model";
 import {
   type Tag,
-  useTags,
-  useTagLocalUpdateDescription,
-  useTagLocalUpdateName,
   useTagGlobalUpdateDescription,
   useTagGlobalUpdateName,
+  useTagLocalUpdateDescription,
+  useTagLocalUpdateName,
+  useTags,
 } from "@/business/tag";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";

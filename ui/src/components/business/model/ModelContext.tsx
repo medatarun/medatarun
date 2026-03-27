@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import { Model } from "@/business/model";
+
 export const ModelContext = createContext<Model | undefined>(undefined);
 
 export function useModelContext(): Model {

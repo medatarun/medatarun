@@ -6,10 +6,10 @@ import {
 import { useTags } from "@/business/tag";
 import {
   Dropdown,
-  Option,
   type DropdownProps,
+  Option,
 } from "@fluentui/react-components";
-import { useAppI18n, type AppMessageKey } from "@/services/appI18n.tsx";
+import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
 import { FilterTagPicker } from "./FilterTagPicker.tsx";
 import { useCompactDropdownStyles } from "./Reports.styles.tsx";
 

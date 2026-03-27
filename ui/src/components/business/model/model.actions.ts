@@ -1,5 +1,7 @@
-import type { ActionPerformerRequestParams } from "@/components/business/actions/ActionPerformer.tsx";
-import type { ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import type {
+  ActionDisplayedSubject,
+  ActionPerformerRequestParams,
+} from "@/components/business/actions/ActionPerformer.tsx";
 import { refid } from "@/business/action_runner";
 
 export const createActionTemplateGeneral = () => ({});

@@ -6,8 +6,7 @@ import type {
   ModelCompareDto,
   SearchResults,
 } from "./model.dto.ts";
-import { type ActionPayload, executeAction } from "../action_runner";
-import { toProblem } from "@seij/common-types";
+import { type ActionPayload, executeActionJson } from "../action_runner";
 
 export type ModelSearchOperator = "and" | "or";
 
@@ -67,10 +66,7 @@ export async function modelSearch(req: ModelSearchReq): Promise<SearchResults> {
     },
     fields: ["location"],
   };
-  const result = await executeAction<SearchResults>("model", "search", payload);
-  if (result.contentType === "json") {
-    return result.json;
-  } else throw toProblem("Invalid response content type");
+  return executeActionJson<SearchResults>("model", "search", payload);
 }
 export const useModelSearch = (req: ModelSearchReq) => {
   return useQuery({
@@ -92,17 +88,13 @@ export type ModelCompareReq = {
 export async function modelCompare(
   req: ModelCompareReq,
 ): Promise<ModelCompareDto> {
-  const result = await executeAction("model", "model_compare", {
+  return executeActionJson<ModelCompareDto>("model", "model_compare", {
     leftModelRef: "id:" + req.leftModelId,
     leftModelVersion: req.leftModelVersion,
     rightModelRef: "id:" + req.rightModelId,
     rightModelVersion: req.rightModelVersion,
     scope: req.scope,
   });
-  if (result.contentType === "json") {
-    return result.json as ModelCompareDto;
-  }
-  throw toProblem("Invalid response content type");
 }
 
 export const useModelCompare = () => {
@@ -114,17 +106,13 @@ export const useModelCompare = () => {
 export async function modelHistoryVersions(
   modelId: string,
 ): Promise<ModelChangeEventListWithVersionDto> {
-  const response = await executeAction<ModelChangeEventListWithVersionDto>(
+  return executeActionJson<ModelChangeEventListWithVersionDto>(
     "model",
     "history_versions",
     {
       modelRef: "id:" + modelId,
     },
   );
-  if (response.contentType !== "json") {
-    throw Error("Expected JSON response for model/history_versions");
-  }
-  return response.json;
 }
 
 export async function modelHistoryVersionChanges(
@@ -137,15 +125,11 @@ export async function modelHistoryVersionChanges(
   if (version !== null) {
     payload.version = version;
   }
-  const response = await executeAction<ModelChangeEventListDto>(
+  return executeActionJson<ModelChangeEventListDto>(
     "model",
     "history_version_changes",
     payload,
   );
-  if (response.contentType !== "json") {
-    throw Error("Expected JSON response for model/history_version_changes");
-  }
-  return response.json;
 }
 
 export function useModelHistoryVersions(modelId: string) {
@@ -170,7 +154,7 @@ export const useModelUpdateName = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_update_name", {
+      executeActionJson("model", "model_update_name", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
@@ -181,7 +165,7 @@ export const useModelUpdateDescription = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_update_description", {
+      executeActionJson("model", "model_update_description", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
@@ -192,7 +176,7 @@ export const useModelUpdateDocumentationHome = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_update_documentation_link", {
+      executeActionJson("model", "model_update_documentation_link", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
@@ -203,18 +187,7 @@ export const useModelUpdateKey = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_update_key", {
-        modelRef: "id:" + props.modelId,
-        value: props.value,
-      }),
-    onSuccess: () => queryClient.invalidateQueries(),
-  });
-};
-export const useModelRelease = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (props: { modelId: string; value: string }) =>
-      executeAction("model", "model_release", {
+      executeActionJson("model", "model_update_key", {
         modelRef: "id:" + props.modelId,
         value: props.value,
       }),
@@ -225,7 +198,7 @@ export const useModelAddTag = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; tag: string }) =>
-      executeAction("model", "model_add_tag", {
+      executeActionJson("model", "model_add_tag", {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
@@ -236,7 +209,7 @@ export const useModelDeleteTag = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { modelId: string; tag: string }) =>
-      executeAction("model", "model_delete_tag", {
+      executeActionJson("model", "model_delete_tag", {
         modelRef: "id:" + props.modelId,
         tag: props.tag,
       }),
@@ -252,7 +225,7 @@ function useTypeMutation<P extends ActionPayload>(
   return useMutation({
     mutationFn: (props: { modelId: string; typeId: string } & P) => {
       const { modelId, typeId, ...otherProps } = props;
-      return executeAction(actionGroupKey, actionKey, {
+      return executeActionJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         typeRef: "id:" + typeId,
         ...otherProps,
@@ -280,7 +253,7 @@ function useEntityMutation<P extends ActionPayload>(
   return useMutation({
     mutationFn: (props: { modelId: string; entityId: string } & P) => {
       const { modelId, entityId, ...otherProps } = props;
-      return executeAction(actionGroupKey, actionKey, {
+      return executeActionJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         entityRef: "id:" + entityId,
         ...otherProps,
@@ -325,7 +298,7 @@ function useEntityAttributeMutation<P extends ActionPayload>(
       props: { modelId: string; entityId: string; attributeId: string } & P,
     ) => {
       const { modelId, entityId, attributeId, ...otherProps } = props;
-      return executeAction(actionGroupKey, actionKey, {
+      return executeActionJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         entityRef: "id:" + entityId,
         attributeRef: "id:" + attributeId,
@@ -387,7 +360,7 @@ function useRelationshipMutation<P extends ActionPayload>(
   return useMutation({
     mutationFn: (props: { modelId: string; relationshipId: string } & P) => {
       const { modelId, relationshipId, ...otherProps } = props;
-      return executeAction(actionGroupKey, actionKey, {
+      return executeActionJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         relationshipRef: "id:" + relationshipId,
         ...otherProps,
@@ -442,7 +415,7 @@ function useRelationshipAttributeMutation<P extends ActionPayload>(
       } & P,
     ) => {
       const { modelId, relationshipId, attributeId, ...otherProps } = props;
-      return executeAction(actionGroupKey, actionKey, {
+      return executeActionJson(actionGroupKey, actionKey, {
         modelRef: "id:" + modelId,
         relationshipRef: "id:" + relationshipId,
         attributeRef: "id:" + attributeId,

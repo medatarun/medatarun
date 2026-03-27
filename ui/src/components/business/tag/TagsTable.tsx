@@ -19,10 +19,7 @@ import {
   detailActionLocation,
 } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import {
-  type ActionDisplayedSubject,
-  displaySubjectNone,
-} from "@/components/business/actions/ActionPerformer.tsx";
+import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
 
 const useStyles = makeStyles({
   titleCell: {

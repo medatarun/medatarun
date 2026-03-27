@@ -4,10 +4,10 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import {
-  useTags,
   useTagGroupUpdateDescription,
   useTagGroupUpdateKey,
   useTagGroupUpdateName,
+  useTags,
 } from "@/business/tag";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
@@ -36,8 +36,8 @@ import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
-  createActionTemplateTagGroup,
   createActionTemplateTagGlobalList,
+  createActionTemplateTagGroup,
   createDisplayedSubjectTagGroup,
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";

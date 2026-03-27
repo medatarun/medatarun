@@ -1,9 +1,9 @@
 import {
   type ModelChangeEventWithVersionDto,
+  type ModelSummaryDto,
   useModelCompare,
   useModelHistoryVersions,
   useModelSummaries,
-  type ModelSummaryDto,
 } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
@@ -12,8 +12,8 @@ import { Text, tokens } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import {
-  ComparisonModeInput,
   type ComparisonMode,
+  ComparisonModeInput,
 } from "@/views/model-compare/ComparisonModeInput.tsx";
 import { ModelCompareDiffView } from "@/views/model-compare/ModelCompareDiffView.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";

@@ -1,4 +1,4 @@
-import { executeAction } from "@/business/action_runner";
+import { executeActionJson } from "@/business/action_runner";
 import type {
   SecurityRuleDescriptionDto,
   SecurityRulesDescriptionsResp,
@@ -8,15 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 export async function fetchSecurityRuleDescriptions(): Promise<
   SecurityRuleDescriptionDto[]
 > {
-  const response = await executeAction<SecurityRulesDescriptionsResp>(
+  const response = await executeActionJson<SecurityRulesDescriptionsResp>(
     "config",
     "inspect_security_rules",
     {},
   );
-  if (response.contentType !== "json") {
-    return [];
-  }
-  return response.json.items;
+  return response.items;
 }
 
 export const useSecurityRuleDescriptions = () => {

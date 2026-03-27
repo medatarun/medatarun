@@ -29,7 +29,7 @@ import {
 } from "@/components/business/model/model.icons.tsx";
 import { Text, tokens } from "@fluentui/react-components";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 
 export function ModelCompareDiffView({ diff }: { diff: ModelCompareDto }) {
   const { t } = useAppI18n();

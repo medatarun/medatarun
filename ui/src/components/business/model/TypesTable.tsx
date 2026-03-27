@@ -28,7 +28,6 @@ import { Markdown } from "@/components/core/Markdown.tsx";
 import {
   createActionTemplateType,
   createDisplayedSubjectModel,
-  createDisplayedSubjectType,
 } from "./model.actions.ts";
 import type {
   ActionDisplayedSubject,
