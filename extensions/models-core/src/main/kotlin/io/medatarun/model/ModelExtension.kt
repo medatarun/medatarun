@@ -28,6 +28,7 @@ import io.medatarun.security.AppActorResolver
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagCmds
 import io.medatarun.tags.core.domain.TagQueries
+import io.medatarun.tags.core.domain.TagScopeBeforeDeleteEvent
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
 import io.medatarun.tags.core.ports.needs.TagScopeManager
@@ -46,6 +47,7 @@ open class ModelExtension(
         val tagQueries = ctx.getService(TagQueries::class)
         val tagCmds = ctx.getService(TagCmds::class)
         val eventSystem = ctx.getService<EventSystem>()
+        val tagScopeBeforeDeleteNotifier = eventSystem.createNotifier(TagScopeBeforeDeleteEvent::class)
         val dbConnectionFactory = ctx.getService(DbConnectionFactory::class)
         val dbTransactionManager = ctx.getService(DbTransactionManager::class)
         val actorResolver = ctx.getService<AppActorResolver>()
@@ -62,7 +64,7 @@ open class ModelExtension(
         }
 
         val validation = ModelValidationImpl()
-        val tagResolver = ModelTagResolverWithQueries(tagQueries, tagCmds)
+        val tagResolver = ModelTagResolverWithQueries(tagQueries, tagCmds, tagScopeBeforeDeleteNotifier)
         val storage: ModelStorage = ModelStorageDb(dbConnectionFactory, config.modelClock)
         val modelQueriesImpl = ModelQueriesImpl(storage, tagResolver)
         val modelCmdsImpl = ModelCmdsImpl(storage, validation, auditor, tagResolver, dbTransactionManager)

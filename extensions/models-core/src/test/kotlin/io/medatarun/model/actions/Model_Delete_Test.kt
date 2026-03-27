@@ -15,22 +15,22 @@ class Model_Delete_Test {
         val env = createEnv()
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-delete-1"),
-                LocalizedTextNotLocalized("Model to delete"),
+                ModelKey("recipe"),
+                LocalizedTextNotLocalized("Recipe"),
                 null,
                 ModelVersion("0.0.1")
             )
         )
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-delete-2"),
-                LocalizedTextNotLocalized("Model to delete 2"),
+                ModelKey("movie"),
+                LocalizedTextNotLocalized("Movie"),
                 null,
                 ModelVersion("0.0.1")
             )
         )
         assertThrows<ModelNotFoundException> {
-            env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-delete-3")))
+            env.dispatch(ModelAction.Model_Delete(modelRefKey("vehicle")))
         }
     }
 
@@ -41,55 +41,81 @@ class Model_Delete_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-delete-1"),
-                LocalizedTextNotLocalized("Model to delete"),
+                ModelKey("recipe"),
+                LocalizedTextNotLocalized("Recipe"),
                 null,
                 ModelVersion("0.0.1")
             )
         )
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-keep-1"),
-                LocalizedTextNotLocalized("Model to preserve"),
+                ModelKey("movie"),
+                LocalizedTextNotLocalized("Movie"),
                 null,
                 ModelVersion("0.1.0")
             )
         )
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-delete-2"),
-                LocalizedTextNotLocalized("Model to delete 2"),
+                ModelKey("vehicle"),
+                LocalizedTextNotLocalized("Vehicle"),
                 null,
                 ModelVersion("0.0.1")
             )
         )
         env.dispatch(
             ModelAction.Model_Create(
-                ModelKey("m-to-keep-2"),
-                LocalizedTextNotLocalized("Model to preserve 2"),
+                ModelKey("videogame"),
+                LocalizedTextNotLocalized("Videogame"),
                 null,
                 ModelVersion("0.1.0")
             )
         )
 
-        env.dispatch(ModelAction.Model_Delete(modelRef("m-to-delete-1")))
-        assertNull(query.findModelOptional(modelRef("m-to-delete-1")))
+        val recipeUiSearchTag = env.createLocalTagInModelScope(modelRef("recipe"), "ui-search")
+        val vehicleImportedTag = env.createLocalTagInModelScope(modelRef("vehicle"), "imported")
+        val movieUiResultTag = env.createLocalTagInModelScope(modelRef("movie"), "ui-result")
+        val videogameImportedTag = env.createLocalTagInModelScope(modelRef("videogame"), "imported")
+        val globalSecurityInternalTag = env.createGlobalTag("security", "internal")
 
-        assertNotNull(query.findModelOptional(modelRef("m-to-keep-1")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-delete-2")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRef("recipe")))
+        assertNull(query.findModelOptional(modelRef("recipe")))
+        assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
 
-        env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-delete-2")))
-        assertNull(query.findModelOptional(modelRef("m-to-delete-2")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-keep-1")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
+        assertNotNull(query.findModelOptional(modelRef("movie")))
+        assertNotNull(query.findModelOptional(modelRef("vehicle")))
+        assertNotNull(query.findModelOptional(modelRef("videogame")))
 
-        env.dispatch(ModelAction.Model_Delete(modelRef("m-to-keep-1")))
-        assertNull(query.findModelOptional(modelRef("m-to-keep-1")))
-        assertNotNull(query.findModelOptional(modelRef("m-to-keep-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("vehicle")))
+        assertNull(query.findModelOptional(modelRef("vehicle")))
+        assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
+        assertNotNull(query.findModelOptional(modelRef("movie")))
+        assertNotNull(query.findModelOptional(modelRef("videogame")))
 
-        env.dispatch(ModelAction.Model_Delete(modelRefKey("m-to-keep-2")))
-        assertNull(query.findModelOptional(modelRef("m-to-keep-2")))
+        env.dispatch(ModelAction.Model_Delete(modelRef("movie")))
+        assertNull(query.findModelOptional(modelRef("movie")))
+        assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
+        assertNotNull(query.findModelOptional(modelRef("videogame")))
+
+        env.dispatch(ModelAction.Model_Delete(modelRefKey("videogame")))
+        assertNull(query.findModelOptional(modelRef("videogame")))
+        assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
+        assertNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
+        assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
 
     }
 }

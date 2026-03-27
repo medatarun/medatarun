@@ -56,6 +56,14 @@ interface ModelTagResolver {
      */
     fun create(traceabilityRecord: AppTraceabilityRecord, modelId: ModelId, key: TagKey, name: String?, description: String?)
 
+    /**
+     * Signals that the model local tag scope is about to be deleted.
+     *
+     * This allows `tags-core` to remove local tag definitions for this model scope
+     * before model storage deletes the model itself.
+     */
+    fun onModelDelete(traceabilityRecord: AppTraceabilityRecord, modelId: ModelId)
+
     companion object {
         val modelTagScopeType = TagScopeType("model")
         fun modelTagScopeRef(modelId: ModelId) = TagScopeRef.Local(
