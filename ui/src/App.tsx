@@ -11,7 +11,7 @@ import { ActionsPage } from "@/views/actions/ActionsPage.tsx";
 import { ModelsPage } from "@/views/ModelsPage.tsx";
 import { ModelPage } from "@/views/ModelPage.tsx";
 import { EntityPage } from "@/views/entity/EntityPage.tsx";
-import { Layout2 } from "@/components/layout/layout.tsx";
+import { Layout } from "@/components/layout/layout.tsx";
 import { DashboardPage } from "@/views/DashboardPage.tsx";
 import {
   type ConnectionConfig,
@@ -162,7 +162,7 @@ function TypeRouteComponent() {
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
-  component: Layout2,
+  component: Layout,
 });
 
 const dashboardRoute = createRoute({

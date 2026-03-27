@@ -167,6 +167,13 @@ export class ActionRegistry {
   public findActions(location: ActionUILocation): ActionDescriptor[] {
     return this.actionDescriptors.filter((it) => it.matchesLocation(location));
   }
+
+  public isEmpty(): boolean {
+    return this.actionDescriptors.length === 0
+  }
+  public isNotEmpty(): boolean {
+    return this.actionDescriptors.length > 0
+  }
 }
 
 function buildPayloadTemplate(action: ActionDescriptor): string {
