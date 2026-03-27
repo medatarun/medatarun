@@ -40,11 +40,15 @@ class Model_Create_Test {
 
         env.dispatch(ModelAction.Model_Create(modelKey, name, null, version))
 
-        val reloaded = query.findModelByKey(modelKey)
-        assertEquals(name, reloaded.name)
-        assertNull(reloaded.description)
-        assertEquals(version, reloaded.version)
-        assertEquals(ModelOrigin.Manual, reloaded.origin)
-        assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
+        val found = query.findModelByKey(modelKey)
+        assertEquals(name, found.name)
+        assertNull(found.description)
+        assertEquals(version, found.version)
+        assertEquals(ModelOrigin.Manual, found.origin)
+        assertEquals(ModelAuthority.SYSTEM, found.authority)
+
+        // Creating a model immediately creates a first version
+        env.assertUniqueVersion(version, found.id)
+
     }
 }

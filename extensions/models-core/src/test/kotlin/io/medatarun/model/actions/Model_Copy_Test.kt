@@ -24,12 +24,13 @@ class Model_Copy_Test {
         val copiedKey = ModelKey("copy-target-core")
         val sourceName = LocalizedTextNotLocalized("Source model")
 
+        val version = ModelVersion("1.2.3")
         env.dispatch(
             ModelAction.Model_Create(
                 key = sourceKey,
                 name = sourceName,
                 description = LocalizedMarkdownNotLocalized("Source description"),
-                version = ModelVersion("1.2.3")
+                version = version
             )
         )
 
@@ -45,6 +46,9 @@ class Model_Copy_Test {
         assertEquals(copiedKey, copied.key)
         assertEquals(sourceName, copied.name)
         assertNotEquals(source.id, copied.id)
+
+        // Creating a model immediately creates a first version
+        env.assertUniqueVersion(version, copied.id)
     }
 
     @Test

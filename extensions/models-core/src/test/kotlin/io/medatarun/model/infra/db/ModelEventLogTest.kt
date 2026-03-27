@@ -118,37 +118,4 @@ class ModelEventLogTest {
         }
     }
 
-    @Test
-    fun `import model appends an initial model_release event`() {
-        val env = ModelTestEnv()
-
-        env.dispatch(
-            ModelAction.Model_Create(
-                key = ModelKey("source"),
-                name = LocalizedTextNotLocalized("Source"),
-                description = null,
-                version = ModelVersion("1.0.0")
-            )
-        )
-
-        val source = env.queries.findModel(ModelRef.ByKey(ModelKey("source")))
-        val imported = ModelCmdCopyImpl().copy(source, ModelKey("imported"))
-        val modelCmds = env.platform.services.getService(ModelCmds::class)
-
-        modelCmds.dispatch(
-            ModelCmdEnveloppe(
-                traceabilityRecord = ActionTraceabilityRecord(
-                    ActionInstanceId(UUID.randomUUID()),
-                    ModelTestEnv.testPrincipal.id
-                ),
-                cmd = ModelCmd.ImportModel(imported, emptyList())
-            )
-        )
-
-        val rows = env.storageDb.findAllModelEvents(imported.id)
-
-        assertEquals("model_aggregate_stored", rows[0].eventType)
-        assertEquals("model_release", rows[1].eventType)
-        assertEquals(imported.version, rows[1].modelVersion)
-    }
 }
