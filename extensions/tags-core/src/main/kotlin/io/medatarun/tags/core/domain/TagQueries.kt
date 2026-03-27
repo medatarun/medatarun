@@ -3,6 +3,7 @@ package io.medatarun.tags.core.domain
 interface TagQueries {
     fun findAllTags(): List<Tag>
 
+
     /**
      * Searches known tags using the provided filters.
      *
@@ -23,6 +24,12 @@ interface TagQueries {
      * across action providers.
      */
     fun search(query: TagSearchFilters): List<Tag>
+
+    /**
+     * Returns all tags from this scope. Returns an empty list if scope doesn't exist
+     */
+    fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag>
+
     fun findAllTagGroup(): List<TagGroup>
 
     fun findTagByRefOptional(tagRef: TagRef): Tag?

@@ -905,7 +905,7 @@ class Model_Copy_Test {
 
         // Assert: the copied model local scope contains an equivalent recreated tag.
         val copiedScope = ModelTagResolver.modelTagScopeRef(copiedAggregate.id)
-        val copiedLocalTags = env.tagQueries.findAllTags().filter { tag -> tag.scope == copiedScope }
+        val copiedLocalTags = env.tagQueries.findAllTagByScopeRef(copiedScope)
         val copiedLocalTag = copiedLocalTags.firstOrNull { tag -> tag.key == localTagKey }
         assertNotNull(copiedLocalTag)
         assertNotEquals(sourceLocalTag.id, copiedLocalTag.id)

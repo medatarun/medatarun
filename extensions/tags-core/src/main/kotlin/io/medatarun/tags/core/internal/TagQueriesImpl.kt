@@ -13,29 +13,16 @@ class TagQueriesImpl(
         return storage.findAllTag()
     }
 
+    override fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag> {
+        return storage.findAllTagByScopeRef(scopeRef)
+    }
+
     override fun search(query: TagSearchFilters): List<Tag> {
         if (query.items.isEmpty()) {
             return findAllTags()
         }
-
         validateSearchFilters(query)
-
-        val predicates = query.items.map { filter ->
-            when (filter) {
-                is TagSearchFilterScopeRef.Is -> {
-                    { tag: Tag -> tag.scope == filter.value }
-                }
-            }
-        }
-        val items = findAllTags()
-        return when (query.operator) {
-            TagSearchFiltersLogicalOperator.AND -> items.filter { item ->
-                predicates.all { predicate -> predicate(item) }
-            }
-            TagSearchFiltersLogicalOperator.OR -> items.filter { item ->
-                predicates.any { predicate -> predicate(item) }
-            }
-        }
+        return storage.search(query)
     }
 
     /**

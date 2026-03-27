@@ -7,6 +7,9 @@ import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagGroupKey
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagKey
+import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
+import io.medatarun.tags.core.domain.TagSearchFilters
+import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagScopeType
@@ -24,6 +27,68 @@ internal class TagStorageDbRead {
 
     fun findAllTag(): List<Tag> {
         return TagProjectionTable.selectAll().map { row -> tagFromRow(row) }
+    }
+
+    fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag> {
+        return when (scopeRef) {
+            is TagScopeRef.Global -> {
+                TagProjectionTable.selectAll().where {
+                    (TagProjectionTable.scopeType eq TagScopeRef.Global.type.value) and TagProjectionTable.scopeId.isNull()
+                }.map { row -> tagFromRow(row) }
+            }
+            is TagScopeRef.Local -> {
+                TagProjectionTable.selectAll().where {
+                    (TagProjectionTable.scopeType eq scopeRef.type.value) and
+                        (TagProjectionTable.scopeId eq scopeRef.localScopeId.asString())
+                }.map { row -> tagFromRow(row) }
+            }
+        }
+    }
+
+    fun search(query: TagSearchFilters): List<Tag> {
+
+        // Transforms the search filters to Exposed criterion list
+        val criterionList = query.items.map { item ->
+            when (item) {
+                is TagSearchFilterScopeRef.Is -> createCriterionScope(item.value)
+            }
+        }
+
+        // Join the individual criteria with "AND" or "OR" depending on
+        // the search query
+        var predicateChain: Op<Boolean>? = null
+        for (currentCriterion in criterionList) {
+            predicateChain = if (predicateChain == null) {
+                currentCriterion
+            } else {
+                when (query.operator) {
+                    TagSearchFiltersLogicalOperator.AND -> predicateChain and currentCriterion
+                    TagSearchFiltersLogicalOperator.OR -> predicateChain or currentCriterion
+                }
+            }
+        }
+
+        // If we don't have any criterion, then return empty list
+        // because we don't know what the caller wants
+        val predicate = predicateChain ?: return emptyList()
+
+        // Build the query, get results and map them to tags
+        return TagProjectionTable
+            .selectAll().where { predicate }
+            .map { row -> tagFromRow(row) }
+    }
+
+    private fun createCriterionScope(scopeRef: TagScopeRef): Op<Boolean> {
+        return when (scopeRef) {
+            is TagScopeRef.Global -> {
+                (TagProjectionTable.scopeType eq TagScopeRef.Global.type.value) and TagProjectionTable.scopeId.isNull()
+            }
+
+            is TagScopeRef.Local -> {
+                (TagProjectionTable.scopeType eq scopeRef.type.value) and
+                    (TagProjectionTable.scopeId eq scopeRef.localScopeId.asString())
+            }
+        }
     }
 
     fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
