@@ -1,18 +1,30 @@
-import { Outlet, useLocation, useMatchRoute, useNavigate } from "@tanstack/react-router";
+import {
+  Outlet,
+  useLocation,
+  useMatchRoute,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useMemo } from "react";
-import { ActionRegistry, ActionsContext, useActionRegistryQuery } from "@/business/action_registry";
-import {ActionPerformerView} from "@/components/business/actions/ActionPerformerView.tsx";
-import {ActionProvider} from "@/components/business/actions/ActionPerformerProvider.tsx";
+import {
+  ActionRegistry,
+  ActionsContext,
+  useActionRegistryQuery,
+} from "@/business/action_registry";
+import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
+import { ActionProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg";
-import {ErrorBoundary} from "./ErrorBoundary.tsx";
-import {ErrorBox, Loader, type NavigationTreeItem} from "@seij/common-ui";
-import {ApplicationShellSecured, useAuthentication} from "@seij/common-ui-auth";
-import {useDetailLevelContext} from "@/components/business/DetailLevelContext.tsx";
-import {UnauthorizedHandler} from "@/components/auth/UnauthorizedHandler.tsx";
-import {useAppI18n} from "@/services/appI18n.tsx";
-import {modelActionPostHook} from "@/business/model";
-import {tagActionPostHook} from "@/business/tag";
-import {ActionPostHooks} from "@/components/business/actions/ActionPostHook.ts";
+import { ErrorBoundary } from "./ErrorBoundary.tsx";
+import { ErrorBox, Loader, type NavigationTreeItem } from "@seij/common-ui";
+import {
+  ApplicationShellSecured,
+  useAuthentication,
+} from "@seij/common-ui-auth";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { modelActionPostHook } from "@/business/model";
+import { tagActionPostHook } from "@/business/tag";
+import { ActionPostHooks } from "@/components/business/actions/ActionPostHook.ts";
 import { toProblem } from "@seij/common-types";
 
 const EMPTY_ACTION_REGISTRY = new ActionRegistry({ items: [] });

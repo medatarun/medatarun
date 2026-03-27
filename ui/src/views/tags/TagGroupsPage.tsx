@@ -29,9 +29,7 @@ export function TagGroupsPage() {
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
-  const actions = actionRegistry.findActions(
-    ActionUILocations.tag_group_list,
-  );
+  const actions = actionRegistry.findActions(ActionUILocations.tag_group_list);
 
   const handleClickTagGroup = (tagGroupId: string) => {
     navigate({

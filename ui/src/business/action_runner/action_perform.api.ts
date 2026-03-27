@@ -1,5 +1,4 @@
 import { api } from "@/services/api.ts";
-import { queryClient } from "@/services/queryClient.ts";
 import { Problem } from "@seij/common-types";
 import { notifyUnauthorized } from "@/services/unauthorized.ts";
 
@@ -49,17 +48,18 @@ export async function executeAction<T = unknown>(
     });
 }
 
-export function useExecuteAction() {
-  const s = executeAction;
-  return {
-    executeAction: async (
-      actionGroupKey: string,
-      actionKey: string,
-      payload: ActionPayload,
-    ) => {
-      const resp = await s(actionGroupKey, actionKey, payload);
-      await queryClient.invalidateQueries();
-      return resp;
-    },
-  };
+/**
+ * Executes an action and enforces a JSON response contract.
+ * Throws when the endpoint responds with a non-JSON content type.
+ */
+export async function executeActionJson<T = unknown>(
+  actionGroup: string,
+  actionName: string,
+  payload: ActionPayload,
+): Promise<T> {
+  const response = await executeAction<T>(actionGroup, actionName, payload);
+  if (response.contentType !== "json") {
+    throw Error("Expected JSON response for " + actionGroup + "/" + actionName);
+  }
+  return response.json;
 }

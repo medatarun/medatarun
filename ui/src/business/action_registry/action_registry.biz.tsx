@@ -1,9 +1,9 @@
 import type {
   ActionDescriptorDto,
-  ActionParamDescriptorDto,
   ActionDescriptorSemanticsDto,
   ActionDescriptorSemanticsSubjectDto,
   ActionDescriptorSemanticsSubjectReferencingParamDto,
+  ActionParamDescriptorDto,
   ActionRegistryDto,
 } from "./action_registry.dto.ts";
 import type { ActionUILocation } from "./action_registry.uilocations.ts";
@@ -168,11 +168,8 @@ export class ActionRegistry {
     return this.actionDescriptors.filter((it) => it.matchesLocation(location));
   }
 
-  public isEmpty(): boolean {
-    return this.actionDescriptors.length === 0
-  }
   public isNotEmpty(): boolean {
-    return this.actionDescriptors.length > 0
+    return this.actionDescriptors.length > 0;
   }
 }
 

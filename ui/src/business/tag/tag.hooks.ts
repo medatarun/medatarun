@@ -1,9 +1,13 @@
-import {useMemo} from "react";
-import type {TagScopeRef} from "./tag.dto.ts";
-import {Tags} from "./tag.domain.ts";
-import {type TagSearchReq, useTagGroupList, useTagSearch,} from "./tag.storage.ts";
+import { useMemo } from "react";
+import type { TagScopeRef } from "./tag.dto.ts";
+import { Tags } from "./tag.domain.ts";
+import {
+  type TagSearchReq,
+  useTagGroupList,
+  useTagSearch,
+} from "./tag.storage.ts";
 
-const globalTagScope: TagScopeRef = {type: "global", id: null};
+const globalTagScope: TagScopeRef = { type: "global", id: null };
 const EMPTY_TABLE: never[] = [];
 
 function buildTagSearchReq(scope?: TagScopeRef): TagSearchReq {
@@ -21,8 +25,8 @@ function buildTagSearchReq(scope?: TagScopeRef): TagSearchReq {
             value: scope,
           },
         ],
-      }
-    }
+      },
+    };
   }
 
   return {

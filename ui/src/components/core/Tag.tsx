@@ -6,6 +6,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { type TagScopeRef, useTags } from "@/business/tag";
+
 const useStyles = makeStyles({
   wrappingTagGroup: {
     flexWrap: "wrap",

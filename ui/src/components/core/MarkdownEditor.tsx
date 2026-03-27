@@ -1,9 +1,9 @@
 import {
+  type ForwardedRef,
   forwardRef,
   useEffect,
   useImperativeHandle,
   useRef,
-  type ForwardedRef,
 } from "react";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";

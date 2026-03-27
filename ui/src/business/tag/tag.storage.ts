@@ -1,6 +1,6 @@
 import type { TagDto, TagGroupDto, TagScopeRef } from "./tag.dto.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ActionPayload, executeAction } from "../action_runner";
+import { type ActionPayload, executeActionJson } from "../action_runner";
 
 export type TagSearchReq = {
   filters?: TagSearchFilters | null;
@@ -34,15 +34,7 @@ export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
       if (req.filters !== undefined) {
         payload.filters = req.filters;
       }
-      const response = await executeAction<TagSearchResp>(
-        "tag",
-        "tag_search",
-        payload,
-      );
-      if (response.contentType !== "json") {
-        throw Error("Expected JSON response for tag/tag_search");
-      }
-      return response.json;
+      return executeActionJson<TagSearchResp>("tag", "tag_search", payload);
     },
   });
 };
@@ -50,17 +42,8 @@ export const useTagSearch = (req: TagSearchReq, enabled: boolean = true) => {
 export const useTagGroupList = () => {
   return useQuery({
     queryKey: ["action", "tag", "tag_group_list"],
-    queryFn: async () => {
-      const response = await executeAction<TagGroupListResp>(
-        "tag",
-        "tag_group_list",
-        {},
-      );
-      if (response.contentType !== "json") {
-        throw Error("Expected JSON response for tag/tag_group_list");
-      }
-      return response.json;
-    },
+    queryFn: () =>
+      executeActionJson<TagGroupListResp>("tag", "tag_group_list", {}),
   });
 };
 
@@ -68,7 +51,7 @@ function useTagGroupMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagGroupId: string; value: string }) =>
-      executeAction("tag", actionKey, {
+      executeActionJson("tag", actionKey, {
         tagGroupRef: "id:" + props.tagGroupId,
         value: props.value,
       }),
@@ -80,7 +63,7 @@ function useTagGlobalMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      executeAction("tag", actionKey, {
+      executeActionJson("tag", actionKey, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),
@@ -92,7 +75,7 @@ function useTagLocalMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (props: { tagId: string; value: string }) =>
-      executeAction("tag", actionKey, {
+      executeActionJson("tag", actionKey, {
         tagRef: "id:" + props.tagId,
         value: props.value,
       }),

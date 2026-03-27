@@ -1,5 +1,5 @@
 import { invalid, valid, type ValidationResult } from "@seij/common-validation";
-import { appT, type AppMessageKey } from "@/services/appI18n.tsx";
+import { type AppMessageKey, appT } from "@/services/appI18n.tsx";
 import type { FormDataType, FormFieldType } from "./action_form.types.ts";
 
 const t = (key: AppMessageKey, values?: Record<string, unknown>) =>
