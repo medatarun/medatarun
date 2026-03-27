@@ -42,6 +42,12 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
         }
     }
 
+    override fun search(query: TagSearchFilters): List<Tag> {
+        return dbConnectionFactory.withExposed {
+            read.search(query)
+        }
+    }
+
     override fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
         return dbConnectionFactory.withExposed {
             read.findTagByKeyOptional(scope, groupId, key)
