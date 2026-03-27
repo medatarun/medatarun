@@ -4,7 +4,8 @@
 
 ### Added
 
-- Changelog file
+- Tags and tag groups event history
+- Changelog file (this file)
 
 ### Breaking changes
 
@@ -15,40 +16,37 @@
 
 ### Changes
 
+**Features**
+
 - The `free tag` and `managed tag` wording had been replaced by `local tag` and
   `global tag` everywhere. UI, API, CLI, MCP reflect changes in tag vocabulary.
   The idea is that the fact that a tag is free to create or managed are linked
   permissions, and it is not intrinsic of where the tag belongs. So the feature
-  is the same, with the same organization possibilities, but the wording changes to
+  is the same, with the same organization possibilities, but the wording changes
+  to
   reflect the reality.
+- Tags history implemented with event sourcing
 
-### Changed - architecture
+**Architecture**
 
 - Improved traceability by grouping together `actorId` + `actionInstanceId` into
   `traceabilityRecord`. `traceabilityRecord` keeps `actorId` and extends the
   concept of `actionInstanceId` to a more flexible `origin`.
   `origin=action:<actionInstanceId>`
+- New feature in security roles declaration to rename roles
 
-### Changed - database
-
-Database migration scripts from 0.8.0 (migrations will be manual until 1.0.0 is
-released.)
+**Database**
 
 - Column `model_events.action_id` renamed to `model_event.traceability_origin`
   with new storage format.
+- Added `tag_event` table for tag event sourcing
+- Renamed table `tag` to `tag_projection` and `tag_group` to
+  `tag_group_projection` and their index
 
-```
-alter table model_event rename column traceability_origin2 to traceability_origin;
-update model_event set traceability_origin = concat('action:', traceability_origin) where substring(traceability_origin, 0, 8) <> 'action:';
-```
+**Permissions**
 
-- Role name changes
-
-```sqlite
-update actors set roles_json = replace(roles_json, '"tag_free_manage"', '"tag_local_manage"') where true;
-update actors set roles_json = replace(roles_json, '"tag_managed_manage"', '"tag_global_manage"') where true;
-```
-
+- `tag_free_manage` renamed to `tag_local_manage`
+- `tag_managed_manage` renamed to `tag_global_manage`
 
 ### Fixed
 

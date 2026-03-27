@@ -1,6 +1,8 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
+import io.medatarun.storage.eventsourcing.StorageCmd
+import io.medatarun.storage.eventsourcing.StorageEventContract
 import io.medatarun.tags.core.domain.TagId
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -13,7 +15,7 @@ sealed interface ModelStorageCmdOnModel : ModelStorageCmd {
 }
 
 @Serializable
-sealed interface ModelStorageCmd {
+sealed interface ModelStorageCmd: StorageCmd {
 
 
     // ------------------------------------------------------------------------
@@ -21,7 +23,7 @@ sealed interface ModelStorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @ModelEventContract(eventType = "model_aggregate_stored", eventVersion = 1)
+    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 1)
     data class StoreModelAggregate(
         @SerialName("model")
         val model: StoreModelAggregateModel,
@@ -38,7 +40,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmd
 
     @Serializable
-    @ModelEventContract(eventType = "model_created", eventVersion = 1)
+    @StorageEventContract(eventType = "model_created", eventVersion = 1)
     data class CreateModel(
         @Contextual
         @SerialName("id")
@@ -67,7 +69,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmd
 
     @Serializable
-    @ModelEventContract(eventType = "model_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "model_name_updated", eventVersion = 1)
     data class UpdateModelName(
         @Contextual
         @SerialName("modelId")
@@ -78,7 +80,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "model_key_updated", eventVersion = 1)
     data class UpdateModelKey(
         @Contextual
         @SerialName("modelId")
@@ -89,7 +91,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "model_description_updated", eventVersion = 1)
     data class UpdateModelDescription(
         @Contextual
         @SerialName("modelId")
@@ -100,7 +102,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_authority_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "model_authority_updated", eventVersion = 1)
     data class UpdateModelAuthority(
         @Contextual
         @SerialName("modelId")
@@ -111,7 +113,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_release", eventVersion = 1)
+    @StorageEventContract(eventType = "model_release", eventVersion = 1)
     data class ModelRelease(
         @Contextual
         @SerialName("modelId")
@@ -122,7 +124,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_documentation_home_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "model_documentation_home_updated", eventVersion = 1)
     data class UpdateModelDocumentationHome(
         @Contextual
         @SerialName("modelId")
@@ -133,7 +135,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_tag_added", eventVersion = 1)
+    @StorageEventContract(eventType = "model_tag_added", eventVersion = 1)
     data class UpdateModelTagAdd(
         @Contextual
         @SerialName("modelId")
@@ -144,7 +146,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_tag_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "model_tag_deleted", eventVersion = 1)
     data class UpdateModelTagDelete(
         @Contextual
         @SerialName("modelId")
@@ -155,7 +157,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "model_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "model_deleted", eventVersion = 1)
     data class DeleteModel(
         @Contextual
         @SerialName("modelId")
@@ -167,7 +169,7 @@ sealed interface ModelStorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @ModelEventContract(eventType = "type_created", eventVersion = 1)
+    @StorageEventContract(eventType = "type_created", eventVersion = 1)
     data class CreateType(
         @Contextual
         @SerialName("modelId")
@@ -184,7 +186,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "type_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "type_key_updated", eventVersion = 1)
     data class UpdateTypeKey(
         @Contextual
         @SerialName("modelId")
@@ -198,7 +200,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "type_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "type_name_updated", eventVersion = 1)
     data class UpdateTypeName(
         @Contextual
         @SerialName("modelId")
@@ -212,7 +214,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "type_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "type_description_updated", eventVersion = 1)
     data class UpdateTypeDescription(
         @Contextual
         @SerialName("modelId")
@@ -226,7 +228,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "type_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "type_deleted", eventVersion = 1)
     data class DeleteType(
         @Contextual
         @SerialName("modelId")
@@ -241,7 +243,7 @@ sealed interface ModelStorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @ModelEventContract(eventType = "entity_created", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_created", eventVersion = 1)
     data class CreateEntity(
         @Contextual
         @SerialName("modelId")
@@ -285,7 +287,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_key_updated", eventVersion = 1)
     data class UpdateEntityKey(
         @Contextual
         @SerialName("modelId")
@@ -299,7 +301,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_name_updated", eventVersion = 1)
     data class UpdateEntityName(
         @Contextual
         @SerialName("modelId")
@@ -313,7 +315,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_description_updated", eventVersion = 1)
     data class UpdateEntityDescription(
         @Contextual
         @SerialName("modelId")
@@ -327,7 +329,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
     data class UpdateEntityIdentifierAttribute(
         @Contextual
         @SerialName("modelId")
@@ -341,7 +343,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_documentation_home_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_documentation_home_updated", eventVersion = 1)
     data class UpdateEntityDocumentationHome(
         @Contextual
         @SerialName("modelId")
@@ -355,7 +357,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_tag_added", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_tag_added", eventVersion = 1)
     data class UpdateEntityTagAdd(
         @Contextual
         @SerialName("modelId")
@@ -369,7 +371,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_tag_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_tag_deleted", eventVersion = 1)
     data class UpdateEntityTagDelete(
         @Contextual
         @SerialName("modelId")
@@ -383,7 +385,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_deleted", eventVersion = 1)
     data class DeleteEntity(
         @Contextual
         @SerialName("modelId")
@@ -398,7 +400,7 @@ sealed interface ModelStorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_created", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_created", eventVersion = 1)
     data class CreateEntityAttribute(
         @Contextual
         @SerialName("modelId")
@@ -426,7 +428,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_deleted", eventVersion = 1)
     data class DeleteEntityAttribute(
         @Contextual
         @SerialName("modelId")
@@ -440,7 +442,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_key_updated", eventVersion = 1)
     data class UpdateEntityAttributeKey(
         @Contextual
         @SerialName("modelId")
@@ -457,7 +459,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_name_updated", eventVersion = 1)
     data class UpdateEntityAttributeName(
         @Contextual
         @SerialName("modelId")
@@ -474,7 +476,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_description_updated", eventVersion = 1)
     data class UpdateEntityAttributeDescription(
         @Contextual
         @SerialName("modelId")
@@ -491,7 +493,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_type_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_type_updated", eventVersion = 1)
     data class UpdateEntityAttributeType(
         @Contextual
         @SerialName("modelId")
@@ -508,7 +510,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_optional_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_optional_updated", eventVersion = 1)
     data class UpdateEntityAttributeOptional(
         @Contextual
         @SerialName("modelId")
@@ -524,7 +526,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_tag_added", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_tag_added", eventVersion = 1)
     data class UpdateEntityAttributeTagAdd(
         @Contextual
         @SerialName("modelId")
@@ -541,7 +543,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "entity_attribute_tag_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_attribute_tag_deleted", eventVersion = 1)
     data class UpdateEntityAttributeTagDelete(
         @Contextual
         @SerialName("modelId")
@@ -563,7 +565,7 @@ sealed interface ModelStorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_created", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_created", eventVersion = 1)
     data class CreateRelationship(
         @Contextual
         @SerialName("modelId")
@@ -604,7 +606,7 @@ sealed interface ModelStorageCmd {
     )
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_key_updated", eventVersion = 1)
     data class UpdateRelationshipKey(
         @Contextual
         @SerialName("modelId")
@@ -618,7 +620,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_name_updated", eventVersion = 1)
     data class UpdateRelationshipName(
         @Contextual
         @SerialName("modelId")
@@ -632,7 +634,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_description_updated", eventVersion = 1)
     data class UpdateRelationshipDescription(
         @Contextual
         @SerialName("modelId")
@@ -646,7 +648,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_created", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_created", eventVersion = 1)
     data class CreateRelationshipRole(
         @Contextual
         @SerialName("modelId")
@@ -672,7 +674,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_key_updated", eventVersion = 1)
     data class UpdateRelationshipRoleKey(
         @Contextual
         @SerialName("modelId")
@@ -689,7 +691,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_name_updated", eventVersion = 1)
     data class UpdateRelationshipRoleName(
         @Contextual
         @SerialName("modelId")
@@ -706,7 +708,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_entity_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_entity_updated", eventVersion = 1)
     data class UpdateRelationshipRoleEntity(
         @Contextual
         @SerialName("modelId")
@@ -723,7 +725,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_cardinality_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_cardinality_updated", eventVersion = 1)
     data class UpdateRelationshipRoleCardinality(
         @Contextual
         @SerialName("modelId")
@@ -740,7 +742,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_tag_added", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_tag_added", eventVersion = 1)
     data class UpdateRelationshipTagAdd(
         @Contextual
         @SerialName("modelId")
@@ -754,7 +756,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_tag_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipTagDelete(
         @Contextual
         @SerialName("modelId")
@@ -768,7 +770,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_deleted", eventVersion = 1)
     data class DeleteRelationship(
         @Contextual
         @SerialName("modelId")
@@ -779,7 +781,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_role_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_role_deleted", eventVersion = 1)
     data class DeleteRelationshipRole(
         @Contextual
         @SerialName("modelId")
@@ -793,7 +795,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_created", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_created", eventVersion = 1)
     data class CreateRelationshipAttribute(
         @Contextual
         @SerialName("modelId")
@@ -821,7 +823,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_name_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_name_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeName(
         @Contextual
         @SerialName("modelId")
@@ -838,7 +840,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_description_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_description_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeDescription(
         @Contextual
         @SerialName("modelId")
@@ -855,7 +857,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_key_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_key_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeKey(
         @Contextual
         @SerialName("modelId")
@@ -872,7 +874,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_type_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_type_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeType(
         @Contextual
         @SerialName("modelId")
@@ -889,7 +891,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_optional_updated", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_optional_updated", eventVersion = 1)
     data class UpdateRelationshipAttributeOptional(
         @Contextual
         @SerialName("modelId")
@@ -905,7 +907,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_tag_added", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_tag_added", eventVersion = 1)
     data class UpdateRelationshipAttributeTagAdd(
         @Contextual
         @SerialName("modelId")
@@ -922,7 +924,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_tag_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_tag_deleted", eventVersion = 1)
     data class UpdateRelationshipAttributeTagDelete(
         @Contextual
         @SerialName("modelId")
@@ -939,7 +941,7 @@ sealed interface ModelStorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
-    @ModelEventContract(eventType = "relationship_attribute_deleted", eventVersion = 1)
+    @StorageEventContract(eventType = "relationship_attribute_deleted", eventVersion = 1)
     data class DeleteRelationshipAttribute(
         @Contextual
         @SerialName("modelId")

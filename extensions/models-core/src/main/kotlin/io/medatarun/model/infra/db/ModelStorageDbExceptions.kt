@@ -51,36 +51,11 @@ class ModelStorageDbSearchUnknownItemTypeException(itemType: String) :
 class ModelStorageDbSearchMissingProjectionReferenceException(columnName: String) :
     MedatarunException("Search projection is missing required reference column [$columnName]")
 
-class ModelStorageDbSearchMissingSourceRowException(rowType: String, rowId: Id<*>) :
-    MedatarunException("Search projection update could not find source [$rowType] row [${rowId.asString()}]")
-
-class ModelStorageDbSearchMissingSnapshotSelectionException(selector: SnapshotSelector) :
-    MedatarunException("Search projection update could not find model snapshot for selector [$selector]")
-
 class ModelEventRecordFactoryUnsupportedCommandException(className: String) :
     MedatarunException("ModelEventRecordFactory cannot extract model id from command [$className].")
 
 
-class ModelRepoCmdEventMissingContractAnnotationException(className: String) :
-    MedatarunException("ModelRepoCmd class [$className] is missing @ModelEventContract.")
 
-class ModelRepoCmdEventContractOnNonDataClassException(className: String) :
-    MedatarunException("ModelRepoCmd class [$className] declares @ModelEventContract but is not a data class.")
-
-class ModelRepoCmdEventDuplicateContractException(eventType: String, eventVersion: Int) :
-    MedatarunException("Duplicate model event contract [$eventType@$eventVersion] in ModelRepoCmd event registry.")
-
-class ModelRepoCmdEventCommandNotRegisteredException(kClass: KClass<*>) :
-    MedatarunException("ModelRepoCmd class [$kClass] is not registered in the model event registry.")
-
-class ModelRepoCmdEventUnknownContractException(eventType: String, eventVersion: Int) :
-    MedatarunException("Unknown model event contract [$eventType@$eventVersion].")
-
-class ModelRepoCmdEventPayloadEncodeException(eventType: String, eventVersion: Int, cause: Throwable) :
-    MedatarunException("Could not encode model event payload for [$eventType@$eventVersion]. Cause: ${cause.message}")
-
-class ModelRepoCmdEventPayloadDecodeException(eventType: String, eventVersion: Int, cause: Throwable) :
-    MedatarunException("Could not decode model event payload for [$eventType@$eventVersion]. Cause: ${cause.message}")
 
 class ModelRepoCmdEventInvalidOriginJsonException(originScope: String, missingField: String) :
     MedatarunException("Invalid $originScope origin JSON. Missing field [$missingField].")

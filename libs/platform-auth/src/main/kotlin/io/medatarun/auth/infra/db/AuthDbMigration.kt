@@ -2,14 +2,18 @@ package io.medatarun.auth.infra.db
 
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
+import io.medatarun.security.SecurityRolesRegistry
 
-class AuthDbMigration : DbMigration {
+class AuthDbMigration(
+    private val securityRolesRegistry: SecurityRolesRegistry,
+    private val actorStorageSQLite: ActorStorageSQLite
+) : DbMigration {
     override val pluginId: String = "platform-auth"
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(v000__init_users_sqlite)
-        ctx.applySqlResource(v000__init_oidc_sqlite)
-        ctx.applySqlResource(v000__init_actors_sqlite)
+        ctx.applySqlResource(v001_users)
+        ctx.applySqlResource(v001_oidc)
+        ctx.applySqlResource(v001_actors)
     }
 
     override fun latestVersion(): Int {
@@ -18,14 +22,20 @@ class AuthDbMigration : DbMigration {
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
-            1 -> ctx.throwUnknownVersionException()
+            1 -> listOf(v001_users, v001_oidc, v001_actors).forEach { ctx.applySqlResource(it) }
             else -> ctx.throwUnknownVersionException()
         }
     }
 
+    override fun applyAlwaysAfterMigrations(ctx: DbMigrationContext) {
+        val renamed = securityRolesRegistry.findAllRenamedRoles()
+        if (renamed.isEmpty()) return
+        actorStorageSQLite.renameRoles(renamed)
+    }
+
     companion object {
-        const val v000__init_users_sqlite = "io/medatarun/auth/infra/db/v000__init_users_sqlite.sql"
-        const val v000__init_oidc_sqlite = "io/medatarun/auth/infra/db/v000__init_oidc_sqlite.sql"
-        const val v000__init_actors_sqlite = "io/medatarun/auth/infra/db/v000__init_actors_sqlite.sql"
+        const val v001_users = "io/medatarun/auth/infra/db/v001__auth_init_users_sqlite.sql"
+        const val v001_oidc = "io/medatarun/auth/infra/db/v001__auth_init_oidc_sqlite.sql"
+        const val v001_actors = "io/medatarun/auth/infra/db/v001__auth_init_actors_sqlite.sql"
     }
 }

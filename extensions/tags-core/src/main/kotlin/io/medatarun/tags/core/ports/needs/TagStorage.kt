@@ -16,7 +16,13 @@ interface TagStorage {
     fun findTagGroupByIdOptional(id: TagGroupId): TagGroup?
     fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup?
 
-    fun dispatch(cmd: TagRepoCmd)
+    /**
+     * Process one tag storage command.
+     *
+     * The storage layer uses the traceability record to keep write-side effects
+     * aligned with the originating action.
+     */
+    fun dispatch(cmdEnv: TagStorageCmdEnveloppe)
 
 
 }

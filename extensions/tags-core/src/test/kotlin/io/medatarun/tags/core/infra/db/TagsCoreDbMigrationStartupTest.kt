@@ -16,10 +16,11 @@ class TagsCoreDbMigrationStartupTest {
     fun `tags startup applies contributed db migrations`() {
         val env = TagTestEnv()
         val dbMigrationChecker = env.dbMigrationChecker
-        assertTrue(dbMigrationChecker.tableExists("tag_group"))
-        assertTrue(dbMigrationChecker.tableExists("tag"))
+        assertTrue(dbMigrationChecker.tableExists("tag_group_projection"))
+        assertTrue(dbMigrationChecker.tableExists("tag_projection"))
+        assertTrue(dbMigrationChecker.tableExists("tag_event"))
         assertEquals(1, dbMigrationChecker.migrationCount("tags-core"))
-        assertEquals(1, dbMigrationChecker.currentVersion("tags-core"))
+        assertEquals(2, dbMigrationChecker.currentVersion("tags-core"))
 
     }
 

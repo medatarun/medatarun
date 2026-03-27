@@ -27,23 +27,13 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
-import io.medatarun.auth.ports.exposed.ActorService
-import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle
+import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
 import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
-import io.medatarun.auth.ports.exposed.OAuthService
-import io.medatarun.auth.ports.exposed.OidcService
-import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.*
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
-import io.medatarun.platform.kernel.ExtensionId
-import io.medatarun.platform.kernel.MedatarunExtension
-import io.medatarun.platform.kernel.MedatarunExtensionCtx
-import io.medatarun.platform.kernel.MedatarunServiceCtx
-import io.medatarun.platform.kernel.getService
-import io.medatarun.security.AppActor
-import io.medatarun.security.AppActorId
+import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityRolesProvider
@@ -62,6 +52,8 @@ class AuthExtension(
         val oidcService = ctx.getService<OidcService>()
         val oauthService = ctx.getService<OAuthService>()
         val actorService = ctx.getService<ActorService>()
+        val securityRolesRegistry = ctx.getService<SecurityRolesRegistry>()
+        val actorStorage = ctx.getService<ActorStorageSQLite>()
 
         val actionProvider = AuthEmbeddedActionsProvider(
             userService, oidcService, oauthService, actorService
@@ -77,7 +69,7 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.registerContribution(DbMigration::class, AuthDbMigration())
+        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage))
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -222,6 +214,9 @@ class AuthExtension(
         ctx.register(OAuthService::class, oauthService)
         ctx.register(ActorService::class, actorService)
         ctx.register(AppActorResolver::class, appActorResolver)
+
+        // Because migrations need it
+        ctx.register(ActorStorageSQLite::class, actorStorage)
 
         // For testing only
         ctx.register(BootstrapSecretLifecycle::class, bootstrapper)

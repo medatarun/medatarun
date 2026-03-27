@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":libs:platform-type-system"))
     implementation(project(":libs:platform-storage-db"))
     implementation(project(":libs:platform-storage-db-sqlite"))
+    implementation(project(":libs:platform-storage-event-sourcing"))
     implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)

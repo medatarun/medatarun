@@ -8,7 +8,9 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.ModelExtensionConfigProd
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
+import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.db.ModelStorageDb
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
@@ -18,6 +20,7 @@ import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.kernel.MedatarunConfig
+import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.PlatformBuilder
 import io.medatarun.platform.kernel.getService
 import io.medatarun.security.*
@@ -31,8 +34,9 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
 import kotlin.reflect.full.findAnnotation
+import kotlin.test.assertEquals
 
-class ModelTestEnv {
+class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     private val extensions = listOf(
         TypeSystemExtension(),
         SecurityExtension(SecurityExtensionConfig(appActorResolver)),
@@ -41,7 +45,7 @@ class ModelTestEnv {
         PlatformStorageDbSqliteExtension(),
         TagsCoreExtension(),
         ModelExtension()
-    )
+    ).plus(otherExtesions)
     val platform = PlatformBuilder(
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
@@ -117,6 +121,16 @@ class ModelTestEnv {
         )
         dispatchTag(TagAction.TagLocalCreate(scopeRef, tagKey, null, null))
         return tagQueries.findTagByRef(tagRef)
+    }
+
+    /**
+     * Asserts that the specified model has this version
+     */
+    fun assertUniqueVersion(expectedVersion: ModelVersion, modelId: ModelId) {
+        val versions = queries.findModelVersions(ModelRef.modelRefId(modelId))
+        assertEquals(1, versions.size, "Model should have exactly one version released")
+        val foundVersion = versions.first().modelVersion
+        assertEquals(expectedVersion, foundVersion, "Model expected version should be $expectedVersion but was $foundVersion")
     }
 
     companion object {

@@ -85,10 +85,6 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
-    fun initSchema() {
-        DbSqlResources.executeClasspathResource(dbConnectionFactory, AuthDbMigration.v000__init_oidc_sqlite)
-    }
-
     private fun readAuthCtx(row: ResultRow): OidcAuthorizeCtx {
         return OidcAuthorizeCtx(
             authCtxCode = row[AuthCtxTable.authorizeCtxCodeColumn],
