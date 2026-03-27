@@ -18,6 +18,8 @@ class TagsCoreDbMigrationStartupTest {
         val dbMigrationChecker = env.dbMigrationChecker
         assertTrue(dbMigrationChecker.tableExists("tag_group_projection"))
         assertTrue(dbMigrationChecker.tableExists("tag_projection"))
+        assertTrue(dbMigrationChecker.tableExists("tag_group_history_projection"))
+        assertTrue(dbMigrationChecker.tableExists("tag_history_projection"))
         assertTrue(dbMigrationChecker.tableExists("tag_event"))
         assertEquals(1, dbMigrationChecker.migrationCount("tags-core"))
         assertEquals(2, dbMigrationChecker.currentVersion("tags-core"))

@@ -1,7 +1,7 @@
 package io.medatarun.tags.core.infra.db
 
-import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.domain.TagLocalScopeDeleteGlobalScopeException
+import io.medatarun.tags.core.domain.TagScopeRef
 import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
@@ -12,7 +12,6 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.update
 
 internal class TagStorageDbProjection {
-
     fun projectCommand(cmd: TagStorageCmd) {
         val scope = cmd.scope
         when (cmd) {
