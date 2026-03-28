@@ -1,17 +1,22 @@
 package io.medatarun.tags.core.infra.db.tables
 
+import io.medatarun.security.AppActorId
+import io.medatarun.tags.core.domain.TagEventId
+import io.medatarun.tags.core.domain.TagScopeId
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object TagEventTable : Table("tag_event") {
-    val id = text("id")
+    val id = javaUUID("id").transform(IdTransformer(::TagEventId))
     val scopeType = text("scope_type")
-    val scopeId = text("scope_id").nullable()
+    val scopeId = javaUUID("scope_id").transform(IdTransformer(::TagScopeId)).nullable()
     val streamRevision = integer("stream_revision")
     val eventType = text("event_type")
     val eventVersion = integer("event_version")
-    val actorId = text("actor_id")
+    val actorId = javaUUID("actor_id").transform(IdTransformer(::AppActorId))
     val traceabilityOrigin = text("traceability_origin")
-    val createdAt = text("created_at")
+    val createdAt = timestamp("created_at")
     val payload = text("payload")
 
     override val primaryKey = PrimaryKey(id)
