@@ -11,7 +11,6 @@ import io.medatarun.tags.core.infra.db.tables.TagEventTable
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
-import io.medatarun.type.commons.id.Id
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -23,7 +22,7 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
     private class TagStorageDbEventNotFoundException(eventId: String) : MedatarunException("Tag event [$eventId] was appended but cannot be read back from storage.")
     private data class EventScope(
         val scopeType: String,
-        val scopeId: String?
+        val scopeId: TagScopeId?
     )
 
     private val eventSystem = TagEventSystem()
@@ -101,9 +100,8 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
         projection.projectCommand(TagStorageCmd.TagLocalScopeDelete(scope))
         when (scope) {
             is TagScopeRef.Local -> {
-                val scopeId = scope.localScopeId.asString()
                 TagEventTable.deleteWhere {
-                    (TagEventTable.scopeType eq scope.type.value) and (TagEventTable.scopeId eq scopeId)
+                    (TagEventTable.scopeType eq scope.type.value) and (TagEventTable.scopeId eq scope.localScopeId)
                 }
             }
         }
@@ -132,9 +130,9 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
                 row[TagEventTable.streamRevision] = record.streamRevision
                 row[TagEventTable.eventType] = record.eventType
                 row[TagEventTable.eventVersion] = record.eventVersion
-                row[TagEventTable.actorId] = record.actorId.asString()
+                row[TagEventTable.actorId] = record.actorId
                 row[TagEventTable.traceabilityOrigin] = record.traceabilityOrigin
-                row[TagEventTable.createdAt] = record.createdAt.toString()
+                row[TagEventTable.createdAt] = record.createdAt
                 row[TagEventTable.payload] = record.payload
             }
         } catch (e: Exception) {
@@ -158,17 +156,17 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
 
             is TagScopeRef.Local -> EventScope(
                 scopeType = scope.type.value,
-                scopeId = scope.localScopeId.asString()
+                scopeId = scope.localScopeId
             )
         }
 
     }
 
-    private fun findEventById(eventId: String): TagEventRecord {
+    private fun findEventById(eventId: TagEventId): TagEventRecord {
         return TagEventTable.selectAll().where { TagEventTable.id eq eventId }
             .singleOrNull()
             ?.let { eventRecordFromRow(it) }
-            ?: throw TagStorageDbEventNotFoundException(eventId)
+            ?: throw TagStorageDbEventNotFoundException(eventId.asString())
     }
 
     private fun eventRecordFromRow(row: ResultRow): TagEventRecord {
@@ -179,9 +177,9 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
             streamRevision = row[TagEventTable.streamRevision],
             eventType = row[TagEventTable.eventType],
             eventVersion = row[TagEventTable.eventVersion],
-            actorId = Id.fromString(row[TagEventTable.actorId], ::AppActorId),
+            actorId = row[TagEventTable.actorId],
             traceabilityOrigin = row[TagEventTable.traceabilityOrigin],
-            createdAt = java.time.Instant.parse(row[TagEventTable.createdAt]),
+            createdAt = row[TagEventTable.createdAt],
             payload = row[TagEventTable.payload]
         )
     }

@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     api(libs.exposedCore)
     api(libs.exposedJdbc)
+    api(libs.exposedJavaTime)
     implementation(libs.slf4j)
     implementation(project(":libs:lang"))
     implementation(project(":libs:platform-kernel"))

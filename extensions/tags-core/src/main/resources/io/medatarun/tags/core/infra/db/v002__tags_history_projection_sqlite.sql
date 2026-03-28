@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS tag_history_projection
 (
-    id           TEXT PRIMARY KEY UNIQUE,
-    tag_event_id TEXT NOT NULL UNIQUE,
-    tag_id       TEXT NOT NULL,
+    id           BINARY(16) PRIMARY KEY UNIQUE,
+    tag_event_id BINARY(16) NOT NULL UNIQUE,
+    tag_id       BINARY(16) NOT NULL,
     scope_type   TEXT NOT NULL,
-    scope_id     TEXT,
-    tag_group_id TEXT,
+    scope_id     BINARY(16),
+    tag_group_id BINARY(16),
     key          TEXT NOT NULL,
     name         TEXT,
     description  TEXT,
@@ -22,9 +22,9 @@ CREATE INDEX IF NOT EXISTS idx_tag_history_projection_scope
 
 CREATE TABLE IF NOT EXISTS tag_group_history_projection
 (
-    id           TEXT PRIMARY KEY UNIQUE,
-    tag_event_id TEXT NOT NULL UNIQUE,
-    tag_group_id TEXT NOT NULL,
+    id           BINARY(16) PRIMARY KEY UNIQUE,
+    tag_event_id BINARY(16) NOT NULL UNIQUE,
+    tag_group_id BINARY(16) NOT NULL,
     key          TEXT NOT NULL,
     name         TEXT,
     description  TEXT,
