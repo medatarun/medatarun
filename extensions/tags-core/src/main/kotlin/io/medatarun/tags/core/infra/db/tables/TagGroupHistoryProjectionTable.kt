@@ -1,8 +1,11 @@
 package io.medatarun.tags.core.infra.db.tables
 
+import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagEventId
+import io.medatarun.tags.core.infra.db.types.IdTransformer
+import io.medatarun.tags.core.infra.db.types.KeyTransformer
+import io.medatarun.tags.core.infra.db.types.TagGroupHistoryProjectionId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp

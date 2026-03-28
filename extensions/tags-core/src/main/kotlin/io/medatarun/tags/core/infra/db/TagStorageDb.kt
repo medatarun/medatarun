@@ -2,7 +2,6 @@ package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.security.AppActorId
 import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.events.TagEventSystem
@@ -11,7 +10,9 @@ import io.medatarun.tags.core.infra.db.tables.TagEventTable
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll

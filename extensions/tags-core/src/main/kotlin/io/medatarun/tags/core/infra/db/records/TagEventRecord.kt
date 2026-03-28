@@ -1,8 +1,8 @@
 package io.medatarun.tags.core.infra.db.records
 
+import io.medatarun.security.AppActorId
 import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.security.AppActorId
 import java.time.Instant
 
 data class TagEventRecord(
