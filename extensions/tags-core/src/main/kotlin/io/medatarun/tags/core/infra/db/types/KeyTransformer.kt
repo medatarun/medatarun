@@ -1,4 +1,4 @@
-package io.medatarun.tags.core.infra.db.tables
+package io.medatarun.tags.core.infra.db.types
 
 import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.ColumnTransformer

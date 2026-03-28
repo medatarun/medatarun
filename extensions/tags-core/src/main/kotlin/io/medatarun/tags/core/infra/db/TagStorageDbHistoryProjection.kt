@@ -5,12 +5,12 @@ import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.infra.db.tables.TagGroupHistoryProjectionId
 import io.medatarun.tags.core.infra.db.tables.TagGroupHistoryProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
-import io.medatarun.tags.core.infra.db.tables.TagHistoryProjectionId
 import io.medatarun.tags.core.infra.db.tables.TagHistoryProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
+import io.medatarun.tags.core.infra.db.types.TagGroupHistoryProjectionId
+import io.medatarun.tags.core.infra.db.types.TagHistoryProjectionId
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.type.commons.id.Id
 import org.jetbrains.exposed.v1.core.ResultRow
