@@ -148,6 +148,7 @@ export interface ModelChangeEventDto {
   actorId: string;
   actorDisplayName: string;
   payload: Record<string, unknown>;
+  resolvedDisplay: Record<string, unknown>;
 }
 export interface ModelChangeEventWithVersionDto extends ModelChangeEventDto {
   modelVersion: string;

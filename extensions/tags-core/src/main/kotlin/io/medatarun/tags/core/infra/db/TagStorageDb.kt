@@ -17,6 +17,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.time.Instant.now
 
 class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagStorage {
@@ -61,6 +62,12 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
         }
     }
 
+    override fun findTagByIdAsOfOptional(id: TagId, eventDate: Instant): Tag? {
+        return dbConnectionFactory.withExposed {
+            read.findTagByIdAsOfOptional(id, eventDate)
+        }
+    }
+
     override fun findAllTagGroup(): List<TagGroup> {
         return dbConnectionFactory.withExposed {
             read.findAllTagGroup()
@@ -70,6 +77,12 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
     override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
         return dbConnectionFactory.withExposed {
             read.findTagGroupByIdOptional(id)
+        }
+    }
+
+    override fun findTagGroupByIdAsOfOptional(id: TagGroupId, eventDate: Instant): TagGroup? {
+        return dbConnectionFactory.withExposed {
+            read.findTagGroupByIdAsOfOptional(id, eventDate)
         }
     }
 

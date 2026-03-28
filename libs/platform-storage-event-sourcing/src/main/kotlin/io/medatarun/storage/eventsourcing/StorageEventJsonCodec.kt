@@ -2,6 +2,7 @@ package io.medatarun.storage.eventsourcing
 
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Serializes and deserializes [StorageCmd] as stable event payloads using the
@@ -39,6 +40,18 @@ class StorageEventJsonCodec<T: StorageCmd>(
             json.decodeFromString(entry.serializer, evt.payload)
         } catch (e: SerializationException) {
             throw StorageEventPayloadDecodeException(evt.eventType, evt.eventVersion, e)
+        }
+    }
+
+    /**
+     * Decodes an event into a [StorageCmd]
+     */
+    fun decode(eventType: String, eventVersion: Int, payload: JsonObject): T {
+        val entry = registry.findEntryByContract(eventType, eventVersion)
+        return try {
+            json.decodeFromJsonElement(entry.serializer, payload)
+        } catch (e: SerializationException) {
+            throw StorageEventPayloadDecodeException(eventType, eventVersion, e)
         }
     }
 

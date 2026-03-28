@@ -2,6 +2,7 @@ package io.medatarun.tags.core.internal
 
 import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.ports.needs.TagStorage
+import java.time.Instant
 
 class TagQueriesImpl(
     private val storage: TagStorage,
@@ -67,5 +68,13 @@ class TagQueriesImpl(
 
     override fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
         return storage.findTagGroupByIdOptional(id)
+    }
+
+    override fun findTagByIdAsOfOptional(tagId: TagId, eventDate: Instant): Tag? {
+        return storage.findTagByIdAsOfOptional(tagId, eventDate)
+    }
+
+    override fun findTagGroupByIdAsOfOptional(tagGroupId: TagGroupId, eventDate: Instant): TagGroup? {
+        return storage.findTagGroupByIdAsOfOptional(tagGroupId, eventDate)
     }
 }

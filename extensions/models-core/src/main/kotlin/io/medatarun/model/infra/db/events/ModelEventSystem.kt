@@ -23,6 +23,7 @@ class ModelEventSystem {
         encodeDefaults = true
         serializersModule = ModelJsonSerializers.module()
     }
+
     val codec: StorageEventJsonCodec<ModelStorageCmd> =
         StorageEventJsonCodec(registry = storageEventRegistry, json = jsonSerializer)
 

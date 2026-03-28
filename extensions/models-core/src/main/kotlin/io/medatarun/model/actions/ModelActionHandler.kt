@@ -1,19 +1,19 @@
 package io.medatarun.model.actions
 
-import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.adapters.ActionTraceabilityRecord
+import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.http.StatusCode
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.model.actions.compare.ModelCompareDto
 import io.medatarun.model.actions.compare.ModelCompareDtoAdapters
+import io.medatarun.model.actions.history.ModelChangeEventDisplayResolver
 import io.medatarun.model.actions.history.ModelChangeEventListDto
 import io.medatarun.model.actions.history.toModelChangeEventListDto
 import io.medatarun.model.actions.list.ModelListDto
 import io.medatarun.model.actions.list.ModelListDtoAdapters
 import io.medatarun.model.actions.search.ModelSearchDtoAdapters
 import io.medatarun.model.domain.ModelActionNotAuthenticatedException
-import io.medatarun.model.domain.ModelActionNotAuthorizedException
 import io.medatarun.model.domain.ModelExportNoPluginFoundException
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.domain.search.SearchQuery
@@ -23,6 +23,7 @@ import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.security.AppActorResolver
+import io.medatarun.tags.core.domain.TagQueries
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 import java.util.*
@@ -30,12 +31,15 @@ import java.util.*
 class ModelActionHandler(
     private val modelCmds: ModelCmds,
     private val modelQueries: ModelQueries,
+    private val tagQueries: TagQueries,
     private val resourceLocator: ResourceLocator,
     private val locale: Locale,
     private val actionCtx: ActionCtx,
     private val extensionRegistry: ExtensionRegistry,
     private val actorResolver: AppActorResolver
 ) {
+    val displayResolver = ModelChangeEventDisplayResolver(tagQueries)
+
     fun dispatch(businessCmd: ModelCmd) {
         val principal = actionCtx.principal.principal ?: throw ModelActionNotAuthenticatedException()
         modelCmds.dispatch(
@@ -704,7 +708,8 @@ class ModelActionHandler(
 
     fun historyVersions(action: ModelAction.HistoryVersions): ModelChangeEventListDto {
         val changes = modelQueries.findModelVersions(action.modelRef)
-        return toModelChangeEventListDto(changes, actorResolver)
+
+        return toModelChangeEventListDto(changes, actorResolver, displayResolver)
     }
 
     fun historyChangesSinceVersion(action: ModelAction.HistoryVersionChanges): ModelChangeEventListDto {
@@ -713,7 +718,8 @@ class ModelActionHandler(
         } else {
             modelQueries.findModelChangeEventsInVersion(action.modelRef, action.version)
         }
-        return toModelChangeEventListDto(changes, actorResolver)
+
+        return toModelChangeEventListDto(changes, actorResolver, displayResolver)
     }
 
     fun modelList(@Suppress("unused") cmd: ModelAction.Model_List): ModelListDto {
