@@ -2,12 +2,15 @@ package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.infra.db.tables.TagGroupHistoryProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
+import io.medatarun.tags.core.infra.db.tables.TagHistoryProjectionTable
 import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import java.time.Instant
 
 internal class TagStorageDbRead {
     private class TagStorageDbInvalidGlobalLookupException : MedatarunException("Global tag lookup requires groupId")
@@ -118,6 +121,37 @@ internal class TagStorageDbRead {
             ?.let { row -> tagFromRow(row) }
     }
 
+    fun findTagByIdAsOfOptional(id: TagId, eventDate: Instant): Tag? {
+        return TagHistoryProjectionTable
+            .selectAll()
+            .where {
+                (TagHistoryProjectionTable.tagId eq id) and
+                        (TagHistoryProjectionTable.validFrom lessEq eventDate) and
+                        (TagHistoryProjectionTable.validTo.isNull() or (TagHistoryProjectionTable.validTo greater eventDate))
+            }
+            .singleOrNull()
+            ?.let { row ->
+                val scopeType = TagScopeType(row[TagHistoryProjectionTable.scopeType])
+                val scopeId = row[TagHistoryProjectionTable.scopeId]
+                val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
+                    TagScopeRef.Global
+                } else {
+                    val localScopeId = requireNotNull(scopeId) {
+                        "Local tag history row missing scope_id"
+                    }
+                    TagScopeRef.Local(scopeType, localScopeId)
+                }
+                TagInMemory(
+                    id = row[TagHistoryProjectionTable.tagId],
+                    scope = scope,
+                    groupId = row[TagHistoryProjectionTable.tagGroupId],
+                    key = row[TagHistoryProjectionTable.key],
+                    name = row[TagHistoryProjectionTable.name],
+                    description = row[TagHistoryProjectionTable.description]
+                )
+            }
+    }
+
     fun findAllTagGroup(): List<TagGroup> {
         return TagGroupProjectionTable
             .selectAll()
@@ -130,6 +164,25 @@ internal class TagStorageDbRead {
             .where { TagGroupProjectionTable.id eq id }
             .singleOrNull()
             ?.let { row -> tagGroupFromRow(row) }
+    }
+
+    fun findTagGroupByIdAsOfOptional(id: TagGroupId, eventDate: Instant): TagGroup? {
+        return TagGroupHistoryProjectionTable
+            .selectAll()
+            .where {
+                (TagGroupHistoryProjectionTable.tagGroupId eq id) and
+                        (TagGroupHistoryProjectionTable.validFrom lessEq eventDate) and
+                        (TagGroupHistoryProjectionTable.validTo.isNull() or (TagGroupHistoryProjectionTable.validTo greater eventDate))
+            }
+            .singleOrNull()
+            ?.let { row ->
+                TagGroupInMemory(
+                    id = row[TagGroupHistoryProjectionTable.tagGroupId],
+                    key = row[TagGroupHistoryProjectionTable.key],
+                    name = row[TagGroupHistoryProjectionTable.name],
+                    description = row[TagGroupHistoryProjectionTable.description]
+                )
+            }
     }
 
     fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup? {
@@ -170,4 +223,5 @@ internal class TagStorageDbRead {
             description = row[TagProjectionTable.description]
         )
     }
+
 }

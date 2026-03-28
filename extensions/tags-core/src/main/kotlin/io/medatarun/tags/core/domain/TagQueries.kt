@@ -1,5 +1,7 @@
 package io.medatarun.tags.core.domain
 
+import java.time.Instant
+
 interface TagQueries {
     fun findAllTags(): List<Tag>
 
@@ -37,7 +39,9 @@ interface TagQueries {
 
 
     fun findTagByKeyOptional(id: TagGroupId, tagKey: TagKey): Tag?
-    fun findTagGroupByKeyOptional(groupKey: TagGroupKey):TagGroup?
+    fun findTagGroupByKeyOptional(groupKey: TagGroupKey): TagGroup?
     fun findTagByIdOptional(id: TagId): Tag?
     fun findTagGroupByIdOptional(id: TagGroupId): TagGroup?
+    fun findTagByIdAsOfOptional(tagId: TagId, eventDate: Instant): Tag?
+    fun findTagGroupByIdAsOfOptional(tagGroupId: TagGroupId, eventDate: Instant): TagGroup?
 }

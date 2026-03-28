@@ -89,6 +89,7 @@ open class ModelExtension(
         val modelQueries = ctx.getService<ModelQueries>()
         val modelCmds = ctx.getService<ModelCmds>()
         val actorResolver = ctx.getService<AppActorResolver>()
+        val tagQueries = ctx.getService<TagQueries>()
         val modelTagScopeManager = object : TagScopeManager {
             override val type: TagScopeType = modelTagScopeType
 
@@ -98,7 +99,7 @@ open class ModelExtension(
             }
         }
 
-        val actionProvider = ModelActionProvider(ctx.createResourceLocator(), extensionRegistry, modelCmds, modelQueries, actorResolver)
+        val actionProvider = ModelActionProvider(ctx.createResourceLocator(), extensionRegistry, modelCmds, modelQueries, actorResolver, tagQueries)
 
         ctx.registerContributionPoint(this.id + ".importer", ModelImporter::class)
         ctx.registerContributionPoint(this.id + ".exporter", ModelExporter::class)
