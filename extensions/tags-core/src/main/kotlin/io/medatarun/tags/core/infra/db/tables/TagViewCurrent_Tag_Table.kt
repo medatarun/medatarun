@@ -9,7 +9,7 @@ import io.medatarun.tags.core.infra.db.types.KeyTransformer
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 
-internal object TagProjectionTable : Table("tag_projection") {
+internal object TagViewCurrent_Tag_Table : Table("tag_view_current_tag") {
     val id = javaUUID("id").transform(IdTransformer(::TagId))
     val scopeType = text("scope_type")
     val scopeId = javaUUID("scope_id").transform(IdTransformer(::TagScopeId)).nullable()

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS tag_history_projection
+CREATE TABLE IF NOT EXISTS tag_view_history_tag
 (
     id           BINARY(16) PRIMARY KEY UNIQUE,
     tag_event_id BINARY(16) NOT NULL UNIQUE,
@@ -14,13 +14,13 @@ CREATE TABLE IF NOT EXISTS tag_history_projection
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_tag_history_projection_lookup
-    ON tag_history_projection(tag_id, valid_from, valid_to);
+CREATE INDEX IF NOT EXISTS idx_tag_view_history_tag__lookup
+    ON tag_view_history_tag(tag_id, valid_from, valid_to);
 
-CREATE INDEX IF NOT EXISTS idx_tag_history_projection_scope
-    ON tag_history_projection(scope_type, scope_id);
+CREATE INDEX IF NOT EXISTS idx_tag_view_history_tag__scope
+    ON tag_view_history_tag(scope_type, scope_id);
 
-CREATE TABLE IF NOT EXISTS tag_group_history_projection
+CREATE TABLE IF NOT EXISTS tag_view_history_tag_group
 (
     id           BINARY(16) PRIMARY KEY UNIQUE,
     tag_event_id BINARY(16) NOT NULL UNIQUE,
@@ -33,5 +33,5 @@ CREATE TABLE IF NOT EXISTS tag_group_history_projection
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_tag_group_history_projection_lookup
-    ON tag_group_history_projection(tag_group_id, valid_from, valid_to);
+CREATE INDEX IF NOT EXISTS idx_tag_view_history_tag_group__lookup
+    ON tag_view_history_tag_group(tag_group_id, valid_from, valid_to);
