@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
-internal object TagHistoryProjectionTable : Table("tag_history_projection") {
+internal object TagViewHistory_Tag_Table : Table("tag_view_history_tag") {
     val id = javaUUID("id").transform(IdTransformer(::TagHistoryProjectionId))
     val tagEventId = javaUUID("tag_event_id").transform(IdTransformer(::TagEventId))
     val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))

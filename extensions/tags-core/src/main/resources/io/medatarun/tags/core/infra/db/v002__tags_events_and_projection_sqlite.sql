@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS tag_event
     UNIQUE (scope_type, scope_id, stream_revision)
 );
 
-CREATE TABLE tag_group_projection
+CREATE TABLE tag_view_current_tag_group
 (
     id          BINARY(16) PRIMARY KEY UNIQUE,
     key         TEXT NOT NULL UNIQUE,
@@ -23,7 +23,7 @@ CREATE TABLE tag_group_projection
     description TEXT
 );
 
-INSERT INTO tag_group_projection (id, key, name, description)
+INSERT INTO tag_view_current_tag_group (id, key, name, description)
 SELECT
     unhex(replace(id, '-', '')),
     key,
@@ -31,7 +31,7 @@ SELECT
     description
 FROM tag_group;
 
-CREATE TABLE tag_projection
+CREATE TABLE tag_view_current_tag
 (
     id           BINARY(16) PRIMARY KEY UNIQUE,
     scope_type   TEXT NOT NULL,
@@ -40,10 +40,10 @@ CREATE TABLE tag_projection
     key          TEXT NOT NULL,
     name         TEXT,
     description  TEXT,
-    FOREIGN KEY (tag_group_id) REFERENCES tag_group_projection(id) ON DELETE CASCADE
+    FOREIGN KEY (tag_group_id) REFERENCES tag_view_current_tag_group(id) ON DELETE CASCADE
 );
 
-INSERT INTO tag_projection (id, scope_type, scope_id, tag_group_id, key, name, description)
+INSERT INTO tag_view_current_tag (id, scope_type, scope_id, tag_group_id, key, name, description)
 SELECT
     unhex(replace(id, '-', '')),
     scope_type,
@@ -65,7 +65,7 @@ DROP INDEX IF EXISTS idx_tag_group_key;
 DROP TABLE tag;
 DROP TABLE tag_group;
 
-CREATE INDEX IF NOT EXISTS idx_tag_projection_scope_key ON tag_projection(scope_type, scope_id, key);
-CREATE INDEX IF NOT EXISTS idx_tag_projection_group_key ON tag_projection(tag_group_id, key);
+CREATE INDEX IF NOT EXISTS idx_tag_view_current_tag__scope_key ON tag_view_current_tag(scope_type, scope_id, key);
+CREATE INDEX IF NOT EXISTS idx_tag_view_current_tag__group_key ON tag_view_current_tag(tag_group_id, key);
 
 PRAGMA foreign_keys = ON;

@@ -40,8 +40,8 @@
 - Column `model_events.action_id` renamed to `model_event.traceability_origin`
   with new storage format.
 - Added `tag_event` table for tag event sourcing
-- Renamed table `tag` to `tag_projection` and `tag_group` to
-  `tag_group_projection` and their index
+- Renamed table `tag` to `tag_view_current_tag` and `tag_group` to
+  `tag_view_current_tag_group` and their index
 
 **Permissions**
 

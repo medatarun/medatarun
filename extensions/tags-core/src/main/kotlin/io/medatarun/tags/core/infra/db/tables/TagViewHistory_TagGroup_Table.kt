@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp
 
-internal object TagGroupHistoryProjectionTable : Table("tag_group_history_projection") {
+internal object TagViewHistory_TagGroup_Table : Table("tag_view_history_tag_group") {
     val id = javaUUID("id").transform(IdTransformer(::TagGroupHistoryProjectionId))
     val tagEventId = javaUUID("tag_event_id").transform(IdTransformer(::TagEventId))
     val tagGroupId = javaUUID("tag_group_id").transform(IdTransformer(::TagGroupId))

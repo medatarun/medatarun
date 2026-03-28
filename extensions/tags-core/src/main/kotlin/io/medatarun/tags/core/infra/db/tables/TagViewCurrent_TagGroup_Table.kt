@@ -7,7 +7,7 @@ import io.medatarun.tags.core.infra.db.types.KeyTransformer
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 
-internal object TagGroupProjectionTable : Table("tag_group_projection") {
+internal object TagViewCurrent_TagGroup_Table : Table("tag_view_current_tag_group") {
     val id = javaUUID("id").transform(IdTransformer(::TagGroupId))
     val key = text("key").transform(KeyTransformer(::TagGroupKey))
     val name = text("name").nullable()

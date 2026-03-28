@@ -5,10 +5,10 @@ import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagGroupId
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.infra.db.tables.TagGroupHistoryProjectionTable
-import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
-import io.medatarun.tags.core.infra.db.tables.TagHistoryProjectionTable
-import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_Tag_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_Tag_Table
 import io.medatarun.tags.core.infra.db.types.TagGroupHistoryProjectionId
 import io.medatarun.tags.core.infra.db.types.TagHistoryProjectionId
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
@@ -35,21 +35,21 @@ internal class TagStorageDbHistoryProjection {
         when (cmd) {
             is TagStorageCmd.TagCreate -> {
                 closeActiveTagHistory(cmd.tagId, eventCtx.eventCreatedAt)
-                TagHistoryProjectionTable.insert { row ->
-                    row[TagHistoryProjectionTable.id] = Id.generate(::TagHistoryProjectionId)
-                    row[TagHistoryProjectionTable.tagEventId] = eventCtx.tagEventId
-                    row[TagHistoryProjectionTable.tagId] = cmd.tagId
-                    row[TagHistoryProjectionTable.scopeType] = cmd.scope.type.value
+                TagViewHistory_Tag_Table.insert { row ->
+                    row[TagViewHistory_Tag_Table.id] = Id.generate(::TagHistoryProjectionId)
+                    row[TagViewHistory_Tag_Table.tagEventId] = eventCtx.tagEventId
+                    row[TagViewHistory_Tag_Table.tagId] = cmd.tagId
+                    row[TagViewHistory_Tag_Table.scopeType] = cmd.scope.type.value
                     when (scope) {
-                        is TagScopeRef.Global -> row[TagHistoryProjectionTable.scopeId] = null
-                        is TagScopeRef.Local -> row[TagHistoryProjectionTable.scopeId] = scope.localScopeId
+                        is TagScopeRef.Global -> row[TagViewHistory_Tag_Table.scopeId] = null
+                        is TagScopeRef.Local -> row[TagViewHistory_Tag_Table.scopeId] = scope.localScopeId
                     }
-                    row[TagHistoryProjectionTable.tagGroupId] = cmd.groupId
-                    row[TagHistoryProjectionTable.key] = cmd.key
-                    row[TagHistoryProjectionTable.name] = cmd.name
-                    row[TagHistoryProjectionTable.description] = cmd.description
-                    row[TagHistoryProjectionTable.validFrom] = eventCtx.eventCreatedAt
-                    row[TagHistoryProjectionTable.validTo] = null
+                    row[TagViewHistory_Tag_Table.tagGroupId] = cmd.groupId
+                    row[TagViewHistory_Tag_Table.key] = cmd.key
+                    row[TagViewHistory_Tag_Table.name] = cmd.name
+                    row[TagViewHistory_Tag_Table.description] = cmd.description
+                    row[TagViewHistory_Tag_Table.validFrom] = eventCtx.eventCreatedAt
+                    row[TagViewHistory_Tag_Table.validTo] = null
                 }
             }
 
@@ -77,15 +77,15 @@ internal class TagStorageDbHistoryProjection {
 
             is TagStorageCmd.TagGroupCreate -> {
                 closeActiveTagGroupHistory(cmd.tagGroupId, eventCtx.eventCreatedAt)
-                TagGroupHistoryProjectionTable.insert { row ->
-                    row[TagGroupHistoryProjectionTable.id] = Id.generate(::TagGroupHistoryProjectionId)
-                    row[TagGroupHistoryProjectionTable.tagEventId] = eventCtx.tagEventId
-                    row[TagGroupHistoryProjectionTable.tagGroupId] = cmd.tagGroupId
-                    row[TagGroupHistoryProjectionTable.key] = cmd.key
-                    row[TagGroupHistoryProjectionTable.name] = cmd.name
-                    row[TagGroupHistoryProjectionTable.description] = cmd.description
-                    row[TagGroupHistoryProjectionTable.validFrom] = eventCtx.eventCreatedAt
-                    row[TagGroupHistoryProjectionTable.validTo] = null
+                TagViewHistory_TagGroup_Table.insert { row ->
+                    row[TagViewHistory_TagGroup_Table.id] = Id.generate(::TagGroupHistoryProjectionId)
+                    row[TagViewHistory_TagGroup_Table.tagEventId] = eventCtx.tagEventId
+                    row[TagViewHistory_TagGroup_Table.tagGroupId] = cmd.tagGroupId
+                    row[TagViewHistory_TagGroup_Table.key] = cmd.key
+                    row[TagViewHistory_TagGroup_Table.name] = cmd.name
+                    row[TagViewHistory_TagGroup_Table.description] = cmd.description
+                    row[TagViewHistory_TagGroup_Table.validFrom] = eventCtx.eventCreatedAt
+                    row[TagViewHistory_TagGroup_Table.validTo] = null
                 }
             }
 
@@ -119,63 +119,63 @@ internal class TagStorageDbHistoryProjection {
     }
 
     private fun loadTagProjectionRow(tagId: TagId): ResultRow {
-        return TagProjectionTable.selectAll().where { TagProjectionTable.id eq tagId }.singleOrNull()
+        return TagViewCurrent_Tag_Table.selectAll().where { TagViewCurrent_Tag_Table.id eq tagId }.singleOrNull()
             ?: throw TagStorageDbHistoryProjectionTagRowMissingException(tagId)
     }
 
     private fun loadTagGroupProjectionRow(tagGroupId: TagGroupId): ResultRow {
-        return TagGroupProjectionTable.selectAll().where { TagGroupProjectionTable.id eq tagGroupId }.singleOrNull()
+        return TagViewCurrent_TagGroup_Table.selectAll().where { TagViewCurrent_TagGroup_Table.id eq tagGroupId }.singleOrNull()
             ?: throw TagStorageDbHistoryProjectionTagGroupRowMissingException(tagGroupId)
     }
 
     private fun closeActiveTagHistory(tagId: TagId, eventCreatedAt: Instant) {
         // Interval contract: [valid_from, valid_to). valid_to stays null while the version is active.
-        TagHistoryProjectionTable.update(
+        TagViewHistory_Tag_Table.update(
             where = {
-                (TagHistoryProjectionTable.tagId eq tagId) and TagHistoryProjectionTable.validTo.isNull()
+                (TagViewHistory_Tag_Table.tagId eq tagId) and TagViewHistory_Tag_Table.validTo.isNull()
             }
         ) { row ->
-            row[TagHistoryProjectionTable.validTo] = eventCreatedAt
+            row[TagViewHistory_Tag_Table.validTo] = eventCreatedAt
         }
     }
 
     private fun closeActiveTagGroupHistory(tagGroupId: TagGroupId, eventCreatedAt: Instant) {
         // Interval contract: [valid_from, valid_to). valid_to stays null while the version is active.
-        TagGroupHistoryProjectionTable.update(
+        TagViewHistory_TagGroup_Table.update(
             where = {
-                (TagGroupHistoryProjectionTable.tagGroupId eq tagGroupId) and TagGroupHistoryProjectionTable.validTo.isNull()
+                (TagViewHistory_TagGroup_Table.tagGroupId eq tagGroupId) and TagViewHistory_TagGroup_Table.validTo.isNull()
             }
         ) { row ->
-            row[TagGroupHistoryProjectionTable.validTo] = eventCreatedAt
+            row[TagViewHistory_TagGroup_Table.validTo] = eventCreatedAt
         }
     }
 
     private fun insertTagHistoryRow(tagRow: ResultRow, eventCtx: TagHistoryEventContext) {
-        TagHistoryProjectionTable.insert { row ->
-            row[TagHistoryProjectionTable.id] = Id.generate(::TagHistoryProjectionId)
-            row[TagHistoryProjectionTable.tagEventId] = eventCtx.tagEventId
-            row[TagHistoryProjectionTable.tagId] = tagRow[TagProjectionTable.id]
-            row[TagHistoryProjectionTable.scopeType] = tagRow[TagProjectionTable.scopeType]
-            row[TagHistoryProjectionTable.scopeId] = tagRow[TagProjectionTable.scopeId]
-            row[TagHistoryProjectionTable.tagGroupId] = tagRow[TagProjectionTable.tagGroupId]
-            row[TagHistoryProjectionTable.key] = tagRow[TagProjectionTable.key]
-            row[TagHistoryProjectionTable.name] = tagRow[TagProjectionTable.name]
-            row[TagHistoryProjectionTable.description] = tagRow[TagProjectionTable.description]
-            row[TagHistoryProjectionTable.validFrom] = eventCtx.eventCreatedAt
-            row[TagHistoryProjectionTable.validTo] = null
+        TagViewHistory_Tag_Table.insert { row ->
+            row[TagViewHistory_Tag_Table.id] = Id.generate(::TagHistoryProjectionId)
+            row[TagViewHistory_Tag_Table.tagEventId] = eventCtx.tagEventId
+            row[TagViewHistory_Tag_Table.tagId] = tagRow[TagViewCurrent_Tag_Table.id]
+            row[TagViewHistory_Tag_Table.scopeType] = tagRow[TagViewCurrent_Tag_Table.scopeType]
+            row[TagViewHistory_Tag_Table.scopeId] = tagRow[TagViewCurrent_Tag_Table.scopeId]
+            row[TagViewHistory_Tag_Table.tagGroupId] = tagRow[TagViewCurrent_Tag_Table.tagGroupId]
+            row[TagViewHistory_Tag_Table.key] = tagRow[TagViewCurrent_Tag_Table.key]
+            row[TagViewHistory_Tag_Table.name] = tagRow[TagViewCurrent_Tag_Table.name]
+            row[TagViewHistory_Tag_Table.description] = tagRow[TagViewCurrent_Tag_Table.description]
+            row[TagViewHistory_Tag_Table.validFrom] = eventCtx.eventCreatedAt
+            row[TagViewHistory_Tag_Table.validTo] = null
         }
     }
 
     private fun insertTagGroupHistoryRow(tagGroupRow: ResultRow, eventCtx: TagHistoryEventContext) {
-        TagGroupHistoryProjectionTable.insert { row ->
-            row[TagGroupHistoryProjectionTable.id] = Id.generate(::TagGroupHistoryProjectionId)
-            row[TagGroupHistoryProjectionTable.tagEventId] = eventCtx.tagEventId
-            row[TagGroupHistoryProjectionTable.tagGroupId] = tagGroupRow[TagGroupProjectionTable.id]
-            row[TagGroupHistoryProjectionTable.key] = tagGroupRow[TagGroupProjectionTable.key]
-            row[TagGroupHistoryProjectionTable.name] = tagGroupRow[TagGroupProjectionTable.name]
-            row[TagGroupHistoryProjectionTable.description] = tagGroupRow[TagGroupProjectionTable.description]
-            row[TagGroupHistoryProjectionTable.validFrom] = eventCtx.eventCreatedAt
-            row[TagGroupHistoryProjectionTable.validTo] = null
+        TagViewHistory_TagGroup_Table.insert { row ->
+            row[TagViewHistory_TagGroup_Table.id] = Id.generate(::TagGroupHistoryProjectionId)
+            row[TagViewHistory_TagGroup_Table.tagEventId] = eventCtx.tagEventId
+            row[TagViewHistory_TagGroup_Table.tagGroupId] = tagGroupRow[TagViewCurrent_TagGroup_Table.id]
+            row[TagViewHistory_TagGroup_Table.key] = tagGroupRow[TagViewCurrent_TagGroup_Table.key]
+            row[TagViewHistory_TagGroup_Table.name] = tagGroupRow[TagViewCurrent_TagGroup_Table.name]
+            row[TagViewHistory_TagGroup_Table.description] = tagGroupRow[TagViewCurrent_TagGroup_Table.description]
+            row[TagViewHistory_TagGroup_Table.validFrom] = eventCtx.eventCreatedAt
+            row[TagViewHistory_TagGroup_Table.validTo] = null
         }
     }
 
