@@ -1,9 +1,11 @@
 package io.medatarun.auth
 
+import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
+import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
@@ -104,9 +106,10 @@ class ActorServiceTest {
         )
 
         val allActors = env.actorService.listActors()
-        assertEquals(2, allActors.size)
+        assertEquals(3, allActors.size)
         assertTrue(allActors.any { it.id == actorA.id })
         assertTrue(allActors.any { it.id == actorB.id })
+        assertTrue(allActors.any { it.id == AppActorIdAdapter.fromAppActorId(AppActorSystemMaintenance.id) })
     }
 
     @Test

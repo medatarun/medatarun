@@ -1,8 +1,11 @@
 package io.medatarun.auth.infra.db
 
+import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.fixtures.AuthEnvTest
+import io.medatarun.security.AppActorSystemMaintenance
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AuthDbMigrationStartupTest {
@@ -15,14 +18,26 @@ class AuthDbMigrationStartupTest {
     @Test
     fun `auth startup applies contributed db migrations`() {
         val env = AuthEnvTest()
+
+        // Checks various tables exist
         assertTrue(env.dbMigrationChecker.tableExists("users"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_ctx"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_code"))
         assertTrue(env.dbMigrationChecker.tableExists("actors"))
+
+        // We are always doing a fresh install. Even if the currentVersion
+        // changes, the count of lines of migration is always 1, because it is
+        // a fresh install and not a migration.
         assertEquals(1, env.dbMigrationChecker.migrationCount("platform-auth"))
-        assertEquals(1, env.dbMigrationChecker.currentVersion("platform-auth"))
+        // Checks that it is the right version number
+        assertEquals(2, env.dbMigrationChecker.currentVersion("platform-auth"))
 
+        // Cheks that actor for system maintenance exists in ActorStorage
+        val actorId = ActorId(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID)
+        val systemMaintenanceActor = env.actorService.findByIdOptional(actorId)
+        assertNotNull(systemMaintenanceActor)
+        assertEquals(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ISSUER, systemMaintenanceActor.issuer)
+        assertEquals(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_SUBJECT, systemMaintenanceActor.subject)
+        assertEquals(AppActorSystemMaintenance.displayName, systemMaintenanceActor.fullname)
     }
-
-
 }

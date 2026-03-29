@@ -176,8 +176,6 @@ VALUES (?, ?, ?)
         return when (productName.lowercase()) {
             "sqlite" -> DbDialect.SQLITE
             "postgresql" -> DbDialect.POSTGRESQL
-            "mysql" -> DbDialect.MYSQL
-            "oracle" -> DbDialect.ORACLE
             else -> throw DbMigrationUnknownDialectException(productName)
         }
     }
