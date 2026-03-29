@@ -1,9 +1,11 @@
 package io.medatarun.lang.uuid
 
 import com.github.f4b6a3.uuid.UuidCreator
+import com.github.f4b6a3.uuid.util.UuidUtil
 import com.github.f4b6a3.uuid.enums.UuidVersion
 import com.github.f4b6a3.uuid.exception.InvalidUuidException
 import com.github.f4b6a3.uuid.util.UuidValidator
+import java.time.Instant
 import java.util.*
 
 object UuidUtils {
@@ -18,6 +20,10 @@ object UuidUtils {
 
     fun fromString(value: String): UUID {
         return UUID.fromString(value)
+    }
+
+    fun getInstant(uuid: UUID): Instant {
+        return UuidUtil.getInstant(uuid)
     }
 
     fun fromStringSafe(value: String): UUID {

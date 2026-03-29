@@ -8,6 +8,7 @@ import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
@@ -78,7 +79,7 @@ class AuthActionEnvTest(
 
         private fun toAppPrincipal(actor: Actor): AppPrincipal {
             return object : AppPrincipal {
-                override val id: AppActorId = AppActorId(actor.id.value)
+                override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
                 override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }

@@ -1,5 +1,6 @@
 package io.medatarun.auth.actions
 
+import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
@@ -10,6 +11,7 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -18,6 +20,7 @@ import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class AuthActionsTest {
 
@@ -395,7 +398,14 @@ class AuthActionsTest {
         )
 
         val actors: List<ActorInfoDto> = env.dispatch(AuthAction.ActorList())
-        assertEquals(4, actors.size)
+        assertEquals(5, actors.size)
+
+        val sysActor = actors.first { actor -> actor.id == AppActorSystemMaintenance.id.asString() }
+        assertEquals(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_SUBJECT, sysActor.subject)
+        assertEquals(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ISSUER, sysActor.issuer)
+        assertEquals(AppActorSystemMaintenance.displayName, sysActor.fullname)
+        assertEquals(UuidUtils.getInstant(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID), sysActor.createdAt)
+        assertEquals(UuidUtils.getInstant(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID), sysActor.lastSeenAt)
 
         val adminActor = actors.first { actor -> actor.subject == env.env.adminUsername.value }
         assertEquals(env.env.adminUsername.value, adminActor.subject)

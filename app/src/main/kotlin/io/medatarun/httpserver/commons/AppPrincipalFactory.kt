@@ -3,6 +3,7 @@ package io.medatarun.httpserver.commons
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorDisabledException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
@@ -63,7 +64,7 @@ class AppPrincipalFactory(
 
     private fun toAppPrincipal(actor: Actor): AppPrincipal {
         return object : AppPrincipal {
-            override val id: AppActorId = AppActorId(actor.id.value)
+            override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
             override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }

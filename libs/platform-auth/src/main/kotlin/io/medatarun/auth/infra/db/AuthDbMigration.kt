@@ -1,5 +1,6 @@
 package io.medatarun.auth.infra.db
 
+import io.medatarun.auth.infra.db.migrations.V002_CreateActorSystemMaintenance
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.security.SecurityRolesRegistry
@@ -9,20 +10,23 @@ class AuthDbMigration(
     private val actorStorageSQLite: ActorStorageSQLite
 ) : DbMigration {
     override val pluginId: String = "platform-auth"
+    private val migrationV002CreateActorSystemMaintenance = V002_CreateActorSystemMaintenance()
 
     override fun install(ctx: DbMigrationContext) {
         ctx.applySqlResource(v001_users)
         ctx.applySqlResource(v001_oidc)
         ctx.applySqlResource(v001_actors)
+        migrationV002CreateActorSystemMaintenance.apply(ctx)
     }
 
     override fun latestVersion(): Int {
-        return 1
+        return 2
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
         when (version) {
             1 -> listOf(v001_users, v001_oidc, v001_actors).forEach { ctx.applySqlResource(it) }
+            2 -> migrationV002CreateActorSystemMaintenance.apply(ctx)
             else -> ctx.throwUnknownVersionException()
         }
     }

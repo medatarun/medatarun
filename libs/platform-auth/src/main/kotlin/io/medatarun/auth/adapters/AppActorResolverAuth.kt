@@ -1,6 +1,5 @@
 package io.medatarun.auth.adapters
 
-import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.security.AppActor
 import io.medatarun.security.AppActorId
@@ -14,7 +13,7 @@ import io.medatarun.security.AppActorResolver
  */
 class AppActorResolverAuth(private val actorService: ActorService) : AppActorResolver {
     override fun resolve(appActorId: AppActorId): AppActor? {
-        val actorId = ActorId(appActorId.value)
+        val actorId = AppActorIdAdapter.fromAppActorId(appActorId)
         return actorService.findByIdOptional(actorId)?.let {
             object : AppActor {
                 override val id: AppActorId
@@ -26,7 +25,4 @@ class AppActorResolverAuth(private val actorService: ActorService) : AppActorRes
 
     }
 
-    override fun resolveSystemMaintenanceActor(): AppActor {
-        TODO("Not yet implemented")
-    }
 }

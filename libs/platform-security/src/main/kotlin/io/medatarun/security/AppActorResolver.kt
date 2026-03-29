@@ -19,5 +19,5 @@ interface AppActorResolver {
      * Typically used for data migrations or audit logs to say "the system did
      * it itself for maintenance".
      */
-    fun resolveSystemMaintenanceActor(): AppActor
+    fun resolveSystemMaintenanceActor(): AppActorSystemMaintenance = AppActorSystemMaintenance
 }
