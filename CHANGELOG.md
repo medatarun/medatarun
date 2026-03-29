@@ -26,6 +26,8 @@
   to
   reflect the reality.
 - Tags history implemented with event sourcing
+- A `System maintenance` actor is created automatically
+  to identify data changes made by the system itself.
 
 **Architecture**
 
@@ -42,6 +44,7 @@
 - Added `tag_event` table for tag event sourcing
 - Renamed table `tag` to `tag_view_current_tag` and `tag_group` to
   `tag_view_current_tag_group` and their index
+- SQLite tables moved ids from `TEXT` to `BINARY(16)`
 
 **Permissions**
 

@@ -3,12 +3,14 @@ package io.medatarun.auth.infra.db
 import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.DbSqlResources
+import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
+import java.util.UUID
 
 class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : UserStorage {
 
@@ -23,7 +25,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     ) {
         dbConnectionFactory.withExposed {
             UsersTable.insert { row ->
-                row[idColumn] = id.value.toString()
+                row[idColumn] = id
                 row[loginColumn] = login.value
                 row[fullNameColumn] = fullname.value
                 row[passwordHashColumn] = password.value
@@ -76,7 +78,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
 
     private fun readUser(row: ResultRow): User {
         return User(
-            id = UserId.fromString(row[UsersTable.idColumn]),
+            id = row[UsersTable.idColumn],
             username = Username(row[UsersTable.loginColumn]),
             fullname = Fullname(row[UsersTable.fullNameColumn]),
             passwordHash = PasswordHash(row[UsersTable.passwordHashColumn]),
@@ -88,13 +90,23 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
 
     companion object {
         private object UsersTable : Table("users") {
-            val idColumn = text("id")
+            val idColumn = javaUUID("id").transform(UserIdColumnTransformer())
             val loginColumn = text("login")
             val fullNameColumn = text("full_name")
             val passwordHashColumn = text("password_hash")
             val adminColumn = bool("admin")
             val bootstrapColumn = bool("bootstrap")
             val disabledDateColumn = text("disabled_date").nullable()
+        }
+
+        private class UserIdColumnTransformer : ColumnTransformer<UUID, UserId> {
+            override fun unwrap(value: UserId): UUID {
+                return value.value
+            }
+
+            override fun wrap(value: UUID): UserId {
+                return UserId(value)
+            }
         }
 
     }
