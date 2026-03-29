@@ -1,5 +1,7 @@
 # medatarun
 
+[![SafeSkill 85/100](https://img.shields.io/badge/SafeSkill-85%2F100_Passes%20with%20Notes-yellow)](https://safeskill.dev/scan/medatarun-medatarun)
+
 **Medatarun** is an application to manage conceptual data models: 
 the meaning and description of models, entities, relationships, attributes, data types, etc.
 
