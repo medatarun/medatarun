@@ -5,15 +5,17 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.DbSqlResources
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
+import java.util.UUID
 
 class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
 
@@ -32,7 +34,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     ) {
         dbConnectionFactory.withExposed {
             ActorsTable.insert { row ->
-                row[idColumn] = toSql(id)
+                row[idColumn] = id
                 row[issuerColumn] = issuer
                 row[subjectColumn] = subject
                 row[fullNameColumn] = fullname
@@ -52,7 +54,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         lastSeenAt: Instant
     ) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
                 row[fullNameColumn] = fullname
                 row[emailColumn] = email
                 row[lastSeenAtColumn] = InstantSql.toSql(lastSeenAt)
@@ -62,7 +64,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
                 row[rolesJsonColumn] = encodeRoles(roles)
             }
         }
@@ -70,7 +72,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     override fun disable(id: ActorId, at: Instant) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
                 row[disabledDateColumn] = InstantSql.toSql(at)
             }
         }
@@ -78,7 +80,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     override fun enable(id: ActorId,) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq toSql(id) }) { row ->
+            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
                 row[disabledDateColumn] = null
             }
         }
@@ -99,7 +101,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     override fun findByIdOptional(id: ActorId): Actor? {
         return dbConnectionFactory.withExposed {
             ActorsTable.selectAll()
-                .where { ActorsTable.idColumn eq toSql(id) }
+                .where { ActorsTable.idColumn eq id }
                 .singleOrNull()
                 ?.let { readActor(it) }
         }
@@ -113,12 +115,10 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    private fun toSql(actorId: ActorId): String { return actorId.value.toString() }
-
     private fun readActor(row: ResultRow): Actor {
         val rolesJson = row[ActorsTable.rolesJsonColumn]
         return Actor(
-            id = ActorId.fromString(row[ActorsTable.idColumn]),
+            id = row[ActorsTable.idColumn],
             issuer = row[ActorsTable.issuerColumn],
             subject = row[ActorsTable.subjectColumn],
             fullname = row[ActorsTable.fullNameColumn],
@@ -169,7 +169,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     companion object {
         private object ActorsTable : Table("actors") {
-            val idColumn = text("id")
+            val idColumn = javaUUID("id").transform(ActorIdColumnTransformer())
             val issuerColumn = text("issuer")
             val subjectColumn = text("subject")
             val fullNameColumn = text("full_name")
@@ -178,6 +178,16 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             val disabledDateColumn = text("disabled_date").nullable()
             val createdAtColumn = text("created_at")
             val lastSeenAtColumn = text("last_seen_at")
+        }
+
+        private class ActorIdColumnTransformer : ColumnTransformer<UUID, ActorId> {
+            override fun unwrap(value: ActorId): UUID {
+                return value.value
+            }
+
+            override fun wrap(value: UUID): ActorId {
+                return ActorId(value)
+            }
         }
 
         private val listStringSerializer = ListSerializer(String.serializer())
