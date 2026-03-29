@@ -1324,8 +1324,4 @@ internal class ModelStorageDbProjection(
         searchWrite.upsertRelationshipAttributeSearchItem(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
     }
 
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ModelStorageDbProjection::class.java)
-    }
 }

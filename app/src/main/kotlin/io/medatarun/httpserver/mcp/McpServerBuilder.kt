@@ -230,8 +230,5 @@ class McpServerBuilder(
         }
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(McpServerBuilder::class.java)
-    }
 
 }

@@ -80,8 +80,6 @@ internal class ActionPayloadDeserializerFromProviders(
         bindings.technicalValidation()
 
         // Now we can assume there is no error anymore on parameters
-        logger.debug("call args: {}", bindings)
-
         val cmd = actionClass.primaryConstructor?.callBy(bindings.toCallArgs())
             ?: throw ActionInvocationException(
                 StatusCode.INTERNAL_SERVER_ERROR,
@@ -90,7 +88,4 @@ internal class ActionPayloadDeserializerFromProviders(
         return cmd
     }
 
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ActionPayloadDeserializerFromProviders::class.java)
-    }
 }
