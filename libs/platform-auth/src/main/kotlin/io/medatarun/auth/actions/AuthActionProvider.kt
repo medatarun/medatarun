@@ -50,10 +50,6 @@ class AuthEmbeddedActionsProvider(
         }
     }
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(AuthEmbeddedActionsProvider::class.java)
-    }
-
 }
 
 

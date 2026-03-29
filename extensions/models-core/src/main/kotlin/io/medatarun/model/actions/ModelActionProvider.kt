@@ -36,9 +36,6 @@ class ModelActionProvider(
 
         val handler = ModelActionHandler(modelCmds, modelQueries, tagQueries, resourceLocator, locale, actionCtx, extensionRegistry, actorResolver, )
 
-        logger.info(action.toString())
-
-
         val result = when (action) {
 
             // ------------------------------------------------------------------------
@@ -143,7 +140,6 @@ class ModelActionProvider(
 
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ModelActionProvider::class.java)
 
         /**
          * Changing this will break APIs or CLI. It is the name clients are using to reference action group
