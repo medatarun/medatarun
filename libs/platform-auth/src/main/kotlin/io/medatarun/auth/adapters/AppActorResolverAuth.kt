@@ -25,4 +25,8 @@ class AppActorResolverAuth(private val actorService: ActorService) : AppActorRes
         }
 
     }
+
+    override fun resolveSystemMaintenanceActor(): AppActor {
+        TODO("Not yet implemented")
+    }
 }
