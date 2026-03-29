@@ -5,6 +5,7 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbTransactionManager
 import io.medatarun.platform.kernel.*
+import io.medatarun.security.AppActorResolver
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.security.SecurityRulesProvider
 import io.medatarun.tags.core.actions.TagActionProvider
@@ -58,6 +59,8 @@ class TagsCoreExtension : MedatarunExtension {
         ctx.registerContribution(ActionProvider::class, TagActionProvider(tagCmds, tagQueries))
         ctx.registerContribution(SecurityRolesProvider::class, TagSecurityRolesProvider())
         ctx.registerContribution(SecurityRulesProvider::class, TagSecurityRulesprovider())
-        ctx.registerContribution(DbMigration::class, TagsCoreDbMigration(id))
+        val actorResolver = ctx.getService(AppActorResolver::class)
+        val maintenanceActor = actorResolver.resolveSystemMaintenanceActor()
+        ctx.registerContribution(DbMigration::class, TagsCoreDbMigration(id, maintenanceActor.id))
     }
 }

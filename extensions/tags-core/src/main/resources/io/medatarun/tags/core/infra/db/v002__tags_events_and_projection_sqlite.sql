@@ -60,11 +60,6 @@ SELECT
     description
 FROM tag;
 
-DROP INDEX IF EXISTS idx_tag_scope_key;
-DROP INDEX IF EXISTS idx_tag_group_key;
-DROP TABLE tag;
-DROP TABLE tag_group;
-
 CREATE INDEX IF NOT EXISTS idx_tag_view_current_tag__scope_key ON tag_view_current_tag(scope_type, scope_id, key);
 CREATE INDEX IF NOT EXISTS idx_tag_view_current_tag__group_key ON tag_view_current_tag(tag_group_id, key);
 
