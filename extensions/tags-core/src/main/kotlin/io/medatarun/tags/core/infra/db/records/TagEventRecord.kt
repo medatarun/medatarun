@@ -1,12 +1,14 @@
 package io.medatarun.tags.core.infra.db.records
 
 import io.medatarun.security.AppActorId
+import io.medatarun.tags.core.domain.TagEventId
+import io.medatarun.tags.core.domain.TagScopeId
 import java.time.Instant
 
 data class TagEventRecord(
-    val id: String,
+    val id: TagEventId,
     val scopeType: String,
-    val scopeId: String?,
+    val scopeId: TagScopeId?,
     val streamRevision: Int,
     val eventType: String,
     val eventVersion: Int,

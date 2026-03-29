@@ -1,5 +1,6 @@
 package io.medatarun.tags.core.infra.db.events
 
+import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.infra.db.TagEventConcurrentWriteException
 import io.medatarun.tags.core.infra.db.tables.TagEventTable
 import org.jetbrains.exposed.v1.core.and
@@ -14,7 +15,7 @@ import java.sql.SQLIntegrityConstraintViolationException
  */
 class TagEventStreamRevisionManager {
 
-    fun createRevisionContext(scopeType: String, scopeId: String?): TagEventStreamRevisionContext {
+    fun createRevisionContext(scopeType: String, scopeId: TagScopeId?): TagEventStreamRevisionContext {
         return TagEventStreamRevisionContext(
             scopeType = scopeType,
             scopeId = scopeId,
@@ -22,7 +23,7 @@ class TagEventStreamRevisionManager {
         )
     }
 
-    private fun currentStreamRevision(scopeType: String, scopeId: String?): Int {
+    private fun currentStreamRevision(scopeType: String, scopeId: TagScopeId?): Int {
         val currentMax = TagEventTable.streamRevision.max()
         val query = TagEventTable.select(currentMax)
         val row = if (scopeId == null) {

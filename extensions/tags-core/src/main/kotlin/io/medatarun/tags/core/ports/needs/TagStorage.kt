@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.ports.needs
 
 import io.medatarun.tags.core.domain.*
+import java.time.Instant
 
 interface TagStorage {
 
@@ -14,8 +15,10 @@ interface TagStorage {
         return findTagByKeyOptional(TagScopeRef.Global, groupId, key)
     }
     fun findTagByIdOptional(id: TagId): Tag?
+    fun findTagByIdAsOfOptional(id: TagId, eventDate: Instant): Tag?
 
     fun findTagGroupByIdOptional(id: TagGroupId): TagGroup?
+    fun findTagGroupByIdAsOfOptional(id: TagGroupId, eventDate: Instant): TagGroup?
     fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup?
 
     /**

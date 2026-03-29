@@ -2,6 +2,7 @@ package io.medatarun.tags.core.infra.db
 
 import io.medatarun.tags.core.TagTestEnv
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -16,9 +17,13 @@ class TagsCoreDbMigrationStartupTest {
     fun `tags startup applies contributed db migrations`() {
         val env = TagTestEnv()
         val dbMigrationChecker = env.dbMigrationChecker
-        assertTrue(dbMigrationChecker.tableExists("tag_group_projection"))
-        assertTrue(dbMigrationChecker.tableExists("tag_projection"))
+        assertTrue(dbMigrationChecker.tableExists("tag_view_current_tag_group"))
+        assertTrue(dbMigrationChecker.tableExists("tag_view_current_tag"))
+        assertTrue(dbMigrationChecker.tableExists("tag_view_history_tag_group"))
+        assertTrue(dbMigrationChecker.tableExists("tag_view_history_tag"))
         assertTrue(dbMigrationChecker.tableExists("tag_event"))
+        assertFalse(dbMigrationChecker.tableExists("tag_group"))
+        assertFalse(dbMigrationChecker.tableExists("tag"))
         assertEquals(1, dbMigrationChecker.migrationCount("tags-core"))
         assertEquals(2, dbMigrationChecker.currentVersion("tags-core"))
 

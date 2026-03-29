@@ -1,45 +1,36 @@
 package io.medatarun.tags.core.infra.db
 
 import io.medatarun.lang.exceptions.MedatarunException
-import io.medatarun.tags.core.domain.Tag
-import io.medatarun.tags.core.domain.TagGroup
-import io.medatarun.tags.core.domain.TagGroupId
-import io.medatarun.tags.core.domain.TagGroupKey
-import io.medatarun.tags.core.domain.TagId
-import io.medatarun.tags.core.domain.TagKey
-import io.medatarun.tags.core.domain.TagSearchFilterScopeRef
-import io.medatarun.tags.core.domain.TagSearchFilters
-import io.medatarun.tags.core.domain.TagSearchFiltersLogicalOperator
-import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.domain.TagScopeRef
-import io.medatarun.tags.core.domain.TagScopeType
-import io.medatarun.tags.core.infra.db.tables.TagGroupProjectionTable
-import io.medatarun.tags.core.infra.db.tables.TagProjectionTable
+import io.medatarun.tags.core.domain.*
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_Tag_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_Tag_Table
 import io.medatarun.tags.core.internal.TagGroupInMemory
 import io.medatarun.tags.core.internal.TagInMemory
-import io.medatarun.type.commons.id.Id
-import io.medatarun.type.commons.key.Key
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import java.time.Instant
 
 internal class TagStorageDbRead {
     private class TagStorageDbInvalidGlobalLookupException : MedatarunException("Global tag lookup requires groupId")
 
     fun findAllTag(): List<Tag> {
-        return TagProjectionTable.selectAll().map { row -> tagFromRow(row) }
+        return TagViewCurrent_Tag_Table.selectAll().map { row -> tagFromRow(row) }
     }
 
     fun findAllTagByScopeRef(scopeRef: TagScopeRef): List<Tag> {
         return when (scopeRef) {
             is TagScopeRef.Global -> {
-                TagProjectionTable.selectAll().where {
-                    (TagProjectionTable.scopeType eq TagScopeRef.Global.type.value) and TagProjectionTable.scopeId.isNull()
+                TagViewCurrent_Tag_Table.selectAll().where {
+                    (TagViewCurrent_Tag_Table.scopeType eq TagScopeRef.Global.type.value) and TagViewCurrent_Tag_Table.scopeId.isNull()
                 }.map { row -> tagFromRow(row) }
             }
+
             is TagScopeRef.Local -> {
-                TagProjectionTable.selectAll().where {
-                    (TagProjectionTable.scopeType eq scopeRef.type.value) and
-                        (TagProjectionTable.scopeId eq scopeRef.localScopeId.asString())
+                TagViewCurrent_Tag_Table.selectAll().where {
+                    (TagViewCurrent_Tag_Table.scopeType eq scopeRef.type.value) and
+                            (TagViewCurrent_Tag_Table.scopeId eq scopeRef.localScopeId)
                 }.map { row -> tagFromRow(row) }
             }
         }
@@ -73,7 +64,7 @@ internal class TagStorageDbRead {
         val predicate = predicateChain ?: return emptyList()
 
         // Build the query, get results and map them to tags
-        return TagProjectionTable
+        return TagViewCurrent_Tag_Table
             .selectAll().where { predicate }
             .map { row -> tagFromRow(row) }
     }
@@ -81,12 +72,12 @@ internal class TagStorageDbRead {
     private fun createCriterionScope(scopeRef: TagScopeRef): Op<Boolean> {
         return when (scopeRef) {
             is TagScopeRef.Global -> {
-                (TagProjectionTable.scopeType eq TagScopeRef.Global.type.value) and TagProjectionTable.scopeId.isNull()
+                (TagViewCurrent_Tag_Table.scopeType eq TagScopeRef.Global.type.value) and TagViewCurrent_Tag_Table.scopeId.isNull()
             }
 
             is TagScopeRef.Local -> {
-                (TagProjectionTable.scopeType eq scopeRef.type.value) and
-                    (TagProjectionTable.scopeId eq scopeRef.localScopeId.asString())
+                (TagViewCurrent_Tag_Table.scopeType eq scopeRef.type.value) and
+                        (TagViewCurrent_Tag_Table.scopeId eq scopeRef.localScopeId)
             }
         }
     }
@@ -94,77 +85,143 @@ internal class TagStorageDbRead {
     fun findTagByKeyOptional(scope: TagScopeRef, groupId: TagGroupId?, key: TagKey): Tag? {
         return when (scope) {
             is TagScopeRef.Local -> {
-                TagProjectionTable.selectAll().where {
-                    (TagProjectionTable.scopeType eq scope.type.value) and
-                        (TagProjectionTable.scopeId eq scope.localScopeId.asString()) and
-                        TagProjectionTable.tagGroupId.isNull() and
-                        (TagProjectionTable.key eq key.value)
-                }.singleOrNull()?.let { row -> tagFromRow(row) }
+                TagViewCurrent_Tag_Table
+                    .selectAll()
+                    .where {
+                        (TagViewCurrent_Tag_Table.scopeType eq scope.type.value) and
+                                (TagViewCurrent_Tag_Table.scopeId eq scope.localScopeId) and
+                                TagViewCurrent_Tag_Table.tagGroupId.isNull() and
+                                (TagViewCurrent_Tag_Table.key eq key)
+                    }
+                    .singleOrNull()
+                    ?.let { row -> tagFromRow(row) }
             }
 
             is TagScopeRef.Global -> {
                 val effectiveGroupId = groupId ?: throw TagStorageDbInvalidGlobalLookupException()
-                TagProjectionTable.selectAll().where {
-                    (TagProjectionTable.scopeType eq scope.type.value) and
-                        TagProjectionTable.scopeId.isNull() and
-                        (TagProjectionTable.tagGroupId eq effectiveGroupId.asString()) and
-                        (TagProjectionTable.key eq key.value)
-                }.singleOrNull()?.let { row -> tagFromRow(row) }
+                TagViewCurrent_Tag_Table
+                    .selectAll()
+                    .where {
+                        (TagViewCurrent_Tag_Table.scopeType eq scope.type.value) and
+                                TagViewCurrent_Tag_Table.scopeId.isNull() and
+                                (TagViewCurrent_Tag_Table.tagGroupId eq effectiveGroupId) and
+                                (TagViewCurrent_Tag_Table.key eq key)
+                    }
+                    .singleOrNull()
+                    ?.let { row -> tagFromRow(row) }
             }
         }
     }
 
     fun findTagByIdOptional(id: TagId): Tag? {
-        return TagProjectionTable.selectAll().where { TagProjectionTable.id eq id.asString() }
+        return TagViewCurrent_Tag_Table
+            .selectAll()
+            .where { TagViewCurrent_Tag_Table.id eq id }
             .singleOrNull()
             ?.let { row -> tagFromRow(row) }
     }
 
+    fun findTagByIdAsOfOptional(id: TagId, eventDate: Instant): Tag? {
+        return TagViewHistory_Tag_Table
+            .selectAll()
+            .where {
+                (TagViewHistory_Tag_Table.tagId eq id) and
+                        (TagViewHistory_Tag_Table.validFrom lessEq eventDate) and
+                        (TagViewHistory_Tag_Table.validTo.isNull() or (TagViewHistory_Tag_Table.validTo greater eventDate))
+            }
+            .singleOrNull()
+            ?.let { row ->
+                val scopeType = TagScopeType(row[TagViewHistory_Tag_Table.scopeType])
+                val scopeId = row[TagViewHistory_Tag_Table.scopeId]
+                val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
+                    TagScopeRef.Global
+                } else {
+                    val localScopeId = requireNotNull(scopeId) {
+                        "Local tag history row missing scope_id"
+                    }
+                    TagScopeRef.Local(scopeType, localScopeId)
+                }
+                TagInMemory(
+                    id = row[TagViewHistory_Tag_Table.tagId],
+                    scope = scope,
+                    groupId = row[TagViewHistory_Tag_Table.tagGroupId],
+                    key = row[TagViewHistory_Tag_Table.key],
+                    name = row[TagViewHistory_Tag_Table.name],
+                    description = row[TagViewHistory_Tag_Table.description]
+                )
+            }
+    }
+
     fun findAllTagGroup(): List<TagGroup> {
-        return TagGroupProjectionTable.selectAll().map { row -> tagGroupFromRow(row) }
+        return TagViewCurrent_TagGroup_Table
+            .selectAll()
+            .map { row -> tagGroupFromRow(row) }
     }
 
     fun findTagGroupByIdOptional(id: TagGroupId): TagGroup? {
-        return TagGroupProjectionTable.selectAll().where { TagGroupProjectionTable.id eq id.asString() }
+        return TagViewCurrent_TagGroup_Table
+            .selectAll()
+            .where { TagViewCurrent_TagGroup_Table.id eq id }
             .singleOrNull()
             ?.let { row -> tagGroupFromRow(row) }
     }
 
+    fun findTagGroupByIdAsOfOptional(id: TagGroupId, eventDate: Instant): TagGroup? {
+        return TagViewHistory_TagGroup_Table
+            .selectAll()
+            .where {
+                (TagViewHistory_TagGroup_Table.tagGroupId eq id) and
+                        (TagViewHistory_TagGroup_Table.validFrom lessEq eventDate) and
+                        (TagViewHistory_TagGroup_Table.validTo.isNull() or (TagViewHistory_TagGroup_Table.validTo greater eventDate))
+            }
+            .singleOrNull()
+            ?.let { row ->
+                TagGroupInMemory(
+                    id = row[TagViewHistory_TagGroup_Table.tagGroupId],
+                    key = row[TagViewHistory_TagGroup_Table.key],
+                    name = row[TagViewHistory_TagGroup_Table.name],
+                    description = row[TagViewHistory_TagGroup_Table.description]
+                )
+            }
+    }
+
     fun findTagGroupByKeyOptional(key: TagGroupKey): TagGroup? {
-        return TagGroupProjectionTable.selectAll().where { TagGroupProjectionTable.key eq key.value }
+        return TagViewCurrent_TagGroup_Table
+            .selectAll()
+            .where { TagViewCurrent_TagGroup_Table.key eq key }
             .singleOrNull()
             ?.let { row -> tagGroupFromRow(row) }
     }
 
     private fun tagGroupFromRow(row: ResultRow): TagGroup {
         return TagGroupInMemory(
-            id = Id.fromString(row[TagGroupProjectionTable.id], ::TagGroupId),
-            key = Key.fromString(row[TagGroupProjectionTable.key], ::TagGroupKey),
-            name = row[TagGroupProjectionTable.name],
-            description = row[TagGroupProjectionTable.description]
+            id = row[TagViewCurrent_TagGroup_Table.id],
+            key = row[TagViewCurrent_TagGroup_Table.key],
+            name = row[TagViewCurrent_TagGroup_Table.name],
+            description = row[TagViewCurrent_TagGroup_Table.description]
         )
     }
 
     private fun tagFromRow(row: ResultRow): Tag {
-        val scopeType = TagScopeType(row[TagProjectionTable.scopeType])
-        val scopeIdString = row[TagProjectionTable.scopeId]
+        val scopeType = TagScopeType(row[TagViewCurrent_Tag_Table.scopeType])
+        val scopeId = row[TagViewCurrent_Tag_Table.scopeId]
         val scope = if (scopeType.value == TagScopeRef.Global.type.value) {
             TagScopeRef.Global
         } else {
-            val localScopeId = requireNotNull(scopeIdString) {
+            val localScopeId = requireNotNull(scopeId) {
                 "Local tag row missing scope_id"
             }
-            TagScopeRef.Local(scopeType, Id.fromString(localScopeId, ::TagScopeId))
+            TagScopeRef.Local(scopeType, localScopeId)
         }
-        val groupIdString = row[TagProjectionTable.tagGroupId]
-        val groupId = if (groupIdString == null) null else Id.fromString(groupIdString, ::TagGroupId)
+        val groupId = row[TagViewCurrent_Tag_Table.tagGroupId]
         return TagInMemory(
-            id = Id.fromString(row[TagProjectionTable.id], ::TagId),
+            id = row[TagViewCurrent_Tag_Table.id],
             scope = scope,
             groupId = groupId,
-            key = Key.fromString(row[TagProjectionTable.key], ::TagKey),
-            name = row[TagProjectionTable.name],
-            description = row[TagProjectionTable.description]
+            key = row[TagViewCurrent_Tag_Table.key],
+            name = row[TagViewCurrent_Tag_Table.name],
+            description = row[TagViewCurrent_Tag_Table.description]
         )
     }
+
 }

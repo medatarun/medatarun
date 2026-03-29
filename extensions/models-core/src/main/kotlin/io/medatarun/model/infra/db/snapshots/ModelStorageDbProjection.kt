@@ -114,8 +114,6 @@ internal class ModelStorageDbProjection(
 
     private fun storeModelAggregate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.StoreModelAggregate) {
 
-        logger.warn("Storing full aggregate {}", cmd)
-
         val modelSnapshotId = insertModel(
             ctx.modelSnapshotId,
             ModelInMemory(
@@ -1326,8 +1324,4 @@ internal class ModelStorageDbProjection(
         searchWrite.upsertRelationshipAttributeSearchItem(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
     }
 
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ModelStorageDbProjection::class.java)
-    }
 }

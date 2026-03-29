@@ -7,6 +7,7 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.security.AppActorResolver
+import io.medatarun.tags.core.domain.TagQueries
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -15,7 +16,8 @@ class ModelActionProvider(
     private val extensionRegistry: ExtensionRegistry,
     private val modelCmds: ModelCmds,
     private val modelQueries: ModelQueries,
-    private val actorResolver: AppActorResolver
+    private val actorResolver: AppActorResolver,
+    private val tagQueries: TagQueries
 ) : ActionProvider<ModelAction> {
 
     override val actionGroupKey: String = ACTION_GROUP_KEY
@@ -32,10 +34,7 @@ class ModelActionProvider(
 
         val locale = Locale.getDefault()
 
-        val handler = ModelActionHandler(modelCmds, modelQueries, resourceLocator, locale, actionCtx, extensionRegistry, actorResolver)
-
-        logger.info(action.toString())
-
+        val handler = ModelActionHandler(modelCmds, modelQueries, tagQueries, resourceLocator, locale, actionCtx, extensionRegistry, actorResolver, )
 
         val result = when (action) {
 
@@ -141,7 +140,6 @@ class ModelActionProvider(
 
 
     companion object {
-        private val logger = LoggerFactory.getLogger(ModelActionProvider::class.java)
 
         /**
          * Changing this will break APIs or CLI. It is the name clients are using to reference action group

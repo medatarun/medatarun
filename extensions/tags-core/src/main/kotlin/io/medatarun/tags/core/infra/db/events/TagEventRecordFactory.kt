@@ -2,6 +2,8 @@ package io.medatarun.tags.core.infra.db.events
 
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
+import io.medatarun.tags.core.domain.TagEventId
+import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.infra.db.records.TagEventRecord
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
@@ -15,13 +17,13 @@ class TagEventRecordFactory(private val codec: StorageEventJsonCodec<TagStorageC
     fun create(
         cmdEnv: TagStorageCmdEnveloppe,
         scopeType: String,
-        scopeId: String?,
+        scopeId: TagScopeId?,
         streamRevision: Int,
         createdAt: Instant
     ): TagEventRecord {
         val encoded = codec.encode(cmdEnv.cmd)
         return TagEventRecord(
-            id = UuidUtils.generateV7().toString(),
+            id = TagEventId(UuidUtils.generateV7()),
             scopeType = scopeType,
             scopeId = scopeId,
             streamRevision = streamRevision,
