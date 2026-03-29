@@ -114,8 +114,6 @@ internal class ModelStorageDbProjection(
 
     private fun storeModelAggregate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.StoreModelAggregate) {
 
-        logger.warn("Storing full aggregate {}", cmd)
-
         val modelSnapshotId = insertModel(
             ctx.modelSnapshotId,
             ModelInMemory(
