@@ -1,9 +1,9 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
+import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.RelationshipKey
 import io.medatarun.model.domain.search.SearchFields
@@ -23,6 +23,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -883,6 +884,199 @@ class Search_Test {
                 )
             ),
             hits
+        )
+    }
+
+    @Test
+    fun `rename model refreshes denormalized model labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Model_UpdateName(
+                modelRef = refs.cooking.ref,
+                value = LocalizedTextNotLocalized("Cooking (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val cookingLabels = results.getValue("items").jsonArray
+            .map { item -> item.jsonObject.getValue("location").jsonObject }
+            .filter { location -> location.getValue("modelKey").jsonPrimitive.content == refs.cooking.key.value }
+            .map { location -> location.getValue("modelLabel").jsonPrimitive.content }
+            .toSet()
+
+        assertEquals(
+            setOf("Cooking (canonical)"),
+            cookingLabels
+        )
+    }
+
+    @Test
+    fun `rename entity refreshes denormalized entity labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Entity_UpdateName(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.chef.ref,
+                value = LocalizedTextNotLocalized("Chef (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val chefLabels = results.getValue("items").jsonArray
+            .map { item -> item.jsonObject.getValue("location").jsonObject }
+            .filter { location ->
+                location.getValue("modelKey").jsonPrimitive.content == refs.cooking.key.value &&
+                        location["entityKey"]?.jsonPrimitive?.content == refs.cooking.chef.key.value
+            }
+            .map { location -> location.getValue("entityLabel").jsonPrimitive.content }
+            .toSet()
+
+        assertEquals(
+            setOf("Chef (canonical)"),
+            chefLabels
+        )
+    }
+
+    @Test
+    fun `update entity key refreshes denormalized entity keys across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val newEntityKey = EntityKey("chef-canonical")
+
+        fixture.env.dispatch(
+            ModelAction.Entity_UpdateKey(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.chef.ref,
+                value = newEntityKey
+            )
+        )
+
+        val hits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+
+        assertFalse(hits.contains(Hit.Entity(refs.cooking.key, refs.cooking.chef.key)))
+        assertFalse(
+            hits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.name.key
+                )
+            )
+        )
+        assertFalse(
+            hits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.email.key
+                )
+            )
+        )
+        assertFalse(
+            hits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.fingerprint.key
+                )
+            )
+        )
+
+        assertTrue(hits.contains(Hit.Entity(refs.cooking.key, newEntityKey)))
+        assertTrue(
+            hits.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    newEntityKey,
+                    refs.cooking.chef.attr.fingerprint.key
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `rename relationship refreshes denormalized relationship labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Relationship_UpdateName(
+                modelRef = refs.cooking.ref,
+                relationshipRef = refs.cooking.usage.ref,
+                value = LocalizedTextNotLocalized("Usage (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val usageLabels = results.getValue("items").jsonArray
+            .map { item -> item.jsonObject.getValue("location").jsonObject }
+            .filter { location ->
+                location.getValue("modelKey").jsonPrimitive.content == refs.cooking.key.value &&
+                        location["relationshipKey"]?.jsonPrimitive?.content == refs.cooking.usage.key.value
+            }
+            .map { location -> location.getValue("relationshipLabel").jsonPrimitive.content }
+            .toSet()
+
+        assertEquals(
+            setOf("Usage (canonical)"),
+            usageLabels
+        )
+    }
+
+    @Test
+    fun `update relationship key refreshes denormalized relationship keys across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val newRelationshipKey = RelationshipKey("usage-canonical")
+
+        fixture.env.dispatch(
+            ModelAction.Relationship_UpdateKey(
+                modelRef = refs.cooking.ref,
+                relationshipRef = refs.cooking.usage.ref,
+                value = newRelationshipKey
+            )
+        )
+
+        val hits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+
+        assertFalse(hits.contains(Hit.Relationship(refs.cooking.key, refs.cooking.usage.key)))
+        assertFalse(
+            hits.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                )
+            )
+        )
+        assertFalse(
+            hits.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.unit.key
+                )
+            )
+        )
+
+        assertTrue(hits.contains(Hit.Relationship(refs.cooking.key, newRelationshipKey)))
+        assertTrue(
+            hits.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    newRelationshipKey,
+                    refs.cooking.usage.attr.quantity.key
+                )
+            )
         )
     }
 

@@ -2,6 +2,7 @@ package io.medatarun.platform.db.adapters
 
 import io.medatarun.platform.db.DbProvider
 import io.medatarun.platform.db.DbTransactionManager
+import org.jetbrains.exposed.v1.core.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -24,12 +25,14 @@ class DbTransactionManagerImpl(
             return block()
         }
         return transaction(database) {
+            addLogger(Slf4jSqlDebugLogger)
             block()
         }
     }
 
     override fun <T> runInTransaction(block: () -> T): T {
         return transaction(database) {
+            addLogger(Slf4jSqlDebugLogger)
             block()
         }
     }

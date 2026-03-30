@@ -15,11 +15,12 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 
 internal class ModelStorageDbSearchWrite(
     private val enabled: Boolean = true
 ) {
-    fun upsertModelSearchItem(modelSnapshotId: ModelSnapshotId) {
+    fun refreshModelBranch(modelSnapshotId: ModelSnapshotId) {
         if (!enabled) return
 
         // Find the model record to update
@@ -30,6 +31,14 @@ internal class ModelStorageDbSearchWrite(
 
         // If found update it, but ignore issues if not found
         if (modelRecord != null) {
+            // modelKey/modelLabel are denormalized on every search row of the branch.
+            DenormModelSearchItemTable.update(
+                where = { DenormModelSearchItemTable.modelSnapshotId eq modelRecord.snapshotId }
+            ) { row ->
+                row[modelKey] = modelRecord.key
+                row[modelLabel] = modelLabelFromRecord(modelRecord)
+            }
+
             replaceSearchItem(
                 DenormModelSearchItemRecord(
                     id = searchItemIdForModel(modelRecord.modelId),
@@ -75,7 +84,7 @@ internal class ModelStorageDbSearchWrite(
         }
     }
 
-    fun upsertEntitySearchItem(modelSnapshotId: ModelSnapshotId, entityId: EntityId) {
+    fun refreshEntityBranch(modelSnapshotId: ModelSnapshotId, entityId: EntityId) {
         if (!enabled) return
         val row = EntityTable.join(
             ModelSnapshotTable,
@@ -91,6 +100,14 @@ internal class ModelStorageDbSearchWrite(
         }
         val entityRecord = EntityRecord.read(row)
         val modelRecord = ModelRecord.read(row)
+
+        // entityKey/entityLabel are denormalized on the entity row and every entity-attribute row.
+        DenormModelSearchItemTable.update(
+            where = { DenormModelSearchItemTable.entityId eq entityRecord.lineageId }
+        ) { denormRow ->
+            denormRow[entityKey] = entityRecord.key
+            denormRow[entityLabel] = entityLabelFromRecord(entityRecord)
+        }
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -132,7 +149,7 @@ internal class ModelStorageDbSearchWrite(
 
     }
 
-    fun upsertEntityAttributeSearchItem(
+    fun refreshEntityAttributeBranch(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId
@@ -163,6 +180,14 @@ internal class ModelStorageDbSearchWrite(
         val entityRecord = EntityRecord.read(row)
         val modelRecord = ModelRecord.read(row)
 
+        // attributeKey/attributeLabel are denormalized on the attribute search row.
+        DenormModelSearchItemTable.update(
+            where = { DenormModelSearchItemTable.attributeId eq attributeId }
+        ) { denormRow ->
+            denormRow[attributeKey] = attributeRecord.key
+            denormRow[attributeLabel] = entityAttributeLabelFromRecord(attributeRecord)
+        }
+
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForEntityAttribute(attributeId),
@@ -189,12 +214,12 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    fun deleteEntityAttributeSearchItem(attributeId: AttributeId) {
+    fun deleteEntityAttributeBranch(attributeId: AttributeId) {
         if (!enabled) return
         deleteSearchItemById(searchItemIdForEntityAttribute(attributeId))
     }
 
-    fun upsertRelationshipSearchItem(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId) {
+    fun refreshRelationshipBranch(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId) {
         if (!enabled) return
         val row = RelationshipTable.join(
             ModelSnapshotTable,
@@ -210,6 +235,14 @@ internal class ModelStorageDbSearchWrite(
         }
         val relationshipRecord = RelationshipRecord.read(row)
         val modelRecord = ModelRecord.read(row)
+
+        // relationshipKey/relationshipLabel are denormalized on the relationship row and every relationship-attribute row.
+        DenormModelSearchItemTable.update(
+            where = { DenormModelSearchItemTable.relationshipId eq relationshipRecord.lineageId }
+        ) { denormRow ->
+            denormRow[relationshipKey] = relationshipRecord.key
+            denormRow[relationshipLabel] = relationshipLabelFromRecord(relationshipRecord)
+        }
 
         replaceSearchItem(
             DenormModelSearchItemRecord(
@@ -254,7 +287,7 @@ internal class ModelStorageDbSearchWrite(
             .forEach { deleteSearchItemById(it) }
     }
 
-    fun upsertRelationshipAttributeSearchItem(
+    fun refreshRelationshipAttributeBranch(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId
@@ -285,6 +318,14 @@ internal class ModelStorageDbSearchWrite(
         val relationshipRecord = RelationshipRecord.read(row)
         val modelRecord = ModelRecord.read(row)
 
+        // attributeKey/attributeLabel are denormalized on the attribute search row.
+        DenormModelSearchItemTable.update(
+            where = { DenormModelSearchItemTable.attributeId eq attributeId }
+        ) { denormRow ->
+            denormRow[attributeKey] = attributeRecord.key
+            denormRow[attributeLabel] = relationshipAttributeLabelFromRecord(attributeRecord)
+        }
+
         replaceSearchItem(
             DenormModelSearchItemRecord(
                 id = searchItemIdForRelationshipAttribute(attributeId),
@@ -311,7 +352,7 @@ internal class ModelStorageDbSearchWrite(
         )
     }
 
-    fun deleteRelationshipAttributeSearchItem(attributeId: AttributeId) {
+    fun deleteRelationshipAttributeBranch(attributeId: AttributeId) {
         if (!enabled) return
         deleteSearchItemById(searchItemIdForRelationshipAttribute(attributeId))
     }
