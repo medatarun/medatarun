@@ -289,26 +289,64 @@ class ModelAndTag_Event_Test {
         env.dispatchTag(TagAction.TagGlobalDelete(personalDataTag.ref))
 
         // Only the removed tag disappears. Tags that were not part of the deletion stay attached.
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-        assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
-        assertEquals(
-            emptyList(),
-            env.queries.findEntityAttribute(
-                cooking.modelRef,
-                cooking.recipeRef,
-                cooking.recipeDescriptionRef
-            ).tags
+        env.replayWithRebuild {
+            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+            assertEquals(
+                emptyList(),
+                env.queries.findEntityAttribute(
+                    cooking.modelRef,
+                    cooking.recipeRef,
+                    cooking.recipeDescriptionRef
+                ).tags
+            )
+            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
+            assertEquals(
+                emptyList(),
+                env.queries.findModel(cooking.modelRef)
+                    .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
+                    .tags
+            )
+
+            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).tags)
+            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).findEntity(crm.personRef).tags)
+        }
+    }
+
+    @Test
+    fun `delete a global tag removes model-level tags after rebuild`() {
+        val env = createEnv()
+        val cookingRef = modelRef("cooking-rebuild")
+        val crmRef = modelRef("crm-rebuild")
+        env.dispatch(
+            ModelAction.Model_Create(
+                key = ModelKey("cooking-rebuild"),
+                name = LocalizedTextNotLocalized("Cooking rebuild"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
         )
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
-        assertEquals(
-            emptyList(),
-            env.queries.findModel(cooking.modelRef)
-                .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
-                .tags
+        env.dispatch(
+            ModelAction.Model_Create(
+                key = ModelKey("crm-rebuild"),
+                name = LocalizedTextNotLocalized("CRM rebuild"),
+                description = null,
+                version = ModelVersion("1.0.0")
+            )
         )
 
-        assertEquals(emptyList(), env.queries.findModel(crm.modelRef).tags)
-        assertEquals(emptyList(), env.queries.findModel(crm.modelRef).findEntity(crm.personRef).tags)
+        val personalDataTag = env.createGlobalTag("gdpr-rebuild", "personal-data")
+        val publicVisibilityTag = env.createGlobalTag("security-rebuild", "public")
+        env.dispatch(ModelAction.Model_AddTag(cookingRef, personalDataTag.ref))
+        env.dispatch(ModelAction.Model_AddTag(cookingRef, publicVisibilityTag.ref))
+        env.dispatch(ModelAction.Model_AddTag(crmRef, personalDataTag.ref))
+
+        env.dispatchTag(TagAction.TagGlobalDelete(personalDataTag.ref))
+
+        env.replayWithRebuild {
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cookingRef).tags)
+            assertEquals(emptyList(), env.queries.findModel(crmRef).tags)
+        }
     }
 
     /**

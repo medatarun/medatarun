@@ -50,6 +50,10 @@ class ModelActionHandler(
         )
     }
 
+    fun maintenanceRebuildCaches() {
+        modelCmds.maintenanceRebuildCaches()
+    }
+
     fun modelImport(action: ModelAction.Import) {
         val contribs = extensionRegistry.findContributionsFlat(ModelImporter::class)
         val resourceLocator = resourceLocator.withPath(action.from)

@@ -107,6 +107,12 @@ class ModelCmdsImpl(
         }
     }
 
+    override fun maintenanceRebuildCaches() {
+        return txManager.runInTransaction {
+            storage.maintenanceRebuildCaches()
+        }
+    }
+
     private fun removeTagReferences(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.RemoveTagReferences) {
         val locations = storage.findDomainTagLocationsByTagId(cmd.tagId)
         locations.forEach { location ->
@@ -453,6 +459,7 @@ class ModelCmdsImpl(
             cmdEnv,
             ModelStorageCmd.CreateType(
                 modelId = model.id,
+                typeId = TypeId.generate(),
                 key = cmd.initializer.key,
                 name = cmd.initializer.name,
                 description = cmd.initializer.description

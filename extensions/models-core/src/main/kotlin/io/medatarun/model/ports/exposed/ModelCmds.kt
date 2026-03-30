@@ -14,4 +14,9 @@ interface ModelCmds {
      * Execute this command
      */
     fun dispatch(cmdEnv: ModelCmdEnveloppe)
+
+    /**
+     * Rebuilds model projections by replaying persisted events.
+     */
+    fun maintenanceRebuildCaches()
 }

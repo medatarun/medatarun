@@ -46,6 +46,7 @@ class ModelActionProvider(
             is ModelAction.Inspect_Json -> handler.modelInspectJson()
             is ModelAction.Compare -> handler.modelCompare(action)
             is ModelAction.Search -> handler.search(action)
+            is ModelAction.MaintenanceRebuildCaches -> handler.maintenanceRebuildCaches()
 
             is ModelAction.Model_List -> handler.modelList(action)
             is ModelAction.Model_Export -> handler.modelExport(action)
@@ -147,7 +148,6 @@ class ModelActionProvider(
         const val ACTION_GROUP_KEY = "model"
     }
 }
-
 
 
 

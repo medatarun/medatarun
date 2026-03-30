@@ -20,12 +20,14 @@ class Model_Create_Test {
 
         env.dispatch(ModelAction.Model_Create(modelKey, name, description, version))
 
-        val reloaded = query.findModelByKey(modelKey)
-        assertEquals(name, reloaded.name)
-        assertEquals(description, reloaded.description)
-        assertEquals(version, reloaded.version)
-        assertEquals(ModelOrigin.Manual, reloaded.origin)
-        assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
+        env.replayWithRebuild {
+            val reloaded = query.findModelByKey(modelKey)
+            assertEquals(name, reloaded.name)
+            assertEquals(description, reloaded.description)
+            assertEquals(version, reloaded.version)
+            assertEquals(ModelOrigin.Manual, reloaded.origin)
+            assertEquals(ModelAuthority.SYSTEM, reloaded.authority)
+        }
     }
 
     @Test

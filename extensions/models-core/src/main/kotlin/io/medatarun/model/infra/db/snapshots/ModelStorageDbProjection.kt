@@ -590,10 +590,9 @@ internal class ModelStorageDbProjection(
 
 
     private fun createType(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateType) {
-        val lineageId = TypeId.generate()
         val record = ModelTypeRecord(
             snapshotId = TypeSnapshotId.generate(),
-            lineageId = lineageId,
+            lineageId = cmd.typeId,
             modelSnapshotId = ctx.modelSnapshotId,
             key = cmd.key,
             name = cmd.name,

@@ -39,7 +39,9 @@ class Relationship_XTag_Test {
         assertEquals(listOf(globalTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
 
         env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, globalTag.ref))
-        assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+        env.runtime.replayWithRebuild {
+            assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+        }
     }
 
     @Test
