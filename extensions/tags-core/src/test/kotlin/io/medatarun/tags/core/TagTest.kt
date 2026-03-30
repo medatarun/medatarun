@@ -213,8 +213,10 @@ class TagTest {
         env.dispatch(TagAction.TagLocalUpdateKey(tagRef(tag2Id), TagKey("newkey2")))
 
         // Checks the new tag2 key
-        assertTagKey("newkey1", tag1Id)
-        assertTagKey("newkey2", tag2Id)
+        env.replayWithRebuild {
+            assertTagKey("newkey1", tag1Id)
+            assertTagKey("newkey2", tag2Id)
+        }
     }
 
     @Test
@@ -391,8 +393,10 @@ class TagTest {
         env.dispatch(TagAction.TagGroupUpdateKey(TagGroupRef.ById(tagGroup2Id), TagGroupKey("newkey2")))
 
         // Checks the new group2 key
-        assertTagGroupKey("newkey1", tagGroup1Id)
-        assertTagGroupKey("newkey2", tagGroup2Id)
+        env.replayWithRebuild {
+            assertTagGroupKey("newkey1", tagGroup1Id)
+            assertTagGroupKey("newkey2", tagGroup2Id)
+        }
     }
 
     @Test
@@ -483,18 +487,20 @@ class TagTest {
 
         env.dispatch(TagAction.TagGroupDelete(TagGroupRef.ById(group.id)))
 
-        // global tags are deleted from storage by SQL cascade.
-        assertNull(env.tagQueries.findTagByIdOptional(globalA.id))
-        assertNull(env.tagQueries.findTagByIdOptional(globalB.id))
-        // local tag remains.
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(localKeep.id)))
+        env.replayWithRebuild {
+            // global tags are deleted from storage by SQL cascade.
+            assertNull(env.tagQueries.findTagByIdOptional(globalA.id))
+            assertNull(env.tagQueries.findTagByIdOptional(globalB.id))
+            // local tag remains.
+            assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(localKeep.id)))
 
-        // global tag ids are removed from all objects, other tags are kept.
-        assertEquals(listOf(localKeep.id), env.recipeService.findRecipeById(recipeId).tags)
-        assertEquals(emptyList(), env.recipeService.findIngredientById(ingredientId).tags)
-        assertEquals(listOf(localKeep.id), env.recipeService.findRecipeStepById(stepId).tags)
-        assertEquals(emptyList(), env.vehicleService.findVehicleById(vehicleId).tags)
-        assertEquals(listOf(localKeep.id), env.vehicleService.findVehiclePartById(partId).tags)
+            // global tag ids are removed from all objects, other tags are kept.
+            assertEquals(listOf(localKeep.id), env.recipeService.findRecipeById(recipeId).tags)
+            assertEquals(emptyList(), env.recipeService.findIngredientById(ingredientId).tags)
+            assertEquals(listOf(localKeep.id), env.recipeService.findRecipeStepById(stepId).tags)
+            assertEquals(emptyList(), env.vehicleService.findVehicleById(vehicleId).tags)
+            assertEquals(listOf(localKeep.id), env.vehicleService.findVehiclePartById(partId).tags)
+        }
     }
 
     // global Tags
@@ -736,8 +742,10 @@ class TagTest {
             assertEquals(TagKey(expected), found.key)
         }
 
-        assertTagKey("group1-key1", group1Tag1.id)
-        assertTagKey("group2-key1", group1Tag2.id)
+        env.replayWithRebuild {
+            assertTagKey("group1-key1", group1Tag1.id)
+            assertTagKey("group2-key1", group1Tag2.id)
+        }
     }
 
     @Test
@@ -1189,9 +1197,11 @@ class TagTest {
 
         env.recipeService.deleteRecipe(recipeId1)
 
-        assertNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope1, TagKey("recipe-1-tag"))))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope2, TagKey("recipe-2-tag"))))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope, TagKey("vehicle-tag"))))
+        env.replayWithRebuild {
+            assertNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope1, TagKey("recipe-1-tag"))))
+            assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope2, TagKey("recipe-2-tag"))))
+            assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope, TagKey("vehicle-tag"))))
+        }
     }
 
     @Test
@@ -1216,9 +1226,11 @@ class TagTest {
 
         env.vehicleService.deleteVehicle(vehicleId1)
 
-        assertNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope1, TagKey("vehicle-1-tag"))))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope2, TagKey("vehicle-2-tag"))))
-        assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope, TagKey("recipe-tag"))))
+        env.replayWithRebuild {
+            assertNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope1, TagKey("vehicle-1-tag"))))
+            assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(vehicleScope2, TagKey("vehicle-2-tag"))))
+            assertNotNull(env.tagQueries.findTagByRefOptional(tagRef(recipeScope, TagKey("recipe-tag"))))
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------------------

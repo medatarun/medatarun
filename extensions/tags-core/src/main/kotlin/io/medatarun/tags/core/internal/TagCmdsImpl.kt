@@ -53,6 +53,12 @@ class TagCmdsImpl(
         }
     }
 
+    override fun maintenanceRebuildCaches() {
+        return txManager.runInTransaction {
+            storage.maintenanceRebuildCaches()
+        }
+    }
+
     private fun tagLocalScopeDelete(cmdEnv: TagCmdEnveloppe, cmd: TagCmd.TagLocalScopeDelete) {
         storageDispatch(cmdEnv, TagStorageCmd.TagLocalScopeDelete(cmd.scopeRef))
     }

@@ -8,4 +8,5 @@ package io.medatarun.tags.core.domain
  */
 interface TagCmds {
     fun dispatch(cmdEnv: TagCmdEnveloppe)
+    fun maintenanceRebuildCaches()
 }

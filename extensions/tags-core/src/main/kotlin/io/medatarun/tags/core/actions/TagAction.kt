@@ -2,6 +2,8 @@ package io.medatarun.tags.core.actions
 
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
+import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.security.SecurityRuleNames
 import io.medatarun.tags.core.adapters.security.TagSecurityRules
@@ -394,6 +396,22 @@ sealed interface TagAction {
         )
         val tagRef: TagRef
     ) : TagAction
+
+    @ActionDoc(
+        key = "maintenance_rebuild_caches",
+        title = "Maintenance rebuild caches",
+        description = """
+            Rebuilds tag application caches from stored events.
+            
+            Use this only as an exceptional maintenance action when data appears out of date.
+            If you need to run it, we recommend contacting us on the project GitHub because it
+            usually means you identified a bug.
+        """,
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.NONE)
+    )
+    class MaintenanceRebuildCaches : TagAction
 
     // -----------------------------------------------------------------------------------------------------------------
     // Queries

@@ -144,6 +144,31 @@ class TagTestEnv(
         return actionPlatform.invoker.handleInvocation(request, testActionRequestContext)
     }
 
+    fun loginAsAdmin() {
+        testPrincipal = testPrincipalAdmin
+    }
+
+    /**
+     * Launches a block of queries and assertions twice
+     *
+     * One time with the current state of the database.
+     * Then we ask to rebuild the projection tables using a maintenance comand.
+     * Next we replay the bloc, we should have the same assertions.
+     *
+     * Using this on key tests allows us to be sure that the projection tables
+     * can be rebuilt and have the same results (since the business cases tested
+     * are the same).
+     *
+     */
+    fun replayWithRebuild(block: () -> Unit) {
+        block()
+        val previousPrincipal = testPrincipal
+        loginAsAdmin()
+        dispatch(TagAction.MaintenanceRebuildCaches())
+        testPrincipal = previousPrincipal
+        block()
+    }
+
     companion object {
 
         val appActorResolver = object : AppActorResolver {
@@ -158,7 +183,7 @@ class TagTestEnv(
             }
 
         }
-        private val testPrincipal = object : AppPrincipal {
+        private val testPrincipalUser = object : AppPrincipal {
             override val id: AppActorId = Id.generate(::AppActorId)
             override val issuer: String = ""
             override val subject: String = ""
@@ -170,6 +195,19 @@ class TagTestEnv(
                 TagGlobalManageRole
             )
         }
+        private val testPrincipalAdmin = object : AppPrincipal {
+            override val id: AppActorId = Id.generate(::AppActorId)
+            override val issuer: String = ""
+            override val subject: String = ""
+            override val isAdmin: Boolean = true
+            override val fullname: String = "admin"
+            override val roles: List<AppPrincipalRole> = listOf(
+                TagLocalManageRole,
+                TagGroupManageRole,
+                TagGlobalManageRole
+            )
+        }
+        private var testPrincipal: AppPrincipal = testPrincipalUser
 
         private val testPrincipalCtx = object : ActionPrincipalCtx {
             override fun ensureIsAdmin() {
