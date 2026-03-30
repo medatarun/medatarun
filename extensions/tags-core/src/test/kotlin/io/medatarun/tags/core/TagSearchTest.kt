@@ -91,7 +91,7 @@ class TagSearchTest {
         assertNotNull(recipeItem)
         val recipeScopeRef = recipeItem["tagScopeRef"]!!.jsonObject
         assertEquals(recipeScope.type.value, jsonString(recipeScopeRef, "type"))
-        assertEquals(recipeScope.scopeId!!.asString(), jsonString(recipeScopeRef, "id"))
+        assertEquals(recipeScope.scopeId.asString(), jsonString(recipeScopeRef, "id"))
         assertNull(findTagSearchItemByKey(items, "vehicle-tag"))
     }
 

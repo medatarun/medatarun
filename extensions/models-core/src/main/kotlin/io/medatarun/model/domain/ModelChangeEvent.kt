@@ -11,7 +11,7 @@ interface ModelChangeEvent {
     /**
      * Each event has a unique identifier
      */
-    val eventId: String
+    val eventId: ModelEventId
 
     /**
      * Type of event (model_release, model_update_name, etc.)

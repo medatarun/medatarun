@@ -1,11 +1,15 @@
 package io.medatarun.model.actions
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityKey
+import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
+import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelKey
+import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.RelationshipKey
+import io.medatarun.model.domain.RelationshipId
 import io.medatarun.model.domain.search.SearchFields
 import io.medatarun.model.domain.search.SearchFilter
 import io.medatarun.model.domain.search.SearchFilterTags
@@ -23,6 +27,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -55,8 +60,9 @@ class Search_Test {
             )
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.password.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
@@ -79,8 +85,8 @@ class Search_Test {
                 ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -107,12 +113,13 @@ class Search_Test {
             )
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key)
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -129,15 +136,15 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val allHits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
-        val noPublicHits = resultHits(
-            search(
-                fixture,
-                SearchFilterTags.NoneOf(
-                    listOf(refs.tags.global.security.public.ref)
-                )
+        val allResults = search(fixture, SearchFilterTags.NotEmpty)
+        val noPublicResults = search(
+            fixture,
+            SearchFilterTags.NoneOf(
+                listOf(refs.tags.global.security.public.ref)
             )
         )
+        val allHits = allResults.collectHits()
+        val noPublicHits = noPublicResults.collectHits()
 
         assertEquals(
             allHits - setOf(
@@ -178,17 +185,18 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val emptyHits = resultHits(search(fixture, SearchFilterTags.Empty))
-        assertEquals(
-            setOf(
+        val results = search(fixture, SearchFilterTags.Empty)
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.Model(refs.crm.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.id.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.id.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.ingredient.key, refs.cooking.ingredient.attr.id.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.recipe.key, refs.cooking.recipe.attr.id.key),
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.id.key),
-            ),
-            emptyHits
+                )
+            )
         )
     }
 
@@ -205,10 +213,11 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val nonEmptyHits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+        val results = search(fixture, SearchFilterTags.NotEmpty)
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.Entity(refs.crm.key, refs.crm.person.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key),
@@ -251,8 +260,8 @@ class Search_Test {
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.author.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
-            ),
-            nonEmptyHits
+                )
+            )
         )
     }
 
@@ -269,11 +278,14 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val emptyHits = resultHits(search(fixture, SearchFilterTags.Empty))
-        val nonEmptyHits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+        val emptyResults = search(fixture, SearchFilterTags.Empty)
+        val nonEmptyResults = search(fixture, SearchFilterTags.NotEmpty)
+        val emptyHits = emptyResults.collectHits()
+        val nonEmptyHits = nonEmptyResults.collectHits()
+        val allIndexedHits = emptyHits + nonEmptyHits
 
         assertTrue(emptyHits.intersect(nonEmptyHits).isEmpty())
-        assertEquals(allIndexedHits(fixture), emptyHits + nonEmptyHits)
+        assertEquals(allIndexedHits, emptyHits + nonEmptyHits)
     }
 
     // ------------------------------------------------------------------------
@@ -295,11 +307,12 @@ class Search_Test {
             SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref))
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key)
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -319,14 +332,15 @@ class Search_Test {
             SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_search.ref(crmModelId)))
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.email.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -346,8 +360,9 @@ class Search_Test {
             SearchFilterTags.AnyOf(listOf(refs.tags.local.cooking.imported.ref(cookingModelId)))
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.Model(refs.cooking.key),
                 Hit.Entity(refs.cooking.key, refs.cooking.ingredient.key),
                 Hit.EntityAttribute(
@@ -377,8 +392,8 @@ class Search_Test {
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.Relationship(refs.cooking.key, refs.cooking.author.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -459,8 +474,9 @@ class Search_Test {
             )
         )
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.EntityAttribute(
                     refs.cooking.key,
                     refs.cooking.ingredient.key,
@@ -479,8 +495,8 @@ class Search_Test {
                 ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key),
-            ),
-            resultHits(results)
+                )
+            )
         )
     }
 
@@ -506,7 +522,6 @@ class Search_Test {
             )
         )
 
-        val hits = resultHits(results)
         val expectedHits = setOf(
             Hit.Entity(refs.crm.key, refs.crm.person.key),
             Hit.Entity(refs.crm.key, refs.crm.company.key),
@@ -516,10 +531,7 @@ class Search_Test {
             Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key),
         )
 
-        assertEquals(
-            expectedHits,
-            hits
-        )
+        assertTrue(results.containsExactly(expectedHits))
     }
 
     // ------------------------------------------------------------------------
@@ -537,9 +549,8 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterTags.AnyOf(emptyList())))
-
-        assertEquals(emptySet(), hits)
+        val results = search(fixture, SearchFilterTags.AnyOf(emptyList()))
+        assertTrue(results.containsExactly(emptySet()))
     }
 
     /**
@@ -553,9 +564,11 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterTags.AllOf(emptyList())))
-
-        assertEquals(allIndexedHits(fixture), hits)
+        val results = search(fixture, SearchFilterTags.AllOf(emptyList()))
+        val emptyResults = search(fixture, SearchFilterTags.Empty)
+        val nonEmptyResults = search(fixture, SearchFilterTags.NotEmpty)
+        val allIndexedHits = emptyResults.collectHits() + nonEmptyResults.collectHits()
+        assertTrue(results.containsExactly(allIndexedHits))
     }
 
     /**
@@ -569,9 +582,11 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterTags.NoneOf(emptyList())))
-
-        assertEquals(allIndexedHits(fixture), hits)
+        val results = search(fixture, SearchFilterTags.NoneOf(emptyList()))
+        val emptyResults = search(fixture, SearchFilterTags.Empty)
+        val nonEmptyResults = search(fixture, SearchFilterTags.NotEmpty)
+        val allIndexedHits = emptyResults.collectHits() + nonEmptyResults.collectHits()
+        assertTrue(results.containsExactly(allIndexedHits))
     }
 
     /**
@@ -585,7 +600,7 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val uniqueHits = resultHits(
+        val uniqueResults = (
             search(
                 fixture,
                 SearchFilterTags.AnyOf(
@@ -596,7 +611,7 @@ class Search_Test {
                 )
             )
         )
-        val duplicateHits = resultHits(
+        val duplicateResults = (
             search(
                 fixture,
                 SearchFilterTags.AnyOf(
@@ -609,7 +624,7 @@ class Search_Test {
             )
         )
 
-        assertEquals(uniqueHits, duplicateHits)
+        assertTrue(duplicateResults.containsExactly(uniqueResults))
     }
 
     /**
@@ -623,7 +638,7 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val uniqueHits = resultHits(
+        val uniqueResults = (
             search(
                 fixture,
                 SearchFilterTags.AllOf(
@@ -634,7 +649,7 @@ class Search_Test {
                 )
             )
         )
-        val duplicateHits = resultHits(
+        val duplicateResults = (
             search(
                 fixture,
                 SearchFilterTags.AllOf(
@@ -647,7 +662,7 @@ class Search_Test {
             )
         )
 
-        assertEquals(uniqueHits, duplicateHits)
+        assertTrue(duplicateResults.containsExactly(uniqueResults))
     }
 
     /**
@@ -661,13 +676,13 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val uniqueHits = resultHits(
+        val uniqueResults = (
             search(
                 fixture,
                 SearchFilterTags.NoneOf(listOf(refs.tags.global.security.public.ref))
             )
         )
-        val duplicateHits = resultHits(
+        val duplicateResults = (
             search(
                 fixture,
                 SearchFilterTags.NoneOf(
@@ -679,7 +694,7 @@ class Search_Test {
             )
         )
 
-        assertEquals(uniqueHits, duplicateHits)
+        assertTrue(duplicateResults.containsExactly(uniqueResults))
     }
 
     // ------------------------------------------------------------------------
@@ -697,17 +712,18 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(
-            search(
-                fixture,
-                SearchFilters(
-                    operator = SearchFiltersLogicalOperator.AND,
-                    items = emptyList()
-                )
+        val results = search(
+            fixture,
+            SearchFilters(
+                operator = SearchFiltersLogicalOperator.AND,
+                items = emptyList()
             )
         )
 
-        assertEquals(allIndexedHits(fixture), hits)
+        val emptyResults = search(fixture, SearchFilterTags.Empty)
+        val nonEmptyResults = search(fixture, SearchFilterTags.NotEmpty)
+        val allIndexedHits = emptyResults.collectHits() + nonEmptyResults.collectHits()
+        assertTrue(results.containsExactly(allIndexedHits))
     }
 
     /**
@@ -721,17 +737,15 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(
-            search(
-                fixture,
-                SearchFilters(
-                    operator = SearchFiltersLogicalOperator.OR,
-                    items = emptyList()
-                )
+        val results = search(
+            fixture,
+            SearchFilters(
+                operator = SearchFiltersLogicalOperator.OR,
+                items = emptyList()
             )
         )
 
-        assertEquals(emptySet(), hits)
+        assertTrue(results.containsExactly(emptySet()))
     }
 
     // ------------------------------------------------------------------------
@@ -748,12 +762,12 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterTags.NotEmpty))
+        val results = search(fixture, SearchFilterTags.NotEmpty)
 
-        assertTrue(hits.contains(Hit.Model(refs.cooking.key)))
-        assertTrue(hits.contains(Hit.Entity(refs.crm.key, refs.crm.person.key)))
+        assertTrue(results.contains(Hit.Model(refs.cooking.key)))
+        assertTrue(results.contains(Hit.Entity(refs.crm.key, refs.crm.person.key)))
         assertTrue(
-            hits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.crm.key,
                     refs.crm.person.key,
@@ -761,9 +775,9 @@ class Search_Test {
                 )
             )
         )
-        assertTrue(hits.contains(Hit.Relationship(refs.crm.key, refs.crm.employment.key)))
+        assertTrue(results.contains(Hit.Relationship(refs.crm.key, refs.crm.employment.key)))
         assertTrue(
-            hits.contains(
+            results.contains(
                 Hit.RelationshipAttribute(
                     refs.cooking.key,
                     refs.cooking.usage.key,
@@ -783,10 +797,10 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val emptyHits = resultHits(search(fixture, SearchFilterTags.Empty))
+        val results = search(fixture, SearchFilterTags.Empty)
 
         assertTrue(
-            emptyHits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.crm.key,
                     refs.crm.person.key,
@@ -795,7 +809,7 @@ class Search_Test {
             )
         )
         assertTrue(
-            emptyHits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.crm.key,
                     refs.crm.company.key,
@@ -804,7 +818,7 @@ class Search_Test {
             )
         )
         assertTrue(
-            emptyHits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.cooking.key,
                     refs.cooking.ingredient.key,
@@ -813,7 +827,7 @@ class Search_Test {
             )
         )
         assertTrue(
-            emptyHits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.cooking.key,
                     refs.cooking.recipe.key,
@@ -822,7 +836,7 @@ class Search_Test {
             )
         )
         assertTrue(
-            emptyHits.contains(
+            results.contains(
                 Hit.EntityAttribute(
                     refs.cooking.key,
                     refs.cooking.chef.key,
@@ -838,9 +852,9 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterText.Contains("cook")))
+        val results = search(fixture, SearchFilterText.Contains("cook"))
 
-        assertTrue(hits.contains(Hit.Model(refs.cooking.key)))
+        assertTrue(results.contains(Hit.Model(refs.cooking.key)))
     }
 
     @Test
@@ -849,11 +863,14 @@ class Search_Test {
             .addCrmCookingAndTags()
             .build()
 
-        val hits = resultHits(search(fixture, SearchFilterText.Contains("fingerprint")))
+        val results = search(fixture, SearchFilterText.Contains("fingerprint"))
 
-        assertEquals(
-            setOf(Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key)),
-            hits
+        assertTrue(
+            results.containsExactly(
+                setOf(
+                    Hit.EntityAttribute(refs.cooking.key, refs.cooking.chef.key, refs.cooking.chef.attr.fingerprint.key)
+                )
+            )
         )
     }
 
@@ -872,21 +889,216 @@ class Search_Test {
             )
         )
 
-        val hits = resultHits(search(fixture, SearchFilterText.Contains("calendar")))
+        val results = search(fixture, SearchFilterText.Contains("calendar"))
 
-        assertEquals(
-            setOf(
+        assertTrue(
+            results.containsExactly(
+                setOf(
                 Hit.RelationshipAttribute(
                     refs.cooking.key,
                     refs.cooking.author.key,
                     refs.cooking.author.attr.date.key
                 )
-            ),
-            hits
+                )
+            )
         )
     }
 
-    private fun search(fixture: SearchFixture, filter: SearchFilter): JsonObject {
+    @Test
+    fun `rename model refreshes denormalized model labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Model_UpdateName(
+                modelRef = refs.cooking.ref,
+                value = LocalizedTextNotLocalized("Cooking (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val cookingLabels = mutableSetOf<String>()
+        results.forEachModelItems(refs.cooking.key) { row ->
+            cookingLabels.add(row.modelLabel)
+        }
+
+        assertEquals(
+            setOf("Cooking (canonical)"),
+            cookingLabels
+        )
+    }
+
+    @Test
+    fun `rename entity refreshes denormalized entity labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Entity_UpdateName(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.chef.ref,
+                value = LocalizedTextNotLocalized("Chef (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val chefLabels = mutableSetOf<String>()
+        results.forEachEntityItems(refs.cooking.key, refs.cooking.chef.key) { row ->
+            if (row is SearchRow.Entity) {
+                chefLabels.add(row.entityLabel)
+            }
+            if (row is SearchRow.EntityAttribute) {
+                chefLabels.add(row.entityLabel)
+            }
+        }
+
+        assertEquals(
+            setOf("Chef (canonical)"),
+            chefLabels
+        )
+    }
+
+    @Test
+    fun `update entity key refreshes denormalized entity keys across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val newEntityKey = EntityKey("chef-canonical")
+
+        fixture.env.dispatch(
+            ModelAction.Entity_UpdateKey(
+                modelRef = refs.cooking.ref,
+                entityRef = refs.cooking.chef.ref,
+                value = newEntityKey
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+
+        assertFalse(results.contains(Hit.Entity(refs.cooking.key, refs.cooking.chef.key)))
+        assertFalse(
+            results.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.name.key
+                )
+            )
+        )
+        assertFalse(
+            results.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.email.key
+                )
+            )
+        )
+        assertFalse(
+            results.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    refs.cooking.chef.key,
+                    refs.cooking.chef.attr.fingerprint.key
+                )
+            )
+        )
+
+        assertTrue(results.contains(Hit.Entity(refs.cooking.key, newEntityKey)))
+        assertTrue(
+            results.contains(
+                Hit.EntityAttribute(
+                    refs.cooking.key,
+                    newEntityKey,
+                    refs.cooking.chef.attr.fingerprint.key
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `rename relationship refreshes denormalized relationship labels across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+
+        fixture.env.dispatch(
+            ModelAction.Relationship_UpdateName(
+                modelRef = refs.cooking.ref,
+                relationshipRef = refs.cooking.usage.ref,
+                value = LocalizedTextNotLocalized("Usage (canonical)")
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+        val usageLabels = mutableSetOf<String>()
+        results.forEachRelationshipItems(refs.cooking.key, refs.cooking.usage.key) { row ->
+            if (row is SearchRow.Relationship) {
+                usageLabels.add(row.relationshipLabel)
+            }
+            if (row is SearchRow.RelationshipAttribute) {
+                usageLabels.add(row.relationshipLabel)
+            }
+        }
+
+        assertEquals(
+            setOf("Usage (canonical)"),
+            usageLabels
+        )
+    }
+
+    @Test
+    fun `update relationship key refreshes denormalized relationship keys across matching search rows`() {
+        val fixture = SearchFixture.builder()
+            .addCrmCookingAndTags()
+            .build()
+        val newRelationshipKey = RelationshipKey("usage-canonical")
+
+        fixture.env.dispatch(
+            ModelAction.Relationship_UpdateKey(
+                modelRef = refs.cooking.ref,
+                relationshipRef = refs.cooking.usage.ref,
+                value = newRelationshipKey
+            )
+        )
+
+        val results = search(fixture, SearchFilterTags.NotEmpty)
+
+        assertFalse(results.contains(Hit.Relationship(refs.cooking.key, refs.cooking.usage.key)))
+        assertFalse(
+            results.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.quantity.key
+                )
+            )
+        )
+        assertFalse(
+            results.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    refs.cooking.usage.key,
+                    refs.cooking.usage.attr.unit.key
+                )
+            )
+        )
+
+        assertTrue(results.contains(Hit.Relationship(refs.cooking.key, newRelationshipKey)))
+        assertTrue(
+            results.contains(
+                Hit.RelationshipAttribute(
+                    refs.cooking.key,
+                    newRelationshipKey,
+                    refs.cooking.usage.attr.quantity.key
+                )
+            )
+        )
+    }
+
+    private fun search(fixture: SearchFixture, filter: SearchFilter): SearchResult {
         return search(
             fixture,
             SearchFilters(
@@ -896,69 +1108,273 @@ class Search_Test {
         )
     }
 
-    private fun search(fixture: SearchFixture, filters: SearchFilters): JsonObject {
-        return fixture.env.dispatch(
+    private fun search(fixture: SearchFixture, filters: SearchFilters): SearchResult {
+        val json = fixture.env.dispatch(
             ModelAction.Search(
                 filters = filters,
                 fields = SearchFields(emptyList())
             )
         ) as JsonObject
-    }
-
-    private fun allIndexedHits(fixture: SearchFixture): Set<Hit> {
-        return resultHits(search(fixture, SearchFilterTags.Empty)) +
-                resultHits(search(fixture, SearchFilterTags.NotEmpty))
-    }
-
-    private fun resultHits(results: JsonObject): Set<Hit> {
-        return results.getValue("items").jsonArray.map { item ->
-            val location = item.jsonObject.getValue("location").jsonObject
-            when (val objectType = location.getValue("objectType").jsonPrimitive.content) {
-                "model" -> Hit.Model(
-                    modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content)
-                )
-
-                "entity" -> Hit.Entity(
-                    modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
-                    entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content)
-                )
-
-                "entityAttribute" -> Hit.EntityAttribute(
-                    modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
-                    entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content),
-                    attributeKey = AttributeKey(location.getValue("entityAttributeKey").jsonPrimitive.content)
-                )
-
-                "relationship" -> Hit.Relationship(
-                    modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
-                    relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content)
-                )
-
-                "relationshipAttribute" -> Hit.RelationshipAttribute(
-                    modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
-                    relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content),
-                    attributeKey = AttributeKey(location.getValue("relationshipAttributeKey").jsonPrimitive.content)
-                )
-
-                else -> error("Unexpected location objectType in model search tests: $objectType")
-            }
-        }.toSet()
+        return SearchResult.fromJson(json)
     }
 
     private sealed interface Hit {
         data class Model(val modelKey: ModelKey) : Hit
+        data class Type(val modelKey: ModelKey, val typeKey: EntityKey) : Hit
         data class Entity(val modelKey: ModelKey, val entityKey: EntityKey) : Hit
         data class EntityAttribute(
             val modelKey: ModelKey,
             val entityKey: EntityKey,
             val attributeKey: AttributeKey
         ) : Hit
-
         data class Relationship(val modelKey: ModelKey, val relationshipKey: RelationshipKey) : Hit
         data class RelationshipAttribute(
             val modelKey: ModelKey,
             val relationshipKey: RelationshipKey,
             val attributeKey: AttributeKey
         ) : Hit
+    }
+
+    private sealed interface SearchRow {
+        val id: String
+        val objectType: String
+        val modelId: ModelId
+        val modelKey: ModelKey
+        val modelLabel: String
+
+        data class Model(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String
+        ) : SearchRow
+
+        data class Type(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String,
+            val typeId: EntityId,
+            val typeKey: EntityKey,
+            val typeLabel: String
+        ) : SearchRow
+
+        data class Entity(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String,
+            val entityId: EntityId,
+            val entityKey: EntityKey,
+            val entityLabel: String
+        ) : SearchRow
+
+        data class EntityAttribute(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String,
+            val entityId: EntityId,
+            val entityKey: EntityKey,
+            val entityLabel: String,
+            val entityAttributeId: AttributeId,
+            val entityAttributeKey: AttributeKey,
+            val entityAttributeLabel: String
+        ) : SearchRow
+
+        data class Relationship(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String,
+            val relationshipId: RelationshipId,
+            val relationshipKey: RelationshipKey,
+            val relationshipLabel: String
+        ) : SearchRow
+
+        data class RelationshipAttribute(
+            override val id: String,
+            override val objectType: String,
+            override val modelId: ModelId,
+            override val modelKey: ModelKey,
+            override val modelLabel: String,
+            val relationshipId: RelationshipId,
+            val relationshipKey: RelationshipKey,
+            val relationshipLabel: String,
+            val relationshipAttributeId: AttributeId,
+            val relationshipAttributeKey: AttributeKey,
+            val relationshipAttributeLabel: String
+        ) : SearchRow
+    }
+
+    private class SearchResult(
+        private val rows: Set<SearchRow>
+    ) {
+        private val hits: Set<Hit> = rows.mapTo(mutableSetOf()) { row ->
+            when (row) {
+                is SearchRow.Model -> Hit.Model(row.modelKey)
+                is SearchRow.Type -> Hit.Type(row.modelKey, row.typeKey)
+                is SearchRow.Entity -> Hit.Entity(row.modelKey, row.entityKey)
+                is SearchRow.EntityAttribute ->
+                    Hit.EntityAttribute(row.modelKey, row.entityKey, row.entityAttributeKey)
+                is SearchRow.Relationship -> Hit.Relationship(row.modelKey, row.relationshipKey)
+                is SearchRow.RelationshipAttribute ->
+                    Hit.RelationshipAttribute(row.modelKey, row.relationshipKey, row.relationshipAttributeKey)
+            }
+        }
+
+        companion object {
+            fun fromJson(results: JsonObject): SearchResult {
+                val rows = results.getValue("items").jsonArray.map { item ->
+                    val id = item.jsonObject.getValue("id").jsonPrimitive.content
+                    val location = item.jsonObject.getValue("location").jsonObject
+                    when (val objectType = location.getValue("objectType").jsonPrimitive.content) {
+                        "model" -> SearchRow.Model(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content
+                        )
+
+                        "type" -> SearchRow.Type(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content,
+                            typeId = EntityId.fromString(location.getValue("typeId").jsonPrimitive.content),
+                            typeKey = EntityKey(location.getValue("typeKey").jsonPrimitive.content),
+                            typeLabel = location.getValue("typeLabel").jsonPrimitive.content
+                        )
+
+                        "entity" -> SearchRow.Entity(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content,
+                            entityId = EntityId.fromString(location.getValue("entityId").jsonPrimitive.content),
+                            entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content),
+                            entityLabel = location.getValue("entityLabel").jsonPrimitive.content
+                        )
+
+                        "entityAttribute" -> SearchRow.EntityAttribute(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content,
+                            entityId = EntityId.fromString(location.getValue("entityId").jsonPrimitive.content),
+                            entityKey = EntityKey(location.getValue("entityKey").jsonPrimitive.content),
+                            entityLabel = location.getValue("entityLabel").jsonPrimitive.content,
+                            entityAttributeId = AttributeId.fromString(
+                                location.getValue("entityAttributeId").jsonPrimitive.content
+                            ),
+                            entityAttributeKey = AttributeKey(
+                                location.getValue("entityAttributeKey").jsonPrimitive.content
+                            ),
+                            entityAttributeLabel = location.getValue("entityAttributeLabel").jsonPrimitive.content
+                        )
+
+                        "relationship" -> SearchRow.Relationship(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content,
+                            relationshipId = RelationshipId.fromString(
+                                location.getValue("relationshipId").jsonPrimitive.content
+                            ),
+                            relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content),
+                            relationshipLabel = location.getValue("relationshipLabel").jsonPrimitive.content
+                        )
+
+                        "relationshipAttribute" -> SearchRow.RelationshipAttribute(
+                            id = id,
+                            objectType = objectType,
+                            modelId = ModelId.fromString(location.getValue("modelId").jsonPrimitive.content),
+                            modelKey = ModelKey(location.getValue("modelKey").jsonPrimitive.content),
+                            modelLabel = location.getValue("modelLabel").jsonPrimitive.content,
+                            relationshipId = RelationshipId.fromString(
+                                location.getValue("relationshipId").jsonPrimitive.content
+                            ),
+                            relationshipKey = RelationshipKey(location.getValue("relationshipKey").jsonPrimitive.content),
+                            relationshipLabel = location.getValue("relationshipLabel").jsonPrimitive.content,
+                            relationshipAttributeId = AttributeId.fromString(
+                                location.getValue("relationshipAttributeId").jsonPrimitive.content
+                            ),
+                            relationshipAttributeKey = AttributeKey(
+                                location.getValue("relationshipAttributeKey").jsonPrimitive.content
+                            ),
+                            relationshipAttributeLabel = location.getValue("relationshipAttributeLabel").jsonPrimitive.content
+                        )
+
+                        else -> error("Unexpected location objectType in model search tests: $objectType")
+                    }
+                }.toSet()
+
+                return SearchResult(rows)
+            }
+        }
+
+        fun forEachItem(block: (SearchRow) -> Unit) {
+            rows.forEach(block)
+        }
+
+        fun forEachHit(block: (Hit) -> Unit) {
+            hits.forEach(block)
+        }
+
+        fun collectHits(): Set<Hit> {
+            return hits
+        }
+
+        fun contains(hit: Hit): Boolean {
+            return hits.contains(hit)
+        }
+
+        fun containsExactly(expected: Set<Hit>): Boolean {
+            return hits == expected
+        }
+
+        fun containsExactly(expected: SearchResult): Boolean {
+            return hits == expected.hits
+        }
+
+        fun forEachModelItems(modelKey: ModelKey, block: (SearchRow) -> Unit) {
+            rows.forEach { row ->
+                if (row.modelKey == modelKey) {
+                    block(row)
+                }
+            }
+        }
+
+        fun forEachEntityItems(modelKey: ModelKey, entityKey: EntityKey, block: (SearchRow) -> Unit) {
+            rows.filter { row -> row.modelKey == modelKey }
+                .filter { row ->
+                    (row is SearchRow.Entity && row.entityKey == entityKey) ||
+                            (row is SearchRow.EntityAttribute && row.entityKey == entityKey)
+                }
+                .forEach { row -> block(row) }
+        }
+
+        fun forEachRelationshipItems(
+            modelKey: ModelKey,
+            relationshipKey: RelationshipKey,
+            block: (SearchRow) -> Unit
+        ) {
+            rows.filter { row -> row.modelKey == modelKey }
+                .filter { row ->
+                    (row is SearchRow.Relationship && row.relationshipKey == relationshipKey) ||
+                            (row is SearchRow.RelationshipAttribute && row.relationshipKey == relationshipKey)
+                }
+                .forEach { row -> block(row) }
+        }
     }
 }

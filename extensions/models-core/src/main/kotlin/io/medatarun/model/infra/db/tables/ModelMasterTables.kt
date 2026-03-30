@@ -3,16 +3,17 @@ package io.medatarun.model.infra.db.tables
 import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.java.javaUUID
 
 object ModelTable : Table("model") {
-    val id = text("id").transform(IdTransformer(::ModelId))
+    val id = javaUUID("id").transform(IdTransformer(::ModelId))
 
     override val primaryKey = PrimaryKey(id)
 }
 
 object ModelSnapshotTable : Table("model_snapshot") {
-    val id = text("id").transform(IdTransformer(::ModelSnapshotId))
-    val modelId = text("model_id").transform(IdTransformer(::ModelId))
+    val id = javaUUID("id").transform(IdTransformer(::ModelSnapshotId))
+    val modelId = javaUUID("model_id").transform(IdTransformer(::ModelId))
     val key = text("key").transform(KeyTransformer(::ModelKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
@@ -21,7 +22,7 @@ object ModelSnapshotTable : Table("model_snapshot") {
     val documentationHome = text("documentation_home").nullable()
     val snapshotKind = text("snapshot_kind").transform(ModelSnapshotKindTransformer())
     val upToRevision = integer("up_to_revision")
-    val modelEventReleaseId = text("model_event_release_id").nullable()
+    val modelEventReleaseId = javaUUID("model_event_release_id").transform(IdTransformer(::ModelEventId)).nullable()
     val version = text("version").transform(ModelVersionTransformer)
     val createdAt = text("created_at")
     val updatedAt = text("updated_at")
@@ -30,14 +31,14 @@ object ModelSnapshotTable : Table("model_snapshot") {
 }
 
 object ModelTagTable : Table("model_tag_snapshot") {
-    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
-    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+    val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
+    val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 }
 
 object ModelTypeTable : Table("model_type_snapshot") {
-    val id = text("id").transform(IdTransformer(::TypeSnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::TypeId))
-    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::TypeSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::TypeId))
+    val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::TypeKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
@@ -46,13 +47,13 @@ object ModelTypeTable : Table("model_type_snapshot") {
 }
 
 object EntityTable : Table("model_entity_snapshot") {
-    val id = text("id").transform(IdTransformer(::EntitySnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::EntityId))
-    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::EntitySnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::EntityId))
+    val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::EntityKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
-    val identifierAttributeSnapshotId = text("identifier_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+    val identifierAttributeSnapshotId = javaUUID("identifier_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
     val origin = text("origin").transform(EntityOriginTransformer())
     val documentationHome = text("documentation_home").nullable()
 
@@ -60,32 +61,32 @@ object EntityTable : Table("model_entity_snapshot") {
 }
 
 object EntityTagTable : Table("model_entity_tag_snapshot") {
-    val entitySnapshotId = text("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
-    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+    val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 }
 
 object EntityAttributeTable : Table("model_entity_attribute_snapshot") {
-    val id = text("id").transform(IdTransformer(::AttributeSnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::AttributeId))
-    val entitySnapshotId = text("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::AttributeSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::AttributeId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
-    val typeSnapshotId = text("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
+    val typeSnapshotId = javaUUID("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
     val optional = bool("optional")
 
     override val primaryKey = PrimaryKey(id)
 }
 
 object EntityAttributeTagTable : Table("model_entity_attribute_tag_snapshot") {
-    val attributeSnapshotId = text("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
-    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+    val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+    val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 }
 
 object RelationshipTable : Table("model_relationship_snapshot") {
-    val id = text("id").transform(IdTransformer(::RelationshipSnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::RelationshipId))
-    val modelSnapshotId = text("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::RelationshipSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::RelationshipId))
+    val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val key = text("key").transform(KeyTransformer(::RelationshipKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
@@ -93,34 +94,34 @@ object RelationshipTable : Table("model_relationship_snapshot") {
 }
 
 object RelationshipTagTable : Table("model_relationship_tag_snapshot") {
-    val relationshipSnapshotId = text("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
-    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+    val relationshipSnapshotId = javaUUID("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
+    val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 }
 
 object RelationshipRoleTable : Table("model_relationship_role_snapshot") {
-    val id = text("id").transform(IdTransformer(::RelationshipRoleSnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::RelationshipRoleId))
-    val relationshipSnapshotId = text("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::RelationshipRoleSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::RelationshipRoleId))
+    val relationshipSnapshotId = javaUUID("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
     val key = text("key").transform(KeyTransformer(::RelationshipRoleKey))
-    val entitySnapshotId = text("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val cardinality = text("cardinality")
     override val primaryKey = PrimaryKey(id)
 }
 
 object RelationshipAttributeTagTable : Table("model_relationship_attribute_tag_snapshot") {
-    val attributeSnapshotId = text("model_relationship_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
-    val tagId = text("tag_id").transform(IdTransformer(::TagId))
+    val attributeSnapshotId = javaUUID("model_relationship_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+    val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 }
 
 object RelationshipAttributeTable : Table("model_relationship_attribute_snapshot") {
-    val id = text("id").transform(IdTransformer(::AttributeSnapshotId))
-    val lineageId = text("lineage_id").transform(IdTransformer(::AttributeId))
-    val relationshipSnapshotId = text("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
+    val id = javaUUID("id").transform(IdTransformer(::AttributeSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::AttributeId))
+    val relationshipSnapshotId = javaUUID("model_relationship_snapshot_id").transform(IdTransformer(::RelationshipSnapshotId))
     val key = text("key").transform(KeyTransformer(::AttributeKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
-    val typeSnapshotId = text("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
+    val typeSnapshotId = javaUUID("model_type_snapshot_id").transform(IdTransformer(::TypeSnapshotId))
     val optional = bool("optional")
 
     override val primaryKey = PrimaryKey(id)

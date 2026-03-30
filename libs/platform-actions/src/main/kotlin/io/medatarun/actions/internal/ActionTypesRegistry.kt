@@ -88,6 +88,7 @@ internal class ActionTypesRegistry(typeContributions: List<TypeDescriptor<*>>) {
     }
 
     class ValidatorDelegate(private val typeDescriptor: TypeDescriptor<*>) : Validator {
+        @Suppress("UNCHECKED_CAST")
         override fun validate(value: Any): Any {
             return (typeDescriptor as TypeDescriptor<Any>).validate(value)
         }

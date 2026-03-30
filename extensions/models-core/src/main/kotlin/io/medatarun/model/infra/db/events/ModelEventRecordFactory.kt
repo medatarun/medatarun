@@ -1,6 +1,6 @@
 package io.medatarun.model.infra.db.events
 
-import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.model.domain.ModelEventId
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.db.ModelEventRecordFactoryUnsupportedCommandException
@@ -9,6 +9,7 @@ import io.medatarun.model.ports.needs.ModelStorageCmd
 import io.medatarun.model.ports.needs.ModelStorageCmdEnveloppe
 import io.medatarun.model.ports.needs.ModelStorageCmdOnModel
 import io.medatarun.storage.eventsourcing.StorageEventJsonCodec
+import io.medatarun.type.commons.id.Id
 import java.time.Instant
 
 /**
@@ -20,7 +21,7 @@ class ModelEventRecordFactory(private val codec: StorageEventJsonCodec<ModelStor
     fun create(cmdEnv: ModelStorageCmdEnveloppe, streamRevision: Int, createdAt: Instant): ModelEventRecord {
         val encoded = codec.encode(cmdEnv.cmd)
         return ModelEventRecord(
-            id = UuidUtils.generateV7().toString(),
+            id = Id.generate(::ModelEventId),
             modelId = extractModelId(cmdEnv.cmd),
             streamRevision = streamRevision,
             eventType = encoded.eventType,

@@ -111,7 +111,7 @@ data class DataResource(
      *
      * The size of this resource in bytes.
      */
-    val bytes: Integer? = null,
+    val bytes: Int? = null,
     /**
      * Hash
      *
