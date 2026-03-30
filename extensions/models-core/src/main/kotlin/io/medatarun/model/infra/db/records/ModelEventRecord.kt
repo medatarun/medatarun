@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db.records
 
+import io.medatarun.model.domain.ModelEventId
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelVersion
 import io.medatarun.model.infra.db.tables.ModelEventTable
@@ -8,7 +9,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant
 
 data class ModelEventRecord(
-    val id: String,
+    val id: ModelEventId,
     val modelId: ModelId,
     val streamRevision: Int,
     val eventType: String,

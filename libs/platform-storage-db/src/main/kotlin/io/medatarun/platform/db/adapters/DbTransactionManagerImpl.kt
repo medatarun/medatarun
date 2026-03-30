@@ -16,7 +16,7 @@ class DbTransactionManagerImpl(
     )
 
     internal fun currentTransactionOrNull(): JdbcTransaction? {
-        return TransactionManager.currentOrNull() as? JdbcTransaction
+        return TransactionManager.currentOrNull()
     }
 
     internal fun <T> withExposed(block: () -> T): T {

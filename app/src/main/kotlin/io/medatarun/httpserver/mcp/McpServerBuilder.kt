@@ -183,6 +183,7 @@ class McpServerBuilder(
         return parts.joinToString(separator = "\n")
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun encodeAnyToJsonElement(value: Any): JsonElement {
         // Use the runtime type to avoid trying to serialize as Any? (which has no serializer).
         val serializer = json.serializersModule.serializer(value::class.createType()) as KSerializer<Any>

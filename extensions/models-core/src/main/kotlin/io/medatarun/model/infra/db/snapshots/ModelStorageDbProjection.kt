@@ -13,8 +13,6 @@ import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 internal class ModelStorageDbProjection(
     private val searchWrite: ModelStorageDbSearchWrite,
@@ -26,7 +24,7 @@ internal class ModelStorageDbProjection(
         val cmd: ModelStorageCmd,
         val modelId: ModelId,
         val modelSnapshotId: ModelSnapshotId,
-        val modelEventId: String,
+        val modelEventId: ModelEventId,
         val streamRevision: Int
     )
 

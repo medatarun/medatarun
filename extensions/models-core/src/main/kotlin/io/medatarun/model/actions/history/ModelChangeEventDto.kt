@@ -46,7 +46,7 @@ fun toModelChangeEventDto(
     displayResolver: ModelChangeEventDisplayResolver
 ): ModelChangeEventDto {
     return ModelChangeEventDto(
-        eventId = evt.eventId,
+        eventId = evt.eventId.asString(),
         eventType = evt.eventType,
         eventVersion = evt.eventVersion,
         eventSequenceNumber = evt.eventSequenceNumber,

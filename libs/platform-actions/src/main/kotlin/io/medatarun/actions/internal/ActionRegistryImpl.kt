@@ -148,6 +148,7 @@ internal class ActionRegistryImpl(
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun findProviderOptional(actionId: ActionId): ActionProvider<Any>? {
         return findActionById(actionId).provider as ActionProvider<Any>?
     }

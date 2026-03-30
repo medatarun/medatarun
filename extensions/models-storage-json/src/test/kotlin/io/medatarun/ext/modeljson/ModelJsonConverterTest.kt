@@ -232,7 +232,7 @@ internal class ModelJsonConverterTest {
         val model = instance.fromJson(json.toString())
         assertEquals(EntityOrigin.Uri(URI(url)), model.findEntityOptional(EntityKey("contact"))?.origin)
         val jsonWritten = instance.toJsonString(model)
-        val modelRead = instance.fromJson(jsonWritten.toString())
+        val modelRead = instance.fromJson(jsonWritten)
         val originRead = modelRead.findEntityOptional(EntityKey("contact"))?.origin
         assertEquals(url, (originRead as EntityOrigin.Uri).uri.toString())
     }
@@ -275,7 +275,7 @@ internal class ModelJsonConverterTest {
         assertEquals(null, model.documentationHome)
         assertEquals(null, model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
-        val modelRead = instance.fromJson(jsonWritten.toString())
+        val modelRead = instance.fromJson(jsonWritten)
         assertEquals(null, modelRead.documentationHome)
         assertEquals(null, modelRead.entities.first().documentationHome)
     }
@@ -287,7 +287,7 @@ internal class ModelJsonConverterTest {
         assertEquals(null, model.documentationHome)
         assertEquals(null, model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
-        val modelRead = instance.fromJson(jsonWritten.toString())
+        val modelRead = instance.fromJson(jsonWritten)
         assertEquals(null, modelRead.documentationHome)
         assertEquals(null, modelRead.entities.first().documentationHome)
     }
@@ -301,7 +301,7 @@ internal class ModelJsonConverterTest {
         assertEquals(URI(modelDocHome).toURL(), model.documentationHome)
         assertEquals(URI(entityDocHome).toURL(), model.entities.first().documentationHome)
         val jsonWritten = instance.toJsonString(model)
-        val modelRead = instance.fromJson(jsonWritten.toString())
+        val modelRead = instance.fromJson(jsonWritten)
         assertEquals(URI(modelDocHome).toURL(), modelRead.documentationHome)
         assertEquals(URI(entityDocHome).toURL(), modelRead.entities.first().documentationHome)
     }
