@@ -87,6 +87,26 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
 
     }
 
+    fun loginAsAdmin() {
+        testPrincipal = testPrincipalAdmin
+    }
+
+    /**
+     * Runs read assertions twice:
+     * once on current projections, then once after rebuilding model projections from events.
+     */
+    fun replayWithRebuild(block: () -> Unit) {
+        block()
+        val previousPrincipal = testPrincipal
+        try {
+            loginAsAdmin()
+            dispatch(ModelAction.MaintenanceRebuildCaches())
+        } finally {
+            testPrincipal = previousPrincipal
+        }
+        block()
+    }
+
     /**
      * Creates a global tag in global scope and returns the created tag from queries.
      * Tests use this helper to attach global tags to model artifacts.
@@ -148,7 +168,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
 
         }
 
-        val testPrincipal = object : AppPrincipal {
+        private val testPrincipalUser = object : AppPrincipal {
             override val id: AppActorId = Id.generate(::AppActorId)
             override val issuer: String = ""
             override val subject: String = ""
@@ -160,6 +180,20 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
                 TagGlobalManageRole
             )
         }
+        private val testPrincipalAdmin = object : AppPrincipal {
+            override val id: AppActorId = Id.generate(::AppActorId)
+            override val issuer: String = ""
+            override val subject: String = ""
+            override val isAdmin: Boolean = true
+            override val fullname: String = "admin"
+            override val roles: List<AppPrincipalRole> = listOf(
+                TagLocalManageRole,
+                TagGroupManageRole,
+                TagGlobalManageRole
+            )
+        }
+        var testPrincipal: AppPrincipal = testPrincipalUser
+            private set
         val testPrincipalCtx = object : ActionPrincipalCtx {
             override fun ensureIsAdmin() {
 

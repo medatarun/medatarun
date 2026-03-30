@@ -49,20 +49,13 @@ class Search_Test {
         val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
-
-        val results = search(
-            fixture,
-            SearchFilterTags.AnyOf(
-                listOf(
-                    refs.tags.global.security.public.ref,
-                    refs.tags.global.security.confidential.ref
-                )
+        val filter = SearchFilterTags.AnyOf(
+            listOf(
+                refs.tags.global.security.public.ref,
+                refs.tags.global.security.confidential.ref
             )
         )
-
-        assertTrue(
-            results.containsExactly(
-                setOf(
+        val expectedHits = setOf(
                 Hit.EntityAttribute(refs.crm.key, refs.crm.person.key, refs.crm.person.attr.password.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.name.key),
                 Hit.EntityAttribute(refs.crm.key, refs.crm.company.key, refs.crm.company.attr.website.key),
@@ -85,9 +78,12 @@ class Search_Test {
                 ),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.usage.key, refs.cooking.usage.attr.unit.key),
                 Hit.RelationshipAttribute(refs.cooking.key, refs.cooking.author.key, refs.cooking.author.attr.date.key)
-                )
-            )
         )
+
+        fixture.env.replayWithRebuild {
+            val results = search(fixture, filter)
+            assertTrue(results.containsExactly(expectedHits))
+        }
     }
 
     /**

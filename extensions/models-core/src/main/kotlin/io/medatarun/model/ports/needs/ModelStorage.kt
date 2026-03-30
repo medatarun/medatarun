@@ -201,6 +201,13 @@ interface ModelStorage {
      */
     fun dispatch(cmdEnv: ModelStorageCmdEnveloppe)
 
+    /**
+     * Rebuilds all model projection tables by replaying persisted events.
+     *
+     * This operation is for maintenance only and is expected to be used only when
+     * projection data is suspected to be out of sync with event storage.
+     */
+    fun maintenanceRebuildCaches()
 
 
 }

@@ -110,12 +110,14 @@ class Model_Delete_Test {
         assertNotNull(query.findModelOptional(modelRef("videogame")))
 
         env.dispatch(ModelAction.Model_Delete(modelRefKey("videogame")))
-        assertNull(query.findModelOptional(modelRef("videogame")))
-        assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
-        assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
-        assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
-        assertNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
-        assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
+        env.replayWithRebuild {
+            assertNull(query.findModelOptional(modelRef("videogame")))
+            assertNull(env.tagQueries.findTagByIdOptional(recipeUiSearchTag.id))
+            assertNull(env.tagQueries.findTagByIdOptional(vehicleImportedTag.id))
+            assertNull(env.tagQueries.findTagByIdOptional(movieUiResultTag.id))
+            assertNull(env.tagQueries.findTagByIdOptional(videogameImportedTag.id))
+            assertNotNull(env.tagQueries.findTagByIdOptional(globalSecurityInternalTag.id))
+        }
 
     }
 }

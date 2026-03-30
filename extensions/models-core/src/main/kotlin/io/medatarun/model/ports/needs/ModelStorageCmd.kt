@@ -175,6 +175,9 @@ sealed interface ModelStorageCmd: StorageCmd {
         @SerialName("modelId")
         override val modelId: ModelId,
         @Contextual
+        @SerialName("typeId")
+        val typeId: TypeId,
+        @Contextual
         @SerialName("key")
         val key: TypeKey,
         @Contextual

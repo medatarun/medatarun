@@ -165,11 +165,12 @@ class ModelEventJsonCodecTest {
                 eventVersion = 1,
                 cmd = ModelStorageCmd.CreateType(
                     modelId = modelId,
+                    typeId = typeId,
                     key = TypeKey("boolean"),
                     name = text("Boolean"),
                     description = markdown("Boolean type")
                 ),
-                json = """{"modelId":"00000000-0000-0000-0000-000000000001","key":"boolean","name":"Boolean","description":"Boolean type"}"""
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","typeId":"00000000-0000-0000-0000-000000000002","key":"boolean","name":"Boolean","description":"Boolean type"}"""
             ),
             CmdTestCase(
                 eventType = "type_key_updated",
