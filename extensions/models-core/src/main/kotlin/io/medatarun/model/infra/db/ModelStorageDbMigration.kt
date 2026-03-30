@@ -12,7 +12,7 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
     }
 
     override fun latestVersion(): Int {
-        return 3
+        return 2
     }
 
     override fun applyVersion(version: Int, ctx: DbMigrationContext) {
