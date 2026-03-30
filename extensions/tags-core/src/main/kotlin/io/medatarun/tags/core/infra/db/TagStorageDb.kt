@@ -7,12 +7,17 @@ import io.medatarun.tags.core.domain.*
 import io.medatarun.tags.core.infra.db.events.TagEventSystem
 import io.medatarun.tags.core.infra.db.records.TagEventRecord
 import io.medatarun.tags.core.infra.db.tables.TagEventTable
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewCurrent_Tag_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_TagGroup_Table
+import io.medatarun.tags.core.infra.db.tables.TagViewHistory_Tag_Table
 import io.medatarun.tags.core.ports.needs.TagStorage
 import io.medatarun.tags.core.ports.needs.TagStorageCmd
 import io.medatarun.tags.core.ports.needs.TagStorageCmdEnveloppe
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -104,6 +109,31 @@ class TagStorageDb(private val dbConnectionFactory: DbConnectionFactory) : TagSt
                 projection.projectCommand(cmdFromEvent)
                 historyProjection.projectCommandFromEvent(cmdFromEvent, eventRecord.id, eventRecord.createdAt)
             }
+        }
+    }
+
+    override fun maintenanceRebuildCaches() {
+        dbConnectionFactory.withExposed {
+            logger.warn("Starting tag projection cache rebuild from persisted events")
+            TagViewCurrent_Tag_Table.deleteAll()
+            TagViewCurrent_TagGroup_Table.deleteAll()
+            TagViewHistory_Tag_Table.deleteAll()
+            TagViewHistory_TagGroup_Table.deleteAll()
+            val eventRecords = TagEventTable.selectAll()
+                .map { row -> eventRecordFromRow(row) }
+                .sortedWith(
+                    compareBy(
+                        { it.scopeType },
+                        { it.scopeId?.asString() },
+                        { it.streamRevision }
+                    )
+                )
+            for (eventRecord in eventRecords) {
+                val cmd = decodeTagStorageCmd(eventRecord)
+                projection.projectCommand(cmd)
+                historyProjection.projectCommandFromEvent(cmd, eventRecord.id, eventRecord.createdAt)
+            }
+            logger.warn("Tag projection cache rebuild completed. Replayed [{}] events.", eventRecords.size)
         }
     }
 

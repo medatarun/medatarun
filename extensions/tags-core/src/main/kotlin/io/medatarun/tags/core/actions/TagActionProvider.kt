@@ -44,6 +44,7 @@ class TagActionProvider(
 
             is TagAction.TagSearch -> handler.tagSearch(action)
             is TagAction.TagGroupList -> handler.tagGroupList(action)
+            is TagAction.MaintenanceRebuildCaches -> handler.maintenanceRebuildCaches()
         }
         return result
     }
@@ -192,5 +193,9 @@ class TagActionHandler(
             }
         }
 
+    }
+
+    fun maintenanceRebuildCaches() {
+        tagCmds.maintenanceRebuildCaches()
     }
 }

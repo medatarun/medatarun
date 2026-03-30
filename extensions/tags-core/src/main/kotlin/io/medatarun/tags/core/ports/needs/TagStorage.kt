@@ -29,5 +29,12 @@ interface TagStorage {
      */
     fun dispatch(cmdEnv: TagStorageCmdEnveloppe)
 
+    /**
+     * Rebuilds all tag projection tables by replaying persisted events.
+     *
+     * This operation is for maintenance only and is expected to be used only when
+     * projection data is suspected to be out of sync with event storage.
+     */
+    fun maintenanceRebuildCaches()
 
 }
