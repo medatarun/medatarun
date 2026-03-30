@@ -7,7 +7,7 @@ import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 
 data class DenormModelSearchItemRecord(
-    val id: String,
+    val id: ModelSearchItemSnapshotId,
     val itemType: SearchItemType,
     val modelSnapshotId: ModelSnapshotId,
     val modelId: ModelId,

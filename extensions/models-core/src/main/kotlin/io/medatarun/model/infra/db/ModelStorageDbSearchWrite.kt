@@ -348,7 +348,7 @@ internal class ModelStorageDbSearchWrite(
     }
 
 
-    private fun deleteSearchItemById(searchItemId: String) {
+    private fun deleteSearchItemById(searchItemId: ModelSearchItemSnapshotId) {
         DenormModelSearchItemTagTable.deleteWhere {
             DenormModelSearchItemTagTable.searchItemId eq searchItemId
         }
@@ -381,23 +381,26 @@ internal class ModelStorageDbSearchWrite(
         return record.name?.name ?: record.key.value
     }
 
-    private fun searchItemIdForModel(modelId: ModelId): String {
-        return "model:" + modelId.asString()
+    /**
+     * Search projection rows reuse the indexed object UUID as row id so DB ids stay binary and deterministic across upserts.
+     */
+    private fun searchItemIdForModel(modelId: ModelId): ModelSearchItemSnapshotId {
+        return ModelSearchItemSnapshotId(modelId.value)
     }
 
-    private fun searchItemIdForEntity(entityId: EntityId): String {
-        return "entity:" + entityId.asString()
+    private fun searchItemIdForEntity(entityId: EntityId): ModelSearchItemSnapshotId {
+        return ModelSearchItemSnapshotId(entityId.value)
     }
 
-    private fun searchItemIdForEntityAttribute(attributeId: AttributeId): String {
-        return "entity_attribute:" + attributeId.asString()
+    private fun searchItemIdForEntityAttribute(attributeId: AttributeId): ModelSearchItemSnapshotId {
+        return ModelSearchItemSnapshotId(attributeId.value)
     }
 
-    private fun searchItemIdForRelationship(relationshipId: RelationshipId): String {
-        return "relationship:" + relationshipId.asString()
+    private fun searchItemIdForRelationship(relationshipId: RelationshipId): ModelSearchItemSnapshotId {
+        return ModelSearchItemSnapshotId(relationshipId.value)
     }
 
-    private fun searchItemIdForRelationshipAttribute(attributeId: AttributeId): String {
-        return "relationship_attribute:" + attributeId.asString()
+    private fun searchItemIdForRelationshipAttribute(attributeId: AttributeId): ModelSearchItemSnapshotId {
+        return ModelSearchItemSnapshotId(attributeId.value)
     }
 }

@@ -4,6 +4,7 @@ import io.medatarun.model.domain.search.SearchFiltersLogicalOperator
 import io.medatarun.model.domain.search.SearchResultItem
 import io.medatarun.model.domain.search.SearchResults
 import io.medatarun.model.domain.search.normalizeModelSearchText
+import io.medatarun.model.domain.ModelSearchItemSnapshotId
 import io.medatarun.model.infra.db.records.DenormModelSearchItemRecord
 import io.medatarun.model.infra.db.records.DenormModelSearchItemTagRecord
 import io.medatarun.model.infra.db.tables.DenormModelSearchItemTable
@@ -49,7 +50,7 @@ internal class ModelStorageDbSearchRead {
         return SearchResults(
             rows.map { item ->
                 SearchResultItem(
-                    id = item.id,
+                    id = item.id.asString(),
                     location = item.toDomainLocation(),
                     fields = emptyMap()
                 )
@@ -57,7 +58,7 @@ internal class ModelStorageDbSearchRead {
         )
     }
 
-    private fun resolveMatchingSearchItemIds(query: ModelStorageSearchQuery): Set<String> {
+    private fun resolveMatchingSearchItemIds(query: ModelStorageSearchQuery): Set<ModelSearchItemSnapshotId> {
         if (query.filters.items.isEmpty()) {
             return when (query.filters.operator) {
                 SearchFiltersLogicalOperator.AND -> {
@@ -84,7 +85,7 @@ internal class ModelStorageDbSearchRead {
         }
     }
 
-    private fun resolveFilterMatchIds(filter: ModelStorageSearchFilter): Set<String> {
+    private fun resolveFilterMatchIds(filter: ModelStorageSearchFilter): Set<ModelSearchItemSnapshotId> {
         return when (filter) {
             is ModelStorageSearchFilterTags.Empty -> selectSearchItemIdsWithoutTags()
             is ModelStorageSearchFilterTags.NotEmpty -> selectSearchItemIdsWithTags()
@@ -95,7 +96,7 @@ internal class ModelStorageDbSearchRead {
         }
     }
 
-    private fun selectSearchItemIdsWithoutTags(): Set<String> {
+    private fun selectSearchItemIdsWithoutTags(): Set<ModelSearchItemSnapshotId> {
         return DenormModelSearchItemTable
             .select(DenormModelSearchItemTable.id)
             .where {
@@ -107,7 +108,7 @@ internal class ModelStorageDbSearchRead {
             .toSet()
     }
 
-    private fun selectSearchItemIdsWithTags(): Set<String> {
+    private fun selectSearchItemIdsWithTags(): Set<ModelSearchItemSnapshotId> {
         return DenormModelSearchItemTagTable
             .select(DenormModelSearchItemTagTable.searchItemId)
             .map { it[DenormModelSearchItemTagTable.searchItemId] }
@@ -116,7 +117,7 @@ internal class ModelStorageDbSearchRead {
 
     private fun selectSearchItemIdsWithAnyTag(
         filter: ModelStorageSearchFilterTags.AnyOf
-    ): Set<String> {
+    ): Set<ModelSearchItemSnapshotId> {
         val tagIds = filter.names
         if (tagIds.isEmpty()) {
             return emptySet()
@@ -131,7 +132,7 @@ internal class ModelStorageDbSearchRead {
 
     private fun selectSearchItemIdsWithNoneOfTags(
         filter: ModelStorageSearchFilterTags.NoneOf
-    ): Set<String> {
+    ): Set<ModelSearchItemSnapshotId> {
         val tagIds = filter.names
         if (tagIds.isEmpty()) {
             return DenormModelSearchItemTable
@@ -154,7 +155,7 @@ internal class ModelStorageDbSearchRead {
 
     private fun selectSearchItemIdsWithAllTags(
         filter: ModelStorageSearchFilterTags.AllOf
-    ): Set<String> {
+    ): Set<ModelSearchItemSnapshotId> {
         val tagIds = filter.names
         if (tagIds.isEmpty()) {
             return DenormModelSearchItemTable
@@ -178,7 +179,7 @@ internal class ModelStorageDbSearchRead {
             .keys
     }
 
-    private fun selectSearchItemIdsByContains(filter: ModelStorageSearchFilterText.Contains): Set<String> {
+    private fun selectSearchItemIdsByContains(filter: ModelStorageSearchFilterText.Contains): Set<ModelSearchItemSnapshotId> {
         val searchedText = normalizeModelSearchText(filter.value)
         if (searchedText.isBlank()) {
             return DenormModelSearchItemTable

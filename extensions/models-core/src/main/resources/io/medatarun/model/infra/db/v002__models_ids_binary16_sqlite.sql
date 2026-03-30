@@ -309,7 +309,7 @@ FROM model_relationship_attribute_tag_snapshot;
 
 CREATE TABLE IF NOT EXISTS model_search_item_snapshot_v003
 (
-    id                 TEXT PRIMARY KEY UNIQUE,
+    id                 BINARY(16) PRIMARY KEY UNIQUE,
     item_type          TEXT       NOT NULL,
     model_snapshot_id  BINARY(16) NOT NULL,
     model_key          TEXT       NOT NULL,
@@ -329,7 +329,13 @@ CREATE TABLE IF NOT EXISTS model_search_item_snapshot_v003
 
 INSERT INTO model_search_item_snapshot_v003 (id, item_type, model_snapshot_id, model_key, model_label, entity_id, entity_key, entity_label, relationship_id, relationship_key, relationship_label, attribute_id, attribute_key, attribute_label, search_text)
 SELECT
-    id,
+    CASE item_type
+        WHEN 'model' THEN unhex(replace(substr(id, 7), '-', ''))
+        WHEN 'entity' THEN unhex(replace(substr(id, 8), '-', ''))
+        WHEN 'entity_attribute' THEN unhex(replace(substr(id, 18), '-', ''))
+        WHEN 'relationship' THEN unhex(replace(substr(id, 14), '-', ''))
+        WHEN 'relationship_attribute' THEN unhex(replace(substr(id, 24), '-', ''))
+    END,
     item_type,
     unhex(replace(model_snapshot_id, '-', '')),
     model_key,
@@ -357,7 +363,7 @@ FROM model_search_item_snapshot;
 
 CREATE TABLE IF NOT EXISTS model_search_item_tag_snapshot_v003
 (
-    search_item_id TEXT       NOT NULL,
+    search_item_id BINARY(16) NOT NULL,
     tag_id         BINARY(16) NOT NULL,
     PRIMARY KEY (search_item_id, tag_id),
     FOREIGN KEY (search_item_id) REFERENCES model_search_item_snapshot_v003 (id) ON DELETE CASCADE
@@ -365,7 +371,13 @@ CREATE TABLE IF NOT EXISTS model_search_item_tag_snapshot_v003
 
 INSERT INTO model_search_item_tag_snapshot_v003 (search_item_id, tag_id)
 SELECT
-    search_item_id,
+    CASE
+        WHEN search_item_id LIKE 'model:%' THEN unhex(replace(substr(search_item_id, 7), '-', ''))
+        WHEN search_item_id LIKE 'entity:%' THEN unhex(replace(substr(search_item_id, 8), '-', ''))
+        WHEN search_item_id LIKE 'entity_attribute:%' THEN unhex(replace(substr(search_item_id, 18), '-', ''))
+        WHEN search_item_id LIKE 'relationship:%' THEN unhex(replace(substr(search_item_id, 14), '-', ''))
+        WHEN search_item_id LIKE 'relationship_attribute:%' THEN unhex(replace(substr(search_item_id, 24), '-', ''))
+    END,
     unhex(replace(tag_id, '-', ''))
 FROM model_search_item_tag_snapshot;
 

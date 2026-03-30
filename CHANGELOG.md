@@ -45,6 +45,8 @@
 - Renamed table `tag` to `tag_view_current_tag` and `tag_group` to
   `tag_view_current_tag_group` and their index
 - SQLite tables moved ids from `TEXT` to `BINARY(16)`
+- Unecessary complications in who was built `model_search_item_snapshot.id` 
+  removed. Using now real `BINARY(16)` UUIDs.  
 
 **Permissions**
 

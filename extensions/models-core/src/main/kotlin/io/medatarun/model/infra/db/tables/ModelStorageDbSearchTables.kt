@@ -7,7 +7,7 @@ import org.jetbrains.exposed.v1.core.java.javaUUID
 
 
 object DenormModelSearchItemTable : Table("model_search_item_snapshot") {
-    val id = text("id")
+    val id = javaUUID("id").transform(IdTransformer(::ModelSearchItemSnapshotId))
     val itemType = text("item_type")
     val modelSnapshotId = javaUUID("model_snapshot_id").transform(IdTransformer(::ModelSnapshotId))
     val modelKey = text("model_key").transform(KeyTransformer(::ModelKey))
@@ -27,7 +27,7 @@ object DenormModelSearchItemTable : Table("model_search_item_snapshot") {
 }
 
 object DenormModelSearchItemTagTable : Table("model_search_item_tag_snapshot") {
-    val searchItemId = text("search_item_id")
+    val searchItemId = javaUUID("search_item_id").transform(IdTransformer(::ModelSearchItemSnapshotId))
     val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))
 
     override val primaryKey = PrimaryKey(searchItemId, tagId)

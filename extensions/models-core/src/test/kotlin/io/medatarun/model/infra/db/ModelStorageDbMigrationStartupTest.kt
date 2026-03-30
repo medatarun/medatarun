@@ -23,6 +23,6 @@ class ModelStorageDbMigrationStartupTest {
         assertTrue(dbMigrationChecker.tableExists("model_search_item_snapshot"))
         assertTrue(dbMigrationChecker.tableExists("model_search_item_tag_snapshot"))
         assertEquals(1, dbMigrationChecker.migrationCount("models-core"))
-        assertEquals(3, dbMigrationChecker.currentVersion("models-core"))
+        assertEquals(2, dbMigrationChecker.currentVersion("models-core"))
     }
 }
