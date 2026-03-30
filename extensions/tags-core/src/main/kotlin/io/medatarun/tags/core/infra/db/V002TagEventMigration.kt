@@ -5,13 +5,13 @@ import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.security.AppActorId
+import io.medatarun.type.commons.instant.InstantAdapters
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.nio.ByteBuffer
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
 
@@ -68,7 +68,7 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                     historyStatement.setString(4, rs.getString("key"))
                     historyStatement.setString(5, rs.getString("name"))
                     historyStatement.setString(6, rs.getString("description"))
-                    historyStatement.setString(7, sqliteTimestampText(migrationInstant))
+                    historyStatement.setString(7, InstantAdapters.toSqlTimestampString(migrationInstant))
                     historyStatement.setNull(8, java.sql.Types.VARCHAR)
                     historyStatement.executeUpdate()
                 }
@@ -115,7 +115,7 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                     historyStatement.setString(7, rs.getString("key"))
                     historyStatement.setString(8, rs.getString("name"))
                     historyStatement.setString(9, rs.getString("description"))
-                    historyStatement.setString(10, sqliteTimestampText(migrationInstant))
+                    historyStatement.setString(10, InstantAdapters.toSqlTimestampString(migrationInstant))
                     historyStatement.setNull(11, java.sql.Types.VARCHAR)
                     historyStatement.executeUpdate()
                 }
@@ -150,20 +150,9 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         statement.setInt(6, EVENT_VERSION_1)
         statement.setBytes(7, toBytes(maintenanceActorId.value))
         statement.setString(8, TRACEABILITY_ORIGIN)
-        statement.setString(9, sqliteTimestampText(createdAt))
+        statement.setString(9, InstantAdapters.toSqlTimestampString(createdAt))
         statement.setString(10, payload)
         statement.executeUpdate()
-    }
-
-    /**
-     * We persist migration timestamps in the SQLite text format expected by JDBC timestamp parsing.
-     *
-     * Instant.toString() uses ISO-8601 with `T` and `Z` (example: 2026-03-30T09:33:54.555163Z), while
-     * the SQLite JDBC parser for this column expects a SQL timestamp text (`yyyy-MM-dd HH:mm:ss.SSS...`).
-     * Using Timestamp.from(instant).toString() keeps storage readable by Exposed timestamp columns.
-     */
-    private fun sqliteTimestampText(instant: Instant): String {
-        return Timestamp.from(instant).toString()
     }
 
     private fun tagGroupCreatedPayload(rs: ResultSet, groupId: String): String {
