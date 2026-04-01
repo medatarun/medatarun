@@ -39,7 +39,7 @@ class AuthDbMigration(
     }
 
     companion object {
-        const val init_auth_sqlite = "io/medatarun/auth/infra/db/init__auth.sql"
+        const val init_auth_sqlite = "io/medatarun/auth/infra/db/init__auth_sqlite.sql"
         const val v001_users = "io/medatarun/auth/infra/db/v001__auth_init_users_sqlite.sql"
         const val v001_oidc = "io/medatarun/auth/infra/db/v001__auth_init_oidc_sqlite.sql"
         const val v001_actors = "io/medatarun/auth/infra/db/v001__auth_init_actors_sqlite.sql"

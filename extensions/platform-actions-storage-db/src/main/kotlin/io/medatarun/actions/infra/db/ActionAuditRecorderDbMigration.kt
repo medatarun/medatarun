@@ -21,7 +21,7 @@ class ActionAuditRecorderDbMigration(override val pluginId: String) : DbMigratio
     }
 
     companion object {
-        const val init_actions_sqlite = "io/medatarun/actions/infra/db/init__actions.sql"
+        const val init_actions_sqlite = "io/medatarun/actions/infra/db/init__actions_sqlite.sql"
         const val v001 = "io/medatarun/actions/infra/db/v001__actions_init_db_sqlite.sql"
     }
 }

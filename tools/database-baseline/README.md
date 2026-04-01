@@ -15,5 +15,7 @@ uv sync
 Generate module init SQL files from a reference database:
 
 ```bash
-uv run database-baseline --db-path /path/to/medatarun/data/database.db
+uv run database-baseline \
+  --dialect sqlite \
+  --db-path /path/to/medatarun/data/database.db
 ```

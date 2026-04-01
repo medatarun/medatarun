@@ -15,10 +15,10 @@ Base de référence à utiliser:
 
 Scripts cibles:
 
-- `init__auth.sql`
-- `init__models.sql`
-- `init__tags.sql`
-- `init__actions.sql`
+- `init__auth_sqlite.sql`
+- `init__models_sqlite.sql`
+- `init__tags_sqlite.sql`
+- `init__actions_sqlite.sql`
 
 ## Constat actuel (vérifié dans le code)
 
@@ -50,7 +50,7 @@ Indexes attendus:
 - `idx_auth_ctx_expires_at`
 - `idx_auth_code_expires_at`
 
-Donnée technique attendue dans `init__auth.sql`:
+Donnée technique attendue dans `init__auth_sqlite.sql`:
 
 - insertion de l'actor système de maintenance (ID fixe défini par `AppActorSystemMaintenance`).
 
@@ -120,7 +120,7 @@ Indexes attendus:
 
 Emplacement:
 
-- `tools/database-baseline/generate_module_init_sql.py`
+- `tools/database-baseline/src/database_baseline/generate_module_init_sql.py`
 
 Entrée:
 
@@ -129,10 +129,10 @@ Entrée:
 Sortie:
 
 - écrit directement les 4 scripts dans les ressources des modules:
-  - `libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth.sql`
-  - `extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models.sql`
-  - `extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags.sql`
-  - `extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions.sql`
+  - `libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_sqlite.sql`
+  - `extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models_sqlite.sql`
+  - `extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags_sqlite.sql`
+  - `extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions_sqlite.sql`
 
 Logique du script:
 
@@ -160,7 +160,7 @@ Mettre à jour les 4 classes suivantes:
 Règle:
 
 - `install()` doit appeler **exactement une fois** `ctx.applySqlResource(<init_script>)`.
-- `AuthDbMigration.install()` ne doit plus appeler `V002_CreateActorSystemMaintenance`; cette création est portée par `init__auth.sql`.
+- `AuthDbMigration.install()` ne doit plus appeler `V002_CreateActorSystemMaintenance`; cette création est portée par `init__auth_sqlite.sql`.
 
 Migrations versionnées:
 
@@ -175,13 +175,13 @@ Depuis la racine du repo:
 cd tools/database-baseline
 uv venv
 uv sync
-uv run database-baseline --db-path /path/to/data/database.db
+uv run database-baseline --dialect sqlite --db-path /path/to/data/database.db
 ```
 
 ## Validation
 
 1. Vérifier que les 4 scripts `init__*.sql` existent et sont non vides.
-2. Vérifier que `init__auth.sql` contient l'insert du `system maintenance actor`.
+2. Vérifier que `init__auth_sqlite.sql` contient l'insert du `system maintenance actor`.
 3. Vérifier que `install()` de chaque migration n'appelle plus qu'un script.
 4. Lancer les tests unitaires:
 

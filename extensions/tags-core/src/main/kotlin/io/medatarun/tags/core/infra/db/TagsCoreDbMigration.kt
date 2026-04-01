@@ -32,7 +32,7 @@ class TagsCoreDbMigration(
     }
 
     companion object {
-        const val init_tags_sqlite = "io/medatarun/tags/core/infra/db/init__tags.sql"
+        const val init_tags_sqlite = "io/medatarun/tags/core/infra/db/init__tags_sqlite.sql"
         const val v001 = "io/medatarun/tags/core/infra/db/v001__tags_init_sqlite.sql"
         const val v002_base = "io/medatarun/tags/core/infra/db/v002__tags_events_and_projection_sqlite.sql"
         const val v002_history = "io/medatarun/tags/core/infra/db/v002__tags_history_projection_sqlite.sql"

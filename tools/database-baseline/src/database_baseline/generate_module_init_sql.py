@@ -16,7 +16,7 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
         name="auth",
         table_names=("actors", "auth_client", "auth_code", "auth_ctx", "users"),
         output_path=pathlib.Path(
-            "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth.sql"
+            "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_sqlite.sql"
         ),
     ),
     ModuleSpec(
@@ -40,7 +40,7 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "model_type_snapshot",
         ),
         output_path=pathlib.Path(
-            "extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models.sql"
+            "extensions/models-core/src/main/resources/io/medatarun/model/infra/db/init__models_sqlite.sql"
         ),
     ),
     ModuleSpec(
@@ -53,14 +53,14 @@ MODULE_SPECS: tuple[ModuleSpec, ...] = (
             "tag_view_history_tag_group",
         ),
         output_path=pathlib.Path(
-            "extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags.sql"
+            "extensions/tags-core/src/main/resources/io/medatarun/tags/core/infra/db/init__tags_sqlite.sql"
         ),
     ),
     ModuleSpec(
         name="actions",
         table_names=("action_audit_event",),
         output_path=pathlib.Path(
-            "extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions.sql"
+            "extensions/platform-actions-storage-db/src/main/resources/io/medatarun/actions/infra/db/init__actions_sqlite.sql"
         ),
     ),
 )
@@ -72,6 +72,12 @@ SYSTEM_MAINTENANCE_SUBJECT = "system-maintenance"
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate module init SQL files from a reference sqlite database.")
     parser.add_argument("--db-path", required=True, help="Path to the sqlite database already migrated to latest.")
+    parser.add_argument(
+        "--dialect",
+        required=True,
+        choices=("sqlite", "postgresql"),
+        help="Dialect to generate.",
+    )
     args = parser.parse_args()
 
     db_path = pathlib.Path(args.db_path).expanduser().resolve()
@@ -79,6 +85,16 @@ def main() -> None:
         raise RuntimeError(f"Database path does not exist: {db_path}")
 
     repo_root = pathlib.Path(__file__).resolve().parents[4]
+    if args.dialect == "sqlite":
+        generate_for_sqlite(repo_root, db_path)
+        return
+    if args.dialect == "postgresql":
+        generate_for_postgresql(repo_root, db_path)
+        return
+    raise RuntimeError(f"Unsupported dialect: {args.dialect}")
+
+
+def generate_for_sqlite(repo_root: pathlib.Path, db_path: pathlib.Path) -> None:
     with sqlite3.connect(str(db_path)) as connection:
         connection.row_factory = sqlite3.Row
         sql_objects = read_sql_objects(connection)
@@ -89,6 +105,10 @@ def main() -> None:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(script, encoding="utf-8")
             print(f"Generated {output_path}")
+
+
+def generate_for_postgresql(repo_root: pathlib.Path, db_path: pathlib.Path) -> None:
+    raise NotImplementedError("not implemented")
 
 
 def read_sql_objects(connection: sqlite3.Connection) -> dict[str, dict[str, str]]:
