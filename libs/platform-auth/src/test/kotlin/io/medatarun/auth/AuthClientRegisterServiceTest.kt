@@ -4,7 +4,6 @@ import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.ports.exposed.OidcClientRegistrationResponseOrError
 import kotlinx.serialization.json.add
-import kotlinx.serialization.json.addAll
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
