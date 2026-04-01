@@ -14,45 +14,86 @@ import java.net.URI
  * Dynamic registrations are kept in memory and the built-in Medatarun UI client is re-derived
  * from the current public base URL when needed so redirects keep matching the active deployment URL.
  */
-class OidcClientRegistry {
+class OidcClientRegistry(private val publicBaseUrl: URI) {
 
-    private val clients = LinkedHashMap<String, OidcClient>()
+    interface OidcClientStorage {
+        fun findById(clientId: String): OidcClient?
+        fun exists(clientId: String): Boolean
+        fun canRegister(): Boolean
+        fun register(client: OidcClient)
+    }
+
+    inner class OidcClientStorageInternal : OidcClientStorage {
+        override fun canRegister(): Boolean = false
+        override fun register(client: OidcClient) {
+            // do nothing
+        }
+
+        override fun findById(clientId: String): OidcClient? {
+            if (clientId != oidcInternalClientId) return null
+            return OidcClient(
+                clientId = oidcInternalClientId,
+                origin = OidcClientOrigin.INTERNAL,
+                originalRegistrationPayload = null,
+
+                redirectUris = listOf(publicBaseUrl.resolve("/authentication-callback")),
+                grantTypes = listOf(AUTHORIZATION_CODE_GRANT_TYPE),
+                responseTypes = listOf(AUTHORIZATION_CODE_RESPONSE_TYPE),
+                tokenEndpointAuthMethod = TOKEN_ENDPOINT_AUTH_METHOD_NONE,
+                clientName = "Medatarun UI",
+                clientUri = publicBaseUrl,
+                logoUri = null,
+                contacts = emptyList(),
+                softwareId = null,
+                softwareVersion = null,
+                tosURI = null,
+                policyURI = null
+            )
+        }
+
+        override fun exists(clientId: String): Boolean {
+            return clientId == oidcInternalClientId
+        }
+
+    }
+
+    inner class OidcClientStorageInMemory : OidcClientStorage {
+        private val clients = LinkedHashMap<String, OidcClient>()
+        override fun canRegister(): Boolean = true
+        override fun register(client: OidcClient) {
+            clients[client.clientId] = client
+        }
+
+        override fun findById(clientId: String): OidcClient? {
+            return clients[clientId]
+        }
+
+        override fun exists(clientId: String): Boolean {
+            return clients.contains(clientId)
+        }
+
+    }
+
+
+    private val internalClientStorage: OidcClientStorage = OidcClientStorageInternal()
+    private val inMemoryClientStorage: OidcClientStorage = OidcClientStorageInMemory()
+
+    private val storages: List<OidcClientStorage> = listOf(internalClientStorage, inMemoryClientStorage)
+
 
     @Synchronized
     fun find(clientId: String): OidcClient? {
-        return clients[clientId]
+        return storages.firstNotNullOfOrNull { it.findById(clientId) }
     }
 
     @Synchronized
     fun exists(clientId: String): Boolean {
-        return clients.containsKey(clientId)
-    }
-
-    @Synchronized
-    fun ensureInternalClient(publicBaseUrl: URI) {
-        clients[oidcInternalClientId] = OidcClient(
-            clientId = oidcInternalClientId,
-            origin = OidcClientOrigin.INTERNAL,
-            originalRegistrationPayload = null,
-
-            redirectUris = listOf(publicBaseUrl.resolve("/authentication-callback")),
-            grantTypes = listOf(AUTHORIZATION_CODE_GRANT_TYPE),
-            responseTypes = listOf(AUTHORIZATION_CODE_RESPONSE_TYPE),
-            tokenEndpointAuthMethod = TOKEN_ENDPOINT_AUTH_METHOD_NONE,
-            clientName = "Medatarun UI",
-            clientUri = publicBaseUrl,
-            logoUri = null,
-            contacts = emptyList(),
-            softwareId = null,
-            softwareVersion = null,
-            tosURI = null,
-            policyURI = null
-        )
+        return storages.any { it.exists(clientId) }
     }
 
     @Synchronized
     fun matchesUri(clientId: String, redirectUriStr: String): Boolean {
-        val client = clients[clientId] ?: return false
+        val client = find(clientId) ?: return false
         val redirectUri = URI(redirectUriStr)
         return client.redirectUris.any {
             it.scheme == redirectUri.scheme
@@ -91,7 +132,8 @@ class OidcClientRegistry {
 
         // Spec says If unspecified or omitted, the default is "client_secret_basic"
         // But we don't know how to handle that
-        val tokenEndpointAuthMethod = request.getStringOrNull("token_endpoint_auth_method") ?: TOKEN_ENDPOINT_AUTH_METHOD_NONE
+        val tokenEndpointAuthMethod =
+            request.getStringOrNull("token_endpoint_auth_method") ?: TOKEN_ENDPOINT_AUTH_METHOD_NONE
         if (tokenEndpointAuthMethod != TOKEN_ENDPOINT_AUTH_METHOD_NONE) {
             return OidcClientRegistrationResponseOrError.Error("invalid_client_metadata", "token_endpoint_auth_method")
         }
@@ -108,7 +150,6 @@ class OidcClientRegistry {
         if (!responseTypes.contains(AUTHORIZATION_CODE_RESPONSE_TYPE)) {
             return OidcClientRegistrationResponseOrError.Error("invalid_client_metadata", "response_types")
         }
-
 
 
         val clientName = request.getStringOrNull("client_name")
@@ -156,7 +197,8 @@ class OidcClientRegistry {
 
     @Synchronized
     private fun register(client: OidcClient) {
-        clients[client.clientId] = client
+        storages.filter { it.canRegister() }.firstOrNull()?.register(client)
+
     }
 
     companion object {

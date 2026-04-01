@@ -1,5 +1,6 @@
 package io.medatarun.platform.kernel
 
+import java.net.URI
 import java.nio.file.Path
 
 interface MedatarunExtensionCtxConfig {
@@ -25,5 +26,10 @@ interface MedatarunExtensionCtxConfig {
      * Creates a new resource locator to access files and URLs
      */
     fun createResourceLocator(): ResourceLocator
+
+    /**
+     * Public base URL of the application.
+     */
+    fun publicBaseURL(): URI
 
 }

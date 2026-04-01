@@ -51,7 +51,7 @@ class OIDCAuthorizePage(
 
     fun create(ctx: OidcAuthorizeCtx, username: String?, error: String?): String {
         val index = javaClass.classLoader.getResource("static/login.html")
-        val client = oidcService.oidcClientInfo(ctx.clientId)
+        val client = oidcService.oidcClientInfo( ctx.clientId)
         val clientError = if (client == null) "Unknown client " + ctx.clientId else null
         val clientName = client?.clientName ?: ctx.clientId
         val clientInternal = client?.origin == OidcClientOrigin.INTERNAL

@@ -95,7 +95,7 @@ class AppHttpServer(
 
     private fun Application.configure() {
 
-        val oidcAuthority = services.oidcService.oidcAuthority(publicBaseUrl)
+        val oidcAuthority = services.oidcService.oidcAuthority()
         val oidcClientId = services.oidcService.oidcClientId()
 
         install(ContentNegotiation) { json() }

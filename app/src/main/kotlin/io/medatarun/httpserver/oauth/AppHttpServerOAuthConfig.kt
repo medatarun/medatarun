@@ -22,7 +22,7 @@ fun Routing.installOAuth(oidcService: OidcService, publicBaseUrl: URI) {
         // it may be complicated for our users to understand or configure.
         // We could declare multiple servers, but MCP clients, in particular, are
         // quite new and not very strict on everything (including OpenAI ones)
-        val authorizationServer = oidcService.oidcAuthority(publicBaseUrl).toString()
+        val authorizationServer = oidcService.oidcAuthority().toString()
 
         val doc = buildJsonObject {
             put("resource", resourceUrl)
@@ -42,7 +42,7 @@ fun Routing.installOAuth(oidcService: OidcService, publicBaseUrl: URI) {
     // Note that for [RFC 7591] Dynamic client registration, the returned
     // document contains the "registration_endpoint".
     get("/.well-known/oauth-authorization-server") {
-        call.respond(oidcService.oidcWellKnownOpenIdConfiguration(publicBaseUrl))
+        call.respond(oidcService.oidcWellKnownOpenIdConfiguration())
     }
 
     // We may later consider dividing resources but not sure for now

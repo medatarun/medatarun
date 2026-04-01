@@ -15,8 +15,8 @@ import kotlin.test.assertTrue
 
 class AuthClientRegisterServiceTest {
 
-    val env = AuthEnvTest()
-    val publicBaseUrl = URI("https://auth.example.test")
+    val env = AuthEnvTest(publicBaseUrl = URI("https://auth.example.test"))
+
 
     @Test
     fun `oidcRegister stores dynamic client in memory and allows authorize`() {
@@ -44,7 +44,7 @@ class AuthClientRegisterServiceTest {
             redirectUri = redirectUri
         )
 
-        val authorizeResult = env.oidcService.oidcAuthorize(authorizeRequest, publicBaseUrl)
+        val authorizeResult = env.oidcService.oidcAuthorize(authorizeRequest)
 
         assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
     }

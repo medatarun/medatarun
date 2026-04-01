@@ -5,10 +5,10 @@ import io.medatarun.cli.AppCLIConfigProperty
 import io.medatarun.cli.AppCLIRunner
 import io.medatarun.cli.AppCLIUtils.configureCliLogging
 import io.medatarun.cli.AppCLIUtils.isServerMode
-import io.medatarun.config.createConfig
 import io.medatarun.httpserver.AppHttpServer
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.runtime.internal.AppRuntimeBuilder
+import io.medatarun.runtime.internal.AppRuntimeConfigFactory
 import org.slf4j.LoggerFactory
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -18,9 +18,9 @@ fun main(args: Array<String>) {
 
     if (isServerMode) {
         banner()
-        val c = createConfig(cli = false)
-        val runtime = AppRuntimeBuilder(c.config).build()
-        val server = AppHttpServer(c.publicBaseUrl, AppHttpServerServices(runtime))
+        val c = AppRuntimeConfigFactory(cli = false).create()
+        val runtime = AppRuntimeBuilder(c).build()
+        val server = AppHttpServer(c.publicBaseURL, AppHttpServerServices(runtime))
         Runtime.getRuntime().addShutdownHook(Thread { server.stop() })
         server.start(
             host = c.serverHost,
@@ -30,11 +30,11 @@ fun main(args: Array<String>) {
 
     } else {
         configureCliLogging()
-        val c = createConfig(cli = true)
-        val authenticationToken = c.config.getProperty(AppCLIConfigProperty.AuthToken.key)?.trimToNull()
+        val c = AppRuntimeConfigFactory(cli = true).create()
+        val authenticationToken = c.getProperty(AppCLIConfigProperty.AuthToken.key)?.trimToNull()
         val cliRunner = AppCLIRunner(
             args,
-            publicBaseUrl = c.publicBaseUrl,
+            publicBaseUrl = c.publicBaseURL,
             authenticationToken = authenticationToken
         )
         cliRunner.handleCLI()

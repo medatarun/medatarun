@@ -39,7 +39,8 @@ class OidcServiceImpl(
     private val authCtxDurationSeconds: Long,
     private val oidcClientRegistry: OidcClientRegistry,
     private val externalProviders: JwkExternalProviders,
-    private val oidcProviderConfig: OidcProviderConfig?
+    private val oidcProviderConfig: OidcProviderConfig?,
+    private val publicBaseUrl: URI
 ) : OidcService {
 
     private val jwtVerifierResolver: JwtVerifierResolver = JwtVerifierResolverImpl(
@@ -49,7 +50,7 @@ class OidcServiceImpl(
         externalJwkProviders = externalProviders
     )
 
-    override fun oidcAuthority(publicBaseUrl: URI): URI {
+    override fun oidcAuthority(): URI {
         return oidcProviderConfig?.authority ?: publicBaseUrl
     }
 
@@ -57,8 +58,8 @@ class OidcServiceImpl(
         return oidcProviderConfig?.clientId ?: oidcInternalClientId
     }
 
-    override fun oidcClientInfo(clientId: String): OidcClient? {
-        return  oidcClientRegistry.find(clientId)
+    override fun oidcClientInfo( clientId: String): OidcClient? {
+        return  oidcClientRegistry.find( clientId)
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
@@ -77,7 +78,7 @@ class OidcServiceImpl(
         return OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
     }
 
-    override fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject {
+    override fun oidcWellKnownOpenIdConfiguration(): JsonObject {
         return buildJsonObject {
             put("issuer", jwtCfg.issuer)
             put("authorization_endpoint", publicBaseUrl.resolve(AUTH_AUTHORIZE_URI).toURL().toExternalForm())
@@ -137,8 +138,8 @@ class OidcServiceImpl(
         return AUTH_AUTHORIZE_URI
     }
 
-    override fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult {
-        oidcClientRegistry.ensureInternalClient(publicBaseUrl)
+    override fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult {
+
 
         val redirectUri = req.redirectUri
             ?: return OidcAuthorizeResult.FatalError("missing redirect_uri")

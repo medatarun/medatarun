@@ -179,7 +179,7 @@ class AuthExtension(
             actorClaimsAdapter = actorClaimsAdapter,
             actorService = actorService
         )
-        val oidcClientRegistry = OidcClientRegistry()
+        val oidcClientRegistry = OidcClientRegistry(ctx.publicBaseURL())
 
         val oidcService: OidcService = OidcServiceImpl(
             oidcAuthCodeStorage = authStorage,
@@ -206,7 +206,8 @@ class AuthExtension(
             oidcProviderConfig = OidcProviderConfig.valueOf(
                 ctx.getConfigProperty(ConfigProperties.UIOidcAuthority.key),
                 ctx.getConfigProperty(ConfigProperties.UiOidcClientId.key)
-            )
+            ),
+            publicBaseUrl = ctx.publicBaseURL()
 
         )
 

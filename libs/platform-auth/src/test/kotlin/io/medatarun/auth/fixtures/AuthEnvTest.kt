@@ -75,7 +75,8 @@ class AuthEnvTest(
         props = buildMap {
             put(PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY, DbProviderSqlite.randomDbUrl())
             putAll(extraProps)
-        }
+        },
+        publicBaseURL = publicBaseUrl
     )
 
     // Fake clock that always give the same point in time. Used to tests instant.now()
