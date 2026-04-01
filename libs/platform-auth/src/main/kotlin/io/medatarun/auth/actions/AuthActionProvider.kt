@@ -11,15 +11,16 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
+import io.medatarun.auth.ports.needs.AuthClock
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
     private val userService: UserService,
     private val oidcService: OidcService,
     private val oauthService: OAuthService,
-    private val actorService: ActorService
+    private val actorService: ActorService,
+    private val clock: AuthClock
 ) : ActionProvider<AuthAction<*>> {
     override val actionGroupKey: String = "auth"
     override fun findCommandClass(): KClass<AuthAction<*>> {
@@ -31,7 +32,7 @@ class AuthEmbeddedActionsProvider(
         actionCtx: ActionCtx
     ): Any {
         val launcher =
-            AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal)
+            AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal, clock)
         return when (action) {
             is AuthAction.AdminBootstrap -> launcher.adminBootstrap(action)
             is AuthAction.UserCreate -> launcher.createUser(action)
@@ -59,6 +60,7 @@ class AuthEmbeddedActionsLauncher(
     private val oauthService: OAuthService,
     private val actorService: ActorService,
     private val principal: ActionPrincipalCtx,
+    private val clock: AuthClock,
 
     ) {
     fun adminBootstrap(cmd: AuthAction.AdminBootstrap): OAuthTokenResponseDto {
@@ -158,7 +160,7 @@ class AuthEmbeddedActionsLauncher(
         if (actor.issuer == oidcService.oidcIssuer()) {
             userService.disableUser(Username(actor.subject).validate())
         } else {
-            actorService.disable(actor.id, Instant.now())
+            actorService.disable(actor.id, clock.now())
         }
     }
 

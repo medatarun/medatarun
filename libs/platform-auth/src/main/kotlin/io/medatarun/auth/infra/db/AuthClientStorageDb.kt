@@ -14,8 +14,11 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.net.URI
+import java.time.Instant
 
-class AuthClientStorageDb(private val dbConnectionFactory: DbConnectionFactory): AuthClientStorage {
+class AuthClientStorageDb(
+    private val dbConnectionFactory: DbConnectionFactory
+): AuthClientStorage {
     private val json = Json { encodeDefaults = true }
 
     override fun canRegister(): Boolean = true
@@ -98,6 +101,15 @@ class AuthClientStorageDb(private val dbConnectionFactory: DbConnectionFactory):
 
     private fun decodePayload(value: String?): JsonObject? {
         return value?.let { json.decodeFromString(JsonObject.serializer(), it) }
+    }
+
+    override fun purgeInactiveDynamicClients(expiresBefore: Instant) {
+        dbConnectionFactory.withExposed {
+            AuthClientTable.deleteWhere {
+                (AuthClientTable.originColumn eq OidcClientOrigin.DCRP.name) and
+                    (AuthClientTable.lastUsedAtColumn less expiresBefore)
+            }
+        }
     }
 
     companion object {

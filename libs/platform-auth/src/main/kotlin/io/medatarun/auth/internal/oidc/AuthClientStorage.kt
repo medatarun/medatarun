@@ -1,5 +1,7 @@
 package io.medatarun.auth.internal.oidc
 
+import java.time.Instant
+
 /**
  * Storage for OIDC Clients
  */
@@ -22,4 +24,9 @@ interface AuthClientStorage {
      * Registers a new client
      */
     fun register(client: AuthClient)
+
+    /**
+     * Purges inactive DCRP clients based on their last usage time.
+     */
+    fun purgeInactiveDynamicClients(expiresBefore: Instant)
 }

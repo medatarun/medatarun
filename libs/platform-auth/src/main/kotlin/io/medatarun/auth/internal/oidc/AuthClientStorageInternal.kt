@@ -2,6 +2,7 @@ package io.medatarun.auth.internal.oidc
 
 import io.medatarun.auth.ports.needs.AuthClock
 import java.net.URI
+import java.time.Instant
 
 class AuthClientStorageInternal(
     private val publicBaseUrl: URI,
@@ -38,6 +39,10 @@ class AuthClientStorageInternal(
 
     override fun exists(clientId: String): Boolean {
         return clientId == AuthClientRegistry.oidcInternalClientId
+    }
+
+    override fun purgeInactiveDynamicClients(expiresBefore: Instant) {
+        // Internal client is static and not managed by DCRP retention.
     }
 
 }

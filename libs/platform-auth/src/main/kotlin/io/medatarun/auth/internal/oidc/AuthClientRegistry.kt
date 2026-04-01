@@ -17,7 +17,8 @@ import java.net.URI
  */
 class AuthClientRegistry(
     private val storages: List<AuthClientStorage>,
-    private val authClock: AuthClock
+    private val authClock: AuthClock,
+    private val clientRegistrationRetentionDays: Long
 ) {
 
 
@@ -138,8 +139,14 @@ class AuthClientRegistry(
 
     @Synchronized
     private fun register(client: AuthClient) {
+        purgeInactiveDynamicClients()
         storages.filter { it.canRegister() }.firstOrNull()?.register(client)
+    }
 
+    private fun purgeInactiveDynamicClients() {
+        val now = authClock.now()
+        val expiresBefore = now.minusSeconds(clientRegistrationRetentionDays * 24 * 60 * 60)
+        storages.forEach { it.purgeInactiveDynamicClients(expiresBefore) }
     }
 
     companion object {

@@ -56,7 +56,7 @@ class AuthExtension(
         val actorStorage = ctx.getService<ActorStorageSQLite>()
 
         val actionProvider = AuthEmbeddedActionsProvider(
-            userService, oidcService, oauthService, actorService
+            userService, oidcService, oauthService, actorService, config.authClock
         )
         val rolesProvider = object : SecurityRolesProvider {
             override fun getRoles(): List<AppPrincipalRole> {
@@ -151,6 +151,10 @@ class AuthExtension(
             ConfigProperties.JwtDefaultTtlSeconds.key,
             ConfigProperties.JwtDefaultTtlSeconds.defaultValue
         ).toLong()
+        val clientRegistrationRetentionDays = ctx.getConfigProperty(
+            ConfigProperties.ClientRegistrationRetentionDays.key,
+            ConfigProperties.ClientRegistrationRetentionDays.defaultValue
+        ).toLong()
 
         val jwtCfg = JwtConfig(
             issuer = jwtIssuer,
@@ -176,7 +180,8 @@ class AuthExtension(
             keys = authEmbeddedKeys,
             jwtConfig = jwtCfg,
             actorClaimsAdapter = actorClaimsAdapter,
-            actorService = actorService
+            actorService = actorService,
+            clock = config.authClock
         )
 
         val internalClientStorage: AuthClientStorage = AuthClientStorageInternal(
@@ -188,7 +193,7 @@ class AuthExtension(
         val clientStorages: List<AuthClientStorage> = listOf(internalClientStorage, inMemoryClientStorage)
 
         val authClientRegistry = AuthClientRegistry(
-            clientStorages, config.authClock
+            clientStorages, config.authClock, clientRegistrationRetentionDays
         )
 
         val oidcService: OidcService = OidcServiceImpl(
