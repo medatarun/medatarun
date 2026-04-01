@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import pathlib
 import sqlite3
@@ -80,7 +78,7 @@ def main() -> None:
     if not db_path.exists():
         raise RuntimeError(f"Database path does not exist: {db_path}")
 
-    repo_root = pathlib.Path(__file__).resolve().parents[2]
+    repo_root = pathlib.Path(__file__).resolve().parents[4]
     with sqlite3.connect(str(db_path)) as connection:
         connection.row_factory = sqlite3.Row
         sql_objects = read_sql_objects(connection)
@@ -225,7 +223,3 @@ def normalize_sql(sql: str) -> str:
     if not text.endswith(";"):
         text = text + ";"
     return text
-
-
-if __name__ == "__main__":
-    main()

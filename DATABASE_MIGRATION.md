@@ -172,8 +172,10 @@ Migrations versionnées:
 Depuis la racine du repo:
 
 ```bash
-python3 tools/database-baseline/generate_module_init_sql.py \
-  --db-path /Users/sjust/projects/medatarun-samples/medatarun-0.8.0-tmp/data/database.db
+cd tools/database-baseline
+uv venv
+uv sync
+uv run database-baseline --db-path /path/to/data/database.db
 ```
 
 ## Validation
