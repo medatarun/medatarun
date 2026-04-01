@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
 
@@ -7,7 +8,10 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
     private val v002ModelFixTypeEvents = V002_ModelFixTypeEvents()
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(init_models_sqlite)
+        when (ctx.dialect) {
+            DbDialect.SQLITE -> ctx.applySqlResource(init_models_sqlite)
+            DbDialect.POSTGRESQL -> ctx.applySqlResource(init_models_postgresql)
+        }
     }
 
     override fun latestVersion(): Int {
@@ -30,6 +34,7 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
 
     companion object {
         const val init_models_sqlite = "io/medatarun/model/infra/db/init__models_sqlite.sql"
+        const val init_models_postgresql = "io/medatarun/model/infra/db/init__models_postgresql.sql"
         const val v001 = "io/medatarun/model/infra/db/v001__models_init_db_sqlite.sql"
         const val v002_traceability = "io/medatarun/model/infra/db/v002__models_upgrade_traceability.sql"
         const val v002_uids_binary = "io/medatarun/model/infra/db/v002__models_ids_binary16_sqlite.sql"
