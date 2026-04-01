@@ -3,12 +3,12 @@ package io.medatarun.auth.domain.oidc
 import java.time.Instant
 
 /**
- * Represent the session created by /oidc/authorize
+ * Represent the session created by /auth/authorize
  * and uniquely identified by authorizeCtxCode
  *
- * data from /oidc/authorize -> /ui/auth/login
+ * data from /auth/authorize -> /ui/auth/login
  *
- * Stores navigation context from /oidc/authorize to login page,
+ * Stores navigation context from /auth/authorize to login page,
  * and login page loops until success
  */
 data class OidcAuthorizeCtx(

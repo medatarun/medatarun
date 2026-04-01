@@ -3,6 +3,7 @@ package io.medatarun.httpserver.oidc
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.auth.internal.oidc.OidcClientOrigin
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.strings.trimToNull
@@ -50,12 +51,18 @@ class OIDCAuthorizePage(
 
     fun create(ctx: OidcAuthorizeCtx, username: String?, error: String?): String {
         val index = javaClass.classLoader.getResource("static/login.html")
-
+        val client = oidcService.oidcClientInfo( ctx.clientId)
+        val clientError = if (client == null) "Unknown client " + ctx.clientId else null
+        val clientName = client?.clientName ?: ctx.clientId
+        val clientInternal = client?.origin == OidcClientOrigin.INTERNAL
         val html = index.readText()
         val json = buildJsonObject {
             put(PARAM_USERNAME, username ?: "")
-            put("error", error ?: "")
+            put("error", error ?: clientError ?: "")
             put(PARAM_AUTH_CTX, ctx.authCtxCode)
+            put(PARAM_CLIENT_NAME, clientName)
+            put(PARAM_CLIENT_ID, ctx.clientId)
+            put(PARAM_CLIENT_INTERNAL, clientInternal)
         }
         val replaced = html.replace("<!-- __SERVER_CONFIG__ -->", "<script>window.__MEDATARUN_CONFIG__=${json}</script>")
         return replaced
@@ -66,5 +73,8 @@ class OIDCAuthorizePage(
         const val PARAM_AUTH_CTX = "auth_ctx"
         const val PARAM_USERNAME = "username"
         const val PARAM_PASSWORD = "password"
+        const val PARAM_CLIENT_NAME = "clientName"
+        const val PARAM_CLIENT_ID = "clientId"
+        const val PARAM_CLIENT_INTERNAL = "clientInternal"
     }
 }

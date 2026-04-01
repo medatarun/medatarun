@@ -2,6 +2,7 @@ package io.medatarun.platform.kernel.internal
 
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.platform.kernel.*
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -42,5 +43,9 @@ class MedatarunExtensionCtxConfigImpl(
 
     override fun createResourceLocator(): ResourceLocator {
         return _config.createResourceLocator()
+    }
+
+    override fun publicBaseURL(): URI {
+        return _config.publicBaseURL
     }
 }

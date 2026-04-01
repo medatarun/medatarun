@@ -5,6 +5,7 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
+import io.medatarun.auth.internal.oidc.AuthClient
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 
@@ -45,7 +46,7 @@ interface OidcService {
      * Contents of well-known openid configuration in Json.
      * Must respect the standard
      */
-    fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject
+    fun oidcWellKnownOpenIdConfiguration(): JsonObject
 
     /**
      * Returns URL where authorize is done. Implementation shall return a URL where
@@ -59,7 +60,7 @@ interface OidcService {
      * If it is ok, creates a context identified by "authCtxCode" and persist it in storage. Also includes a URL to our login page.
      * This context will be re-read after a successful login to redirect the user to its client application.
      */
-    fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult
+    fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult
 
     /**
      * Finds an authorized context by its identifier (identifier is an [authCtxCode])
@@ -79,12 +80,17 @@ interface OidcService {
      */
     fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String
 
+    fun oidcRegisterUri(): String
+    fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError
+
     fun oidcTokenUri(): String
     fun oidcToken(oidcTokenReq: OidcTokenRequest): OIDCTokenResponseOrError
 
     fun oidcAuthorizeErrorLocation(resp: OidcAuthorizeResult.RedirectError): String
-    fun oidcAuthority(publicBaseUrl: URI): URI
+    fun oidcAuthority(): URI
     fun oidcClientId(): String
 
 
+
+    fun oidcClientInfo(clientId: String): AuthClient?
 }

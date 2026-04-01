@@ -4,7 +4,7 @@ import java.time.Instant
 
 data class OidcAuthorizeCode(
     /**
-     * Code that will be sent back to client after /oidc/authorize and that we must get back in /oidc/token
+     * Code that will be sent back to client after /auth/authorize and that we must get back in /auth/token
      * Generated on our side at the end of the login process
      */
     val code: String,

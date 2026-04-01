@@ -28,7 +28,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
     }
 
     get(oidcService.oidcWellKnownOpenIdConfigurationUri()) {
-        call.respond(oidcService.oidcWellKnownOpenIdConfiguration(publicBaseUrl))
+        call.respond(oidcService.oidcWellKnownOpenIdConfiguration())
     }
 
     route(oidcService.oidcAuthorizeUri()) {
@@ -45,7 +45,7 @@ fun Routing.installOidc(oidcService: OidcService, userService: UserService, publ
                 nonce = call.parameters["nonce"]
             )
 
-            when (val resp = oidcService.oidcAuthorize(req, publicBaseUrl)) {
+            when (val resp = oidcService.oidcAuthorize(req)) {
                 is OidcAuthorizeResult.FatalError -> {
                     call.respond(HttpStatusCode.BadRequest, resp.reason)
                 }

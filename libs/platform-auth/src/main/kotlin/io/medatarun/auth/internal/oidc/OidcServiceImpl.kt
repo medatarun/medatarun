@@ -15,7 +15,7 @@ import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwkExternalProviders
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
-import io.medatarun.auth.internal.oidc.OidcClientRegistry.Companion.oidcInternalClientId
+import io.medatarun.auth.internal.oidc.AuthClientRegistry.Companion.oidcInternalClientId
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcProviderConfig
@@ -37,8 +37,10 @@ class OidcServiceImpl(
     private val clock: AuthClock,
     private val actorService: ActorService,
     private val authCtxDurationSeconds: Long,
+    private val authClientRegistry: AuthClientRegistry,
     private val externalProviders: JwkExternalProviders,
-    private val oidcProviderConfig: OidcProviderConfig?
+    private val oidcProviderConfig: OidcProviderConfig?,
+    private val publicBaseUrl: URI
 ) : OidcService {
 
     private val jwtVerifierResolver: JwtVerifierResolver = JwtVerifierResolverImpl(
@@ -48,12 +50,16 @@ class OidcServiceImpl(
         externalJwkProviders = externalProviders
     )
 
-    override fun oidcAuthority(publicBaseUrl: URI): URI {
-        return oidcProviderConfig?.authority ?: publicBaseUrl.resolve("/oidc")
+    override fun oidcAuthority(): URI {
+        return oidcProviderConfig?.authority ?: publicBaseUrl
     }
 
     override fun oidcClientId(): String {
         return oidcProviderConfig?.clientId ?: oidcInternalClientId
+    }
+
+    override fun oidcClientInfo( clientId: String): AuthClient? {
+        return  authClientRegistry.find( clientId)
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
@@ -72,12 +78,13 @@ class OidcServiceImpl(
         return OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
     }
 
-    override fun oidcWellKnownOpenIdConfiguration(publicBaseUrl: URI): JsonObject {
+    override fun oidcWellKnownOpenIdConfiguration(): JsonObject {
         return buildJsonObject {
             put("issuer", jwtCfg.issuer)
-            put("authorization_endpoint", publicBaseUrl.resolve("/oidc/authorize").toURL().toExternalForm())
-            put("token_endpoint", publicBaseUrl.resolve("/oidc/token").toURL().toExternalForm())
-            put("userinfo_endpoint", publicBaseUrl.resolve("/oidc/userinfo").toURL().toExternalForm())
+            put("authorization_endpoint", publicBaseUrl.resolve(AUTH_AUTHORIZE_URI).toURL().toExternalForm())
+            put("token_endpoint", publicBaseUrl.resolve(AUTH_TOKEN_URI).toURL().toExternalForm())
+            put("registration_endpoint", publicBaseUrl.resolve(AUTH_REGISTER_URI).toURL().toExternalForm())
+            put("userinfo_endpoint", publicBaseUrl.resolve(AUTH_USER_INFO_URI).toURL().toExternalForm())
 
             put("jwks_uri", publicBaseUrl.resolve(JWKS_URI).toURL().toExternalForm())
 
@@ -88,6 +95,7 @@ class OidcServiceImpl(
 
             // Our OIDC doesn't support token refresh, so no "refresh_token"
             putJsonArray("grant_types_supported") { addAll(listOf("authorization_code")) }
+            putJsonArray("token_endpoint_auth_methods_supported") { add(AuthClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE) }
 
             // Indicates that the "sub" in the token is the same whatever the client who requests the token
             putJsonArray("subject_types_supported") { add("public") }
@@ -127,10 +135,11 @@ class OidcServiceImpl(
     }
 
     override fun oidcAuthorizeUri(): String {
-        return OIDC_AUTHORIZE_URI
+        return AUTH_AUTHORIZE_URI
     }
 
-    override fun oidcAuthorize(req: OidcAuthorizeRequest, publicBaseUrl: URI): OidcAuthorizeResult {
+    override fun oidcAuthorize(req: OidcAuthorizeRequest): OidcAuthorizeResult {
+
 
         val redirectUri = req.redirectUri
             ?: return OidcAuthorizeResult.FatalError("missing redirect_uri")
@@ -146,18 +155,16 @@ class OidcServiceImpl(
                 redirectUri, "unauthorized_client", req.state
             )
 
-        val oidcClientRegistry = OidcClientRegistry(publicBaseUrl)
-
         val redirectUriParsed = URI(redirectUri)
         if (redirectUriParsed.fragment != null) {
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 
-        if (!oidcClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
+        if (!authClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
             redirectUri, "unauthorized_client", req.state
         )
 
-        if (!oidcClientRegistry.matchesUri(clientId, redirectUri)) {
+        if (!authClientRegistry.matchesUri(clientId, redirectUri)) {
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 
@@ -259,7 +266,15 @@ class OidcServiceImpl(
     }
 
     override fun oidcTokenUri(): String {
-        return "/oidc/token"
+        return AUTH_TOKEN_URI
+    }
+
+    override fun oidcRegisterUri(): String {
+        return AUTH_REGISTER_URI
+    }
+
+    override fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError {
+        return authClientRegistry.registerDynamicClient(request)
     }
 
     fun buildRedirectUri(redirectUri: String, state: String?, authorizationCode: String): String {
@@ -376,9 +391,12 @@ class OidcServiceImpl(
     }
 
     companion object {
-        const val JWKS_URI = "/oidc/jwks.json"
-        const val OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION = "/oidc/.well-known/openid-configuration"
-        const val OIDC_AUTHORIZE_URI = "/oidc/authorize"
+        const val JWKS_URI = "/auth/jwks.json"
+        const val OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION = "/.well-known/openid-configuration"
+        const val AUTH_AUTHORIZE_URI = "/auth/authorize"
+        const val AUTH_TOKEN_URI = "/auth/token"
+        const val AUTH_REGISTER_URI = "/auth/register"
+        const val AUTH_USER_INFO_URI = "/auth/userinfo"
     }
 
 }

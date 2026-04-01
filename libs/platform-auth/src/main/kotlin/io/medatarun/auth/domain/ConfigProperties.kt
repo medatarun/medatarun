@@ -88,6 +88,12 @@ In environments where startup logs are not accessible (for example when running 
         type = "String",
         defaultValue = "",
         description = "If you have configured an OIDC authority and registered Medatarun as a client application, this is the name of the _client id_ you used to register Medatarun in your OIDC Identity Provider."
+    ),
+    ClientRegistrationRetentionDays(
+        key = "medatarun.auth.client.registration.retention.days",
+        type = "Integer",
+        defaultValue = "7",
+        description = "Default retention duration in days for clients registered through the OAuth Dynamic Client Registration Protocol. If no activity is observed for a client after this period, it is automatically removed."
     );
 
     fun withName(name: String): String {

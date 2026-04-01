@@ -1,6 +1,7 @@
 package io.medatarun.platform.kernel
 
 import io.medatarun.platform.kernel.internal.ResourceLocatorDefault
+import java.net.URI
 import java.nio.file.FileSystem
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -17,6 +18,11 @@ interface MedatarunConfig {
      */
     val projectDir: Path
 
+    /**
+     * Public URL where this server instance is accessible from
+     */
+    val publicBaseURL: URI
+
     fun getProperty(key: String): String?
     fun getProperty(key: String, defaultValue: String): String
 
@@ -30,7 +36,8 @@ interface MedatarunConfig {
             fs: FileSystem,
             props: Map<String, String>,
             appDir: String = "/tmp/medatarun",
-            projectDir: String = "/tmp/medatarun-project"
+            projectDir: String = "/tmp/medatarun-project",
+            publicBaseURL: URI = URI("http://localhost:8080"),
         ): MedatarunConfig {
 
             val appDirPath = fs.getPath(appDir).also { it.createDirectories() }
@@ -38,6 +45,7 @@ interface MedatarunConfig {
             val config = object : MedatarunConfig {
                 override val applicationHomeDir: Path = appDirPath
                 override val projectDir: Path = projectDirPath
+                override val publicBaseURL: URI = publicBaseURL
                 override fun getProperty(key: String): String? {
                     return props[key]
                 }

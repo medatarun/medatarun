@@ -27,7 +27,7 @@ class AuthActionEnvTest(
     val env = AuthEnvTest(createAdmin = createAdmin, otherRoles = otherRoles)
 
     val provider = AuthEmbeddedActionsProvider(
-        env.userService, env.oidcService, env.oauthService, env.actorService
+        env.userService, env.oidcService, env.oauthService, env.actorService, env.authClockTests
     )
 
     var actionCtx: ActionCtx = ActionCtxWithActor(null)

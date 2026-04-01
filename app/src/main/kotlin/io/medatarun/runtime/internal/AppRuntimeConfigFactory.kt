@@ -1,11 +1,14 @@
 package io.medatarun.runtime.internal
 
+import io.medatarun.config.AppConfigProperties
 import io.medatarun.lang.strings.trimToNull
+import io.medatarun.platform.kernel.MedatarunKernelConfigProperties
 import io.medatarun.platform.kernel.internal.ResourceLocatorDefault
 import io.medatarun.runtime.AppRuntimeOsBridge
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
 import org.eclipse.microprofile.config.Config
 import org.slf4j.LoggerFactory
+import java.net.URI
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -23,7 +26,32 @@ class AppRuntimeConfigFactory(
         val projectDir = findProjectDir()
         if (!cli) logger.info("MEDATARUN_HOME directory: $applicationHomeDir")
         if (!cli) logger.info("MEDATARUN_APPLICATION_DATA directory: $projectDir")
-        return AppRuntimeConfig(applicationHomeDir, projectDir, config) {
+
+        val serverPortStr: String = config
+            .getOptionalValue(AppConfigProperties.ServerPort.key, String::class.java)
+            .orElse(null) ?: AppConfigProperties.ServerPort.defaultValue
+        val serverPort: Int = serverPortStr.toInt()
+
+        val serverHost: String = config
+            .getOptionalValue(AppConfigProperties.ServerHost.key, String::class.java)
+            .orElse(null)
+            ?: AppConfigProperties.ServerHost.defaultValue
+
+        val serverHostPublicBaseUrlDefault = config
+            .getOptionalValue(AppConfigProperties.ServerHost.key, String::class.java)
+            .orElse(null)
+            ?: "localhost"
+
+        @Suppress("HttpUrlsUsage")
+        val publicBaseUrl: URI = URI(
+            config
+                .getOptionalValue(MedatarunKernelConfigProperties.BaseUrl.key, String::class.java)
+                .orElse(null)
+                ?: "http://$serverHostPublicBaseUrlDefault:$serverPort/"
+        )
+
+
+        return AppRuntimeConfig(applicationHomeDir, projectDir, serverHost, serverPort, publicBaseUrl, config) {
             ResourceLocatorDefault(
                 rootPath = projectDir.toString(),
                 fileSystem = osBridge.fileSystem

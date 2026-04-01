@@ -14,7 +14,7 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OAuthTokenResponse
 import io.medatarun.auth.ports.exposed.UserService
-import java.time.Instant
+import io.medatarun.auth.ports.needs.AuthClock
 import java.util.*
 
 class OAuthServiceImpl(
@@ -22,7 +22,8 @@ class OAuthServiceImpl(
     private val jwtConfig: JwtConfig,
     private val keys: JwtKeyMaterial,
     private val actorClaimsAdapter: ActorClaimsAdapter,
-    private val actorService: ActorService
+    private val actorService: ActorService,
+    private val clock: AuthClock
 ) : OAuthService {
 
     override fun oauthLogin(username: Username, password: PasswordClear): OAuthTokenResponse {
@@ -52,7 +53,7 @@ class OAuthServiceImpl(
 
     override fun issueAccessToken(sub: String, claims: Map<String, Any?>): String {
         val alg = Algorithm.RSA256(keys.publicKey, keys.privateKey)
-        val now = Instant.now()
+        val now = clock.now()
 
         val b = JWT.create()
             .withKeyId(keys.kid)

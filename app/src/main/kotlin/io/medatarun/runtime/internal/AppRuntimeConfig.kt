@@ -3,13 +3,17 @@ package io.medatarun.runtime.internal
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.ResourceLocator
 import org.eclipse.microprofile.config.Config
+import java.net.URI
 import java.nio.file.Path
 
 class AppRuntimeConfig(
     override val applicationHomeDir: Path,
     override val projectDir: Path,
+    val serverHost: String,
+    val serverPort: Int,
+    override val publicBaseURL: URI,
     val config: Config,
-    val resourceLocatorFactory: () -> ResourceLocator,
+    val resourceLocatorFactory: () -> ResourceLocator
 ) : MedatarunConfig {
 
     override fun createResourceLocator(): ResourceLocator {
