@@ -1,8 +1,8 @@
 package io.medatarun.auth.internal.oidc
 
-import io.medatarun.auth.infra.db.AuthClientStorageDb
 import io.medatarun.auth.ports.exposed.OidcClientRegistrationResponse
 import io.medatarun.auth.ports.exposed.OidcClientRegistrationResponseOrError
+import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.type.commons.json.getStringListOrNull
 import io.medatarun.type.commons.json.getStringOrNull
@@ -16,7 +16,8 @@ import java.net.URI
  * from the current public base URL when needed so redirects keep matching the active deployment URL.
  */
 class AuthClientRegistry(
-    private val storages: List<AuthClientStorage>
+    private val storages: List<AuthClientStorage>,
+    private val authClock: AuthClock
 ) {
 
 
@@ -49,8 +50,7 @@ class AuthClientRegistry(
      */
     @Synchronized
     fun registerDynamicClient(
-        request: JsonObject,
-        nowEpochSeconds: Long
+        request: JsonObject
     ): OidcClientRegistrationResponseOrError {
 
         // Spec says that clients using flows with redirection MUST register
@@ -105,6 +105,8 @@ class AuthClientRegistry(
         val client = AuthClient(
             clientId = "dcpr-" + UuidUtils.generateV4String(),
             origin = OidcClientOrigin.DCRP,
+            createdAt = authClock.now(),
+            lastUsedAt = authClock.now(),
             originalRegistrationPayload = originalPayload,
             redirectUris = redirectUris,
             grantTypes = grantTypes,
@@ -129,7 +131,7 @@ class AuthClientRegistry(
                 responseTypes = client.responseTypes,
                 tokenEndpointAuthMethod = client.tokenEndpointAuthMethod,
                 clientName = client.clientName,
-                clientIdIssuedAt = nowEpochSeconds
+                clientIdIssuedAt = authClock.now().epochSecond
             )
         )
     }

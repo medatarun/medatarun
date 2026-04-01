@@ -274,7 +274,7 @@ class OidcServiceImpl(
     }
 
     override fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError {
-        return authClientRegistry.registerDynamicClient(request, clock.now().epochSecond)
+        return authClientRegistry.registerDynamicClient(request)
     }
 
     fun buildRedirectUri(redirectUri: String, state: String?, authorizationCode: String): String {

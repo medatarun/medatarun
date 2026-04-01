@@ -2,6 +2,7 @@ package io.medatarun.auth.internal.oidc
 
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
+import java.time.Instant
 
 data class AuthClient(
 
@@ -19,6 +20,14 @@ data class AuthClient(
      * Original registration payload for DCRP clients
      */
     val originalRegistrationPayload: JsonObject?,
+    /**
+     * When the client was created in storage.
+     */
+    val createdAt: Instant,
+    /**
+     * Last usage timestamp tracked by storage.
+     */
+    val lastUsedAt: Instant,
 
     // -------------------------------------------------------------------------
     // same fields as Dynamic Client Registration Protocol

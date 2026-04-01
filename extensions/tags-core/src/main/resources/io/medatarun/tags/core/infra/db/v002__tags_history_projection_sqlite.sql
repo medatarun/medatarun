@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS tag_view_history_tag
     key          TEXT NOT NULL,
     name         TEXT,
     description  TEXT,
-    valid_from   TEXT NOT NULL,
-    valid_to     TEXT,
+    valid_from   TIMESTAMP NOT NULL,
+    valid_to     TIMESTAMP,
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS tag_view_history_tag_group
     key          TEXT NOT NULL,
     name         TEXT,
     description  TEXT,
-    valid_from   TEXT NOT NULL,
-    valid_to     TEXT,
+    valid_from   TIMESTAMP NOT NULL,
+    valid_to     TIMESTAMP,
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 

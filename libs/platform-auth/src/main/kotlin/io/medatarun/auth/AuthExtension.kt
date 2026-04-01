@@ -179,13 +179,16 @@ class AuthExtension(
             actorService = actorService
         )
 
-        val internalClientStorage: AuthClientStorage = AuthClientStorageInternal(ctx.publicBaseURL())
+        val internalClientStorage: AuthClientStorage = AuthClientStorageInternal(
+            ctx.publicBaseURL(),
+            config.authClock
+        )
         val inMemoryClientStorage: AuthClientStorage = AuthClientStorageDb(dbConnectionFactory)
 
         val clientStorages: List<AuthClientStorage> = listOf(internalClientStorage, inMemoryClientStorage)
 
         val authClientRegistry = AuthClientRegistry(
-            clientStorages
+            clientStorages, config.authClock
         )
 
         val oidcService: OidcService = OidcServiceImpl(

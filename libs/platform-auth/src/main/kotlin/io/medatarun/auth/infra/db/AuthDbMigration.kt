@@ -18,6 +18,7 @@ class AuthDbMigration(
         ctx.applySqlResource(v001_actors)
         migrationV002CreateActorSystemMaintenance.apply(ctx)
         ctx.applySqlResource(v002_ids_binary16_sqlite)
+        ctx.applySqlResource(v002_auth_client_sqlite)
     }
 
     override fun latestVersion(): Int {
@@ -30,6 +31,7 @@ class AuthDbMigration(
             2 -> {
                 migrationV002CreateActorSystemMaintenance.apply(ctx)
                 ctx.applySqlResource(v002_ids_binary16_sqlite)
+                ctx.applySqlResource(v002_auth_client_sqlite)
             }
             else -> ctx.throwUnknownVersionException()
         }
@@ -46,5 +48,6 @@ class AuthDbMigration(
         const val v001_oidc = "io/medatarun/auth/infra/db/v001__auth_init_oidc_sqlite.sql"
         const val v001_actors = "io/medatarun/auth/infra/db/v001__auth_init_actors_sqlite.sql"
         const val v002_ids_binary16_sqlite = "io/medatarun/auth/infra/db/v002__auth_ids_binary16_sqlite.sql"
+        const val v002_auth_client_sqlite = "io/medatarun/auth/infra/db/v002__auth_client.sql"
     }
 }
