@@ -9,9 +9,9 @@ interface OidcStorage {
     // ------------------------------------------------------------------------
     // AuthCtx management
     //
-    // data from /oidc/authorize -> /ui/auth/login
+    // data from /auth/authorize -> /ui/auth/login
     //
-    // Stores navigation context from /oidc/authorize to login page,
+    // Stores navigation context from /auth/authorize to login page,
     // and login page loops until success
     // ------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ interface OidcStorage {
     // ------------------------------------------------------------------------
     // AuthCode management
     //
-    // login success -> redirectUri?code=xxx -> /oidc/token?code=xxx
+    // login success -> redirectUri?code=xxx -> /auth/token?code=xxx
     //
     // Stores context associated with this code
     // ------------------------------------------------------------------------

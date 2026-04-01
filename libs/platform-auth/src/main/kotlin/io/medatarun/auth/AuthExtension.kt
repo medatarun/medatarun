@@ -23,6 +23,7 @@ import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl
 import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl.Companion.createJwtExternalProvidersFromConfigProperties
 import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
 import io.medatarun.auth.internal.oauth.OAuthServiceImpl
+import io.medatarun.auth.internal.oidc.OidcClientRegistry
 import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
@@ -178,6 +179,7 @@ class AuthExtension(
             actorClaimsAdapter = actorClaimsAdapter,
             actorService = actorService
         )
+        val oidcClientRegistry = OidcClientRegistry()
 
         val oidcService: OidcService = OidcServiceImpl(
             oidcAuthCodeStorage = authStorage,
@@ -188,6 +190,7 @@ class AuthExtension(
             clock = config.authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
+            oidcClientRegistry = oidcClientRegistry,
             externalProviders = createJwtExternalProvidersFromConfigProperties(
                 object : JwkExternalProvidersImpl.Companion.ConfigResolver {
                     override fun getConfigProperty(key: String, defaultValue: String): String {

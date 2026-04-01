@@ -356,7 +356,7 @@ function getOidcAuthority() {
     return vite;
   }
 
-  return "http://localhost:8080/oidc";
+  return "http://localhost:8080";
 }
 
 function getOidcClientId() {

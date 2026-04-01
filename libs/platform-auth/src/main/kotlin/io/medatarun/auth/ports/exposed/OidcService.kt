@@ -5,6 +5,7 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
+import io.medatarun.auth.internal.oidc.OidcClient
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 
@@ -79,6 +80,9 @@ interface OidcService {
      */
     fun oidcAuthorizeCreateCode(authCtxCode: String, subject: String): String
 
+    fun oidcRegisterUri(): String
+    fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError
+
     fun oidcTokenUri(): String
     fun oidcToken(oidcTokenReq: OidcTokenRequest): OIDCTokenResponseOrError
 
@@ -87,4 +91,6 @@ interface OidcService {
     fun oidcClientId(): String
 
 
+
+    fun oidcClientInfo(clientId: String): OidcClient?
 }

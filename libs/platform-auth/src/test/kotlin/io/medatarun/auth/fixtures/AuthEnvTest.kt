@@ -9,9 +9,11 @@ import io.medatarun.auth.AuthExtension
 import io.medatarun.auth.AuthExtensionConfig
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
+import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
+import io.medatarun.auth.internal.oidc.OidcClientRegistry
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
@@ -25,6 +27,7 @@ import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityExtension
 import io.medatarun.security.SecurityRolesProvider
 import io.medatarun.types.TypeSystemExtension
+import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -46,6 +49,7 @@ class AuthEnvTest(
     private val createAdmin: Boolean = true,
     private val otherRoles: Set<String> = emptySet(),
     private val extraProps: Map<String, String> = emptyMap(),
+    val publicBaseUrl: URI = URI("https://auth.example.test")
 ) {
 
     val userService: UserService
@@ -123,6 +127,30 @@ class AuthEnvTest(
         }
     }
 
+    /**
+     * Creates an authorize request with predefined parameters
+     */
+    fun buildAuthorizeRequest(
+        responseType: String? = "code",
+        clientId: String? = OidcClientRegistry.oidcInternalClientId,
+        redirectUri: String? = publicBaseUrl.resolve("/authentication-callback").toString(),
+        scope: String? = "openid",
+        state: String? = "state-123",
+        codeChallenge: String? = "challenge-123",
+        codeChallengeMethod: String? = "S256",
+        nonce: String? = "nonce-123"
+    ): OidcAuthorizeRequest {
+        return OidcAuthorizeRequest(
+            responseType = responseType,
+            clientId = clientId,
+            redirectUri = redirectUri,
+            scope = scope,
+            state = state,
+            codeChallenge = codeChallenge,
+            codeChallengeMethod = codeChallengeMethod,
+            nonce = nonce
+        )
+    }
 
     fun verifyToken(
         token: String,

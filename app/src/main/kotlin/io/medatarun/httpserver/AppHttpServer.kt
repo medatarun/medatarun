@@ -8,11 +8,13 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.medatarun.actions.runtime.*
+import io.medatarun.httpserver.auth.installAuth
 import io.medatarun.httpserver.commons.installCors
 import io.medatarun.httpserver.commons.installHealth
 import io.medatarun.httpserver.commons.installJwtSecurity
 import io.medatarun.httpserver.mcp.McpServerBuilder
 import io.medatarun.httpserver.mcp.installMcp
+import io.medatarun.httpserver.oauth.installOAuth
 import io.medatarun.httpserver.oidc.installOidc
 import io.medatarun.httpserver.rest.RestApiDoc
 import io.medatarun.httpserver.rest.RestCommandInvocation
@@ -101,7 +103,7 @@ class AppHttpServer(
         installCors()
         installUIStatusPageAndSpaFallback(
             uiIndexTemplate,
-            listOf("/api", "/mcp", "/sse", "/oidc"),
+            listOf("/api", "/mcp", "/sse", "/auth/"),
             oidcAuthority,
             oidcClientId
         )
@@ -115,7 +117,9 @@ class AppHttpServer(
 
             installActionsApi(restApiDoc, restCommandInvocation, services.principalFactory)
 
+            installOAuth(services.oidcService, publicBaseUrl)
             installOidc(services.oidcService, services.userService, publicBaseUrl)
+            installAuth(services.oidcService)
 
 
             installMcp(mcpServerBuilder, principalFactory = services.principalFactory)

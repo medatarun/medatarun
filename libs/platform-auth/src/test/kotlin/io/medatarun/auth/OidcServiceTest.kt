@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.Actor
-import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
@@ -15,8 +14,8 @@ import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.internal.oidc.OidcClientRegistry
+import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.AUTH_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.JWKS_URI
-import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
 import io.medatarun.auth.ports.exposed.OIDCTokenResponseOrError
 import io.medatarun.lang.uuid.UuidUtils
@@ -33,7 +32,7 @@ import kotlin.test.*
 class OidcServiceTest {
 
     val env = AuthEnvTest()
-    val publicBaseUrl = URI("https://auth.example.test")
+    val publicBaseUrl = env.publicBaseUrl
 
 
     @Test
@@ -108,22 +107,19 @@ class OidcServiceTest {
             val element = source[key]
             assertNotNull(element)
             assertIs<JsonPrimitive>(element)
-            val primitive = element as JsonPrimitive
-            assertTrue(primitive.isString)
-            return primitive.content
+            assertTrue(element.isString)
+            return element.content
         }
 
         fun requireStringArrayField(source: JsonObject, key: String): List<String> {
             val element = source[key]
             assertNotNull(element)
             assertIs<JsonArray>(element)
-            val array = element as JsonArray
             val values = mutableListOf<String>()
-            for (item in array) {
+            for (item in element) {
                 assertIs<JsonPrimitive>(item)
-                val primitive = item as JsonPrimitive
-                assertTrue(primitive.isString)
-                values.add(primitive.content)
+                assertTrue(item.isString)
+                values.add(item.content)
             }
             return values
         }
@@ -136,9 +132,10 @@ class OidcServiceTest {
         val userinfoEndpoint = requireStringField(json, "userinfo_endpoint")
         val jwksUri = requireStringField(json, "jwks_uri")
 
-        assertEquals(publicBaseUrl.resolve("/oidc/authorize").toString(), authorizationEndpoint)
-        assertEquals(publicBaseUrl.resolve("/oidc/token").toString(), tokenEndpoint)
-        assertEquals(publicBaseUrl.resolve("/oidc/userinfo").toString(), userinfoEndpoint)
+        assertEquals(publicBaseUrl.resolve("/auth/authorize").toString(), authorizationEndpoint)
+        assertEquals(publicBaseUrl.resolve("/auth/token").toString(), tokenEndpoint)
+        assertEquals(publicBaseUrl.resolve("/auth/register").toString(), requireStringField(json, "registration_endpoint"))
+        assertEquals(publicBaseUrl.resolve("/auth/userinfo").toString(), userinfoEndpoint)
         assertEquals(publicBaseUrl.resolve(env.oidcService.oidcJwksUri()).toString(), jwksUri)
 
         // Ensure we have only "code"
@@ -171,11 +168,15 @@ class OidcServiceTest {
         val pkceMethods = requireStringArrayField(json, "code_challenge_methods_supported")
         assertEquals(1, pkceMethods.size)
         assertTrue(pkceMethods.contains("S256"))
+
+        val tokenEndpointAuthMethods = requireStringArrayField(json, "token_endpoint_auth_methods_supported")
+        assertEquals(1, tokenEndpointAuthMethods.size)
+        assertTrue(tokenEndpointAuthMethods.contains("none"))
     }
 
     @Test
     fun `oidcAuthorizeUri fixed`() {
-        assertEquals(OIDC_AUTHORIZE_URI, env.oidcService.oidcAuthorizeUri())
+        assertEquals(AUTH_AUTHORIZE_URI, env.oidcService.oidcAuthorizeUri())
     }
 
     @Test
@@ -213,7 +214,7 @@ class OidcServiceTest {
              * How: Send a request with a registered client, matching redirect_uri, openid scope, and S256 PKCE,
              *      then verify we get a Valid result and a stored context with the same parameters.
              */
-            val request = buildAuthorizeRequest()
+            val request = env.buildAuthorizeRequest()
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -236,7 +237,7 @@ class OidcServiceTest {
              * Why: OIDC forbids redirecting without a verified redirect_uri to prevent open redirects.
              * How: Send a request with null redirect_uri and assert we return a fatal error (no redirect).
              */
-            val request = buildAuthorizeRequest(redirectUri = null)
+            val request = env.buildAuthorizeRequest(redirectUri = null)
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -248,9 +249,9 @@ class OidcServiceTest {
             /*
              * Goal: Enforce OIDC response_type support.
              * Why: The authorization code flow is the only supported flow; others must be rejected.
-             * How: Send response_type=token and expect an unsupported_response_type error with preserved state.
+             * How: Send response_type=token and expect an unsupported_response_type error with a preserved state.
              */
-            val request = buildAuthorizeRequest(responseType = "token")
+            val request = env.buildAuthorizeRequest(responseType = "token")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -266,7 +267,7 @@ class OidcServiceTest {
              * Why: The openid scope is mandatory for OIDC; missing it is an invalid scope error.
              * How: Send a request with a non-openid scope and expect invalid_scope.
              */
-            val request = buildAuthorizeRequest(scope = "profile")
+            val request = env.buildAuthorizeRequest(scope = "profile")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -282,7 +283,7 @@ class OidcServiceTest {
              * Why: OIDC specifies state is optional and must not be invented by the server.
              * How: Send an invalid response_type with no state and verify the error has null state.
              */
-            val request = buildAuthorizeRequest(responseType = "token", state = null)
+            val request = env.buildAuthorizeRequest(responseType = "token", state = null)
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -298,7 +299,7 @@ class OidcServiceTest {
              * Why: Nonce is optional for authorization requests and often omitted by some clients.
              * How: Send a valid request with no nonce and verify it succeeds and stores null.
              */
-            val request = buildAuthorizeRequest(nonce = null)
+            val request = env.buildAuthorizeRequest(nonce = null)
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -315,7 +316,7 @@ class OidcServiceTest {
              * Why: OIDC allows additional scopes like profile/email alongside openid.
              * How: Send a scope with multiple values and verify it is accepted and stored.
              */
-            val request = buildAuthorizeRequest(scope = "openid profile email")
+            val request = env.buildAuthorizeRequest(scope = "openid profile email")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -332,7 +333,7 @@ class OidcServiceTest {
              * Why: OIDC defines response_type tokens as case-sensitive.
              * How: Send response_type=Code and expect unsupported_response_type.
              */
-            val request = buildAuthorizeRequest(responseType = "Code")
+            val request = env.buildAuthorizeRequest(responseType = "Code")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -347,7 +348,7 @@ class OidcServiceTest {
              * Why: The server only supports authorization code flow (response_type=code).
              * How: Send response_type="code id_token" and expect unsupported_response_type.
              */
-            val request = buildAuthorizeRequest(responseType = "code id_token")
+            val request = env.buildAuthorizeRequest(responseType = "code id_token")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -362,7 +363,7 @@ class OidcServiceTest {
              * Why: Public clients should not exchange codes without a proof key to prevent interception.
              * How: Send a request without code_challenge and expect invalid_request.
              */
-            val request = buildAuthorizeRequest(codeChallenge = null)
+            val request = env.buildAuthorizeRequest(codeChallenge = null)
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -378,7 +379,7 @@ class OidcServiceTest {
              * Why: If the server only supports S256, other methods must be rejected.
              * How: Send code_challenge_method=plain and expect invalid_request.
              */
-            val request = buildAuthorizeRequest(codeChallengeMethod = "plain")
+            val request = env.buildAuthorizeRequest(codeChallengeMethod = "plain")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -394,7 +395,7 @@ class OidcServiceTest {
              * Why: The server only supports S256 and must reject unspecified methods.
              * How: Send a request with no code_challenge_method and expect invalid_request.
              */
-            val request = buildAuthorizeRequest(codeChallengeMethod = null)
+            val request = env.buildAuthorizeRequest(codeChallengeMethod = null)
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -410,7 +411,7 @@ class OidcServiceTest {
              * Why: OIDC requires the AS to authenticate/authorize clients before issuing codes.
              * How: Send a request with an unknown client_id and expect unauthorized_client.
              */
-            val request = buildAuthorizeRequest(clientId = "unknown-client")
+            val request = env.buildAuthorizeRequest(clientId = "unknown-client")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -426,7 +427,7 @@ class OidcServiceTest {
              * Why: OIDC requires strict redirect_uri validation to prevent token leakage.
              * How: Send a request with a foreign redirect_uri and assert a fatal error (no redirect).
              */
-            val request = buildAuthorizeRequest(redirectUri = "https://evil.example.test/callback")
+            val request = env.buildAuthorizeRequest(redirectUri = "https://evil.example.test/callback")
 
             val result = env.oidcService.oidcAuthorize(request, publicBaseUrl)
 
@@ -440,7 +441,7 @@ class OidcServiceTest {
              * Why: OIDC forbids fragments in redirect_uri to avoid token leakage.
              * How: Send a redirect_uri with a fragment and assert a fatal error.
              */
-            val request = buildAuthorizeRequest(
+            val request = env.buildAuthorizeRequest(
                 redirectUri = publicBaseUrl.resolve("/authentication-callback#frag").toString()
             )
 
@@ -456,7 +457,7 @@ class OidcServiceTest {
              * Why: OIDC requires strict redirect_uri matching to prevent open redirects.
              * How: Send a redirect_uri with the same host but different path and assert a fatal error.
              */
-            val request = buildAuthorizeRequest(
+            val request = env.buildAuthorizeRequest(
                 redirectUri = publicBaseUrl.resolve("/other-callback").toString()
             )
 
@@ -472,7 +473,7 @@ class OidcServiceTest {
              * Why: We explicitly relax port matching for localhost to reduce friction in local flows.
              * How: Use a localhost redirect_uri with a non-default port and verify it is accepted.
              */
-            val request = buildAuthorizeRequest(
+            val request = env.buildAuthorizeRequest(
                 redirectUri = "http://localhost:5678/authentication-callback"
             )
 
@@ -544,7 +545,7 @@ class OidcServiceTest {
             val actor = createUserActor()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
-            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+            val request = env.buildAuthorizeRequest(codeChallenge = codeChallenge)
 
             val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
             assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
@@ -600,7 +601,7 @@ class OidcServiceTest {
             val subject = createUserSubject()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
-            val request = buildAuthorizeRequest(state = null, codeChallenge = codeChallenge)
+            val request = env.buildAuthorizeRequest(state = null, codeChallenge = codeChallenge)
 
             val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
             assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
@@ -625,7 +626,7 @@ class OidcServiceTest {
             val subject = createUserSubject()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
-            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+            val request = env.buildAuthorizeRequest(codeChallenge = codeChallenge)
 
             val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
             assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
@@ -815,7 +816,7 @@ class OidcServiceTest {
             val subject = "missing-subject-" + UuidUtils.generateV4String()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
             val codeChallenge = pkceChallengeForTest(codeVerifier)
-            val request = buildAuthorizeRequest(codeChallenge = codeChallenge)
+            val request = env.buildAuthorizeRequest(codeChallenge = codeChallenge)
 
             val authorizeResult = env.oidcService.oidcAuthorize(request, publicBaseUrl)
             assertIs<OidcAuthorizeResult.Valid>(authorizeResult)
@@ -878,7 +879,7 @@ class OidcServiceTest {
              */
             val actor = createUserActor()
             val codeVerifier = "verifier-" + UuidUtils.generateV4String()
-            val request = buildAuthorizeRequest(
+            val request = env.buildAuthorizeRequest(
                 nonce = null,
                 state = null,
                 codeChallenge = pkceChallengeForTest(codeVerifier)
@@ -957,28 +958,6 @@ class OidcServiceTest {
         val clientId: String
     )
 
-    private fun buildAuthorizeRequest(
-        responseType: String? = "code",
-        clientId: String? = OidcClientRegistry.oidcInternalClientId,
-        redirectUri: String? = publicBaseUrl.resolve("/authentication-callback").toString(),
-        scope: String? = "openid",
-        state: String? = "state-123",
-        codeChallenge: String? = "challenge-123",
-        codeChallengeMethod: String? = "S256",
-        nonce: String? = "nonce-123"
-    ): OidcAuthorizeRequest {
-        return OidcAuthorizeRequest(
-            responseType = responseType,
-            clientId = clientId,
-            redirectUri = redirectUri,
-            scope = scope,
-            state = state,
-            codeChallenge = codeChallenge,
-            codeChallengeMethod = codeChallengeMethod,
-            nonce = nonce
-        )
-    }
-
     private fun pkceChallengeForTest(verifier: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val hash = digest.digest(verifier.toByteArray(Charsets.US_ASCII))
@@ -1028,7 +1007,7 @@ class OidcServiceTest {
     ): AuthorizationCodeFixture {
         val actor = createUserActor()
         val codeChallenge = pkceChallengeForTest(codeVerifier)
-        val request = buildAuthorizeRequest(
+        val request = env.buildAuthorizeRequest(
             state = state,
             codeChallenge = codeChallenge
         )
