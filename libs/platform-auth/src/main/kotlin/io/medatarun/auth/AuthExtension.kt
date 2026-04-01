@@ -12,10 +12,7 @@ import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.infra.db.ActorStorageSQLite
-import io.medatarun.auth.infra.db.AuthDbMigration
-import io.medatarun.auth.infra.db.OidcStorageSQLite
-import io.medatarun.auth.infra.db.UserStorageSQLite
+import io.medatarun.auth.infra.db.*
 import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.actors.ActorServiceImpl
 import io.medatarun.auth.internal.bootstrap.BootstrapSecretLifecycleImpl
@@ -23,7 +20,9 @@ import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl
 import io.medatarun.auth.internal.jwk.JwkExternalProvidersImpl.Companion.createJwtExternalProvidersFromConfigProperties
 import io.medatarun.auth.internal.jwk.JwtInternalInternalSigninKeyRegistryImpl
 import io.medatarun.auth.internal.oauth.OAuthServiceImpl
-import io.medatarun.auth.internal.oidc.OidcClientRegistry
+import io.medatarun.auth.internal.oidc.AuthClientRegistry
+import io.medatarun.auth.internal.oidc.AuthClientStorage
+import io.medatarun.auth.internal.oidc.AuthClientStorageInternal
 import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
@@ -45,7 +44,7 @@ import java.time.Instant
 import kotlin.reflect.KClass
 
 class AuthExtension(
-    val config:AuthExtensionConfig = AuthExtensionConfigProd()
+    val config: AuthExtensionConfig = AuthExtensionConfigProd()
 ) : MedatarunExtension {
     override val id: ExtensionId = "platform-auth"
     override fun initContributions(ctx: MedatarunExtensionCtx) {
@@ -179,7 +178,15 @@ class AuthExtension(
             actorClaimsAdapter = actorClaimsAdapter,
             actorService = actorService
         )
-        val oidcClientRegistry = OidcClientRegistry(ctx.publicBaseURL())
+
+        val internalClientStorage: AuthClientStorage = AuthClientStorageInternal(ctx.publicBaseURL())
+        val inMemoryClientStorage: AuthClientStorage = AuthClientStorageDb(dbConnectionFactory)
+
+        val clientStorages: List<AuthClientStorage> = listOf(internalClientStorage, inMemoryClientStorage)
+
+        val authClientRegistry = AuthClientRegistry(
+            clientStorages
+        )
 
         val oidcService: OidcService = OidcServiceImpl(
             oidcAuthCodeStorage = authStorage,
@@ -190,7 +197,7 @@ class AuthExtension(
             clock = config.authClock,
             actorService = actorService,
             authCtxDurationSeconds = DEFAULT_AUTH_CTX_DURATION_SECONDS,
-            oidcClientRegistry = oidcClientRegistry,
+            authClientRegistry = authClientRegistry,
             externalProviders = createJwtExternalProvidersFromConfigProperties(
                 object : JwkExternalProvidersImpl.Companion.ConfigResolver {
                     override fun getConfigProperty(key: String, defaultValue: String): String {
@@ -240,7 +247,8 @@ interface AuthExtensionConfig {
     val authClock: AuthClock
     val passwordEncryptionDefaultIterations: Int
 }
-class AuthExtensionConfigProd: AuthExtensionConfig {
+
+class AuthExtensionConfigProd : AuthExtensionConfig {
     override val authClock = object : AuthClock {
         override fun now(): Instant = Instant.now()
     }

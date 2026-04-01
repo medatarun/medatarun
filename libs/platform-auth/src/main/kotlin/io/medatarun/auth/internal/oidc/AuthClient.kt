@@ -3,7 +3,7 @@ package io.medatarun.auth.internal.oidc
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 
-data class OidcClient(
+data class AuthClient(
 
     /**
      * Determined by us

@@ -13,7 +13,7 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
-import io.medatarun.auth.internal.oidc.OidcClientRegistry
+import io.medatarun.auth.internal.oidc.AuthClientRegistry
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
@@ -133,7 +133,7 @@ class AuthEnvTest(
      */
     fun buildAuthorizeRequest(
         responseType: String? = "code",
-        clientId: String? = OidcClientRegistry.oidcInternalClientId,
+        clientId: String? = AuthClientRegistry.oidcInternalClientId,
         redirectUri: String? = publicBaseUrl.resolve("/authentication-callback").toString(),
         scope: String? = "openid",
         state: String? = "state-123",

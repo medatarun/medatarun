@@ -5,7 +5,7 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.domain.oidc.OidcAuthorizeRequest
 import io.medatarun.auth.domain.oidc.OidcTokenRequest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
-import io.medatarun.auth.internal.oidc.OidcClient
+import io.medatarun.auth.internal.oidc.AuthClient
 import kotlinx.serialization.json.JsonObject
 import java.net.URI
 
@@ -92,5 +92,5 @@ interface OidcService {
 
 
 
-    fun oidcClientInfo(clientId: String): OidcClient?
+    fun oidcClientInfo(clientId: String): AuthClient?
 }

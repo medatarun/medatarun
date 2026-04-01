@@ -15,7 +15,7 @@ import io.medatarun.auth.internal.actors.ActorClaimsAdapter
 import io.medatarun.auth.internal.jwk.JwkExternalProviders
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
-import io.medatarun.auth.internal.oidc.OidcClientRegistry.Companion.oidcInternalClientId
+import io.medatarun.auth.internal.oidc.AuthClientRegistry.Companion.oidcInternalClientId
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.auth.ports.needs.OidcProviderConfig
@@ -37,7 +37,7 @@ class OidcServiceImpl(
     private val clock: AuthClock,
     private val actorService: ActorService,
     private val authCtxDurationSeconds: Long,
-    private val oidcClientRegistry: OidcClientRegistry,
+    private val authClientRegistry: AuthClientRegistry,
     private val externalProviders: JwkExternalProviders,
     private val oidcProviderConfig: OidcProviderConfig?,
     private val publicBaseUrl: URI
@@ -58,8 +58,8 @@ class OidcServiceImpl(
         return oidcProviderConfig?.clientId ?: oidcInternalClientId
     }
 
-    override fun oidcClientInfo( clientId: String): OidcClient? {
-        return  oidcClientRegistry.find( clientId)
+    override fun oidcClientInfo( clientId: String): AuthClient? {
+        return  authClientRegistry.find( clientId)
     }
 
     override fun jwtVerifierResolver(): JwtVerifierResolver {
@@ -95,7 +95,7 @@ class OidcServiceImpl(
 
             // Our OIDC doesn't support token refresh, so no "refresh_token"
             putJsonArray("grant_types_supported") { addAll(listOf("authorization_code")) }
-            putJsonArray("token_endpoint_auth_methods_supported") { add(OidcClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE) }
+            putJsonArray("token_endpoint_auth_methods_supported") { add(AuthClientRegistry.TOKEN_ENDPOINT_AUTH_METHOD_NONE) }
 
             // Indicates that the "sub" in the token is the same whatever the client who requests the token
             putJsonArray("subject_types_supported") { add("public") }
@@ -160,11 +160,11 @@ class OidcServiceImpl(
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 
-        if (!oidcClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
+        if (!authClientRegistry.exists(clientId)) return OidcAuthorizeResult.RedirectError(
             redirectUri, "unauthorized_client", req.state
         )
 
-        if (!oidcClientRegistry.matchesUri(clientId, redirectUri)) {
+        if (!authClientRegistry.matchesUri(clientId, redirectUri)) {
             return OidcAuthorizeResult.FatalError("invalid redirect_uri")
         }
 
@@ -274,7 +274,7 @@ class OidcServiceImpl(
     }
 
     override fun oidcRegister(request: JsonObject): OidcClientRegistrationResponseOrError {
-        return oidcClientRegistry.registerDynamicClient(request, clock.now().epochSecond)
+        return authClientRegistry.registerDynamicClient(request, clock.now().epochSecond)
     }
 
     fun buildRedirectUri(redirectUri: String, state: String?, authorizationCode: String): String {

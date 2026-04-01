@@ -13,7 +13,7 @@ import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.jwk.JwksAdapter
 import io.medatarun.auth.internal.jwk.JwtVerifierResolverImpl
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
-import io.medatarun.auth.internal.oidc.OidcClientRegistry
+import io.medatarun.auth.internal.oidc.AuthClientRegistry
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.AUTH_AUTHORIZE_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.JWKS_URI
 import io.medatarun.auth.internal.oidc.OidcServiceImpl.Companion.OIDC_WELL_KNOWN_OPEN_ID_CONFIGURATION
@@ -222,7 +222,7 @@ class OidcServiceTest {
             assertIs<OidcAuthorizeResult.Valid>(result)
             val authCtx = env.oidcService.oidcAuthorizeFindAuthCtx(result.authCtxCode)
             assertNotNull(authCtx)
-            assertEquals(OidcClientRegistry.oidcInternalClientId, authCtx.clientId)
+            assertEquals(AuthClientRegistry.oidcInternalClientId, authCtx.clientId)
             assertEquals(publicBaseUrl.resolve("/authentication-callback").toString(), authCtx.redirectUri)
             assertEquals("openid", authCtx.scope)
             assertEquals("state-123", authCtx.state)
@@ -569,7 +569,7 @@ class OidcServiceTest {
                     grantType = "authorization_code",
                     code = code,
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
-                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    clientId = AuthClientRegistry.oidcInternalClientId,
                     codeVerifier = codeVerifier
                 )
             )
@@ -579,7 +579,7 @@ class OidcServiceTest {
             val algorithm = Algorithm.RSA256(env.jwtKeyMaterial.publicKey, env.jwtKeyMaterial.privateKey)
             val verifier = JWT.require(algorithm)
                 .withIssuer(env.jwtConfig.issuer)
-                .withAudience(OidcClientRegistry.oidcInternalClientId)
+                .withAudience(AuthClientRegistry.oidcInternalClientId)
                 .withSubject(actor.subject)
                 .build()
             val decoded = verifier.verify(token.idToken)
@@ -699,7 +699,7 @@ class OidcServiceTest {
                     grantType = "authorization_code",
                     code = "missing-code",
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
-                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    clientId = AuthClientRegistry.oidcInternalClientId,
                     codeVerifier = "verifier"
                 )
             )
@@ -839,7 +839,7 @@ class OidcServiceTest {
                         grantType = "authorization_code",
                         code = code,
                         redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
-                        clientId = OidcClientRegistry.oidcInternalClientId,
+                        clientId = AuthClientRegistry.oidcInternalClientId,
                         codeVerifier = codeVerifier
                     )
                 )
@@ -905,7 +905,7 @@ class OidcServiceTest {
                     grantType = "authorization_code",
                     code = code,
                     redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
-                    clientId = OidcClientRegistry.oidcInternalClientId,
+                    clientId = AuthClientRegistry.oidcInternalClientId,
                     codeVerifier = codeVerifier
                 )
             )
@@ -1031,7 +1031,7 @@ class OidcServiceTest {
             code = code,
             subject = actor.subject,
             redirectUri = publicBaseUrl.resolve("/authentication-callback").toString(),
-            clientId = OidcClientRegistry.oidcInternalClientId
+            clientId = AuthClientRegistry.oidcInternalClientId
         )
     }
 }
