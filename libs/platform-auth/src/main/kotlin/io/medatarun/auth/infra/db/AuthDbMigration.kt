@@ -13,12 +13,7 @@ class AuthDbMigration(
     private val migrationV002CreateActorSystemMaintenance = V002_CreateActorSystemMaintenance()
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(v001_users)
-        ctx.applySqlResource(v001_oidc)
-        ctx.applySqlResource(v001_actors)
-        migrationV002CreateActorSystemMaintenance.apply(ctx)
-        ctx.applySqlResource(v002_ids_binary16_sqlite)
-        ctx.applySqlResource(v002_auth_client_sqlite)
+        ctx.applySqlResource(init_auth_sqlite)
     }
 
     override fun latestVersion(): Int {
@@ -44,6 +39,7 @@ class AuthDbMigration(
     }
 
     companion object {
+        const val init_auth_sqlite = "io/medatarun/auth/infra/db/init__auth.sql"
         const val v001_users = "io/medatarun/auth/infra/db/v001__auth_init_users_sqlite.sql"
         const val v001_oidc = "io/medatarun/auth/infra/db/v001__auth_init_oidc_sqlite.sql"
         const val v001_actors = "io/medatarun/auth/infra/db/v001__auth_init_actors_sqlite.sql"

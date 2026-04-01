@@ -7,9 +7,7 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
     private val v002ModelFixTypeEvents = V002_ModelFixTypeEvents()
 
     override fun install(ctx: DbMigrationContext) {
-        ctx.applySqlResource(v001)
-        ctx.applySqlResource(v002_traceability)
-        ctx.applySqlResource(v002_uids_binary)
+        ctx.applySqlResource(init_models_sqlite)
     }
 
     override fun latestVersion(): Int {
@@ -31,6 +29,7 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
     }
 
     companion object {
+        const val init_models_sqlite = "io/medatarun/model/infra/db/init__models.sql"
         const val v001 = "io/medatarun/model/infra/db/v001__models_init_db_sqlite.sql"
         const val v002_traceability = "io/medatarun/model/infra/db/v002__models_upgrade_traceability.sql"
         const val v002_uids_binary = "io/medatarun/model/infra/db/v002__models_ids_binary16_sqlite.sql"
