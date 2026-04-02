@@ -92,7 +92,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object Ok : TestDbAction
+        data object Ok : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"business-ok\"}"
+            }
+        }
 
         @ActionDoc(
             key = "security-denied",
@@ -102,7 +107,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_DENY,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object Denied : TestDbAction
+        data object Denied : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"security-denied\"}"
+            }
+        }
 
         @ActionDoc(
             key = "business-fails",
@@ -112,7 +122,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object BusinessFails : TestDbAction
+        data object BusinessFails : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"business-fails\"}"
+            }
+        }
     }
 
     private class TestActionProvider : ActionProvider<TestDbAction> {
