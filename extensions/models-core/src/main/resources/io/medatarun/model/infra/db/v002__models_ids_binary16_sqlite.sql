@@ -35,7 +35,7 @@ SELECT
     model_version,
     unhex(replace(actor_id, '-', '')),
     traceability_origin,
-    created_at,
+    strftime('%Y-%m-%d %H:%M:%f', created_at),
     payload
 FROM model_event;
 
@@ -76,8 +76,8 @@ SELECT
         ELSE unhex(replace(model_event_release_id, '-', ''))
     END,
     version,
-    created_at,
-    updated_at
+    strftime('%Y-%m-%d %H:%M:%f', created_at),
+    strftime('%Y-%m-%d %H:%M:%f', updated_at)
 FROM model_snapshot;
 
 CREATE TABLE IF NOT EXISTS model_tag_snapshot_v003
