@@ -14,5 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(EnableDatabaseTestsExtension::class)
-annotation class EnableDatabaseTests
+annotation class EnableDatabaseTests(
+    val mode: DatabaseRecreateMode = DatabaseRecreateMode.PER_TEST
+)
 
+enum class DatabaseRecreateMode {
+    PER_TEST,
+    ONCE_PER_CLASS
+}

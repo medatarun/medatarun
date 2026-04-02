@@ -23,6 +23,11 @@ class EnableDatabaseTestsExtension : BeforeAllCallback, BeforeEachCallback {
     }
 
     override fun beforeEach(context: ExtensionContext) {
+        val annotation = context.requiredTestClass.getAnnotation(EnableDatabaseTests::class.java)
+        val mode = annotation?.mode ?: DatabaseRecreateMode.PER_TEST
+        if (mode == DatabaseRecreateMode.ONCE_PER_CLASS) {
+            return
+        }
         val resource = getOrCreateResource(context)
         resource.prepareBeforeEachTest()
     }

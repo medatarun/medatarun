@@ -19,10 +19,11 @@ import kotlin.test.assertTrue
 @EnableDatabaseTests
 class AuthClientRegisterServiceTest {
 
-    val env = AuthEnvTest(publicBaseUrl = URI("https://auth.example.test"))
+
 
     @Test
     fun `oidcRegister stores dynamic client in memory and allows authorize`() {
+        val env = AuthEnvTest()
         val redirectUri = "http://127.0.0.1:8788/callback"
         val registrationRequest = buildJsonObject {
             putJsonArray("redirect_uris") { add(redirectUri) }
@@ -54,6 +55,7 @@ class AuthClientRegisterServiceTest {
 
     @Test
     fun `oidcRegister accepts metadata that includes authorization_code and code among extra values`() {
+        val env = AuthEnvTest()
         val registrationResult = env.oidcService.oidcRegister(
             buildJsonObject {
                 putJsonArray("redirect_uris") { add("http://127.0.0.1:8788/callback") }

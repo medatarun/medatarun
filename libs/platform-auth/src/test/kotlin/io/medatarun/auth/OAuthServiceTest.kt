@@ -22,16 +22,18 @@ class OAuthServiceTest {
 
     @Nested
     inner class AdminTests {
-        val env = AuthEnvTest()
+
 
         @Test
         fun `admin can log in`() {
+            val env = AuthEnvTest()
             val token = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(token)
         }
 
         @Test
         fun `admin cannot log in with bad login`() {
+            val env = AuthEnvTest()
             assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(Username(env.adminUsername.value + "--"), env.adminPassword)
             }
@@ -39,6 +41,7 @@ class OAuthServiceTest {
 
         @Test
         fun `admin cannot log in with bad password`() {
+            val env = AuthEnvTest()
             assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(env.adminUsername, PasswordClear(env.adminPassword.value + "---"))
             }
