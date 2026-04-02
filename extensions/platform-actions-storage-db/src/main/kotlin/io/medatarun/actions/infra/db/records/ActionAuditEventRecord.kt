@@ -1,12 +1,13 @@
 package io.medatarun.actions.infra.db.records
 
+import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.actions.infra.db.tables.ActionAuditEventTable
 import io.medatarun.security.AppActorId
 import org.jetbrains.exposed.v1.core.ResultRow
 import java.time.Instant
 
 data class ActionAuditEventRecord(
-    val actionInstanceId: String,
+    val actionInstanceId: ActionInstanceId,
     val actionGroupKey: String,
     val actionKey: String,
     val actorId: AppActorId?,
@@ -20,7 +21,7 @@ data class ActionAuditEventRecord(
     companion object {
         fun read(row: ResultRow): ActionAuditEventRecord {
             return ActionAuditEventRecord(
-                actionInstanceId = row[ActionAuditEventTable.actionInstanceId],
+                actionInstanceId = ActionInstanceId(row[ActionAuditEventTable.actionInstanceId]),
                 actionGroupKey = row[ActionAuditEventTable.actionGroupKey],
                 actionKey = row[ActionAuditEventTable.actionKey],
                 actorId = row[ActionAuditEventTable.actorId],

@@ -13,6 +13,6 @@ class ActionAuditRecorderDbMigrationStartupTest {
 
         assertTrue(env.dbMigrationChecker.tableExists("action_audit_event"))
         assertEquals(1, env.dbMigrationChecker.migrationCount("platform-actions-storage-db"))
-        assertEquals(1, env.dbMigrationChecker.currentVersion("platform-actions-storage-db"))
+        assertEquals(2, env.dbMigrationChecker.currentVersion("platform-actions-storage-db"))
     }
 }
