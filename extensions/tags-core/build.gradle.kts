@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":libs:platform-storage-db-sqlite"))
     implementation(project(":libs:platform-storage-event-sourcing"))
     testImplementation(kotlin("test"))
+    testImplementation(project(":libs:platform-storage-db-postgresql"))
     testImplementation(project(":libs:platform-storage-db-testkit"))
     testImplementation(libs.logback)
     testImplementation(libs.jimfs)

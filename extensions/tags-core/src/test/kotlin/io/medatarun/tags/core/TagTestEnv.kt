@@ -6,6 +6,7 @@ import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
@@ -115,6 +116,7 @@ class TagTestEnv(
         SecurityExtension(SecurityExtensionConfig(appActorResolver)),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
+        PlatformStorageDbPostgresqlExtension(),
         TagsCoreExtension(),
         VehicleExtension(),
         RecipeExtension(),

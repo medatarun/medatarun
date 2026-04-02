@@ -9,6 +9,7 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
@@ -28,6 +29,7 @@ class ActionAuditDbTestEnv {
         ActionsExtension(),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
+        PlatformStorageDbPostgresqlExtension(),
         PlatformActionsStorageDbExtension(
             object : PlatformActionsStorageDbExtensionConfig {
                 override val actionAuditClock: ActionAuditClock

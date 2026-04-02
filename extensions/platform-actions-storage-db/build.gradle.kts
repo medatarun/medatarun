@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":libs:platform-storage-db"))
     implementation(project(":libs:platform-storage-db-sqlite"))
     testImplementation(kotlin("test"))
+    testImplementation(project(":libs:platform-storage-db-postgresql"))
     testImplementation(project(":libs:platform-storage-db-testkit"))
     testImplementation(libs.jimfs)
     testImplementation(libs.logback)
