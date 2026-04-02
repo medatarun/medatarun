@@ -17,6 +17,7 @@ import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.MedatarunConfig
@@ -43,6 +44,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         ActionsExtension(),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
+        PlatformStorageDbPostgresqlExtension(),
         TagsCoreExtension(),
         ModelExtension()
     ).plus(otherExtesions)

@@ -378,7 +378,7 @@ class ModelStorageDb(
      * revision that has been applied.
      */
     private fun updateCurrentHeadProjectionMetadata(modelId: ModelId, upToRevision: Int) {
-        val now = clock.now().toString()
+        val now = clock.now()
         ModelSnapshotTable.update(where = { CurrentHeadByModelId(modelId).criterion() }) { row ->
             row[ModelSnapshotTable.upToRevision] = upToRevision
             row[ModelSnapshotTable.updatedAt] = now
@@ -412,7 +412,7 @@ class ModelStorageDb(
                 row[ModelEventTable.modelVersion] = record.modelVersion
                 row[ModelEventTable.actorId] = record.actorId
                 row[ModelEventTable.traceabilityOrigin] = record.traceabilityOrigin
-                row[ModelEventTable.createdAt] = record.createdAt.toString()
+                row[ModelEventTable.createdAt] = record.createdAt
                 row[ModelEventTable.payload] = record.payload
             }
         } catch (e: Exception) {

@@ -14,7 +14,7 @@ CREATE TABLE "model_entity_attribute_snapshot"
     model_type_snapshot_id   BINARY(16) NOT NULL,
     optional                 INTEGER    NOT NULL,
     FOREIGN KEY (model_entity_snapshot_id) REFERENCES "model_entity_snapshot" (id) ON DELETE CASCADE,
-    FOREIGN KEY (model_type_snapshot_id) REFERENCES "model_type_snapshot" (id),
+    FOREIGN KEY (model_type_snapshot_id) REFERENCES "model_type_snapshot" (id) ON DELETE CASCADE,
     UNIQUE (model_entity_snapshot_id, lineage_id),
     UNIQUE (model_entity_snapshot_id, key)
 );
@@ -78,7 +78,7 @@ CREATE TABLE "model_relationship_attribute_snapshot"
     model_type_snapshot_id         BINARY(16) NOT NULL,
     optional                       INTEGER    NOT NULL,
     FOREIGN KEY (model_relationship_snapshot_id) REFERENCES "model_relationship_snapshot" (id) ON DELETE CASCADE,
-    FOREIGN KEY (model_type_snapshot_id) REFERENCES "model_type_snapshot" (id),
+    FOREIGN KEY (model_type_snapshot_id) REFERENCES "model_type_snapshot" (id) ON DELETE CASCADE,
     UNIQUE (model_relationship_snapshot_id, lineage_id),
     UNIQUE (model_relationship_snapshot_id, key)
 );
@@ -101,7 +101,7 @@ CREATE TABLE "model_relationship_role_snapshot"
     name                           TEXT,
     cardinality                    TEXT       NOT NULL,
     FOREIGN KEY (model_relationship_snapshot_id) REFERENCES "model_relationship_snapshot" (id) ON DELETE CASCADE,
-    FOREIGN KEY (model_entity_snapshot_id) REFERENCES "model_entity_snapshot" (id),
+    FOREIGN KEY (model_entity_snapshot_id) REFERENCES "model_entity_snapshot" (id) ON DELETE CASCADE,
     UNIQUE (model_relationship_snapshot_id, lineage_id),
     UNIQUE (model_relationship_snapshot_id, key)
 );

@@ -18,6 +18,10 @@ tasks.withType<Test>().configureEach {
     // Configure all test Gradle tasks to use JUnitPlatform.
     useJUnitPlatform()
 
+    // Don't run tests in parallel
+    maxParallelForks = 1
+    forkEvery = 0
+
     // Log information about all test results, not only the failed ones.
     testLogging {
         events(
