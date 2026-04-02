@@ -1,12 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateOptional
 import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateOptional_Test {
-
 
     @Test
     fun `update attribute optional true to false is persisted`() {

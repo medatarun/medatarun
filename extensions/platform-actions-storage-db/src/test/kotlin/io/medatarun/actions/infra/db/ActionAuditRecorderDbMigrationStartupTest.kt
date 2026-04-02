@@ -1,9 +1,11 @@
 package io.medatarun.actions.infra.db
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class ActionAuditRecorderDbMigrationStartupTest {
     @Test
     fun `platform actions storage startup applies contributed db migrations`() {

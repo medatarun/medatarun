@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityKey
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Type_Delete_Test {
 
     @Test

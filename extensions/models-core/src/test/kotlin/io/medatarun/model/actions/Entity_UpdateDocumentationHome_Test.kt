@@ -1,10 +1,12 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Entity_UpdateDocumentationHome_Test {
 
     @Test

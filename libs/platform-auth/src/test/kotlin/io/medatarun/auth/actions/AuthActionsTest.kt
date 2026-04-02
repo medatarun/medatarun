@@ -1,6 +1,5 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
@@ -11,6 +10,7 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -20,8 +20,8 @@ import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class AuthActionsTest {
 
     // ------------------------------------------------------------------------
@@ -476,8 +476,8 @@ class AuthActionsTest {
 
         val actorAfter = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
         assertNotNull(actorAfter)
-        assertTrue(actorAfter.roles.any {it.key == "ROLE1" })
-        assertTrue(actorAfter.roles.any {it.key == "ROLE2" })
+        assertTrue(actorAfter.roles.any { it.key == "ROLE1" })
+        assertTrue(actorAfter.roles.any { it.key == "ROLE2" })
 
         // Test empty
         env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = emptyList()))

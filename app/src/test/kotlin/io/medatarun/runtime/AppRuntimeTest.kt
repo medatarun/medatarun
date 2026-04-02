@@ -2,6 +2,7 @@ package io.medatarun.runtime
 
 import com.google.common.jimfs.Jimfs
 import io.medatarun.actions.runtime.AppHttpServerServices
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory
@@ -10,7 +11,7 @@ import io.medatarun.runtime.internal.AppRuntimeConfigFactory.Companion.MEDATARUN
 import java.nio.file.FileSystem
 import kotlin.io.path.createDirectories
 import kotlin.test.Test
-
+@EnableDatabaseTests
 class AppRuntimeTest {
     @Test
     fun `that app can be launched in server mode`() {
@@ -46,7 +47,7 @@ class AppRuntimeTest {
         }
 
         override fun builtInConfigProperties(): Map<String, String> {
-            return TestDbConfig.testDatabaseProperties()
+            return TestDbConfig().testDatabaseProperties()
         }
     }
 

@@ -1,10 +1,12 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class ModelStorageDbMigrationStartupTest {
     @Test
     fun `models startup applies contributed db migrations`() {

@@ -1,29 +1,30 @@
 package io.medatarun.platform.db.testkit
 
+import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.PlatformStorageDbConfigProperty
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
 
 /**
  * Centralized DB test properties for test environments.
  *
- * It resolves the configured DB engine from JVM properties first, then from
- * environment variables using MicroProfile naming style:
- * medatarun.storage.datasource.jdbc.dbengine -> MEDATARUN_STORAGE_DATASOURCE_JDBC_DBENGINE
+ * This class only relays properties already prepared by the database lifecycle extension.
  */
 class TestDbConfig {
-    enum class TestDbEngine {
-        SQLITE,
-        POSTGRESQL
+    init {
+        requireDatabaseLifecycleExtensionIsActive()
     }
 
-    val dbEngine: TestDbEngine = resolveDbEngine()
-
     fun testDatabaseProperties(): Map<String, String> {
-        if (dbEngine == TestDbEngine.POSTGRESQL) {
-            return postgresqlTestDatabaseProperties()
-        } else {
-            return sqliteTestDatabaseProperties()
+        val dbEngine = requiredConfigProperty(PlatformStorageDbConfigProperty.DbEngine.key)
+        val jdbcUrl = requiredConfigProperty(PlatformStorageDbConfigProperty.JdbcUrl.key)
+        val jdbcPropertiesPrefix = PlatformStorageDbConfigProperty.JdbcPropertiesEntry.prefixKey()
+        val properties = LinkedHashMap<String, String>()
+        properties[PlatformStorageDbConfigProperty.DbEngine.key] = dbEngine
+        properties[PlatformStorageDbConfigProperty.JdbcUrl.key] = jdbcUrl
+        if (dbEngine.equals(DB_ENGINE_POSTGRESQL, ignoreCase = true)) {
+            properties["${jdbcPropertiesPrefix}user"] = requiredConfigProperty("${jdbcPropertiesPrefix}user")
+            properties["${jdbcPropertiesPrefix}password"] = requiredConfigProperty("${jdbcPropertiesPrefix}password")
         }
+        return properties
     }
 
     fun testDatabaseProperties(extraProps: Map<String, String>): Map<String, String> {
@@ -46,27 +47,35 @@ class TestDbConfig {
         return System.getenv(envKey)
     }
 
-    private fun resolveDbEngine(): TestDbEngine {
-        val dbEngineConfig = getConfigProperty(PlatformStorageDbConfigProperty.DbEngine.key)
-        if (dbEngineConfig != null && dbEngineConfig.equals(DB_ENGINE_POSTGRESQL, ignoreCase = true)) {
-            return TestDbEngine.POSTGRESQL
+    private fun requireDatabaseLifecycleExtensionIsActive() {
+        val lifecycleMarker =
+            System.getProperty(EnableDatabaseTestsExtension.TESTKIT_LIFECYCLE_MARKER_KEY)
+        if (lifecycleMarker == TESTKIT_LIFECYCLE_MARKER_ACTIVE_VALUE) {
+            return
         }
-        return TestDbEngine.SQLITE
+        throw DatabaseLifecycleExtensionNotActiveInTestDbConfigException()
     }
 
-    private fun sqliteTestDatabaseProperties(): Map<String, String> {
-        return mapOf(
-            PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
-        )
-    }
-
-    private fun postgresqlTestDatabaseProperties(): Map<String, String> {
-        return mapOf(
-            PlatformStorageDbConfigProperty.DbEngine.key to DB_ENGINE_POSTGRESQL
-        )
+    private fun requiredConfigProperty(key: String): String {
+        val value = getConfigProperty(key)
+        if (value != null) {
+            return value
+        }
+        throw RequiredDatabasePropertyMissingInTestDbConfigException(key)
     }
 
     companion object {
         private const val DB_ENGINE_POSTGRESQL = "postgresql"
+        private const val TESTKIT_LIFECYCLE_MARKER_ACTIVE_VALUE = "active"
     }
 }
+
+class DatabaseLifecycleExtensionNotActiveInTestDbConfigException :
+    MedatarunException(
+        "TestDbConfig requires @EnableDatabaseTests so the lifecycle extension can prepare DB properties."
+    )
+
+class RequiredDatabasePropertyMissingInTestDbConfigException(key: String) :
+    MedatarunException(
+        "TestDbConfig requires property '$key' to be prepared by the database lifecycle extension."
+    )

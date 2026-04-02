@@ -1,10 +1,12 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@EnableDatabaseTests
 class RelationshipRole_UpdateX_Test {
 
     @Test

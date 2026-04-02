@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
@@ -8,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class EntityAttribute_XTag_Test {
 
     @Test

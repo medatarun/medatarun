@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.domain.ConfigProperties
@@ -15,10 +16,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class AuthClientRegisterServiceTest {
 
     val env = AuthEnvTest(publicBaseUrl = URI("https://auth.example.test"))
-
 
     @Test
     fun `oidcRegister stores dynamic client in memory and allows authorize`() {

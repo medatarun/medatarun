@@ -5,6 +5,7 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,6 +15,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class ActorServiceTest {
     @Test
     fun `create stores actor and finds it by issuer and subject`() {

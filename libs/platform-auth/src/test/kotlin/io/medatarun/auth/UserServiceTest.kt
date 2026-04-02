@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.UserAlreadyExistsException
@@ -14,12 +15,12 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@EnableDatabaseTests
 class UserServiceTest {
 
     val johnUsername = Username("john.doe")
     val johnFullname = Fullname("John Doe")
     val johnPassword = PasswordClear("john.doe." + UuidUtils.generateV4String())
-
 
     private fun createJohn(env: AuthEnvTest) {
         env.userService.createEmbeddedUser(johnUsername, johnFullname, johnPassword, false)
@@ -188,6 +189,5 @@ class UserServiceTest {
         val tokenAdmin = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
         assertEquals(env.adminFullname, Fullname(extractFullname(tokenAdmin)))
     }
-
 
 }

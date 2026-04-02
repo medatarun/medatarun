@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.EntityUpdateKeyDuplicateKeyException
 import org.junit.jupiter.api.Test
@@ -7,6 +8,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Entity_UpdateKey_Test {
 
     @Test

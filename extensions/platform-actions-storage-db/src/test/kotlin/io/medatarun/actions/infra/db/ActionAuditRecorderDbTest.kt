@@ -1,11 +1,12 @@
 package io.medatarun.actions.infra.db
 
 import io.medatarun.actions.domain.ActionInvocationException
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-
+@EnableDatabaseTests
 class ActionAuditRecorderDbTest {
     @Test
     fun `successful action is stored in database`() {

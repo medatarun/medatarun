@@ -1,12 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateX_Test {
-
 
     @Test
     fun `update attribute with wrong model id throws ModelNotFoundException`() {
@@ -42,7 +43,6 @@ class EntityAttribute_UpdateX_Test {
             )
         }
     }
-
 
     @Test
     fun `update attribute with wrong attribute id throws ModelEntityNotFoundException`() {

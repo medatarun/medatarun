@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.medatarun.auth.domain.ActorNotFoundException
@@ -29,11 +30,11 @@ import java.security.MessageDigest
 import java.util.*
 import kotlin.test.*
 
+@EnableDatabaseTests
 class OidcServiceTest {
 
     val env = AuthEnvTest()
     val publicBaseUrl = env.publicBaseUrl
-
 
     @Test
     fun `oidcJwks responses matches standard JWKS`() {
@@ -188,7 +189,6 @@ class OidcServiceTest {
          */
         val configuredAuthority = URI("https://issuer.example.test")
         val configuredClientId = "client-oidc"
-
 
         val env = AuthEnvTest(
             extraProps = mapOf(

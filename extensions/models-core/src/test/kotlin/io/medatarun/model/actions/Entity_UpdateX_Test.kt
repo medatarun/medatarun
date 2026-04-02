@@ -1,11 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
+@EnableDatabaseTests
 class Entity_UpdateX_Test {
 
     @Test
@@ -41,9 +43,7 @@ class Entity_UpdateX_Test {
         }
     }
 
-
 }
-
 class TestEnvEntityUpdate {
     val runtime = createEnv()
     val dispatch = runtime::dispatch

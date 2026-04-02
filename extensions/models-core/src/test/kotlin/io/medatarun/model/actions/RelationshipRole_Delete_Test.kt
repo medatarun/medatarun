@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.RelationshipRoleDeleteMinimumRolesException
 import io.medatarun.model.domain.RelationshipRoleKey
 import io.medatarun.model.domain.RelationshipRoleNotFoundException
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class RelationshipRole_Delete_Test {
 
     @Test

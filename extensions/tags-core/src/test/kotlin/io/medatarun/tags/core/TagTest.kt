@@ -1,5 +1,6 @@
 package io.medatarun.tags.core
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.tags.core.actions.TagAction
@@ -10,6 +11,7 @@ import io.medatarun.tags.core.fixtures.SampleId.Companion.sampleId
 import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlin.test.*
 
+@EnableDatabaseTests
 class TagTest {
     private class SampleScopeManagerDeleteVetoException(message: String) : RuntimeException(message)
 
@@ -1241,7 +1243,5 @@ class TagTest {
         extraScopeManagers: List<TagScopeManager> = emptyList(),
         extraListeners: List<EventObserver<TagBeforeDeleteEvt>> = emptyList()
     ): TagTestEnv = TagTestEnv(extraScopeManagers, extraListeners)
-
-
 
 }

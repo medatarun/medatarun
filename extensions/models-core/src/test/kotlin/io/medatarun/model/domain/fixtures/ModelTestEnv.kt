@@ -49,7 +49,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     val platform = PlatformBuilder(
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
-            TestDbConfig.testDatabaseProperties()
+            TestDbConfig().testDatabaseProperties()
         ),
         extensions = extensions
     ).buildAndStart()

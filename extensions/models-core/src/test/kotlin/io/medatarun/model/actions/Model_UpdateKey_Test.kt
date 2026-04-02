@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelDuplicateKeyException
 import io.medatarun.model.domain.ModelKey
@@ -10,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Model_UpdateKey_Test {
 
     @Test

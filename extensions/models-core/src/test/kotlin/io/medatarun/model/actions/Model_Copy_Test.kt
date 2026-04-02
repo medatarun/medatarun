@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.ports.needs.ModelTagResolver
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.*
 
-
+@EnableDatabaseTests
 class Model_Copy_Test {
 
     // ------------------------------------------------------------------------

@@ -2,65 +2,15 @@ package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.fixtures.AuthEnvTest
-import io.medatarun.platform.db.PlatformStorageDbConfigProperty
-import io.medatarun.platform.db.testkit.TestDbConfig
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
-import org.testcontainers.postgresql.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
-class DatabaseSetup {
-    private lateinit var dbConfig: TestDbConfig
-    private var postgresqlContainer: PostgreSQLContainer? = null
-    var runtimeDbExtraProps: Map<String, String> = emptyMap()
-
-    @BeforeTest
-    fun setupDbConfig() {
-        dbConfig = TestDbConfig()
-        if (dbConfig.dbEngine == TestDbConfig.TestDbEngine.POSTGRESQL) {
-            val container = PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"))
-            container.start()
-            postgresqlContainer = container
-            val jdbcPropertiesPrefix = PlatformStorageDbConfigProperty.JdbcPropertiesEntry.prefixKey()
-            runtimeDbExtraProps = mapOf(
-                PlatformStorageDbConfigProperty.JdbcUrl.key to container.jdbcUrl,
-                "${jdbcPropertiesPrefix}user" to container.username,
-                "${jdbcPropertiesPrefix}password" to container.password
-            )
-        }
-    }
-
-    @AfterTest
-    fun cleanupDbConfig() {
-        val container = postgresqlContainer
-        if (container != null) {
-            container.stop()
-            postgresqlContainer = null
-        }
-    }
-
-}
-
+@EnableDatabaseTests
 class AuthDbMigrationStartupTest {
-
-    private val setup = DatabaseSetup()
-
-    @BeforeTest
-    fun setupDbConfig() {
-        setup.setupDbConfig()
-    }
-
-    @AfterTest
-    fun cleanupDbConfig() {
-        setup.cleanupDbConfig()
-    }
-
     /**
      * Auth must not need to call initSchema() manually anymore.
      *
@@ -69,7 +19,7 @@ class AuthDbMigrationStartupTest {
      */
     @Test
     fun `auth startup applies contributed db migrations`() {
-        val env = AuthEnvTest(extraProps = setup.runtimeDbExtraProps)
+        val env = AuthEnvTest()
 
         // Checks various tables exist
         assertTrue(env.dbMigrationChecker.tableExists("users"))

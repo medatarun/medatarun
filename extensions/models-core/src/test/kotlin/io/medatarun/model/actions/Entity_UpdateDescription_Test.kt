@@ -1,10 +1,12 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Entity_UpdateDescription_Test {
 
     @Test

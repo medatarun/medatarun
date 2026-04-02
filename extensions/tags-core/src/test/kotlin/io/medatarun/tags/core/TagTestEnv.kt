@@ -123,7 +123,7 @@ class TagTestEnv(
     val platform = PlatformBuilder(
         createTempConfig(
             newFileSystem(),
-            TestDbConfig.testDatabaseProperties()
+            TestDbConfig().testDatabaseProperties()
         ), extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()

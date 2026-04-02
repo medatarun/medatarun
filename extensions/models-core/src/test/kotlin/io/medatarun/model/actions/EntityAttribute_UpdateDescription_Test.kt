@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateDescription
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.entityAttributeRef
@@ -7,9 +8,8 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateDescription_Test {
-
-
 
     @Test
     fun `update attribute description is persisted`() {

@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -7,8 +8,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class EntityAttribute_Create_Test {
-
 
     @Test
     fun `create attribute then id name and description shall persist`() {
@@ -63,7 +64,6 @@ class EntityAttribute_Create_Test {
         val reloaded = env.createAttribute(type = typeRef("Boolean"))
         assertEquals(type.id, reloaded.typeId)
     }
-
 
     @Test
     fun `create attribute with duplicate key then error`() {

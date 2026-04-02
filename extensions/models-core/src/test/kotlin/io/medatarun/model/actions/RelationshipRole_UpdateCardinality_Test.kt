@@ -1,9 +1,11 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.RelationshipCardinality
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@EnableDatabaseTests
 class RelationshipRole_UpdateCardinality_Test {
 
     @Test

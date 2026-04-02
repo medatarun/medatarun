@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
@@ -9,6 +10,7 @@ import io.medatarun.model.domain.TypeRef
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+@EnableDatabaseTests
 class Type_UpdateX_Test {
 
     @Test

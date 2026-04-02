@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
@@ -16,6 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class OAuthServiceTest {
 
     @Nested
@@ -114,6 +116,5 @@ class OAuthServiceTest {
         assertEquals("value", decoded.getClaim("present").asString())
         assertTrue(decoded.getClaim("missing").isMissing || decoded.getClaim("missing").isNull)
     }
-
 
 }

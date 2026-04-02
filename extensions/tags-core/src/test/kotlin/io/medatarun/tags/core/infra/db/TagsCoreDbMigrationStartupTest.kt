@@ -1,11 +1,13 @@
 package io.medatarun.tags.core.infra.db
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.tags.core.TagTestEnv
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class TagsCoreDbMigrationStartupTest {
     /**
      * Tags schema now comes from a migration contribution instead of a startup callback in the extension.

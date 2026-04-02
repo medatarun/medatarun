@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.actions.adapters.ActionTraceabilityRecord
 import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.actions.ModelAction
@@ -21,6 +22,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 // TODO this is not correct, see val modelCmds = env.platform.services.getService(ModelCmds::class) in the last test shall not happen
+
+@EnableDatabaseTests
 class ModelEventLogTest {
 
     @Test
