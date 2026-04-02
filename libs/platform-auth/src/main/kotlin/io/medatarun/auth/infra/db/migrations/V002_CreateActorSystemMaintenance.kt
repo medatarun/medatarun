@@ -13,7 +13,7 @@ class V002_CreateActorSystemMaintenance {
      * The insert is intentionally strict and lets SQL conflicts fail startup.
      */
     fun apply(ctx: DbMigrationContext) {
-        val createdAt = UuidUtils.getInstant(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID).toString()
+        val createdAt = UuidUtils.getInstant(AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID)
         ctx.withConnection { connection ->
             connection.prepareStatement(
                 """
@@ -37,8 +37,8 @@ class V002_CreateActorSystemMaintenance {
                 statement.setString(4, AppActorSystemMaintenance.displayName)
                 statement.setString(5, null)
                 statement.setString(7, null)
-                statement.setString(8, createdAt)
-                statement.setString(9, createdAt)
+                statement.setObject(8, createdAt)
+                statement.setObject(9, createdAt)
                 statement.executeUpdate()
             }
         }

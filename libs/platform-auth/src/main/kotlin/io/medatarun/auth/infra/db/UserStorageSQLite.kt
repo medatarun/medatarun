@@ -6,6 +6,7 @@ import io.medatarun.platform.db.DbConnectionFactory
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -31,7 +32,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 row[passwordHashColumn] = password.value
                 row[adminColumn] = admin
                 row[bootstrapColumn] = bootstrap
-                row[disabledDateColumn] = disabledDate?.let { InstantSql.toSql(it) }
+                row[disabledDateColumn] = disabledDate
             }
         }
     }
@@ -55,7 +56,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
     override fun disable(login: Username, at: Instant) {
         dbConnectionFactory.withExposed {
             UsersTable.update(where = { UsersTable.loginColumn eq login.value }) { row ->
-                row[disabledDateColumn] = InstantSql.toSql(at)
+                row[disabledDateColumn] = at
             }
         }
     }
@@ -84,7 +85,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             passwordHash = PasswordHash(row[UsersTable.passwordHashColumn]),
             admin = row[UsersTable.adminColumn],
             bootstrap = row[UsersTable.bootstrapColumn],
-            disabledDate = row[UsersTable.disabledDateColumn]?.let { Instant.parse(it) }
+            disabledDate = row[UsersTable.disabledDateColumn]
         )
     }
 
@@ -96,7 +97,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val passwordHashColumn = text("password_hash")
             val adminColumn = bool("admin")
             val bootstrapColumn = bool("bootstrap")
-            val disabledDateColumn = text("disabled_date").nullable()
+            val disabledDateColumn = timestamp("disabled_date").nullable()
         }
 
         private class UserIdColumnTransformer : ColumnTransformer<UUID, UserId> {

@@ -5,12 +5,14 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.exposed.jsonb
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -40,9 +42,9 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[fullNameColumn] = fullname
                 row[emailColumn] = email
                 row[rolesJsonColumn] = encodeRoles(roles)
-                row[disabledDateColumn] = disabled?.let { InstantSql.toSql(it) }
-                row[createdAtColumn] = InstantSql.toSql(createdAt)
-                row[lastSeenAtColumn] = InstantSql.toSql(lastSeenAt)
+                row[disabledDateColumn] = disabled
+                row[createdAtColumn] = createdAt
+                row[lastSeenAtColumn] = lastSeenAt
             }
         }
     }
@@ -57,7 +59,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
                 row[fullNameColumn] = fullname
                 row[emailColumn] = email
-                row[lastSeenAtColumn] = InstantSql.toSql(lastSeenAt)
+                row[lastSeenAtColumn] = lastSeenAt
             }
         }
     }
@@ -73,7 +75,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     override fun disable(id: ActorId, at: Instant) {
         dbConnectionFactory.withExposed {
             ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
-                row[disabledDateColumn] = InstantSql.toSql(at)
+                row[disabledDateColumn] = at
             }
         }
     }
@@ -124,9 +126,9 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             fullname = row[ActorsTable.fullNameColumn],
             email = row[ActorsTable.emailColumn],
             roles = decodeRoles(rolesJson),
-            disabledDate = row[ActorsTable.disabledDateColumn]?.let { Instant.parse(it) },
-            createdAt = Instant.parse(row[ActorsTable.createdAtColumn]),
-            lastSeenAt = Instant.parse(row[ActorsTable.lastSeenAtColumn])
+            disabledDate = row[ActorsTable.disabledDateColumn],
+            createdAt = row[ActorsTable.createdAtColumn],
+            lastSeenAt = row[ActorsTable.lastSeenAtColumn]
         )
     }
 
@@ -174,10 +176,10 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             val subjectColumn = text("subject")
             val fullNameColumn = text("full_name")
             val emailColumn = text("email").nullable()
-            val rolesJsonColumn = text("roles_json")
-            val disabledDateColumn = text("disabled_date").nullable()
-            val createdAtColumn = text("created_at")
-            val lastSeenAtColumn = text("last_seen_at")
+            val rolesJsonColumn = jsonb("roles_json")
+            val disabledDateColumn = timestamp("disabled_date").nullable()
+            val createdAtColumn = timestamp("created_at")
+            val lastSeenAtColumn = timestamp("last_seen_at")
         }
 
         private class ActorIdColumnTransformer : ColumnTransformer<UUID, ActorId> {

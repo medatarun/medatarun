@@ -8,7 +8,7 @@ CREATE TABLE users_v002 (
   password_hash TEXT NOT NULL,
   admin INTEGER NOT NULL,
   bootstrap INTEGER NOT NULL,
-  disabled_date TEXT
+  disabled_date TIMESTAMP
 );
 
 INSERT INTO users_v002 (id, login, full_name, password_hash, admin, bootstrap, disabled_date)
@@ -19,7 +19,10 @@ SELECT
   password_hash,
   admin,
   bootstrap,
-  disabled_date
+  CASE
+    WHEN disabled_date IS NULL THEN NULL
+    ELSE strftime('%Y-%m-%d %H:%M:%f', disabled_date, 'localtime')
+  END
 FROM users;
 
 DROP TABLE users;
@@ -33,9 +36,9 @@ CREATE TABLE actors_v002 (
   full_name TEXT NOT NULL,
   email TEXT,
   roles_json TEXT NOT NULL,
-  disabled_date TEXT,
-  created_at TEXT NOT NULL,
-  last_seen_at TEXT NOT NULL,
+  disabled_date TIMESTAMP,
+  created_at TIMESTAMP NOT NULL,
+  last_seen_at TIMESTAMP NOT NULL,
   UNIQUE(issuer, subject)
 );
 
@@ -47,15 +50,82 @@ SELECT
   full_name,
   email,
   roles_json,
-  disabled_date,
-  created_at,
-  last_seen_at
+  CASE
+    WHEN disabled_date IS NULL THEN NULL
+    ELSE strftime('%Y-%m-%d %H:%M:%f', disabled_date, 'localtime')
+  END,
+  strftime('%Y-%m-%d %H:%M:%f', created_at, 'localtime'),
+  strftime('%Y-%m-%d %H:%M:%f', last_seen_at, 'localtime')
 FROM actors;
 
 DROP TABLE actors;
 ALTER TABLE actors_v002 RENAME TO actors;
 
+DROP TABLE IF EXISTS auth_ctx_v002;
+CREATE TABLE auth_ctx_v002 (
+    authorize_ctx_code TEXT PRIMARY KEY,
+    client_id TEXT NOT NULL,
+    redirect_uri TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    state TEXT,
+    code_challenge TEXT NOT NULL,
+    code_challenge_method TEXT NOT NULL,
+    nonce TEXT,
+    created_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+);
+
+INSERT INTO auth_ctx_v002 (authorize_ctx_code, client_id, redirect_uri, scope, state, code_challenge, code_challenge_method, nonce, created_at, expires_at)
+SELECT
+  authorize_ctx_code,
+  client_id,
+  redirect_uri,
+  scope,
+  state,
+  code_challenge,
+  code_challenge_method,
+  nonce,
+  strftime('%Y-%m-%d %H:%M:%f', created_at, 'localtime'),
+  strftime('%Y-%m-%d %H:%M:%f', expires_at, 'localtime')
+FROM auth_ctx;
+
+DROP TABLE auth_ctx;
+ALTER TABLE auth_ctx_v002 RENAME TO auth_ctx;
+
+DROP TABLE IF EXISTS auth_code_v002;
+CREATE TABLE auth_code_v002 (
+    code TEXT PRIMARY KEY,
+    client_id TEXT NOT NULL,
+    redirect_uri TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    code_challenge TEXT NOT NULL,
+    code_challenge_method TEXT NOT NULL,
+    nonce TEXT,
+    auth_time TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+);
+
+INSERT INTO auth_code_v002 (code, client_id, redirect_uri, subject, scope, code_challenge, code_challenge_method, nonce, auth_time, expires_at)
+SELECT
+  code,
+  client_id,
+  redirect_uri,
+  subject,
+  scope,
+  code_challenge,
+  code_challenge_method,
+  nonce,
+  strftime('%Y-%m-%d %H:%M:%f', auth_time, 'localtime'),
+  strftime('%Y-%m-%d %H:%M:%f', expires_at, 'localtime')
+FROM auth_code;
+
+DROP TABLE auth_code;
+ALTER TABLE auth_code_v002 RENAME TO auth_code;
+
 CREATE INDEX IF NOT EXISTS idx_actors_issuer_subject ON actors(issuer, subject);
 CREATE INDEX IF NOT EXISTS idx_actors_created_at ON actors(created_at);
+CREATE INDEX IF NOT EXISTS idx_auth_code_expires_at ON auth_code(expires_at);
+CREATE INDEX IF NOT EXISTS idx_auth_ctx_expires_at ON auth_ctx(expires_at);
 
 PRAGMA foreign_keys = ON;

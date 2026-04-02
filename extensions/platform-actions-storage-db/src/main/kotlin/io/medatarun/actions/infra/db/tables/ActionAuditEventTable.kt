@@ -1,5 +1,6 @@
 package io.medatarun.actions.infra.db.tables
 
+import io.medatarun.platform.db.exposed.jsonb
 import org.jetbrains.exposed.v1.core.Table
 
 object ActionAuditEventTable : Table("action_audit_event") {
@@ -8,7 +9,7 @@ object ActionAuditEventTable : Table("action_audit_event") {
     val actionKey = varchar("action_key", 255)
     val actorId = varchar("actor_id", 255).transform(AppActorIdTransformer()).nullable()
     val sourceValue = varchar("source", 255)
-    val payloadSerialized = text("payload_serialized")
+    val payloadSerialized = jsonb("payload_serialized")
     val createdAt = long("created_at").transform(InstantEpochMsTransformer())
     val status = varchar("status", 32)
     val errorCode = varchar("error_code", 255).nullable()

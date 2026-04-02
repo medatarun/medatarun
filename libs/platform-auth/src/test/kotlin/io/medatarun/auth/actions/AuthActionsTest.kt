@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -412,8 +413,14 @@ class AuthActionsTest {
         assertEquals(env.env.adminFullname.value, adminActor.fullname)
         assertEquals(env.env.oidcService.oidcIssuer(), adminActor.issuer)
         assertDoesNotThrow { UuidUtils.fromString(adminActor.id) }
-        assertEquals(env.env.authClockTests.staticNow, adminActor.createdAt)
-        assertEquals(env.env.authClockTests.staticNow, adminActor.lastSeenAt)
+        assertEquals(
+            env.env.authClockTests.staticNow.truncatedTo(ChronoUnit.MILLIS),
+            adminActor.createdAt.truncatedTo(ChronoUnit.MILLIS)
+        )
+        assertEquals(
+            env.env.authClockTests.staticNow.truncatedTo(ChronoUnit.MILLIS),
+            adminActor.lastSeenAt.truncatedTo(ChronoUnit.MILLIS)
+        )
 
         val johnActor = actors.first { actor -> actor.subject == Username("john.doe").value }
         assertEquals("john.doe", johnActor.subject)
