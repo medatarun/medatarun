@@ -3,6 +3,7 @@ package io.medatarun.platform.db
 import java.sql.Connection
 
 interface DbConnectionFactory {
+    val dialect: DbDialect
 
     /**
      * Runs [block] with a JDBC connection obtained from the transaction bridge.

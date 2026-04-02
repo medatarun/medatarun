@@ -21,6 +21,7 @@ interface MedatarunExtensionCtxConfig {
 
     fun getConfigProperty(key: String): String?
     fun getConfigProperty(key: String, defaultValue: String): String
+    fun getConfigPropertyNamesStartingWith(prefix: String): List<String>
 
     /**
      * Creates a new resource locator to access files and URLs

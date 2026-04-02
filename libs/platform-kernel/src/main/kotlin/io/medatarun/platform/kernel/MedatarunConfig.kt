@@ -25,6 +25,7 @@ interface MedatarunConfig {
 
     fun getProperty(key: String): String?
     fun getProperty(key: String, defaultValue: String): String
+    fun getPropertyNamesStartingWith(prefix: String): List<String>
 
     /**
      * Creates a new resource locator
@@ -52,6 +53,18 @@ interface MedatarunConfig {
 
                 override fun getProperty(key: String, defaultValue: String): String {
                     return getProperty(key) ?: defaultValue
+                }
+
+                override fun getPropertyNamesStartingWith(prefix: String): List<String> {
+                    val matchingNames = mutableListOf<String>()
+                    val names = props.keys
+                    for (name in names) {
+                        val key = name
+                        if (key.startsWith(prefix)) {
+                            matchingNames.add(key)
+                        }
+                    }
+                    return matchingNames
                 }
 
                 override fun createResourceLocator(): ResourceLocator =

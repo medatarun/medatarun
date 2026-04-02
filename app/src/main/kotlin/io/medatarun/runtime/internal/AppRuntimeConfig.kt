@@ -28,4 +28,15 @@ class AppRuntimeConfig(
         return config.getOptionalValue(key, String::class.java).orElse(defaultValue)
     }
 
+    override fun getPropertyNamesStartingWith(prefix: String): List<String> {
+        val matchingNames = mutableListOf<String>()
+        val names = config.propertyNames
+        for (name in names) {
+            if (name.startsWith(prefix)) {
+                matchingNames.add(name)
+            }
+        }
+        return matchingNames
+    }
+
 }

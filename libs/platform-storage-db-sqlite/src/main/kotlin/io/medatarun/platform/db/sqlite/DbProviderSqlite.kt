@@ -1,11 +1,13 @@
 package io.medatarun.platform.db.sqlite
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbProvider
 import java.sql.Connection
 import java.sql.DriverManager
 
 class DbProviderSqlite(private val url: String) : DbProvider {
+    override val dialect: DbDialect = DbDialect.SQLITE
 
     // When an SQLite database is created in memory, we must keep one active connection on the
     // database during the application lifecycle. It is because if a new connection

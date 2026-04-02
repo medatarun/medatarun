@@ -1,6 +1,8 @@
 package io.medatarun.platform.db
 
 interface DbTransactionManager {
+    val dialect: DbDialect
+
     /**
      * Runs [block] in a JDBC transaction.
      *
