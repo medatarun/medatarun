@@ -18,7 +18,8 @@ class PlatformStorageDbSqliteExtension : MedatarunExtension {
             // WARNING: SQLite doesn't support Java Filesystems, any database created will be created for real
             // on the hard drive.
             val url = configService.getJdbcUrl() ?: defaultDatabase(ctx)
-            val dbProvider = DbProviderSqlite(url)
+            val properties = configService.getJdbcProperties()
+            val dbProvider = DbProviderSqlite(url, properties)
             ctx.registerContribution(DbProvider::class, dbProvider)
         }
     }

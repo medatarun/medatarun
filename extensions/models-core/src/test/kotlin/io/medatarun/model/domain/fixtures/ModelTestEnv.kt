@@ -16,6 +16,7 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
+import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
@@ -50,7 +51,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
             mapOf(
-                PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY to DbProviderSqlite.randomDbUrl()
+                PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
             )
         ),
         extensions = extensions

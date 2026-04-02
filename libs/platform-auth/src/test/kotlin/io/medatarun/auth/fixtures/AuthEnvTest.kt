@@ -19,6 +19,7 @@ import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbMigrationChecker
+import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
@@ -73,7 +74,7 @@ class AuthEnvTest(
         fs = Jimfs.newFileSystem(),
         appDir = "/opt/medatarun",
         props = buildMap {
-            put(PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY, DbProviderSqlite.randomDbUrl())
+            put(PlatformStorageDbConfigProperty.JdbcUrl.key, DbProviderSqlite.randomDbUrl())
             putAll(extraProps)
         },
         publicBaseURL = publicBaseUrl

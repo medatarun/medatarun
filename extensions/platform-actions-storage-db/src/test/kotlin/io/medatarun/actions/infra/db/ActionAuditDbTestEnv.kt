@@ -8,6 +8,7 @@ import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
+import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
@@ -41,7 +42,7 @@ class ActionAuditDbTestEnv {
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
             mapOf(
-                PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY to DbProviderSqlite.randomDbUrl()
+                PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
             )
         ),
         extensions = extensions
