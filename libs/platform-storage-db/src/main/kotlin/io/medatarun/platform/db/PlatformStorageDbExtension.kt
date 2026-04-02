@@ -5,16 +5,19 @@ import io.medatarun.platform.db.adapters.DbTransactionManagerImpl
 import io.medatarun.platform.db.adapters.ExtensionRegistryDbProvider
 import io.medatarun.platform.db.internal.DbMigrationCheckerImpl
 import io.medatarun.platform.db.internal.DbMigrationRunner
+import io.medatarun.platform.db.internal.PlatformStorageDbConfigServiceImpl
 import io.medatarun.platform.kernel.*
 
 class PlatformStorageDbExtension : MedatarunExtension {
     override val id: ExtensionId = "platform-storage-db"
 
     override fun initServices(ctx: MedatarunServiceCtx) {
+        val configService = PlatformStorageDbConfigServiceImpl(ctx)
         val extensionRegistry = ctx.getService(ExtensionRegistry::class)
         val dbProvider = ExtensionRegistryDbProvider(extensionRegistry)
         val txManager = DbTransactionManagerImpl(dbProvider)
         val connectionFactory = DbConnectionFactoryImpl(dbProvider, txManager)
+        ctx.register(PlatformStorageDbConfigService::class, configService)
         ctx.register(DbTransactionManager::class, txManager)
         ctx.register(DbConnectionFactory::class, connectionFactory)
         ctx.register(DbMigrationRunner::class, DbMigrationRunner(extensionRegistry, connectionFactory, txManager))
