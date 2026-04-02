@@ -13,12 +13,11 @@ class PlatformStorageDbConfigServiceImpl(private val config: MedatarunExtensionC
     override fun getJdbcProperties(): Properties {
         val properties = Properties()
         val jdbcPropertiesPrefix = PlatformStorageDbConfigProperty.JdbcPropertiesEntry.prefixKey()
-        val propertyNames = config.getConfigPropertyNamesStartingWith(jdbcPropertiesPrefix)
-        for (propertyName in propertyNames) {
-            val propertyValue = config.getConfigProperty(propertyName)
-            val propertyKey = propertyName.removePrefix(jdbcPropertiesPrefix)
-            val propertyValueIsUsable = !propertyValue.isNullOrBlank()
-            if (propertyValueIsUsable && propertyKey.isNotBlank()) {
+        val propertyMap = config.getConfigPropertyMapStartingWith(jdbcPropertiesPrefix)
+        for (entry in propertyMap.entries) {
+            val propertyKey = entry.key
+            val propertyValue = entry.value
+            if (propertyKey.isNotBlank() && propertyValue.isNotBlank()) {
                 properties.setProperty(propertyKey, propertyValue)
             }
         }

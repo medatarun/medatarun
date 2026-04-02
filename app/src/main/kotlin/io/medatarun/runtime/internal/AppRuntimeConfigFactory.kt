@@ -6,7 +6,7 @@ import io.medatarun.platform.kernel.MedatarunKernelConfigProperties
 import io.medatarun.platform.kernel.internal.ResourceLocatorDefault
 import io.medatarun.runtime.AppRuntimeOsBridge
 import io.medatarun.runtime.internal.config.MicroProfileConfigLoader
-import org.eclipse.microprofile.config.Config
+import io.smallrye.config.SmallRyeConfig
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.nio.file.Path
@@ -20,7 +20,7 @@ class AppRuntimeConfigFactory(
 
 
     private val applicationHomeDir: Path = findApplicationHomeDir()
-    private val config: Config = MicroProfileConfigLoader().load(applicationHomeDir, osBridge.builtInConfigProperties())
+    private val config: SmallRyeConfig = MicroProfileConfigLoader().load(applicationHomeDir, osBridge.builtInConfigProperties())
 
     fun create(): AppRuntimeConfig {
         val projectDir = findProjectDir()

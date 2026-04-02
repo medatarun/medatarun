@@ -36,8 +36,8 @@ class MedatarunExtensionCtxConfigImpl(
         return _config.getProperty(key, defaultValue)
     }
 
-    override fun getConfigPropertyNamesStartingWith(prefix: String): List<String> {
-        return _config.getPropertyNamesStartingWith(prefix)
+    override fun getConfigPropertyMapStartingWith(prefix: String): Map<String, String> {
+        return _config.getPropertyMapStartingWith(prefix)
     }
 
     private fun resolvePath(basePath: Path, relativePath: String?): Path {

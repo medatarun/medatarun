@@ -25,7 +25,14 @@ interface MedatarunConfig {
 
     fun getProperty(key: String): String?
     fun getProperty(key: String, defaultValue: String): String
-    fun getPropertyNamesStartingWith(prefix: String): List<String>
+    /**
+     * Returns all matching configuration entries for [prefix], using sub-keys as map keys.
+     *
+     * Example:
+     * - prefix: medatarun.storage.datasource.jdbc.properties.
+     * - returned map: user -> medatarun, password -> secret
+     */
+    fun getPropertyMapStartingWith(prefix: String): Map<String, String>
 
     /**
      * Creates a new resource locator
@@ -55,16 +62,21 @@ interface MedatarunConfig {
                     return getProperty(key) ?: defaultValue
                 }
 
-                override fun getPropertyNamesStartingWith(prefix: String): List<String> {
-                    val matchingNames = mutableListOf<String>()
+                override fun getPropertyMapStartingWith(prefix: String): Map<String, String> {
+                    val matchingProperties = mutableMapOf<String, String>()
                     val names = props.keys
                     for (name in names) {
-                        val key = name
-                        if (key.startsWith(prefix)) {
-                            matchingNames.add(key)
+                        if (name.startsWith(prefix)) {
+                            val subKey = name.removePrefix(prefix)
+                            if (subKey.isNotBlank()) {
+                                val value = props[name]
+                                if (value != null) {
+                                    matchingProperties[subKey] = value
+                                }
+                            }
                         }
                     }
-                    return matchingNames
+                    return matchingProperties
                 }
 
                 override fun createResourceLocator(): ResourceLocator =

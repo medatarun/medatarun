@@ -2,7 +2,7 @@ package io.medatarun.runtime.internal
 
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.ResourceLocator
-import org.eclipse.microprofile.config.Config
+import io.smallrye.config.SmallRyeConfig
 import java.net.URI
 import java.nio.file.Path
 
@@ -12,7 +12,7 @@ class AppRuntimeConfig(
     val serverHost: String,
     val serverPort: Int,
     override val publicBaseURL: URI,
-    val config: Config,
+    val config: SmallRyeConfig,
     val resourceLocatorFactory: () -> ResourceLocator
 ) : MedatarunConfig {
 
@@ -28,15 +28,18 @@ class AppRuntimeConfig(
         return config.getOptionalValue(key, String::class.java).orElse(defaultValue)
     }
 
-    override fun getPropertyNamesStartingWith(prefix: String): List<String> {
-        val matchingNames = mutableListOf<String>()
-        val names = config.propertyNames
-        for (name in names) {
-            if (name.startsWith(prefix)) {
-                matchingNames.add(name)
+    override fun getPropertyMapStartingWith(prefix: String): Map<String, String> {
+        val mapPrefix = prefix.removeSuffix(".")
+        val matchingProperties = linkedMapOf<String, String>()
+        val mapValues = config.getOptionalValues(mapPrefix, String::class.java, String::class.java).orElse(emptyMap())
+        for (entry in mapValues.entries) {
+            val subKey = entry.key
+            val value = entry.value
+            if (subKey.isNotBlank()) {
+                matchingProperties[subKey] = value
             }
         }
-        return matchingNames
+        return matchingProperties
     }
 
 }

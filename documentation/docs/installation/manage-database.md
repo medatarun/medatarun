@@ -101,6 +101,18 @@ medatarun serve
 You can mix configuration sources: some values as environment variables, and others in properties (or other supported sources).
 This is useful in real deployments, for example to keep secrets in environment variables while keeping stable settings in configuration files.
 
+**Be careful**: environment variables cannot handle every configuration. 
+For example, if you need to pass a `currentSchema` to PostgreSQL, you need
+to do it in the JDBC URL. When converting environment variables to 
+database config, we have to convert to lower case, then, `currentSchema` gets
+converted to `currentschema` and ignored by PostgreSQL. In those cases do that instead:
+
+```bash
+export MEDATARUN_STORAGE_DATASOURCE_JDBC_URL=jdbc:postgresql://localhost:5432/medatarun?currentSchema=medatarun_prod
+```
+
+
+
 ## Property reference
 
 - `medatarun.storage.datasource.jdbc.dbengine`
