@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.microprofileConfigApi)
     implementation(libs.smallryeConfig)
     testImplementation(kotlin("test"))
+    testImplementation(project(":libs:platform-storage-db-testkit"))
     testImplementation(libs.jimfs)
 }
 

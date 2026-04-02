@@ -16,10 +16,9 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
-import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.MedatarunConfig
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.PlatformBuilder
@@ -50,9 +49,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     val platform = PlatformBuilder(
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
-            mapOf(
-                PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
-            )
+            TestDbConfig.testDatabaseProperties()
         ),
         extensions = extensions
     ).buildAndStart()

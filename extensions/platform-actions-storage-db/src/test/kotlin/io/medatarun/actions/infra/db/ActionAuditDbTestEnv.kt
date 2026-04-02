@@ -8,10 +8,9 @@ import io.medatarun.actions.ports.needs.*
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
-import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.type.commons.id.Id
@@ -41,9 +40,7 @@ class ActionAuditDbTestEnv {
     val platform = PlatformBuilder(
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
-            mapOf(
-                PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
-            )
+            TestDbConfig.testDatabaseProperties()
         ),
         extensions = extensions
     ).buildAndStart()

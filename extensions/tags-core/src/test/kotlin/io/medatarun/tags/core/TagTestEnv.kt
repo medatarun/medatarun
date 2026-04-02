@@ -5,10 +5,9 @@ import io.medatarun.actions.ActionsExtension
 import io.medatarun.actions.adapters.ActionPlatform
 import io.medatarun.actions.ports.needs.*
 import io.medatarun.platform.db.DbMigrationChecker
-import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.PlatformStorageDbExtension
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
 import io.medatarun.platform.kernel.MedatarunConfig.Companion.createTempConfig
 import io.medatarun.security.*
@@ -124,9 +123,7 @@ class TagTestEnv(
     val platform = PlatformBuilder(
         createTempConfig(
             newFileSystem(),
-            mapOf(
-                PlatformStorageDbConfigProperty.JdbcUrl.key to DbProviderSqlite.randomDbUrl()
-            )
+            TestDbConfig.testDatabaseProperties()
         ), extensions).buildAndStart()
 
     val tagQueries get() = platform.services.getService<TagQueries>()
