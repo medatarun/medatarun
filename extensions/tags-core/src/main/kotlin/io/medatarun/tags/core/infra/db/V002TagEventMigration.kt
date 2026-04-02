@@ -4,11 +4,12 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
+import io.medatarun.platform.db.jdbc.getUuidFromString
+import io.medatarun.platform.db.jdbc.setUUID
 import io.medatarun.security.AppActorId
 import io.medatarun.type.commons.instant.InstantAdapters
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.nio.ByteBuffer
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -49,8 +50,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         connection.prepareStatement(SELECT_TAG_GROUPS_SQL).use { selectStatement ->
             selectStatement.executeQuery().use { rs ->
                 while (rs.next()) {
-                    val groupId = parseUuidString(rs.getString("id"), "tag_group.id")
-                    val groupIdBytes = toBytes(groupId)
+                    val groupId = rs.getUuidFromString("id")
+                        ?: throw V002TagEventMigrationException("tag_group.id must not be null.")
                     val eventId = UuidUtils.generateV7()
                     insertTagEvent(
                         eventStatement,
@@ -62,9 +63,9 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                         tagGroupCreatedPayload(rs, groupId.toString()),
                         migrationInstant
                     )
-                    historyStatement.setBytes(1, toBytes(UuidUtils.generateV7()))
-                    historyStatement.setBytes(2, toBytes(eventId))
-                    historyStatement.setBytes(3, groupIdBytes)
+                    historyStatement.setUUID(1, UuidUtils.generateV7())
+                    historyStatement.setUUID(2, eventId)
+                    historyStatement.setUUID(3, groupId)
                     historyStatement.setString(4, rs.getString("key"))
                     historyStatement.setString(5, rs.getString("name"))
                     historyStatement.setString(6, rs.getString("description"))
@@ -87,31 +88,33 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
             selectStatement.executeQuery().use { rs ->
                 while (rs.next()) {
                     val scopeType = rs.getString("scope_type")
-                    val rawScopeId = rs.getString("scope_id")
-                    val scopeId = normalizedScopeId(scopeType, rawScopeId)
-                    val scopeIdBytes = if (scopeId == null) null else toBytes(scopeId)
-                    val tagId = parseUuidString(rs.getString("id"), "tag.id")
-                    val tagIdBytes = toBytes(tagId)
+                    val scopeId = normalizedScopeId(scopeType, rs)
+                    val tagId = rs.getUuidFromString("id")
+                        ?: throw V002TagEventMigrationException("tag.id must not be null.")
                     val groupIdRaw = rs.getString("tag_group_id")
-                    val groupId = if (groupIdRaw == null) null else parseUuidString(groupIdRaw, "tag.tag_group_id")
-                    val groupIdBytes = if (groupId == null) null else toBytes(groupId)
+                    val groupId = if (groupIdRaw == null) {
+                        null
+                    } else {
+                        rs.getUuidFromString("tag_group_id")
+                            ?: throw V002TagEventMigrationException("tag.tag_group_id must not be null.")
+                    }
                     val eventId = UuidUtils.generateV7()
                     insertTagEvent(
                         eventStatement,
                         eventId,
                         scopeType,
-                        scopeIdBytes,
+                        scopeId,
                         streamRevisionTracker.next(scopeType, scopeId),
                         EVENT_TYPE_TAG_CREATED,
                         tagCreatedPayload(rs, tagId.toString(), scopeType, scopeId?.toString(), groupId?.toString()),
                         migrationInstant
                     )
-                    historyStatement.setBytes(1, toBytes(UuidUtils.generateV7()))
-                    historyStatement.setBytes(2, toBytes(eventId))
-                    historyStatement.setBytes(3, tagIdBytes)
+                    historyStatement.setUUID(1, UuidUtils.generateV7())
+                    historyStatement.setUUID(2, eventId)
+                    historyStatement.setUUID(3, tagId)
                     historyStatement.setString(4, scopeType)
-                    if (scopeIdBytes == null) historyStatement.setNull(5, java.sql.Types.BLOB) else historyStatement.setBytes(5, scopeIdBytes)
-                    if (groupIdBytes == null) historyStatement.setNull(6, java.sql.Types.BLOB) else historyStatement.setBytes(6, groupIdBytes)
+                    historyStatement.setUUID(5, scopeId)
+                    historyStatement.setUUID(6, groupId)
                     historyStatement.setString(7, rs.getString("key"))
                     historyStatement.setString(8, rs.getString("name"))
                     historyStatement.setString(9, rs.getString("description"))
@@ -123,32 +126,35 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         }
     }
 
-    private fun normalizedScopeId(scopeType: String, scopeIdRaw: String?): UUID? {
+
+    private fun normalizedScopeId(scopeType: String, rs: ResultSet): UUID? {
+        val scopeIdRaw = rs.getString("scope_id")
         if (scopeType == GLOBAL_SCOPE_TYPE) {
             if (scopeIdRaw != null) throw V002TagEventMigrationException("global tag row has non-null scope_id.")
             return null
         }
         if (scopeIdRaw == null) throw V002TagEventMigrationException("local tag row has null scope_id for scope_type=$scopeType.")
-        return parseUuidString(scopeIdRaw, "tag.scope_id")
+        return rs.getUuidFromString("scope_id")
+            ?: throw V002TagEventMigrationException("tag.scope_id must not be null.")
     }
 
     private fun insertTagEvent(
         statement: PreparedStatement,
         eventId: UUID,
         scopeType: String,
-        scopeIdBytes: ByteArray?,
+        scopeId: UUID?,
         streamRevision: Int,
         eventType: String,
         payload: String,
         createdAt: Instant
     ) {
-        statement.setBytes(1, toBytes(eventId))
+        statement.setUUID(1, eventId)
         statement.setString(2, scopeType)
-        if (scopeIdBytes == null) statement.setNull(3, java.sql.Types.BLOB) else statement.setBytes(3, scopeIdBytes)
+        statement.setUUID(3, scopeId)
         statement.setInt(4, streamRevision)
         statement.setString(5, eventType)
         statement.setInt(6, EVENT_VERSION_1)
-        statement.setBytes(7, toBytes(maintenanceActorId.value))
+        statement.setUUID(7, maintenanceActorId.value)
         statement.setString(8, TRACEABILITY_ORIGIN)
         statement.setString(9, InstantAdapters.toSqlTimestampString(createdAt))
         statement.setString(10, payload)
@@ -186,24 +192,6 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         }.toString()
     }
 
-    private fun parseUuidString(rawValue: String?, label: String): UUID {
-        if (rawValue == null) {
-            throw V002TagEventMigrationException("$label must not be null.")
-        }
-        return try {
-            UuidUtils.fromString(rawValue)
-        } catch (_: IllegalArgumentException) {
-            throw V002TagEventMigrationException("$label must be a valid uuid string, got [$rawValue].")
-        }
-    }
-
-    private fun toBytes(value: UUID): ByteArray {
-        val buffer = ByteBuffer.allocate(UUID_BINARY_SIZE)
-        buffer.putLong(value.mostSignificantBits)
-        buffer.putLong(value.leastSignificantBits)
-        return buffer.array()
-    }
-
     /**
      * Tracks event stream revisions by `(scope_type, scope_id)` key.
      */
@@ -229,8 +217,6 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         private const val EVENT_TYPE_TAG_CREATED = "tag_created"
         private const val EVENT_VERSION_1 = 1
         private const val TRACEABILITY_ORIGIN = "migration:tags:v002"
-        private const val UUID_BINARY_SIZE = 16
-
         private const val SELECT_TAG_GROUPS_SQL = """
 SELECT id, key, name, description
 FROM tag_group
