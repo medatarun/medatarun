@@ -1,6 +1,5 @@
 package io.medatarun.platform.db.testkit
 
-import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.PlatformStorageDbConfigProperty
 import io.medatarun.platform.db.sqlite.DbProviderSqlite
 
@@ -11,10 +10,16 @@ import io.medatarun.platform.db.sqlite.DbProviderSqlite
  * environment variables using MicroProfile naming style:
  * medatarun.storage.datasource.jdbc.dbengine -> MEDATARUN_STORAGE_DATASOURCE_JDBC_DBENGINE
  */
-object TestDbConfig {
+class TestDbConfig {
+    enum class TestDbEngine {
+        SQLITE,
+        POSTGRESQL
+    }
+
+    val dbEngine: TestDbEngine = resolveDbEngine()
+
     fun testDatabaseProperties(): Map<String, String> {
-        val dbEngineConfig = getConfigProperty(PlatformStorageDbConfigProperty.DbEngine.key)
-        if (dbEngineConfig != null && dbEngineConfig.equals(DB_ENGINE_POSTGRESQL, ignoreCase = true)) {
+        if (dbEngine == TestDbEngine.POSTGRESQL) {
             return postgresqlTestDatabaseProperties()
         } else {
             return sqliteTestDatabaseProperties()
@@ -41,7 +46,13 @@ object TestDbConfig {
         return System.getenv(envKey)
     }
 
-    private const val DB_ENGINE_POSTGRESQL = "postgresql"
+    private fun resolveDbEngine(): TestDbEngine {
+        val dbEngineConfig = getConfigProperty(PlatformStorageDbConfigProperty.DbEngine.key)
+        if (dbEngineConfig != null && dbEngineConfig.equals(DB_ENGINE_POSTGRESQL, ignoreCase = true)) {
+            return TestDbEngine.POSTGRESQL
+        }
+        return TestDbEngine.SQLITE
+    }
 
     private fun sqliteTestDatabaseProperties(): Map<String, String> {
         return mapOf(
@@ -50,9 +61,12 @@ object TestDbConfig {
     }
 
     private fun postgresqlTestDatabaseProperties(): Map<String, String> {
-        throw PostgresqlTestDbConfigNotImplementedException()
+        return mapOf(
+            PlatformStorageDbConfigProperty.DbEngine.key to DB_ENGINE_POSTGRESQL
+        )
+    }
+
+    companion object {
+        private const val DB_ENGINE_POSTGRESQL = "postgresql"
     }
 }
-
-class PostgresqlTestDbConfigNotImplementedException :
-    MedatarunException("PostgreSQL test database properties are not implemented yet in TestDbConfig.")
