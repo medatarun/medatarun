@@ -2,12 +2,14 @@ package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.fixtures.AuthEnvTest
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class AuthDbMigrationStartupTest {
     /**
      * Auth must not need to call initSchema() manually anymore.

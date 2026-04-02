@@ -12,6 +12,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
+import java.util.UUID
 
 class ActionAuditRecorderDb(
     private val dbConnectionFactory: DbConnectionFactory,
@@ -21,7 +22,7 @@ class ActionAuditRecorderDb(
     override fun onActionReceived(event: ActionAuditReceived) {
         dbConnectionFactory.withExposed {
             ActionAuditEventTable.insert {
-                it[actionInstanceId] = event.actionInstanceId.value.toString()
+                it[actionInstanceId] = event.actionInstanceId.value
                 it[actionGroupKey] = event.actionGroupKey
                 it[actionKey] = event.actionKey
                 it[actorId] = event.actorId
@@ -36,15 +37,15 @@ class ActionAuditRecorderDb(
     }
 
     override fun onActionRejected(event: ActionAuditRejected) {
-        updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_REJECTED, event.code, event.message)
+        updateTerminalStatus(event.actionInstanceId.value, STATUS_REJECTED, event.code, event.message)
     }
 
     override fun onActionSucceeded(event: ActionAuditSucceeded) {
-        updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_SUCCEEDED, null, null)
+        updateTerminalStatus(event.actionInstanceId.value, STATUS_SUCCEEDED, null, null)
     }
 
     override fun onActionFailed(event: ActionAuditFailed) {
-        updateTerminalStatus(event.actionInstanceId.value.toString(), STATUS_FAILED, event.code, event.message)
+        updateTerminalStatus(event.actionInstanceId.value, STATUS_FAILED, event.code, event.message)
     }
 
     fun findAll(): List<ActionAuditEventRecord> {
@@ -57,7 +58,7 @@ class ActionAuditRecorderDb(
     }
 
     private fun updateTerminalStatus(
-        actionInstanceIdValue: String,
+        actionInstanceIdValue: UUID,
         newStatus: String,
         newErrorCode: String?,
         newErrorMessage: String?

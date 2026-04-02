@@ -14,6 +14,7 @@ import io.medatarun.security.SecurityExtension
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.types.TypeSystemExtension
 import io.medatarun.actions.infra.db.PlatformActionsStorageDbExtension
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.metadatarun.ext.config.SysopsConfigInspectorExtension
 
 class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
@@ -29,6 +30,7 @@ class AppRuntimeBuilder(private val config: AppRuntimeConfig) {
             ActionsExtension(),
             PlatformStorageDbExtension(),
             PlatformStorageDbSqliteExtension(),
+            PlatformStorageDbPostgresqlExtension(),
             PlatformActionsStorageDbExtension(),
             AuthExtension(),
             TagsCoreExtension(),

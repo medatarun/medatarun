@@ -1,7 +1,7 @@
 package io.medatarun.runtime.internal.config
 
 import io.smallrye.config.PropertiesConfigSource
-import org.eclipse.microprofile.config.Config
+import io.smallrye.config.SmallRyeConfig
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver
 import org.eclipse.microprofile.config.spi.ConfigSource
 import java.nio.file.Path
@@ -10,7 +10,7 @@ import kotlin.io.path.exists
 
 class MicroProfileConfigLoader {
 
-    fun load(applicationDir: Path, builtInProperties: Map<String,String>): Config {
+    fun load(applicationDir: Path, builtInProperties: Map<String,String>): SmallRyeConfig {
 
         val builder = ConfigProviderResolver.instance().builder
         builder.addDefaultSources()
@@ -37,7 +37,7 @@ class MicroProfileConfigLoader {
             builder.withSources(*sources.toTypedArray())
         }
 
-        return builder.build()
+        return builder.build().unwrap(SmallRyeConfig::class.java)
     }
 
 

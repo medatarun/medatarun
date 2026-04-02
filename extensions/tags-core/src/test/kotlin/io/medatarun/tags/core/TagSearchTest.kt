@@ -1,5 +1,6 @@
 package io.medatarun.tags.core
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
@@ -9,6 +10,7 @@ import io.medatarun.tags.core.ports.needs.TagScopeManager
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
+@EnableDatabaseTests
 class TagSearchTest {
 
     @Test

@@ -36,6 +36,10 @@ class MedatarunExtensionCtxConfigImpl(
         return _config.getProperty(key, defaultValue)
     }
 
+    override fun getConfigPropertyMapStartingWith(prefix: String): Map<String, String> {
+        return _config.getPropertyMapStartingWith(prefix)
+    }
+
     private fun resolvePath(basePath: Path, relativePath: String?): Path {
         val trimmed = relativePath?.trimToNull() ?: return basePath
         return basePath.resolve(trimmed).toAbsolutePath()

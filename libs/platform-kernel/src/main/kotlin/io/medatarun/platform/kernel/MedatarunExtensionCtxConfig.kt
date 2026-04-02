@@ -21,6 +21,14 @@ interface MedatarunExtensionCtxConfig {
 
     fun getConfigProperty(key: String): String?
     fun getConfigProperty(key: String, defaultValue: String): String
+    /**
+     * Returns all matching configuration entries for [prefix], using sub-keys as map keys.
+     *
+     * Example:
+     * - prefix: medatarun.storage.datasource.jdbc.properties.
+     * - returned map: user -> medatarun, password -> secret
+     */
+    fun getConfigPropertyMapStartingWith(prefix: String): Map<String, String>
 
     /**
      * Creates a new resource locator to access files and URLs

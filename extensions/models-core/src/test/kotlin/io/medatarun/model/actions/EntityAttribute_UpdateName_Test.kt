@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateName
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.entityAttributeRef
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateName_Test {
 
     @Test

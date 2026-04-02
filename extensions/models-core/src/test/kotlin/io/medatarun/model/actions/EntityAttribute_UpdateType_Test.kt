@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateType
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeNotFoundException
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateType_Test {
 
     @Test
@@ -20,7 +22,6 @@ class EntityAttribute_UpdateType_Test {
         val typeMarkdownId = env.query.findType(env.sampleModelRef, typeRef(typeMarkdownKey)).id
         val type = env.query.findType(env.sampleModelRef, typeRef("String"))
         val attr = env.createAttribute(type = typeRef(type.id))
-
 
         val attributeRef = entityAttributeRef(attr.key)
         env.runtime.dispatch(

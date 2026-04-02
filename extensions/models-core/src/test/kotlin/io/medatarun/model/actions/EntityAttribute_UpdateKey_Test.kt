@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateKey
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.UpdateAttributeDuplicateKeyException
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@EnableDatabaseTests
 class EntityAttribute_UpdateKey_Test {
 
     @Test
@@ -76,7 +78,6 @@ class EntityAttribute_UpdateKey_Test {
         )
         val reloadedEntity = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
         assertEquals(attrId, reloadedEntity.identifierAttributeId)
-
 
     }
 

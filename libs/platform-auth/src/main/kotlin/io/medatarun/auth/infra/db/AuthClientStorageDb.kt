@@ -4,6 +4,7 @@ import io.medatarun.auth.internal.oidc.AuthClient
 import io.medatarun.auth.internal.oidc.AuthClientStorage
 import io.medatarun.auth.internal.oidc.OidcClientOrigin
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.exposed.jsonb
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -116,15 +117,15 @@ class AuthClientStorageDb(
         private object AuthClientTable : Table("auth_client") {
             val clientIdColumn = text("client_id")
             val originColumn = text("origin")
-            val originalRegistrationPayloadColumn = text("original_registration_payload").nullable()
-            val redirectUrisJsonColumn = text("redirect_uris_json")
-            val grantTypesJsonColumn = text("grant_types_json")
-            val responseTypesJsonColumn = text("response_types_json")
+            val originalRegistrationPayloadColumn = jsonb("original_registration_payload").nullable()
+            val redirectUrisJsonColumn = jsonb("redirect_uris_json")
+            val grantTypesJsonColumn = jsonb("grant_types_json")
+            val responseTypesJsonColumn = jsonb("response_types_json")
             val tokenEndpointAuthMethodColumn = text("token_endpoint_auth_method")
             val clientNameColumn = text("client_name").nullable()
             val clientUriColumn = text("client_uri").nullable()
             val logoUriColumn = text("logo_uri").nullable()
-            val contactsJsonColumn = text("contacts_json")
+            val contactsJsonColumn = jsonb("contacts_json")
             val softwareIdColumn = text("software_id").nullable()
             val softwareVersionColumn = text("software_version").nullable()
             val tosUriColumn = text("tos_uri").nullable()

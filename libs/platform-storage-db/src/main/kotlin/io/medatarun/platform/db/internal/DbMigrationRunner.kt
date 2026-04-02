@@ -150,9 +150,7 @@ VALUES (?, ?, ?)
         private val dbConnectionFactory: DbConnectionFactory,
         private val versionToApply: Int
     ) : DbMigrationContext {
-        override val dialect: DbDialect = dbConnectionFactory.withConnection { connection ->
-            resolveDialect(connection)
-        }
+        override val dialect: DbDialect = dbTransactionManager.dialect
 
         override fun <T> withConnection(block: (Connection) -> T): T {
             return dbConnectionFactory.withConnection(block)
@@ -168,15 +166,6 @@ VALUES (?, ?, ?)
 
         override fun throwUnknownVersionException() {
             throw DbMigrationRunnerUnknownVersionException(pluginId, versionToApply)
-        }
-    }
-
-    private fun resolveDialect(connection: Connection): DbDialect {
-        val productName = connection.metaData.databaseProductName
-        return when (productName.lowercase()) {
-            "sqlite" -> DbDialect.SQLITE
-            "postgresql" -> DbDialect.POSTGRESQL
-            else -> throw DbMigrationUnknownDialectException(productName)
         }
     }
 

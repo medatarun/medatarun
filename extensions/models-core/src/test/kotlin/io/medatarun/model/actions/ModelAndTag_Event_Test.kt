@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.domain.modelRef
@@ -8,6 +9,7 @@ import io.medatarun.tags.core.domain.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@EnableDatabaseTests
 class ModelAndTag_Event_Test {
 
     private class CookingModelSetup(env: ModelTestEnv) {

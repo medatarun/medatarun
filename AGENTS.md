@@ -31,6 +31,12 @@
 - Do not mistake genericity, permissiveness, or future-proofing for simplicity.
 - Prefer fewer props, fewer branches, and fewer abstraction layers unless the current feature clearly requires them.
 
+## Unit tests
+
+- tests classes with @EnableDatabaseTests require a database. 
+- if MEDATARUN_STORAGE_DATASOURCE_JDBC_DBENGINE=postgresql is provided tests will be run on a TestContainer PostgreSQL database.
+- if no environment variable is provided tests will be run SQLite
+
 ## AI behavior
 
 ### Project grounding

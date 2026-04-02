@@ -1,6 +1,5 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
@@ -11,17 +10,19 @@ import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class AuthActionsTest {
 
     // ------------------------------------------------------------------------
@@ -412,8 +413,14 @@ class AuthActionsTest {
         assertEquals(env.env.adminFullname.value, adminActor.fullname)
         assertEquals(env.env.oidcService.oidcIssuer(), adminActor.issuer)
         assertDoesNotThrow { UuidUtils.fromString(adminActor.id) }
-        assertEquals(env.env.authClockTests.staticNow, adminActor.createdAt)
-        assertEquals(env.env.authClockTests.staticNow, adminActor.lastSeenAt)
+        assertEquals(
+            env.env.authClockTests.staticNow.truncatedTo(ChronoUnit.MILLIS),
+            adminActor.createdAt.truncatedTo(ChronoUnit.MILLIS)
+        )
+        assertEquals(
+            env.env.authClockTests.staticNow.truncatedTo(ChronoUnit.MILLIS),
+            adminActor.lastSeenAt.truncatedTo(ChronoUnit.MILLIS)
+        )
 
         val johnActor = actors.first { actor -> actor.subject == Username("john.doe").value }
         assertEquals("john.doe", johnActor.subject)
@@ -476,8 +483,8 @@ class AuthActionsTest {
 
         val actorAfter = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
         assertNotNull(actorAfter)
-        assertTrue(actorAfter.roles.any {it.key == "ROLE1" })
-        assertTrue(actorAfter.roles.any {it.key == "ROLE2" })
+        assertTrue(actorAfter.roles.any { it.key == "ROLE1" })
+        assertTrue(actorAfter.roles.any { it.key == "ROLE2" })
 
         // Test empty
         env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = emptyList()))

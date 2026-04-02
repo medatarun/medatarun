@@ -4,6 +4,7 @@ import io.medatarun.model.domain.*
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
+import org.jetbrains.exposed.v1.javatime.timestamp
 
 object ModelTable : Table("model") {
     val id = javaUUID("id").transform(IdTransformer(::ModelId))
@@ -24,8 +25,8 @@ object ModelSnapshotTable : Table("model_snapshot") {
     val upToRevision = integer("up_to_revision")
     val modelEventReleaseId = javaUUID("model_event_release_id").transform(IdTransformer(::ModelEventId)).nullable()
     val version = text("version").transform(ModelVersionTransformer)
-    val createdAt = text("created_at")
-    val updatedAt = text("updated_at")
+    val createdAt = timestamp("created_at")
+    val updatedAt = timestamp("updated_at")
 
     override val primaryKey = PrimaryKey(id)
 }

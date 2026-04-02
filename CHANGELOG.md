@@ -8,6 +8,8 @@
 - Changelog file (this file)
 - Support for OAuth2.0 in MCP (and APIs) with Dynamic Client Registration
   Protocol
+- PostgreSQL definitive support. 
+  Default installations are still using SQLite, so they still run out-of-the box.
 
 ### Breaking changes
 

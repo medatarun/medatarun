@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.infra.ModelAggregateInMemory
@@ -16,6 +17,7 @@ import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@EnableDatabaseTests
 class Import_Test {
     @Test
     fun `import then imported`() {

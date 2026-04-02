@@ -1,11 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.RelationshipRoleKey
 import io.medatarun.model.domain.RelationshipRoleUpdateDuplicateKeyException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+@EnableDatabaseTests
 class RelationshipRole_UpdateKey_Test {
 
     @Test

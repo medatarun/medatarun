@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.internal.oidc.OidcAuthorizeResult
 import io.medatarun.auth.domain.ConfigProperties
@@ -15,13 +16,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class AuthClientRegisterServiceTest {
 
-    val env = AuthEnvTest(publicBaseUrl = URI("https://auth.example.test"))
 
 
     @Test
     fun `oidcRegister stores dynamic client in memory and allows authorize`() {
+        val env = AuthEnvTest()
         val redirectUri = "http://127.0.0.1:8788/callback"
         val registrationRequest = buildJsonObject {
             putJsonArray("redirect_uris") { add(redirectUri) }
@@ -53,6 +55,7 @@ class AuthClientRegisterServiceTest {
 
     @Test
     fun `oidcRegister accepts metadata that includes authorization_code and code among extra values`() {
+        val env = AuthEnvTest()
         val registrationResult = env.oidcService.oidcRegister(
             buildJsonObject {
                 putJsonArray("redirect_uris") { add("http://127.0.0.1:8788/callback") }

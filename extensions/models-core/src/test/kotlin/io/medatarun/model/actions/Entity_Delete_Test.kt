@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.ports.exposed.ModelQueries
@@ -7,8 +8,8 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Entity_Delete_Test {
-
 
     @Test
     fun `delete entity in model then entity removed`() {

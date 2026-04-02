@@ -1,13 +1,14 @@
 package io.medatarun.runtime
 
 import io.medatarun.actions.adapters.ActionPlatform
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.platform.kernel.getService
 import io.medatarun.runtime.AppRuntimeTest.AppRuntimeOSBridgeTest
 import io.medatarun.runtime.internal.AppRuntimeBuilder
 import io.medatarun.runtime.internal.AppRuntimeConfigFactory
 import kotlin.test.Test
 import kotlin.test.assertFalse
-
+@EnableDatabaseTests
 class ActionsFitnessTest {
     @Test
     fun `that app can be launched in server mode`() {

@@ -9,8 +9,9 @@ import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.*
 import io.medatarun.type.commons.id.Id
@@ -28,6 +29,7 @@ class ActionAuditDbTestEnv {
         ActionsExtension(),
         PlatformStorageDbExtension(),
         PlatformStorageDbSqliteExtension(),
+        PlatformStorageDbPostgresqlExtension(),
         PlatformActionsStorageDbExtension(
             object : PlatformActionsStorageDbExtensionConfig {
                 override val actionAuditClock: ActionAuditClock
@@ -40,9 +42,7 @@ class ActionAuditDbTestEnv {
     val platform = PlatformBuilder(
         config = MedatarunConfig.createTempConfig(
             Jimfs.newFileSystem(),
-            mapOf(
-                PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY to DbProviderSqlite.randomDbUrl()
-            )
+            TestDbConfig().testDatabaseProperties()
         ),
         extensions = extensions
     ).buildAndStart()
@@ -92,7 +92,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object Ok : TestDbAction
+        data object Ok : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"business-ok\"}"
+            }
+        }
 
         @ActionDoc(
             key = "security-denied",
@@ -102,7 +107,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_DENY,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object Denied : TestDbAction
+        data object Denied : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"security-denied\"}"
+            }
+        }
 
         @ActionDoc(
             key = "business-fails",
@@ -112,7 +122,12 @@ class ActionAuditDbTestEnv {
             securityRule = RULE_ALLOW,
             semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
         )
-        data object BusinessFails : TestDbAction
+        data object BusinessFails : TestDbAction {
+            // Actions sent "asRaw" must have a string representation to be auditable because the database stores the original Json payload
+            override fun toString(): String {
+                return "{\"action\":\"business-fails\"}"
+            }
+        }
     }
 
     private class TestActionProvider : ActionProvider<TestDbAction> {

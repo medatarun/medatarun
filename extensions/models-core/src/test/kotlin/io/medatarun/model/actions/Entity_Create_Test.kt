@@ -1,11 +1,13 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@EnableDatabaseTests
 class Entity_Create_Test {
 
     @Test
@@ -118,7 +120,6 @@ class Entity_Create_Test {
                 documentationHome = null
             )
         )
-
 
         val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
         assertNull(attributes[0].name)

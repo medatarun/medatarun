@@ -1,5 +1,6 @@
 package io.medatarun.auth
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import com.auth0.jwt.JWT
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
@@ -16,20 +17,23 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class OAuthServiceTest {
 
     @Nested
     inner class AdminTests {
-        val env = AuthEnvTest()
+
 
         @Test
         fun `admin can log in`() {
+            val env = AuthEnvTest()
             val token = env.oauthService.oauthLogin(env.adminUsername, env.adminPassword)
             assertNotNull(token)
         }
 
         @Test
         fun `admin cannot log in with bad login`() {
+            val env = AuthEnvTest()
             assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(Username(env.adminUsername.value + "--"), env.adminPassword)
             }
@@ -37,6 +41,7 @@ class OAuthServiceTest {
 
         @Test
         fun `admin cannot log in with bad password`() {
+            val env = AuthEnvTest()
             assertThrows<AuthNotAuthenticatedException> {
                 env.oauthService.oauthLogin(env.adminUsername, PasswordClear(env.adminPassword.value + "---"))
             }
@@ -114,6 +119,5 @@ class OAuthServiceTest {
         assertEquals("value", decoded.getClaim("present").asString())
         assertTrue(decoded.getClaim("missing").isMissing || decoded.getClaim("missing").isNull)
     }
-
 
 }

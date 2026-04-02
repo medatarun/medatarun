@@ -4,8 +4,8 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.DbSqlResources
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -23,8 +23,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 row[codeChallengeColumn] = oidcAuthorizeCtx.codeChallenge
                 row[codeChallengeMethodColumn] = oidcAuthorizeCtx.codeChallengeMethod
                 row[nonceColumn] = oidcAuthorizeCtx.nonce
-                row[createdAtColumn] = InstantSql.toSql(oidcAuthorizeCtx.createdAt)
-                row[expiresAtColumn] = InstantSql.toSql(oidcAuthorizeCtx.expiresAt)
+                row[createdAtColumn] = oidcAuthorizeCtx.createdAt
+                row[expiresAtColumn] = oidcAuthorizeCtx.expiresAt
             }
         }
     }
@@ -50,8 +50,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
                 row[codeChallengeColumn] = oidcAuthorizeCode.codeChallenge
                 row[codeChallengeMethodColumn] = oidcAuthorizeCode.codeChallengeMethod
                 row[nonceColumn] = oidcAuthorizeCode.nonce
-                row[authTimeColumn] = InstantSql.toSql(oidcAuthorizeCode.authTime)
-                row[expiresAtColumn] = InstantSql.toSql(oidcAuthorizeCode.expiresAt)
+                row[authTimeColumn] = oidcAuthorizeCode.authTime
+                row[expiresAtColumn] = oidcAuthorizeCode.expiresAt
             }
         }
     }
@@ -79,9 +79,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
 
     override fun purgeExpired(now: Instant) {
         dbConnectionFactory.withExposed {
-            val nowSql = InstantSql.toSql(now)
-            AuthCtxTable.deleteWhere { expiresAtColumn less nowSql }
-            AuthCodeTable.deleteWhere { expiresAtColumn less nowSql }
+            AuthCtxTable.deleteWhere { expiresAtColumn less now }
+            AuthCodeTable.deleteWhere { expiresAtColumn less now }
         }
     }
 
@@ -95,8 +94,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             codeChallenge = row[AuthCtxTable.codeChallengeColumn],
             codeChallengeMethod = row[AuthCtxTable.codeChallengeMethodColumn],
             nonce = row[AuthCtxTable.nonceColumn],
-            createdAt = Instant.parse(row[AuthCtxTable.createdAtColumn]),
-            expiresAt = Instant.parse(row[AuthCtxTable.expiresAtColumn])
+            createdAt = row[AuthCtxTable.createdAtColumn],
+            expiresAt = row[AuthCtxTable.expiresAtColumn]
         )
     }
 
@@ -110,8 +109,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             codeChallenge = row[AuthCodeTable.codeChallengeColumn],
             codeChallengeMethod = row[AuthCodeTable.codeChallengeMethodColumn],
             nonce = row[AuthCodeTable.nonceColumn],
-            authTime = Instant.parse(row[AuthCodeTable.authTimeColumn]),
-            expiresAt = Instant.parse(row[AuthCodeTable.expiresAtColumn])
+            authTime = row[AuthCodeTable.authTimeColumn],
+            expiresAt = row[AuthCodeTable.expiresAtColumn]
         )
     }
 
@@ -126,8 +125,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val codeChallengeColumn = text("code_challenge")
             val codeChallengeMethodColumn = text("code_challenge_method")
             val nonceColumn = text("nonce").nullable()
-            val createdAtColumn = text("created_at")
-            val expiresAtColumn = text("expires_at")
+            val createdAtColumn = timestamp("created_at")
+            val expiresAtColumn = timestamp("expires_at")
         }
 
         private object AuthCodeTable : Table("auth_code") {
@@ -139,8 +138,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val codeChallengeColumn = text("code_challenge")
             val codeChallengeMethodColumn = text("code_challenge_method")
             val nonceColumn = text("nonce").nullable()
-            val authTimeColumn = text("auth_time")
-            val expiresAtColumn = text("expires_at")
+            val authTimeColumn = timestamp("auth_time")
+            val expiresAtColumn = timestamp("expires_at")
         }
 
     }

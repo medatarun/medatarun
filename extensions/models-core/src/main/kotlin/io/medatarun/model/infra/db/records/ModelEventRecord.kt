@@ -31,7 +31,7 @@ data class ModelEventRecord(
                 modelVersion = row[ModelEventTable.modelVersion],
                 actorId = row[ModelEventTable.actorId],
                 traceabilityOrigin = row[ModelEventTable.traceabilityOrigin],
-                createdAt = Instant.parse(row[ModelEventTable.createdAt]),
+                createdAt = row[ModelEventTable.createdAt],
                 payload = row[ModelEventTable.payload]
             )
         }

@@ -1,11 +1,17 @@
 package io.medatarun.platform.db.sqlite
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbProvider
 import java.sql.Connection
 import java.sql.DriverManager
+import java.util.Properties
 
-class DbProviderSqlite(private val url: String) : DbProvider {
+class DbProviderSqlite(
+    private val url: String,
+    private val properties: Properties
+) : DbProvider {
+    override val dialect: DbDialect = DbDialect.SQLITE
 
     // When an SQLite database is created in memory, we must keep one active connection on the
     // database during the application lifecycle. It is because if a new connection
@@ -25,10 +31,10 @@ class DbProviderSqlite(private val url: String) : DbProvider {
 
         // The "keep alive" connexion
         if (url.contains("mode=memory") && persistentConnection == null) {
-            persistentConnection = DriverManager.getConnection(url)
+            persistentConnection = DriverManager.getConnection(url, properties)
         }
 
-        val connection = DriverManager.getConnection(url)
+        val connection = DriverManager.getConnection(url, properties)
         // The requested connexion
         connection.createStatement().use { statement ->
             // SQLite applies foreign key checks per connection, so enable it every time.
@@ -40,7 +46,7 @@ class DbProviderSqlite(private val url: String) : DbProvider {
 
     companion object {
         fun randomDb(): DbProviderSqlite {
-            return DbProviderSqlite(randomDbUrl())
+            return DbProviderSqlite(randomDbUrl(), Properties())
         }
 
         fun randomDbUrl(): String {

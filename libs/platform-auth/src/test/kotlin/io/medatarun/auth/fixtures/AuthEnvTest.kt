@@ -20,8 +20,9 @@ import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbMigrationChecker
 import io.medatarun.platform.db.PlatformStorageDbExtension
-import io.medatarun.platform.db.sqlite.DbProviderSqlite
+import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
+import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppPrincipalRole
 import io.medatarun.security.SecurityExtension
@@ -72,10 +73,7 @@ class AuthEnvTest(
     val config = MedatarunConfig.createTempConfig(
         fs = Jimfs.newFileSystem(),
         appDir = "/opt/medatarun",
-        props = buildMap {
-            put(PlatformStorageDbSqliteExtension.JDBC_URL_PROPERTY, DbProviderSqlite.randomDbUrl())
-            putAll(extraProps)
-        },
+        props = TestDbConfig().testDatabaseProperties(extraProps),
         publicBaseURL = publicBaseUrl
     )
 
@@ -90,6 +88,7 @@ class AuthEnvTest(
             SecurityExtension(),
             PlatformStorageDbExtension(),
             PlatformStorageDbSqliteExtension(),
+            PlatformStorageDbPostgresqlExtension(),
             AuthExtension(object : AuthExtensionConfig {
                 override val authClock: AuthClock
                     get() = authClockTests

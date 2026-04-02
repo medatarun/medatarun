@@ -1,6 +1,7 @@
 package io.medatarun.platform.db.adapters
 
 import io.medatarun.platform.db.DbProvider
+import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbTransactionManager
 import org.jetbrains.exposed.v1.core.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -11,6 +12,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 class DbTransactionManagerImpl(
     private val dbProvider: DbProvider
 ) : DbTransactionManager {
+    override val dialect: DbDialect
+        get() = dbProvider.dialect
 
     private val database = Database.connect(
         getNewConnection = { dbProvider.getConnection() }

@@ -1,5 +1,6 @@
 package io.medatarun.model.actions
 
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.EntityKey
@@ -31,6 +32,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+@EnableDatabaseTests
 class Search_Test {
 
     // ------------------------------------------------------------------------

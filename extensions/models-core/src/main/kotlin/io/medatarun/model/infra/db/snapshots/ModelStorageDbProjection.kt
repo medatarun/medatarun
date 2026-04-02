@@ -316,8 +316,8 @@ internal class ModelStorageDbProjection(
             row[ModelSnapshotTable.upToRevision] = 0
             row[ModelSnapshotTable.modelEventReleaseId] = null
             row[ModelSnapshotTable.version] = model.version
-            row[ModelSnapshotTable.createdAt] = clock.now().toString()
-            row[ModelSnapshotTable.updatedAt] = clock.now().toString()
+            row[ModelSnapshotTable.createdAt] = clock.now()
+            row[ModelSnapshotTable.updatedAt] = clock.now()
         }
         return modelSnapshotId
     }
@@ -333,7 +333,7 @@ internal class ModelStorageDbProjection(
                 ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(ctx.modelId)
         val currentHeadRecord = ModelRecord.read(currentHeadRow)
         val versionSnapshotId = ModelSnapshotId.generate()
-        val now = clock.now().toString()
+        val now = clock.now()
 
         ModelSnapshotTable.insert { row ->
             row[ModelSnapshotTable.id] = versionSnapshotId

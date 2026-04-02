@@ -21,6 +21,8 @@ dependencies {
     implementation(project(":libs:platform-storage-event-sourcing"))
     implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
+    testImplementation(project(":libs:platform-storage-db-postgresql"))
+    testImplementation(project(":libs:platform-storage-db-testkit"))
     testImplementation(libs.jimfs)
     testImplementation(libs.logback)
 }

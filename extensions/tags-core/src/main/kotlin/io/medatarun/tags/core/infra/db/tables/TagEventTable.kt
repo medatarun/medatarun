@@ -1,6 +1,7 @@
 package io.medatarun.tags.core.infra.db.tables
 
 import io.medatarun.security.AppActorId
+import io.medatarun.platform.db.exposed.jsonb
 import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.tags.core.infra.db.types.IdTransformer
@@ -18,7 +19,7 @@ object TagEventTable : Table("tag_event") {
     val actorId = javaUUID("actor_id").transform(IdTransformer(::AppActorId))
     val traceabilityOrigin = text("traceability_origin")
     val createdAt = timestamp("created_at")
-    val payload = text("payload")
+    val payload = jsonb("payload")
 
     override val primaryKey = PrimaryKey(id)
 }
