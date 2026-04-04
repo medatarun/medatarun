@@ -35,7 +35,7 @@ export default defineConfig({
       "/api": "http://localhost:8080",
       "/ui": "http://localhost:8080",
       "/.well-known": "http://localhost:8080",
-      "/auth": "http://localhost:8080",
+      "/auth/": "http://localhost:8080",
     },
   },
 });

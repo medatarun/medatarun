@@ -17,7 +17,7 @@
     "@seij/common-services": "^0.1.2",
     "@seij/common-types": "^0.1.5",
     "@seij/common-ui": "^0.1.11",
-    "@seij/common-ui-auth": "^0.1.1",
+    "@seij/common-ui-auth": "^0.1.2",
     "@seij/common-ui-csv-export": "^0.1.1",
     "@seij/common-ui-icons": "^0.1.4",
     "@seij/common-validation": "^0.1.2",

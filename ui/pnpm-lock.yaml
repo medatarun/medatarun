@@ -24,8 +24,8 @@ importers:
         specifier: ^0.1.11
         version: 0.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)
       '@seij/common-ui-auth':
-        specifier: ^0.1.1
-        version: 0.1.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)
+        specifier: ^0.1.2
+        version: 0.1.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)
       '@seij/common-ui-csv-export':
         specifier: ^0.1.1
         version: 0.1.1
@@ -1110,8 +1110,8 @@ packages:
   '@seij/common-types@0.1.5':
     resolution: {integrity: sha512-CkDtKUs1ZoqEF2AAoKyrkwkKYJt+C3LyxRValXBOO4NX3NtWYzslVXJQwelAuWvNWdshdgnon0TAfzcqYxP3jw==}
 
-  '@seij/common-ui-auth@0.1.1':
-    resolution: {integrity: sha512-sd6dLXE8eRx2xdeFyxTz/d/IDLz6WQ8FZvsnX8qnOpodz9U1T27MU6fCvnuwocuA4G5F2O0As+t2seK+8WG7fA==}
+  '@seij/common-ui-auth@0.1.2':
+    resolution: {integrity: sha512-C+dE7Qx/j67e8nEqatOkuwAw2w8w17wqTtvG6BTDd7vNfEsTs2vHoN/8kSm/SQxgQOl/SSeiZpIflPX5VowIsg==}
     peerDependencies:
       react: ^19.2.4
       react-dom: ^19.2.4
@@ -3820,7 +3820,7 @@ snapshots:
       lodash-es: 4.17.23
       luxon: 3.7.2
 
-  '@seij/common-ui-auth@0.1.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)':
+  '@seij/common-ui-auth@0.1.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)':
     dependencies:
       '@seij/common-types': 0.1.5
       '@seij/common-ui': 0.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(intl-messageformat@11.1.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(scheduler@0.27.0)(typescript@5.9.3)

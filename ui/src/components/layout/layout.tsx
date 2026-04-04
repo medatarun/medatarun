@@ -14,18 +14,18 @@ import { ActionPerformerView } from "@/components/business/actions/ActionPerform
 import { ActionProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
 import logo from "../../../public/favicon/favicon.svg";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
-import { ErrorBox, Loader, type NavigationTreeItem } from "@seij/common-ui";
+import { ErrorBox, Loader } from "@seij/common-ui";
 import {
   ApplicationShellSecured,
   useAuthentication,
 } from "@seij/common-ui-auth";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { UnauthorizedHandler } from "@/components/auth/UnauthorizedHandler.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { modelActionPostHook } from "@/business/model";
 import { tagActionPostHook } from "@/business/tag";
 import { ActionPostHooks } from "@/components/business/actions/ActionPostHook.ts";
 import { toProblem } from "@seij/common-types";
+import { useMenu } from "./menu.tsx";
 
 const EMPTY_ACTION_REGISTRY = new ActionRegistry({ items: [] });
 
@@ -35,8 +35,8 @@ export function Layout() {
   const matchRoute = useMatchRoute();
   const { pathname } = useLocation();
 
-  // Used to filter out navigation items if user is not technical
-  const { isDetailLevelTech } = useDetailLevelContext();
+  // Menu
+  const menu = useMenu();
 
   // Translations
   const { t } = useAppI18n();
@@ -64,82 +64,6 @@ export function Layout() {
 
   const matchPath = (path: string | undefined) =>
     !!matchRoute({ to: path, fuzzy: true });
-
-  const navigationItemsBase: NavigationTreeItem[] = [
-    {
-      id: "home",
-      parentId: null,
-      type: "page",
-      path: "/",
-      label: t("layout_homeLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "models",
-      parentId: null,
-      type: "page",
-      path: "/models",
-      label: t("layout_modelsLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "model-compare",
-      parentId: null,
-      type: "page",
-      path: "/model-compare",
-      label: t("layout_modelCompareLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "commands",
-      parentId: null,
-      type: "page",
-      path: "/commands",
-      label: t("layout_commandsLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "reports",
-      parentId: null,
-      type: "page",
-      path: "/reports",
-      label: t("layout_reportsLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "tag-groups",
-      parentId: null,
-      type: "page",
-      path: "/tag-groups",
-      label: t("layout_tagGroupsLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "preferences",
-      parentId: null,
-      type: "page",
-      path: "/preferences",
-      label: t("layout_preferencesLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-  ];
-  const nav = navigationItemsBase.filter(
-    (it) => it.id !== "commands" || isDetailLevelTech,
-  );
 
   return (
     <>
@@ -180,7 +104,7 @@ export function Layout() {
         }
         navigate={(path) => navigate({ to: path })}
         onClickHome={() => navigate({ to: "/" })}
-        navigationItems={nav}
+        navigationItems={menu}
         matchPath={matchPath}
       ></ApplicationShellSecured>
     </>
