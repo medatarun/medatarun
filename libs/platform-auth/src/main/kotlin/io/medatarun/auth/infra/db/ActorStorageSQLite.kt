@@ -4,8 +4,10 @@ import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.infra.db.tables.ActorTable
+import io.medatarun.auth.infra.db.tables.RolePermissionTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.security.AppPermissionStringBased
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -160,6 +162,14 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                     ActorTable.update(where = { ActorTable.id eq actorId }) { updateRow ->
                         updateRow[rolesJson] = encodeRoles(renamedRoles)
                     }
+                }
+            }
+
+            oldToNewPermissions.forEach { (oldPermission, newPermission) ->
+                RolePermissionTable.update(
+                    where = { RolePermissionTable.permission eq AppPermissionStringBased(oldPermission) }
+                ) { updateRow ->
+                    updateRow[permission] = AppPermissionStringBased(newPermission)
                 }
             }
         }
