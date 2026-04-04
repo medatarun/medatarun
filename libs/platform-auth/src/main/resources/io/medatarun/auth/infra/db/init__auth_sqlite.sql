@@ -13,6 +13,7 @@ CREATE TABLE "auth_actor" (
 
 CREATE TABLE auth_role (
   id BINARY(16) PRIMARY KEY UNIQUE,
+  key VARCHAR(30) NOT NULL,
   name VARCHAR(30) NOT NULL,
   description TEXT,
   created_at TIMESTAMP NOT NULL,
@@ -92,6 +93,7 @@ CREATE TABLE "users" (
 
 CREATE INDEX idx_auth_actor_created_at ON auth_actor(created_at);
 CREATE INDEX idx_auth_actor_issuer_subject ON auth_actor(issuer, subject);
+CREATE UNIQUE INDEX idx_auth_role_key ON auth_role(key);
 CREATE INDEX idx_auth_code_expires_at ON auth_code(expires_at);
 CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx(expires_at);
 

@@ -69,7 +69,7 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage))
+        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage, config.authClock))
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {

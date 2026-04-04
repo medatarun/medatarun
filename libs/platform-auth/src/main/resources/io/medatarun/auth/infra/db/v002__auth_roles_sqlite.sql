@@ -1,5 +1,6 @@
 CREATE TABLE auth_role (
   id BINARY(16) PRIMARY KEY UNIQUE,
+  key VARCHAR(30) NOT NULL,
   name VARCHAR(30) NOT NULL,
   description TEXT,
   created_at TIMESTAMP NOT NULL,
@@ -20,3 +21,5 @@ CREATE TABLE auth_actor_role (
   FOREIGN KEY (auth_actor_id) REFERENCES auth_actor(id),
   FOREIGN KEY (auth_role_id) REFERENCES auth_role(id)
 );
+
+CREATE UNIQUE INDEX idx_auth_role_key ON auth_role(key);

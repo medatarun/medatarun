@@ -1,6 +1,8 @@
 package io.medatarun.auth.infra.db
 
 import io.medatarun.auth.infra.db.migrations.V002_CreateActorSystemMaintenance
+import io.medatarun.auth.infra.db.migrations.V002_SeedRolesAndActorAssignmentsSQLite
+import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
@@ -8,10 +10,12 @@ import io.medatarun.security.SecurityRolesRegistry
 
 class AuthDbMigration(
     private val securityRolesRegistry: SecurityRolesRegistry,
-    private val actorStorageSQLite: ActorStorageSQLite
+    private val actorStorageSQLite: ActorStorageSQLite,
+    private val authClock: AuthClock
 ) : DbMigration {
     override val pluginId: String = "platform-auth"
     private val migrationV002CreateActorSystemMaintenance = V002_CreateActorSystemMaintenance()
+    private val migrationV002SeedRolesAndActorAssignments = V002_SeedRolesAndActorAssignmentsSQLite(authClock)
 
     override fun install(ctx: DbMigrationContext) {
         when (ctx.dialect) {
@@ -31,6 +35,7 @@ class AuthDbMigration(
                 migrationV002CreateActorSystemMaintenance.apply(ctx)
                 ctx.applySqlResource(v002_ids_binary16_sqlite)
                 ctx.applySqlResource(v002_auth_roles_sqlite)
+                migrationV002SeedRolesAndActorAssignments.apply(ctx)
                 ctx.applySqlResource(v002_auth_client_sqlite)
             }
             else -> ctx.throwUnknownVersionException()

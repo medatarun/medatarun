@@ -37,10 +37,10 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[this.id] = id
                 row[this.issuer] = issuer
                 row[this.subject] = subject
-                row[fullName] = fullname
+                row[this.fullName] = fullname
                 row[this.email] = email
-                row[rolesJson] = encodeRoles(roles)
-                row[disabledDate] = disabled
+                row[this.rolesJson] = encodeRoles(roles)
+                row[this.disabledDate] = disabled
                 row[this.createdAt] = createdAt
                 row[this.lastSeenAt] = lastSeenAt
             }
@@ -55,7 +55,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     ) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
-                row[fullName] = fullname
+                row[this.fullName] = fullname
                 row[this.email] = email
                 row[this.lastSeenAt] = lastSeenAt
             }
@@ -65,7 +65,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
-                row[rolesJson] = encodeRoles(roles)
+                row[this.rolesJson] = encodeRoles(roles)
             }
         }
     }
@@ -73,7 +73,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     override fun disable(id: ActorId, at: Instant) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
-                row[disabledDate] = at
+                row[this.disabledDate] = at
             }
         }
     }
@@ -81,7 +81,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     override fun enable(id: ActorId,) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
-                row[disabledDate] = null
+                row[this.disabledDate] = null
             }
         }
     }
