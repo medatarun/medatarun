@@ -3,6 +3,7 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
@@ -73,6 +74,21 @@ interface ActorService {
      * Update roles for an actor
      */
     fun setRoles(actorId: ActorId, roles: List<ActorRole>)
+
+    /**
+     * Lists all roles.
+     */
+    fun listRoles(): List<Role>
+
+    /**
+     * Finds a role from a role reference.
+     */
+    fun findRoleByRef(roleRef: RoleRef): Role
+
+    /**
+     * Lists permissions for a role.
+     */
+    fun listRolePermissions(roleRef: RoleRef): List<AppPermission>
 
     /**
      * Creates a role and returns its identifier.

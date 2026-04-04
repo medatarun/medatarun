@@ -255,6 +255,31 @@ sealed interface AuthAction<R> {
     ) : AuthAction<RoleId>
 
     @ActionDoc(
+        key = "role_list",
+        title = "List roles",
+        description = "List all roles.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleList : AuthAction<RoleListDto>
+
+    @ActionDoc(
+        key = "role_get",
+        title = "Get role",
+        description = "Get a role and its permissions.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleGet(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef
+    ) : AuthAction<RoleDetailsDto>
+
+    @ActionDoc(
         key = "role_update_name",
         title = "Update role name",
         description = "Update a role name.",

@@ -64,6 +64,8 @@ interface ActorStorage {
     fun findRoleByRefOptional(roleRef: RoleRef): Role?
     fun findRoleByIdOptional(roleId: RoleId): Role?
     fun findRoleByKeyOptional(key: RoleKey): Role?
+    fun listRoles(): List<Role>
+    fun listRolePermissions(roleId: RoleId): List<AppPermission>
 
     /**
      * Updates role name.

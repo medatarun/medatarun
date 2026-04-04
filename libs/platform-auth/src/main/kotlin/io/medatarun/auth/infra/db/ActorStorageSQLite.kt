@@ -124,6 +124,23 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
+    override fun listRoles(): List<Role> {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .orderBy(RoleTable.createdAt to SortOrder.DESC)
+                .map { readRole(it) }
+        }
+    }
+
+    override fun listRolePermissions(roleId: RoleId): List<AppPermission> {
+        return dbConnectionFactory.withExposed {
+            RolePermissionTable.selectAll()
+                .where { RolePermissionTable.authRoleId eq roleId }
+                .map { it[RolePermissionTable.permission] }
+                .sortedBy { it.key }
+        }
+    }
+
     override fun updateRoleName(roleId: RoleId, name: String, lastUpdatedAt: Instant) {
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
