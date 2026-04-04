@@ -8,23 +8,22 @@ import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.auth.actions.ActionPrincipalCtxAdapter
 import io.medatarun.auth.actions.AuthAction
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
+import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorNotFoundException
-import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.security.AppActorId
+import io.medatarun.security.AppPermission
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalRole
 import io.medatarun.type.commons.id.Id
 import kotlin.reflect.KClass
 
 class AuthActionEnvTest(
     private val createAdmin: Boolean = true,
-    private val otherRoles: Set<String> = emptySet(),
+    otherPermissions: Set<AuthEnvTest.TestOtherPermission> = emptySet(),
 ) {
-
-    val env = AuthEnvTest(createAdmin = createAdmin, otherRoles = otherRoles)
+    val env = AuthEnvTest(createAdmin = createAdmin, otherPermissions=otherPermissions)
 
     val provider = AuthEmbeddedActionsProvider(
         env.userService, env.oidcService, env.oauthService, env.actorService, env.authClockTests
@@ -83,14 +82,8 @@ class AuthActionEnvTest(
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
                 override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }
-                override val roles: List<AppPrincipalRole> = actor.roles.map(::toMedatarunPrincipalRole)
+                override val permissions: List<AppPermission> = actor.roles.map(ActorRoleAdapters::toAppPermission)
                 override val fullname: String = actor.fullname
-            }
-        }
-
-        private fun toMedatarunPrincipalRole(role: ActorRole): AppPrincipalRole {
-            return object : AppPrincipalRole {
-                override val key = role.key
             }
         }
     }

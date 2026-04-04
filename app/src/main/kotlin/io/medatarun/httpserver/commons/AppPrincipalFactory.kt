@@ -3,15 +3,15 @@ package io.medatarun.httpserver.commons
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorDisabledException
-import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.security.AppActorId
+import io.medatarun.security.AppPermission
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalRole
 import java.time.Instant
 
 /**
@@ -68,14 +68,9 @@ class AppPrincipalFactory(
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
             override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }
-            override val roles: List<AppPrincipalRole> = actor.roles.map(::toMedatarunPrincipalRole)
+            override val permissions: List<AppPermission> = actor.roles.map(ActorRoleAdapters::toAppPermission)
             override val fullname: String = actor.fullname
         }
     }
 
-    private fun toMedatarunPrincipalRole(role: ActorRole): AppPrincipalRole {
-        return object : AppPrincipalRole {
-            override val key = role.key
-        }
-    }
 }

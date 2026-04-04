@@ -65,7 +65,10 @@ class ActorServiceTest {
 
     @Test
     fun `create validates roles`() {
-        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("known-role"))
+        val env = AuthEnvTest(
+            createAdmin = false,
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("known-role"))
+        )
         env.actorService.create(
             issuer = "issuer-role",
             subject = "subject-role",
@@ -89,7 +92,10 @@ class ActorServiceTest {
 
     @Test
     fun `listActors returns all known actors`() {
-        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-b"))
+        val env = AuthEnvTest(
+            createAdmin = false,
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-b"))
+        )
         val actorA = env.actorService.create(
             issuer = "issuer-a",
             subject = "subject-a",
@@ -146,7 +152,10 @@ class ActorServiceTest {
 
     @Test
     fun `sync updates existing actor profile`() {
-        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-x"))
+        val env = AuthEnvTest(
+            createAdmin = false,
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-x"))
+        )
         val initialTime = Instant.parse("2024-02-01T00:00:00Z")
         val updatedTime = Instant.parse("2024-02-02T00:00:00Z")
         env.authClockTests.staticNow = initialTime
@@ -179,7 +188,10 @@ class ActorServiceTest {
 
     @Test
     fun `setRoles updates roles and validates known roles`() {
-        val env = AuthEnvTest(createAdmin = false, otherRoles = setOf("role-x"))
+        val env = AuthEnvTest(
+            createAdmin = false,
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-x"))
+        )
         val actor = env.actorService.create(
             issuer = "issuer-roles",
             subject = "subject-roles",

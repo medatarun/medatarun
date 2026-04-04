@@ -1,6 +1,6 @@
 package io.medatarun.security
 
 interface SecurityRolesRegistry {
-    fun findAllRoles(): List<AppPrincipalRole>
+    fun findAllRoles(): List<AppPermission>
     fun findAllRenamedRoles(): Map<String, String>
 }

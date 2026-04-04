@@ -2,7 +2,7 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPrincipalRole
+import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPermission
 import io.medatarun.auth.adapters.AppActorResolverAuth
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
@@ -35,8 +35,8 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
-import io.medatarun.security.AppPrincipalRole
-import io.medatarun.security.SecurityRolesProvider
+import io.medatarun.security.AppPermission
+import io.medatarun.security.SecurityPermissionsProvider
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonEquiv
@@ -58,13 +58,13 @@ class AuthExtension(
         val actionProvider = AuthEmbeddedActionsProvider(
             userService, oidcService, oauthService, actorService, config.authClock
         )
-        val rolesProvider = object : SecurityRolesProvider {
-            override fun getRoles(): List<AppPrincipalRole> {
-                return listOf(toAppPrincipalRole(ActorRole.ADMIN))
+        val rolesProvider = object : SecurityPermissionsProvider {
+            override fun getPermissions(): List<AppPermission> {
+                return listOf(toAppPermission(ActorRole.ADMIN))
             }
         }
         ctx.registerContribution(ActionProvider::class, actionProvider)
-        ctx.registerContribution(SecurityRolesProvider::class, rolesProvider)
+        ctx.registerContribution(SecurityPermissionsProvider::class, rolesProvider)
         ctx.registerContribution(TypeDescriptor::class, UsernameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())

@@ -10,6 +10,7 @@ const EMPTY_WHOAMI: WhoAmIRespDto = {
   issuer: "",
   sub: "",
   roles: [],
+  permissions: [],
 };
 export const useCurrentActor = () => {
   const auth = useAuthentication();

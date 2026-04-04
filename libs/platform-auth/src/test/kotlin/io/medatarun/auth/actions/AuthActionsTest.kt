@@ -6,6 +6,7 @@ import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthActionEnvTest
+import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
@@ -31,7 +32,7 @@ class AuthActionsTest {
 
     @Test
     fun `bootstrap called`() {
-        val env = AuthActionEnvTest(createAdmin = false)
+        val env = AuthActionEnvTest(createAdmin = false,)
         val username = Username("admin")
         val password = PasswordClear("admin.0123456789")
         // Important, keep the type to check response type
@@ -468,7 +469,12 @@ class AuthActionsTest {
 
     @Test
     fun changeRolesOnActor() {
-        val env = AuthActionEnvTest(otherRoles = setOf("ROLE1", "ROLE2"))
+        val env = AuthActionEnvTest(
+            otherPermissions = setOf(
+                AuthEnvTest.TestOtherPermission("ROLE1"),
+                AuthEnvTest.TestOtherPermission("ROLE2")
+            )
+        )
         env.asAdmin()
         val iss = "https://microsoft.com/azuread/987654321"
         val sub = "john.doe"

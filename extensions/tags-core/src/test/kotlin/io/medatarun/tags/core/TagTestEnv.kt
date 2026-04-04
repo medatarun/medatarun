@@ -14,9 +14,9 @@ import io.medatarun.platform.kernel.MedatarunConfig.Companion.createTempConfig
 import io.medatarun.security.*
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagGlobalManageRole
-import io.medatarun.tags.core.adapters.security.TagGroupManageRole
-import io.medatarun.tags.core.adapters.security.TagLocalManageRole
+import io.medatarun.tags.core.adapters.security.TagGlobalManagePermission
+import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
+import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
 import io.medatarun.tags.core.domain.TagBeforeDeleteEvt
 import io.medatarun.tags.core.domain.TagLocalScopeBeforeDeleteEvent
 import io.medatarun.tags.core.domain.TagQueries
@@ -188,10 +188,10 @@ class TagTestEnv(
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val roles: List<AppPrincipalRole> = listOf(
-                TagLocalManageRole,
-                TagGroupManageRole,
-                TagGlobalManageRole
+            override val permissions: List<AppPermission> = listOf(
+                TagLocalManagePermission,
+                TagGroupManagePermission,
+                TagGlobalManagePermission
             )
         }
         private val testPrincipalAdmin = object : AppPrincipal {
@@ -200,10 +200,10 @@ class TagTestEnv(
             override val subject: String = ""
             override val isAdmin: Boolean = true
             override val fullname: String = "admin"
-            override val roles: List<AppPrincipalRole> = listOf(
-                TagLocalManageRole,
-                TagGroupManageRole,
-                TagGlobalManageRole
+            override val permissions: List<AppPermission> = listOf(
+                TagLocalManagePermission,
+                TagGroupManagePermission,
+                TagGlobalManagePermission
             )
         }
         private var testPrincipal: AppPrincipal = testPrincipalUser

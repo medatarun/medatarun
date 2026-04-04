@@ -181,7 +181,7 @@ class ActionAuditDbTestEnv {
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val roles: List<AppPrincipalRole> = emptyList()
+            override val permissions: List<AppPermission> = emptyList()
         }
 
         private val testPrincipalCtx = object : ActionPrincipalCtx {

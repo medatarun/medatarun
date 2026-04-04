@@ -12,7 +12,6 @@ import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
@@ -101,7 +100,8 @@ class AuthEmbeddedActionsLauncher(
             sub = actor.subject,
             admin = actor.isAdmin,
             fullname = actor.fullname,
-            roles = actor.roles.map { it.key },
+            roles = actor.permissions.map { it.key },
+            permissions = actor.permissions.map { it.key },
         )
 
     }

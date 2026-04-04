@@ -12,24 +12,24 @@ class TagSecurityRulesprovider : SecurityRulesProvider {
                 override val name: String = "Manage global tags"
                 override val description: String =
                     "Actors (users and tools) can manage global tags.\n\n" +
-                        "Required permission: `${TagGlobalManageRole.key}`."
-                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGlobalManageRole)
+                        "Required permission: `${TagGlobalManagePermission.key}`."
+                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagGlobalManagePermission)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_LOCAL_MANAGE
                 override val name: String = "Manage local tags"
                 override val description: String =
                     "Actors (users and tools) can manage local tags.\n\n" +
-                        "Required permission: `${TagLocalManageRole.key}`."
-                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagLocalManageRole)
+                        "Required permission: `${TagLocalManagePermission.key}`."
+                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagLocalManagePermission)
             },
             object : SecurityRuleEvaluator {
                 override val key: String = TagSecurityRules.TAG_GROUP_MANAGE
                 override val name: String = "Manage Tag Groups"
                 override val description: String =
                     "Actors (users and tools) can manage tag groups.\n\n" +
-                        "Required permission: `${TagGroupManageRole.key}`."
-                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensureRole(TagGroupManageRole)
+                        "Required permission: `${TagGroupManagePermission.key}`."
+                override fun evaluate(ctx: SecurityRuleCtx) = ctx.ensurePermission(TagGroupManagePermission)
             }
         )
     }

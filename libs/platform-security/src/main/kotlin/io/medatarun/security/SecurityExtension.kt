@@ -13,7 +13,7 @@ class SecurityExtension(
 
     override fun initContributions(ctx: MedatarunExtensionCtx) {
         ctx.registerContributionPoint(this.id + ".security_rules_providers", SecurityRulesProvider::class)
-        ctx.registerContributionPoint(this.id + ".security_roles_providers", SecurityRolesProvider::class)
+        ctx.registerContributionPoint(this.id + ".security_permissions_providers", SecurityPermissionsProvider::class)
         ctx.registerContribution(SecurityRulesProvider::class, SecurityRulesProviderBase())
     }
 
@@ -54,11 +54,10 @@ class SecurityRulesProviderBase : SecurityRulesProvider {
             override val key: String = SecurityRuleNames.ADMIN
             override val name: String = "Administrator"
             override val description: String =
-                "Only actors (users or tools) with the administrator role are authorized.\n\n" +
-                    "Required role: `admin`."
+                "Only actors (users or tools) with the administrator privileges are authorized."
             override fun evaluate(ctx: SecurityRuleCtx): SecurityRuleEvaluatorResult {
                 if (!ctx.isSignedIn()) return SecurityRuleEvaluatorResult.AuthenticationError("You must be signed in.")
-                if (!ctx.isAdmin()) return SecurityRuleEvaluatorResult.AuthorizationError("You must have an administrator role.")
+                if (!ctx.isAdmin()) return SecurityRuleEvaluatorResult.AuthorizationError("You must have an administrator privilege.")
                 return SecurityRuleEvaluatorResult.Ok()
             }
         }

@@ -44,7 +44,9 @@ interface AppPrincipal {
 
     /**
      * Indicates that the principal has Administrator Privileges. It is a convenient way
-     * to know if admin, and redondant with [roles]. If [isAdmin] then [roles] contains some admin role.
+     * to know if admin, and redondant with [permissions].
+     *
+     * If [isAdmin] then [permissions] contains some admin permission.
      */
     val isAdmin: Boolean
 
@@ -56,7 +58,11 @@ interface AppPrincipal {
     val fullname: String
 
     /**
-     * contains roles declared in application for this user. As roles may be gathered by multiple extensions, we don't assume the list, so they are string-like objects for know.
+     * Contains permissions declared in the application for this user.
+     * Permissions usually come from actor roles in auth module and may
+     * be gathered by multiple extensions;
+     *
+     * Don't assume we know the list, so they are string-like objects for know.
      */
-    val roles: List<AppPrincipalRole>
+    val permissions: List<AppPermission>
 }
