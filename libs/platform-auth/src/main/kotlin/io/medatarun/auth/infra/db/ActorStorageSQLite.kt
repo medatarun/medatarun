@@ -3,16 +3,14 @@ package io.medatarun.auth.infra.db
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.infra.db.tables.ActorsTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.exposed.jsonb
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -170,27 +168,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
     }
 
     companion object {
-        private object ActorsTable : Table("actors") {
-            val idColumn = javaUUID("id").transform(ActorIdColumnTransformer())
-            val issuerColumn = text("issuer")
-            val subjectColumn = text("subject")
-            val fullNameColumn = text("full_name")
-            val emailColumn = text("email").nullable()
-            val rolesJsonColumn = jsonb("roles_json")
-            val disabledDateColumn = timestamp("disabled_date").nullable()
-            val createdAtColumn = timestamp("created_at")
-            val lastSeenAtColumn = timestamp("last_seen_at")
-        }
 
-        private class ActorIdColumnTransformer : ColumnTransformer<UUID, ActorId> {
-            override fun unwrap(value: ActorId): UUID {
-                return value.value
-            }
-
-            override fun wrap(value: UUID): ActorId {
-                return ActorId(value)
-            }
-        }
 
         private val listStringSerializer = ListSerializer(String.serializer())
     }
