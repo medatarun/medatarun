@@ -1,7 +1,7 @@
 package io.medatarun.auth.infra.db.tables
 
 import io.medatarun.auth.domain.actor.ActorId
-import io.medatarun.auth.domain.actor.RoleId
+import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.platform.db.exposed.IdTransformer
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID

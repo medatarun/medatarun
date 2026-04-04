@@ -6,12 +6,14 @@ import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
+import io.medatarun.security.AppPermissionStringBased
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
@@ -42,6 +44,13 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.UserDisable -> launcher.disableUser(action)
             is AuthAction.UserEnable -> launcher.enableUser(action)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
+            is AuthAction.RoleCreate -> launcher.createRole(action)
+            is AuthAction.RoleUpdateName -> launcher.updateRoleName(action)
+            is AuthAction.RoleUpdateKey -> launcher.updateRoleKey(action)
+            is AuthAction.RoleUpdateDescription -> launcher.updateRoleDescription(action)
+            is AuthAction.RoleAddPermission -> launcher.addRolePermission(action)
+            is AuthAction.RoleDeletePermission -> launcher.deleteRolePermission(action)
+            is AuthAction.RoleDelete -> launcher.deleteRole(action)
             is AuthAction.ActorList -> launcher.listActors(action)
             is AuthAction.ActorGet -> launcher.getActor(action)
             is AuthAction.ActorSetRoles -> launcher.setActorRoles(action)
@@ -139,6 +148,53 @@ class AuthEmbeddedActionsLauncher(
             cmd.username,
             cmd.fullname
         )
+    }
+
+    fun createRole(cmd: AuthAction.RoleCreate): RoleId {
+        return actorService.createRole(
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description
+        )
+    }
+
+    fun updateRoleName(cmd: AuthAction.RoleUpdateName) {
+        actorService.updateRoleName(
+            roleRef = cmd.roleRef,
+            name = cmd.name
+        )
+    }
+
+    fun updateRoleKey(cmd: AuthAction.RoleUpdateKey) {
+        actorService.updateRoleKey(
+            roleRef = cmd.roleRef,
+            key = cmd.key
+        )
+    }
+
+    fun updateRoleDescription(cmd: AuthAction.RoleUpdateDescription) {
+        actorService.updateRoleDescription(
+            roleRef = cmd.roleRef,
+            description = cmd.description
+        )
+    }
+
+    fun addRolePermission(cmd: AuthAction.RoleAddPermission) {
+        actorService.addRolePermission(
+            roleRef = cmd.roleRef,
+            permission = AppPermissionStringBased(cmd.permission)
+        )
+    }
+
+    fun deleteRolePermission(cmd: AuthAction.RoleDeletePermission) {
+        actorService.deleteRolePermission(
+            roleRef = cmd.roleRef,
+            permission = AppPermissionStringBased(cmd.permission)
+        )
+    }
+
+    fun deleteRole(cmd: AuthAction.RoleDelete) {
+        actorService.deleteRole(cmd.roleRef)
     }
 
 

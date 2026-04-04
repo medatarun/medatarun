@@ -4,6 +4,11 @@ import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.security.AppPermission
 import java.time.Instant
 
 /**
@@ -43,6 +48,57 @@ interface ActorStorage {
      * Replaces roles for a given actor.
      */
     fun updateRoles(id: ActorId, roles: List<ActorRole>)
+
+    /**
+     * Creates a new role.
+     */
+    fun createRole(
+        id: RoleId,
+        key: RoleKey,
+        name: String,
+        description: String?,
+        createdAt: Instant,
+        lastUpdatedAt: Instant
+    )
+
+    fun findRoleByRefOptional(roleRef: RoleRef): Role?
+    fun findRoleByIdOptional(roleId: RoleId): Role?
+    fun findRoleByKeyOptional(key: RoleKey): Role?
+
+    /**
+     * Updates role name.
+     */
+    fun updateRoleName(roleId: RoleId, name: String, lastUpdatedAt: Instant)
+
+    /**
+     * Updates role key.
+     */
+    fun updateRoleKey(roleId: RoleId, key: RoleKey, lastUpdatedAt: Instant)
+
+    /**
+     * Updates role description.
+     */
+    fun updateRoleDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant)
+
+    /**
+     * Returns true when [permission] already exists for [roleId].
+     */
+    fun rolePermissionExists(roleId: RoleId, permission: AppPermission): Boolean
+
+    /**
+     * Adds a permission to a role.
+     */
+    fun addRolePermission(roleId: RoleId, permission: AppPermission)
+
+    /**
+     * Deletes a permission from a role.
+     */
+    fun deleteRolePermission(roleId: RoleId, permission: AppPermission)
+
+    /**
+     * Deletes role permissions and role mappings, then the role itself.
+     */
+    fun deleteRole(roleId: RoleId)
 
     /**
      * Marks an actor disabled with this date.

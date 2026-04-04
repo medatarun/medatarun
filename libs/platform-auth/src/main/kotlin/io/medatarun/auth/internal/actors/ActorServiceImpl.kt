@@ -3,13 +3,22 @@ package io.medatarun.auth.internal.actors
 import io.medatarun.auth.domain.ActorCreateFailedWithNotFoundException
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.AuthUnknownRoleException
+import io.medatarun.auth.domain.RoleAlreadyExistsException
+import io.medatarun.auth.domain.RoleNotFoundException
+import io.medatarun.auth.domain.RolePermissionAlreadyExistsException
+import io.medatarun.auth.domain.RolePermissionNotFoundException
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.auth.ports.needs.AuthClock
+import io.medatarun.security.AppPermission
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
@@ -106,6 +115,62 @@ class ActorServiceImpl(
         actorStorage.updateRoles(existing.id, roles)
     }
 
+    override fun createRole(
+        key: RoleKey,
+        name: String,
+        description: String?
+    ): RoleId {
+        val validatedKey = key.validated()
+        if (actorStorage.findRoleByKeyOptional(validatedKey) != null) {
+            throw RoleAlreadyExistsException(validatedKey.value)
+        }
+        val now = clock.now()
+        val roleId = RoleId.generate()
+        actorStorage.createRole(roleId, validatedKey, name, description, now, now)
+        return roleId
+    }
+
+    override fun updateRoleName(roleRef: RoleRef, name: String) {
+        val role = findRoleByRef(roleRef)
+        actorStorage.updateRoleName(role.id, name, clock.now())
+    }
+
+    override fun updateRoleKey(roleRef: RoleRef, key: RoleKey) {
+        val role = findRoleByRef(roleRef)
+        val validatedKey = key.validated()
+        val existingRole = actorStorage.findRoleByKeyOptional(validatedKey)
+        if (existingRole != null && existingRole.id != role.id) {
+            throw RoleAlreadyExistsException(validatedKey.value)
+        }
+        actorStorage.updateRoleKey(role.id, validatedKey, clock.now())
+    }
+
+    override fun updateRoleDescription(roleRef: RoleRef, description: String?) {
+        val role = findRoleByRef(roleRef)
+        actorStorage.updateRoleDescription(role.id, description, clock.now())
+    }
+
+    override fun addRolePermission(roleRef: RoleRef, permission: AppPermission) {
+        val role = findRoleByRef(roleRef)
+        if (actorStorage.rolePermissionExists(role.id, permission)) {
+            throw RolePermissionAlreadyExistsException(role.id.asString(), permission.key)
+        }
+        actorStorage.addRolePermission(role.id, permission)
+    }
+
+    override fun deleteRolePermission(roleRef: RoleRef, permission: AppPermission) {
+        val role = findRoleByRef(roleRef)
+        if (!actorStorage.rolePermissionExists(role.id, permission)) {
+            throw RolePermissionNotFoundException(role.id.asString(), permission.key)
+        }
+        actorStorage.deleteRolePermission(role.id, permission)
+    }
+
+    override fun deleteRole(roleRef: RoleRef) {
+        val role = findRoleByRef(roleRef)
+        actorStorage.deleteRole(role.id)
+    }
+
     private fun ensureRolesExist(roles: List<ActorRole>): List<ActorRole> {
         roles.forEach {
             if (!appRoles.isKnownRole(it.key)) throw AuthUnknownRoleException(it.key)
@@ -117,6 +182,10 @@ class ActorServiceImpl(
         val existing = actorStorage.findById(actorId)
         if (at == null) actorStorage.enable(existing.id)
         else actorStorage.disable(existing.id, at)
+    }
+
+    private fun findRoleByRef(roleRef: RoleRef): Role {
+        return actorStorage.findRoleByRefOptional(roleRef) ?: throw RoleNotFoundException()
     }
 
     private fun actorDisplayName(principal: AuthJwtExternalPrincipal): String {

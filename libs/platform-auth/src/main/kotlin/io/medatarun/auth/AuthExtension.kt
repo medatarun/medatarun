@@ -7,6 +7,9 @@ import io.medatarun.auth.adapters.AppActorResolverAuth
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
@@ -36,10 +39,15 @@ import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPermission
+import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.key.Key
+import io.medatarun.type.commons.ref.RefTypeJsonConverters
 import io.medatarun.security.SecurityPermissionsProvider
 import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
+import kotlinx.serialization.json.JsonElement
 import java.time.Instant
 import kotlin.reflect.KClass
 
@@ -69,6 +77,9 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RoleIdDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RoleKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RoleRefDescriptor())
         ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage, config.authClock))
     }
 
@@ -110,6 +121,55 @@ class AuthExtension(
             // No validation in entrance because the rules are too specific
             // Business will do it
             return value
+        }
+    }
+
+    class RoleIdDescriptor : TypeDescriptor<RoleId> {
+        override val target: KClass<RoleId> = RoleId::class
+        override val equivMultiplatorm: String = "RoleId"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: RoleId): RoleId {
+            return value
+        }
+    }
+
+    class RoleKeyDescriptor : TypeDescriptor<RoleKey> {
+        override val target: KClass<RoleKey> = RoleKey::class
+        override val equivMultiplatorm: String = "RoleKey"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: RoleKey): RoleKey {
+            return value.validated()
+        }
+    }
+
+    class RoleRefDescriptor : TypeDescriptor<RoleRef> {
+        override val target: KClass<RoleRef> = RoleRef::class
+        override val equivMultiplatorm: String = "RoleRef"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override val description = """A reference to role."""
+        override val jsonConverter: TypeJsonConverter<RoleRef> = RoleRefJsonConverter()
+        override fun validate(value: RoleRef): RoleRef {
+            return when (value) {
+                is RoleRef.ById -> value
+                is RoleRef.ByKey -> {
+                    value.key.validated()
+                    value
+                }
+            }
+        }
+    }
+
+    class RoleRefJsonConverter : TypeJsonConverter<RoleRef> {
+        override fun deserialize(json: JsonElement): RoleRef {
+            return RefTypeJsonConverters.decodeRef(
+                json,
+                whenId = { id ->
+                    RoleRef.ById(Id.fromString(id, ::RoleId))
+                },
+                whenKey = { key ->
+                    RoleRef.ByKey(Key.fromString(key, ::RoleKey))
+                }
+            )
         }
     }
 

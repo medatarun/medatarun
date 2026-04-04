@@ -41,6 +41,12 @@ class ActorCreateFailedWithNotFoundException :
 class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
 
 class AuthUnknownRoleException(val key: String) : MedatarunException("Unknown role: $key")
+class RoleNotFoundException : MedatarunException("Role not found.", StatusCode.NOT_FOUND)
+class RoleAlreadyExistsException(val key: String) : MedatarunException("Role already exists: $key", StatusCode.CONFLICT)
+class RolePermissionAlreadyExistsException(roleId: String, permission: String) :
+    MedatarunException("Role permission already exists for role=$roleId and permission=$permission", StatusCode.CONFLICT)
+class RolePermissionNotFoundException(roleId: String, permission: String) :
+    MedatarunException("Role permission not found for role=$roleId and permission=$permission", StatusCode.NOT_FOUND)
 
 class UsernameEmptyException : MedatarunException("Username can not be empty", StatusCode.BAD_REQUEST)
 class UsernameTooShortException(minsize: Int) :

@@ -3,15 +3,24 @@ package io.medatarun.auth.infra.db
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.auth.domain.role.RoleInMemory
 import io.medatarun.auth.infra.db.tables.ActorTable
+import io.medatarun.auth.infra.db.tables.ActorRoleTable
+import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.infra.db.tables.RolePermissionTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.security.AppPermission
 import io.medatarun.security.AppPermissionStringBased
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -67,6 +76,116 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.rolesJson] = encodeRoles(roles)
             }
+        }
+    }
+
+    override fun createRole(
+        id: RoleId,
+        key: RoleKey,
+        name: String,
+        description: String?,
+        createdAt: Instant,
+        lastUpdatedAt: Instant
+    ) {
+        dbConnectionFactory.withExposed {
+            RoleTable.insert { row ->
+                row[this.id] = id
+                row[this.key] = key
+                row[this.name] = name
+                row[this.description] = description
+                row[this.createdAt] = createdAt
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun findRoleByRefOptional(roleRef: RoleRef): Role? {
+        return when (roleRef) {
+            is RoleRef.ById -> findRoleByIdOptional(roleRef.id)
+            is RoleRef.ByKey -> findRoleByKeyOptional(roleRef.key.validated())
+        }
+    }
+
+    override fun findRoleByIdOptional(roleId: RoleId): Role? {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .where { RoleTable.id eq roleId }
+                .singleOrNull()
+                ?.let { readRole(it) }
+        }
+    }
+
+    override fun findRoleByKeyOptional(key: RoleKey): Role? {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .where { RoleTable.key eq key }
+                .singleOrNull()
+                ?.let { readRole(it) }
+        }
+    }
+
+    override fun updateRoleName(roleId: RoleId, name: String, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.name] = name
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun updateRoleKey(roleId: RoleId, key: RoleKey, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.key] = key
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun updateRoleDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.description] = description
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun rolePermissionExists(roleId: RoleId, permission: AppPermission): Boolean {
+        return dbConnectionFactory.withExposed {
+            RolePermissionTable.selectAll()
+                .where {
+                    (RolePermissionTable.authRoleId eq roleId) and
+                        (RolePermissionTable.permission eq permission)
+                }
+                .empty()
+                .not()
+        }
+    }
+
+    override fun addRolePermission(roleId: RoleId, permission: AppPermission) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.insert { row ->
+                row[this.authRoleId] = roleId
+                row[this.permission] = permission
+            }
+        }
+    }
+
+    override fun deleteRolePermission(roleId: RoleId, permission: AppPermission) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.deleteWhere {
+                (RolePermissionTable.authRoleId eq roleId) and
+                    (RolePermissionTable.permission eq permission)
+            }
+        }
+    }
+
+    override fun deleteRole(roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.deleteWhere { RolePermissionTable.authRoleId eq roleId }
+            ActorRoleTable.deleteWhere { ActorRoleTable.roleId eq roleId }
+            RoleTable.deleteWhere { RoleTable.id eq roleId }
         }
     }
 
@@ -127,6 +246,17 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             disabledDate = row[ActorTable.disabledDate],
             createdAt = row[ActorTable.createdAt],
             lastSeenAt = row[ActorTable.lastSeenAt]
+        )
+    }
+
+    private fun readRole(row: ResultRow): Role {
+        return RoleInMemory(
+            id = row[RoleTable.id],
+            key = row[RoleTable.key],
+            name = row[RoleTable.name],
+            description = row[RoleTable.description],
+            createdAt = row[RoleTable.createdAt],
+            lastUpdatedAt = row[RoleTable.lastUpdatedAt]
         )
     }
 

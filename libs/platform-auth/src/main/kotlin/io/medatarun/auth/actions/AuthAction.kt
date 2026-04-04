@@ -1,13 +1,14 @@
 package io.medatarun.auth.actions
 
 import io.medatarun.actions.actions.ActionUILocation
-import io.medatarun.actions.domain.ActionSemanticsConfig
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
-import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -224,6 +225,160 @@ sealed interface AuthAction<R> {
         )
         val fullname: Fullname,
     ): AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_create",
+        title = "Create role",
+        description = "Create a new role.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleCreate(
+        @ActionParamDoc(
+            name = "key",
+            description = "Role key",
+            order = 1
+        )
+        val key: RoleKey,
+        @ActionParamDoc(
+            name = "name",
+            description = "Role name",
+            order = 2
+        )
+        val name: String,
+        @ActionParamDoc(
+            name = "description",
+            description = "Role description",
+            order = 3
+        )
+        val description: String?
+    ) : AuthAction<RoleId>
+
+    @ActionDoc(
+        key = "role_update_name",
+        title = "Update role name",
+        description = "Update a role name.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleUpdateName(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "name",
+            description = "Role name",
+            order = 2
+        )
+        val name: String
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_update_key",
+        title = "Update role key",
+        description = "Update a role key.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleUpdateKey(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "key",
+            description = "Role key",
+            order = 2
+        )
+        val key: RoleKey
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_update_description",
+        title = "Update role description",
+        description = "Update a role description.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleUpdateDescription(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "description",
+            description = "Role description",
+            order = 2
+        )
+        val description: String?
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_add_permission",
+        title = "Add role permission",
+        description = "Add a permission to a role.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleAddPermission(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "permission",
+            description = "Permission key",
+            order = 2
+        )
+        val permission: String
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_delete_permission",
+        title = "Delete role permission",
+        description = "Delete a permission from a role.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleDeletePermission(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef,
+        @ActionParamDoc(
+            name = "permission",
+            description = "Permission key",
+            order = 2
+        )
+        val permission: String
+    ) : AuthAction<Unit>
+
+    @ActionDoc(
+        key = "role_delete",
+        title = "Delete role",
+        description = "Delete a role.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class RoleDelete(
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role reference",
+            order = 1
+        )
+        val roleRef: RoleRef
+    ) : AuthAction<Unit>
 
     @ActionDoc(
         key="actor_list",

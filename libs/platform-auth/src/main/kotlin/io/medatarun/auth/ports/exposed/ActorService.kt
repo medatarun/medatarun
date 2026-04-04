@@ -3,6 +3,10 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.security.AppPermission
 import java.time.Instant
 
 /**
@@ -69,6 +73,41 @@ interface ActorService {
      * Update roles for an actor
      */
     fun setRoles(actorId: ActorId, roles: List<ActorRole>)
+
+    /**
+     * Creates a role and returns its identifier.
+     */
+    fun createRole(key: RoleKey, name: String, description: String?): RoleId
+
+    /**
+     * Updates role name.
+     */
+    fun updateRoleName(roleRef: RoleRef, name: String)
+
+    /**
+     * Updates role key.
+     */
+    fun updateRoleKey(roleRef: RoleRef, key: RoleKey)
+
+    /**
+     * Updates role description.
+     */
+    fun updateRoleDescription(roleRef: RoleRef, description: String?)
+
+    /**
+     * Adds a permission to a role.
+     */
+    fun addRolePermission(roleRef: RoleRef, permission: AppPermission)
+
+    /**
+     * Deletes a permission from a role.
+     */
+    fun deleteRolePermission(roleRef: RoleRef, permission: AppPermission)
+
+    /**
+     * Deletes a role.
+     */
+    fun deleteRole(roleRef: RoleRef)
 
     /**
      * Disable or enable an actor. A null [at] is "enabled". When a [at] is provided then
