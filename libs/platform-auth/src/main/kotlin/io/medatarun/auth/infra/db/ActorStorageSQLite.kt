@@ -1,6 +1,6 @@
 package io.medatarun.auth.infra.db
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.Role
@@ -36,7 +36,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
+        roles: List<ActorPermission>,
         disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
@@ -71,7 +71,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
+    override fun updateRoles(id: ActorId, roles: List<ActorPermission>) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.rolesJson] = encodeRoles(roles)
@@ -132,7 +132,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun listRolePermissions(roleId: RoleId): List<AppPermission> {
+    override fun listRolePermissions(roleId: RoleId): List<ActorPermission> {
         return dbConnectionFactory.withExposed {
             RolePermissionTable.selectAll()
                 .where { RolePermissionTable.authRoleId eq roleId }
@@ -168,7 +168,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun rolePermissionExists(roleId: RoleId, permission: AppPermission): Boolean {
+    override fun roleHasPermission(roleId: RoleId, permission: ActorPermission): Boolean {
         return dbConnectionFactory.withExposed {
             RolePermissionTable.selectAll()
                 .where {
@@ -180,7 +180,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun addRolePermission(roleId: RoleId, permission: AppPermission) {
+    override fun addRolePermission(roleId: RoleId, permission: ActorPermission) {
         dbConnectionFactory.withExposed {
             RolePermissionTable.insert { row ->
                 row[this.authRoleId] = roleId
@@ -189,7 +189,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun deleteRolePermission(roleId: RoleId, permission: AppPermission) {
+    override fun deleteRolePermission(roleId: RoleId, permission: ActorPermission) {
         dbConnectionFactory.withExposed {
             RolePermissionTable.deleteWhere {
                 (RolePermissionTable.authRoleId eq roleId) and
@@ -277,13 +277,13 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         )
     }
 
-    private fun encodeRoles(roles: List<ActorRole>): String {
+    private fun encodeRoles(roles: List<ActorPermission>): String {
         return json.encodeToString(listStringSerializer, roles.map { it.key })
     }
 
-    private fun decodeRoles(rolesJson: String): List<ActorRole> {
+    private fun decodeRoles(rolesJson: String): List<ActorPermission> {
         return json.decodeFromString(listStringSerializer, rolesJson)
-            .map { ActorRole(it) }
+            .map { ActorPermission(it) }
     }
 
     fun renamePermissions(oldToNewPermissions: Map<String, String>) {
@@ -295,12 +295,12 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 val actorId = row[ActorTable.id]
                 val currentRoles = decodeRoles(row[ActorTable.rolesJson])
                 var hasChanges = false
-                val renamedRoles = mutableListOf<ActorRole>()
+                val renamedRoles = mutableListOf<ActorPermission>()
                 currentRoles.forEach { role ->
                     val newRoleName = oldToNewPermissions[role.key]
                     if (newRoleName != null) {
                         hasChanges = true
-                        renamedRoles.add(ActorRole(newRoleName))
+                        renamedRoles.add(ActorPermission(newRoleName))
                     } else {
                         renamedRoles.add(role)
                     }
@@ -314,9 +314,9 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
             oldToNewPermissions.forEach { (oldPermission, newPermission) ->
                 RolePermissionTable.update(
-                    where = { RolePermissionTable.permission eq AppPermissionStringBased(oldPermission) }
+                    where = { RolePermissionTable.permission eq ActorPermission(oldPermission) }
                 ) { updateRow ->
-                    updateRow[permission] = AppPermissionStringBased(newPermission)
+                    updateRow[permission] = ActorPermission(newPermission)
                 }
             }
         }

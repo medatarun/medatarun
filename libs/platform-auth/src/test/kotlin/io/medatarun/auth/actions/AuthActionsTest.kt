@@ -1,6 +1,6 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
@@ -57,7 +57,7 @@ class AuthActionsTest {
         val actor = actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), user.username.value)
         assertNotNull(actor)
         assertEquals(1, actor.roles.size)
-        assertTrue(actor.roles.any { it.key == ActorRole.ADMIN.key })
+        assertTrue(actor.roles.any { it.key == ActorPermission.ADMIN.key })
     }
 
     @Test
@@ -131,7 +131,7 @@ class AuthActionsTest {
         assertEquals(whoamiAdmin.admin, true)
         assertEquals(whoamiAdmin.sub, env.env.adminUsername.value)
         assertTrue(whoamiAdmin.roles.size == 1)
-        assertEquals(ActorRole.ADMIN.key, whoamiAdmin.roles[0])
+        assertEquals(ActorPermission.ADMIN.key, whoamiAdmin.roles[0])
 
         env.asUser(username)
         val whoamiUser = env.dispatch(AuthAction.WhoAmI())

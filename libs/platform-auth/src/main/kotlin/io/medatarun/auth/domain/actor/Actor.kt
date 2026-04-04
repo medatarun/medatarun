@@ -1,6 +1,6 @@
 package io.medatarun.auth.domain.actor
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import java.time.Instant
 
 /**
@@ -47,7 +47,7 @@ data class Actor(
      *
      * Roles in Actor are the official source of roles (roles are not on User but on Actor).
      */
-    val roles: List<ActorRole>,
+    val roles: List<ActorPermission>,
     /**
      * Date this actor was disabled, if disabled. Otherwise null if actor is enabled.
      */

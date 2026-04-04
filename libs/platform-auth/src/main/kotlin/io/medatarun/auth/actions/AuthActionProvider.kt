@@ -3,7 +3,7 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.role.RoleId
@@ -199,14 +199,14 @@ class AuthEmbeddedActionsLauncher(
     fun roleAddPermission(cmd: AuthAction.RoleAddPermission) {
         actorService.addRolePermission(
             roleRef = cmd.roleRef,
-            permission = AppPermissionStringBased(cmd.permissionKey)
+            permission = ActorPermission(cmd.permissionKey)
         )
     }
 
     fun roleDeletePermission(cmd: AuthAction.RoleDeletePermission) {
         actorService.deleteRolePermission(
             roleRef = cmd.roleRef,
-            permission = AppPermissionStringBased(cmd.permissionKey)
+            permission = ActorPermission(cmd.permissionKey)
         )
     }
 
@@ -224,7 +224,7 @@ class AuthEmbeddedActionsLauncher(
     }
 
     fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
-        actorService.setRoles(cmd.actorId, cmd.roles.map { ActorRole(it) })
+        actorService.setRoles(cmd.actorId, cmd.roles.map { ActorPermission(it) })
     }
 
 

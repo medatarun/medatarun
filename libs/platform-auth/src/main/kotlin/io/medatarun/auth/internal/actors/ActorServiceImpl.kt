@@ -1,12 +1,6 @@
 package io.medatarun.auth.internal.actors
 
-import io.medatarun.auth.domain.ActorCreateFailedWithNotFoundException
-import io.medatarun.auth.domain.ActorRole
-import io.medatarun.auth.domain.AuthUnknownRoleException
-import io.medatarun.auth.domain.RoleAlreadyExistsException
-import io.medatarun.auth.domain.RoleNotFoundException
-import io.medatarun.auth.domain.RolePermissionAlreadyExistsException
-import io.medatarun.auth.domain.RolePermissionNotFoundException
+import io.medatarun.auth.domain.*
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.Role
@@ -15,17 +9,16 @@ import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
-import io.medatarun.auth.ports.needs.ActorRolesRegistry
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.security.AppPermission
+import io.medatarun.auth.ports.needs.PermissionsRegistry
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
 class ActorServiceImpl(
     private val actorStorage: ActorStorage,
     private val clock: AuthClock,
-    private val appRoles: ActorRolesRegistry
+    private val appRoles: PermissionsRegistry
 ) : ActorService {
 
     override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor {
@@ -73,10 +66,10 @@ class ActorServiceImpl(
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
+        roles: List<ActorPermission>,
         disabled: Instant?
     ): Actor {
-        ensureRolesExist(roles)
+        ensurePermissionsExist(roles)
         val id = ActorId.generate()
         actorStorage.insert(
             id = id,
@@ -109,8 +102,8 @@ class ActorServiceImpl(
         return actorStorage.findByIdOptional(actorId)
     }
 
-    override fun setRoles(actorId: ActorId, roles: List<ActorRole>) {
-        ensureRolesExist(roles)
+    override fun setRoles(actorId: ActorId, roles: List<ActorPermission>) {
+        ensurePermissionsExist(roles)
         val existing = actorStorage.findById(actorId)
         actorStorage.updateRoles(existing.id, roles)
     }
@@ -123,7 +116,7 @@ class ActorServiceImpl(
         return actorStorage.findRoleByRefOptional(roleRef) ?: throw RoleNotFoundException()
     }
 
-    override fun listRolePermissions(roleRef: RoleRef): List<AppPermission> {
+    override fun listRolePermissions(roleRef: RoleRef): List<ActorPermission> {
         val role = findRoleByRef(roleRef)
         return actorStorage.listRolePermissions(role.id)
     }
@@ -163,17 +156,18 @@ class ActorServiceImpl(
         actorStorage.updateRoleDescription(role.id, description, clock.now())
     }
 
-    override fun addRolePermission(roleRef: RoleRef, permission: AppPermission) {
+    override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
         val role = findRoleByRef(roleRef)
-        if (actorStorage.rolePermissionExists(role.id, permission)) {
+        ensurePermissionExists(permission)
+        if (actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionAlreadyExistsException(role.id.asString(), permission.key)
         }
         actorStorage.addRolePermission(role.id, permission)
     }
 
-    override fun deleteRolePermission(roleRef: RoleRef, permission: AppPermission) {
+    override fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission) {
         val role = findRoleByRef(roleRef)
-        if (!actorStorage.rolePermissionExists(role.id, permission)) {
+        if (!actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionNotFoundException(role.id.asString(), permission.key)
         }
         actorStorage.deleteRolePermission(role.id, permission)
@@ -184,11 +178,16 @@ class ActorServiceImpl(
         actorStorage.deleteRole(role.id)
     }
 
-    private fun ensureRolesExist(roles: List<ActorRole>): List<ActorRole> {
-        roles.forEach {
-            if (!appRoles.isKnownRole(it.key)) throw AuthUnknownRoleException(it.key)
+    private fun ensurePermissionsExist(permissions: List<ActorPermission>): List<ActorPermission> {
+        permissions.forEach {
+            if (!appRoles.isKnownPermission(it.key)) throw AuthUnknownPermissionException(it.key)
         }
-        return roles
+        return permissions
+    }
+
+    private fun ensurePermissionExists(p: ActorPermission): ActorPermission {
+        if (!appRoles.isKnownPermission(p)) throw AuthUnknownPermissionException(p.key)
+        return p
     }
 
     override fun disable(actorId: ActorId, at: Instant?) {

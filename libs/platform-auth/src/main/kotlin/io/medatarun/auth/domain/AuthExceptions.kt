@@ -40,7 +40,7 @@ class ActorCreateFailedWithNotFoundException :
 
 class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
 
-class AuthUnknownRoleException(val key: String) : MedatarunException("Unknown role: $key")
+class AuthUnknownPermissionException(val key: String) : MedatarunException("Unknown role: $key")
 class RoleNotFoundException : MedatarunException("Role not found.", StatusCode.NOT_FOUND)
 class RoleAlreadyExistsException(val key: String) : MedatarunException("Role already exists: $key", StatusCode.CONFLICT)
 class RolePermissionAlreadyExistsException(roleId: String, permission: String) :

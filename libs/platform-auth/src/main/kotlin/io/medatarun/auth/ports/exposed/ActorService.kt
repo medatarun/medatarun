@@ -1,6 +1,6 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.Role
@@ -73,7 +73,7 @@ interface ActorService {
     /**
      * Update roles for an actor
      */
-    fun setRoles(actorId: ActorId, roles: List<ActorRole>)
+    fun setRoles(actorId: ActorId, roles: List<ActorPermission>)
 
     /**
      * Lists all roles.
@@ -88,7 +88,7 @@ interface ActorService {
     /**
      * Lists permissions for a role.
      */
-    fun listRolePermissions(roleRef: RoleRef): List<AppPermission>
+    fun listRolePermissions(roleRef: RoleRef): List<ActorPermission>
 
     /**
      * Creates a role and returns its identifier.
@@ -113,12 +113,12 @@ interface ActorService {
     /**
      * Adds a permission to a role.
      */
-    fun addRolePermission(roleRef: RoleRef, permission: AppPermission)
+    fun addRolePermission(roleRef: RoleRef, permission: ActorPermission)
 
     /**
      * Deletes a permission from a role.
      */
-    fun deleteRolePermission(roleRef: RoleRef, permission: AppPermission)
+    fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission)
 
     /**
      * Deletes a role.
@@ -147,7 +147,7 @@ interface ActorService {
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
+        roles: List<ActorPermission>,
         disabled: Instant?
     ): Actor
 

@@ -1,7 +1,7 @@
 package io.medatarun.auth.internal.users
 
 import io.medatarun.auth.domain.ActorNotFoundException
-import io.medatarun.auth.domain.ActorRole.Companion.ADMIN
+import io.medatarun.auth.domain.ActorPermission.Companion.ADMIN
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.needs.*

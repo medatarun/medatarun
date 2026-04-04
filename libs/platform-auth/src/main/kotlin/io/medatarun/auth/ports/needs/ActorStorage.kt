@@ -1,14 +1,13 @@
 package io.medatarun.auth.ports.needs
 
 import io.medatarun.auth.domain.ActorNotFoundException
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
-import io.medatarun.security.AppPermission
 import java.time.Instant
 
 /**
@@ -28,7 +27,7 @@ interface ActorStorage {
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
+        roles: List<ActorPermission>,
         disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
@@ -47,7 +46,7 @@ interface ActorStorage {
     /**
      * Replaces roles for a given actor.
      */
-    fun updateRoles(id: ActorId, roles: List<ActorRole>)
+    fun updateRoles(id: ActorId, roles: List<ActorPermission>)
 
     /**
      * Creates a new role.
@@ -65,7 +64,7 @@ interface ActorStorage {
     fun findRoleByIdOptional(roleId: RoleId): Role?
     fun findRoleByKeyOptional(key: RoleKey): Role?
     fun listRoles(): List<Role>
-    fun listRolePermissions(roleId: RoleId): List<AppPermission>
+    fun listRolePermissions(roleId: RoleId): List<ActorPermission>
 
     /**
      * Updates role name.
@@ -85,17 +84,17 @@ interface ActorStorage {
     /**
      * Returns true when [permission] already exists for [roleId].
      */
-    fun rolePermissionExists(roleId: RoleId, permission: AppPermission): Boolean
+    fun roleHasPermission(roleId: RoleId, permission: ActorPermission): Boolean
 
     /**
      * Adds a permission to a role.
      */
-    fun addRolePermission(roleId: RoleId, permission: AppPermission)
+    fun addRolePermission(roleId: RoleId, permission: ActorPermission)
 
     /**
      * Deletes a permission from a role.
      */
-    fun deleteRolePermission(roleId: RoleId, permission: AppPermission)
+    fun deleteRolePermission(roleId: RoleId, permission: ActorPermission)
 
     /**
      * Deletes role permissions and role mappings, then the role itself.
