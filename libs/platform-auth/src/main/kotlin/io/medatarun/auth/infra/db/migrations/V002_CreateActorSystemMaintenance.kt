@@ -3,6 +3,7 @@ package io.medatarun.auth.infra.db.migrations
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
+import io.medatarun.platform.db.jdbc.setInstant
 import io.medatarun.security.AppActorSystemMaintenance
 import java.sql.Types
 
@@ -37,8 +38,8 @@ class V002_CreateActorSystemMaintenance {
                 statement.setString(4, AppActorSystemMaintenance.displayName)
                 statement.setString(5, null)
                 statement.setString(7, null)
-                statement.setObject(8, createdAt)
-                statement.setObject(9, createdAt)
+                statement.setInstant(8, createdAt)
+                statement.setInstant(9, createdAt)
                 statement.executeUpdate()
             }
         }

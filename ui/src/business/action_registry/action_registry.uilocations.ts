@@ -1,6 +1,8 @@
 export const ActionUILocations = {
   none: "none",
   admin_database_drivers: "admin_database_drivers",
+  auth_role: "auth_role",
+  auth_roles: "auth_roles",
   entity: "entity",
   entity_attribute: "entity.attribute",
   entity_attributes: "entity.attributes",

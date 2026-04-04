@@ -106,6 +106,16 @@ export function useMenu() {
       icon: "dashboard",
       rule: undefined,
     },
+    {
+      id: "admin_auth_roles",
+      parentId: "admin",
+      type: "page",
+      path: "/admin/roles",
+      label: t("menu_admin_authRoles"),
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined,
+    },
   ];
   const nav = navigationItemsBase
     .filter((it) => it.id !== "commands" || isDetailLevelTech)

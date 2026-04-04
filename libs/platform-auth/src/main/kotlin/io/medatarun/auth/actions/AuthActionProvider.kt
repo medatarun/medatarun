@@ -178,35 +178,35 @@ class AuthEmbeddedActionsLauncher(
     fun roleUpdateName(cmd: AuthAction.RoleUpdateName) {
         actorService.updateRoleName(
             roleRef = cmd.roleRef,
-            name = cmd.name
+            name = cmd.value
         )
     }
 
     fun roleUpdateKey(cmd: AuthAction.RoleUpdateKey) {
         actorService.updateRoleKey(
             roleRef = cmd.roleRef,
-            key = cmd.key
+            key = cmd.value
         )
     }
 
     fun roleUpdateDescription(cmd: AuthAction.RoleUpdateDescription) {
         actorService.updateRoleDescription(
             roleRef = cmd.roleRef,
-            description = cmd.description
+            description = cmd.value
         )
     }
 
     fun roleAddPermission(cmd: AuthAction.RoleAddPermission) {
         actorService.addRolePermission(
             roleRef = cmd.roleRef,
-            permission = AppPermissionStringBased(cmd.permission)
+            permission = AppPermissionStringBased(cmd.permissionKey)
         )
     }
 
     fun roleDeletePermission(cmd: AuthAction.RoleDeletePermission) {
         actorService.deleteRolePermission(
             roleRef = cmd.roleRef,
-            permission = AppPermissionStringBased(cmd.permission)
+            permission = AppPermissionStringBased(cmd.permissionKey)
         )
     }
 

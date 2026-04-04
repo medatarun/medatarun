@@ -8,3 +8,21 @@ export interface WhoAmIRespDto {
   /** List of named permissions */
   permissions: string[];
 }
+
+export interface RoleInfoDto {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  lastUpdatedAt: string;
+}
+
+export interface RoleListDto {
+  items: RoleInfoDto[];
+}
+
+export interface RoleDetailsDto {
+  role: RoleInfoDto;
+  permissions: string[];
+}

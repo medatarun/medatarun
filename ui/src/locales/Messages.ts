@@ -1,4 +1,6 @@
 import { type ActionPerformerViewMessages } from "./contracts/ActionPerformerViewMessages";
+import { type AuthRolePageMessages } from "./contracts/AuthRolePageMessages";
+import { type AuthRolesPageMessages } from "./contracts/AuthRolesPageMessages";
 import { type EntityPageMessages } from "./contracts/EntityPageMessages";
 import { type AttributePageMessages } from "./contracts/AttributePageMessages";
 import { type CommandsPageMessages } from "./contracts/CommandsPageMessages";
@@ -31,6 +33,8 @@ import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
 export type Messages = SessionMessages &
   AttributePageMessages &
   ActionPerformerViewMessages &
+  AuthRolePageMessages &
+  AuthRolesPageMessages &
   CommandsPageMessages &
   DashboardPageMessages &
   PreferencesPageMessages &

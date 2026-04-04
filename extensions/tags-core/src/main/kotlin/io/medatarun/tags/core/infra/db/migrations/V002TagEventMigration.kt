@@ -1,18 +1,19 @@
-package io.medatarun.tags.core.infra.db
+package io.medatarun.tags.core.infra.db.migrations
 
 import io.medatarun.lang.exceptions.MedatarunException
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.platform.db.jdbc.getUuidFromString
+import io.medatarun.platform.db.jdbc.setInstant
 import io.medatarun.platform.db.jdbc.setUUID
 import io.medatarun.security.AppActorId
-import io.medatarun.type.commons.instant.InstantAdapters
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.sql.Types
 import java.time.Instant
 import java.util.UUID
 
@@ -69,8 +70,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                     historyStatement.setString(4, rs.getString("key"))
                     historyStatement.setString(5, rs.getString("name"))
                     historyStatement.setString(6, rs.getString("description"))
-                    historyStatement.setString(7, InstantAdapters.toSqlTimestampString(migrationInstant))
-                    historyStatement.setNull(8, java.sql.Types.VARCHAR)
+                    historyStatement.setInstant(7, migrationInstant)
+                    historyStatement.setNull(8, Types.VARCHAR)
                     historyStatement.executeUpdate()
                 }
             }
@@ -118,8 +119,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                     historyStatement.setString(7, rs.getString("key"))
                     historyStatement.setString(8, rs.getString("name"))
                     historyStatement.setString(9, rs.getString("description"))
-                    historyStatement.setString(10, InstantAdapters.toSqlTimestampString(migrationInstant))
-                    historyStatement.setNull(11, java.sql.Types.VARCHAR)
+                    historyStatement.setInstant(10, migrationInstant)
+                    historyStatement.setNull(11, Types.VARCHAR)
                     historyStatement.executeUpdate()
                 }
             }
@@ -156,7 +157,7 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         statement.setInt(6, EVENT_VERSION_1)
         statement.setUUID(7, maintenanceActorId.value)
         statement.setString(8, TRACEABILITY_ORIGIN)
-        statement.setString(9, InstantAdapters.toSqlTimestampString(createdAt))
+        statement.setInstant(9, createdAt)
         statement.setString(10, payload)
         statement.executeUpdate()
     }

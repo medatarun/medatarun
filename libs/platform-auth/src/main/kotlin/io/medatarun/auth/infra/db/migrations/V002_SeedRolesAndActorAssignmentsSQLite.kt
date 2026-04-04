@@ -3,6 +3,7 @@ package io.medatarun.auth.infra.db.migrations
 import io.medatarun.auth.ports.needs.AuthClock
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbMigrationContext
+import io.medatarun.platform.db.jdbc.setInstant
 import io.medatarun.platform.db.jdbc.setUUID
 
 class V002_SeedRolesAndActorAssignmentsSQLite(
@@ -27,16 +28,16 @@ class V002_SeedRolesAndActorAssignmentsSQLite(
                 statement.setString(2, "admin")
                 statement.setString(3, "Admin")
                 statement.setString(4, null)
-                statement.setObject(5, now)
-                statement.setObject(6, now)
+                statement.setInstant(5, now)
+                statement.setInstant(6, now)
                 statement.executeUpdate()
 
                 statement.setUUID(1, managerRoleId)
                 statement.setString(2, "manager")
                 statement.setString(3, "Manager")
                 statement.setString(4, "Initial role created by the system. You can discard it if not needed.")
-                statement.setObject(5, now)
-                statement.setObject(6, now)
+                statement.setInstant(5, now)
+                statement.setInstant(6, now)
                 statement.executeUpdate()
             }
 

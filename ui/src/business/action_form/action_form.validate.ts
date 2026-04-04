@@ -70,6 +70,10 @@ export function validateForm({
       result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "RelationshipCardinality")
       result = validateString(formField, formData[formField.key]);
+    else if (formField.type === "RoleKey")
+      result = validateKey(formField, formData[formField.key]);
+    else if (formField.type === "RoleRef")
+      result = validateRef(formField, formData[formField.key]);
     else
       result = invalid(
         t("formValidation_unsupportedType", { type: formField.type }),

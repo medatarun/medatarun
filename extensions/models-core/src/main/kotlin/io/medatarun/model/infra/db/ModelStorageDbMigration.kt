@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db
 
+import io.medatarun.model.infra.db.migrations.V002_ModelFixTypeEvents
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
