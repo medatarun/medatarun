@@ -2,6 +2,7 @@ package io.medatarun.model.infra.db.tables
 
 import io.medatarun.model.domain.ModelEventId
 import io.medatarun.model.domain.ModelId
+import io.medatarun.platform.db.exposed.IdTransformer
 import io.medatarun.platform.db.exposed.jsonb
 import io.medatarun.security.AppActorId
 import org.jetbrains.exposed.v1.core.Table

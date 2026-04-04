@@ -1,8 +1,8 @@
-package io.medatarun.tags.core.infra.db.types
+package io.medatarun.platform.db.exposed
 
 import io.medatarun.type.commons.id.Id
 import org.jetbrains.exposed.v1.core.ColumnTransformer
-import java.util.*
+import java.util.UUID
 
 class IdTransformer<T : Id<T>>(private val constructor: (value: UUID) -> T) : ColumnTransformer<UUID, T> {
     override fun unwrap(value: T): UUID {

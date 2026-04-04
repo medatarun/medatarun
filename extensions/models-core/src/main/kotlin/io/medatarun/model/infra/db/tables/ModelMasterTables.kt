@@ -1,6 +1,8 @@
 package io.medatarun.model.infra.db.tables
 
 import io.medatarun.model.domain.*
+import io.medatarun.platform.db.exposed.IdTransformer
+import io.medatarun.platform.db.exposed.KeyTransformer
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
