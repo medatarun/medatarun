@@ -27,6 +27,7 @@ import { tagGroupsPageMessages } from "./en/TagGroupsPageMessages";
 import { tagsTableMessages } from "./en/TagsTableMessages";
 import { typePageMessages } from "./en/TypePageMessages";
 import { typesTableMessages } from "./en/TypesTableMessages";
+import { menuMessages } from "./en/MenuMessages.ts";
 
 export const messages = {
   ...sessionMessages,
@@ -43,6 +44,7 @@ export const messages = {
   ...inlineEditSingleLineLayoutMessages,
   ...inlineEditTagsMessages,
   ...layoutMessages,
+  ...menuMessages,
   ...modelsPageMessages,
   ...modelComparePageMessages,
   ...modelHistoryPageMessages,

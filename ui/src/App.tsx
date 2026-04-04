@@ -41,6 +41,15 @@ import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
 import { TagEdit } from "@/views/tags/TagEdit.tsx";
 import { ModelComparePage } from "@/views/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
+import { AdminDbDriverPage } from "@/views/admin-db/AdminDbDriverPage.tsx";
+import { AdminDbDatasourcesPage } from "@/views/admin-db/AdminDbDatasourcesPage.tsx";
+
+function AdminDbDatasourcesRouteComponent() {
+  return <AdminDbDatasourcesPage />;
+}
+function AdminDbDriverRouteComponent() {
+  return <AdminDbDriverPage />;
+}
 
 function AuthenticationCallbackComponent() {
   const navigate = useNavigate();
@@ -164,7 +173,16 @@ function TypeRouteComponent() {
 const rootRoute = createRootRoute({
   component: Layout,
 });
-
+const adminDbDatasourcesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/db-datasources",
+  component: AdminDbDatasourcesRouteComponent,
+});
+const adminDbDriverRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/db-drivers",
+  component: AdminDbDriverRouteComponent,
+});
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
@@ -277,6 +295,8 @@ const typeRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
+  adminDbDriverRoute,
+  adminDbDatasourcesRoute,
   authenticationCallbackRoute,
   authenticationLoginRoute,
   authenticationLogoutRoute,

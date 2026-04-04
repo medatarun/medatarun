@@ -26,6 +26,7 @@ import { type TagGroupsPageMessages } from "./contracts/TagGroupsPageMessages";
 import { type TagsTableMessages } from "./contracts/TagsTableMessages";
 import { type TypePageMessages } from "./contracts/TypePageMessages";
 import { type TypesTableMessages } from "./contracts/TypesTableMessages";
+import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
 
 export type Messages = SessionMessages &
   AttributePageMessages &
@@ -41,6 +42,7 @@ export type Messages = SessionMessages &
   InlineEditSingleLineLayoutMessages &
   InlineEditTagsMessages &
   LayoutMessages &
+  MenuMessages &
   ModelsPageMessages &
   ModelComparePageMessages &
   ModelHistoryPageMessages &
