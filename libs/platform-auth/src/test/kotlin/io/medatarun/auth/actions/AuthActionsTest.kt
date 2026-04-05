@@ -460,7 +460,7 @@ class AuthActionsTest {
         )
         assertNotNull(actor)
 
-        val actorInfo: ActorInfoDto = env.dispatch(AuthAction.ActorGet(actor.id))
+        val actorInfo: ActorDetailDto = env.dispatch(AuthAction.ActorGet(actor.id))
         assertEquals(actor.id.value.toString(), actorInfo.id)
         assertEquals("jane.doe", actorInfo.subject)
         assertEquals("Jane Doe", actorInfo.fullname)
@@ -480,7 +480,6 @@ class AuthActionsTest {
             override val issuedAt: Instant? = null
             override val expiresAt: Instant? = null
             override val audience: List<String> = emptyList()
-            override val roles: List<String> = emptyList()
             override val name: String? = name
             override val fullname: String? = null
             override val preferredUsername: String? = null

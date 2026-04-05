@@ -12,7 +12,7 @@ data class ActorPermission(val key: String) {
     /**
      * Indicates this role provides administrative permissions.
      */
-    fun isAdminRole(): Boolean { return key == ADMIN.key}
+    fun isAdminPermission(): Boolean { return key == ADMIN.key}
 
     companion object {
         val ADMIN = ActorPermission("admin")

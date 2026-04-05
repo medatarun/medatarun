@@ -17,5 +17,5 @@ internal object ActorTable : Table("auth_actor") {
     val disabledDate = timestamp("disabled_date").nullable()
     val createdAt = timestamp("created_at")
     val lastSeenAt = timestamp("last_seen_at")
+    override val primaryKey = PrimaryKey(id)
 }
-

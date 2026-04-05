@@ -81,7 +81,7 @@ class AuthActionEnvTest(
                 override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
-                override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }
+                override val isAdmin: Boolean = actor.roles.any { it.isAdminPermission() }
                 override val permissions: List<AppPermission> = actor.roles.map(ActorRoleAdapters::toAppPermission)
                 override val fullname: String = actor.fullname
             }

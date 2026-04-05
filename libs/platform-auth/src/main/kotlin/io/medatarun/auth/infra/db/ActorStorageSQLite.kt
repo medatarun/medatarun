@@ -1,5 +1,6 @@
 package io.medatarun.auth.infra.db
 
+import io.medatarun.auth.adapters.ActorInMemory
 import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
@@ -20,7 +21,6 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -246,11 +246,27 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun findActorRoleIdList(actorId: ActorId): List<RoleId> {
+    override fun findActorRoleIdList(actorId: ActorId): Set<RoleId> {
         return dbConnectionFactory.withExposed {
             ActorRoleTable.selectAll()
                 .where { ActorRoleTable.actorId eq actorId }
                 .map { it[ActorRoleTable.roleId] }
+                .distinct()
+                .toSet()
+        }
+    }
+
+    override fun findActorPermissionSet(id: ActorId): Set<ActorPermission> {
+        return dbConnectionFactory.withExposed {
+            ActorRoleTable
+                .innerJoin(RoleTable)
+                .innerJoin(RolePermissionTable)
+                .selectAll()
+                .where { ActorRoleTable.actorId eq id }
+                .orderBy(RolePermissionTable.permission to SortOrder.ASC)
+                .map { it[RolePermissionTable.permission] }
+                .distinct()
+                .toSet()
         }
     }
 
@@ -274,7 +290,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     private fun readActor(row: ResultRow): Actor {
         val rolesJson = row[ActorTable.rolesJson]
-        return Actor(
+        return ActorInMemory(
             id = row[ActorTable.id],
             issuer = row[ActorTable.issuer],
             subject = row[ActorTable.subject],

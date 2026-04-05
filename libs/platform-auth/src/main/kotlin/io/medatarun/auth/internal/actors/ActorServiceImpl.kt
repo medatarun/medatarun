@@ -1,8 +1,10 @@
 package io.medatarun.auth.internal.actors
 
+import io.medatarun.auth.adapters.ActorWithPermissionsInMemory
 import io.medatarun.auth.domain.*
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
@@ -21,7 +23,7 @@ class ActorServiceImpl(
     private val appRoles: PermissionsRegistry
 ) : ActorService {
 
-    override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor {
+    override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): ActorWithPermissions {
         val existing = actorStorage.findActorByIssuerAndSubjectOptional(principal.issuer, principal.subject)
 
         val actor = if (existing == null) {
@@ -38,8 +40,8 @@ class ActorServiceImpl(
         } else {
             updateActorProfile(existing, principal)
         }
-
-        return actor
+        val permissionSet = actorStorage.findActorPermissionSet(actor.id)
+        return ActorWithPermissionsInMemory(actor, permissionSet)
     }
 
     fun updateActorProfile(
@@ -187,6 +189,14 @@ class ActorServiceImpl(
         val alreadyHasRole = existingRoles.contains(role.id)
         if (!alreadyHasRole) throw ActorDeleteRoleNotFoundException(actorId, role.id)
         actorStorage.actorDeleteRole(actor.id, role.id)
+    }
+
+    override fun findActorPermissionSet(id: ActorId): Set<ActorPermission> {
+        return actorStorage.findActorPermissionSet(id)
+    }
+
+    override fun findActorRoleIdSet(actorId: ActorId): Set<RoleId> {
+        return actorStorage.findActorRoleIdList(actorId)
     }
 
     override fun deleteRole(roleRef: RoleRef) {

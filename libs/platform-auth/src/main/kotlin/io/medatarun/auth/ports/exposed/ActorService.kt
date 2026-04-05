@@ -3,6 +3,7 @@ package io.medatarun.auth.ports.exposed
 import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
@@ -48,7 +49,7 @@ interface ActorService {
      * When the actor exists, we extract the fullname and email and update it (because they may
      * have changed in external IdP.)
      */
-    fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor
+    fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): ActorWithPermissions
 
     /**
      * Finds an actor based on its issuer and subject
@@ -153,5 +154,7 @@ interface ActorService {
 
     fun actorAddRole(actorId: ActorId, roleRef: RoleRef)
     fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef)
+    fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
+    fun findActorRoleIdSet(actorId: ActorId): Set<RoleId>
 
 }

@@ -274,7 +274,6 @@ class ActorServiceTest {
             override val issuedAt: Instant? = null
             override val expiresAt: Instant? = null
             override val audience: List<String> = emptyList()
-            override val roles: List<String> = emptyList()
             override val name: String? = name
             override val fullname: String? = fullname
             override val preferredUsername: String? = preferredUsername

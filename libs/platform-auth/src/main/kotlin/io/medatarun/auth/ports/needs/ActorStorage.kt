@@ -74,11 +74,16 @@ interface ActorStorage {
      * List all known actors
      */
     fun findActorList(): List<Actor>
-    
+
     /**
-     * Lists all role ids affected to actor
+     * Lists all role ids affected to an actor
      */
-    fun findActorRoleIdList(actorId: ActorId): List<RoleId>
+    fun findActorRoleIdList(actorId: ActorId): Set<RoleId>
+
+    /**
+     * Finds the set of permission for this actor. It is the list of unique permissions found in all roles affected to this actor.
+     */
+    fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
 
     // -------------------------------------------------------------------------
     // Queries

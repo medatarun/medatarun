@@ -6,12 +6,14 @@ import java.time.Instant
 
 
 @Serializable
-data class ActorInfoDto(
+data class ActorDetailDto(
     val id: String,
     val issuer: String,
     val subject: String,
     val fullname: String,
     val email: String?,
+    val roles: Set<String>,
+    val permissions: Set<String>,
     val disabledAt: String?,
     @Serializable(with = InstantAsIsoStringSerializer::class)
     val createdAt: Instant,

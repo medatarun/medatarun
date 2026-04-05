@@ -6,7 +6,9 @@ import io.ktor.server.auth.jwt.*
 import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorDisabledException
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.security.AppActorId
@@ -47,14 +49,12 @@ class AppPrincipalFactory(
     class AuthJwtExternalPrincipalImpl(principal: JWTPrincipal) : AuthJwtExternalPrincipal {
         val principalIssuer = principal.issuer ?: throw JwtInvalidTokenException()
         val principalSubject = principal.subject ?: throw JwtInvalidTokenException()
-        val principalRoles = emptyList<String>()
         val principalClaims = principal.payload.claims?.map { it.key to it.value?.asString() }?.toMap() ?: emptyMap()
         override val issuer: String = principalIssuer
         override val subject: String = principalSubject
         override val issuedAt: Instant? = principal.issuedAt?.toInstant()
         override val expiresAt: Instant? = principal.expiresAt?.toInstant()
         override val audience: List<String> = principal.audience
-        override val roles: List<String> = principalRoles
         override val name: String? = principalClaims["name"]
         override val fullname: String? = principalClaims["fullname"]
         override val preferredUsername: String? = principalClaims["preferred_username"]
@@ -62,13 +62,13 @@ class AppPrincipalFactory(
     }
 
 
-    private fun toAppPrincipal(actor: Actor): AppPrincipal {
+    private fun toAppPrincipal(actor: ActorWithPermissions): AppPrincipal {
         return object : AppPrincipal {
             override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
-            override val isAdmin: Boolean = actor.roles.any { it.isAdminRole() }
-            override val permissions: List<AppPermission> = actor.roles.map(ActorRoleAdapters::toAppPermission)
+            override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
+            override val permissions: List<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission)
             override val fullname: String = actor.fullname
         }
     }

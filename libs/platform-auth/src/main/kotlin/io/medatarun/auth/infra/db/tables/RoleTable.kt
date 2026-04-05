@@ -15,4 +15,5 @@ internal object RoleTable : Table("auth_role") {
     val description = text("description").nullable()
     val createdAt = timestamp("created_at")
     val lastUpdatedAt = timestamp("last_updated_at")
+    override val primaryKey = PrimaryKey(id)
 }

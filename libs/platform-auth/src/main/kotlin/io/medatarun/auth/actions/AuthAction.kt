@@ -428,7 +428,7 @@ sealed interface AuthAction<R> {
             order = 1
         )
         val actorId: ActorId
-    ): AuthAction<ActorInfoDto>
+    ): AuthAction<ActorDetailDto>
 
     @ActionDoc(
         key="actor_add_role",
