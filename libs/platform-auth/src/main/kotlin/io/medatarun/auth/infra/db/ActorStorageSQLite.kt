@@ -5,21 +5,22 @@ import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.Role
 import io.medatarun.auth.domain.role.RoleId
-import io.medatarun.auth.domain.role.RoleKey
-import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.role.RoleInMemory
-import io.medatarun.auth.infra.db.tables.ActorTable
+import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.infra.db.tables.ActorRoleTable
-import io.medatarun.auth.infra.db.tables.RoleTable
+import io.medatarun.auth.infra.db.tables.ActorTable
 import io.medatarun.auth.infra.db.tables.RolePermissionTable
+import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.security.AppPermission
-import io.medatarun.security.AppPermissionStringBased
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -30,7 +31,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
 
     private val json = Json { encodeDefaults = true }
 
-    override fun insert(
+    override fun actorCreate(
         id: ActorId,
         issuer: String,
         subject: String,
@@ -56,7 +57,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateProfile(
+    override fun actorUpdateProfile(
         id: ActorId,
         fullname: String,
         email: String?,
@@ -71,7 +72,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateRoles(id: ActorId, roles: List<ActorPermission>) {
+    override fun deprecated__updateRoles(id: ActorId, roles: List<ActorPermission>) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.rolesJson] = encodeRoles(roles)
@@ -79,7 +80,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun createRole(
+    override fun roleCreate(
         id: RoleId,
         key: RoleKey,
         name: String,
@@ -99,12 +100,6 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun findRoleByRefOptional(roleRef: RoleRef): Role? {
-        return when (roleRef) {
-            is RoleRef.ById -> findRoleByIdOptional(roleRef.id)
-            is RoleRef.ByKey -> findRoleByKeyOptional(roleRef.key.validated())
-        }
-    }
 
     override fun findRoleByIdOptional(roleId: RoleId): Role? {
         return dbConnectionFactory.withExposed {
@@ -124,7 +119,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun listRoles(): List<Role> {
+    override fun findRoleList(): List<Role> {
         return dbConnectionFactory.withExposed {
             RoleTable.selectAll()
                 .orderBy(RoleTable.createdAt to SortOrder.DESC)
@@ -132,7 +127,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun listRolePermissions(roleId: RoleId): List<ActorPermission> {
+    override fun findRolePermissionList(roleId: RoleId): List<ActorPermission> {
         return dbConnectionFactory.withExposed {
             RolePermissionTable.selectAll()
                 .where { RolePermissionTable.authRoleId eq roleId }
@@ -141,7 +136,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateRoleName(roleId: RoleId, name: String, lastUpdatedAt: Instant) {
+    override fun roleUpdateName(roleId: RoleId, name: String, lastUpdatedAt: Instant) {
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.name] = name
@@ -150,7 +145,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateRoleKey(roleId: RoleId, key: RoleKey, lastUpdatedAt: Instant) {
+    override fun roleUpdateKey(roleId: RoleId, key: RoleKey, lastUpdatedAt: Instant) {
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.key] = key
@@ -159,7 +154,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun updateRoleDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant) {
+    override fun roleUpdateDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant) {
         dbConnectionFactory.withExposed {
             RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
                 row[this.description] = description
@@ -180,7 +175,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun addRolePermission(roleId: RoleId, permission: ActorPermission) {
+    override fun roleAddPermission(roleId: RoleId, permission: ActorPermission) {
         dbConnectionFactory.withExposed {
             RolePermissionTable.insert { row ->
                 row[this.authRoleId] = roleId
@@ -189,7 +184,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun deleteRolePermission(roleId: RoleId, permission: ActorPermission) {
+    override fun roleDeletePermission(roleId: RoleId, permission: ActorPermission) {
         dbConnectionFactory.withExposed {
             RolePermissionTable.deleteWhere {
                 (RolePermissionTable.authRoleId eq roleId) and
@@ -198,7 +193,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun deleteRole(roleId: RoleId) {
+    override fun roleDelete(roleId: RoleId) {
         dbConnectionFactory.withExposed {
             RolePermissionTable.deleteWhere { RolePermissionTable.authRoleId eq roleId }
             ActorRoleTable.deleteWhere { ActorRoleTable.roleId eq roleId }
@@ -206,7 +201,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun disable(id: ActorId, at: Instant) {
+    override fun actorDisable(id: ActorId, at: Instant) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.disabledDate] = at
@@ -214,7 +209,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun enable(id: ActorId,) {
+    override fun actorEnable(id: ActorId,) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.disabledDate] = null
@@ -222,7 +217,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
+    override fun findActorByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
         return dbConnectionFactory.withExposed {
             ActorTable.selectAll()
                 .where {
@@ -234,7 +229,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun findByIdOptional(id: ActorId): Actor? {
+    override fun findActorByIdOptional(id: ActorId): Actor? {
         return dbConnectionFactory.withExposed {
             ActorTable.selectAll()
                 .where { ActorTable.id eq id }
@@ -243,11 +238,37 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun listAll(): List<Actor> {
+    override fun findActorList(): List<Actor> {
         return dbConnectionFactory.withExposed {
             ActorTable.selectAll()
                 .orderBy(ActorTable.createdAt to SortOrder.DESC)
                 .map { readActor(it) }
+        }
+    }
+
+    override fun findActorRoleIdList(actorId: ActorId): List<RoleId> {
+        return dbConnectionFactory.withExposed {
+            ActorRoleTable.selectAll()
+                .where { ActorRoleTable.actorId eq actorId }
+                .map { it[ActorRoleTable.roleId] }
+        }
+    }
+
+    override fun actorAddRole(actorId: ActorId, roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            ActorRoleTable.insert { row ->
+                row[this.actorId] = actorId
+                row[this.roleId] = roleId
+            }
+        }
+    }
+
+    override fun actorDeleteRole(actorId: ActorId, roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            ActorRoleTable.deleteWhere {
+                (ActorRoleTable.actorId eq actorId) and
+                    (ActorRoleTable.roleId eq roleId)
+            }
         }
     }
 

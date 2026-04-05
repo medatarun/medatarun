@@ -129,7 +129,7 @@ interface ActorService {
      * Disable or enable an actor. A null [at] is "enabled". When a [at] is provided then
      * actor is disabled [at] this time
      */
-    fun disable(actorId: ActorId, at: Instant?)
+    fun actorDisable(actorId: ActorId, at: Instant?)
 
     /**
      * Updates an actor fullname
@@ -150,5 +150,8 @@ interface ActorService {
         roles: List<ActorPermission>,
         disabled: Instant?
     ): Actor
+
+    fun actorAddRole(actorId: ActorId, roleRef: RoleRef)
+    fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef)
 
 }

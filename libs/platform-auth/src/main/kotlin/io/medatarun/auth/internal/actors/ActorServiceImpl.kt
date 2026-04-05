@@ -22,7 +22,7 @@ class ActorServiceImpl(
 ) : ActorService {
 
     override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor {
-        val existing = actorStorage.findByIssuerAndSubjectOptional(principal.issuer, principal.subject)
+        val existing = actorStorage.findActorByIssuerAndSubjectOptional(principal.issuer, principal.subject)
 
         val actor = if (existing == null) {
             val created = create(
@@ -46,19 +46,19 @@ class ActorServiceImpl(
         existing: Actor,
         principal: AuthJwtExternalPrincipal
     ): Actor {
-        actorStorage.updateProfile(
+        actorStorage.actorUpdateProfile(
             id = existing.id,
             fullname = actorDisplayName(principal),
             email = principal.email,
             lastSeenAt = clock.now()
         )
-        return actorStorage.findById(existing.id)
+        return actorStorage.findActorById(existing.id)
     }
 
     override fun updateFullname(actorId: ActorId, fullname: String) {
-        val actor = actorStorage.findById(actorId)
+        val actor = actorStorage.findActorById(actorId)
 
-        actorStorage.updateProfile(actor.id, fullname, email = actor.email, lastSeenAt = actor.lastSeenAt)
+        actorStorage.actorUpdateProfile(actor.id, fullname, email = actor.email, lastSeenAt = actor.lastSeenAt)
     }
 
     override fun create(
@@ -71,7 +71,7 @@ class ActorServiceImpl(
     ): Actor {
         ensurePermissionsExist(roles)
         val id = ActorId.generate()
-        actorStorage.insert(
+        actorStorage.actorCreate(
             id = id,
             issuer = issuer,
             subject = subject,
@@ -82,43 +82,43 @@ class ActorServiceImpl(
             createdAt = clock.now(),
             lastSeenAt = clock.now()
         )
-        return actorStorage.findByIdOptional(id) ?: throw ActorCreateFailedWithNotFoundException()
+        return actorStorage.findActorByIdOptional(id) ?: throw ActorCreateFailedWithNotFoundException()
     }
 
 
     override fun listActors(): List<Actor> {
-        return actorStorage.listAll()
+        return actorStorage.findActorList()
     }
 
     override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
-        return actorStorage.findByIssuerAndSubjectOptional(issuer, subject)
+        return actorStorage.findActorByIssuerAndSubjectOptional(issuer, subject)
     }
 
     override fun findById(actorId: ActorId): Actor {
-        return actorStorage.findById(actorId)
+        return actorStorage.findActorById(actorId)
     }
 
     override fun findByIdOptional(actorId: ActorId): Actor? {
-        return actorStorage.findByIdOptional(actorId)
+        return actorStorage.findActorByIdOptional(actorId)
     }
 
     override fun setRoles(actorId: ActorId, roles: List<ActorPermission>) {
         ensurePermissionsExist(roles)
-        val existing = actorStorage.findById(actorId)
-        actorStorage.updateRoles(existing.id, roles)
+        val existing = actorStorage.findActorById(actorId)
+        actorStorage.deprecated__updateRoles(existing.id, roles)
     }
 
     override fun listRoles(): List<Role> {
-        return actorStorage.listRoles()
+        return actorStorage.findRoleList()
     }
 
     override fun findRoleByRef(roleRef: RoleRef): Role {
-        return actorStorage.findRoleByRefOptional(roleRef) ?: throw RoleNotFoundException()
+        return actorStorage.findRoleByRef(roleRef)
     }
 
     override fun listRolePermissions(roleRef: RoleRef): List<ActorPermission> {
-        val role = findRoleByRef(roleRef)
-        return actorStorage.listRolePermissions(role.id)
+        val role = actorStorage.findRoleByRef(roleRef)
+        return actorStorage.findRolePermissionList(role.id)
     }
 
     override fun createRole(
@@ -126,57 +126,80 @@ class ActorServiceImpl(
         name: String,
         description: String?
     ): RoleId {
-        val validatedKey = key.validated()
-        if (actorStorage.findRoleByKeyOptional(validatedKey) != null) {
-            throw RoleAlreadyExistsException(validatedKey.value)
+        if (actorStorage.findRoleByKeyOptional(key) != null) {
+            throw RoleAlreadyExistsException(key.value)
         }
         val now = clock.now()
         val roleId = RoleId.generate()
-        actorStorage.createRole(roleId, validatedKey, name, description, now, now)
+        actorStorage.roleCreate(roleId, key, name, description, now, now)
         return roleId
     }
 
     override fun updateRoleName(roleRef: RoleRef, name: String) {
-        val role = findRoleByRef(roleRef)
-        actorStorage.updateRoleName(role.id, name, clock.now())
+        val role = actorStorage.findRoleByRef(roleRef)
+        actorStorage.roleUpdateName(role.id, name, clock.now())
     }
 
     override fun updateRoleKey(roleRef: RoleRef, key: RoleKey) {
-        val role = findRoleByRef(roleRef)
-        val validatedKey = key.validated()
-        val existingRole = actorStorage.findRoleByKeyOptional(validatedKey)
+        val role = actorStorage.findRoleByRef(roleRef)
+        val existingRole = actorStorage.findRoleByKeyOptional(key)
         if (existingRole != null && existingRole.id != role.id) {
-            throw RoleAlreadyExistsException(validatedKey.value)
+            throw RoleAlreadyExistsException(key.value)
         }
-        actorStorage.updateRoleKey(role.id, validatedKey, clock.now())
+        actorStorage.roleUpdateKey(role.id, key, clock.now())
     }
 
     override fun updateRoleDescription(roleRef: RoleRef, description: String?) {
-        val role = findRoleByRef(roleRef)
-        actorStorage.updateRoleDescription(role.id, description, clock.now())
+        val role = actorStorage.findRoleByRef(roleRef)
+        actorStorage.roleUpdateDescription(role.id, description, clock.now())
     }
 
     override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
-        val role = findRoleByRef(roleRef)
+        val role = actorStorage.findRoleByRef(roleRef)
         ensurePermissionExists(permission)
         if (actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionAlreadyExistsException(role.id.asString(), permission.key)
         }
-        actorStorage.addRolePermission(role.id, permission)
+        actorStorage.roleAddPermission(role.id, permission)
     }
 
     override fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission) {
-        val role = findRoleByRef(roleRef)
+        val role = actorStorage.findRoleByRef(roleRef)
         if (!actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionNotFoundException(role.id.asString(), permission.key)
         }
-        actorStorage.deleteRolePermission(role.id, permission)
+        actorStorage.roleDeletePermission(role.id, permission)
+    }
+
+    override fun actorAddRole(actorId: ActorId, roleRef: RoleRef) {
+        val role = actorStorage.findRoleByRef(roleRef)
+        val actor = actorStorage.findActorById(actorId)
+        val existingRoles = actorStorage.findActorRoleIdList(actorId)
+        val alreadyHasRole = existingRoles.contains(role.id)
+        if (alreadyHasRole) throw ActorAddRoleAlreadyExistException(actorId, role.id)
+        actorStorage.actorAddRole(actor.id, role.id)
+    }
+
+    override fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef) {
+        val role = actorStorage.findRoleByRef(roleRef)
+        val actor = actorStorage.findActorById(actorId)
+        val existingRoles = actorStorage.findActorRoleIdList(actorId)
+        val alreadyHasRole = existingRoles.contains(role.id)
+        if (!alreadyHasRole) throw ActorDeleteRoleNotFoundException(actorId, role.id)
+        actorStorage.actorDeleteRole(actor.id, role.id)
     }
 
     override fun deleteRole(roleRef: RoleRef) {
-        val role = findRoleByRef(roleRef)
-        actorStorage.deleteRole(role.id)
+        val role = actorStorage.findRoleByRef(roleRef)
+        actorStorage.roleDelete(role.id)
     }
+
+    override fun actorDisable(actorId: ActorId, at: Instant?) {
+        val existing = actorStorage.findActorById(actorId)
+        if (at == null) actorStorage.actorEnable(existing.id)
+        else actorStorage.actorDisable(existing.id, at)
+    }
+
 
     private fun ensurePermissionsExist(permissions: List<ActorPermission>): List<ActorPermission> {
         permissions.forEach {
@@ -188,12 +211,6 @@ class ActorServiceImpl(
     private fun ensurePermissionExists(p: ActorPermission): ActorPermission {
         if (!appRoles.isKnownPermission(p)) throw AuthUnknownPermissionException(p.key)
         return p
-    }
-
-    override fun disable(actorId: ActorId, at: Instant?) {
-        val existing = actorStorage.findById(actorId)
-        if (at == null) actorStorage.enable(existing.id)
-        else actorStorage.disable(existing.id, at)
     }
 
     private fun actorDisplayName(principal: AuthJwtExternalPrincipal): String {

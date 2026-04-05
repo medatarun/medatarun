@@ -431,13 +431,13 @@ sealed interface AuthAction<R> {
     ): AuthAction<ActorInfoDto>
 
     @ActionDoc(
-        key="actor_set_roles",
-        title="Set actor roles",
-        description = "Replace roles for an actor. Only available for admins.",
+        key="actor_add_role",
+        title="Add actor role",
+        description = "Add role to actor.",
         uiLocations = [ActionUILocation.hidden],
         securityRule = SecurityRuleNames.ADMIN
     )
-    class ActorSetRoles(
+    class Actor_AddRole(
         @ActionParamDoc(
             name = "actorId",
             description = "Actor identifier",
@@ -445,12 +445,35 @@ sealed interface AuthAction<R> {
         )
         val actorId: ActorId,
         @ActionParamDoc(
-            name = "roles",
-            description = "Role names",
+            name = "roleRef",
+            description = "Role to add",
             order = 2
         )
-        val roles: List<String>
+        val roleRef: RoleRef
     ): AuthAction<Unit>
+
+    @ActionDoc(
+        key="actor_delete_role",
+        title="Delete actor role",
+        description = "Delete role from actor.",
+        uiLocations = [ActionUILocation.hidden],
+        securityRule = SecurityRuleNames.ADMIN
+    )
+    class Actor_DeleteRole(
+        @ActionParamDoc(
+            name = "actorId",
+            description = "Actor identifier",
+            order = 1
+        )
+        val actorId: ActorId,
+        @ActionParamDoc(
+            name = "roleRef",
+            description = "Role to delete",
+            order = 2
+        )
+        val roleRef: RoleRef
+    ): AuthAction<Unit>
+
 
     @ActionDoc(
         key="actor_disable",

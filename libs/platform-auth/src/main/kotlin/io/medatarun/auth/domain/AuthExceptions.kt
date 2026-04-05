@@ -1,5 +1,8 @@
 package io.medatarun.auth.domain
 
+import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.SECRET_MIN_SIZE
 import io.medatarun.lang.exceptions.MedatarunException
@@ -35,16 +38,30 @@ class UserAlreadyExistsException :
 class ActorNotFoundException :
     MedatarunException("Actor not found.", StatusCode.NOT_FOUND)
 
+class ActorAddRoleAlreadyExistException(actorId: ActorId, roleId: RoleId) :
+    MedatarunException("Can not add to actor. Actor [${actorId.value}] already has role [$roleId]", StatusCode.BAD_REQUEST)
+
+class ActorDeleteRoleNotFoundException(actorId: ActorId, roleId: RoleId) :
+    MedatarunException("Can not remove role from actor. Actor [${actorId.value}] doesn't have role [$roleId]", StatusCode.BAD_REQUEST)
+
 class ActorCreateFailedWithNotFoundException :
     MedatarunException("Create failed. Can not find actor after creation.")
 
 class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
 
 class AuthUnknownPermissionException(val key: String) : MedatarunException("Unknown role: $key")
-class RoleNotFoundException : MedatarunException("Role not found.", StatusCode.NOT_FOUND)
+class RoleNotFoundException(ref: String) : MedatarunException("Role [$ref] not found.", StatusCode.NOT_FOUND)
+class RoleNotFoundByIdException(roleId: RoleId) : MedatarunException("Role [$roleId] not found.", StatusCode.NOT_FOUND)
+class RoleNotFoundByKeyException(roleKey: RoleKey) :
+    MedatarunException("Role [$roleKey] not found.", StatusCode.NOT_FOUND)
+
 class RoleAlreadyExistsException(val key: String) : MedatarunException("Role already exists: $key", StatusCode.CONFLICT)
 class RolePermissionAlreadyExistsException(roleId: String, permission: String) :
-    MedatarunException("Role permission already exists for role=$roleId and permission=$permission", StatusCode.CONFLICT)
+    MedatarunException(
+        "Role permission already exists for role=$roleId and permission=$permission",
+        StatusCode.CONFLICT
+    )
+
 class RolePermissionNotFoundException(roleId: String, permission: String) :
     MedatarunException("Role permission not found for role=$roleId and permission=$permission", StatusCode.NOT_FOUND)
 

@@ -35,7 +35,7 @@ class UserServiceEventsActorProvisioning(
             is UserEventDisabledChanged -> {
                 val actor = actorService.findByIssuerAndSubjectOptional(internalIssuer, evt.username.value)
                     ?: throw ActorNotFoundException()
-                actorService.disable(actor.id, evt.date)
+                actorService.actorDisable(actor.id, evt.date)
             }
         }
     }
@@ -47,7 +47,7 @@ class UserServiceEventsActorProvisioning(
             actorService.setRoles(actor.id, actor.roles.filter { it != ADMIN })
         }
         actorService.updateFullname(actor.id, evt.user.fullname.value)
-        actorService.disable(actor.id, evt.user.disabledDate)
+        actorService.actorDisable(actor.id, evt.user.disabledDate)
     }
 
     private fun createFromUser(evt: UserEventCreated) {

@@ -224,12 +224,12 @@ class ActorServiceTest {
         )
 
         val disabledAt = Instant.parse("2024-03-01T10:00:00Z")
-        env.actorService.disable(actor.id, disabledAt)
+        env.actorService.actorDisable(actor.id, disabledAt)
         val disabled = env.actorService.findByIssuerAndSubjectOptional("issuer-disable", "subject-disable")
         assertNotNull(disabled)
         assertEquals(disabledAt, disabled.disabledDate)
 
-        env.actorService.disable(actor.id, null)
+        env.actorService.actorDisable(actor.id, null)
         val enabled = env.actorService.findByIssuerAndSubjectOptional("issuer-disable", "subject-disable")
         assertNotNull(enabled)
         assertNull(enabled.disabledDate)

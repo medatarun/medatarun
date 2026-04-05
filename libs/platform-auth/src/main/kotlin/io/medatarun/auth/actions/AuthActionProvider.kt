@@ -14,7 +14,6 @@ import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
-import io.medatarun.security.AppPermissionStringBased
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
@@ -56,7 +55,8 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.RoleDelete -> launcher.roleDelete(action)
             is AuthAction.ActorList -> launcher.listActors(action)
             is AuthAction.ActorGet -> launcher.getActor(action)
-            is AuthAction.ActorSetRoles -> launcher.setActorRoles(action)
+            is AuthAction.Actor_AddRole -> launcher.actorAddRole(action)
+            is AuthAction.Actor_DeleteRole -> launcher.actorDeleteRole(action)
             is AuthAction.ActorDisable -> launcher.disableActor(action)
             is AuthAction.ActorEnable -> launcher.enableActor(action)
         }
@@ -223,17 +223,20 @@ class AuthEmbeddedActionsLauncher(
         return toActorInfo(actorService.findById(cmd.actorId))
     }
 
-    fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
-        actorService.setRoles(cmd.actorId, cmd.roles.map { ActorPermission(it) })
+    fun actorAddRole(action: AuthAction.Actor_AddRole) {
+        actorService.actorAddRole(action.actorId, action.roleRef)
     }
 
+    fun actorDeleteRole(action: AuthAction.Actor_DeleteRole) {
+        actorService.actorDeleteRole(action.actorId, action.roleRef)
+    }
 
     fun disableActor(cmd: AuthAction.ActorDisable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.issuer == oidcService.oidcIssuer()) {
             userService.disableUser(Username(actor.subject).validate())
         } else {
-            actorService.disable(actor.id, clock.now())
+            actorService.actorDisable(actor.id, clock.now())
         }
     }
 
@@ -242,7 +245,7 @@ class AuthEmbeddedActionsLauncher(
         if (actor.issuer == oidcService.oidcIssuer()) {
             userService.enableUser(Username(actor.subject).validate())
         } else {
-            actorService.disable(actor.id, null)
+            actorService.actorDisable(actor.id, null)
         }
     }
 
@@ -270,5 +273,6 @@ class AuthEmbeddedActionsLauncher(
             lastUpdatedAt = role.lastUpdatedAt
         )
     }
+
 
 }
