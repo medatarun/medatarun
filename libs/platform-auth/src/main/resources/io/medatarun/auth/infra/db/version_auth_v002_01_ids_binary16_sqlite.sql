@@ -28,8 +28,8 @@ FROM users;
 DROP TABLE users;
 ALTER TABLE users_v002 RENAME TO users;
 
-DROP TABLE IF EXISTS actors_v002;
-CREATE TABLE actors_v002 (
+DROP TABLE IF EXISTS auth_actor_v002;
+CREATE TABLE auth_actor_v002 (
   id BINARY(16) PRIMARY KEY UNIQUE,
   issuer TEXT NOT NULL,
   subject TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE actors_v002 (
   UNIQUE(issuer, subject)
 );
 
-INSERT INTO actors_v002 (id, issuer, subject, full_name, email, roles_json, disabled_date, created_at, last_seen_at)
+INSERT INTO auth_actor_v002 (id, issuer, subject, full_name, email, roles_json, disabled_date, created_at, last_seen_at)
 SELECT
   unhex(replace(id, '-', '')),
   issuer,
@@ -59,7 +59,7 @@ SELECT
 FROM actors;
 
 DROP TABLE actors;
-ALTER TABLE actors_v002 RENAME TO actors;
+ALTER TABLE auth_actor_v002 RENAME TO auth_actor;
 
 DROP TABLE IF EXISTS auth_ctx_v002;
 CREATE TABLE auth_ctx_v002 (
@@ -123,8 +123,8 @@ FROM auth_code;
 DROP TABLE auth_code;
 ALTER TABLE auth_code_v002 RENAME TO auth_code;
 
-CREATE INDEX IF NOT EXISTS idx_actors_issuer_subject ON actors(issuer, subject);
-CREATE INDEX IF NOT EXISTS idx_actors_created_at ON actors(created_at);
+CREATE INDEX IF NOT EXISTS idx_auth_actor_issuer_subject ON auth_actor(issuer, subject);
+CREATE INDEX IF NOT EXISTS idx_auth_actor_created_at ON auth_actor(created_at);
 CREATE INDEX IF NOT EXISTS idx_auth_code_expires_at ON auth_code(expires_at);
 CREATE INDEX IF NOT EXISTS idx_auth_ctx_expires_at ON auth_ctx(expires_at);
 

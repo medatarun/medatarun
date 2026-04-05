@@ -1,197 +1,315 @@
 package io.medatarun.auth.infra.db
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.adapters.ActorInMemory
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleInMemory
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.infra.db.tables.ActorRoleTable
+import io.medatarun.auth.infra.db.tables.ActorTable
+import io.medatarun.auth.infra.db.tables.RolePermissionTable
+import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import io.medatarun.platform.db.exposed.jsonb
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.core.ColumnTransformer
-import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
-import java.util.UUID
 
 class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
 
-    private val json = Json { encodeDefaults = true }
-
-    override fun insert(
+    override fun actorCreate(
         id: ActorId,
         issuer: String,
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
         disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
     ) {
         dbConnectionFactory.withExposed {
-            ActorsTable.insert { row ->
-                row[idColumn] = id
-                row[issuerColumn] = issuer
-                row[subjectColumn] = subject
-                row[fullNameColumn] = fullname
-                row[emailColumn] = email
-                row[rolesJsonColumn] = encodeRoles(roles)
-                row[disabledDateColumn] = disabled
-                row[createdAtColumn] = createdAt
-                row[lastSeenAtColumn] = lastSeenAt
+            ActorTable.insert { row ->
+                row[this.id] = id
+                row[this.issuer] = issuer
+                row[this.subject] = subject
+                row[this.fullName] = fullname
+                row[this.email] = email
+                row[this.disabledDate] = disabled
+                row[this.createdAt] = createdAt
+                row[this.lastSeenAt] = lastSeenAt
             }
         }
     }
 
-    override fun updateProfile(
+    override fun actorUpdateProfile(
         id: ActorId,
         fullname: String,
         email: String?,
         lastSeenAt: Instant
     ) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
-                row[fullNameColumn] = fullname
-                row[emailColumn] = email
-                row[lastSeenAtColumn] = lastSeenAt
+            ActorTable.update(where = { ActorTable.id eq id }) { row ->
+                row[this.fullName] = fullname
+                row[this.email] = email
+                row[this.lastSeenAt] = lastSeenAt
             }
         }
     }
 
-    override fun updateRoles(id: ActorId, roles: List<ActorRole>) {
+    override fun roleCreate(
+        id: RoleId,
+        key: RoleKey,
+        name: String,
+        description: String?,
+        createdAt: Instant,
+        lastUpdatedAt: Instant
+    ) {
         dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
-                row[rolesJsonColumn] = encodeRoles(roles)
+            RoleTable.insert { row ->
+                row[this.id] = id
+                row[this.key] = key
+                row[this.name] = name
+                row[this.description] = description
+                row[this.createdAt] = createdAt
+                row[this.lastUpdatedAt] = lastUpdatedAt
             }
         }
     }
 
-    override fun disable(id: ActorId, at: Instant) {
-        dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
-                row[disabledDateColumn] = at
-            }
-        }
-    }
 
-    override fun enable(id: ActorId,) {
-        dbConnectionFactory.withExposed {
-            ActorsTable.update(where = { ActorsTable.idColumn eq id }) { row ->
-                row[disabledDateColumn] = null
-            }
-        }
-    }
-
-    override fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
+    override fun findRoleByIdOptional(roleId: RoleId): Role? {
         return dbConnectionFactory.withExposed {
-            ActorsTable.selectAll()
+            RoleTable.selectAll()
+                .where { RoleTable.id eq roleId }
+                .singleOrNull()
+                ?.let { readRole(it) }
+        }
+    }
+
+    override fun findRoleByKeyOptional(key: RoleKey): Role? {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .where { RoleTable.key eq key }
+                .singleOrNull()
+                ?.let { readRole(it) }
+        }
+    }
+
+    override fun findRoleList(): List<Role> {
+        return dbConnectionFactory.withExposed {
+            RoleTable.selectAll()
+                .orderBy(RoleTable.createdAt to SortOrder.DESC)
+                .map { readRole(it) }
+        }
+    }
+
+    override fun findRolePermissionList(roleId: RoleId): List<ActorPermission> {
+        return dbConnectionFactory.withExposed {
+            RolePermissionTable.selectAll()
+                .where { RolePermissionTable.authRoleId eq roleId }
+                .map { it[RolePermissionTable.permission] }
+                .sortedBy { it.key }
+        }
+    }
+
+    override fun roleUpdateName(roleId: RoleId, name: String, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.name] = name
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleUpdateKey(roleId: RoleId, key: RoleKey, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.key] = key
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleUpdateDescription(roleId: RoleId, description: String?, lastUpdatedAt: Instant) {
+        dbConnectionFactory.withExposed {
+            RoleTable.update(where = { RoleTable.id eq roleId }) { row ->
+                row[this.description] = description
+                row[this.lastUpdatedAt] = lastUpdatedAt
+            }
+        }
+    }
+
+    override fun roleHasPermission(roleId: RoleId, permission: ActorPermission): Boolean {
+        return dbConnectionFactory.withExposed {
+            RolePermissionTable.selectAll()
                 .where {
-                    (ActorsTable.issuerColumn eq issuer) and
-                        (ActorsTable.subjectColumn eq subject)
+                    (RolePermissionTable.authRoleId eq roleId) and
+                            (RolePermissionTable.permission eq permission)
+                }
+                .empty()
+                .not()
+        }
+    }
+
+    override fun roleAddPermission(roleId: RoleId, permission: ActorPermission) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.insert { row ->
+                row[this.authRoleId] = roleId
+                row[this.permission] = permission
+            }
+        }
+    }
+
+    override fun roleDeletePermission(roleId: RoleId, permission: ActorPermission) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.deleteWhere {
+                (RolePermissionTable.authRoleId eq roleId) and
+                        (RolePermissionTable.permission eq permission)
+            }
+        }
+    }
+
+    override fun roleDelete(roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            RolePermissionTable.deleteWhere { RolePermissionTable.authRoleId eq roleId }
+            ActorRoleTable.deleteWhere { ActorRoleTable.roleId eq roleId }
+            RoleTable.deleteWhere { RoleTable.id eq roleId }
+        }
+    }
+
+    override fun actorDisable(id: ActorId, at: Instant) {
+        dbConnectionFactory.withExposed {
+            ActorTable.update(where = { ActorTable.id eq id }) { row ->
+                row[this.disabledDate] = at
+            }
+        }
+    }
+
+    override fun actorEnable(id: ActorId) {
+        dbConnectionFactory.withExposed {
+            ActorTable.update(where = { ActorTable.id eq id }) { row ->
+                row[this.disabledDate] = null
+            }
+        }
+    }
+
+    override fun findActorByIssuerAndSubjectOptional(issuer: String, subject: String): Actor? {
+        return dbConnectionFactory.withExposed {
+            ActorTable.selectAll()
+                .where {
+                    (ActorTable.issuer eq issuer) and
+                            (ActorTable.subject eq subject)
                 }
                 .singleOrNull()
                 ?.let { readActor(it) }
         }
     }
 
-    override fun findByIdOptional(id: ActorId): Actor? {
+    override fun findActorByIdOptional(id: ActorId): Actor? {
         return dbConnectionFactory.withExposed {
-            ActorsTable.selectAll()
-                .where { ActorsTable.idColumn eq id }
+            ActorTable.selectAll()
+                .where { ActorTable.id eq id }
                 .singleOrNull()
                 ?.let { readActor(it) }
         }
     }
 
-    override fun listAll(): List<Actor> {
+    override fun findActorList(): List<Actor> {
         return dbConnectionFactory.withExposed {
-            ActorsTable.selectAll()
-                .orderBy(ActorsTable.createdAtColumn to SortOrder.DESC)
+            ActorTable.selectAll()
+                .orderBy(ActorTable.createdAt to SortOrder.DESC)
                 .map { readActor(it) }
         }
     }
 
+    override fun findActorRoleIdList(actorId: ActorId): Set<RoleId> {
+        return dbConnectionFactory.withExposed {
+            ActorRoleTable.selectAll()
+                .where { ActorRoleTable.actorId eq actorId }
+                .map { it[ActorRoleTable.roleId] }
+                .distinct()
+                .toSet()
+        }
+    }
+
+    override fun findActorPermissionSet(id: ActorId): Set<ActorPermission> {
+        return dbConnectionFactory.withExposed {
+            ActorRoleTable
+                .innerJoin(RoleTable)
+                .innerJoin(RolePermissionTable)
+                .selectAll()
+                .where { ActorRoleTable.actorId eq id }
+                .orderBy(RolePermissionTable.permission to SortOrder.ASC)
+                .map { it[RolePermissionTable.permission] }
+                .distinct()
+                .toSet()
+        }
+    }
+
+    override fun actorAddRole(actorId: ActorId, roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            ActorRoleTable.insert { row ->
+                row[this.actorId] = actorId
+                row[this.roleId] = roleId
+            }
+        }
+    }
+
+    override fun actorDeleteRole(actorId: ActorId, roleId: RoleId) {
+        dbConnectionFactory.withExposed {
+            ActorRoleTable.deleteWhere {
+                (ActorRoleTable.actorId eq actorId) and
+                        (ActorRoleTable.roleId eq roleId)
+            }
+        }
+    }
+
     private fun readActor(row: ResultRow): Actor {
-        val rolesJson = row[ActorsTable.rolesJsonColumn]
-        return Actor(
-            id = row[ActorsTable.idColumn],
-            issuer = row[ActorsTable.issuerColumn],
-            subject = row[ActorsTable.subjectColumn],
-            fullname = row[ActorsTable.fullNameColumn],
-            email = row[ActorsTable.emailColumn],
-            roles = decodeRoles(rolesJson),
-            disabledDate = row[ActorsTable.disabledDateColumn],
-            createdAt = row[ActorsTable.createdAtColumn],
-            lastSeenAt = row[ActorsTable.lastSeenAtColumn]
+        return ActorInMemory(
+            id = row[ActorTable.id],
+            issuer = row[ActorTable.issuer],
+            subject = row[ActorTable.subject],
+            fullname = row[ActorTable.fullName],
+            email = row[ActorTable.email],
+            disabledDate = row[ActorTable.disabledDate],
+            createdAt = row[ActorTable.createdAt],
+            lastSeenAt = row[ActorTable.lastSeenAt]
         )
     }
 
-    private fun encodeRoles(roles: List<ActorRole>): String {
-        return json.encodeToString(listStringSerializer, roles.map { it.key })
+    private fun readRole(row: ResultRow): Role {
+        return RoleInMemory(
+            id = row[RoleTable.id],
+            key = row[RoleTable.key],
+            name = row[RoleTable.name],
+            description = row[RoleTable.description],
+            createdAt = row[RoleTable.createdAt],
+            lastUpdatedAt = row[RoleTable.lastUpdatedAt]
+        )
     }
 
-    private fun decodeRoles(rolesJson: String): List<ActorRole> {
-        return json.decodeFromString(listStringSerializer, rolesJson)
-            .map { ActorRole(it) }
-    }
-
-    fun renameRoles(oldToNewRoles: Map<String, String>) {
-        if (oldToNewRoles.isEmpty()) {
+    fun renamePermissions(oldToNewPermissions: Map<String, String>) {
+        if (oldToNewPermissions.isEmpty()) {
             return
         }
         dbConnectionFactory.withExposed {
-            ActorsTable.selectAll().forEach { row ->
-                val actorId = row[ActorsTable.idColumn]
-                val currentRoles = decodeRoles(row[ActorsTable.rolesJsonColumn])
-                var hasChanges = false
-                val renamedRoles = mutableListOf<ActorRole>()
-                currentRoles.forEach { role ->
-                    val newRoleName = oldToNewRoles[role.key]
-                    if (newRoleName != null) {
-                        hasChanges = true
-                        renamedRoles.add(ActorRole(newRoleName))
-                    } else {
-                        renamedRoles.add(role)
-                    }
-                }
-                if (hasChanges) {
-                    ActorsTable.update(where = { ActorsTable.idColumn eq actorId }) { updateRow ->
-                        updateRow[rolesJsonColumn] = encodeRoles(renamedRoles)
-                    }
+            oldToNewPermissions.forEach { (oldPermission, newPermission) ->
+                RolePermissionTable.update(
+                    where = { RolePermissionTable.permission eq ActorPermission(oldPermission) }
+                ) { updateRow ->
+                    updateRow[permission] = ActorPermission(newPermission)
                 }
             }
         }
-    }
-
-    companion object {
-        private object ActorsTable : Table("actors") {
-            val idColumn = javaUUID("id").transform(ActorIdColumnTransformer())
-            val issuerColumn = text("issuer")
-            val subjectColumn = text("subject")
-            val fullNameColumn = text("full_name")
-            val emailColumn = text("email").nullable()
-            val rolesJsonColumn = jsonb("roles_json")
-            val disabledDateColumn = timestamp("disabled_date").nullable()
-            val createdAtColumn = timestamp("created_at")
-            val lastSeenAtColumn = timestamp("last_seen_at")
-        }
-
-        private class ActorIdColumnTransformer : ColumnTransformer<UUID, ActorId> {
-            override fun unwrap(value: ActorId): UUID {
-                return value.value
-            }
-
-            override fun wrap(value: UUID): ActorId {
-                return ActorId(value)
-            }
-        }
-
-        private val listStringSerializer = ListSerializer(String.serializer())
     }
 }

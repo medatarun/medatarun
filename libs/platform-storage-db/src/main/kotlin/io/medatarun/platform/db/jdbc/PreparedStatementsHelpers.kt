@@ -1,10 +1,12 @@
 package io.medatarun.platform.db.jdbc
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.type.commons.instant.InstantAdapters
 import java.nio.ByteBuffer
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.Instant
 import java.util.UUID
 
 fun PreparedStatement.setUUID(parameterIndex: Int, uuid: UUID?) {
@@ -13,6 +15,14 @@ fun PreparedStatement.setUUID(parameterIndex: Int, uuid: UUID?) {
         return
     }
     this.setBytes(parameterIndex, toBytes(uuid))
+}
+
+fun PreparedStatement.setInstant(parameterIndex: Int, value: Instant?) {
+    if (value == null) {
+        this.setNull(parameterIndex, Types.VARCHAR)
+        return
+    }
+    this.setString(parameterIndex, InstantAdapters.toSqlTimestampString(value))
 }
 
 fun ResultSet.getUuidFromString(columnName: String): UUID? {

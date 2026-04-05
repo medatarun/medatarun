@@ -5,6 +5,7 @@ import io.medatarun.actions.domain.ActionRegistry
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.platform.kernel.ExtensionRegistry
+import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.security.SecurityRulesProvider
 import io.metadatarun.ext.config.actions.dto.*
 import kotlinx.serialization.Serializable
@@ -12,7 +13,8 @@ import kotlinx.serialization.Serializable
 class ConfigActionProvider(
     private val extensionRegistry: ExtensionRegistry,
     private val actionRegistry: Lazy<ActionRegistry>,
-    private val actionInvoker: Lazy<ActionInvoker>
+    private val actionInvoker: Lazy<ActionInvoker>,
+    private val permissionRegistry: Lazy<SecurityRolesRegistry>
 ) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
@@ -25,6 +27,7 @@ class ConfigActionProvider(
             is ConfigAction.InspectJson -> extensionRegistry.inspectJson()
             is ConfigAction.InspectActions -> inspectActions(actionCtx)
             is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
+            is ConfigAction.InspectPermissions -> inspectPermissions(actionCtx)
         }
     }
 
@@ -44,6 +47,18 @@ class ConfigActionProvider(
                     )
                 }
         )
+
+
+    private fun inspectPermissions(actionCtx: ActionCtx): SecurityPermissionsResp {
+        val permissions = permissionRegistry.value.findAllRoles()
+        return SecurityPermissionsResp(items = permissions.map {
+            SecurityPermissionDto(
+                it.key,
+                it.name,
+                it.description
+            )
+        })
+    }
 
     /**
      * Rebuilds descriptors from extension contributions so UI and CLI rely on one action entry-point.

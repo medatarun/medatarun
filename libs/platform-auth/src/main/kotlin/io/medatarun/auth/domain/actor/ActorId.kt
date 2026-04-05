@@ -1,16 +1,14 @@
 package io.medatarun.auth.domain.actor
 
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.type.commons.id.Id
 import java.util.*
 
 @JvmInline
-value class ActorId(val value: UUID) {
+value class ActorId(override val value: UUID): Id<ActorId> {
     companion object {
         fun generate(): ActorId {
             return ActorId(UuidUtils.generateV7())
-        }
-        fun fromString(value: String): ActorId {
-            return ActorId(UuidUtils.fromString(value))
         }
     }
 }

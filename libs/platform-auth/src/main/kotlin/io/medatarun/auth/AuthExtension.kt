@@ -2,13 +2,15 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPrincipalRole
 import io.medatarun.auth.adapters.AppActorResolverAuth
-import io.medatarun.auth.domain.ActorRole
 import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.jwt.JwtConfig
 import io.medatarun.auth.domain.jwt.JwtKeyMaterial
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -27,6 +29,7 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
+import io.medatarun.auth.permissions.AuthAdminPermission
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
 import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
@@ -35,11 +38,16 @@ import io.medatarun.platform.db.DbConnectionFactory
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
-import io.medatarun.security.AppPrincipalRole
-import io.medatarun.security.SecurityRolesProvider
+import io.medatarun.security.AppPermission
+import io.medatarun.security.SecurityPermissionsProvider
 import io.medatarun.security.SecurityRolesRegistry
+import io.medatarun.type.commons.id.Id
+import io.medatarun.type.commons.key.Key
+import io.medatarun.type.commons.ref.RefTypeJsonConverters
 import io.medatarun.types.TypeDescriptor
+import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
+import kotlinx.serialization.json.JsonElement
 import java.time.Instant
 import kotlin.reflect.KClass
 
@@ -58,18 +66,22 @@ class AuthExtension(
         val actionProvider = AuthEmbeddedActionsProvider(
             userService, oidcService, oauthService, actorService, config.authClock
         )
-        val rolesProvider = object : SecurityRolesProvider {
-            override fun getRoles(): List<AppPrincipalRole> {
-                return listOf(toAppPrincipalRole(ActorRole.ADMIN))
+        val rolesProvider = object : SecurityPermissionsProvider {
+            override fun getPermissions(): List<AppPermission> {
+                return listOf(AuthAdminPermission)
             }
         }
         ctx.registerContribution(ActionProvider::class, actionProvider)
-        ctx.registerContribution(SecurityRolesProvider::class, rolesProvider)
+        ctx.registerContribution(SecurityPermissionsProvider::class, rolesProvider)
         ctx.registerContribution(TypeDescriptor::class, UsernameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, FullnameTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, PasswordClearTypeDescriptor())
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
-        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage))
+        ctx.registerContribution(TypeDescriptor::class, RoleIdDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RoleKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, PermissionKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, RoleRefDescriptor())
+        ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage, config.authClock))
     }
 
     class UsernameTypeDescriptor : TypeDescriptor<Username> {
@@ -113,6 +125,64 @@ class AuthExtension(
         }
     }
 
+    class RoleIdDescriptor : TypeDescriptor<RoleId> {
+        override val target: KClass<RoleId> = RoleId::class
+        override val equivMultiplatorm: String = "RoleId"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: RoleId): RoleId {
+            return value
+        }
+    }
+
+    class RoleKeyDescriptor : TypeDescriptor<RoleKey> {
+        override val target: KClass<RoleKey> = RoleKey::class
+        override val equivMultiplatorm: String = "RoleKey"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: RoleKey): RoleKey {
+            return value.validated()
+        }
+    }
+
+    class PermissionKeyDescriptor : TypeDescriptor<PermissionKey> {
+        override val target: KClass<PermissionKey> = PermissionKey::class
+        override val equivMultiplatorm: String = "PermissionKey"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: PermissionKey): PermissionKey {
+            return value.validated()
+        }
+    }
+
+    class RoleRefDescriptor : TypeDescriptor<RoleRef> {
+        override val target: KClass<RoleRef> = RoleRef::class
+        override val equivMultiplatorm: String = "RoleRef"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override val description = """A reference to role."""
+        override val jsonConverter: TypeJsonConverter<RoleRef> = RoleRefJsonConverter()
+        override fun validate(value: RoleRef): RoleRef {
+            return when (value) {
+                is RoleRef.ById -> value
+                is RoleRef.ByKey -> {
+                    value.key.validated()
+                    value
+                }
+            }
+        }
+    }
+
+    class RoleRefJsonConverter : TypeJsonConverter<RoleRef> {
+        override fun deserialize(json: JsonElement): RoleRef {
+            return RefTypeJsonConverters.decodeRef(
+                json,
+                whenId = { id ->
+                    RoleRef.ById(Id.fromString(id, ::RoleId))
+                },
+                whenKey = { key ->
+                    RoleRef.ByKey(Key.fromString(key, ::RoleKey))
+                }
+            )
+        }
+    }
+
     override fun initServices(ctx: MedatarunServiceCtx) {
         val cfgBootstrapSecretPath = ctx.resolveApplicationHomePath(DEFAULT_BOOTSTRAP_SECRET_PATH_NAME)
         val cfgKeyStorePath = ctx.resolveApplicationHomePath(DEFAULT_KEYSTORE_PATH_NAME)
@@ -120,8 +190,8 @@ class AuthExtension(
 
 
         val cfgBootstrapSecret = ctx.getConfigProperty(ConfigProperties.BootstrapSecret.key)
-        val actorRolesRegistry = object : ActorRolesRegistry {
-            override fun isKnownRole(key: String): Boolean {
+        val permissionsRegistry = object : PermissionsRegistry {
+            override fun isKnownPermission(key: String): Boolean {
                 val ext = ctx.getService(SecurityRolesRegistry::class)
                 return ext.findAllRoles().any { it.key == key }
             }
@@ -164,7 +234,7 @@ class AuthExtension(
 
         val bootstrapper = BootstrapSecretLifecycleImpl(cfgBootstrapSecretPath, cfgBootstrapSecret)
 
-        val actorService: ActorService = ActorServiceImpl(actorStorage, config.authClock, actorRolesRegistry)
+        val actorService: ActorService = ActorServiceImpl(actorStorage, config.authClock, permissionsRegistry)
         val userEvents: UserServiceEvents = UserServiceEventsActorProvisioning(actorService, jwtCfg.issuer)
 
         val userService: UserService = UserServiceImpl(

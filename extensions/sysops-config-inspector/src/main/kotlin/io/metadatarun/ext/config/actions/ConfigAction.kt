@@ -58,5 +58,15 @@ sealed interface ConfigAction {
     )
     class InspectSecurityRules : ConfigAction
 
+    @ActionDoc(
+        key="inspect_permissions",
+        title = "Inspect permissions",
+        description = "Returns all known permissions registered in application with their descriptions.",
+        uiLocations = [ActionUILocation.global],
+        securityRule = SecurityRuleNames.PUBLIC,
+        semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
+    )
+    class InspectPermissions : ConfigAction
+
 }
 

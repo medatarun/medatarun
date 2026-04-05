@@ -4,6 +4,7 @@ import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.security.AppActorId
+import io.medatarun.tags.core.infra.db.migrations.V002TagEventMigration
 
 class TagsCoreDbMigration(
     override val pluginId: String,

@@ -1,8 +1,14 @@
 package io.medatarun.auth.ports.exposed
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.actor.ActorWithPermissions
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
+import io.medatarun.security.AppPermission
 import java.time.Instant
 
 /**
@@ -43,12 +49,17 @@ interface ActorService {
      * When the actor exists, we extract the fullname and email and update it (because they may
      * have changed in external IdP.)
      */
-    fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): Actor
+    fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): ActorWithPermissions
 
     /**
      * Finds an actor based on its issuer and subject
      */
     fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor?
+
+    /**
+     * Finds an actor based on its issuer and subject
+     */
+    fun findByIssuerAndSubjectWithPermissionsOptional(issuer: String, subject: String): ActorWithPermissions?
 
     /**
      * Finds an actor based on its unique identifier
@@ -65,16 +76,67 @@ interface ActorService {
      */
     fun listActors(): List<Actor>
 
+
     /**
-     * Update roles for an actor
+     * Lists all roles.
      */
-    fun setRoles(actorId: ActorId, roles: List<ActorRole>)
+    fun listRoles(): List<Role>
+
+    /**
+     * Finds a role from a role reference.
+     */
+    fun findRoleByRef(roleRef: RoleRef): Role
+
+    /**
+     * Finds a role from a role reference.
+     */
+    fun findRoleByRefOptional(roleRef: RoleRef): Role?
+
+    /**
+     * Lists permissions for a role.
+     */
+    fun listRolePermissions(roleRef: RoleRef): List<ActorPermission>
+
+    /**
+     * Creates a role and returns its identifier.
+     */
+    fun createRole(key: RoleKey, name: String, description: String?): RoleId
+
+    /**
+     * Updates role name.
+     */
+    fun updateRoleName(roleRef: RoleRef, name: String)
+
+    /**
+     * Updates role key.
+     */
+    fun updateRoleKey(roleRef: RoleRef, key: RoleKey)
+
+    /**
+     * Updates role description.
+     */
+    fun updateRoleDescription(roleRef: RoleRef, description: String?)
+
+    /**
+     * Adds a permission to a role.
+     */
+    fun addRolePermission(roleRef: RoleRef, permission: ActorPermission)
+
+    /**
+     * Deletes a permission from a role.
+     */
+    fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission)
+
+    /**
+     * Deletes a role.
+     */
+    fun deleteRole(roleRef: RoleRef)
 
     /**
      * Disable or enable an actor. A null [at] is "enabled". When a [at] is provided then
      * actor is disabled [at] this time
      */
-    fun disable(actorId: ActorId, at: Instant?)
+    fun actorDisable(actorId: ActorId, at: Instant?)
 
     /**
      * Updates an actor fullname
@@ -92,8 +154,14 @@ interface ActorService {
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorRole>,
         disabled: Instant?
     ): Actor
+
+    fun actorAddRole(actorId: ActorId, roleRef: RoleRef)
+    fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef)
+    fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
+    fun findActorRoleIdSet(actorId: ActorId): Set<RoleId>
+    fun actorHasRole(actorId: ActorId, roleId: RoleId): Boolean
+    fun findOrCreateSpecialAdminRole(): Role
 
 }

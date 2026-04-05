@@ -28,9 +28,9 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagLocalManageRole
-import io.medatarun.tags.core.adapters.security.TagGroupManageRole
-import io.medatarun.tags.core.adapters.security.TagGlobalManageRole
+import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
+import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
+import io.medatarun.tags.core.adapters.security.TagGlobalManagePermission
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -174,10 +174,10 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val roles: List<AppPrincipalRole> = listOf(
-                TagLocalManageRole,
-                TagGroupManageRole,
-                TagGlobalManageRole
+            override val permissions=setOf(
+                TagLocalManagePermission,
+                TagGroupManagePermission,
+                TagGlobalManagePermission
             )
         }
         private val testPrincipalAdmin = object : AppPrincipal {
@@ -186,10 +186,10 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = true
             override val fullname: String = "admin"
-            override val roles: List<AppPrincipalRole> = listOf(
-                TagLocalManageRole,
-                TagGroupManageRole,
-                TagGlobalManageRole
+            override val permissions = setOf(
+                TagLocalManagePermission,
+                TagGroupManagePermission,
+                TagGlobalManagePermission
             )
         }
         var testPrincipal: AppPrincipal = testPrincipalUser

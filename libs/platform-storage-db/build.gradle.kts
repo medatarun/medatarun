@@ -15,5 +15,6 @@ dependencies {
     implementation(libs.slf4j)
     implementation(project(":libs:lang"))
     implementation(project(":libs:platform-kernel"))
+    implementation(project(":libs:platform-type-commons"))
     testImplementation(kotlin("test"))
 }

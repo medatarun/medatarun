@@ -6,10 +6,8 @@
 
 - Tags and tag groups event history
 - Changelog file (this file)
-- Support for OAuth2.0 in MCP (and APIs) with Dynamic Client Registration
-  Protocol
-- PostgreSQL definitive support. 
-  Default installations are still using SQLite, so they still run out-of-the box.
+- Support for OAuth2.0 in MCP (and APIs) with Dynamic Client Registration Protocol
+- PostgreSQL support. Default installations are still using SQLite, so they still run out-of-the box.
 
 ### Breaking changes
 
@@ -17,6 +15,15 @@
   replaced by `global` (`tag_managed_create` becomes `tag_global_create` for
   example). `free` tags vocabulary had been replaced by `local`. For example
   `tag_free_create` replaced by `tag_local_create`
+
+Roles and permissions had been separated. From now a role is a named set of
+permissions you can create yourself and affect to actors.
+
+- In actions (CLI, UI, API), `actor_set_roles` had been removed.
+- You should now create roles with `role_create` and add appropriate
+  permissions with `role_add_permission` and `role_delete_permission`.
+- Then you can use `actor_add_role` and `actor_delete_role` to affect roles to
+  actors.
 
 ### Changes
 
@@ -32,6 +39,9 @@
 - Tags history implemented with event sourcing
 - A `System maintenance` actor is created automatically
   to identify data changes made by the system itself.
+- Roles and permissions are now separate concepts. You can create, update,
+  delete your own roles with permissions inside. Those roles can be affected to
+  actors.
 
 **Architecture**
 
@@ -39,18 +49,40 @@
   `traceabilityRecord`. `traceabilityRecord` keeps `actorId` and extends the
   concept of `actionInstanceId` to a more flexible `origin`.
   `origin=action:<actionInstanceId>`
-- New feature in security roles declaration to rename roles
+- Old roles had been renamed to permissions. A new role concept had been
+  introduced as a set of permissions you can affect to actors.
+- New feature in security permissions declaration to rename permissions
 
 **Database**
 
+`models-core` module:
+
 - Column `model_events.action_id` renamed to `model_event.traceability_origin`
   with new storage format.
+- Unecessary complications in how was built `model_search_item_snapshot.id`
+  removed. Using now real `BINARY(16)` UUIDs.
+
+`tags-core` module:
+
 - Added `tag_event` table for tag event sourcing
 - Renamed table `tag` to `tag_view_current_tag` and `tag_group` to
-  `tag_view_current_tag_group` and their index
-- SQLite tables moved ids from `TEXT` to `BINARY(16)`
-- Unecessary complications in who was built `model_search_item_snapshot.id`
-  removed. Using now real `BINARY(16)` UUIDs.
+  `tag_view_current_tag_group` and their index  (denormalized tables). Now those
+  tables can be rebuilt from event source `tag_event`.
+- New event-sourced tables `tag_view_history_tag` and
+  `tag_view_history_tag_group` allow finding old tag and group names and
+  descriptions in history (denormalized tables)
+
+`auth` module:
+
+- `actors` table renamed to `auth_actor`
+- A new set of tables had been introduced: `auth_actor_role`, `auth_role`,
+  `auth_role_permission`, `auth_actor_role`
+
+General:
+
+- SQLite tables moved ids from `TEXT` to `BINARY(16)`.
+- SQLite tables have a stronger TIMESTAMP usage where timestamps are needed,
+  still as text but in TIMESTAMP format.
 
 **Permissions**
 

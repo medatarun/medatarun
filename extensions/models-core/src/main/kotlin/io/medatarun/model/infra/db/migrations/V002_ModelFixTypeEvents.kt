@@ -1,10 +1,14 @@
-package io.medatarun.model.infra.db
+package io.medatarun.model.infra.db.migrations
 
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbMigrationContext
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import java.sql.Connection
+import java.sql.PreparedStatement
 
 /**
  * Simple best-effort patch for legacy events:
@@ -82,7 +86,7 @@ class V002_ModelFixTypeEvents {
         return value.content
     }
 
-    private fun readEvents(connection: java.sql.Connection): List<EventRow> {
+    private fun readEvents(connection: Connection): List<EventRow> {
         val events = mutableListOf<EventRow>()
         connection.prepareStatement(
             """
@@ -104,7 +108,7 @@ class V002_ModelFixTypeEvents {
     }
 
     private fun patchPendingTypeCreated(
-        updateStatement: java.sql.PreparedStatement,
+        updateStatement: PreparedStatement,
         pending: PendingCreateType,
         typeId: String
     ) {

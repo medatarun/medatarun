@@ -12,7 +12,6 @@ interface AuthJwtExternalPrincipal {
     val issuedAt: Instant?
     val expiresAt: Instant?
     val audience: List<String>
-    val roles: List<String>
 
     // Strings that may contain user (actor) display name
     val name: String?

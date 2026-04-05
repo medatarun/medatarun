@@ -3,16 +3,16 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.UserNotFoundException
-import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.role.Role
+import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
 import io.medatarun.auth.ports.exposed.OidcService
 import io.medatarun.auth.ports.exposed.UserService
 import io.medatarun.auth.ports.needs.AuthClock
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 
 class AuthEmbeddedActionsProvider(
@@ -32,7 +32,14 @@ class AuthEmbeddedActionsProvider(
         actionCtx: ActionCtx
     ): Any {
         val launcher =
-            AuthEmbeddedActionsLauncher(userService, oidcService, oauthService, actorService, actionCtx.principal, clock)
+            AuthEmbeddedActionsLauncher(
+                userService,
+                oidcService,
+                oauthService,
+                actorService,
+                actionCtx.principal,
+                clock
+            )
         return when (action) {
             is AuthAction.AdminBootstrap -> launcher.adminBootstrap(action)
             is AuthAction.UserCreate -> launcher.createUser(action)
@@ -43,9 +50,19 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.UserDisable -> launcher.disableUser(action)
             is AuthAction.UserEnable -> launcher.enableUser(action)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
+            is AuthAction.RoleCreate -> launcher.roleCreate(action)
+            is AuthAction.RoleList -> launcher.roleList(action)
+            is AuthAction.RoleGet -> launcher.roleGet(action)
+            is AuthAction.RoleUpdateName -> launcher.roleUpdateName(action)
+            is AuthAction.RoleUpdateKey -> launcher.roleUpdateKey(action)
+            is AuthAction.RoleUpdateDescription -> launcher.roleUpdateDescription(action)
+            is AuthAction.RoleAddPermission -> launcher.roleAddPermission(action)
+            is AuthAction.RoleDeletePermission -> launcher.roleDeletePermission(action)
+            is AuthAction.RoleDelete -> launcher.roleDelete(action)
             is AuthAction.ActorList -> launcher.listActors(action)
             is AuthAction.ActorGet -> launcher.getActor(action)
-            is AuthAction.ActorSetRoles -> launcher.setActorRoles(action)
+            is AuthAction.Actor_AddRole -> launcher.actorAddRole(action)
+            is AuthAction.Actor_DeleteRole -> launcher.actorDeleteRole(action)
             is AuthAction.ActorDisable -> launcher.disableActor(action)
             is AuthAction.ActorEnable -> launcher.enableActor(action)
         }
@@ -101,7 +118,8 @@ class AuthEmbeddedActionsLauncher(
             sub = actor.subject,
             admin = actor.isAdmin,
             fullname = actor.fullname,
-            roles = actor.roles.map { it.key },
+            roles = actor.permissions.map { it.key },
+            permissions = actor.permissions.map { it.key },
         )
 
     }
@@ -141,26 +159,115 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
+    fun roleCreate(cmd: AuthAction.RoleCreate) {
+        actorService.createRole(
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description
+        )
+    }
+
+    fun roleList(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.RoleList): RoleListDto {
+        return RoleListDto(
+            items = actorService.listRoles().map { role -> toRoleInfo(role) }
+        )
+    }
+
+    fun roleGet(cmd: AuthAction.RoleGet): RoleDetailsDto {
+        val role = actorService.findRoleByRef(cmd.roleRef)
+        return RoleDetailsDto(
+            role = toRoleInfo(role),
+            permissions = actorService.listRolePermissions(cmd.roleRef).map { it.key }
+        )
+    }
+
+    fun roleUpdateName(cmd: AuthAction.RoleUpdateName) {
+        actorService.updateRoleName(
+            roleRef = cmd.roleRef,
+            name = cmd.value
+        )
+    }
+
+    fun roleUpdateKey(cmd: AuthAction.RoleUpdateKey) {
+        actorService.updateRoleKey(
+            roleRef = cmd.roleRef,
+            key = cmd.value
+        )
+    }
+
+    fun roleUpdateDescription(cmd: AuthAction.RoleUpdateDescription) {
+        actorService.updateRoleDescription(
+            roleRef = cmd.roleRef,
+            description = cmd.value
+        )
+    }
+
+    fun roleAddPermission(cmd: AuthAction.RoleAddPermission) {
+        actorService.addRolePermission(
+            roleRef = cmd.roleRef,
+            permission = ActorPermission(cmd.permissionKey.value)
+        )
+    }
+
+    fun roleDeletePermission(cmd: AuthAction.RoleDeletePermission) {
+        actorService.deleteRolePermission(
+            roleRef = cmd.roleRef,
+            permission = ActorPermission(cmd.permissionKey.value)
+        )
+    }
+
+    fun roleDelete(cmd: AuthAction.RoleDelete) {
+        actorService.deleteRole(cmd.roleRef)
+    }
+
 
     fun listActors(@Suppress("UNUSED_PARAMETER") cmd: AuthAction.ActorList): List<ActorInfoDto> {
-        return actorService.listActors().map { actor -> toActorInfo(actor) }
+        return actorService.listActors().map { actor ->
+            ActorInfoDto(
+                id = actor.id.value.toString(),
+                issuer = actor.issuer,
+                subject = actor.subject,
+                fullname = actor.fullname,
+                email = actor.email,
+                disabledAt = actor.disabledDate?.toString(),
+                createdAt = actor.createdAt,
+                lastSeenAt = actor.lastSeenAt
+            )
+        }
     }
 
-    fun getActor(cmd: AuthAction.ActorGet): ActorInfoDto {
-        return toActorInfo(actorService.findById(cmd.actorId))
+    fun getActor(cmd: AuthAction.ActorGet): ActorDetailDto {
+        val actor = actorService.findById(cmd.actorId)
+        val roles = actorService.findActorRoleIdSet(cmd.actorId)
+        val permissions = actorService.findActorPermissionSet(cmd.actorId)
+        return ActorDetailDto(
+            id = actor.id.value.toString(),
+            issuer = actor.issuer,
+            subject = actor.subject,
+            fullname = actor.fullname,
+            email = actor.email,
+            roles = roles.map { it.asString() }.toSet(),
+            permissions = permissions.map { it.key }.toSortedSet(),
+            disabledAt = actor.disabledDate?.toString(),
+            createdAt = actor.createdAt,
+            lastSeenAt = actor.lastSeenAt
+        )
     }
 
-    fun setActorRoles(cmd: AuthAction.ActorSetRoles) {
-        actorService.setRoles(cmd.actorId, cmd.roles.map { ActorRole(it) })
+    fun actorAddRole(action: AuthAction.Actor_AddRole) {
+        actorService.actorAddRole(action.actorId, action.roleRef)
     }
 
+    fun actorDeleteRole(action: AuthAction.Actor_DeleteRole) {
+        actorService.actorDeleteRole(action.actorId, action.roleRef)
+    }
 
     fun disableActor(cmd: AuthAction.ActorDisable) {
         val actor = actorService.findById(cmd.actorId)
         if (actor.issuer == oidcService.oidcIssuer()) {
             userService.disableUser(Username(actor.subject).validate())
         } else {
-            actorService.disable(actor.id, clock.now())
+            actorService.actorDisable(actor.id, clock.now())
         }
     }
 
@@ -169,22 +276,21 @@ class AuthEmbeddedActionsLauncher(
         if (actor.issuer == oidcService.oidcIssuer()) {
             userService.enableUser(Username(actor.subject).validate())
         } else {
-            actorService.disable(actor.id, null)
+            actorService.actorDisable(actor.id, null)
         }
     }
 
-    private fun toActorInfo(actor: Actor): ActorInfoDto {
-        return ActorInfoDto(
-            id = actor.id.value.toString(),
-            issuer = actor.issuer,
-            subject = actor.subject,
-            fullname = actor.fullname,
-            email = actor.email,
-            roles = actor.roles.map { it.key },
-            disabledAt = actor.disabledDate?.toString(),
-            createdAt = actor.createdAt,
-            lastSeenAt = actor.lastSeenAt
+
+    private fun toRoleInfo(role: Role): RoleInfoDto {
+        return RoleInfoDto(
+            id = role.id.asString(),
+            key = role.key.asString(),
+            name = role.name,
+            description = role.description,
+            createdAt = role.createdAt,
+            lastUpdatedAt = role.lastUpdatedAt
         )
     }
+
 
 }

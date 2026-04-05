@@ -3,6 +3,6 @@ package io.medatarun.security
 interface SecurityRuleCtx {
     fun isSignedIn(): Boolean
     fun isAdmin(): Boolean
-    fun getRoles(): List<AppPrincipalRole>
-    fun ensureRole(wantedRole: AppPrincipalRole): SecurityRuleEvaluatorResult
+    fun getPermissions(): Set<AppPermission>
+    fun ensurePermission(wantedPermission: AppPermission): SecurityRuleEvaluatorResult
 }

@@ -1,6 +1,6 @@
 package io.medatarun.auth.domain.actor
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import java.time.Instant
 
 /**
@@ -20,44 +20,45 @@ import java.time.Instant
  * identifier is [id]
  *
  */
-data class Actor(
+interface Actor {
     /**
      * Unique identifier.
      */
-    val id: ActorId,
+    val id: ActorId
+
     /**
      * Issuer of the actor
      */
-    val issuer: String,
+    val issuer: String
+
     /**
      * Subject of the actor in this issuer.
      */
-    val subject: String,
+    val subject: String
+
     /**
      * Fullname of the actor. Be careful that it changes and sometimes we don't have it.
      * If we don't have it, we use the [subject] instead so you can always display something.
      */
-    val fullname: String,
+    val fullname: String
+
     /**
      * Email of the actor. Be careful that it changes and sometimes we don't have it.
      */
-    val email: String?,
-    /**
-     * List of roles known and stored for this actor.
-     *
-     * Roles in Actor are the official source of roles (roles are not on User but on Actor).
-     */
-    val roles: List<ActorRole>,
+    val email: String?
+
     /**
      * Date this actor was disabled, if disabled. Otherwise null if actor is enabled.
      */
-    val disabledDate: Instant?,
+    val disabledDate: Instant?
+
     /**
      * Instant actor was created
      */
-    val createdAt: Instant,
+    val createdAt: Instant
+
     /**
      * Instant actor was last seen (exactly, last time he used tokens and acted on the system)
      */
     val lastSeenAt: Instant
-)
+}

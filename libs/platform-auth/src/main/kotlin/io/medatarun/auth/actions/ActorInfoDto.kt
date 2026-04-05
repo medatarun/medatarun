@@ -12,7 +12,6 @@ data class ActorInfoDto(
     val subject: String,
     val fullname: String,
     val email: String?,
-    val roles: List<String>,
     val disabledAt: String?,
     @Serializable(with = InstantAsIsoStringSerializer::class)
     val createdAt: Instant,

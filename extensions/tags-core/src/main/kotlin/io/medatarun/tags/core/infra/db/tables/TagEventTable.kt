@@ -4,7 +4,7 @@ import io.medatarun.security.AppActorId
 import io.medatarun.platform.db.exposed.jsonb
 import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagScopeId
-import io.medatarun.tags.core.infra.db.types.IdTransformer
+import io.medatarun.platform.db.exposed.IdTransformer
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestamp

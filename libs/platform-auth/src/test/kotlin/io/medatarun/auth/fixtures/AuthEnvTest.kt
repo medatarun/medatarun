@@ -24,9 +24,10 @@ import io.medatarun.platform.db.postgresql.PlatformStorageDbPostgresqlExtension
 import io.medatarun.platform.db.sqlite.PlatformStorageDbSqliteExtension
 import io.medatarun.platform.db.testkit.TestDbConfig
 import io.medatarun.platform.kernel.*
-import io.medatarun.security.AppPrincipalRole
+import io.medatarun.security.AppPermission
+import io.medatarun.security.AppPermissionStringBased
 import io.medatarun.security.SecurityExtension
-import io.medatarun.security.SecurityRolesProvider
+import io.medatarun.security.SecurityPermissionsProvider
 import io.medatarun.types.TypeSystemExtension
 import java.net.URI
 import kotlin.test.assertEquals
@@ -48,7 +49,7 @@ import kotlin.test.assertTrue
  */
 class AuthEnvTest(
     private val createAdmin: Boolean = true,
-    private val otherRoles: Set<String> = emptySet(),
+    private val otherPermissions: Set<TestOtherPermission> = emptySet(),
     private val extraProps: Map<String, String> = emptyMap(),
     val publicBaseUrl: URI = URI("https://auth.example.test")
 ) {
@@ -97,7 +98,7 @@ class AuthEnvTest(
                 override val passwordEncryptionDefaultIterations: Int
                     get() = UserPasswordEncrypter.DEFAULT_ITERATIONS_FOR_TESTS
             }),
-            OtherRolesExtension(otherRoles)
+            TestOtherPermissionsExtension(otherPermissions)
         )
     ).buildAndStart()
 
@@ -185,23 +186,28 @@ class AuthEnvTest(
         return decodedJWT
     }
 
-    class OtherRolesExtension(val otherRoles: Set<String>) : MedatarunExtension {
+    /**
+     * Test extension that declares new permissions, like other modules
+     * would do. This is used to test that permissions from all modules
+     * are correctly contributed and seen by the auth module.
+     */
+    class TestOtherPermissionsExtension(val otherPermissions: Set<TestOtherPermission>) : MedatarunExtension {
         override val id: ExtensionId = "other-roles"
         override fun initContributions(ctx: MedatarunExtensionCtx) {
-            ctx.registerContribution(SecurityRolesProvider::class, object : SecurityRolesProvider {
-                override fun getRoles(): List<AppPrincipalRole> {
-                    return otherRoles.map {
-                        object : AppPrincipalRole {
-                            override val key: String
-                                get() = it
-
-                        }
-                    }
-                }
-
-            })
+            ctx.registerContribution(
+                SecurityPermissionsProvider::class,
+                TestOtherSecurityPermissionsProvider(otherPermissions)
+            )
         }
-
     }
 
+    /**
+     * A fake permission provider with a list of predefined permissions
+     * coming from the test area
+     */
+    class TestOtherSecurityPermissionsProvider(val otherPermissions: Set<TestOtherPermission>) : SecurityPermissionsProvider {
+        override fun getPermissions(): List<AppPermission> = otherPermissions.toList()
+    }
+
+    class TestOtherPermission(override val key: String): AppPermission
 }

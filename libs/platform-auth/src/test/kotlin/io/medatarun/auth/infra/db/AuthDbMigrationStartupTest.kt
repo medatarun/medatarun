@@ -25,7 +25,10 @@ class AuthDbMigrationStartupTest {
         assertTrue(env.dbMigrationChecker.tableExists("users"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_ctx"))
         assertTrue(env.dbMigrationChecker.tableExists("auth_code"))
-        assertTrue(env.dbMigrationChecker.tableExists("actors"))
+        assertTrue(env.dbMigrationChecker.tableExists("auth_actor"))
+        assertTrue(env.dbMigrationChecker.tableExists("auth_role"))
+        assertTrue(env.dbMigrationChecker.tableExists("auth_role_permission"))
+        assertTrue(env.dbMigrationChecker.tableExists("auth_actor_role"))
 
         // We are always doing a fresh install. Even if the currentVersion
         // changes, the count of lines of migration is always 1, because it is

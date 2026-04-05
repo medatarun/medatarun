@@ -1,8 +1,8 @@
 package io.medatarun.tags.core.infra.db.tables
 
 import io.medatarun.tags.core.domain.*
-import io.medatarun.tags.core.infra.db.types.IdTransformer
-import io.medatarun.tags.core.infra.db.types.KeyTransformer
+import io.medatarun.platform.db.exposed.IdTransformer
+import io.medatarun.platform.db.exposed.KeyTransformer
 import io.medatarun.tags.core.infra.db.types.TagHistoryProjectionId
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID

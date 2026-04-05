@@ -4,7 +4,8 @@ import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionRequestCtx
 import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPrincipal
-import io.medatarun.security.AppPrincipalRole
+import io.medatarun.security.AppPermission
+import io.medatarun.security.AppPermissionStringBased
 import org.junit.jupiter.api.Assertions
 import kotlin.test.Test
 
@@ -12,23 +13,23 @@ class SecurityRuleCtxActionTest {
 
     @Test
     fun `principal present means signed in`() {
-        val principal = TestPrincipal(isAdmin = false, roles = emptyList())
+        val principal = TestPrincipal(isAdmin = false, permissions = emptySet())
         val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
 
         Assertions.assertTrue(ctx.isSignedIn())
         Assertions.assertFalse(ctx.isAdmin())
-        Assertions.assertEquals(emptyList<AppPrincipalRole>(), ctx.getRoles())
+        Assertions.assertEquals(emptySet<AppPermission>(), ctx.getPermissions())
     }
 
     @Test
     fun `admin principal is admin`() {
-        val role = TestRole("admin")
-        val principal = TestPrincipal(isAdmin = true, roles = listOf(role))
+        val permission = AppPermissionStringBased("admin")
+        val principal = TestPrincipal(isAdmin = true, permissions = setOf(permission))
         val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
 
         Assertions.assertTrue(ctx.isSignedIn())
         Assertions.assertTrue(ctx.isAdmin())
-        Assertions.assertEquals(listOf(role), ctx.getRoles())
+        Assertions.assertEquals(setOf(permission), ctx.getPermissions())
     }
 
     @Test
@@ -37,14 +38,14 @@ class SecurityRuleCtxActionTest {
 
         Assertions.assertFalse(ctx.isSignedIn())
         Assertions.assertFalse(ctx.isAdmin())
-        Assertions.assertEquals(emptyList<AppPrincipalRole>(), ctx.getRoles())
+        Assertions.assertEquals(emptySet<AppPermission>(), ctx.getPermissions())
     }
 
     // fixtures minimales
 
     private class TestPrincipal(
         override val isAdmin: Boolean,
-        override val roles: List<AppPrincipalRole>
+        override val permissions: Set<AppPermission>
     ) : AppPrincipal {
         override val id = AppActorId.generate()
         override val issuer = "issuer"
@@ -52,7 +53,7 @@ class SecurityRuleCtxActionTest {
         override val fullname = "name"
     }
 
-    private class TestRole(override val key: String) : AppPrincipalRole
+
 
     private class TestActionCtx(principal: AppPrincipal?) : ActionRequestCtx {
         override val principalCtx = object : ActionPrincipalCtx {

@@ -7,14 +7,14 @@ package io.medatarun.auth.domain
  *
  * The only known role from the auth system is "admin". Please use the constant and don't write "admin" everywhere
  */
-data class ActorRole(val key: String) {
+data class ActorPermission(val key: String) {
 
     /**
      * Indicates this role provides administrative permissions.
      */
-    fun isAdminRole(): Boolean { return key == ADMIN.key}
+    fun isAdminPermission(): Boolean { return key == ADMIN.key}
 
     companion object {
-        val ADMIN = ActorRole("admin")
+        val ADMIN = ActorPermission("admin")
     }
 }

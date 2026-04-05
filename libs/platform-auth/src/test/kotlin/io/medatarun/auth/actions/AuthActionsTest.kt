@@ -1,11 +1,12 @@
 package io.medatarun.auth.actions
 
-import io.medatarun.auth.domain.ActorRole
+import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.AuthNotAuthenticatedException
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.fixtures.AuthActionEnvTest
+import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.auth.ports.exposed.UserService
@@ -31,7 +32,7 @@ class AuthActionsTest {
 
     @Test
     fun `bootstrap called`() {
-        val env = AuthActionEnvTest(createAdmin = false)
+        val env = AuthActionEnvTest(createAdmin = false,)
         val username = Username("admin")
         val password = PasswordClear("admin.0123456789")
         // Important, keep the type to check response type
@@ -55,8 +56,11 @@ class AuthActionsTest {
         val actorService = env.getService(ActorService::class)
         val actor = actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), user.username.value)
         assertNotNull(actor)
-        assertEquals(1, actor.roles.size)
-        assertTrue(actor.roles.any { it.key == ActorRole.ADMIN.key })
+
+        val permissions = actorService.findActorPermissionSet(actor.id)
+
+        assertEquals(1, permissions.size)
+        assertTrue(permissions.any { it.key == ActorPermission.ADMIN.key })
     }
 
     @Test
@@ -130,7 +134,7 @@ class AuthActionsTest {
         assertEquals(whoamiAdmin.admin, true)
         assertEquals(whoamiAdmin.sub, env.env.adminUsername.value)
         assertTrue(whoamiAdmin.roles.size == 1)
-        assertEquals(ActorRole.ADMIN.key, whoamiAdmin.roles[0])
+        assertEquals(ActorPermission.ADMIN.key, whoamiAdmin.roles[0])
 
         env.asUser(username)
         val whoamiUser = env.dispatch(AuthAction.WhoAmI())
@@ -459,39 +463,13 @@ class AuthActionsTest {
         )
         assertNotNull(actor)
 
-        val actorInfo: ActorInfoDto = env.dispatch(AuthAction.ActorGet(actor.id))
+        val actorInfo: ActorDetailDto = env.dispatch(AuthAction.ActorGet(actor.id))
         assertEquals(actor.id.value.toString(), actorInfo.id)
         assertEquals("jane.doe", actorInfo.subject)
         assertEquals("Jane Doe", actorInfo.fullname)
         assertEquals(env.env.oidcService.oidcIssuer(), actorInfo.issuer)
     }
 
-    @Test
-    fun changeRolesOnActor() {
-        val env = AuthActionEnvTest(otherRoles = setOf("ROLE1", "ROLE2"))
-        env.asAdmin()
-        val iss = "https://microsoft.com/azuread/987654321"
-        val sub = "john.doe"
-        env.env.actorService.syncFromJwtExternalPrincipal(createActorJwt(iss, sub))
-        val actor = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
-        assertNotNull(actor)
-        assertTrue(actor.roles.isEmpty())
-
-        @Suppress("UnusedVariable", "unused") val result: Unit = env.dispatch(
-            AuthAction.ActorSetRoles(actor.id, roles = listOf("ROLE1", "ROLE2"))
-        )
-
-        val actorAfter = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
-        assertNotNull(actorAfter)
-        assertTrue(actorAfter.roles.any { it.key == "ROLE1" })
-        assertTrue(actorAfter.roles.any { it.key == "ROLE2" })
-
-        // Test empty
-        env.dispatch(AuthAction.ActorSetRoles(actor.id, roles = emptyList()))
-        val actorEmptyRoles = env.env.actorService.findByIssuerAndSubjectOptional(iss, sub)
-        assertNotNull(actorEmptyRoles)
-        assertTrue(actorEmptyRoles.roles.isEmpty())
-    }
 
     private fun createActorJwt(
         issuer: String,
@@ -505,7 +483,6 @@ class AuthActionsTest {
             override val issuedAt: Instant? = null
             override val expiresAt: Instant? = null
             override val audience: List<String> = emptyList()
-            override val roles: List<String> = emptyList()
             override val name: String? = name
             override val fullname: String? = null
             override val preferredUsername: String? = null
