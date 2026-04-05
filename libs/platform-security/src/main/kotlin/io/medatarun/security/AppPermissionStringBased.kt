@@ -5,4 +5,4 @@ package io.medatarun.security
  * Model should prefer creating their own class.
  * This is mostly to help with tests and prototyping.
  */
-class AppPermissionStringBased(override val key: String): AppPermission
+data class AppPermissionStringBased(override val key: String): AppPermission

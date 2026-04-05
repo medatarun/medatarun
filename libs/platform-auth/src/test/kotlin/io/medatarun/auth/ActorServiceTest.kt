@@ -2,13 +2,13 @@ package io.medatarun.auth
 
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorPermission
-import io.medatarun.auth.domain.AuthUnknownPermissionException
+import io.medatarun.auth.domain.role.RoleKey
+import io.medatarun.auth.domain.role.RoleRef
 import io.medatarun.auth.fixtures.AuthEnvTest
 import io.medatarun.auth.ports.exposed.AuthJwtExternalPrincipal
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.security.AppActorSystemMaintenance
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -28,7 +28,6 @@ class ActorServiceTest {
             subject = "subject-a",
             fullname = "Alice Example",
             email = "alice@example.com",
-            roles = listOf(ActorPermission.ADMIN),
             disabled = null
         )
 
@@ -36,7 +35,6 @@ class ActorServiceTest {
         assertEquals("subject-a", actor.subject)
         assertEquals("Alice Example", actor.fullname)
         assertEquals("alice@example.com", actor.email)
-        assertEquals(listOf(ActorPermission.ADMIN), actor.roles)
         assertEquals(now, actor.createdAt)
         assertEquals(now, actor.lastSeenAt)
 
@@ -56,39 +54,12 @@ class ActorServiceTest {
             subject = "subject-disabled",
             fullname = "Disabled User",
             email = null,
-            roles = emptyList(),
             disabled = disabledAt
         )
 
         assertEquals(disabledAt, actor.disabledDate)
     }
 
-    @Test
-    fun `create validates roles`() {
-        val env = AuthEnvTest(
-            createAdmin = false,
-            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("known-role"))
-        )
-        env.actorService.create(
-            issuer = "issuer-role",
-            subject = "subject-role",
-            fullname = "Known Role",
-            email = null,
-            roles = listOf(ActorPermission("known-role")),
-            disabled = null
-        )
-
-        assertThrows<AuthUnknownPermissionException> {
-            env.actorService.create(
-                issuer = "issuer-role-unknown",
-                subject = "subject-role-unknown",
-                fullname = "Unknown Role",
-                email = null,
-                roles = listOf(ActorPermission("unknown-role")),
-                disabled = null
-            )
-        }
-    }
 
     @Test
     fun `listActors returns all known actors`() {
@@ -101,7 +72,6 @@ class ActorServiceTest {
             subject = "subject-a",
             fullname = "Alice Example",
             email = null,
-            roles = emptyList(),
             disabled = null
         )
         val actorB = env.actorService.create(
@@ -109,7 +79,6 @@ class ActorServiceTest {
             subject = "subject-b",
             fullname = "Bob Example",
             email = "bob@example.com",
-            roles = listOf(ActorPermission("role-b")),
             disabled = null
         )
 
@@ -152,9 +121,10 @@ class ActorServiceTest {
 
     @Test
     fun `sync updates existing actor profile`() {
+        val specialPermissionKey = "role-x"
         val env = AuthEnvTest(
             createAdmin = false,
-            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-x"))
+            otherPermissions = setOf(AuthEnvTest.TestOtherPermission(specialPermissionKey))
         )
         val initialTime = Instant.parse("2024-02-01T00:00:00Z")
         val updatedTime = Instant.parse("2024-02-02T00:00:00Z")
@@ -165,9 +135,12 @@ class ActorServiceTest {
             subject = "subject-x",
             fullname = "Initial Name",
             email = "initial@example.com",
-            roles = listOf(ActorPermission("role-x")),
             disabled = null
         )
+
+        val roleId = env.actorService.createRole(RoleKey("role"), name ="Role X", description = null)
+        env.actorService.addRolePermission(RoleRef.ById(roleId), ActorPermission(specialPermissionKey))
+        env.actorService.actorAddRole(created.id, RoleRef.ById(roleId))
 
         env.authClockTests.staticNow = updatedTime
         val updated = env.actorService.syncFromJwtExternalPrincipal(
@@ -182,34 +155,10 @@ class ActorServiceTest {
         assertEquals(created.id, updated.id)
         assertEquals("Updated Name", updated.fullname)
         assertEquals("updated@example.com", updated.email)
-        assertEquals(listOf(ActorPermission("role-x")), updated.roles)
+        assertEquals(setOf(ActorPermission(specialPermissionKey)), updated.permissions)
         assertEquals(updatedTime, updated.lastSeenAt)
     }
 
-    @Test
-    fun `setRoles updates roles and validates known roles`() {
-        val env = AuthEnvTest(
-            createAdmin = false,
-            otherPermissions = setOf(AuthEnvTest.TestOtherPermission("role-x"))
-        )
-        val actor = env.actorService.create(
-            issuer = "issuer-roles",
-            subject = "subject-roles",
-            fullname = "Role Holder",
-            email = null,
-            roles = emptyList(),
-            disabled = null
-        )
-
-        env.actorService.setRoles(actor.id, listOf(ActorPermission("role-x")))
-        val updated = env.actorService.findByIssuerAndSubjectOptional("issuer-roles", "subject-roles")
-        assertNotNull(updated)
-        assertEquals(listOf(ActorPermission("role-x")), updated.roles)
-
-        assertThrows<AuthUnknownPermissionException> {
-            env.actorService.setRoles(actor.id, listOf(ActorPermission("unknown-role")))
-        }
-    }
 
     @Test
     fun `disable and enable actor`() {
@@ -219,7 +168,6 @@ class ActorServiceTest {
             subject = "subject-disable",
             fullname = "Disabled Actor",
             email = null,
-            roles = emptyList(),
             disabled = null
         )
 
@@ -247,7 +195,6 @@ class ActorServiceTest {
             subject = "subject-name",
             fullname = "Initial Name",
             email = "initial@example.com",
-            roles = emptyList(),
             disabled = null
         )
 

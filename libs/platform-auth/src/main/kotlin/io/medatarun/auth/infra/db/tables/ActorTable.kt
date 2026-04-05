@@ -13,7 +13,6 @@ internal object ActorTable : Table("auth_actor") {
     val subject = text("subject")
     val fullName = text("full_name")
     val email = text("email").nullable()
-    val rolesJson = jsonb("roles_json")
     val disabledDate = timestamp("disabled_date").nullable()
     val createdAt = timestamp("created_at")
     val lastSeenAt = timestamp("last_seen_at")

@@ -1,0 +1,1 @@
+ALTER TABLE auth_actor DROP COLUMN roles_json;

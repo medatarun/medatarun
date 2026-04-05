@@ -16,8 +16,8 @@ internal class SecurityRuleCtxAction(private val actionCtx: ActionRequestCtx) : 
         return p != null && p.isAdmin
     }
 
-    override fun getPermissions(): List<AppPermission> {
-        return actionCtx.principalCtx.principal?.permissions ?: emptyList()
+    override fun getPermissions(): Set<AppPermission> {
+        return actionCtx.principalCtx.principal?.permissions ?: emptySet()
     }
 
     override fun ensurePermission(wantedPermission: AppPermission): SecurityRuleEvaluatorResult {

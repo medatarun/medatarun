@@ -14,8 +14,6 @@ import io.medatarun.auth.infra.db.tables.RolePermissionTable
 import io.medatarun.auth.infra.db.tables.RoleTable
 import io.medatarun.auth.ports.needs.ActorStorage
 import io.medatarun.platform.db.DbConnectionFactory
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -29,15 +27,12 @@ import java.time.Instant
 
 class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : ActorStorage {
 
-    private val json = Json { encodeDefaults = true }
-
     override fun actorCreate(
         id: ActorId,
         issuer: String,
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorPermission>,
         disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
@@ -49,7 +44,6 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[this.subject] = subject
                 row[this.fullName] = fullname
                 row[this.email] = email
-                row[this.rolesJson] = encodeRoles(roles)
                 row[this.disabledDate] = disabled
                 row[this.createdAt] = createdAt
                 row[this.lastSeenAt] = lastSeenAt
@@ -68,14 +62,6 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 row[this.fullName] = fullname
                 row[this.email] = email
                 row[this.lastSeenAt] = lastSeenAt
-            }
-        }
-    }
-
-    override fun deprecated__updateRoles(id: ActorId, roles: List<ActorPermission>) {
-        dbConnectionFactory.withExposed {
-            ActorTable.update(where = { ActorTable.id eq id }) { row ->
-                row[this.rolesJson] = encodeRoles(roles)
             }
         }
     }
@@ -168,7 +154,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             RolePermissionTable.selectAll()
                 .where {
                     (RolePermissionTable.authRoleId eq roleId) and
-                        (RolePermissionTable.permission eq permission)
+                            (RolePermissionTable.permission eq permission)
                 }
                 .empty()
                 .not()
@@ -188,7 +174,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         dbConnectionFactory.withExposed {
             RolePermissionTable.deleteWhere {
                 (RolePermissionTable.authRoleId eq roleId) and
-                    (RolePermissionTable.permission eq permission)
+                        (RolePermissionTable.permission eq permission)
             }
         }
     }
@@ -209,7 +195,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         }
     }
 
-    override fun actorEnable(id: ActorId,) {
+    override fun actorEnable(id: ActorId) {
         dbConnectionFactory.withExposed {
             ActorTable.update(where = { ActorTable.id eq id }) { row ->
                 row[this.disabledDate] = null
@@ -222,7 +208,7 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
             ActorTable.selectAll()
                 .where {
                     (ActorTable.issuer eq issuer) and
-                        (ActorTable.subject eq subject)
+                            (ActorTable.subject eq subject)
                 }
                 .singleOrNull()
                 ?.let { readActor(it) }
@@ -283,20 +269,18 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         dbConnectionFactory.withExposed {
             ActorRoleTable.deleteWhere {
                 (ActorRoleTable.actorId eq actorId) and
-                    (ActorRoleTable.roleId eq roleId)
+                        (ActorRoleTable.roleId eq roleId)
             }
         }
     }
 
     private fun readActor(row: ResultRow): Actor {
-        val rolesJson = row[ActorTable.rolesJson]
         return ActorInMemory(
             id = row[ActorTable.id],
             issuer = row[ActorTable.issuer],
             subject = row[ActorTable.subject],
             fullname = row[ActorTable.fullName],
             email = row[ActorTable.email],
-            roles = decodeRoles(rolesJson),
             disabledDate = row[ActorTable.disabledDate],
             createdAt = row[ActorTable.createdAt],
             lastSeenAt = row[ActorTable.lastSeenAt]
@@ -314,41 +298,11 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
         )
     }
 
-    private fun encodeRoles(roles: List<ActorPermission>): String {
-        return json.encodeToString(listStringSerializer, roles.map { it.key })
-    }
-
-    private fun decodeRoles(rolesJson: String): List<ActorPermission> {
-        return json.decodeFromString(listStringSerializer, rolesJson)
-            .map { ActorPermission(it) }
-    }
-
     fun renamePermissions(oldToNewPermissions: Map<String, String>) {
         if (oldToNewPermissions.isEmpty()) {
             return
         }
         dbConnectionFactory.withExposed {
-            ActorTable.selectAll().forEach { row ->
-                val actorId = row[ActorTable.id]
-                val currentRoles = decodeRoles(row[ActorTable.rolesJson])
-                var hasChanges = false
-                val renamedRoles = mutableListOf<ActorPermission>()
-                currentRoles.forEach { role ->
-                    val newRoleName = oldToNewPermissions[role.key]
-                    if (newRoleName != null) {
-                        hasChanges = true
-                        renamedRoles.add(ActorPermission(newRoleName))
-                    } else {
-                        renamedRoles.add(role)
-                    }
-                }
-                if (hasChanges) {
-                    ActorTable.update(where = { ActorTable.id eq actorId }) { updateRow ->
-                        updateRow[rolesJson] = encodeRoles(renamedRoles)
-                    }
-                }
-            }
-
             oldToNewPermissions.forEach { (oldPermission, newPermission) ->
                 RolePermissionTable.update(
                     where = { RolePermissionTable.permission eq ActorPermission(oldPermission) }
@@ -357,11 +311,5 @@ class ActorStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) :
                 }
             }
         }
-    }
-
-    companion object {
-
-
-        private val listStringSerializer = ListSerializer(String.serializer())
     }
 }

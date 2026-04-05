@@ -11,7 +11,6 @@ data class ActorInMemory(
     override val subject: String,
     override val fullname: String,
     override val email: String?,
-    override val roles: List<ActorPermission>,
     override val disabledDate: Instant?,
     override val createdAt: Instant,
     override val lastSeenAt: Instant

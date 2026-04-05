@@ -2,6 +2,7 @@ package io.medatarun.auth.internal.actors
 
 import io.medatarun.auth.adapters.ActorWithPermissionsInMemory
 import io.medatarun.auth.domain.*
+import io.medatarun.auth.domain.AuthUnknownPermissionException
 import io.medatarun.auth.domain.actor.Actor
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.actor.ActorWithPermissions
@@ -20,8 +21,10 @@ import java.time.Instant
 class ActorServiceImpl(
     private val actorStorage: ActorStorage,
     private val clock: AuthClock,
-    private val appRoles: PermissionsRegistry
+    private val permissionsRegistry: PermissionsRegistry
 ) : ActorService {
+
+
 
     override fun syncFromJwtExternalPrincipal(principal: AuthJwtExternalPrincipal): ActorWithPermissions {
         val existing = actorStorage.findActorByIssuerAndSubjectOptional(principal.issuer, principal.subject)
@@ -32,7 +35,6 @@ class ActorServiceImpl(
                 subject = principal.subject,
                 fullname = actorDisplayName(principal),
                 email = principal.email,
-                roles = emptyList(),
                 disabled = null
             )
             logger.info("Registered actor {} from issuer {}", created.id, created.issuer)
@@ -42,6 +44,15 @@ class ActorServiceImpl(
         }
         val permissionSet = actorStorage.findActorPermissionSet(actor.id)
         return ActorWithPermissionsInMemory(actor, permissionSet)
+    }
+
+    override fun findByIssuerAndSubjectWithPermissionsOptional(
+        issuer: String,
+        subject: String
+    ): ActorWithPermissions? {
+        val found = findByIssuerAndSubjectOptional(issuer, subject) ?: return null
+        val permissionSet = actorStorage.findActorPermissionSet(found.id)
+        return ActorWithPermissionsInMemory(found, permissionSet)
     }
 
     fun updateActorProfile(
@@ -68,10 +79,8 @@ class ActorServiceImpl(
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorPermission>,
         disabled: Instant?
     ): Actor {
-        ensurePermissionsExist(roles)
         val id = ActorId.generate()
         actorStorage.actorCreate(
             id = id,
@@ -79,7 +88,6 @@ class ActorServiceImpl(
             subject = subject,
             fullname = fullname,
             email = email,
-            roles = roles,
             disabled = disabled,
             createdAt = clock.now(),
             lastSeenAt = clock.now()
@@ -104,18 +112,15 @@ class ActorServiceImpl(
         return actorStorage.findActorByIdOptional(actorId)
     }
 
-    override fun setRoles(actorId: ActorId, roles: List<ActorPermission>) {
-        ensurePermissionsExist(roles)
-        val existing = actorStorage.findActorById(actorId)
-        actorStorage.deprecated__updateRoles(existing.id, roles)
-    }
-
     override fun listRoles(): List<Role> {
         return actorStorage.findRoleList()
     }
 
     override fun findRoleByRef(roleRef: RoleRef): Role {
         return actorStorage.findRoleByRef(roleRef)
+    }
+    override fun findRoleByRefOptional(roleRef: RoleRef): Role? {
+        return actorStorage.findRoleByRefOptional(roleRef)
     }
 
     override fun listRolePermissions(roleRef: RoleRef): List<ActorPermission> {
@@ -128,6 +133,8 @@ class ActorServiceImpl(
         name: String,
         description: String?
     ): RoleId {
+        // Special admin role: no you can not create another role with this key
+        if (key == ADMIN_ROLE_KEY) throw RoleAdminKeyCanNotBeUsedToCreateRoleException()
         if (actorStorage.findRoleByKeyOptional(key) != null) {
             throw RoleAlreadyExistsException(key.value)
         }
@@ -138,11 +145,14 @@ class ActorServiceImpl(
     }
 
     override fun updateRoleName(roleRef: RoleRef, name: String) {
+        // Special admin role: yes, you can rename it
         val role = actorStorage.findRoleByRef(roleRef)
         actorStorage.roleUpdateName(role.id, name, clock.now())
     }
 
     override fun updateRoleKey(roleRef: RoleRef, key: RoleKey) {
+        // Special admin role: no, you cannot rename the key
+        if (key == ADMIN_ROLE_KEY) throw RoleAdminKeyCanNotBeChangedException()
         val role = actorStorage.findRoleByRef(roleRef)
         val existingRole = actorStorage.findRoleByKeyOptional(key)
         if (existingRole != null && existingRole.id != role.id) {
@@ -152,13 +162,16 @@ class ActorServiceImpl(
     }
 
     override fun updateRoleDescription(roleRef: RoleRef, description: String?) {
+        // Special admin role: yes, you can change description
         val role = actorStorage.findRoleByRef(roleRef)
         actorStorage.roleUpdateDescription(role.id, description, clock.now())
     }
 
     override fun addRolePermission(roleRef: RoleRef, permission: ActorPermission) {
+        // Special admin role: no, you cannot add permissions from here
         val role = actorStorage.findRoleByRef(roleRef)
-        ensurePermissionExists(permission)
+        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminPermissionChangeForbiddenException()
+        if (!permissionsRegistry.isKnownPermission(permission)) throw AuthUnknownPermissionException(permission.key)
         if (actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionAlreadyExistsException(role.id.asString(), permission.key)
         }
@@ -166,7 +179,9 @@ class ActorServiceImpl(
     }
 
     override fun deleteRolePermission(roleRef: RoleRef, permission: ActorPermission) {
+        // Special admin role: no, you cannot remove permissions from here
         val role = actorStorage.findRoleByRef(roleRef)
+        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminPermissionChangeForbiddenException()
         if (!actorStorage.roleHasPermission(role.id, permission)) {
             throw RolePermissionNotFoundException(role.id.asString(), permission.key)
         }
@@ -199,8 +214,27 @@ class ActorServiceImpl(
         return actorStorage.findActorRoleIdList(actorId)
     }
 
+    override fun actorHasRole(actorId: ActorId, roleId: RoleId): Boolean {
+        return actorStorage.findActorRoleIdList(actorId).contains(roleId)
+    }
+
+    override fun findOrCreateSpecialAdminRole(): Role {
+        // This is the only method that can manipulate the admin role
+        val role = actorStorage.findRoleByKeyOptional(ADMIN_ROLE_KEY)
+        val roleSafe = if (role == null) {
+            val adminRoleId = RoleId.generate()
+            actorStorage.roleCreate(adminRoleId, ADMIN_ROLE_KEY, "Admin", null, clock.now(), clock.now())
+            actorStorage.findRoleById(adminRoleId)
+        } else role
+        if (!actorStorage.roleHasPermission(roleSafe.id, ActorPermission.ADMIN)) {
+            actorStorage.roleAddPermission(roleSafe.id, ActorPermission.ADMIN)
+        }
+        return roleSafe
+    }
+
     override fun deleteRole(roleRef: RoleRef) {
         val role = actorStorage.findRoleByRef(roleRef)
+        if (role.key == ADMIN_ROLE_KEY) throw RoleAdminCanNotBeDeletedException()
         actorStorage.roleDelete(role.id)
     }
 
@@ -208,19 +242,6 @@ class ActorServiceImpl(
         val existing = actorStorage.findActorById(actorId)
         if (at == null) actorStorage.actorEnable(existing.id)
         else actorStorage.actorDisable(existing.id, at)
-    }
-
-
-    private fun ensurePermissionsExist(permissions: List<ActorPermission>): List<ActorPermission> {
-        permissions.forEach {
-            if (!appRoles.isKnownPermission(it.key)) throw AuthUnknownPermissionException(it.key)
-        }
-        return permissions
-    }
-
-    private fun ensurePermissionExists(p: ActorPermission): ActorPermission {
-        if (!appRoles.isKnownPermission(p)) throw AuthUnknownPermissionException(p.key)
-        return p
     }
 
     private fun actorDisplayName(principal: AuthJwtExternalPrincipal): String {
@@ -248,5 +269,7 @@ class ActorServiceImpl(
 
     companion object {
         private val logger = LoggerFactory.getLogger(ActorServiceImpl::class.java)
+        const val ADMIN_ROLE_KEY_STR = "admin"
+        val ADMIN_ROLE_KEY = RoleKey("admin")
     }
 }

@@ -13,23 +13,23 @@ class SecurityRuleCtxActionTest {
 
     @Test
     fun `principal present means signed in`() {
-        val principal = TestPrincipal(isAdmin = false, permissions = emptyList())
+        val principal = TestPrincipal(isAdmin = false, permissions = emptySet())
         val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
 
         Assertions.assertTrue(ctx.isSignedIn())
         Assertions.assertFalse(ctx.isAdmin())
-        Assertions.assertEquals(emptyList<AppPermission>(), ctx.getPermissions())
+        Assertions.assertEquals(emptySet<AppPermission>(), ctx.getPermissions())
     }
 
     @Test
     fun `admin principal is admin`() {
         val permission = AppPermissionStringBased("admin")
-        val principal = TestPrincipal(isAdmin = true, permissions = listOf(permission))
+        val principal = TestPrincipal(isAdmin = true, permissions = setOf(permission))
         val ctx = SecurityRuleCtxAction(TestActionCtx(principal))
 
         Assertions.assertTrue(ctx.isSignedIn())
         Assertions.assertTrue(ctx.isAdmin())
-        Assertions.assertEquals(listOf(permission), ctx.getPermissions())
+        Assertions.assertEquals(setOf(permission), ctx.getPermissions())
     }
 
     @Test
@@ -38,14 +38,14 @@ class SecurityRuleCtxActionTest {
 
         Assertions.assertFalse(ctx.isSignedIn())
         Assertions.assertFalse(ctx.isAdmin())
-        Assertions.assertEquals(emptyList<AppPermission>(), ctx.getPermissions())
+        Assertions.assertEquals(emptySet<AppPermission>(), ctx.getPermissions())
     }
 
     // fixtures minimales
 
     private class TestPrincipal(
         override val isAdmin: Boolean,
-        override val permissions: List<AppPermission>
+        override val permissions: Set<AppPermission>
     ) : AppPrincipal {
         override val id = AppActorId.generate()
         override val issuer = "issuer"

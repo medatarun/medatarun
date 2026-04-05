@@ -56,8 +56,11 @@ class AuthActionsTest {
         val actorService = env.getService(ActorService::class)
         val actor = actorService.findByIssuerAndSubjectOptional(env.env.oidcService.oidcIssuer(), user.username.value)
         assertNotNull(actor)
-        assertEquals(1, actor.roles.size)
-        assertTrue(actor.roles.any { it.key == ActorPermission.ADMIN.key })
+
+        val permissions = actorService.findActorPermissionSet(actor.id)
+
+        assertEquals(1, permissions.size)
+        assertTrue(permissions.any { it.key == ActorPermission.ADMIN.key })
     }
 
     @Test

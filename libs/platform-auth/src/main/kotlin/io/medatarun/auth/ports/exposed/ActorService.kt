@@ -57,6 +57,11 @@ interface ActorService {
     fun findByIssuerAndSubjectOptional(issuer: String, subject: String): Actor?
 
     /**
+     * Finds an actor based on its issuer and subject
+     */
+    fun findByIssuerAndSubjectWithPermissionsOptional(issuer: String, subject: String): ActorWithPermissions?
+
+    /**
      * Finds an actor based on its unique identifier
      */
     fun findById(actorId: ActorId): Actor
@@ -71,10 +76,6 @@ interface ActorService {
      */
     fun listActors(): List<Actor>
 
-    /**
-     * Update roles for an actor
-     */
-    fun setRoles(actorId: ActorId, roles: List<ActorPermission>)
 
     /**
      * Lists all roles.
@@ -85,6 +86,11 @@ interface ActorService {
      * Finds a role from a role reference.
      */
     fun findRoleByRef(roleRef: RoleRef): Role
+
+    /**
+     * Finds a role from a role reference.
+     */
+    fun findRoleByRefOptional(roleRef: RoleRef): Role?
 
     /**
      * Lists permissions for a role.
@@ -148,7 +154,6 @@ interface ActorService {
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorPermission>,
         disabled: Instant?
     ): Actor
 
@@ -156,5 +161,7 @@ interface ActorService {
     fun actorDeleteRole(actorId: ActorId, roleRef: RoleRef)
     fun findActorPermissionSet(id: ActorId): Set<ActorPermission>
     fun findActorRoleIdSet(actorId: ActorId): Set<RoleId>
+    fun actorHasRole(actorId: ActorId, roleId: RoleId): Boolean
+    fun findOrCreateSpecialAdminRole(): Role
 
 }

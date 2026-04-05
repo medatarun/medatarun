@@ -50,7 +50,6 @@ class ActorCreateFailedWithNotFoundException :
 class ActorDisabledException : MedatarunException("Actor is disabled.", StatusCode.FORBIDDEN)
 
 class AuthUnknownPermissionException(val key: String) : MedatarunException("Unknown role: $key")
-class RoleNotFoundException(ref: String) : MedatarunException("Role [$ref] not found.", StatusCode.NOT_FOUND)
 class RoleNotFoundByIdException(roleId: RoleId) : MedatarunException("Role [$roleId] not found.", StatusCode.NOT_FOUND)
 class RoleNotFoundByKeyException(roleKey: RoleKey) :
     MedatarunException("Role [$roleKey] not found.", StatusCode.NOT_FOUND)
@@ -87,3 +86,8 @@ class UserFullnameTooLongException :
 
 class UserFullnameInvalidFormatException :
     UserFullnameException("invalid fullname format")
+
+class RoleAdminCanNotBeDeletedException: MedatarunException("Can not delete special admin role", StatusCode.BAD_REQUEST)
+class RoleAdminKeyCanNotBeUsedToCreateRoleException: MedatarunException("Can not create a new role with [admin] as key", StatusCode.BAD_REQUEST)
+class RoleAdminKeyCanNotBeChangedException: MedatarunException("Can not change the [admin] role key", StatusCode.BAD_REQUEST)
+class RoleAdminPermissionChangeForbiddenException: MedatarunException("Can not change the permissions on [admin] role", StatusCode.BAD_REQUEST)

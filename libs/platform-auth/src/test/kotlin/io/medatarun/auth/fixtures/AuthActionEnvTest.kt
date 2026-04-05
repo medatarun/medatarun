@@ -12,6 +12,7 @@ import io.medatarun.auth.adapters.ActorRoleAdapters
 import io.medatarun.auth.adapters.AppActorIdAdapter
 import io.medatarun.auth.domain.ActorNotFoundException
 import io.medatarun.auth.domain.actor.Actor
+import io.medatarun.auth.domain.actor.ActorWithPermissions
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.security.AppActorId
 import io.medatarun.security.AppPermission
@@ -41,14 +42,14 @@ class AuthActionEnvTest(
 
     fun asAdmin() {
         val actorService = env.actorService
-        val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), env.adminUsername.value)
+        val actor = actorService.findByIssuerAndSubjectWithPermissionsOptional(env.oidcService.oidcIssuer(), env.adminUsername.value)
             ?: throw ActorNotFoundException()
         this.actionCtx = ActionCtxWithActor(actor)
     }
 
     fun asUser(username: Username) {
         val actorService = env.actorService
-        val actor = actorService.findByIssuerAndSubjectOptional(env.oidcService.oidcIssuer(), username.value)
+        val actor = actorService.findByIssuerAndSubjectWithPermissionsOptional(env.oidcService.oidcIssuer(), username.value)
             ?: throw ActorNotFoundException()
         this.actionCtx = ActionCtxWithActor(actor)
     }
@@ -56,7 +57,7 @@ class AuthActionEnvTest(
     fun <T : Any> getService(type: KClass<T>): T = env.runtime.services.getService(type)
 
     class ActionCtxWithActor(
-        private val actor: Actor?
+        private val actor: ActorWithPermissions?
     ) : ActionCtx {
         override val actionInstanceId = Id.generate(::ActionInstanceId)
         private val appPrincipal = if (actor == null) null else toAppPrincipal(actor)
@@ -76,13 +77,13 @@ class AuthActionEnvTest(
 
     companion object {
 
-        private fun toAppPrincipal(actor: Actor): AppPrincipal {
+        private fun toAppPrincipal(actor: ActorWithPermissions): AppPrincipal {
             return object : AppPrincipal {
                 override val id: AppActorId = AppActorIdAdapter.toAppActorId(actor.id)
                 override val issuer: String = actor.issuer
                 override val subject: String = actor.subject
-                override val isAdmin: Boolean = actor.roles.any { it.isAdminPermission() }
-                override val permissions: List<AppPermission> = actor.roles.map(ActorRoleAdapters::toAppPermission)
+                override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
+                override val permissions: Set<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
                 override val fullname: String = actor.fullname
             }
         }

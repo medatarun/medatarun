@@ -108,7 +108,6 @@ interface ActorStorage {
         subject: String,
         fullname: String,
         email: String?,
-        roles: List<ActorPermission>,
         disabled: Instant?,
         createdAt: Instant,
         lastSeenAt: Instant
@@ -143,11 +142,6 @@ interface ActorStorage {
      * Remove the role from the actor
      */
     fun actorDeleteRole(actorId: ActorId, roleId: RoleId)
-
-    /**
-     * Replaces roles for a given actor.
-     */
-    fun deprecated__updateRoles(id: ActorId, roles: List<ActorPermission>)
 
     // Roles
     // -----

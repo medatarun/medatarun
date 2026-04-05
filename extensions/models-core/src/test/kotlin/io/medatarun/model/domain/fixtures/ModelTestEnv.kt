@@ -174,7 +174,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val permissions: List<AppPermission> = listOf(
+            override val permissions=setOf(
                 TagLocalManagePermission,
                 TagGroupManagePermission,
                 TagGlobalManagePermission
@@ -186,7 +186,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = true
             override val fullname: String = "admin"
-            override val permissions: List<AppPermission> = listOf(
+            override val permissions = setOf(
                 TagLocalManagePermission,
                 TagGroupManagePermission,
                 TagGlobalManagePermission

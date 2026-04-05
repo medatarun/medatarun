@@ -48,13 +48,6 @@ interface Actor {
     val email: String?
 
     /**
-     * List of roles known and stored for this actor.
-     *
-     * Roles in Actor are the official source of roles (roles are not on User but on Actor).
-     */
-    val roles: List<ActorPermission>
-
-    /**
      * Date this actor was disabled, if disabled. Otherwise null if actor is enabled.
      */
     val disabledDate: Instant?

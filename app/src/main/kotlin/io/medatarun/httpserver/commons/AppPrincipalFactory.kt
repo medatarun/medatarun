@@ -68,7 +68,7 @@ class AppPrincipalFactory(
             override val issuer: String = actor.issuer
             override val subject: String = actor.subject
             override val isAdmin: Boolean = actor.permissions.any { it.isAdminPermission() }
-            override val permissions: List<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission)
+            override val permissions: Set<AppPermission> = actor.permissions.map(ActorRoleAdapters::toAppPermission).toSet()
             override val fullname: String = actor.fullname
         }
     }
