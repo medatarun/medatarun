@@ -159,8 +159,8 @@ class AuthEmbeddedActionsLauncher(
         )
     }
 
-    fun roleCreate(cmd: AuthAction.RoleCreate): RoleId {
-        return actorService.createRole(
+    fun roleCreate(cmd: AuthAction.RoleCreate) {
+        actorService.createRole(
             key = cmd.key,
             name = cmd.name,
             description = cmd.description

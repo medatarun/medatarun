@@ -235,24 +235,24 @@ sealed interface AuthAction<R> {
     )
     class RoleCreate(
         @ActionParamDoc(
-            name = "key",
-            description = "Role key. Must be unique across all roles.",
+            name = "Key",
+            description = "Role key. Must be unique across all roles. Serves as a technical identifier for integrations.",
             order = 2
         )
         val key: RoleKey,
         @ActionParamDoc(
-            name = "name",
-            description = "Role name",
+            name = "Name",
+            description = "Role display name.",
             order = 1
         )
         val name: String,
         @ActionParamDoc(
-            name = "description",
-            description = "Role description",
+            name = "Description",
+            description = "Role description, explain what this role is for and when it can be used.",
             order = 3
         )
         val description: String?
-    ) : AuthAction<RoleId>
+    ) : AuthAction<Unit>
 
     @ActionDoc(
         key = "role_list",
