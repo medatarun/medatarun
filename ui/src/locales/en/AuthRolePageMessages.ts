@@ -7,5 +7,6 @@ export const authRolePageMessages: AuthRolePageMessages = {
   authRolePage_keyLabel: "Role key",
   authRolePage_identifierLabel: "Identifier",
   authRolePage_permissionsLabel: "Permissions",
+  authRolePage_permissionsEmpty: "Add permissions.",
   authRolePage_descriptionPlaceholder: "add description",
 };

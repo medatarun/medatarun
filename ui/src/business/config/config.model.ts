@@ -1,4 +1,7 @@
-import type { SecurityRuleDescriptionDto } from "./config.dto.ts";
+import type {
+  SecurityPermissionDto,
+  SecurityRuleDescriptionDto,
+} from "./config.dto.ts";
 
 export class SecurityRuleDescriptionRegistry {
   private readonly itemsByKey: Map<string, SecurityRuleDescriptionDto>;
@@ -24,5 +27,40 @@ export class SecurityRuleDescriptionRegistry {
 
   findNameOrDefault(ruleKey: string): string {
     return this.findName(ruleKey) ?? ruleKey;
+  }
+}
+
+export class SecurityPermissionRegistry {
+  private readonly itemsById: Map<string, SecurityPermission>;
+
+  constructor(items: SecurityPermissionDto[]) {
+    this.itemsById = new Map<string, SecurityPermission>();
+    items.forEach((item) => {
+      this.itemsById.set(item.id, new SecurityPermission(item));
+    });
+  }
+
+  find(permissionKey: string): SecurityPermission | undefined {
+    return this.itemsById.get(permissionKey);
+  }
+
+  findName(permissionKey: string): string | null | undefined {
+    return this.find(permissionKey)?.name;
+  }
+
+  findDescription(permissionKey: string): string | null | undefined {
+    return this.find(permissionKey)?.description;
+  }
+}
+
+export class SecurityPermission {
+  readonly id: string;
+  readonly name: string | null;
+  readonly description: string | null;
+
+  constructor(dto: SecurityPermissionDto) {
+    this.id = dto.id;
+    this.name = dto.name;
+    this.description = dto.description;
   }
 }

@@ -10,6 +10,8 @@ import {
   useRoleUpdateKey,
   useRoleUpdateName,
 } from "@/business/actor";
+import { usePermissionRegistry } from "@/business/config";
+import { refid } from "@/business/action_runner";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
@@ -19,6 +21,11 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
+  Caption1,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
   Text,
   tokens,
 } from "@fluentui/react-components";
@@ -27,17 +34,20 @@ import {
   ContainedMixedScrolling,
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateRole,
   createDisplayedSubjectRole,
+  createDisplayedSubjectRolePermission,
 } from "@/components/business/actor/actor.actions.ts";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { Key } from "@/components/core/Key.tsx";
 
 export function AuthRolePage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -53,7 +63,8 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
 
   const details = new AuthRoleDetails(roleResult.data);
   const role = details.role;
-  const actions = actionRegistry.findActions(ActionUILocations.auth_role);
+
+  const displayedSubject = createDisplayedSubjectRole(role.id);
 
   const handleChangeName = (value: string) => {
     return roleUpdateName.mutateAsync({ roleRef: "id:" + role.id, value });
@@ -107,9 +118,11 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
               <div>
                 <ActionMenuButton
                   label={t("authRolePage_actions")}
-                  itemActions={actions}
+                  itemActions={actionRegistry.findActions(
+                    ActionUILocations.auth_role,
+                  )}
                   actionParams={createActionTemplateRole(role.id)}
-                  displayedSubject={createDisplayedSubjectRole(role.id)}
+                  displayedSubject={displayedSubject}
                 />
               </div>
             </div>
@@ -120,29 +133,6 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <SectionPaper>
-              <PropertiesForm>
-                <div>{t("authRolePage_keyLabel")}</div>
-                <div>
-                  <InlineEditSingleLine
-                    value={role.key}
-                    onChange={handleChangeKey}
-                  >
-                    <Text>
-                      <code>{role.key}</code>
-                    </Text>
-                  </InlineEditSingleLine>
-                </div>
-                <div>{t("authRolePage_identifierLabel")}</div>
-                <div>
-                  <Text>
-                    <code>{role.id}</code>
-                  </Text>
-                </div>
-                <div>{t("authRolePage_permissionsLabel")}</div>
-                <div>{details.permissions.join(", ")}</div>
-              </PropertiesForm>
-            </SectionPaper>
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={role.description}
@@ -150,9 +140,113 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
                 onChange={handleChangeDescription}
               />
             </SectionPaper>
+            <SectionTitle
+              icon={undefined}
+              location={ActionUILocations.auth_role_permissions}
+              actionParams={createActionTemplateRole(role.id)}
+              displayedSubject={displayedSubject}
+            >
+              {t("authRolePage_permissionsLabel")}
+            </SectionTitle>
+            <SectionTable>
+              <PermissionTable
+                roleId={role.id}
+                permissions={details.permissions}
+              />
+            </SectionTable>
+
+            <p
+              style={{
+                marginTop: "12em",
+                borderTop: "1px solid #CCC",
+                textAlign: "right",
+              }}
+            >
+              <Caption1 style={{color:tokens.colorNeutralForeground5}}>
+                {t("authRolePage_keyLabel")}: <Key value={role.key} /> -{" "}
+                {t("authRolePage_identifierLabel")}: <code>[{role.id}]</code>
+              </Caption1>
+            </p>
           </ContainedHumanReadable>
         </ContainedScrollable>
       </ContainedMixedScrolling>
     </ViewLayoutContained>
+  );
+}
+
+function createActionTemplateRolePermission(
+  roleId: string,
+  permissionKey: string,
+) {
+  return {
+    roleRef: refid(roleId),
+    permissionKey: { value: permissionKey, readonly: true },
+  };
+}
+
+function PermissionTable({
+  roleId,
+  permissions,
+}: {
+  roleId: string;
+  permissions: string[];
+}) {
+  const { t } = useAppI18n();
+  const actionRegistry = useActionRegistry();
+  const permissionActions = actionRegistry.findActions(
+    ActionUILocations.auth_role_permission,
+  );
+  const { registry: permissionRegistry } = usePermissionRegistry();
+
+  if (permissions.length === 0) {
+    return (
+      <p>
+        <MissingInformation>
+          {t("authRolePage_permissionsEmpty")}
+        </MissingInformation>
+      </p>
+    );
+  }
+
+  return (
+    <Table>
+      <TableBody>
+        {permissions.map((permissionKey) => {
+          const permissionName = permissionRegistry.findName(permissionKey);
+          const permissionDescription =
+            permissionRegistry.findDescription(permissionKey);
+          return (
+            <TableRow key={permissionKey}>
+              <TableCell>
+                <p>
+                  {permissionName ? <Text>{permissionName}</Text> : null}
+                  {permissionDescription ? (
+                    <div>
+                      <Caption1>{permissionDescription}</Caption1>
+                    </div>
+                  ) : null}
+                  <div>
+                    <Key value={permissionKey} />
+                  </div>
+                </p>
+              </TableCell>
+              <TableCell style={{ width: "3em", textAlign: "right" }}>
+                <ActionMenuButton
+                  itemActions={permissionActions}
+                  actionParams={createActionTemplateRolePermission(
+                    roleId,
+                    permissionKey,
+                  )}
+                  displayedSubject={createDisplayedSubjectRolePermission(
+                    roleId,
+                    permissionKey,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

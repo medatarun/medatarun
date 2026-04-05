@@ -1,5 +1,7 @@
 import { executeActionJson } from "@/business/action_runner";
 import type {
+  SecurityPermissionDto,
+  SecurityPermissionsResp,
   SecurityRuleDescriptionDto,
   SecurityRulesDescriptionsResp,
 } from "./config.dto.ts";
@@ -20,5 +22,21 @@ export const useSecurityRuleDescriptions = () => {
   return useQuery({
     queryKey: ["action", "config", "inspect_security_rules"],
     queryFn: fetchSecurityRuleDescriptions,
+  });
+};
+
+export async function fetchSecurityPermissions(): Promise<SecurityPermissionDto[]> {
+  const response = await executeActionJson<SecurityPermissionsResp>(
+    "config",
+    "inspect_permissions",
+    {},
+  );
+  return response.items;
+}
+
+export const useSecurityPermissions = () => {
+  return useQuery({
+    queryKey: ["action", "config", "inspect_permissions"],
+    queryFn: fetchSecurityPermissions,
   });
 };

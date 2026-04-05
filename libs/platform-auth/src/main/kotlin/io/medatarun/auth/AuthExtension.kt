@@ -30,6 +30,7 @@ import io.medatarun.auth.internal.oidc.OidcServiceImpl
 import io.medatarun.auth.internal.users.UserPasswordEncrypter
 import io.medatarun.auth.internal.users.UserServiceEventsActorProvisioning
 import io.medatarun.auth.internal.users.UserServiceImpl
+import io.medatarun.auth.permissions.AuthAdminPermission
 import io.medatarun.auth.ports.exposed.*
 import io.medatarun.auth.ports.exposed.BootstrapSecretLifecycle.Companion.DEFAULT_BOOTSTRAP_SECRET_PATH_NAME
 import io.medatarun.auth.ports.exposed.JwtInternalSigninKeyRegistry.Companion.DEFAULT_KEYSTORE_PATH_NAME
@@ -68,7 +69,7 @@ class AuthExtension(
         )
         val rolesProvider = object : SecurityPermissionsProvider {
             override fun getPermissions(): List<AppPermission> {
-                return listOf(toAppPermission(ActorPermission.ADMIN))
+                return listOf(AuthAdminPermission)
             }
         }
         ctx.registerContribution(ActionProvider::class, actionProvider)

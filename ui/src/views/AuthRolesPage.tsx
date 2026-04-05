@@ -23,7 +23,7 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ErrorBox } from "@seij/common-ui";
+import { ErrorBox, InfoBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateRole,
@@ -32,6 +32,7 @@ import {
 } from "@/components/business/actor/actor.actions.ts";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { sortBy } from "lodash-es";
 
 export function AuthRolesPage() {
   const { t } = useAppI18n();
@@ -41,7 +42,8 @@ export function AuthRolesPage() {
   const actions = actionRegistry.findActions(ActionUILocations.auth_roles);
 
   if (rolesResult.isPending) return null;
-  if (rolesResult.error) return <ErrorBox error={toProblem(rolesResult.error)} />;
+  if (rolesResult.error)
+    return <ErrorBox error={toProblem(rolesResult.error)} />;
 
   const roleItems = rolesResult.data.items.map((dto) => new AuthRole(dto));
   const handleClickRole = (roleId: string) => {
@@ -75,7 +77,8 @@ export function AuthRolesPage() {
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <SectionPaper>{t("authRolesPage_description")}</SectionPaper>
+            <p></p>
+            <InfoBox intent={"info"}>{t("authRolesPage_description")}</InfoBox>
             <SectionTitle
               icon={undefined}
               location={ActionUILocations.auth_roles}
@@ -113,17 +116,18 @@ function AuthRolesTable({
     );
   }
 
+  const rolesSorted = sortBy(roles, (it) => it.name);
+
   return (
     <Table>
       <TableBody>
-        {roles.map((role) => (
+        {rolesSorted.map((role) => (
           <TableRow key={role.id}>
-            <TableCell onClick={() => onClickRole(role.id)}>{role.label}</TableCell>
-            <TableCell onClick={() => onClickRole(role.id)}>
-              <code>{role.key}</code>
-            </TableCell>
-            <TableCell onClick={() => onClickRole(role.id)}>
-              {role.description ?? ""}
+            <TableCell
+              style={{ width: "10em" }}
+              onClick={() => onClickRole(role.id)}
+            >
+              <p>{role.label}</p>
             </TableCell>
             <TableCell style={{ width: "3em", textAlign: "right" }}>
               <ActionMenuButton

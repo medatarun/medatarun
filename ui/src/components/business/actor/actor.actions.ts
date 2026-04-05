@@ -23,3 +23,12 @@ export const createDisplayedSubjectRole = (
   type: "role",
   refs: { roleId },
 });
+
+export const createDisplayedSubjectRolePermission = (
+  roleId: string,
+  permissionKey: string,
+): ActionDisplayedSubject => ({
+  kind: "resource",
+  type: "role",
+  refs: { roleId, permissionKey },
+});

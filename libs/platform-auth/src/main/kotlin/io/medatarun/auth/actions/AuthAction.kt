@@ -305,7 +305,7 @@ sealed interface AuthAction<R> {
         key = "role_update_key",
         title = "Update role key",
         description = "Update a role key.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.auth_role],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleUpdateKey(
@@ -349,7 +349,7 @@ sealed interface AuthAction<R> {
         key = "role_add_permission",
         title = "Add role permission",
         description = "Add a permission to a role.",
-        uiLocations = [ActionUILocation.auth_role],
+        uiLocations = [ActionUILocation.auth_role_permissions],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleAddPermission(
@@ -371,7 +371,7 @@ sealed interface AuthAction<R> {
         key = "role_delete_permission",
         title = "Delete role permission",
         description = "Delete a permission from a role.",
-        uiLocations = [ActionUILocation.auth_role],
+        uiLocations = [ActionUILocation.auth_role_permission],
         securityRule = SecurityRuleNames.ADMIN
     )
     class RoleDeletePermission(
