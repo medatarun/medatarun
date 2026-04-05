@@ -2,16 +2,15 @@ package io.medatarun.auth
 
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.auth.actions.AuthEmbeddedActionsProvider
-import io.medatarun.auth.adapters.ActorRoleAdapters.toAppPermission
 import io.medatarun.auth.adapters.AppActorResolverAuth
-import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.ConfigProperties
+import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.actor.ActorId
+import io.medatarun.auth.domain.jwt.JwtConfig
+import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
 import io.medatarun.auth.domain.role.RoleRef
-import io.medatarun.auth.domain.jwt.JwtConfig
-import io.medatarun.auth.domain.jwt.JwtKeyMaterial
 import io.medatarun.auth.domain.user.Fullname
 import io.medatarun.auth.domain.user.PasswordClear
 import io.medatarun.auth.domain.user.Username
@@ -40,11 +39,11 @@ import io.medatarun.platform.db.DbMigration
 import io.medatarun.platform.kernel.*
 import io.medatarun.security.AppActorResolver
 import io.medatarun.security.AppPermission
+import io.medatarun.security.SecurityPermissionsProvider
+import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.type.commons.id.Id
 import io.medatarun.type.commons.key.Key
 import io.medatarun.type.commons.ref.RefTypeJsonConverters
-import io.medatarun.security.SecurityPermissionsProvider
-import io.medatarun.security.SecurityRolesRegistry
 import io.medatarun.types.TypeDescriptor
 import io.medatarun.types.TypeJsonConverter
 import io.medatarun.types.TypeJsonEquiv
@@ -80,6 +79,7 @@ class AuthExtension(
         ctx.registerContribution(TypeDescriptor::class, ActorIdDescriptor())
         ctx.registerContribution(TypeDescriptor::class, RoleIdDescriptor())
         ctx.registerContribution(TypeDescriptor::class, RoleKeyDescriptor())
+        ctx.registerContribution(TypeDescriptor::class, PermissionKeyDescriptor())
         ctx.registerContribution(TypeDescriptor::class, RoleRefDescriptor())
         ctx.registerContribution(DbMigration::class, AuthDbMigration(securityRolesRegistry, actorStorage, config.authClock))
     }
@@ -139,6 +139,15 @@ class AuthExtension(
         override val equivMultiplatorm: String = "RoleKey"
         override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
         override fun validate(value: RoleKey): RoleKey {
+            return value.validated()
+        }
+    }
+
+    class PermissionKeyDescriptor : TypeDescriptor<PermissionKey> {
+        override val target: KClass<PermissionKey> = PermissionKey::class
+        override val equivMultiplatorm: String = "PermissionKey"
+        override val equivJson: TypeJsonEquiv = TypeJsonEquiv.STRING
+        override fun validate(value: PermissionKey): PermissionKey {
             return value.validated()
         }
     }

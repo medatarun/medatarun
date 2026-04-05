@@ -32,11 +32,13 @@ export class SecurityRuleDescriptionRegistry {
 
 export class SecurityPermissionRegistry {
   private readonly itemsById: Map<string, SecurityPermission>;
+  private readonly items: SecurityPermission[];
 
   constructor(items: SecurityPermissionDto[]) {
+    this.items = items.map((item) => new SecurityPermission(item));
     this.itemsById = new Map<string, SecurityPermission>();
-    items.forEach((item) => {
-      this.itemsById.set(item.id, new SecurityPermission(item));
+    this.items.forEach((item) => {
+      this.itemsById.set(item.id, item);
     });
   }
 
@@ -50,6 +52,10 @@ export class SecurityPermissionRegistry {
 
   findDescription(permissionKey: string): string | null | undefined {
     return this.find(permissionKey)?.description;
+  }
+
+  findAll(): SecurityPermission[] {
+    return [...this.items];
   }
 }
 

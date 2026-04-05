@@ -45,6 +45,7 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "ModelKey") return normalizeKey(param, value);
   if (param.type == "ModelRef") return normalizeRef(param, value);
   if (param.type == "ModelVersion") return normalizeVersion(param, value);
+  if (param.type == "PermissionKey") return normalizeKey(param, value);
   if (param.type == "RelationshipAttributeRef") return normalizeRef(param, value);
   if (param.type == "RelationshipCardinality") return normalizeString(param, value);
   if (param.type == "RelationshipKey") return normalizeKey(param, value);

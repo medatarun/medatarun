@@ -205,14 +205,14 @@ class AuthEmbeddedActionsLauncher(
     fun roleAddPermission(cmd: AuthAction.RoleAddPermission) {
         actorService.addRolePermission(
             roleRef = cmd.roleRef,
-            permission = ActorPermission(cmd.permissionKey)
+            permission = ActorPermission(cmd.permissionKey.value)
         )
     }
 
     fun roleDeletePermission(cmd: AuthAction.RoleDeletePermission) {
         actorService.deleteRolePermission(
             roleRef = cmd.roleRef,
-            permission = ActorPermission(cmd.permissionKey)
+            permission = ActorPermission(cmd.permissionKey.value)
         )
     }
 

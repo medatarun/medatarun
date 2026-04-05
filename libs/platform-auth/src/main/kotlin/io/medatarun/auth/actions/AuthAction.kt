@@ -5,6 +5,7 @@ import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
+import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.role.RoleKey
@@ -364,7 +365,7 @@ sealed interface AuthAction<R> {
             description = "Permission key",
             order = 2
         )
-        val permissionKey: String
+        val permissionKey: PermissionKey
     ) : AuthAction<Unit>
 
     @ActionDoc(
@@ -386,7 +387,7 @@ sealed interface AuthAction<R> {
             description = "Permission key",
             order = 2
         )
-        val permissionKey: String
+        val permissionKey: PermissionKey
     ) : AuthAction<Unit>
 
     @ActionDoc(

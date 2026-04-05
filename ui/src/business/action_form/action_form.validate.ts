@@ -60,6 +60,8 @@ export function validateForm({
       result = validateVersion(formField, formData[formField.key]);
     else if (formField.type === "ModelAuthority")
       result = validateString(formField, formData[formField.key]);
+    else if (formField.type === "PermissionKey")
+      result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "Boolean")
       result = validateBoolean(formField, formData[formField.key]);
     else if (formField.type === "LocalizedText")
