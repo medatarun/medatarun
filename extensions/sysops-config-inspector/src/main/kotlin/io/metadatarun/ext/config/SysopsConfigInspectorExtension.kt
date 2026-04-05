@@ -6,6 +6,7 @@ import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
 import io.medatarun.platform.kernel.getService
+import io.medatarun.security.SecurityRolesRegistry
 import io.metadatarun.ext.config.actions.ConfigActionProvider
 
 class SysopsConfigInspectorExtension : MedatarunExtension {
@@ -18,7 +19,9 @@ class SysopsConfigInspectorExtension : MedatarunExtension {
             ActionProvider::class,
             ConfigActionProvider(extensionRegistry,
                 lazy { actionPlatform.registry },
-                lazy { actionPlatform.invoker })
+                lazy { actionPlatform.invoker },
+                lazy { ctx.getService<SecurityRolesRegistry>()}
+            )
         )
     }
 

@@ -9,4 +9,6 @@ package io.medatarun.security
  */
 interface AppPermission {
     val key: String
+    val name: String? get() = null
+    val description: String? get() = null
 }
