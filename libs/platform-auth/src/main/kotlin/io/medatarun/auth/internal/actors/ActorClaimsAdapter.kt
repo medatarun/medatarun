@@ -13,7 +13,6 @@ class ActorClaimsAdapter {
     fun createUserClaims(actor: Actor): Map<String, Any?> = mapOf(
         "name" to actor.fullname,
         "email" to actor.email,
-        "roles" to actor.roles,
         "mid" to actor.id.value.toString()
     )
 
