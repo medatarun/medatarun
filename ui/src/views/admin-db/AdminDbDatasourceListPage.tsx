@@ -26,6 +26,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function AdminDbDatasourceListPage() {
   const { data: dsRaw } = useDatabaseDatasources();
@@ -61,18 +62,16 @@ export function AdminDbDatasourceListPage() {
             paddingTop: tokens.spacingVerticalL,
           }}
         >
-          <MessageBar intent={"info"} layout="multiline">
-            <MessageBarBody>
-              <div>
-                Datasources are named connections to your running database (JDBC
-                URL and driver).
-              </div>
-              <div>
-                When importing or syncing models, you will select one of these
-                datasource.
-              </div>
-            </MessageBarBody>
-          </MessageBar>
+          <ViewLayoutPageInfo>
+            <div>
+              Datasources are named connections to your running database (JDBC
+              URL and driver).
+            </div>
+            <div>
+              When importing or syncing models, you will select one of these
+              datasource.
+            </div>
+          </ViewLayoutPageInfo>
           <CardGrid
             data={datasources}
             renderName={(item) => <Text weight="semibold">{item.id}</Text>}

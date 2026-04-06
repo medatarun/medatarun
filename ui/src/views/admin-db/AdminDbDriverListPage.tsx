@@ -26,6 +26,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function AdminDbDriverListPage() {
   const { data: driversRaw } = useDatabaseDrivers();
@@ -60,8 +61,7 @@ export function AdminDbDriverListPage() {
             paddingTop: tokens.spacingVerticalL,
           }}
         >
-          <MessageBar intent={"info"} layout="multiline">
-            <MessageBarBody>
+          <ViewLayoutPageInfo>
               <Text>
                 Medatarun uses JDBC drivers to talk to most existing database
                 software.
@@ -69,8 +69,7 @@ export function AdminDbDriverListPage() {
                 Here is a recap of the installed drivers. To add new ones, check
                 the documentation.
               </Text>
-            </MessageBarBody>
-          </MessageBar>
+          </ViewLayoutPageInfo>
 
           <CardGrid
             data={data}

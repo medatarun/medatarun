@@ -36,6 +36,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();
@@ -69,16 +70,9 @@ export function AdminRoleListPage() {
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <p></p>
-            <InfoBox intent={"info"}>{t("authRolesPage_description")}</InfoBox>
-            <SectionTitle
-              icon={undefined}
-              location={ActionUILocations.auth_roles}
-              actionParams={createActionTemplateRoleList()}
-              displayedSubject={displaySubjectNone}
-            >
-              {t("authRolesPage_sectionTitle")}
-            </SectionTitle>
+            <ViewLayoutPageInfo>
+              {t("authRolesPage_description")}
+            </ViewLayoutPageInfo>
             <SectionTable>
               <AuthRolesTable roles={roleItems} onClickRole={handleClickRole} />
             </SectionTable>

@@ -37,6 +37,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();
@@ -73,11 +74,9 @@ export function AdminActorListPage() {
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <p></p>
-            <InfoBox intent={"info"}>
+            <ViewLayoutPageInfo>
               {t("adminActorsPage_description")}
-            </InfoBox>
-            <p></p>
+            </ViewLayoutPageInfo>
             <SectionTable>
               <AdminActorsTable
                 actors={actorItems}
