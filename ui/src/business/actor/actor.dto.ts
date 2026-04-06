@@ -26,3 +26,27 @@ export interface RoleDetailsDto {
   role: RoleInfoDto;
   permissions: string[];
 }
+
+export interface ActorInfoDto {
+  id: string;
+  issuer: string;
+  subject: string;
+  fullname: string;
+  email: string | null;
+  disabledAt: string | null;
+  createdAt: string;
+  lastSeenAt: string;
+}
+
+export interface ActorDetailsDto {
+  id: string;
+  issuer: string;
+  subject: string;
+  fullname: string;
+  email: string | null;
+  roles: string[];
+  permissions: string[];
+  disabledAt: string | null;
+  createdAt: string;
+  lastSeenAt: string;
+}

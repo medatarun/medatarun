@@ -1,5 +1,5 @@
 import { executeActionJson } from "@/business/action_runner";
-import type { RoleDetailsDto, RoleListDto, WhoAmIRespDto } from "@/business/actor/actor.dto.ts";
+import type { ActorDetailsDto, ActorInfoDto, RoleDetailsDto, RoleListDto, WhoAmIRespDto } from "@/business/actor/actor.dto.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 async function whoami() {
@@ -12,6 +12,14 @@ async function roleList() {
 
 async function roleGet(roleRef: string) {
   return executeActionJson<RoleDetailsDto>("auth", "role_get", { roleRef });
+}
+
+async function actorList() {
+  return executeActionJson<ActorInfoDto[]>("auth", "actor_list", {});
+}
+
+async function actorGet(actorId: string) {
+  return executeActionJson<ActorDetailsDto>("auth", "actor_get", { actorId });
 }
 
 export const useWhoami = (issuer: string | null, subject: string | null) => {
@@ -33,6 +41,21 @@ export const useRole = (roleRef: string) => {
     queryKey: ["action", "auth", "role_get", roleRef],
     enabled: roleRef.length > 0,
     queryFn: () => roleGet(roleRef),
+  });
+};
+
+export const useActorList = () => {
+  return useQuery({
+    queryKey: ["action", "auth", "actor_list"],
+    queryFn: actorList,
+  });
+};
+
+export const useActor = (actorId: string) => {
+  return useQuery({
+    queryKey: ["action", "auth", "actor_get", actorId],
+    enabled: actorId.length > 0,
+    queryFn: () => actorGet(actorId),
   });
 };
 

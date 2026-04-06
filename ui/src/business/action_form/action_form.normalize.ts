@@ -32,6 +32,7 @@ function formDataToPayload(
 }
 
 function normalize(param: ActionDescriptorParam, value: unknown) {
+  if (param.type == "ActorId") return normalizeRef(param, value);
   if (param.type == "AttributeKey") return normalizeKey(param, value);
   if (param.type == "AttributeRef") return normalizeRef(param, value);
   if (param.type == "Boolean") return normalizeBoolean(param, value);

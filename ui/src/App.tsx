@@ -45,6 +45,8 @@ import { AdminDbDriverPage } from "@/views/admin-db/AdminDbDriverPage.tsx";
 import { AdminDbDatasourcesPage } from "@/views/admin-db/AdminDbDatasourcesPage.tsx";
 import { AuthRolesPage } from "@/views/AuthRolesPage.tsx";
 import { AuthRolePage } from "@/views/AuthRolePage.tsx";
+import { AdminActorsPage } from "@/views/admin-actors/AdminActorsPage.tsx";
+import { AdminActorPage } from "@/views/admin-actors/AdminActorPage.tsx";
 
 function AdminDbDatasourcesRouteComponent() {
   return <AdminDbDatasourcesPage />;
@@ -178,6 +180,15 @@ function AuthRolesRouteComponent() {
 function AuthRoleRouteComponent() {
   const { roleId } = useParams({ from: "/admin/roles/$roleId" });
   return <AuthRolePage roleId={roleId} />;
+}
+
+function AdminActorsRouteComponent() {
+  return <AdminActorsPage />;
+}
+
+function AdminActorRouteComponent() {
+  const { actorId } = useParams({ from: "/admin/actors/$actorId" });
+  return <AdminActorPage actorId={actorId} />;
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
@@ -314,8 +325,20 @@ const authRoleRoute = createRoute({
   path: "/admin/roles/$roleId",
   component: AuthRoleRouteComponent,
 });
+const adminActorsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/actors",
+  component: AdminActorsRouteComponent,
+});
+const adminActorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/actors/$actorId",
+  component: AdminActorRouteComponent,
+});
 
 const routeTree = rootRoute.addChildren([
+  adminActorRoute,
+  adminActorsRoute,
   authRoleRoute,
   authRolesRoute,
   adminDbDriverRoute,

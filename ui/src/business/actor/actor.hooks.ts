@@ -1,7 +1,7 @@
-import { useWhoami } from "./actor.storage.ts";
+import { useRoleList, useWhoami } from "./actor.storage.ts";
 import { useAuthentication } from "@seij/common-ui-auth";
 import { useMemo } from "react";
-import { CurrentActor } from "./actor.business.ts";
+import { CurrentActor, RoleRegistry } from "./actor.business.ts";
 import type { WhoAmIRespDto } from "@/business/actor/actor.dto.ts";
 
 const EMPTY_WHOAMI: WhoAmIRespDto = {
@@ -20,4 +20,14 @@ export const useCurrentActor = () => {
     return new CurrentActor(EMPTY_WHOAMI);
   }, [auth.isAuthenticated, auth.issuer, auth.subject, data]);
   return currentActor;
+};
+
+export const useRoleRegistry = () => {
+  const { data } = useRoleList();
+  return useMemo(() => {
+    if (data) {
+      return new RoleRegistry(data.items);
+    }
+    return RoleRegistry.empty();
+  }, [data]);
 };

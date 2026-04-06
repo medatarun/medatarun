@@ -1,6 +1,10 @@
 package io.medatarun.actions.actions
 
 object ActionUILocation {
+    const val auth_actor="auth_actor"
+    const val auth_actor_role="auth_actor_role"
+    const val auth_actor_roles="auth_actor_roles"
+    const val auth_actors="auth_actors"
     const val auth_role_permission="auth_role.permission"
     const val auth_role_permissions="auth_role.permissions"
     const val auth_role="auth_role"

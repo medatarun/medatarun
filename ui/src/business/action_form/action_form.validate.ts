@@ -19,6 +19,8 @@ export function validateForm({
       result = validateString(formField, formData[formField.key]);
     else if (formField.type === "List<ActionWithPayload>")
       result = validateString(formField, formData[formField.key]);
+    else if (formField.type === "ActorId")
+      result = validateRef(formField, formData[formField.key]);
     else if (formField.type === "AttributeKey")
       result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "AttributeRef")

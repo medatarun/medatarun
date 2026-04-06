@@ -435,7 +435,7 @@ sealed interface AuthAction<R> {
         key="actor_add_role",
         title="Add actor role",
         description = "Add role to actor.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.auth_actor_roles],
         securityRule = SecurityRuleNames.ADMIN
     )
     class Actor_AddRole(
@@ -457,7 +457,7 @@ sealed interface AuthAction<R> {
         key="actor_delete_role",
         title="Delete actor role",
         description = "Delete role from actor.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.auth_actor_role],
         securityRule = SecurityRuleNames.ADMIN
     )
     class Actor_DeleteRole(
@@ -480,7 +480,7 @@ sealed interface AuthAction<R> {
         key="actor_disable",
         title="Disable actor",
         description = "Disable an actor. Only available for admins.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.auth_actor],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorDisable(
@@ -496,7 +496,7 @@ sealed interface AuthAction<R> {
         key="actor_enable",
         title="Enable actor",
         description = "Enable an actor. Only available for admins.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.auth_actor],
         securityRule = SecurityRuleNames.ADMIN
     )
     class ActorEnable(
