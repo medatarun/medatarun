@@ -3,8 +3,10 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.actions.ActionUILocation
 import io.medatarun.actions.ports.needs.ActionDoc
 import io.medatarun.actions.ports.needs.ActionDocSemantics
+import io.medatarun.actions.ports.needs.ActionDocSemanticsIntent
 import io.medatarun.actions.ports.needs.ActionDocSemanticsMode
 import io.medatarun.actions.ports.needs.ActionParamDoc
+import io.medatarun.auth.actions.dto.UserListResp
 import io.medatarun.auth.domain.PermissionKey
 import io.medatarun.auth.domain.actor.ActorId
 import io.medatarun.auth.domain.role.RoleId
@@ -16,7 +18,6 @@ import io.medatarun.auth.domain.user.Username
 import io.medatarun.security.SecurityRuleNames
 
 sealed interface AuthAction<R> {
-
 
     @ActionDoc(
         key = "admin_bootstrap",
@@ -59,7 +60,7 @@ sealed interface AuthAction<R> {
         key = "user_create",
         title = "Create user",
         description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.users],
         securityRule = SecurityRuleNames.ADMIN
     )
     class UserCreate(
@@ -151,7 +152,7 @@ sealed interface AuthAction<R> {
         key="user_change_password",
         title="Change user password",
         description = "Change a user password. Only available for admins.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -174,7 +175,7 @@ sealed interface AuthAction<R> {
         key="user_disable",
         title="Disable user",
         description = "Disable a user account. Only available for admins. This will automatically make the corresponding actor disabled and unable to connect with tokens.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -191,7 +192,7 @@ sealed interface AuthAction<R> {
         key="user_enable",
         title="Enable user",
         description = "Enable a user account. Only available for admins. This will automatically make the corresponding actor enabled and able to connect with tokens.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -208,7 +209,7 @@ sealed interface AuthAction<R> {
         key="user_change_fullname",
         title="Change user full name",
         description = "Change user full name. Only available for admins. This will automatically change the corresponding actor fullname.",
-        uiLocations = [ActionUILocation.hidden],
+        uiLocations = [ActionUILocation.user],
         securityRule = SecurityRuleNames.ADMIN,
         semantics = ActionDocSemantics(ActionDocSemanticsMode.NONE)
     )
@@ -226,6 +227,16 @@ sealed interface AuthAction<R> {
         )
         val fullname: Fullname,
     ): AuthAction<Unit>
+
+    @ActionDoc(
+        key="user_list",
+        title="User list",
+        description = "Lists available users. Only available for admins.",
+        uiLocations = [ActionUILocation.users],
+        securityRule = SecurityRuleNames.ADMIN,
+        semantics = ActionDocSemantics(mode = ActionDocSemanticsMode.DECLARED, intent = ActionDocSemanticsIntent.READ, subjects = [], returns = ["user"])
+    )
+    class UserList: AuthAction<UserListResp>
 
     @ActionDoc(
         key = "role_create",

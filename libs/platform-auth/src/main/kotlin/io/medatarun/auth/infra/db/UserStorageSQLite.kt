@@ -77,6 +77,12 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
         }
     }
 
+    override fun findAll(): List<User> {
+        return dbConnectionFactory.withExposed {
+            UsersTable.selectAll().orderBy(UsersTable.fullNameColumn to SortOrder.ASC).map { readUser(it) }
+        }
+    }
+
     private fun readUser(row: ResultRow): User {
         return User(
             id = row[UsersTable.idColumn],

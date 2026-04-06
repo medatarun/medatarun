@@ -1,6 +1,8 @@
 import { type ActionPerformerViewMessages } from "./contracts/ActionPerformerViewMessages";
 import { type AdminActorPageMessages } from "./contracts/AdminActorPageMessages";
 import { type AdminActorsPageMessages } from "./contracts/AdminActorsPageMessages";
+import { type AdminUserPageMessages } from "./contracts/AdminUserPageMessages";
+import { type AdminUsersPageMessages } from "./contracts/AdminUsersPageMessages";
 import { type AuthRolePageMessages } from "./contracts/AuthRolePageMessages";
 import { type AuthRolesPageMessages } from "./contracts/AuthRolesPageMessages";
 import { type EntityPageMessages } from "./contracts/EntityPageMessages";
@@ -37,6 +39,8 @@ export type Messages = SessionMessages &
   ActionPerformerViewMessages &
   AdminActorPageMessages &
   AdminActorsPageMessages &
+  AdminUserPageMessages &
+  AdminUsersPageMessages &
   AuthRolePageMessages &
   AuthRolesPageMessages &
   CommandsPageMessages &

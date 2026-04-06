@@ -25,7 +25,6 @@ import {
   TableCell,
   TableRow,
   Text,
-  tokens,
 } from "@fluentui/react-components";
 import {
   ContainedHumanReadable,
@@ -51,6 +50,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -141,18 +141,12 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
               />
             </SectionTable>
 
-            <p
-              style={{
-                marginTop: "12em",
-                borderTop: "1px solid #CCC",
-                textAlign: "right",
-              }}
-            >
-              <Caption1 style={{ color: tokens.colorNeutralForeground5 }}>
-                {t("authRolePage_keyLabel")}: <Key value={role.key} /> -{" "}
-                {t("authRolePage_identifierLabel")}: <code>[{role.id}]</code>
-              </Caption1>
-            </p>
+            <ViewLayoutTechnicalInfos
+              technicalKey={role.key}
+              id={role.id}
+              keyLabel={t("authRolePage_keyLabel")}
+              idLabel={t("authRolePage_identifierLabel")}
+            />
           </ContainedHumanReadable>
         </ContainedScrollable>
       </ContainedMixedScrolling>

@@ -21,6 +21,7 @@ interface UserStorage {
     fun disable(login: Username, at: Instant)
     fun enable(login: Username)
     fun updateFullname(username: Username, fullname: Fullname)
+    fun findAll(): List<User>
 
 
 }

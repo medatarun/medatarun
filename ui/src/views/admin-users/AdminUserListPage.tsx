@@ -1,0 +1,139 @@
+import { useNavigate } from "@tanstack/react-router";
+import type { ActionDescriptor } from "@/business/action_registry";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
+import { useUserList, type UserInfoDto } from "@/business/auth_user";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import {
+  Caption1,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Text,
+  tokens,
+} from "@fluentui/react-components";
+import { ErrorBox } from "@seij/common-ui";
+import { toProblem } from "@seij/common-types";
+import {
+  createActionTemplateUser,
+  createActionTemplateUserList,
+  createDisplayedSubjectUser,
+} from "@/components/business/auth_user/user.actions.ts";
+import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { sortBy } from "lodash-es";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { PersonRegular } from "@fluentui/react-icons";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+
+export function AdminUserListPage() {
+  const { t } = useAppI18n();
+  const navigate = useNavigate();
+  const actionRegistry = useActionRegistry();
+  const usersResult = useUserList();
+  const itemActions = actionRegistry.findActions(ActionUILocations.user);
+
+  if (usersResult.isPending) return null;
+  if (usersResult.error) return <ErrorBox error={toProblem(usersResult.error)} />;
+
+  const userItems = sortBy(usersResult.data.items, (it) =>
+    it.fullname.toLowerCase(),
+  );
+  const handleClickUser = (userId: string) => {
+    navigate({ to: "/admin/users/$userId", params: { userId } });
+  };
+
+  const headerProps: ViewLayoutHeaderProps = {
+    eyebrow: t("adminUsersPage_eyebrow"),
+    title: t("adminUsersPage_title"),
+    titleIcon: <PersonRegular />,
+    actions: {
+      label: t("adminUsersPage_actions"),
+      itemActions: actionRegistry.findActions(ActionUILocations.users),
+      actionParams: createActionTemplateUserList(),
+      displayedSubject: displaySubjectNone,
+    },
+  };
+
+  return (
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
+      <ContainedMixedScrolling>
+        <ContainedScrollable>
+          <ContainedHumanReadable>
+            <ViewLayoutPageInfo>{t("adminUsersPage_description")}</ViewLayoutPageInfo>
+            <SectionTable>
+              <AdminUsersTable
+                users={userItems}
+                itemActions={itemActions}
+                onClickUser={handleClickUser}
+              />
+            </SectionTable>
+          </ContainedHumanReadable>
+        </ContainedScrollable>
+      </ContainedMixedScrolling>
+    </ViewLayoutContained>
+  );
+}
+
+function AdminUsersTable({
+  users,
+  itemActions,
+  onClickUser,
+}: {
+  users: UserInfoDto[];
+  itemActions: ActionDescriptor[];
+  onClickUser: (userId: string) => void;
+}) {
+  const { t } = useAppI18n();
+
+  if (users.length === 0) {
+    return (
+      <p style={{ paddingTop: tokens.spacingVerticalM }}>
+        <Text italic>{t("adminUsersPage_empty")}</Text>
+      </p>
+    );
+  }
+
+  return (
+    <Table>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell onClick={() => onClickUser(user.id)}>
+              <div>
+                {user.fullname}
+                {user.disabledDate ? (
+                  <Caption1 style={{ display: "inline" }}>
+                    {" "}
+                    - {t("adminUsersPage_disabled")}
+                  </Caption1>
+                ) : null}
+              </div>
+              <Caption1>{user.username}</Caption1>
+            </TableCell>
+            <TableCell style={{ width: "3em", textAlign: "right" }}>
+              <ActionMenuButton
+                itemActions={itemActions}
+                actionParams={createActionTemplateUser(user.username)}
+                displayedSubject={createDisplayedSubjectUser(user.username)}
+              />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
