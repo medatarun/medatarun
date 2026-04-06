@@ -4,10 +4,30 @@
 
 ### Added
 
-- Tags and tag groups event history
+**General**
+
 - Changelog file (this file)
+
+**Tags and models**
+
+- Tags and tag groups event history
+
+**MCP and API authentication**
+
 - Support for OAuth2.0 in MCP (and APIs) with Dynamic Client Registration Protocol
+
+**Administration tools**
+
+- New admin menu
+- Admin page for database drivers
+- Admin page for configured datasources
+- Admin page to list roles, manage roles, add permissions to roles
+- Admin page to list actors, manage actors, add roles, enable or disable them
+
+**Storage**
+
 - PostgreSQL support. Default installations are still using SQLite, so they still run out-of-the box.
+- Tools to generale initial SQL for fresh installations
 
 ### Breaking changes
 

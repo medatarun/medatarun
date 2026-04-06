@@ -3,4 +3,5 @@ export interface MenuMessages {
   menu_admin_databaseDrivers: string;
   menu_admin_datasources: string;
   menu_admin_authRoles: string;
+  menu_admin_authActors: string;
 }

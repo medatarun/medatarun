@@ -1,0 +1,204 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  ActionUILocations,
+  useActionRegistry,
+} from "@/business/action_registry";
+import { ActorDetails, useActor, useRoleRegistry } from "@/business/actor";
+import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
+import { ViewTitle } from "@/components/core/ViewTitle.tsx";
+import {
+  Breadcrumb,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+  BreadcrumbItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  tokens,
+} from "@fluentui/react-components";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
+import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
+import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import { ErrorBox } from "@seij/common-ui";
+import { formatLocalDateTime, toProblem } from "@seij/common-types";
+import {
+  createActionTemplateActor,
+  createActionTemplateActorRole,
+  createActionTemplateActorRoleList,
+  createDisplayedSubjectActor,
+  createDisplayedSubjectActorRole,
+} from "@/components/business/actor/actor.actions.ts";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { useAppI18n } from "@/services/appI18n.tsx";
+import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import { Key } from "@/components/core/Key.tsx";
+
+export function AdminActorPage({ actorId }: { actorId: string }) {
+  const { t } = useAppI18n();
+  const navigate = useNavigate();
+  const actionRegistry = useActionRegistry();
+  const actorResult = useActor(actorId);
+
+  if (actorResult.isPending) return null;
+  if (actorResult.error)
+    return <ErrorBox error={toProblem(actorResult.error)} />;
+
+  const actor = actorResult.data;
+  const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
+
+  return (
+    <ViewLayoutContained
+      title={
+        <div>
+          <div style={{ marginLeft: "-22px" }}>
+            <Breadcrumb size="small">
+              <BreadcrumbItem>
+                <BreadcrumbButton
+                  onClick={() => navigate({ to: "/admin/actors" })}
+                >
+                  {t("adminActorPage_breadcrumb")}
+                </BreadcrumbButton>
+              </BreadcrumbItem>
+              <BreadcrumbDivider />
+            </Breadcrumb>
+          </div>
+          <ViewTitle eyebrow={t("adminActorPage_eyebrow")}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                paddingRight: tokens.spacingHorizontalL,
+              }}
+            >
+              <div style={{ width: "100%" }}>{actor.fullname}</div>
+              <div>
+                <ActionMenuButton
+                  label={t("adminActorPage_actions")}
+                  itemActions={actorActions}
+                  actionParams={createActionTemplateActor(actor.id)}
+                  displayedSubject={createDisplayedSubjectActor(actor.id)}
+                />
+              </div>
+            </div>
+          </ViewTitle>
+        </div>
+      }
+    >
+      <ContainedMixedScrolling>
+        <ContainedScrollable>
+          <ContainedHumanReadable>
+            <SectionPaper>
+              <PropertiesForm>
+                <div>{t("adminActorPage_fullname")}</div>
+                <div>{actor.fullname}</div>
+
+                <div>{t("adminActorPage_issuer")}</div>
+                <div>{actor.issuer}</div>
+
+                <div>{t("adminActorPage_subject")}</div>
+                <div>{actor.subject}</div>
+
+                <div>{t("adminActorPage_email")}</div>
+                <div>
+                  {actor.email ? (
+                    actor.email
+                  ) : (
+                    <MissingInformation>
+                      {t("adminActorPage_empty")}
+                    </MissingInformation>
+                  )}
+                </div>
+
+                <div>{t("adminActorPage_status")}</div>
+                <div>
+                  {actor.disabledAt
+                    ? `${t("adminActorPage_statusDisabledAt")} ${formatLocalDateTime(actor.disabledAt)}`
+                    : t("adminActorPage_statusActive")}
+                </div>
+
+                <div>{t("adminActorPage_createdAt")}</div>
+                <div>{formatLocalDateTime(actor.createdAt)}</div>
+
+                <div>{t("adminActorPage_lastSeenAt")}</div>
+                <div>{formatLocalDateTime(actor.lastSeenAt)}</div>
+              </PropertiesForm>
+            </SectionPaper>
+            <SectionTitle
+              icon={undefined}
+              location={ActionUILocations.auth_actor_roles}
+              actionParams={createActionTemplateActorRoleList(actor.id)}
+              displayedSubject={createDisplayedSubjectActor(actor.id)}
+            >
+              {t("adminActorPage_rolesTitle")}
+            </SectionTitle>
+            <SectionTable>
+              <ActorRolesTable actor={actor} />
+            </SectionTable>
+          </ContainedHumanReadable>
+        </ContainedScrollable>
+      </ContainedMixedScrolling>
+    </ViewLayoutContained>
+  );
+}
+
+function ActorRolesTable({ actor }: { actor: ActorDetails }) {
+  // Hooks
+  const { t } = useAppI18n();
+  const roleRegistry = useRoleRegistry();
+  const actionRegistry = useActionRegistry();
+
+  // Derived
+  const roleActions = actionRegistry.findActions(
+    ActionUILocations.auth_actor_role,
+  );
+  const rolesItems = roleRegistry.searchRolesByIdsSorted(actor.roles);
+
+  if (rolesItems.length === 0) {
+    return (
+      <p>
+        <MissingInformation>
+          {t("adminActorPage_rolesEmpty")}
+        </MissingInformation>
+      </p>
+    );
+  }
+
+  return (
+    <Table>
+      <TableBody>
+        {rolesItems.map((role) => {
+          return (
+            <TableRow key={role.id}>
+              <TableCell>
+                <div>{role.label}</div>
+                <div>
+                  <Key value={role.key} />
+                </div>
+              </TableCell>
+              <TableCell style={{ width: "3em", textAlign: "right" }}>
+                <ActionMenuButton
+                  itemActions={roleActions}
+                  actionParams={createActionTemplateActorRole(
+                    actor.id,
+                    role.id,
+                  )}
+                  displayedSubject={createDisplayedSubjectActorRole(
+                    actor.id,
+                    role.id,
+                  )}
+                />
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
+}

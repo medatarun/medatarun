@@ -25,7 +25,9 @@ export const useSecurityRuleDescriptions = () => {
   });
 };
 
-export async function fetchSecurityPermissions(): Promise<SecurityPermissionDto[]> {
+export async function fetchSecurityPermissions(): Promise<
+  SecurityPermissionDto[]
+> {
   const response = await executeActionJson<SecurityPermissionsResp>(
     "config",
     "inspect_permissions",

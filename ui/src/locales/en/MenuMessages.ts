@@ -5,4 +5,5 @@ export const menuMessages: MenuMessages = {
   menu_admin_databaseDrivers: "Database drivers",
   menu_admin_datasources: "Databases",
   menu_admin_authRoles: "Roles",
+  menu_admin_authActors: "Actors",
 };

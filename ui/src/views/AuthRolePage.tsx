@@ -7,7 +7,6 @@ import {
   AuthRoleDetails,
   useRole,
   useRoleUpdateDescription,
-  useRoleUpdateKey,
   useRoleUpdateName,
 } from "@/business/actor";
 import { usePermissionRegistry } from "@/business/config";
@@ -53,9 +52,8 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
-  const roleResult = useRole("id:" + roleId);
+  const roleResult = useRole(roleId);
   const roleUpdateName = useRoleUpdateName();
-  const roleUpdateKey = useRoleUpdateKey();
   const roleUpdateDescription = useRoleUpdateDescription();
 
   if (roleResult.isPending) return null;
@@ -67,15 +65,12 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
   const displayedSubject = createDisplayedSubjectRole(role.id);
 
   const handleChangeName = (value: string) => {
-    return roleUpdateName.mutateAsync({ roleRef: "id:" + role.id, value });
-  };
-  const handleChangeKey = (value: string) => {
-    return roleUpdateKey.mutateAsync({ roleRef: "id:" + role.id, value });
+    return roleUpdateName.mutateAsync({ roleId: role.id, value: value });
   };
   const handleChangeDescription = (value: string) => {
     return roleUpdateDescription.mutateAsync({
-      roleRef: "id:" + role.id,
-      value,
+      roleId: role.id,
+      value: value,
     });
   };
 
@@ -162,7 +157,7 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
                 textAlign: "right",
               }}
             >
-              <Caption1 style={{color:tokens.colorNeutralForeground5}}>
+              <Caption1 style={{ color: tokens.colorNeutralForeground5 }}>
                 {t("authRolePage_keyLabel")}: <Key value={role.key} /> -{" "}
                 {t("authRolePage_identifierLabel")}: <code>[{role.id}]</code>
               </Caption1>

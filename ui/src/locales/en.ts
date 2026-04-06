@@ -1,5 +1,7 @@
 import { type Messages } from "./Messages";
 import { actionPerformerViewMessages } from "./en/ActionPerformerViewMessages";
+import { adminActorPageMessages } from "./en/AdminActorPageMessages";
+import { adminActorsPageMessages } from "./en/AdminActorsPageMessages";
 import { authRolePageMessages } from "./en/AuthRolePageMessages";
 import { authRolesPageMessages } from "./en/AuthRolesPageMessages";
 import { attributePageMessages } from "./en/AttributePageMessages";
@@ -35,6 +37,8 @@ export const messages = {
   ...sessionMessages,
   ...attributePageMessages,
   ...actionPerformerViewMessages,
+  ...adminActorPageMessages,
+  ...adminActorsPageMessages,
   ...authRolePageMessages,
   ...authRolesPageMessages,
   ...commandsPageMessages,
