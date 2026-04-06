@@ -3,10 +3,11 @@ package io.medatarun.auth.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionPrincipalCtx
 import io.medatarun.actions.ports.needs.ActionProvider
+import io.medatarun.auth.actions.dto.UserDto
+import io.medatarun.auth.actions.dto.UserListResp
 import io.medatarun.auth.domain.ActorPermission
 import io.medatarun.auth.domain.UserNotFoundException
 import io.medatarun.auth.domain.role.Role
-import io.medatarun.auth.domain.role.RoleId
 import io.medatarun.auth.domain.user.Username
 import io.medatarun.auth.ports.exposed.ActorService
 import io.medatarun.auth.ports.exposed.OAuthService
@@ -50,6 +51,7 @@ class AuthEmbeddedActionsProvider(
             is AuthAction.UserDisable -> launcher.disableUser(action)
             is AuthAction.UserEnable -> launcher.enableUser(action)
             is AuthAction.UserChangeFullname -> launcher.changeUserFullname(action)
+            is AuthAction.UserList -> launcher.userList(action)
             is AuthAction.RoleCreate -> launcher.roleCreate(action)
             is AuthAction.RoleList -> launcher.roleList(action)
             is AuthAction.RoleGet -> launcher.roleGet(action)
@@ -157,6 +159,19 @@ class AuthEmbeddedActionsLauncher(
             cmd.username,
             cmd.fullname
         )
+    }
+
+    fun userList(action: AuthAction.UserList): UserListResp {
+        val users = userService.findAll()
+        return UserListResp(items = users.map {
+            UserDto(
+                id = it.id.asString(),
+                username = it.username.value,
+                fullname = it.fullname.value,
+                admin = it.admin,
+                disabledDate = it.disabledDate
+            )
+        })
     }
 
     fun roleCreate(cmd: AuthAction.RoleCreate) {

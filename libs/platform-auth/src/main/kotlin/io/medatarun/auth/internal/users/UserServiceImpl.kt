@@ -124,4 +124,8 @@ class UserServiceImpl(
         if (!valid) throw AuthNotAuthenticatedException()
         return user
     }
+
+    override fun findAll(): List<User> {
+        return userStorage.findAll()
+    }
 }

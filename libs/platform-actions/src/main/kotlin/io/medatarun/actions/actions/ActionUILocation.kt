@@ -33,4 +33,6 @@ object ActionUILocation {
     const val relationship_roles="relationship.roles"
     const val type="type"
     const val type_hidden="type.hidden_detail"
+    const val user="user"
+    const val users="users"
 }

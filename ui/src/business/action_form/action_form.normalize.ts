@@ -58,6 +58,9 @@ function normalize(param: ActionDescriptorParam, value: unknown) {
   if (param.type == "RoleKey") return normalizeKey(param, value);
   if (param.type == "RoleRef") return normalizeRef(param, value);
   if (param.type == "String") return normalizeString(param, value);
+  if (param.type == "Username") return normalizeString(param, value);
+  if (param.type == "Fullname") return normalizeString(param, value);
+  if (param.type == "PasswordClear") return normalizeString(param, value);
   if (param.type == "TagGroupKey") return normalizeKey(param, value);
   if (param.type == "TagGroupRef") return normalizeRef(param, value);
   if (param.type == "TagKey") return normalizeKey(param, value);

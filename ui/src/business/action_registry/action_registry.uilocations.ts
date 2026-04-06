@@ -33,6 +33,8 @@ export const ActionUILocations = {
   tag_group_list: "tag_group_list",
   tag_global_list: "tag_global_list",
   type: "type",
+  user: "user",
+  users: "users",
 } as const;
 
 export type ActionUILocation =

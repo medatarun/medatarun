@@ -126,6 +126,16 @@ export function useMenu() {
       icon: "dashboard",
       rule: undefined,
     },
+    {
+      id: "admin_auth_users",
+      parentId: "admin",
+      type: "page",
+      path: "/admin/users",
+      label: t("menu_admin_authUsers"),
+      description: undefined,
+      icon: "dashboard",
+      rule: undefined,
+    },
   ];
   const nav = navigationItemsBase
     .filter((it) => it.id !== "commands" || isDetailLevelTech)

@@ -47,6 +47,8 @@ import { AdminRoleListPage } from "@/views/admin-roles/AdminRoleListPage.tsx";
 import { AdminRoleEditPage } from "@/views/admin-roles/AdminRoleEditPage.tsx";
 import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx";
 import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
+import { AdminUserListPage } from "@/views/admin-users/AdminUserListPage.tsx";
+import { AdminUserEditPage } from "@/views/admin-users/AdminUserEditPage.tsx";
 
 function AdminActorListRouteComponent() {
   return <AdminActorListPage />;
@@ -72,6 +74,15 @@ function AdminRoleListRouteComponent() {
 function AdminRoleEditRouteComponent() {
   const { roleId } = useParams({ from: "/admin/roles/$roleId" });
   return <AdminRoleEditPage roleId={roleId} />;
+}
+
+function AdminUserListRouteComponent() {
+  return <AdminUserListPage />;
+}
+
+function AdminUserEditRouteComponent() {
+  const { userId } = useParams({ from: "/admin/users/$userId" });
+  return <AdminUserEditPage userId={userId} />;
 }
 
 function AuthenticationCallbackComponent() {
@@ -231,6 +242,17 @@ const adminRoleEditRoute = createRoute({
   component: AdminRoleEditRouteComponent,
 });
 
+const adminUserListRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/users",
+  component: AdminUserListRouteComponent,
+});
+const adminUserEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/users/$userId",
+  component: AdminUserEditRouteComponent,
+});
+
 const authenticationLoginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: AuthenticationPaths.login,
@@ -349,6 +371,8 @@ const routeTree = rootRoute.addChildren([
   adminDbDriverRoute,
   adminRoleEditRoute,
   adminRoleListRoute,
+  adminUserEditRoute,
+  adminUserListRoute,
   authenticationCallbackRoute,
   authenticationLoginRoute,
   authenticationLogoutRoute,

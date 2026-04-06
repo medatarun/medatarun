@@ -16,6 +16,7 @@ interface UserService {
     fun enableUser(username: Username)
     fun changeUserFullname(username: Username, fullname: Fullname)
     fun loginUser(username: Username, password: PasswordClear): User
+    fun findAll(): List<User>
 
 
 }
