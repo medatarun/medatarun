@@ -1,17 +1,25 @@
 import { executeActionJson } from "@/business/action_runner";
-import type { ActorDetailsDto, ActorInfoDto, RoleDetailsDto, RoleListDto, WhoAmIRespDto } from "@/business/actor/actor.dto.ts";
+import type {
+  ActorDetailsDto,
+  ActorInfoDto,
+  RoleDetailsDto,
+  RoleListDto,
+  WhoAmIRespDto,
+} from "@/business/actor/actor.dto.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 async function whoami() {
-  return executeActionJson<WhoAmIRespDto>("auth", "whoami", {})
+  return executeActionJson<WhoAmIRespDto>("auth", "whoami", {});
 }
 
 async function roleList() {
   return executeActionJson<RoleListDto>("auth", "role_list", {});
 }
 
-async function roleGet(roleRef: string) {
-  return executeActionJson<RoleDetailsDto>("auth", "role_get", { roleRef });
+async function roleGet(roleId: string) {
+  return executeActionJson<RoleDetailsDto>("auth", "role_get", {
+    roleRef: "id:" + roleId,
+  });
 }
 
 async function actorList() {
@@ -36,11 +44,11 @@ export const useRoleList = () => {
   });
 };
 
-export const useRole = (roleRef: string) => {
+export const useRole = (roleId: string) => {
   return useQuery({
-    queryKey: ["action", "auth", "role_get", roleRef],
-    enabled: roleRef.length > 0,
-    queryFn: () => roleGet(roleRef),
+    queryKey: ["action", "auth", "role_get", roleId],
+    enabled: roleId.length > 0,
+    queryFn: () => roleGet(roleId),
   });
 };
 
@@ -62,9 +70,9 @@ export const useActor = (actorId: string) => {
 function useRoleMutation(actionKey: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (props: { roleRef: string; value: string }) =>
+    mutationFn: (props: { roleId: string; value: string }) =>
       executeActionJson("auth", actionKey, {
-        roleRef: props.roleRef,
+        roleRef: "id:" + props.roleId,
         value: props.value,
       }),
     onSuccess: () => queryClient.invalidateQueries(),
@@ -73,10 +81,6 @@ function useRoleMutation(actionKey: string) {
 
 export const useRoleUpdateName = () => {
   return useRoleMutation("role_update_name");
-};
-
-export const useRoleUpdateKey = () => {
-  return useRoleMutation("role_update_key");
 };
 
 export const useRoleUpdateDescription = () => {

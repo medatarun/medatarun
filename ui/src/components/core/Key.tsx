@@ -1,6 +1,6 @@
 import { Caption1, tokens } from "@fluentui/react-components";
 
-export function Key({value}:{value:string}) {
+export function Key({ value }: { value: string }) {
   return (
     <Caption1>
       <code>
