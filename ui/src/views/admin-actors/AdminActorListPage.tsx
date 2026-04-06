@@ -6,14 +6,12 @@ import {
 } from "@/business/action_registry";
 import { useActorList } from "@/business/actor";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   Caption1,
@@ -34,8 +32,14 @@ import { displaySubjectNone } from "@/components/business/actions/ActionPerforme
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import type { ActorInfoDto } from "@/business/actor/actor.dto.ts";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { PersonKeyRegular } from "@fluentui/react-icons";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
-export function AdminActorsPage() {
+export function AdminActorListPage() {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
@@ -53,29 +57,26 @@ export function AdminActorsPage() {
     navigate({ to: "/admin/actors/$actorId", params: { actorId } });
   };
 
+  const headerProps: ViewLayoutHeaderProps = {
+    eyebrow: t("adminActorsPage_eyebrow"),
+    title: t("adminActorsPage_title"),
+    titleIcon: <PersonKeyRegular />,
+    actions: {
+      label: t("adminActorsPage_actions"),
+      itemActions: actionRegistry.findActions(ActionUILocations.auth_actors),
+      actionParams: {},
+      displayedSubject: displaySubjectNone,
+    },
+  };
+
   return (
-    <ViewLayoutContained
-      title={
-        <ViewTitle eyebrow={t("adminActorsPage_eyebrow")}>
-          {t("adminActorsPage_title")}
-        </ViewTitle>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <p></p>
-            <InfoBox intent={"info"}>
+            <ViewLayoutPageInfo>
               {t("adminActorsPage_description")}
-            </InfoBox>
-            <SectionTitle
-              icon={undefined}
-              location={ActionUILocations.auth_actors}
-              actionParams={{}}
-              displayedSubject={displaySubjectNone}
-            >
-              {""}
-            </SectionTitle>
+            </ViewLayoutPageInfo>
             <SectionTable>
               <AdminActorsTable
                 actors={actorItems}

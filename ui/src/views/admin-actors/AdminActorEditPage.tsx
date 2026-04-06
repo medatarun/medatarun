@@ -5,7 +5,6 @@ import {
 } from "@/business/action_registry";
 import { ActorDetails, useActor, useRoleRegistry } from "@/business/actor";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -15,7 +14,6 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  tokens,
 } from "@fluentui/react-components";
 import {
   ContainedHumanReadable,
@@ -39,8 +37,13 @@ import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { Key } from "@/components/core/Key.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { PersonKeyRegular } from "@fluentui/react-icons";
 
-export function AdminActorPage({ actorId }: { actorId: string }) {
+export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
@@ -53,44 +56,36 @@ export function AdminActorPage({ actorId }: { actorId: string }) {
   const actor = actorResult.data;
   const actorActions = actionRegistry.findActions(ActionUILocations.auth_actor);
 
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton onClick={() => navigate({ to: "/admin/actors" })}>
+          {t("adminActorPage_breadcrumb")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton current={true}>
+          {t("adminActorPage_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadcrumb,
+    title: actor.fullname,
+    titleIcon: <PersonKeyRegular />,
+    actions: {
+      label: t("adminActorPage_actions"),
+      itemActions: actorActions,
+      actionParams: createActionTemplateActor(actor.id),
+      displayedSubject: createDisplayedSubjectActor(actor.id),
+    },
+  };
+
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  onClick={() => navigate({ to: "/admin/actors" })}
-                >
-                  {t("adminActorPage_breadcrumb")}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-            </Breadcrumb>
-          </div>
-          <ViewTitle eyebrow={t("adminActorPage_eyebrow")}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>{actor.fullname}</div>
-              <div>
-                <ActionMenuButton
-                  label={t("adminActorPage_actions")}
-                  itemActions={actorActions}
-                  actionParams={createActionTemplateActor(actor.id)}
-                  displayedSubject={createDisplayedSubjectActor(actor.id)}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>

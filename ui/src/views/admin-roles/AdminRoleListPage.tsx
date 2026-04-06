@@ -5,13 +5,11 @@ import {
 } from "@/business/action_registry";
 import { AuthRole, useRoleList } from "@/business/actor";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -33,13 +31,18 @@ import {
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { LockClosedRegular } from "@fluentui/react-icons";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
-export function AuthRolesPage() {
+export function AdminRoleListPage() {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const rolesResult = useRoleList();
-  const actions = actionRegistry.findActions(ActionUILocations.auth_roles);
 
   if (rolesResult.isPending) return null;
   if (rolesResult.error)
@@ -50,43 +53,26 @@ export function AuthRolesPage() {
     navigate({ to: "/admin/roles/$roleId", params: { roleId } });
   };
 
+  const headerProps: ViewLayoutHeaderProps = {
+    eyebrow: t("authRolesPage_eyebrow"),
+    title: t("authRolesPage_title"),
+    titleIcon: <LockClosedRegular />,
+    actions: {
+      label: t("authRolesPage_actions"),
+      itemActions: actionRegistry.findActions(ActionUILocations.auth_roles),
+      actionParams: createActionTemplateRoleList(),
+      displayedSubject: displaySubjectNone,
+    },
+  };
+
   return (
-    <ViewLayoutContained
-      title={
-        <ViewTitle eyebrow={t("authRolesPage_eyebrow")}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              paddingRight: tokens.spacingHorizontalL,
-            }}
-          >
-            <div>{t("authRolesPage_title")}</div>
-            <div>
-              <ActionMenuButton
-                label={t("authRolesPage_actions")}
-                itemActions={actions}
-                actionParams={createActionTemplateRoleList()}
-                displayedSubject={displaySubjectNone}
-              />
-            </div>
-          </div>
-        </ViewTitle>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <p></p>
-            <InfoBox intent={"info"}>{t("authRolesPage_description")}</InfoBox>
-            <SectionTitle
-              icon={undefined}
-              location={ActionUILocations.auth_roles}
-              actionParams={createActionTemplateRoleList()}
-              displayedSubject={displaySubjectNone}
-            >
-              {t("authRolesPage_sectionTitle")}
-            </SectionTitle>
+            <ViewLayoutPageInfo>
+              {t("authRolesPage_description")}
+            </ViewLayoutPageInfo>
             <SectionTable>
               <AuthRolesTable roles={roleItems} onClickRole={handleClickRole} />
             </SectionTable>
