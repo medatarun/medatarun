@@ -2,7 +2,7 @@
 sidebar_position: 30
 ---
 
-# Managing local users
+# Manage local users
 
 :::tip
 Medatarun includes a minimal built-in authentication system to get started.
@@ -89,11 +89,14 @@ unset MEDATARUN_AUTH_TOKEN
 
 ## Users management (UI, CLI, APIs)
 
-Please remember that everything you do in CLI can be done with API and UI.
+Please remember that everything you do in CLI can be done with API and 
+the user-interface.
 
-UI provides a command panel where you can run those commands and a dynamic
-interface that builds from all available commands. UI may be easier to use
-since you don't have to fight with credentials.
+User-interface provides screens to create and manage user. It also provides a
+command panel where you can run those commands and a dynamic
+interface that builds from all available commands.
+
+UI may be easier to use since you don't have to fight with credentials.
 
 ## Create users
 
