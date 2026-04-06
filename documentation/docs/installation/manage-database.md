@@ -2,7 +2,7 @@
 sidebar_position: 55
 ---
 
-# Manage application database
+# Configure application database
 
 If you do not configure anything, Medatarun uses [SQLite](https://sqlite.org/) by default. Just
 follow [installation steps](./install-from-distribution.mdx) and you are done.

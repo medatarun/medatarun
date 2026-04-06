@@ -2,7 +2,7 @@
 sidebar_position: 60
 ---
 
-# Connect to your databases
+# Connect all your databases
 
 Medatarun ships with a database extension that helps you start a new model from an existing database. Building a model from scratch can take time, and
 many structures you need already exist in the database you use every day. Importing a database schema gives you an
