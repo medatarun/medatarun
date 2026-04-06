@@ -57,6 +57,7 @@ import { ActionPerformerInputEntityRef } from "./inputs/ActionPerformerInputEnti
 import { ActionPerformerInputRelationshipCardinality } from "./inputs/ActionPerformerInputRelationshipCardinality.tsx";
 import { ActionPerformerInputSecurityPermission } from "./inputs/ActionPerformerInputSecurityPermission.tsx";
 import { ActionPerformerInputRoleRef } from "./inputs/ActionPerformerInputRoleRef.tsx";
+import { ActionPerformerInputPasswordClear } from "./inputs/ActionPerformerInputPasswordClear.tsx";
 
 export function ActionPerformerView() {
   // Separate state extraction here, so that when state changes all ActionPerformView is redrawn
@@ -282,6 +283,8 @@ function FormFieldInput({
       return ActionPerformerInputModelAuthority;
     if (fieldType === "PermissionKey")
       return ActionPerformerInputSecurityPermission;
+    if (fieldType === "PasswordClear")
+      return ActionPerformerInputPasswordClear;
     if (fieldType === "RoleRef") return ActionPerformerInputRoleRef;
     if (fieldType === "RelationshipCardinality")
       return ActionPerformerInputRelationshipCardinality;

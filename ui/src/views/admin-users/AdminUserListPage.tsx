@@ -73,7 +73,12 @@ export function AdminUserListPage() {
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <ViewLayoutPageInfo>{t("adminUsersPage_description")}</ViewLayoutPageInfo>
+            <ViewLayoutPageInfo>
+              <div>{t("adminUsersPage_description")}</div>
+              <div style={{ marginTop: tokens.spacingVerticalS }}>
+                {t("adminUsersPage_roleReminder")}
+              </div>
+            </ViewLayoutPageInfo>
             <SectionTable>
               <AdminUsersTable
                 users={userItems}

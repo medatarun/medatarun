@@ -59,20 +59,20 @@ sealed interface AuthAction<R> {
     @ActionDoc(
         key = "user_create",
         title = "Create user",
-        description = "Create a new user. This will automatically make this user available as an actor and able to connect with tokens.",
+        description = "Create a new user. This will automatically make this user available as an actor and able to connect with security tokens.",
         uiLocations = [ActionUILocation.users],
         securityRule = SecurityRuleNames.ADMIN
     )
     class UserCreate(
         @ActionParamDoc(
-            name = "username",
-            description = "Admin user name",
+            name = "User or tool name (login)",
+            description = "User name or tool name used on the login page or to get security tokens. Avoid special characters.",
             order = 1
         )
         val username: Username,
         @ActionParamDoc(
-            name = "fullname",
-            description = "User full name (displayed name)",
+            name = "Displayed name",
+            description = "How this user or tool is named on the screens. Usually the first and last name of a person, or the full name of the tool.",
             order = 2
         )
         val fullname: Fullname,
@@ -83,8 +83,8 @@ sealed interface AuthAction<R> {
         )
         val password: PasswordClear,
         @ActionParamDoc(
-            name = "admin",
-            description = "Is user admin",
+            name = "Administrator privileges",
+            description = "Gives this user or tool administrator privileges. This gives or removes the special admin role in the corresponding actor.",
             order = 4
         )
         val admin: Boolean

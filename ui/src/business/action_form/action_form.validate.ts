@@ -78,6 +78,12 @@ export function validateForm({
       result = validateKey(formField, formData[formField.key]);
     else if (formField.type === "RoleRef")
       result = validateRef(formField, formData[formField.key]);
+    else if (formField.type === "Username")
+      result = validateString(formField, formData[formField.key]);
+    else if (formField.type === "Fullname")
+      result = validateString(formField, formData[formField.key]);
+    else if (formField.type === "PasswordClear")
+      result = validateString(formField, formData[formField.key]);
     else
       result = invalid(
         t("formValidation_unsupportedType", { type: formField.type }),
