@@ -1,4 +1,5 @@
 export interface AdminActorsPageMessages {
+  adminActorsPage_actions: string;
   adminActorsPage_eyebrow: string;
   adminActorsPage_title: string;
   adminActorsPage_description: string;

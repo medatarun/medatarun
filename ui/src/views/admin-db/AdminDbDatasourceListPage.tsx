@@ -6,7 +6,6 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Caption2,
   MessageBar,
@@ -19,13 +18,16 @@ import {
   DatabaseRegular,
   LinkRegular,
 } from "@fluentui/react-icons";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
-export function AdminDbDatasourcesPage() {
+export function AdminDbDatasourceListPage() {
   const { data: dsRaw } = useDatabaseDatasources();
   const { data: driversRaw } = useDatabaseDrivers();
   const actionRegistry = useActionRegistry();
@@ -37,37 +39,20 @@ export function AdminDbDatasourcesPage() {
   const datasources = sortBy(dsRaw ?? [], (it) => it.id);
   const drivers = sortBy(driversRaw ?? [], (it) => it.id);
 
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: undefined,
+    eyebrow: undefined,
+    title: "Databases & datasources",
+    titleIcon: <DatabaseRegular />,
+    actions: {
+      label: "Actions",
+      itemActions: actions,
+      actionParams: createActionTemplateGeneral(),
+      displayedSubject: displaySubjectNone,
+    },
+  };
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <ViewTitle>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div>
-                <span>
-                  <DatabaseRegular />
-                </span>{" "}
-                Databases & datasources{" "}
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={"Actions"}
-                  itemActions={actions}
-                  actionParams={createActionTemplateGeneral()}
-                  displayedSubject={displaySubjectNone}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedHumanReadable>
         <div
           style={{

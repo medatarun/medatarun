@@ -12,7 +12,6 @@ import {
 import { usePermissionRegistry } from "@/business/config";
 import { refid } from "@/business/action_runner";
 import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {
@@ -47,8 +46,13 @@ import {
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { Key } from "@/components/core/Key.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { LockClosedRegular } from "@fluentui/react-icons";
 
-export function AuthRolePage({ roleId }: { roleId: string }) {
+export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
@@ -74,57 +78,44 @@ export function AuthRolePage({ roleId }: { roleId: string }) {
     });
   };
 
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton onClick={() => navigate({ to: "/admin/roles" })}>
+          {t("authRolePage_breadcrumb")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton current={true}>
+          {t("authRolePage_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadcrumb,
+    titleIcon: <LockClosedRegular />,
+    title: (
+      <InlineEditSingleLine value={role.name} onChange={handleChangeName}>
+        {role.name ? (
+          role.name
+        ) : (
+          <MissingInformation>{role.key}</MissingInformation>
+        )}
+      </InlineEditSingleLine>
+    ),
+    actions: {
+      label: t("authRolePage_actions"),
+      itemActions: actionRegistry.findActions(ActionUILocations.auth_role),
+      actionParams: createActionTemplateRole(role.id),
+      displayedSubject: displayedSubject,
+    },
+  };
+
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  onClick={() => navigate({ to: "/admin/roles" })}
-                >
-                  {t("authRolePage_breadcrumb")}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-            </Breadcrumb>
-          </div>
-          <ViewTitle eyebrow={t("authRolePage_eyebrow")}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={role.name}
-                  onChange={handleChangeName}
-                >
-                  {role.name ? (
-                    role.name
-                  ) : (
-                    <MissingInformation>{role.key}</MissingInformation>
-                  )}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("authRolePage_actions")}
-                  itemActions={actionRegistry.findActions(
-                    ActionUILocations.auth_role,
-                  )}
-                  actionParams={createActionTemplateRole(role.id)}
-                  displayedSubject={displayedSubject}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>

@@ -1,8 +1,5 @@
 import { SwitchButton } from "@seij/common-ui";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { tokens } from "@fluentui/react-components";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -12,6 +9,11 @@ import {
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { SettingsCogMultipleRegular } from "@fluentui/react-icons";
 
 export function PreferencesPage() {
   const { isDetailLevelTech, toggle } = useDetailLevelContext();
@@ -21,32 +23,18 @@ export function PreferencesPage() {
   const mode = isDetailLevelTech
     ? t("preferencesPage_modeTech")
     : t("preferencesPage_modeBusiness");
+  const headerProps: ViewLayoutHeaderProps = {
+    title: t("preferencesPage_title"),
+    titleIcon: <SettingsCogMultipleRegular />,
+    actions: {
+      label: t("preferencesPage_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateGeneral(),
+      displayedSubject: displaySubjectNone,
+    },
+  };
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <ViewTitle eyebrow="">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div>{t("preferencesPage_title")}</div>
-              <div>
-                <ActionMenuButton
-                  label={t("preferencesPage_actions")}
-                  itemActions={actions}
-                  actionParams={createActionTemplateGeneral()}
-                  displayedSubject={displaySubjectNone}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedHumanReadable>
         <div>
           <div>

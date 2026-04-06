@@ -31,7 +31,7 @@ import {
 } from "@seij/common-ui-auth";
 import { getOrDefault } from "@/utils/getOrDefault.ts";
 import { DetailLevelProvider } from "@/components/business/DetailLevelContext.tsx";
-import { PreferencesPage } from "@/views/PreferencesPage.tsx";
+import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
 import { AttributePage } from "@/views/attribute/AttributePage.tsx";
 import { TypePage } from "@/views/type/TypePage.tsx";
 import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
@@ -41,18 +41,37 @@ import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
 import { TagEdit } from "@/views/tags/TagEdit.tsx";
 import { ModelComparePage } from "@/views/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
-import { AdminDbDriverPage } from "@/views/admin-db/AdminDbDriverPage.tsx";
-import { AdminDbDatasourcesPage } from "@/views/admin-db/AdminDbDatasourcesPage.tsx";
-import { AuthRolesPage } from "@/views/AuthRolesPage.tsx";
-import { AuthRolePage } from "@/views/AuthRolePage.tsx";
-import { AdminActorsPage } from "@/views/admin-actors/AdminActorsPage.tsx";
-import { AdminActorPage } from "@/views/admin-actors/AdminActorPage.tsx";
+import { AdminDbDriverListPage } from "@/views/admin-db/AdminDbDriverListPage.tsx";
+import { AdminDbDatasourceListPage } from "@/views/admin-db/AdminDbDatasourceListPage.tsx";
+import { AdminRoleListPage } from "@/views/admin-roles/AdminRoleListPage.tsx";
+import { AdminRoleEditPage } from "@/views/admin-roles/AdminRoleEditPage.tsx";
+import { AdminActorListPage } from "@/views/admin-actors/AdminActorListPage.tsx";
+import { AdminActorEditPage } from "@/views/admin-actors/AdminActorEditPage.tsx";
 
-function AdminDbDatasourcesRouteComponent() {
-  return <AdminDbDatasourcesPage />;
+function AdminActorListRouteComponent() {
+  return <AdminActorListPage />;
 }
-function AdminDbDriverRouteComponent() {
-  return <AdminDbDriverPage />;
+
+function AdminActorEditRouteComponent() {
+  const { actorId } = useParams({ from: "/admin/actors/$actorId" });
+  return <AdminActorEditPage actorId={actorId} />;
+}
+
+function AdminDbDatasourceListRouteComponent() {
+  return <AdminDbDatasourceListPage />;
+}
+
+function AdminDbDriverListRouteComponent() {
+  return <AdminDbDriverListPage />;
+}
+
+function AdminRoleListRouteComponent() {
+  return <AdminRoleListPage />;
+}
+
+function AdminRoleEditRouteComponent() {
+  const { roleId } = useParams({ from: "/admin/roles/$roleId" });
+  return <AdminRoleEditPage roleId={roleId} />;
 }
 
 function AuthenticationCallbackComponent() {
@@ -173,38 +192,61 @@ function TypeRouteComponent() {
   return <TypePage modelId={modelId} typeId={typeId} />;
 }
 
-function AuthRolesRouteComponent() {
-  return <AuthRolesPage />;
-}
-
-function AuthRoleRouteComponent() {
-  const { roleId } = useParams({ from: "/admin/roles/$roleId" });
-  return <AuthRolePage roleId={roleId} />;
-}
-
-function AdminActorsRouteComponent() {
-  return <AdminActorsPage />;
-}
-
-function AdminActorRouteComponent() {
-  const { actorId } = useParams({ from: "/admin/actors/$actorId" });
-  return <AdminActorPage actorId={actorId} />;
-}
-
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
 const rootRoute = createRootRoute({
   component: Layout,
 });
+
+const adminActorListRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/actors",
+  component: AdminActorListRouteComponent,
+});
+
+const adminActorEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/actors/$actorId",
+  component: AdminActorEditRouteComponent,
+});
+
 const adminDbDatasourcesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin/db-datasources",
-  component: AdminDbDatasourcesRouteComponent,
+  component: AdminDbDatasourceListRouteComponent,
 });
 const adminDbDriverRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin/db-drivers",
-  component: AdminDbDriverRouteComponent,
+  component: AdminDbDriverListRouteComponent,
 });
+
+const adminRoleListRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/roles",
+  component: AdminRoleListRouteComponent,
+});
+const adminRoleEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/roles/$roleId",
+  component: AdminRoleEditRouteComponent,
+});
+
+const authenticationLoginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.login,
+  component: AuthenticationLoginComponent,
+});
+const authenticationLogoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.logout,
+  component: AuthenticationLogoutComponent,
+});
+const authenticationCallbackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: AuthenticationPaths.callback,
+  component: AuthenticationCallbackComponent,
+});
+
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
@@ -258,22 +300,6 @@ const entityAttributeRoute = createRoute({
   component: EntityAttributeRouteComponent,
 });
 
-const authenticationLoginRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: AuthenticationPaths.login,
-  component: AuthenticationLoginComponent,
-});
-const authenticationLogoutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: AuthenticationPaths.logout,
-  component: AuthenticationLogoutComponent,
-});
-const authenticationCallbackRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: AuthenticationPaths.callback,
-  component: AuthenticationCallbackComponent,
-});
-
 const relationshipRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/model/$modelId/relationship/$relationshipId",
@@ -315,44 +341,24 @@ const typeRoute = createRoute({
   path: "/model/$modelId/type/$typeId",
   component: TypeRouteComponent,
 });
-const authRolesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/admin/roles",
-  component: AuthRolesRouteComponent,
-});
-const authRoleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/admin/roles/$roleId",
-  component: AuthRoleRouteComponent,
-});
-const adminActorsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/admin/actors",
-  component: AdminActorsRouteComponent,
-});
-const adminActorRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/admin/actors/$actorId",
-  component: AdminActorRouteComponent,
-});
 
 const routeTree = rootRoute.addChildren([
-  adminActorRoute,
-  adminActorsRoute,
-  authRoleRoute,
-  authRolesRoute,
-  adminDbDriverRoute,
+  adminActorEditRoute,
+  adminActorListRoute,
   adminDbDatasourcesRoute,
+  adminDbDriverRoute,
+  adminRoleEditRoute,
+  adminRoleListRoute,
   authenticationCallbackRoute,
   authenticationLoginRoute,
   authenticationLogoutRoute,
   commandsRoute,
   dashboardRoute,
-  entityRoute,
   entityAttributeRoute,
-  modelRoute,
+  entityRoute,
   modelCompareRoute,
   modelHistoryRoute,
+  modelRoute,
   modelsRoute,
   preferencesRoute,
   relationshipAttributeRoute,
