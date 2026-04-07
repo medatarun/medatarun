@@ -30,10 +30,26 @@ async function actorGet(actorId: string) {
   return executeActionJson<ActorDetailsDto>("auth", "actor_get", { actorId });
 }
 
+/**
+ * Returns the current user details with roles and permissions.
+ *
+ * Issuer and subject are used to manage the query cache, infos will only
+ * be refetched if one of those changes.
+ *
+ * If one of "issuer" or "subject" is null, actor info will not be
+ * retreived at all, preventing 401 errors on the query.
+ *
+ * Doing so, we prevent a bad loop where the user always gets
+ * the "session expired" popup just after he just logged in.
+ *
+ */
 export const useWhoami = (issuer: string | null, subject: string | null) => {
   return useQuery({
     queryKey: ["whoami", issuer, subject],
-    queryFn: whoami,
+    queryFn: async () => {
+      if(!issuer || !subject) return null
+      return whoami();
+    }
   });
 };
 
