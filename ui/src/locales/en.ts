@@ -7,7 +7,7 @@ import { adminUsersPageMessages } from "./en/AdminUsersPageMessages";
 import { authRolePageMessages } from "./en/AuthRolePageMessages";
 import { authRolesPageMessages } from "./en/AuthRolesPageMessages";
 import { attributePageMessages } from "./en/AttributePageMessages";
-import { commandsPageMessages } from "./en/CommandsPageMessages";
+import { actionPageMessage } from "./en/ActionPageMessage";
 import { dashboardPageMessages } from "./en/DashboardPageMessages";
 import { entityPageMessages } from "./en/EntityPageMessages";
 import { errorBoundaryMessages } from "./en/ErrorBoundaryMessages";
@@ -45,7 +45,7 @@ export const messages = {
   ...adminUsersPageMessages,
   ...authRolePageMessages,
   ...authRolesPageMessages,
-  ...commandsPageMessages,
+  ...actionPageMessage,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
   ...relationshipDescriptionMessages,

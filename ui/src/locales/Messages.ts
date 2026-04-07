@@ -7,7 +7,7 @@ import { type AuthRolePageMessages } from "./contracts/AuthRolePageMessages";
 import { type AuthRolesPageMessages } from "./contracts/AuthRolesPageMessages";
 import { type EntityPageMessages } from "./contracts/EntityPageMessages";
 import { type AttributePageMessages } from "./contracts/AttributePageMessages";
-import { type CommandsPageMessages } from "./contracts/CommandsPageMessages";
+import { type ActionPageMessage } from "./contracts/ActionPageMessage";
 import { type ErrorBoundaryMessages } from "./contracts/ErrorBoundaryMessages";
 import { type FormValidationMessages } from "./contracts/FormValidationMessages";
 import { type InlineEditRichTextLayoutMessages } from "./contracts/InlineEditRichTextLayoutMessages";
@@ -43,7 +43,7 @@ export type Messages = SessionMessages &
   AdminUsersPageMessages &
   AuthRolePageMessages &
   AuthRolesPageMessages &
-  CommandsPageMessages &
+  ActionPageMessage &
   DashboardPageMessages &
   PreferencesPageMessages &
   RelationshipDescriptionMessages &

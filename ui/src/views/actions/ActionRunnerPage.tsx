@@ -172,7 +172,7 @@ const useActionLauncherStyles = makeStyles({
   },
 });
 
-export function ActionsPage() {
+export function ActionRunnerPage() {
   const actionRegistryDto = useActionRegistry();
   return <ActionsPageLoaded actionRegistry={actionRegistryDto} />;
 }
@@ -209,8 +209,8 @@ export function ActionsPageLoaded({
   };
 
   const headerProps: ViewLayoutHeaderProps = {
-    eyebrow: t("commandsPage_eyebrow"),
-    title: t("commandsPage_title"),
+    eyebrow: t("actionRunnerPage_eyebrow"),
+    title: t("actionRunnerPage_title"),
     titleIcon: <CodeBlockRegular/>
 
   };
@@ -298,7 +298,7 @@ function ActionLaucher({
       setErrorMessage(
         toProblem({
           type: "action-runner/validation-error",
-          title: t("commandsPage_selectResourceAndActionError"),
+          title: t("actionRunnerPage_selectResourceAndActionError"),
         }),
       );
       return;
@@ -310,9 +310,9 @@ function ActionLaucher({
       setErrorMessage(
         toProblem({
           type: "action-runner/invalid-payload",
-          title: t("commandsPage_invalidPayloadError", {
+          title: t("actionRunnerPage_invalidPayloadError", {
             details:
-              e instanceof Error ? e.message : t("commandsPage_unknownError"),
+              e instanceof Error ? e.message : t("actionRunnerPage_unknownError"),
           }),
         }),
       );
@@ -328,7 +328,7 @@ function ActionLaucher({
             ? err
             : toProblem({
                 type: "action-runner/execution-error",
-                title: t("commandsPage_unknownError"),
+                title: t("actionRunnerPage_unknownError"),
                 detail: err instanceof Error ? err.message : `${err}`,
               });
         setErrorMessage(problem);
@@ -347,7 +347,7 @@ function ActionLaucher({
       setErrorMessage(
         toProblem({
           type: "action-runner/copy-error",
-          title: t("commandsPage_copyOutputError"),
+          title: t("actionRunnerPage_copyOutputError"),
           detail: e instanceof Error ? e.message : `${e}`,
         }),
       ),
@@ -362,7 +362,7 @@ function ActionLaucher({
       <div className={styles.titleRow}>
         <div className={styles.titleBlock}>
           <div className={styles.title}>
-            {selectedActionKey ?? t("commandsPage_noActionSelected")}
+            {selectedActionKey ?? t("actionRunnerPage_noActionSelected")}
           </div>
           {selectedActionDescriptor &&
           selectedActionDescriptor.title !== selectedActionKey ? (
@@ -392,7 +392,7 @@ function ActionLaucher({
           </div>
           {selectedActionDescriptor.parameters.length === 0 ? (
             <MissingInformation>
-              {t("commandsPage_noParametersRequired")}
+              {t("actionRunnerPage_noParametersRequired")}
             </MissingInformation>
           ) : (
             <div className={styles.parametersTableWrapper}>
@@ -436,11 +436,11 @@ function ActionLaucher({
           )}
         </div>
       ) : (
-        <div>{t("commandsPage_noActionSelected")}</div>
+        <div>{t("actionRunnerPage_noActionSelected")}</div>
       )}
-      <Field label={t("commandsPage_payloadLabel")}>
+      <Field label={t("actionRunnerPage_payloadLabel")}>
         <Textarea
-          placeholder={t("commandsPage_payloadPlaceholder")}
+          placeholder={t("actionRunnerPage_payloadPlaceholder")}
           value={payload}
           onChange={(e) => setPayload(e.target.value)}
           rows={6}
@@ -452,27 +452,27 @@ function ActionLaucher({
           icon={<CheckmarkRegular />}
           onClick={handleSubmit}
         >
-          {t("commandsPage_submit")}
+          {t("actionRunnerPage_submit")}
         </Button>
         <Button
           appearance="secondary"
           icon={<DismissRegular />}
           onClick={handleClear}
         >
-          {t("commandsPage_clear")}
+          {t("actionRunnerPage_clear")}
         </Button>
       </div>
       {errorMessage ? <ErrorBox error={errorMessage} /> : ""}
       {output && (
         <div>
           <div className={styles.outputHeader}>
-            <div className={styles.outputTitle}>{t("commandsPage_output")}</div>
+            <div className={styles.outputTitle}>{t("actionRunnerPage_output")}</div>
             <Button
               appearance="secondary"
               icon={<CopyRegular />}
               onClick={handleCopyOutput}
             >
-              {t("commandsPage_copy_output")}
+              {t("actionRunnerPage_copy_output")}
             </Button>
           </div>
           <pre className={styles.output}>

@@ -7,7 +7,7 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { ActionsPage } from "@/views/actions/ActionsPage.tsx";
+import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
 import { ModelsPage } from "@/views/ModelsPage.tsx";
 import { ModelPage } from "@/views/ModelPage.tsx";
 import { EntityPage } from "@/views/entity/EntityPage.tsx";
@@ -103,7 +103,7 @@ function AuthenticationLogoutComponent() {
 }
 
 function CommandsRouteComponent() {
-  return <ActionsPage />;
+  return <ActionRunnerPage />;
 }
 
 function DashboardRouteComponent() {

@@ -6,13 +6,7 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import {
-  Caption2,
-  MessageBar,
-  MessageBarBody,
-  Text,
-  tokens,
-} from "@fluentui/react-components";
+import { Caption2, Text, tokens } from "@fluentui/react-components";
 import {
   DatabaseLinkRegular,
   DatabaseRegular,
