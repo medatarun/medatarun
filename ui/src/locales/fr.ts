@@ -23,7 +23,7 @@ import { modelPageMessages } from "./fr/ModelPageMessages";
 import { modelComparePageMessages } from "./fr/ModelComparePageMessages";
 import { modelHistoryPageMessages } from "./fr/ModelHistoryPageMessages";
 import { modelReportsPageMessages } from "./fr/ModelReportsPageMessages";
-import { modelsPageMessages } from "./fr/ModelsPageMessages";
+import { modelListPageMessages } from "./fr/ModelListPageMessages.ts";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
 import { relationshipDescriptionMessages } from "./fr/RelationshipDescriptionMessages";
 import { relationshipPageMessages } from "./fr/RelationshipPageMessages";
@@ -61,7 +61,7 @@ export const messages = {
   ...inlineEditTagsMessages,
   ...layoutMessages,
   ...menuMessages,
-  ...modelsPageMessages,
+  ...modelListPageMessages,
   ...modelComparePageMessages,
   ...modelHistoryPageMessages,
   ...modelPageMessages,

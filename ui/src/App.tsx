@@ -8,7 +8,7 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
-import { ModelsPage } from "@/views/ModelsPage.tsx";
+import { ModelListPage } from "@/views/ModelListPage.tsx";
 import { ModelPage } from "@/views/ModelPage.tsx";
 import { EntityPage } from "@/views/entity/EntityPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
@@ -136,7 +136,7 @@ function ModelsRouteComponent() {
   const handleClickModel = (modelId: string) => {
     navigate({ to: "/model/$modelId", params: { modelId } });
   };
-  return <ModelsPage onClickModel={handleClickModel} />;
+  return <ModelListPage onClickModel={handleClickModel} />;
 }
 
 function ModelCompareRouteComponent() {

@@ -22,7 +22,7 @@ import { type ModelPageMessages } from "./contracts/ModelPageMessages";
 import { type ModelComparePageMessages } from "./contracts/ModelComparePageMessages";
 import { type ModelHistoryPageMessages } from "./contracts/ModelHistoryPageMessages";
 import { type ModelReportsPageMessages } from "./contracts/ModelReportsPageMessages";
-import { type ModelsPageMessages } from "./contracts/ModelsPageMessages";
+import { type ModelListPageMessages } from "./contracts/ModelListPageMessages.ts";
 import { type PreferencesPageMessages } from "./contracts/PreferencesPageMessages";
 import { type RelationshipDescriptionMessages } from "./contracts/RelationshipDescriptionMessages";
 import { type RelationshipPageMessages } from "./contracts/RelationshipPageMessages";
@@ -59,7 +59,7 @@ export type Messages = SessionMessages &
   InlineEditTagsMessages &
   LayoutMessages &
   MenuMessages &
-  ModelsPageMessages &
+  ModelListPageMessages &
   ModelComparePageMessages &
   ModelHistoryPageMessages &
   ModelPageMessages &

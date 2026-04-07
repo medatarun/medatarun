@@ -19,7 +19,7 @@ import { displaySubjectNone } from "@/components/business/actions/ActionPerforme
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
 
-export function ModelsPage({
+export function ModelListPage({
   onClickModel,
 }: {
   onClickModel: (modelId: string) => void;
@@ -49,11 +49,11 @@ export function ModelsPage({
                 <span>
                   <ModelIcon />
                 </span>{" "}
-                {t("modelsPage_title")}{" "}
+                {t("modelListPage_title")}{" "}
               </div>
               <div>
                 <ActionMenuButton
-                  label={t("modelsPage_actions")}
+                  label={t("modelListPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateGeneral()}
                   displayedSubject={displaySubjectNone}
@@ -70,19 +70,19 @@ export function ModelsPage({
           paddingRight: tokens.spacingHorizontalM,
         }}
       >
-        {data.length == 0 ? t("modelsPage_empty") : null}
+        {data.length == 0 ? t("modelListPage_empty") : null}
         {canonicalModels.length > 0 && (
           <ModelsSection
-            title={`${Model.authorityEmoji("canonical")} ${t("modelsPage_canonicalTitle")}`}
-            titleInfo={t("modelsPage_canonicalInfo")}
+            title={`${Model.authorityEmoji("canonical")} ${t("modelListPage_canonicalTitle")}`}
+            titleInfo={t("modelListPage_canonicalInfo")}
             models={canonicalModels}
             onClickModel={onClickModel}
           />
         )}
         {systemModels.length > 0 && (
           <ModelsSection
-            title={`${Model.authorityEmoji("system")} ${t("modelsPage_systemTitle")}`}
-            titleInfo={t("modelsPage_systemInfo")}
+            title={`${Model.authorityEmoji("system")} ${t("modelListPage_systemTitle")}`}
+            titleInfo={t("modelListPage_systemInfo")}
             models={systemModels}
             onClickModel={onClickModel}
           />
