@@ -36,8 +36,8 @@ import { AttributePage } from "@/views/attribute/AttributePage.tsx";
 import { TypePage } from "@/views/type/TypePage.tsx";
 import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
-import { TagGroupsPage } from "@/views/tags/TagGroupsPage.tsx";
-import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
+import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
+import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
 import { TagEdit } from "@/views/tags/TagEdit.tsx";
 import { ModelComparePage } from "@/views/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
@@ -183,12 +183,12 @@ function ReportsRouteComponent() {
 }
 
 function TagGroupsRouteComponent() {
-  return <TagGroupsPage />;
+  return <TagGroupListPage />;
 }
 
 function TagGroupRouteComponent() {
   const { tagGroupId } = useParams({ from: "/tag-group/$tagGroupId" });
-  return <TagGroupEdit tagGroupId={tagGroupId} />;
+  return <TagGroupEditPage tagGroupId={tagGroupId} />;
 }
 
 function TagRouteComponent() {

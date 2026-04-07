@@ -23,8 +23,10 @@ import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import  { ViewLayoutHeader, type ViewLayoutHeaderProps } from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
-export function TagGroupsPage() {
+export function TagGroupListPage() {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
@@ -40,35 +42,25 @@ export function TagGroupsPage() {
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
-
+  const headerProps: ViewLayoutHeaderProps = {
+    title: t("tagGroupsPage_title"),
+    titleIcon: <TagGroupIcon />,
+    eyebrow: t("tagGroupsPage_eyebrow"),
+    actions: {
+      label:t("tagGroupsPage_actions"),
+  itemActions:actions,
+  actionParams:createActionTemplateTagGroupList(),
+  displayedSubject:displaySubjectNone
+    }
+  };
   return (
-    <ViewLayoutContained
-      title={
-        <ViewTitle eyebrow={t("tagGroupsPage_eyebrow")}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              paddingRight: tokens.spacingHorizontalL,
-            }}
-          >
-            <div>{t("tagGroupsPage_title")}</div>
-            <div>
-              <ActionMenuButton
-                label={t("tagGroupsPage_actions")}
-                itemActions={actions}
-                actionParams={createActionTemplateTagGroupList()}
-                displayedSubject={displaySubjectNone}
-              />
-            </div>
-          </div>
-        </ViewTitle>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <SectionPaper>{t("tagGroupsPage_description")}</SectionPaper>
+            <ViewLayoutPageInfo>
+              {t("tagGroupsPage_description")}
+            </ViewLayoutPageInfo>
 
             <SectionTitle
               icon={<TagGroupIcon />}

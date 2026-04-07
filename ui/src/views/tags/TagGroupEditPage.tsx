@@ -43,7 +43,7 @@ import {
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
-export function TagGroupEdit({ tagGroupId }: { tagGroupId: string }) {
+export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
