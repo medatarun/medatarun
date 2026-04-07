@@ -11,7 +11,6 @@ import {
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   Table,
@@ -21,7 +20,7 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ErrorBox, InfoBox } from "@seij/common-ui";
+import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateRole,

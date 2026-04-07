@@ -10,8 +10,6 @@ import {
   useTags,
 } from "@/business/tag";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
@@ -20,15 +18,12 @@ import {
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
-  Text,
-  tokens,
 } from "@fluentui/react-components";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
   ContainedScrollable,
 } from "@/components/layout/Contained.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -42,6 +37,11 @@ import {
 } from "@/components/business/tag/tag.actions.ts";
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const { t } = useAppI18n();
@@ -83,74 +83,54 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     });
   };
 
-  const handleChangeKey = (value: string) => {
-    return tagGroupUpdateKey.mutateAsync({
-      tagGroupId: tagGroup.id,
-      value: value,
-    });
-  };
 
   const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
+
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton
+          icon={<TagGroupIcon />}
+          onClick={handleClickTagGroups}
+        >
+          {t("tagGroupEdit_breadcrumb")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<TagGroupIcon />} current={true}>
+          {t("tagGroupEdit_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+  const headerProps: ViewLayoutHeaderProps = {
+    title: (
+      <InlineEditSingleLine
+        value={tagGroup.name ?? ""}
+        onChange={handleChangeName}
+      >
+        {tagGroup.name ? (
+          tagGroup.name
+        ) : (
+          <MissingInformation>{tagGroup.key}</MissingInformation>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <TagGroupIcon />,
+    breadcrumb: breadcrumb,
+    actions: {
+      label: t("tagGroupEdit_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateTagGroup(tagGroup.id),
+      displayedSubject: displayedSubject,
+    },
+  };
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  icon={<TagGroupIcon />}
-                  onClick={handleClickTagGroups}
-                >
-                  {t("tagGroupEdit_breadcrumb")}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-            </Breadcrumb>
-          </div>
-          <ViewTitle eyebrow={t("tagGroupEdit_eyebrow")}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={tagGroup.name ?? ""}
-                  onChange={handleChangeName}
-                >
-                  {tagGroup.name ? (
-                    tagGroup.name
-                  ) : (
-                    <MissingInformation>{tagGroup.key}</MissingInformation>
-                  )}{" "}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("tagGroupEdit_actions")}
-                  itemActions={actions}
-                  actionParams={createActionTemplateTagGroup(tagGroup.id)}
-                  displayedSubject={displayedSubject}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <SectionPaper>
-              <TagGroupOverview
-                tagGroupId={tagGroup.id}
-                tagGroupKey={tagGroup.key}
-                onChangeKey={handleChangeKey}
-              />
-            </SectionPaper>
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={tagGroup.description}
@@ -175,44 +155,15 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
                 displayedSubject={displayedSubject}
               />
             </SectionTable>
+            <ViewLayoutTechnicalInfos
+              id={tagGroup.id}
+              idLabel={t("tagGroupEdit_identifierLabel")}
+              technicalKey={tagGroup.key}
+              keyLabel={t("tagGroupEdit_groupKeyLabel")}
+            />
           </ContainedHumanReadable>
         </ContainedScrollable>
       </ContainedMixedScrolling>
     </ViewLayoutContained>
-  );
-}
-
-function TagGroupOverview({
-  tagGroupId,
-  tagGroupKey,
-  onChangeKey,
-}: {
-  tagGroupId: string;
-  tagGroupKey: string;
-  onChangeKey: (value: string) => Promise<unknown>;
-}) {
-  const { t } = useAppI18n();
-  return (
-    <PropertiesForm>
-      <div>
-        <Text>{t("tagGroupEdit_groupKeyLabel")}</Text>
-      </div>
-      <div>
-        <InlineEditSingleLine value={tagGroupKey} onChange={onChangeKey}>
-          <Text>
-            <code>{tagGroupKey}</code>
-          </Text>
-        </InlineEditSingleLine>
-      </div>
-
-      <div>
-        <Text>{t("tagGroupEdit_identifierLabel")}</Text>
-      </div>
-      <div>
-        <Text>
-          <code>{tagGroupId}</code>
-        </Text>
-      </div>
-    </PropertiesForm>
   );
 }

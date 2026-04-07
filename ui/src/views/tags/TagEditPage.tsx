@@ -9,8 +9,6 @@ import {
   useTagLocalUpdateName,
   useTags,
 } from "@/business/tag";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
@@ -20,7 +18,6 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
   Text,
-  tokens,
 } from "@fluentui/react-components";
 import {
   ContainedHumanReadable,
@@ -40,8 +37,13 @@ import {
 import { TagGroupIcon, TagIcon } from "@/components/business/tag/tag.icons.tsx";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
-export function TagEdit({ tagId }: { tagId: string }) {
+export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
@@ -59,23 +61,9 @@ export function TagEdit({ tagId }: { tagId: string }) {
     return <ErrorBox error={toProblem(t("tagEdit_notFound", { tagId }))} />;
 
   const isGlobalTag = tag.isGlobal;
-  const modelId = tag.scope.type === "model" ? tag.scope.id : null;
 
   const actions = actionRegistry.findActions(detailActionLocation(tag));
 
-  const handleClickTagGroups = () => {
-    navigate({ to: "/tag-groups" });
-  };
-
-  const handleClickTagGroup = () => {
-    if (!tag.groupId) {
-      return;
-    }
-    navigate({
-      to: "/tag-group/$tagGroupId",
-      params: { tagGroupId: tag.groupId },
-    });
-  };
 
   const handleChangeName = (value: string) => {
     if (isGlobalTag) {
@@ -97,68 +85,36 @@ export function TagEdit({ tagId }: { tagId: string }) {
     });
   };
 
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: <TagEditBreadcrumb tag={tag} />,
+    title: (
+      <InlineEditSingleLine value={tag.name ?? ""} onChange={handleChangeName}>
+        {tag.name ? (
+          tag.name
+        ) : (
+          <MissingInformation>{tag.key}</MissingInformation>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <TagIcon />,
+    actions: {
+      label: t("tagEdit_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateTag(tag.id),
+      displayedSubject: createDisplayedSubjectTag({
+        tagId: tag.id,
+        tagScopeRef: tag.scope,
+        tagGroupId: tag.groupId,
+      }),
+    },
+  };
+
   return (
-    <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <TagEditBreadcrumb
-                tag={tag}
-                onClickTagGroups={handleClickTagGroups}
-                onClickTagGroup={handleClickTagGroup}
-              />
-            </Breadcrumb>
-          </div>
-          <ViewTitle
-            eyebrow={
-              isGlobalTag
-                ? t("tagEdit_globalEyebrow")
-                : t("tagEdit_localEyebrow")
-            }
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={tag.name ?? ""}
-                  onChange={handleChangeName}
-                >
-                  {tag.name ? (
-                    tag.name
-                  ) : (
-                    <MissingInformation>{tag.key}</MissingInformation>
-                  )}{" "}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("tagEdit_actions")}
-                  itemActions={actions}
-                  actionParams={createActionTemplateTag(tag.id)}
-                  displayedSubject={createDisplayedSubjectTag({
-                    tagId: tag.id,
-                    tagScopeRef: tag.scope,
-                    tagGroupId: tag.groupId,
-                  })}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
-    >
+    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedMixedScrolling>
         <ContainedScrollable>
           <ContainedHumanReadable>
-            <SectionPaper>
-              <TagOverview tag={tag} />
-            </SectionPaper>
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={tag.description}
@@ -166,6 +122,12 @@ export function TagEdit({ tagId }: { tagId: string }) {
                 onChange={handleChangeDescription}
               />
             </SectionPaper>
+            <ViewLayoutTechnicalInfos
+              technicalKey={tag.key}
+              keyLabel={t("tagEdit_keyLabel")}
+              id={tag.id}
+              idLabel={t("tagEdit_identifierLabel")}
+            />
           </ContainedHumanReadable>
         </ContainedScrollable>
       </ContainedMixedScrolling>
@@ -173,39 +135,12 @@ export function TagEdit({ tagId }: { tagId: string }) {
   );
 }
 
-function TagEditBreadcrumb({
-  tag,
-  onClickTagGroups,
-  onClickTagGroup,
-}: {
-  tag: Tag;
-  onClickTagGroups: () => void;
-  onClickTagGroup: () => void;
-}) {
-  const { t } = useAppI18n();
+function TagEditBreadcrumb({ tag, }: { tag: Tag; }) {
+
   const modelId = tag.scope.type === "model" ? tag.scope.id : null;
 
   if (tag.isGlobal) {
-    return (
-      <>
-        <BreadcrumbItem>
-          <BreadcrumbButton icon={<TagGroupIcon />} onClick={onClickTagGroups}>
-            {t("tagEdit_breadcrumbTagGroups")}
-          </BreadcrumbButton>
-        </BreadcrumbItem>
-        <BreadcrumbDivider />
-        {tag.groupLabel && (
-          <>
-            <BreadcrumbItem>
-              <BreadcrumbButton icon={<TagIcon />} onClick={onClickTagGroup}>
-                {tag.groupLabel}
-              </BreadcrumbButton>
-            </BreadcrumbItem>
-            <BreadcrumbDivider />
-          </>
-        )}
-      </>
-    );
+    return <GlobalBreadcrumb tag={tag} />
   }
 
   if (modelId) {
@@ -219,6 +154,49 @@ function TagEditBreadcrumb({
       </BreadcrumbItem>
       <BreadcrumbDivider />
     </>
+  );
+}
+
+function GlobalBreadcrumb({ tag, }: { tag: Tag; }) {
+  const { t } = useAppI18n();
+  const navigate = useNavigate();
+  const handleClickTagGroups = () => {
+    navigate({ to: "/tag-groups" });
+  };
+
+  const handleClickTagGroup = () => {
+    if (!tag.groupId) {
+      return;
+    }
+    navigate({
+      to: "/tag-group/$tagGroupId",
+      params: { tagGroupId: tag.groupId },
+    });
+  };
+
+  return (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton
+          icon={<TagGroupIcon />}
+          onClick={handleClickTagGroups}
+        >
+          {t("tagEdit_breadcrumbTagGroups")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<TagIcon />} onClick={handleClickTagGroup}>
+          {tag.groupLabel}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton current={true}>
+          {t("tagEdit_globalEyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
   );
 }
 
@@ -255,37 +233,5 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
       </BreadcrumbItem>
       <BreadcrumbDivider />
     </>
-  );
-}
-
-function TagOverview({ tag }: { tag: Tag }) {
-  const { t } = useAppI18n();
-  return (
-    <PropertiesForm>
-      <div>
-        <Text>{t("tagEdit_scopeLabel")}</Text>
-      </div>
-      <div>
-        <Text>{tag.scopeLabel}</Text>
-      </div>
-
-      <div>
-        <Text>{t("tagEdit_keyLabel")}</Text>
-      </div>
-      <div>
-        <Text>
-          <code>{tag.key}</code>
-        </Text>
-      </div>
-
-      <div>
-        <Text>{t("tagEdit_identifierLabel")}</Text>
-      </div>
-      <div>
-        <Text>
-          <code>{tag.id}</code>
-        </Text>
-      </div>
-    </PropertiesForm>
   );
 }

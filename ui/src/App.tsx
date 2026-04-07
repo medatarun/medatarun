@@ -38,7 +38,7 @@ import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
 import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
 import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
-import { TagEdit } from "@/views/tags/TagEdit.tsx";
+import { TagEditPage } from "@/views/tags/TagEditPage.tsx";
 import { ModelComparePage } from "@/views/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
 import { AdminDbDriverListPage } from "@/views/admin-db/AdminDbDriverListPage.tsx";
@@ -193,7 +193,7 @@ function TagGroupRouteComponent() {
 
 function TagRouteComponent() {
   const { tagId } = useParams({ from: "/tags/$tagId" });
-  return <TagEdit tagId={tagId} />;
+  return <TagEditPage tagId={tagId} />;
 }
 
 function TypeRouteComponent() {
