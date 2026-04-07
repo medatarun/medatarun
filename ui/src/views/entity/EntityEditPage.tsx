@@ -14,26 +14,18 @@ import {
   ModelContext,
   useModelContext,
 } from "@/components/business/model/ModelContext.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
-  tokens,
 } from "@fluentui/react-components";
 import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
 import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { EntityOverview } from "./EntityOverview.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import {
@@ -47,10 +39,15 @@ import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
   AttributeIcon,
+  EntityIcon,
   ModelIcon,
   RelationshipIcon,
 } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
 export function EntityEditPage({
   modelId,
@@ -118,120 +115,110 @@ export function EntityView({ entity }: { entity: EntityDto }) {
   };
   const displayedSubject = createDisplayedSubjectEntity(model.id, entity.id);
 
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model.nameOrKeyWithAuthorityEmoji}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadcrumb,
+    eyebrow: t("entityEditPage_eyebrow"),
+    title: (
+      <InlineEditSingleLine
+        value={entity.name ?? ""}
+        onChange={handleChangeName}
+      >
+        {entity.name ? (
+          model.findEntityNameOrKey(entity.id)
+        ) : (
+          <MissingInformation>
+            {model.findEntityNameOrKey(entity.id)}
+          </MissingInformation>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <EntityIcon />,
+    actions: {
+      label: t("entityEditPage_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateEntity(model.id, entity.id),
+      displayedSubject: displayedSubject,
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <Breadcrumb style={{ marginLeft: "-22px" }} size="small">
-            <BreadcrumbItem>
-              <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-                {model.nameOrKeyWithAuthorityEmoji}
-              </BreadcrumbButton>
-            </BreadcrumbItem>
-            <BreadcrumbDivider />
-          </Breadcrumb>
-          <ViewTitle eyebrow={t("entityEditPage_eyebrow")}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={entity.name ?? ""}
-                  onChange={handleChangeName}
-                >
-                  {entity.name ? (
-                    model.findEntityNameOrKey(entity.id)
-                  ) : (
-                    <MissingInformation>
-                      {model.findEntityNameOrKey(entity.id)}
-                    </MissingInformation>
-                  )}{" "}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("entityEditPage_actions")}
-                  itemActions={actions}
-                  actionParams={createActionTemplateEntity(model.id, entity.id)}
-                  displayedSubject={displayedSubject}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <EntityOverview entity={entity} />
-            </SectionPaper>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={entity.description}
-                placeholder={t("entityEditPage_descriptionPlaceholder")}
-                onChange={(v) =>
-                  entityUpdateDescription.mutateAsync({
-                    modelId: model.id,
-                    entityId: entity.id,
-                    value: v,
-                  })
-                }
-              />
-            </SectionPaper>
+      <SectionPaper>
+        <EntityOverview entity={entity} />
+      </SectionPaper>
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={entity.description}
+          placeholder={t("entityEditPage_descriptionPlaceholder")}
+          onChange={(v) =>
+            entityUpdateDescription.mutateAsync({
+              modelId: model.id,
+              entityId: entity.id,
+              value: v,
+            })
+          }
+        />
+      </SectionPaper>
 
-            <SectionTitle
-              icon={<AttributeIcon />}
-              actionParams={createActionTemplateEntity(model.id, entity.id)}
-              displayedSubject={displayedSubject}
-              location={ActionUILocations.entity_attributes}
-            >
-              {t("entityEditPage_attributesTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<AttributeIcon />}
+        actionParams={createActionTemplateEntity(model.id, entity.id)}
+        displayedSubject={displayedSubject}
+        location={ActionUILocations.entity_attributes}
+      >
+        {t("entityEditPage_attributesTitle")}
+      </SectionTitle>
 
-            <SectionTable>
-              <AttributesTable
-                attributes={entity.attributes}
-                actionUILocation={ActionUILocations.entity_attribute}
-                actionParamsFactory={(attributeId: string) =>
-                  createActionTemplateEntityAttribute(
-                    model.id,
-                    entity.id,
-                    attributeId,
-                  )
-                }
-                displayedSubject={displayedSubject}
-                onClickAttribute={handleClickAttribute}
-              />
-            </SectionTable>
+      <SectionTable>
+        <AttributesTable
+          attributes={entity.attributes}
+          actionUILocation={ActionUILocations.entity_attribute}
+          actionParamsFactory={(attributeId: string) =>
+            createActionTemplateEntityAttribute(
+              model.id,
+              entity.id,
+              attributeId,
+            )
+          }
+          displayedSubject={displayedSubject}
+          onClickAttribute={handleClickAttribute}
+        />
+      </SectionTable>
 
-            <SectionTitle
-              icon={<RelationshipIcon />}
-              actionParams={createActionTemplateEntityForRelationships(
-                model.id,
-                entity.id,
-              )}
-              displayedSubject={displayedSubject}
-              location={ActionUILocations.entity_relationships}
-            >
-              {t("entityEditPage_relationshipsTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<RelationshipIcon />}
+        actionParams={createActionTemplateEntityForRelationships(
+          model.id,
+          entity.id,
+        )}
+        displayedSubject={displayedSubject}
+        location={ActionUILocations.entity_relationships}
+      >
+        {t("entityEditPage_relationshipsTitle")}
+      </SectionTitle>
 
-            <SectionTable>
-              <RelationshipsTable
-                onClick={handleClickRelationship}
-                relationships={relationshipsInvolved}
-                displayedSubject={displayedSubject}
-              />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <SectionTable>
+        <RelationshipsTable
+          onClick={handleClickRelationship}
+          relationships={relationshipsInvolved}
+          displayedSubject={displayedSubject}
+        />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }
