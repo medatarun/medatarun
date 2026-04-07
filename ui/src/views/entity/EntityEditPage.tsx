@@ -52,7 +52,7 @@ import {
 } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
-export function EntityPage({
+export function EntityEditPage({
   modelId,
   entityId,
 }: {
@@ -130,7 +130,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             </BreadcrumbItem>
             <BreadcrumbDivider />
           </Breadcrumb>
-          <ViewTitle eyebrow={t("entityPage_eyebrow")}>
+          <ViewTitle eyebrow={t("entityEditPage_eyebrow")}>
             <div
               style={{
                 display: "flex",
@@ -154,7 +154,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               </div>
               <div>
                 <ActionMenuButton
-                  label={t("entityPage_actions")}
+                  label={t("entityEditPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateEntity(model.id, entity.id)}
                   displayedSubject={displayedSubject}
@@ -174,7 +174,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={entity.description}
-                placeholder={t("entityPage_descriptionPlaceholder")}
+                placeholder={t("entityEditPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   entityUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -191,7 +191,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               displayedSubject={displayedSubject}
               location={ActionUILocations.entity_attributes}
             >
-              {t("entityPage_attributesTitle")}
+              {t("entityEditPage_attributesTitle")}
             </SectionTitle>
 
             <SectionTable>
@@ -219,7 +219,7 @@ export function EntityView({ entity }: { entity: EntityDto }) {
               displayedSubject={displayedSubject}
               location={ActionUILocations.entity_relationships}
             >
-              {t("entityPage_relationshipsTitle")}
+              {t("entityEditPage_relationshipsTitle")}
             </SectionTitle>
 
             <SectionTable>

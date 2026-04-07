@@ -11,7 +11,7 @@ import { authRolesPageMessages } from "./fr/AuthRolesPageMessages";
 import { attributeEditPageMessages } from "./fr/AttributeEditPageMessages";
 import { actionPageMessage } from "./fr/ActionPageMessage";
 import { dashboardPageMessages } from "./fr/DashboardPageMessages";
-import { entityPageMessages } from "./fr/EntityPageMessages";
+import { entityEditPageMessages } from "./fr/EntityEditPageMessages.ts";
 import { errorBoundaryMessages } from "./fr/ErrorBoundaryMessages";
 import { formValidationMessages } from "./fr/FormValidationMessages";
 import { inlineEditRichTextLayoutMessages } from "./fr/InlineEditRichTextLayoutMessages";
@@ -66,7 +66,7 @@ export const messages = {
   ...modelHistoryPageMessages,
   ...modelPageMessages,
   ...modelReportsPageMessages,
-  ...entityPageMessages,
+  ...entityEditPageMessages,
   ...loginPageMessages,
   ...relationshipPageMessages,
   ...tagGroupsPageMessages,

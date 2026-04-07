@@ -10,7 +10,7 @@ import {
 import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
 import { ModelListPage } from "@/views/ModelListPage.tsx";
 import { ModelPage } from "@/views/ModelPage.tsx";
-import { EntityPage } from "@/views/entity/EntityPage.tsx";
+import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
 import { DashboardPage } from "@/views/DashboardPage.tsx";
 import {
@@ -114,7 +114,7 @@ function EntityRouteComponent() {
   const { modelId, entityId } = useParams({
     from: "/model/$modelId/entity/$entityId",
   });
-  return <EntityPage modelId={modelId} entityId={entityId} />;
+  return <EntityEditPage modelId={modelId} entityId={entityId} />;
 }
 
 function EntityAttributeRouteComponent() {

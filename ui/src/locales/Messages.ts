@@ -7,7 +7,7 @@ import { type AdminUserPageMessages } from "./contracts/AdminUserPageMessages";
 import { type AdminUsersPageMessages } from "./contracts/AdminUsersPageMessages";
 import { type AuthRolePageMessages } from "./contracts/AuthRolePageMessages";
 import { type AuthRolesPageMessages } from "./contracts/AuthRolesPageMessages";
-import { type EntityPageMessages } from "./contracts/EntityPageMessages";
+import { type EntityEditPageMessages } from "./contracts/EntityEditPageMessages.ts";
 import { type AttributeEditPageMessages } from "./contracts/AttributeEditPageMessages";
 import { type ActionPageMessage } from "./contracts/ActionPageMessage";
 import { type ErrorBoundaryMessages } from "./contracts/ErrorBoundaryMessages";
@@ -64,7 +64,7 @@ export type Messages = SessionMessages &
   ModelHistoryPageMessages &
   ModelPageMessages &
   ModelReportsPageMessages &
-  EntityPageMessages &
+  EntityEditPageMessages &
   LoginPageMessages &
   RelationshipPageMessages &
   TagGroupsPageMessages &
