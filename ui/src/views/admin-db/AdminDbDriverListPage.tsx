@@ -54,13 +54,6 @@ export function AdminDbDriverListPage() {
   return (
     <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
       <ContainedHumanReadable>
-        <div
-          style={{
-            paddingLeft: tokens.spacingHorizontalM,
-            paddingRight: tokens.spacingHorizontalM,
-            paddingTop: tokens.spacingVerticalL,
-          }}
-        >
           <ViewLayoutPageInfo>
               <Text>
                 Medatarun uses JDBC drivers to talk to most existing database
@@ -96,7 +89,7 @@ export function AdminDbDriverListPage() {
             )}
             renderEmpty={() => "Drivers are yet to be installed."}
           />
-        </div>
+
       </ContainedHumanReadable>
     </ViewLayoutContained>
   );
