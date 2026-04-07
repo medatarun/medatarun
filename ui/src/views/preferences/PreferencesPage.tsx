@@ -1,6 +1,5 @@
 import { SwitchButton } from "@seij/common-ui";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   ActionUILocations,
@@ -34,21 +33,23 @@ export function PreferencesPage() {
     },
   };
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedHumanReadable>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <div>
         <div>
-          <div>
-            <p>{t("preferencesPage_currentMode", { mode })}</p>
-            <p>{t("preferencesPage_modeDescription")}</p>
-          </div>
-          <SwitchButton
-            value={isDetailLevelTech}
-            onValueChange={toggle}
-            labelTrue={t("preferencesPage_switchToBusinessMode")}
-            labelFalse={t("preferencesPage_switchToTechnicalMode")}
-          />
+          <p>{t("preferencesPage_currentMode", { mode })}</p>
+          <p>{t("preferencesPage_modeDescription")}</p>
         </div>
-      </ContainedHumanReadable>
+        <SwitchButton
+          value={isDetailLevelTech}
+          onValueChange={toggle}
+          labelTrue={t("preferencesPage_switchToBusinessMode")}
+          labelFalse={t("preferencesPage_switchToTechnicalMode")}
+        />
+      </div>
     </ViewLayoutContained>
   );
 }

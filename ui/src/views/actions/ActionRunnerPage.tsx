@@ -217,6 +217,8 @@ export function ActionsPageLoaded({
 
   return (
     <ViewLayoutContained
+      contained={false}
+      scrollable={false}
       title={<ViewLayoutHeader {...headerProps} />}
     >
       <div className={styles.root}>

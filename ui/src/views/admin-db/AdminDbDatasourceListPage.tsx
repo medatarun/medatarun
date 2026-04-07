@@ -14,7 +14,6 @@ import {
 } from "@fluentui/react-icons";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
-import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,
@@ -47,53 +46,42 @@ export function AdminDbDatasourceListPage() {
     },
   };
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedHumanReadable>
-        <div
-          style={{
-            paddingLeft: tokens.spacingHorizontalM,
-            paddingRight: tokens.spacingHorizontalM,
-            paddingTop: tokens.spacingVerticalL,
-          }}
-        >
-          <ViewLayoutPageInfo>
-            <div>
-              {t("adminDbDatasourceListPage_descriptionLine1")}
-            </div>
-            <div>
-              {t("adminDbDatasourceListPage_descriptionLine2")}
-            </div>
-          </ViewLayoutPageInfo>
-          <CardGrid
-            data={datasources}
-            renderName={(item) => <Text weight="semibold">{item.id}</Text>}
-            renderDescription={(item) => null}
-            renderBody={(item) => (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "min-content 1fr",
-                  alignItems: "center",
-                  columnGap: tokens.spacingHorizontalS,
-                }}
-              >
-                <Text>
-                  <DatabaseLinkRegular />
-                </Text>{" "}
-                <Caption2>
-                  {drivers.find((d) => d.id === item.driver)?.name ??
-                    item.driver}
-                </Caption2>
-                <Text>
-                  <LinkRegular />
-                </Text>{" "}
-                <Caption2>{item.url}</Caption2>
-              </div>
-            )}
-            renderEmpty={() => t("adminDbDatasourceListPage_empty")}
-          />
-        </div>
-      </ContainedHumanReadable>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>
+        <div>{t("adminDbDatasourceListPage_descriptionLine1")}</div>
+        <div>{t("adminDbDatasourceListPage_descriptionLine2")}</div>
+      </ViewLayoutPageInfo>
+      <CardGrid
+        data={datasources}
+        renderName={(item) => <Text weight="semibold">{item.id}</Text>}
+        renderDescription={(item) => null}
+        renderBody={(item) => (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "min-content 1fr",
+              alignItems: "center",
+              columnGap: tokens.spacingHorizontalS,
+            }}
+          >
+            <Text>
+              <DatabaseLinkRegular />
+            </Text>{" "}
+            <Caption2>
+              {drivers.find((d) => d.id === item.driver)?.name ?? item.driver}
+            </Caption2>
+            <Text>
+              <LinkRegular />
+            </Text>{" "}
+            <Caption2>{item.url}</Caption2>
+          </div>
+        )}
+        renderEmpty={() => t("adminDbDatasourceListPage_empty")}
+      />
     </ViewLayoutContained>
   );
 }

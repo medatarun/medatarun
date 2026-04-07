@@ -10,14 +10,16 @@ import {
 } from "@/business/model";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { InfoLabel, tokens } from "@fluentui/react-components";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { SectionCards } from "@/components/layout/SectionCards.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
 export function ModelListPage({
   onClickModel,
@@ -33,61 +35,40 @@ export function ModelListPage({
   );
   const systemModels = data.filter((model) => model.authority !== "canonical");
 
+  const headerProps: ViewLayoutHeaderProps = {
+    title: t("modelListPage_title"),
+    titleIcon: <ModelIcon />,
+    actions: {
+      label: t("modelListPage_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateGeneral(),
+      displayedSubject: displaySubjectNone,
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <ViewTitle>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div>
-                <span>
-                  <ModelIcon />
-                </span>{" "}
-                {t("modelListPage_title")}{" "}
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("modelListPage_actions")}
-                  itemActions={actions}
-                  actionParams={createActionTemplateGeneral()}
-                  displayedSubject={displaySubjectNone}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
+      title={<ViewLayoutHeader {...headerProps} />}
+      contained={true}
+      scrollable={true}
     >
-      <div
-        style={{
-          paddingLeft: tokens.spacingHorizontalM,
-          paddingRight: tokens.spacingHorizontalM,
-        }}
-      >
-        {data.length == 0 ? t("modelListPage_empty") : null}
-        {canonicalModels.length > 0 && (
-          <ModelsSection
-            title={`${Model.authorityEmoji("canonical")} ${t("modelListPage_canonicalTitle")}`}
-            titleInfo={t("modelListPage_canonicalInfo")}
-            models={canonicalModels}
-            onClickModel={onClickModel}
-          />
-        )}
-        {systemModels.length > 0 && (
-          <ModelsSection
-            title={`${Model.authorityEmoji("system")} ${t("modelListPage_systemTitle")}`}
-            titleInfo={t("modelListPage_systemInfo")}
-            models={systemModels}
-            onClickModel={onClickModel}
-          />
-        )}
-      </div>
+      {data.length == 0 ? t("modelListPage_empty") : null}
+      {canonicalModels.length > 0 && (
+        <ModelsSection
+          title={`${Model.authorityEmoji("canonical")} ${t("modelListPage_canonicalTitle")}`}
+          titleInfo={t("modelListPage_canonicalInfo")}
+          models={canonicalModels}
+          onClickModel={onClickModel}
+        />
+      )}
+      {systemModels.length > 0 && (
+        <ModelsSection
+          title={`${Model.authorityEmoji("system")} ${t("modelListPage_systemTitle")}`}
+          titleInfo={t("modelListPage_systemInfo")}
+          models={systemModels}
+          onClickModel={onClickModel}
+        />
+      )}
     </ViewLayoutContained>
   );
 }

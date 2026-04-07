@@ -10,11 +10,6 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox, InfoBox } from "@seij/common-ui";
@@ -56,7 +51,9 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
       </BreadcrumbItem>
       <BreadcrumbDivider />
       <BreadcrumbItem>
-        <BreadcrumbButton current={true}>{t("adminUserPage_eyebrow")}</BreadcrumbButton>
+        <BreadcrumbButton current={true}>
+          {t("adminUserPage_eyebrow")}
+        </BreadcrumbButton>
       </BreadcrumbItem>
     </Breadcrumb>
   );
@@ -74,36 +71,34 @@ export function AdminUserEditPage({ userId }: { userId: string }) {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <PropertiesForm>
-                <div>{t("adminUserPage_fullname")}</div>
-                <div>{user.fullname}</div>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <SectionPaper>
+        <PropertiesForm>
+          <div>{t("adminUserPage_fullname")}</div>
+          <div>{user.fullname}</div>
 
-                <div>{t("adminUserPage_username")}</div>
-                <div>{user.username}</div>
+          <div>{t("adminUserPage_username")}</div>
+          <div>{user.username}</div>
 
-                <div>{t("adminUserPage_admin")}</div>
-                <div>{String(user.admin)}</div>
+          <div>{t("adminUserPage_admin")}</div>
+          <div>{String(user.admin)}</div>
 
-                <div>{t("adminUserPage_status")}</div>
-                <div>
-                  {user.disabledDate
-                    ? `${t("adminUserPage_statusDisabledAt")} ${formatLocalDateTime(user.disabledDate)}`
-                    : t("adminUserPage_statusActive")}
-                </div>
-              </PropertiesForm>
-            </SectionPaper>
-            <ViewLayoutTechnicalInfos
-              id={user.id}
-              idLabel={t("adminUserPage_identifier")}
-            />
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+          <div>{t("adminUserPage_status")}</div>
+          <div>
+            {user.disabledDate
+              ? `${t("adminUserPage_statusDisabledAt")} ${formatLocalDateTime(user.disabledDate)}`
+              : t("adminUserPage_statusActive")}
+          </div>
+        </PropertiesForm>
+      </SectionPaper>
+      <ViewLayoutTechnicalInfos
+        id={user.id}
+        idLabel={t("adminUserPage_identifier")}
+      />
     </ViewLayoutContained>
   );
 }
