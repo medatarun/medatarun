@@ -72,7 +72,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
-export function AttributePage({
+export function AttributeEditPage({
   modelId,
   parentType,
   parentId,
@@ -89,7 +89,7 @@ export function AttributePage({
   if (!modelDto)
     return (
       <ErrorBox
-        error={toProblem(t("attributePage_modelNotFound", { modelId }))}
+        error={toProblem(t("attributeEditPage_modelNotFound", { modelId }))}
       />
     );
   const model = new Model(modelDto);
@@ -112,7 +112,7 @@ export function AttributePage({
     return (
       <ErrorBox
         error={toProblem(
-          t("attributePage_parentNotFound", {
+          t("attributeEditPage_parentNotFound", {
             attributeId,
             parentType,
             parentId,
@@ -124,7 +124,7 @@ export function AttributePage({
     return (
       <ErrorBox
         error={toProblem(
-          t("attributePage_attributeNotFound", {
+          t("attributeEditPage_attributeNotFound", {
             attributeId,
             parentType,
             parentId,
@@ -296,8 +296,8 @@ export function AttributeView({
       <BreadcrumbItem>
         <BreadcrumbButton icon={<AttributeIcon />} current={true}>
           {parentType === "entity"
-            ? t("attributePage_entityEyebrow")
-            : t("attributePage_relationshipEyebrow")}
+            ? t("attributeEditPage_entityEyebrow")
+            : t("attributeEditPage_relationshipEyebrow")}
         </BreadcrumbButton>
       </BreadcrumbItem>
     </Breadcrumb>
@@ -319,7 +319,7 @@ export function AttributeView({
     ),
     titleIcon: <AttributeIcon />,
     actions: {
-      label: t("attributePage_actions"),
+      label: t("attributeEditPage_actions"),
       itemActions: actions,
       actionParams: actionParams,
       displayedSubject: displayedSubject,
@@ -343,15 +343,15 @@ export function AttributeView({
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={attribute.description}
-          placeholder={t("attributePage_descriptionPlaceholder")}
+          placeholder={t("attributeEditPage_descriptionPlaceholder")}
           onChange={handleUpdateDescription}
         />
       </SectionPaper>
       <ViewLayoutTechnicalInfos
         id={attribute.id}
-        idLabel={t("attributePage_identifierLabel")}
+        idLabel={t("attributeEditPage_identifierLabel")}
         technicalKey={attribute.key}
-        keyLabel={t("attributePage_keyLabel")}
+        keyLabel={t("attributeEditPage_keyLabel")}
       />
     </ViewLayoutContained>
   );
@@ -517,13 +517,13 @@ export function AttributeOverview({
   return (
     <PropertiesForm>
       <div>
-        <Text>{t("attributePage_typeLabel")}</Text>
+        <Text>{t("attributeEditPage_typeLabel")}</Text>
       </div>
       <div>
         <InlineEditCombobox
           value={attribute.type}
           options={typeOptions}
-          placeholder={t("attributePage_typeLabel")}
+          placeholder={t("attributeEditPage_typeLabel")}
           onChange={handleChangeType}
         >
           <Link
@@ -534,33 +534,33 @@ export function AttributeOverview({
           </Link>{" "}
           <Text>
             {attribute.identifierAttribute
-              ? "🔑 " + t("attributePage_identifierBadge")
+              ? "🔑 " + t("attributeEditPage_identifierBadge")
               : ""}
           </Text>
         </InlineEditCombobox>
       </div>
 
       <div>
-        <Text>{t("attributePage_requiredLabel")}</Text>
+        <Text>{t("attributeEditPage_requiredLabel")}</Text>
       </div>
       <div>
         <InlineEditBoolean
           value={!attribute.optional}
-          labelTrue={t("attributePage_requiredYes")}
-          labelFalse={t("attributePage_requiredNo")}
+          labelTrue={t("attributeEditPage_requiredYes")}
+          labelFalse={t("attributeEditPage_requiredNo")}
           onChange={handleChangeRequired}
         >
           <Text>
             {attribute.optional
-              ? t("attributePage_requiredNo")
-              : t("attributePage_requiredYes")}
+              ? t("attributeEditPage_requiredNo")
+              : t("attributeEditPage_requiredYes")}
           </Text>
         </InlineEditBoolean>
       </div>
 
       {isDetailLevelTech && (
         <div>
-          <Text>{t("attributePage_keyLabel")}</Text>
+          <Text>{t("attributeEditPage_keyLabel")}</Text>
         </div>
       )}
 
@@ -577,7 +577,7 @@ export function AttributeOverview({
         </div>
       )}
       <div>
-        <Text>{t("attributePage_tagsLabel")}</Text>
+        <Text>{t("attributeEditPage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -588,7 +588,7 @@ export function AttributeOverview({
         >
           {attribute.tags.length === 0 ? (
             <MissingInformation>
-              {t("attributePage_tagsEmpty")}
+              {t("attributeEditPage_tagsEmpty")}
             </MissingInformation>
           ) : (
             <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />

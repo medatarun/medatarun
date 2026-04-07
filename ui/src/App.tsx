@@ -32,7 +32,7 @@ import {
 import { getOrDefault } from "@/utils/getOrDefault.ts";
 import { DetailLevelProvider } from "@/components/business/DetailLevelContext.tsx";
 import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
-import { AttributePage } from "@/views/attribute/AttributePage.tsx";
+import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
 import { TypePage } from "@/views/type/TypePage.tsx";
 import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
@@ -122,7 +122,7 @@ function EntityAttributeRouteComponent() {
     from: "/model/$modelId/entity/$entityId/attribute/$attributeId",
   });
   return (
-    <AttributePage
+    <AttributeEditPage
       modelId={modelId}
       parentType={"entity"}
       parentId={entityId}
@@ -162,7 +162,7 @@ function RelationshipAttributeRouteComponent() {
     from: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
   });
   return (
-    <AttributePage
+    <AttributeEditPage
       modelId={modelId}
       parentType={"relationship"}
       parentId={relationshipId}

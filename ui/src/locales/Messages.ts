@@ -8,7 +8,7 @@ import { type AdminUsersPageMessages } from "./contracts/AdminUsersPageMessages"
 import { type AuthRolePageMessages } from "./contracts/AuthRolePageMessages";
 import { type AuthRolesPageMessages } from "./contracts/AuthRolesPageMessages";
 import { type EntityPageMessages } from "./contracts/EntityPageMessages";
-import { type AttributePageMessages } from "./contracts/AttributePageMessages";
+import { type AttributeEditPageMessages } from "./contracts/AttributeEditPageMessages";
 import { type ActionPageMessage } from "./contracts/ActionPageMessage";
 import { type ErrorBoundaryMessages } from "./contracts/ErrorBoundaryMessages";
 import { type FormValidationMessages } from "./contracts/FormValidationMessages";
@@ -37,7 +37,7 @@ import { type TypesTableMessages } from "./contracts/TypesTableMessages";
 import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
 
 export type Messages = SessionMessages &
-  AttributePageMessages &
+  AttributeEditPageMessages &
   ActionPerformerViewMessages &
   AdminActorPageMessages &
   AdminActorsPageMessages &

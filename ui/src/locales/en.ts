@@ -8,7 +8,7 @@ import { adminUserPageMessages } from "./en/AdminUserPageMessages";
 import { adminUsersPageMessages } from "./en/AdminUsersPageMessages";
 import { authRolePageMessages } from "./en/AuthRolePageMessages";
 import { authRolesPageMessages } from "./en/AuthRolesPageMessages";
-import { attributePageMessages } from "./en/AttributePageMessages";
+import { attributeEditPageMessages } from "./en/AttributeEditPageMessages";
 import { actionPageMessage } from "./en/ActionPageMessage";
 import { dashboardPageMessages } from "./en/DashboardPageMessages";
 import { entityPageMessages } from "./en/EntityPageMessages";
@@ -39,7 +39,7 @@ import { menuMessages } from "./en/MenuMessages.ts";
 
 export const messages = {
   ...sessionMessages,
-  ...attributePageMessages,
+  ...attributeEditPageMessages,
   ...actionPerformerViewMessages,
   ...adminActorPageMessages,
   ...adminActorsPageMessages,
