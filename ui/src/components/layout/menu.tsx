@@ -10,6 +10,7 @@ export function useMenu() {
   const { isDetailLevelTech } = useDetailLevelContext();
   const currentActor = useCurrentActor();
   const navigationItemsBase: NavigationTreeItem[] = [
+    /*
     {
       id: "home",
       parentId: null,
@@ -20,11 +21,13 @@ export function useMenu() {
       icon: "dashboard",
       rule: undefined,
     },
+    */
     {
       id: "models",
       parentId: null,
       type: "page",
-      path: "/models",
+      /* path: "/models", */
+      path: "/",
       label: t("layout_modelsLabel"),
       description: undefined,
       icon: "dashboard",
@@ -36,16 +39,6 @@ export function useMenu() {
       type: "page",
       path: "/model-compare",
       label: t("layout_modelCompareLabel"),
-      description: undefined,
-      icon: "dashboard",
-      rule: undefined,
-    },
-    {
-      id: "commands",
-      parentId: null,
-      type: "page",
-      path: "/commands",
-      label: t("layout_commandsLabel"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -71,11 +64,17 @@ export function useMenu() {
       rule: undefined,
     },
     {
-      id: "preferences",
+      id: "integration",
       parentId: null,
+      type: "group",
+      label: t("menu_integration"),
+    },
+    {
+      id: "commands",
+      parentId: "integration",
       type: "page",
-      path: "/preferences",
-      label: t("layout_preferencesLabel"),
+      path: "/commands",
+      label: t("menu_integration_actions"),
       description: undefined,
       icon: "dashboard",
       rule: undefined,
@@ -136,8 +135,19 @@ export function useMenu() {
       icon: "dashboard",
       rule: undefined,
     },
+    {
+      id: "preferences",
+      parentId: null,
+      type: "page",
+      path: "/preferences",
+      label: t("layout_preferencesLabel"),
+      description: undefined,
+      icon: "user",
+      rule: undefined,
+    },
   ];
   const nav = navigationItemsBase
+    .filter((it) => it.id !== "integration" || isDetailLevelTech)
     .filter((it) => it.id !== "commands" || isDetailLevelTech)
     .filter((it) => it.id !== "admin" || currentActor.isAdmin());
 

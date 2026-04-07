@@ -26,7 +26,7 @@ import {
   type TreeItemValue,
 } from "@fluentui/react-components";
 import {
-  CheckmarkRegular,
+  CheckmarkRegular, CodeBlockRegular,
   CopyRegular,
   DismissRegular,
 } from "@fluentui/react-icons";
@@ -34,6 +34,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { Problem, type ProblemJson } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { sortBy } from "lodash-es";
+import  { ViewLayoutHeader, type ViewLayoutHeaderProps } from "@/components/layout/ViewLayoutHeader.tsx";
 
 const useActionTreeStyles = makeStyles({
   root: {
@@ -207,13 +208,16 @@ export function ActionsPageLoaded({
     setSelectedAction({ groupKey, actionKey });
   };
 
+  const headerProps: ViewLayoutHeaderProps = {
+    eyebrow: t("commandsPage_eyebrow"),
+    title: t("commandsPage_title"),
+    titleIcon: <CodeBlockRegular/>
+
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <ViewTitle eyebrow={t("commandsPage_eyebrow")}>
-          {t("commandsPage_title")}
-        </ViewTitle>
-      }
+      title={<ViewLayoutHeader {...headerProps} />}
     >
       <div className={styles.root}>
         <div className={styles.splitArea}>

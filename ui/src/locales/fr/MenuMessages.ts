@@ -7,4 +7,6 @@ export const menuMessages: MenuMessages = {
   menu_admin_authRoles: "Rôles",
   menu_admin_authActors: "Acteurs",
   menu_admin_authUsers: "Utilisateurs",
+  menu_integration: "Outils d'intégration",
+  menu_integration_actions: "Action runner",
 };

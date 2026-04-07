@@ -272,7 +272,8 @@ const authenticationCallbackRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: DashboardRouteComponent,
+  // component: DashboardRouteComponent,
+  component: ModelsRouteComponent,
 });
 
 const modelsRoute = createRoute({

@@ -2,7 +2,7 @@ import { type CommandsPageMessages } from "../contracts/CommandsPageMessages";
 
 export const commandsPageMessages: CommandsPageMessages = {
   commandsPage_title: "Action Runner",
-  commandsPage_eyebrow: "Action Runner",
+  commandsPage_eyebrow: "Integration tools",
   commandsPage_noActionSelected: "No action selected",
   commandsPage_payloadLabel: "Payload",
   commandsPage_payloadPlaceholder: "Enter a payload",

@@ -4,7 +4,6 @@ export const layoutMessages: LayoutMessages = {
   layout_homeLabel: "Home",
   layout_modelsLabel: "Models",
   layout_modelCompareLabel: "Model compare",
-  layout_commandsLabel: "Action Runner",
   layout_reportsLabel: "Reports",
   layout_tagGroupsLabel: "Tag groups",
   layout_preferencesLabel: "Preferences",
