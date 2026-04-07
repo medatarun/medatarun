@@ -3,6 +3,7 @@ import { actionPerformerViewMessages } from "./en/ActionPerformerViewMessages";
 import { adminActorPageMessages } from "./en/AdminActorPageMessages";
 import { adminActorsPageMessages } from "./en/AdminActorsPageMessages";
 import { adminDbDatasourceListPageMessages } from "./en/AdminDbDatasourceListPageMessages";
+import { adminDbDriverListPageMessages } from "./en/AdminDbDriverListPageMessages";
 import { adminUserPageMessages } from "./en/AdminUserPageMessages";
 import { adminUsersPageMessages } from "./en/AdminUsersPageMessages";
 import { authRolePageMessages } from "./en/AuthRolePageMessages";
@@ -43,6 +44,7 @@ export const messages = {
   ...adminActorPageMessages,
   ...adminActorsPageMessages,
   ...adminDbDatasourceListPageMessages,
+  ...adminDbDriverListPageMessages,
   ...adminUserPageMessages,
   ...adminUsersPageMessages,
   ...authRolePageMessages,

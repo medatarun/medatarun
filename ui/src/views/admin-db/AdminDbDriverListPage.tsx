@@ -5,8 +5,6 @@ import {
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   Caption2,
-  MessageBar,
-  MessageBarBody,
   Text,
   tokens,
 } from "@fluentui/react-components";
@@ -41,10 +39,10 @@ export function AdminDbDriverListPage() {
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
-    title: "Databases drivers",
+    title: t("adminDbDriverListPage_title"),
     titleIcon: <DatabaseLinkRegular />,
     actions: {
-      label: "Actions",
+      label: t("adminDbDriverListPage_actions"),
       itemActions: actions,
       actionParams: createActionTemplateGeneral(),
       displayedSubject: displaySubjectNone,
@@ -56,11 +54,9 @@ export function AdminDbDriverListPage() {
       <ContainedHumanReadable>
           <ViewLayoutPageInfo>
               <Text>
-                Medatarun uses JDBC drivers to talk to most existing database
-                software.
+                {t("adminDbDriverListPage_descriptionLine1")}
                 <br />
-                Here is a recap of the installed drivers. To add new ones, check
-                the documentation.
+                {t("adminDbDriverListPage_descriptionLine2")}
               </Text>
           </ViewLayoutPageInfo>
 
@@ -87,7 +83,7 @@ export function AdminDbDriverListPage() {
                 <Caption2>{item.className}</Caption2>
               </div>
             )}
-            renderEmpty={() => "Drivers are yet to be installed."}
+            renderEmpty={() => t("adminDbDriverListPage_empty")}
           />
 
       </ContainedHumanReadable>
