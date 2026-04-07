@@ -20,7 +20,10 @@ async function userCreate(props: {
   });
 }
 
-async function userChangeFullname(props: { username: string; fullname: string }) {
+async function userChangeFullname(props: {
+  username: string;
+  fullname: string;
+}) {
   return executeActionJson("auth", "user_change_fullname", {
     username: props.username,
     fullname: props.fullname,
@@ -39,7 +42,10 @@ async function userDisable(props: { username: string }) {
   });
 }
 
-async function userChangePassword(props: { username: string; password: string }) {
+async function userChangePassword(props: {
+  username: string;
+  password: string;
+}) {
   return executeActionJson("auth", "user_change_password", {
     username: props.username,
     password: props.password,

@@ -48,7 +48,7 @@ export function TagsTable({
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags(scope);
   const styles = useStyles();
-  const detailLevelContext = useDetailLevelContext()
+  const detailLevelContext = useDetailLevelContext();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;

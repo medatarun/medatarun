@@ -64,7 +64,6 @@ export function TagEditPage({ tagId }: { tagId: string }) {
 
   const actions = actionRegistry.findActions(detailActionLocation(tag));
 
-
   const handleChangeName = (value: string) => {
     if (isGlobalTag) {
       return tagGlobalUpdateName.mutateAsync({ tagId: tag.id, value: value });
@@ -84,7 +83,6 @@ export function TagEditPage({ tagId }: { tagId: string }) {
       value: value,
     });
   };
-
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: <TagEditBreadcrumb tag={tag} />,
@@ -135,12 +133,11 @@ export function TagEditPage({ tagId }: { tagId: string }) {
   );
 }
 
-function TagEditBreadcrumb({ tag, }: { tag: Tag; }) {
-
+function TagEditBreadcrumb({ tag }: { tag: Tag }) {
   const modelId = tag.scope.type === "model" ? tag.scope.id : null;
 
   if (tag.isGlobal) {
-    return <GlobalBreadcrumb tag={tag} />
+    return <GlobalBreadcrumb tag={tag} />;
   }
 
   if (modelId) {
@@ -157,7 +154,7 @@ function TagEditBreadcrumb({ tag, }: { tag: Tag; }) {
   );
 }
 
-function GlobalBreadcrumb({ tag, }: { tag: Tag; }) {
+function GlobalBreadcrumb({ tag }: { tag: Tag }) {
   const { t } = useAppI18n();
   const navigate = useNavigate();
   const handleClickTagGroups = () => {

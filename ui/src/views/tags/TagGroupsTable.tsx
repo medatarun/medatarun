@@ -21,8 +21,7 @@ import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 
 const useStyles = makeStyles({
-  titleCell: {
-  },
+  titleCell: {},
   actionCell: {
     paddingTop: tokens.spacingVerticalM,
     width: "3em",
@@ -44,7 +43,7 @@ export function TagGroupsTable({
     ActionUILocations.tag_group_detail,
   );
   const styles = useStyles();
-  const detailLevelContext = useDetailLevelContext()
+  const detailLevelContext = useDetailLevelContext();
 
   return (
     <div>
@@ -62,7 +61,11 @@ export function TagGroupsTable({
                 onClick={() => onClick(tagGroup.id)}
               >
                 <div>{tagGroup.name ?? <Key value={tagGroup.key} />}</div>
-                <div>{tagGroup.name && detailLevelContext.isDetailLevelTech ? <Key value={tagGroup.key} /> : null }</div>
+                <div>
+                  {tagGroup.name && detailLevelContext.isDetailLevelTech ? (
+                    <Key value={tagGroup.key} />
+                  ) : null}
+                </div>
               </TableCell>
               <TableCell className={styles.actionCell}>
                 <ActionMenuButton

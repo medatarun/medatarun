@@ -83,7 +83,6 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     });
   };
 
-
   const displayedSubject = createDisplayedSubjectTagGroup(tagGroup.id);
 
   const breadcrumb = (

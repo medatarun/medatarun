@@ -26,7 +26,8 @@ import {
   type TreeItemValue,
 } from "@fluentui/react-components";
 import {
-  CheckmarkRegular, CodeBlockRegular,
+  CheckmarkRegular,
+  CodeBlockRegular,
   CopyRegular,
   DismissRegular,
 } from "@fluentui/react-icons";
@@ -34,7 +35,10 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { Problem, type ProblemJson } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { sortBy } from "lodash-es";
-import  { ViewLayoutHeader, type ViewLayoutHeaderProps } from "@/components/layout/ViewLayoutHeader.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
 const useActionTreeStyles = makeStyles({
   root: {
@@ -211,8 +215,7 @@ export function ActionsPageLoaded({
   const headerProps: ViewLayoutHeaderProps = {
     eyebrow: t("actionRunnerPage_eyebrow"),
     title: t("actionRunnerPage_title"),
-    titleIcon: <CodeBlockRegular/>
-
+    titleIcon: <CodeBlockRegular />,
   };
 
   return (
@@ -314,7 +317,9 @@ function ActionLaucher({
           type: "action-runner/invalid-payload",
           title: t("actionRunnerPage_invalidPayloadError", {
             details:
-              e instanceof Error ? e.message : t("actionRunnerPage_unknownError"),
+              e instanceof Error
+                ? e.message
+                : t("actionRunnerPage_unknownError"),
           }),
         }),
       );
@@ -468,7 +473,9 @@ function ActionLaucher({
       {output && (
         <div>
           <div className={styles.outputHeader}>
-            <div className={styles.outputTitle}>{t("actionRunnerPage_output")}</div>
+            <div className={styles.outputTitle}>
+              {t("actionRunnerPage_output")}
+            </div>
             <Button
               appearance="secondary"
               icon={<CopyRegular />}

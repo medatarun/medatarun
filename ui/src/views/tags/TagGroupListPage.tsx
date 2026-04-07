@@ -23,7 +23,10 @@ import { createActionTemplateTagGroupList } from "@/components/business/tag/tag.
 import { TagGroupIcon } from "@/components/business/tag/tag.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
-import  { ViewLayoutHeader, type ViewLayoutHeaderProps } from "@/components/layout/ViewLayoutHeader.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
 
 export function TagGroupListPage() {
@@ -47,11 +50,11 @@ export function TagGroupListPage() {
     titleIcon: <TagGroupIcon />,
     eyebrow: t("tagGroupsPage_eyebrow"),
     actions: {
-      label:t("tagGroupsPage_actions"),
-  itemActions:actions,
-  actionParams:createActionTemplateTagGroupList(),
-  displayedSubject:displaySubjectNone
-    }
+      label: t("tagGroupsPage_actions"),
+      itemActions: actions,
+      actionParams: createActionTemplateTagGroupList(),
+      displayedSubject: displaySubjectNone,
+    },
   };
   return (
     <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>

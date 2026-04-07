@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { MessageBar, MessageBarBody } from "@fluentui/react-components";
 
-export function ViewLayoutPageInfo(props:PropsWithChildren) {
+export function ViewLayoutPageInfo(props: PropsWithChildren) {
   return (
     <p>
       <MessageBar intent={"info"} layout="multiline">

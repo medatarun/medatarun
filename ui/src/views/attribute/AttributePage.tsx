@@ -317,7 +317,7 @@ export function AttributeView({
         )}{" "}
       </InlineEditSingleLine>
     ),
-    titleIcon: <AttributeIcon/>,
+    titleIcon: <AttributeIcon />,
     actions: {
       label: t("attributePage_actions"),
       itemActions: actions,
