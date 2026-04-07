@@ -28,23 +28,15 @@ import {
   ModelContext,
   useModelContext,
 } from "@/components/business/model/ModelContext.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
   Text,
-  tokens,
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import {
   createActionTemplateEntityAttribute,
@@ -62,6 +54,7 @@ import { InlineEditDescription } from "@/components/core/InlineEditDescription.t
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
 import {
+  AttributeIcon,
   EntityIcon,
   ModelIcon,
   RelationshipIcon,
@@ -73,6 +66,11 @@ import {
 } from "@/components/business/actions/ActionPerformer.tsx";
 import { InlineEditBoolean } from "@/components/core/InlineEditBoolean.tsx";
 import { InlineEditCombobox } from "@/components/core/InlineEditCombobox.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function AttributePage({
   modelId,
@@ -269,103 +267,92 @@ export function AttributeView({
     );
   };
 
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model.nameOrKeyWithAuthorityEmoji}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      {parentAsEntity != null && (
+        <BreadcrumbItem>
+          <BreadcrumbButton icon={<EntityIcon />} onClick={handleClickEntity}>
+            {model.findEntityNameOrKey(parentAsEntity.id)}
+          </BreadcrumbButton>
+        </BreadcrumbItem>
+      )}
+      {parentAsRelationship != null && (
+        <BreadcrumbItem>
+          <BreadcrumbButton
+            icon={<RelationshipIcon />}
+            onClick={handleClickRelationship}
+          >
+            {model.findRelationshipNameOrKey(parentAsRelationship.id)}
+          </BreadcrumbButton>
+        </BreadcrumbItem>
+      )}
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<AttributeIcon />} current={true}>
+          {parentType === "entity"
+            ? t("attributePage_entityEyebrow")
+            : t("attributePage_relationshipEyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadcrumb,
+    title: (
+      <InlineEditSingleLine
+        value={attribute.name ?? ""}
+        onChange={handleUpdateName}
+      >
+        {attribute.name ? (
+          attribute.name
+        ) : (
+          <MissingInformation>{attribute.key}</MissingInformation>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <AttributeIcon/>,
+    actions: {
+      label: t("attributePage_actions"),
+      itemActions: actions,
+      actionParams: actionParams,
+      displayedSubject: displayedSubject,
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  icon={<ModelIcon />}
-                  onClick={handleClickModel}
-                >
-                  {model.nameOrKeyWithAuthorityEmoji}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-              {parentAsEntity != null && (
-                <BreadcrumbItem>
-                  <BreadcrumbButton
-                    icon={<EntityIcon />}
-                    onClick={handleClickEntity}
-                  >
-                    {model.findEntityNameOrKey(parentAsEntity.id)}
-                  </BreadcrumbButton>
-                </BreadcrumbItem>
-              )}
-              {parentAsRelationship != null && (
-                <BreadcrumbItem>
-                  <BreadcrumbButton
-                    icon={<RelationshipIcon />}
-                    onClick={handleClickRelationship}
-                  >
-                    {model.findRelationshipNameOrKey(parentAsRelationship.id)}
-                  </BreadcrumbButton>
-                </BreadcrumbItem>
-              )}
-            </Breadcrumb>
-          </div>
-          <ViewTitle
-            eyebrow={
-              parentType === "entity"
-                ? t("attributePage_entityEyebrow")
-                : t("attributePage_relationshipEyebrow")
-            }
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <InlineEditSingleLine
-                  value={attribute.name ?? ""}
-                  onChange={handleUpdateName}
-                >
-                  {attribute.name ? (
-                    attribute.name
-                  ) : (
-                    <MissingInformation>{attribute.key}</MissingInformation>
-                  )}{" "}
-                </InlineEditSingleLine>
-              </div>
-              <div>
-                <ActionMenuButton
-                  label={t("attributePage_actions")}
-                  itemActions={actions}
-                  actionParams={actionParams}
-                  displayedSubject={displayedSubject}
-                />
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <AttributeOverview
-                model={model}
-                attribute={attribute}
-                parentAsEntity={parentAsEntity}
-                parentAsRelationship={parentAsRelationship}
-              />
-            </SectionPaper>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={attribute.description}
-                placeholder={t("attributePage_descriptionPlaceholder")}
-                onChange={handleUpdateDescription}
-              />
-            </SectionPaper>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <SectionPaper>
+        <AttributeOverview
+          model={model}
+          attribute={attribute}
+          parentAsEntity={parentAsEntity}
+          parentAsRelationship={parentAsRelationship}
+        />
+      </SectionPaper>
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={attribute.description}
+          placeholder={t("attributePage_descriptionPlaceholder")}
+          onChange={handleUpdateDescription}
+        />
+      </SectionPaper>
+      <ViewLayoutTechnicalInfos
+        id={attribute.id}
+        idLabel={t("attributePage_identifierLabel")}
+        technicalKey={attribute.key}
+        keyLabel={t("attributePage_keyLabel")}
+      />
     </ViewLayoutContained>
   );
 }
@@ -529,52 +516,6 @@ export function AttributeOverview({
 
   return (
     <PropertiesForm>
-      {isDetailLevelTech && (
-        <div>
-          <Text>{t("attributePage_keyLabel")}</Text>
-        </div>
-      )}
-      {isDetailLevelTech && (
-        <div>
-          <InlineEditSingleLine
-            value={attribute.key}
-            onChange={handleChangeKey}
-          >
-            <Text>
-              <code>{attribute.key}</code>
-            </Text>
-          </InlineEditSingleLine>
-        </div>
-      )}
-      <div>
-        <Text>{t("attributePage_fromModelLabel")}</Text>
-      </div>
-      <div>
-        <Link to="/model/$modelId" params={{ modelId: model.id }}>
-          {model.nameOrKey}
-        </Link>
-      </div>
-
-      <div>
-        <Text>{t("attributePage_tagsLabel")}</Text>
-      </div>
-      <div>
-        <InlineEditTags
-          value={attribute.tags}
-          scope={modelTagScope(model.id)}
-          onChange={handleChangeTags}
-          displayedSubject={attributeDisplayedSubject}
-        >
-          {attribute.tags.length === 0 ? (
-            <MissingInformation>
-              {t("attributePage_tagsEmpty")}
-            </MissingInformation>
-          ) : (
-            <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
-          )}
-        </InlineEditTags>
-      </div>
-
       <div>
         <Text>{t("attributePage_typeLabel")}</Text>
       </div>
@@ -615,6 +556,44 @@ export function AttributeOverview({
               : t("attributePage_requiredYes")}
           </Text>
         </InlineEditBoolean>
+      </div>
+
+      {isDetailLevelTech && (
+        <div>
+          <Text>{t("attributePage_keyLabel")}</Text>
+        </div>
+      )}
+
+      {isDetailLevelTech && (
+        <div>
+          <InlineEditSingleLine
+            value={attribute.key}
+            onChange={handleChangeKey}
+          >
+            <Text>
+              <code>{attribute.key}</code>
+            </Text>
+          </InlineEditSingleLine>
+        </div>
+      )}
+      <div>
+        <Text>{t("attributePage_tagsLabel")}</Text>
+      </div>
+      <div>
+        <InlineEditTags
+          value={attribute.tags}
+          scope={modelTagScope(model.id)}
+          onChange={handleChangeTags}
+          displayedSubject={attributeDisplayedSubject}
+        >
+          {attribute.tags.length === 0 ? (
+            <MissingInformation>
+              {t("attributePage_tagsEmpty")}
+            </MissingInformation>
+          ) : (
+            <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
+          )}
+        </InlineEditTags>
       </div>
     </PropertiesForm>
   );
