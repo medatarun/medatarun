@@ -37,10 +37,10 @@ export function AdminDbDatasourceListPage() {
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
-    title: "Databases & datasources",
+    title: t("adminDbDatasourceListPage_title"),
     titleIcon: <DatabaseRegular />,
     actions: {
-      label: "Actions",
+      label: t("adminDbDatasourceListPage_actions"),
       itemActions: actions,
       actionParams: createActionTemplateGeneral(),
       displayedSubject: displaySubjectNone,
@@ -58,12 +58,10 @@ export function AdminDbDatasourceListPage() {
         >
           <ViewLayoutPageInfo>
             <div>
-              Datasources are named connections to your running database (JDBC
-              URL and driver).
+              {t("adminDbDatasourceListPage_descriptionLine1")}
             </div>
             <div>
-              When importing or syncing models, you will select one of these
-              datasource.
+              {t("adminDbDatasourceListPage_descriptionLine2")}
             </div>
           </ViewLayoutPageInfo>
           <CardGrid
@@ -92,7 +90,7 @@ export function AdminDbDatasourceListPage() {
                 <Caption2>{item.url}</Caption2>
               </div>
             )}
-            renderEmpty={() => "Datasources are yet to be created."}
+            renderEmpty={() => t("adminDbDatasourceListPage_empty")}
           />
         </div>
       </ContainedHumanReadable>
