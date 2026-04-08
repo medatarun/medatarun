@@ -8,11 +8,11 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
-import { ModelListPage } from "@/views/ModelListPage.tsx";
+import { ModelListPage } from "@/views/model/ModelListPage.tsx";
 import { ModelPage } from "@/views/ModelPage.tsx";
 import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
-import { DashboardPage } from "@/views/DashboardPage.tsx";
+import { DashboardPage } from "@/views/dashboard/DashboardPage.tsx";
 import {
   type ConnectionConfig,
   defaultConnection,
