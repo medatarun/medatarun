@@ -1,5 +1,5 @@
 import { Text } from "@fluentui/react-components";
-import { ExternalUrl, Origin } from "../ModelPage.tsx";
+import { ExternalUrl, Origin } from "../model/ModelPage.tsx";
 import { Link } from "@tanstack/react-router";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
 import {

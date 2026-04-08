@@ -55,7 +55,7 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
-import { TagIcon } from "@/components/business/tag/tag.icons";
+import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
 
 export function ModelPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);

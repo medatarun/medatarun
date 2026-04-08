@@ -107,7 +107,7 @@ function ModelsSection({
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "left",
             columnGap: tokens.spacingVerticalM,
             rowGap: tokens.spacingVerticalM,
             flexWrap: "wrap",

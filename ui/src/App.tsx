@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
 import { ModelListPage } from "@/views/model/ModelListPage.tsx";
-import { ModelPage } from "@/views/ModelPage.tsx";
+import { ModelPage } from "@/views/model/ModelPage.tsx";
 import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
 import { DashboardPage } from "@/views/dashboard/DashboardPage.tsx";
