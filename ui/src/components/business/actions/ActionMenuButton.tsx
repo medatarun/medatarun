@@ -43,7 +43,7 @@ export function ActionMenuButton({
         <MenuList>
           {itemActions.map((action) => (
             <MenuItem
-              onClick={(e) => {
+              onClick={() => {
                 actionPerformer.performAction({
                   actionKey: action.key,
                   actionGroupKey: action.actionGroupKey,
