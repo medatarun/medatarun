@@ -26,7 +26,7 @@ import { modelReportsPageMessages } from "./fr/ModelReportsPageMessages";
 import { modelListPageMessages } from "./fr/ModelListPageMessages.ts";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
 import { relationshipDescriptionMessages } from "./fr/RelationshipDescriptionMessages";
-import { relationshipPageMessages } from "./fr/RelationshipPageMessages";
+import { relationshipEditPageMessages } from "./fr/RelationshipEditPageMessages.ts";
 import { relationshipsTableMessages } from "./fr/RelationshipsTableMessages";
 import { sessionMessages } from "./fr/SessionMessages";
 import { tagEditMessages } from "./fr/TagEditMessages";
@@ -68,7 +68,7 @@ export const messages = {
   ...modelReportsPageMessages,
   ...entityEditPageMessages,
   ...loginPageMessages,
-  ...relationshipPageMessages,
+  ...relationshipEditPageMessages,
   ...tagGroupsPageMessages,
   ...tagGroupEditMessages,
   ...tagEditMessages,

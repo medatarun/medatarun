@@ -34,7 +34,7 @@ import { DetailLevelProvider } from "@/components/business/DetailLevelContext.ts
 import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
 import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
 import { TypePage } from "@/views/type/TypePage.tsx";
-import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
+import { RelationshipEditPage } from "@/views/relationship/RelationshipEditPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
 import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
 import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
@@ -175,7 +175,9 @@ function RelationshipRouteComponent() {
   const { modelId, relationshipId } = useParams({
     from: "/model/$modelId/relationship/$relationshipId",
   });
-  return <RelationshipPage modelId={modelId} relationshipId={relationshipId} />;
+  return (
+    <RelationshipEditPage modelId={modelId} relationshipId={relationshipId} />
+  );
 }
 
 function ReportsRouteComponent() {

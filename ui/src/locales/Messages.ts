@@ -25,7 +25,7 @@ import { type ModelReportsPageMessages } from "./contracts/ModelReportsPageMessa
 import { type ModelListPageMessages } from "./contracts/ModelListPageMessages.ts";
 import { type PreferencesPageMessages } from "./contracts/PreferencesPageMessages";
 import { type RelationshipDescriptionMessages } from "./contracts/RelationshipDescriptionMessages";
-import { type RelationshipPageMessages } from "./contracts/RelationshipPageMessages";
+import { type RelationshipEditPageMessages } from "./contracts/RelationshipEditPageMessages.ts";
 import { type RelationshipsTableMessages } from "./contracts/RelationshipsTableMessages";
 import { type SessionMessages } from "./contracts/SessionMessages";
 import { type TagEditMessages } from "./contracts/TagEditMessages";
@@ -66,7 +66,7 @@ export type Messages = SessionMessages &
   ModelReportsPageMessages &
   EntityEditPageMessages &
   LoginPageMessages &
-  RelationshipPageMessages &
+  RelationshipEditPageMessages &
   TagGroupsPageMessages &
   TagGroupEditMessages &
   TagEditMessages &

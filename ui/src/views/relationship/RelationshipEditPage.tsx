@@ -62,7 +62,7 @@ import { toProblem } from "@seij/common-types";
 import { ErrorBox } from "@seij/common-ui";
 import { useNavigate } from "@tanstack/react-router";
 
-export function RelationshipPage({
+export function RelationshipEditPage({
   modelId,
   relationshipId,
 }: {
@@ -77,7 +77,7 @@ export function RelationshipPage({
 
   const relationship = model.findRelationshipDto(relationshipId);
   if (!relationship)
-    return <ErrorBox error={toProblem(t("relationshipPage_notFound"))} />;
+    return <ErrorBox error={toProblem(t("relationshipEditPage_notFound"))} />;
 
   return (
     <ModelContext value={model}>
@@ -147,7 +147,7 @@ export function RelationshipView({
       <BreadcrumbDivider />
       <BreadcrumbItem>
         <BreadcrumbButton icon={<ModelIcon />} current={true}>
-          {t("relationshipPage_eyebrow")}
+          {t("relationshipEditPage_eyebrow")}
         </BreadcrumbButton>
       </BreadcrumbItem>
     </Breadcrumb>
@@ -176,7 +176,7 @@ export function RelationshipView({
     ),
     titleIcon: <RelationshipIcon />,
     actions: {
-      label: t("relationshipPage_actions"),
+      label: t("relationshipEditPage_actions"),
       itemActions: actions,
       actionParams: actionParams,
       displayedSubject: displayedSubject,
@@ -195,7 +195,7 @@ export function RelationshipView({
       <SectionPaper topspacing="XXXL" nopadding>
         <InlineEditDescription
           value={relationship.description}
-          placeholder={t("relationshipPage_descriptionPlaceholder")}
+          placeholder={t("relationshipEditPage_descriptionPlaceholder")}
           onChange={(v) =>
             relationshipUpdateDescription.mutateAsync({
               modelId: model.id,
@@ -215,13 +215,13 @@ export function RelationshipView({
         displayedSubject={displayedSubject}
         location={ActionUILocations.relationship_roles}
       >
-        {t("relationshipPage_rolesTitle")}
+        {t("relationshipEditPage_rolesTitle")}
       </SectionTitle>
 
       {relationship.roles.length === 0 && (
         <p>
           <MissingInformation>
-            {t("relationshipPage_rolesEmpty")}
+            {t("relationshipEditPage_rolesEmpty")}
           </MissingInformation>
         </p>
       )}
@@ -290,13 +290,13 @@ export function RelationshipView({
         displayedSubject={displayedSubject}
         location={ActionUILocations.relationship_attributes}
       >
-        {t("relationshipPage_attributesTitle")}
+        {t("relationshipEditPage_attributesTitle")}
       </SectionTitle>
 
       {relationship.attributes.length === 0 && (
         <p>
           <MissingInformation>
-            {t("relationshipPage_attributesEmpty")}
+            {t("relationshipEditPage_attributesEmpty")}
           </MissingInformation>
         </p>
       )}
@@ -319,9 +319,9 @@ export function RelationshipView({
       )}
       <ViewLayoutTechnicalInfos
         id={relationship.id}
-        idLabel={t("relationshipPage_identifierLabel")}
+        idLabel={t("relationshipEditPage_identifierLabel")}
         technicalKey={relationship.key}
-        keyLabel={t("relationshipPage_keyLabel")}
+        keyLabel={t("relationshipEditPage_keyLabel")}
       />
     </ViewLayoutContained>
   );
@@ -369,7 +369,7 @@ export function RelationshipOverview({
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>{t("relationshipPage_keyLabel")}</Text>
+          <Text>{t("relationshipEditPage_keyLabel")}</Text>
         </div>
       )}
 
@@ -384,7 +384,7 @@ export function RelationshipOverview({
         </InlineEditSingleLine>
       )}
       <div>
-        <Text>{t("relationshipPage_tagsLabel")}</Text>
+        <Text>{t("relationshipEditPage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -398,7 +398,7 @@ export function RelationshipOverview({
         >
           {relationship.tags.length === 0 ? (
             <MissingInformation>
-              {t("relationshipPage_tagsEmpty")}
+              {t("relationshipEditPage_tagsEmpty")}
             </MissingInformation>
           ) : (
             <Tags tags={relationship.tags} scope={modelTagScope(model.id)} />
@@ -413,8 +413,8 @@ function roleCardinalityLabel(
   c: RelationshipRoleDto["cardinality"],
   t: (key: AppMessageKey, values?: Record<string, unknown>) => string,
 ) {
-  if (c === "zeroOrOne") return t("relationshipPage_cardinalityMaybeOne");
-  if (c === "many") return t("relationshipPage_cardinalityMany");
-  if (c === "one") return t("relationshipPage_cardinalityOne");
-  if (c === "unknown") return t("relationshipPage_cardinalityUnknown");
+  if (c === "zeroOrOne") return t("relationshipEditPage_cardinalityMaybeOne");
+  if (c === "many") return t("relationshipEditPage_cardinalityMany");
+  if (c === "one") return t("relationshipEditPage_cardinalityOne");
+  if (c === "unknown") return t("relationshipEditPage_cardinalityUnknown");
 }
