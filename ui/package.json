@@ -13,8 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fluentui/react-components": "^9.73.2",
-    "@fluentui/react-icons": "^2.0.320",
+    "@fluentui/react-components": "^9.73.7",
+    "@fluentui/react-icons": "^2.0.323",
     "@seij/common-services": "^0.1.2",
     "@seij/common-types": "^0.1.5",
     "@seij/common-ui": "^0.1.11",
