@@ -28,21 +28,17 @@ export default defineConfig({
                   return "seij-common-ui";
                 }
                 return null;
-
-              }
+              },
             },
             {
               name(id) {
-                if (
-                  id.includes("node_modules")
-                ) {
+                if (id.includes("node_modules")) {
                   return "vendor";
                 }
-                return null
+                return null;
               },
             },
-
-          ]
+          ],
         },
       },
     },
