@@ -105,7 +105,7 @@ function AuthenticationLogoutComponent() {
 function CommandsRouteComponent() {
   return <ActionRunnerPage />;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function DashboardRouteComponent() {
   return <DashboardPage />;
 }

@@ -39,7 +39,6 @@ import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnica
 
 export function TagEditPage({ tagId }: { tagId: string }) {
   const { t } = useAppI18n();
-  const navigate = useNavigate();
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags();
   const tagGlobalUpdateName = useTagGlobalUpdateName();

@@ -45,7 +45,6 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
   const tagsResult = useTags();
   const tagGroupUpdateName = useTagGroupUpdateName();
   const tagGroupUpdateDescription = useTagGroupUpdateDescription();
-  const tagGroupUpdateKey = useTagGroupUpdateKey();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;

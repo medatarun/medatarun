@@ -1,4 +1,3 @@
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Button,
   Dropdown,
