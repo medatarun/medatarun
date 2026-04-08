@@ -39,7 +39,7 @@ import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
 import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
 import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
 import { TagEditPage } from "@/views/tags/TagEditPage.tsx";
-import { ModelComparePage } from "@/views/ModelComparePage.tsx";
+import { ModelComparePage } from "@/views/model-compare/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
 import { AdminDbDriverListPage } from "@/views/admin-db/AdminDbDriverListPage.tsx";
 import { AdminDbDatasourceListPage } from "@/views/admin-db/AdminDbDatasourceListPage.tsx";
