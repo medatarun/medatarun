@@ -12,7 +12,7 @@ import {
 } from "@/business/action_registry";
 import { ActionPerformerView } from "@/components/business/actions/ActionPerformerView.tsx";
 import { ActionProvider } from "@/components/business/actions/ActionPerformerProvider.tsx";
-import logo from "../../../public/favicon/favicon.svg";
+import logo from "/favicon/favicon.svg?url";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
 import { ErrorBox, Loader } from "@seij/common-ui";
 import {

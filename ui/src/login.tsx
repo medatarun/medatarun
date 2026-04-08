@@ -10,7 +10,7 @@ import {
   MessageBar,
   Title3,
 } from "@fluentui/react-components";
-import logoUrl from "../public/favicon/favicon.svg";
+import logoUrl from "/favicon/favicon.svg?url";
 import { useAppI18n } from "@/services/appI18n.tsx";
 
 const useStyles = makeStyles({
