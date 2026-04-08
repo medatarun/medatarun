@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS model_event_v003
     model_version       TEXT,
     actor_id            BINARY(16) NOT NULL,
     traceability_origin TEXT       NOT NULL,
-    created_at          TIMESTAMP       NOT NULL,
+    created_at          INT       NOT NULL,
     payload             TEXT       NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model_v003 (id) ON DELETE CASCADE,
     UNIQUE (model_id, stream_revision)
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS model_snapshot_v003
     up_to_revision         INTEGER    NOT NULL,
     model_event_release_id BINARY(16),
     version                TEXT       NOT NULL,
-    created_at             TIMESTAMP       NOT NULL,
-    updated_at             TIMESTAMP       NOT NULL,
+    created_at             INT       NOT NULL,
+    updated_at             INT       NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model_v003 (id) ON DELETE CASCADE,
     FOREIGN KEY (model_event_release_id) REFERENCES model_event_v003 (id) ON DELETE CASCADE
 );

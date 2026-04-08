@@ -8,7 +8,7 @@ CREATE TABLE users_v002 (
   password_hash TEXT NOT NULL,
   admin INTEGER NOT NULL,
   bootstrap INTEGER NOT NULL,
-  disabled_date TIMESTAMP
+  disabled_date INT
 );
 
 INSERT INTO users_v002 (id, login, full_name, password_hash, admin, bootstrap, disabled_date)
@@ -36,9 +36,9 @@ CREATE TABLE auth_actor_v002 (
   full_name TEXT NOT NULL,
   email TEXT,
   roles_json TEXT NOT NULL,
-  disabled_date TIMESTAMP,
-  created_at TIMESTAMP NOT NULL,
-  last_seen_at TIMESTAMP NOT NULL,
+  disabled_date INT,
+  created_at INT NOT NULL,
+  last_seen_at INT NOT NULL,
   UNIQUE(issuer, subject)
 );
 
@@ -71,8 +71,8 @@ CREATE TABLE auth_ctx_v002 (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    created_at TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL
+    created_at INT NOT NULL,
+    expires_at INT NOT NULL
 );
 
 INSERT INTO auth_ctx_v002 (authorize_ctx_code, client_id, redirect_uri, scope, state, code_challenge, code_challenge_method, nonce, created_at, expires_at)
@@ -102,8 +102,8 @@ CREATE TABLE auth_code_v002 (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    auth_time TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL
+    auth_time INT NOT NULL,
+    expires_at INT NOT NULL
 );
 
 INSERT INTO auth_code_v002 (code, client_id, redirect_uri, subject, scope, code_challenge, code_challenge_method, nonce, auth_time, expires_at)

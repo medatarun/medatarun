@@ -1,13 +1,9 @@
 package io.medatarun.platform.db.exposed
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.TimeZone
+import io.medatarun.lang.exceptions.MedatarunException
+import kotlinx.datetime.*
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.char
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ColumnType
 import org.jetbrains.exposed.v1.core.IDateColumnType
@@ -20,9 +16,9 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant as KotlinInstant
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
+import kotlin.time.Instant as KotlinInstant
 
 private val SQLITE_TIMESTAMP_FORMAT: DateTimeFormat<LocalDateTime> by lazy { createMedatarunLocalDateTimeFormatter(3) }
 private val DEFAULT_TIMESTAMP_FORMAT: DateTimeFormat<LocalDateTime> = LocalDateTime.Formats.ISO
@@ -37,25 +33,44 @@ private val DEFAULT_TIMESTAMP_FORMAT: DateTimeFormat<LocalDateTime> = LocalDateT
 class MedatarunInstantColumnType : ColumnType<Instant>(), IDateColumnType {
     override val hasTimePart: Boolean = true
 
-    override fun sqlType(): String = currentDialect.dataTypeProvider.timestampType()
+    override fun sqlType(): String = when (currentDialect) {
+        is SQLiteDialect -> "INT"
+        else -> currentDialect.dataTypeProvider.timestampType()
+    }
 
     override fun nonNullValueToString(value: Instant): String {
         val localDateTime = toKotlinInstant(value).toLocalDateTime(TimeZone.currentSystemDefault())
         return when (currentDialect) {
-            is SQLiteDialect -> "'${SQLITE_TIMESTAMP_FORMAT.format(localDateTime)}'"
+            is SQLiteDialect -> value.toEpochMilli().toString()
             else -> "'${DEFAULT_TIMESTAMP_FORMAT.format(localDateTime)}'"
         }
     }
 
+
     @Suppress("MagicNumber")
-    private fun instantValueFromDB(value: Any): Instant = when (value) {
-        is Timestamp -> KotlinInstant.fromEpochSeconds(value.time / 1000, value.nanos).toJavaInstant()
-        is String -> parseInstantFromString(value)
-        is java.time.LocalDateTime -> {
-            value.atZone(ZoneId.systemDefault())
-                .toInstant()
+    private fun instantValueFromDB(value: Any): Instant {
+        return when (currentDialect) {
+            is SQLiteDialect -> when (value) {
+                is Timestamp -> KotlinInstant.fromEpochSeconds(value.time / 1000, value.nanos).toJavaInstant()
+                is String -> parseInstantFromString(value)
+                is Long -> Instant.ofEpochMilli(value)
+                is Int -> Instant.ofEpochMilli(value.toLong())
+                else -> throw InvalidSQLiteTimestampException(value::class.java.toString())
+            }
+
+            is PostgreSQLDialect -> when (value) {
+                is Timestamp -> KotlinInstant.fromEpochSeconds(value.time / 1000, value.nanos).toJavaInstant()
+                is String -> parseInstantFromString(value)
+                is java.time.LocalDateTime -> {
+                    value.atZone(ZoneId.systemDefault())
+                        .toInstant()
+                }
+
+                else -> parseInstantFromString(value.toString())
+            }
+
+            else -> throw InvalidDatabaseDialectException(currentDialect.toString())
         }
-        else -> instantValueFromDB(value.toString())
     }
 
     private fun parseInstantFromString(value: String): Instant {
@@ -67,13 +82,17 @@ class MedatarunInstantColumnType : ColumnType<Instant>(), IDateColumnType {
     }
 
     override fun readObject(rs: RowApi, index: Int): Any? {
-        return rs.getObject(index, Timestamp::class.java, this)
+        return when(currentDialect) {
+            is SQLiteDialect -> rs.getObject<Long>(index, null, this)
+            else ->  rs.getObject(index, Timestamp::class.java, this)
+        }
+
     }
 
     override fun notNullValueToDB(value: Instant): Any {
         val localDateTime = toKotlinInstant(value).toLocalDateTime(TimeZone.currentSystemDefault())
         return when (currentDialect) {
-            is SQLiteDialect -> SQLITE_TIMESTAMP_FORMAT.format(localDateTime)
+            is SQLiteDialect -> value.toEpochMilli()
             else -> localDateTime.toMedatarunSqlTimestamp()
         }
     }
@@ -81,10 +100,14 @@ class MedatarunInstantColumnType : ColumnType<Instant>(), IDateColumnType {
     override fun nonNullValueAsDefaultString(value: Instant): String {
         val localDateTime = toKotlinInstant(value).toLocalDateTime(TimeZone.currentSystemDefault())
         return when (currentDialect) {
+            is SQLiteDialect -> {
+                value.toEpochMilli().toString()
+            }
             is PostgreSQLDialect -> {
                 val formatted = SQLITE_TIMESTAMP_FORMAT.format(localDateTime)
                 "'${formatted.trimEnd('0').trimEnd('.')}'::timestamp without time zone"
             }
+
             else -> super.nonNullValueAsDefaultString(value)
         }
     }
@@ -123,3 +146,8 @@ private fun LocalDateTime.toMedatarunSqlTimestamp(
     return Timestamp(instant.toEpochMilliseconds())
         .apply { this.nanos = instant.nanosecondsOfSecond }
 }
+
+class InvalidSQLiteTimestampException(type: String) :
+    MedatarunException("Invalid type from SQLite driver, expected Timestamp or String, got $type")
+
+class InvalidDatabaseDialectException(type: String) : MedatarunException("Unsupported database dialect $type")

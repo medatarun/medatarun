@@ -5,7 +5,7 @@ CREATE TABLE action_audit_event (
     actor_id BINARY(16) NULL,
     source TEXT NOT NULL,
     payload_serialized TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
+    created_at INT NOT NULL,
     status TEXT NOT NULL,
     error_code TEXT NULL,
     error_message TEXT NULL

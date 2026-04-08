@@ -4,9 +4,9 @@ CREATE TABLE auth_actor (
     subject TEXT NOT NULL,
     full_name TEXT NOT NULL,
     email TEXT,
-    disabled_date TIMESTAMP,
-    created_at TIMESTAMP NOT NULL,
-    last_seen_at TIMESTAMP NOT NULL,
+    disabled_date INT,
+    created_at INT NOT NULL,
+    last_seen_at INT NOT NULL,
     UNIQUE (issuer, subject)
 );
 
@@ -34,8 +34,8 @@ CREATE TABLE auth_client (
     software_version TEXT,
     tos_uri TEXT,
     policy_uri TEXT,
-    created_at TIMESTAMP NOT NULL,
-    last_used_at TIMESTAMP NOT NULL
+    created_at INT NOT NULL,
+    last_used_at INT NOT NULL
 );
 
 CREATE TABLE auth_code (
@@ -47,8 +47,8 @@ CREATE TABLE auth_code (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    auth_time TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL
+    auth_time INT NOT NULL,
+    expires_at INT NOT NULL
 );
 
 CREATE TABLE auth_ctx (
@@ -60,8 +60,8 @@ CREATE TABLE auth_ctx (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    created_at TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL
+    created_at INT NOT NULL,
+    expires_at INT NOT NULL
 );
 
 CREATE TABLE auth_role (
@@ -69,8 +69,8 @@ CREATE TABLE auth_role (
     key VARCHAR(30) NOT NULL,
     name VARCHAR(30) NOT NULL,
     description TEXT,
-    created_at TIMESTAMP NOT NULL,
-    last_updated_at TIMESTAMP NOT NULL
+    created_at INT NOT NULL,
+    last_updated_at INT NOT NULL
 );
 
 CREATE TABLE auth_role_permission (
@@ -87,7 +87,7 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     admin INTEGER NOT NULL,
     bootstrap INTEGER NOT NULL,
-    disabled_date TIMESTAMP
+    disabled_date INT
 );
 
 CREATE INDEX idx_auth_actor_created_at ON auth_actor (created_at);
@@ -105,6 +105,6 @@ VALUES (
     'System maintenance',
     NULL,
     NULL,
-    '2025-01-01 01:00:00.000',
-    '2025-01-01 01:00:00.000'
+    1735689600000,
+    1735689600000
 );

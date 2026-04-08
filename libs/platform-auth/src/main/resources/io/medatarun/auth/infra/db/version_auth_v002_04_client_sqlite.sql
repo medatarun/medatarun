@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS auth_client (
     software_version TEXT,
     tos_uri TEXT,
     policy_uri TEXT,
-    created_at TIMESTAMP NOT NULL,
-    last_used_at TIMESTAMP NOT NULL
+    created_at INT NOT NULL,
+    last_used_at INT NOT NULL
 );

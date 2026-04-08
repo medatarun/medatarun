@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS tag_event
     event_version       INTEGER NOT NULL,
     actor_id            BINARY(16) NOT NULL,
     traceability_origin TEXT    NOT NULL,
-    created_at          TIMESTAMP NOT NULL,
+    created_at          INT NOT NULL,
     payload             TEXT    NOT NULL,
     UNIQUE (scope_type, scope_id, stream_revision)
 );
