@@ -1,3 +1,3 @@
 def main():
-    raise SystemExit("testing-e2e is not implemented yet")
+    raise SystemExit("use pytest instead")
 

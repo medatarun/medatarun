@@ -200,7 +200,7 @@ def build_module_script(
     if index_ddls:
         parts.append("\n".join(index_ddls))
     if module_spec.name == "auth":
-        parts.append(build_auth_system_maintenance_insert_sql(connection))
+        parts.append(build_auth_system_maintenance_insert_sql())
     return "\n\n".join(parts).strip() + "\n"
 
 
@@ -216,45 +216,21 @@ def find_index_table_name(index_sql: str) -> str:
     return table_segment[:paren_position].strip().strip("\"")
 
 
-def build_auth_system_maintenance_insert_sql(connection: sqlite3.Connection) -> str:
-    row = connection.execute(
-        """
-        SELECT id,
-               issuer,
-               subject,
-               full_name,
-               email,
-               disabled_date,
-               created_at,
-               last_seen_at
-        FROM auth_actor
-        WHERE issuer = ?
-          AND subject = ?
-        """,
-        (SYSTEM_MAINTENANCE_ISSUER, SYSTEM_MAINTENANCE_SUBJECT),
-    ).fetchone()
-    if row is None:
-        raise RuntimeError("System maintenance actor row was not found in source database.")
-
-    actor_id = row["id"]
-    if not isinstance(actor_id, bytes):
-        raise RuntimeError("System maintenance actor id must be a sqlite BLOB.")
-    actor_id_sql = f"X'{actor_id.hex().upper()}'"
-
-    values = [
-        actor_id_sql,
-        quote_sql_string(row["issuer"]),
-        quote_sql_string(row["subject"]),
-        quote_sql_string(row["full_name"]),
-        quote_nullable_sql_string(row["email"]),
-        quote_nullable_sql_string(row["disabled_date"]),
-        quote_sql_string(row["created_at"]),
-        quote_sql_string(row["last_seen_at"]),
-    ]
-
+def build_auth_system_maintenance_insert_sql() -> str:
     return (
-        "INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)\n"
-        f"VALUES ({', '.join(values)});"
+        """
+        INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
+        VALUES (
+            X'01941F297C0070009A6567088EBCBABD',
+            'urn:medatarun:system',
+            'system-maintenance',
+            'System maintenance',
+            NULL,
+            NULL,
+            '2025-01-01 01:00:00.000',
+            '2025-01-01 01:00:00.000'
+        );
+        """
     )
 
 
