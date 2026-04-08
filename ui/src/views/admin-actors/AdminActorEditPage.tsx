@@ -4,7 +4,6 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { ActorDetails, useActor, useRoleRegistry } from "@/business/actor";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -15,11 +14,6 @@ import {
   TableCell,
   TableRow,
 } from "@fluentui/react-components";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -42,6 +36,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();
@@ -85,60 +80,58 @@ export function AdminActorEditPage({ actorId }: { actorId: string }) {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <PropertiesForm>
-                <div>{t("adminActorPage_fullname")}</div>
-                <div>{actor.fullname}</div>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <SectionPaper>
+        <PropertiesForm>
+          <div>{t("adminActorPage_fullname")}</div>
+          <div>{actor.fullname}</div>
 
-                <div>{t("adminActorPage_issuer")}</div>
-                <div>{actor.issuer}</div>
+          <div>{t("adminActorPage_issuer")}</div>
+          <div>{actor.issuer}</div>
 
-                <div>{t("adminActorPage_subject")}</div>
-                <div>{actor.subject}</div>
+          <div>{t("adminActorPage_subject")}</div>
+          <div>{actor.subject}</div>
 
-                <div>{t("adminActorPage_email")}</div>
-                <div>
-                  {actor.email ? (
-                    actor.email
-                  ) : (
-                    <MissingInformation>
-                      {t("adminActorPage_empty")}
-                    </MissingInformation>
-                  )}
-                </div>
+          <div>{t("adminActorPage_email")}</div>
+          <div>
+            {actor.email ? (
+              actor.email
+            ) : (
+              <MissingInformation>
+                {t("adminActorPage_empty")}
+              </MissingInformation>
+            )}
+          </div>
 
-                <div>{t("adminActorPage_status")}</div>
-                <div>
-                  {actor.disabledAt
-                    ? `${t("adminActorPage_statusDisabledAt")} ${formatLocalDateTime(actor.disabledAt)}`
-                    : t("adminActorPage_statusActive")}
-                </div>
+          <div>{t("adminActorPage_status")}</div>
+          <div>
+            {actor.disabledAt
+              ? `${t("adminActorPage_statusDisabledAt")} ${formatLocalDateTime(actor.disabledAt)}`
+              : t("adminActorPage_statusActive")}
+          </div>
 
-                <div>{t("adminActorPage_createdAt")}</div>
-                <div>{formatLocalDateTime(actor.createdAt)}</div>
+          <div>{t("adminActorPage_createdAt")}</div>
+          <div>{formatLocalDateTime(actor.createdAt)}</div>
 
-                <div>{t("adminActorPage_lastSeenAt")}</div>
-                <div>{formatLocalDateTime(actor.lastSeenAt)}</div>
-              </PropertiesForm>
-            </SectionPaper>
-            <SectionTitle
-              icon={undefined}
-              location={ActionUILocations.auth_actor_roles}
-              actionParams={createActionTemplateActorRoleList(actor.id)}
-              displayedSubject={createDisplayedSubjectActor(actor.id)}
-            >
-              {t("adminActorPage_rolesTitle")}
-            </SectionTitle>
-            <SectionTable>
-              <ActorRolesTable actor={actor} />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+          <div>{t("adminActorPage_lastSeenAt")}</div>
+          <div>{formatLocalDateTime(actor.lastSeenAt)}</div>
+        </PropertiesForm>
+      </SectionPaper>
+      <SectionTitle
+        icon={undefined}
+        location={ActionUILocations.auth_actor_roles}
+        actionParams={createActionTemplateActorRoleList(actor.id)}
+        displayedSubject={createDisplayedSubjectActor(actor.id)}
+      >
+        {t("adminActorPage_rolesTitle")}
+      </SectionTitle>
+      <SectionTable>
+        <ActorRolesTable actor={actor} />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }

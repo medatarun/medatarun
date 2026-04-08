@@ -7,12 +7,12 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { ActionsPage } from "@/views/actions/ActionsPage.tsx";
-import { ModelsPage } from "@/views/ModelsPage.tsx";
-import { ModelPage } from "@/views/ModelPage.tsx";
-import { EntityPage } from "@/views/entity/EntityPage.tsx";
+import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
+import { ModelListPage } from "@/views/model/ModelListPage.tsx";
+import { ModelEditPage } from "@/views/model/ModelEditPage.tsx";
+import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
-import { DashboardPage } from "@/views/DashboardPage.tsx";
+import { DashboardPage } from "@/views/dashboard/DashboardPage.tsx";
 import {
   type ConnectionConfig,
   defaultConnection,
@@ -32,14 +32,14 @@ import {
 import { getOrDefault } from "@/utils/getOrDefault.ts";
 import { DetailLevelProvider } from "@/components/business/DetailLevelContext.tsx";
 import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
-import { AttributePage } from "@/views/attribute/AttributePage.tsx";
-import { TypePage } from "@/views/type/TypePage.tsx";
-import { RelationshipPage } from "@/views/relationship/RelationshipPage.tsx";
+import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
+import { TypeEditPage } from "@/views/type/TypeEditPage.tsx";
+import { RelationshipEditPage } from "@/views/relationship/RelationshipEditPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
-import { TagGroupsPage } from "@/views/tags/TagGroupsPage.tsx";
-import { TagGroupEdit } from "@/views/tags/TagGroupEdit.tsx";
-import { TagEdit } from "@/views/tags/TagEdit.tsx";
-import { ModelComparePage } from "@/views/ModelComparePage.tsx";
+import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
+import { TagGroupEditPage } from "@/views/tags/TagGroupEditPage.tsx";
+import { TagEditPage } from "@/views/tags/TagEditPage.tsx";
+import { ModelComparePage } from "@/views/model-compare/ModelComparePage.tsx";
 import { ModelHistoryPage } from "@/views/model-history/ModelHistoryPage.tsx";
 import { AdminDbDriverListPage } from "@/views/admin-db/AdminDbDriverListPage.tsx";
 import { AdminDbDatasourceListPage } from "@/views/admin-db/AdminDbDatasourceListPage.tsx";
@@ -103,7 +103,7 @@ function AuthenticationLogoutComponent() {
 }
 
 function CommandsRouteComponent() {
-  return <ActionsPage />;
+  return <ActionRunnerPage />;
 }
 
 function DashboardRouteComponent() {
@@ -114,7 +114,7 @@ function EntityRouteComponent() {
   const { modelId, entityId } = useParams({
     from: "/model/$modelId/entity/$entityId",
   });
-  return <EntityPage modelId={modelId} entityId={entityId} />;
+  return <EntityEditPage modelId={modelId} entityId={entityId} />;
 }
 
 function EntityAttributeRouteComponent() {
@@ -122,7 +122,7 @@ function EntityAttributeRouteComponent() {
     from: "/model/$modelId/entity/$entityId/attribute/$attributeId",
   });
   return (
-    <AttributePage
+    <AttributeEditPage
       modelId={modelId}
       parentType={"entity"}
       parentId={entityId}
@@ -136,7 +136,7 @@ function ModelsRouteComponent() {
   const handleClickModel = (modelId: string) => {
     navigate({ to: "/model/$modelId", params: { modelId } });
   };
-  return <ModelsPage onClickModel={handleClickModel} />;
+  return <ModelListPage onClickModel={handleClickModel} />;
 }
 
 function ModelCompareRouteComponent() {
@@ -145,7 +145,7 @@ function ModelCompareRouteComponent() {
 
 function ModelRouteComponent() {
   const { modelId } = useParams({ from: "/model/$modelId" });
-  return <ModelPage modelId={modelId} />;
+  return <ModelEditPage modelId={modelId} />;
 }
 
 function ModelHistoryRouteComponent() {
@@ -162,7 +162,7 @@ function RelationshipAttributeRouteComponent() {
     from: "/model/$modelId/relationship/$relationshipId/attribute/$attributeId",
   });
   return (
-    <AttributePage
+    <AttributeEditPage
       modelId={modelId}
       parentType={"relationship"}
       parentId={relationshipId}
@@ -175,7 +175,9 @@ function RelationshipRouteComponent() {
   const { modelId, relationshipId } = useParams({
     from: "/model/$modelId/relationship/$relationshipId",
   });
-  return <RelationshipPage modelId={modelId} relationshipId={relationshipId} />;
+  return (
+    <RelationshipEditPage modelId={modelId} relationshipId={relationshipId} />
+  );
 }
 
 function ReportsRouteComponent() {
@@ -183,24 +185,24 @@ function ReportsRouteComponent() {
 }
 
 function TagGroupsRouteComponent() {
-  return <TagGroupsPage />;
+  return <TagGroupListPage />;
 }
 
 function TagGroupRouteComponent() {
   const { tagGroupId } = useParams({ from: "/tag-group/$tagGroupId" });
-  return <TagGroupEdit tagGroupId={tagGroupId} />;
+  return <TagGroupEditPage tagGroupId={tagGroupId} />;
 }
 
 function TagRouteComponent() {
   const { tagId } = useParams({ from: "/tags/$tagId" });
-  return <TagEdit tagId={tagId} />;
+  return <TagEditPage tagId={tagId} />;
 }
 
 function TypeRouteComponent() {
   const { modelId, typeId } = useParams({
     from: "/model/$modelId/type/$typeId",
   });
-  return <TypePage modelId={modelId} typeId={typeId} />;
+  return <TypeEditPage modelId={modelId} typeId={typeId} />;
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.
@@ -272,7 +274,8 @@ const authenticationCallbackRoute = createRoute({
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: DashboardRouteComponent,
+  // component: DashboardRouteComponent,
+  component: ModelsRouteComponent,
 });
 
 const modelsRoute = createRoute({

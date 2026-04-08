@@ -4,14 +4,7 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { AuthRole, useRoleList } from "@/business/actor";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
   Table,
@@ -21,7 +14,7 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ErrorBox, InfoBox } from "@seij/common-ui";
+import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import {
   createActionTemplateRole,
@@ -37,6 +30,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminRoleListPage() {
   const { t } = useAppI18n();
@@ -66,19 +60,15 @@ export function AdminRoleListPage() {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <ViewLayoutPageInfo>
-              {t("authRolesPage_description")}
-            </ViewLayoutPageInfo>
-            <SectionTable>
-              <AuthRolesTable roles={roleItems} onClickRole={handleClickRole} />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>{t("authRolesPage_description")}</ViewLayoutPageInfo>
+      <SectionTable>
+        <AuthRolesTable roles={roleItems} onClickRole={handleClickRole} />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }

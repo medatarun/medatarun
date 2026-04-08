@@ -4,9 +4,10 @@ import type {
   ActionPerformerRequestParams,
 } from "@/components/business/actions/ActionPerformer.tsx";
 
-export const createActionTemplateUserList = (): ActionPerformerRequestParams => {
-  return {};
-};
+export const createActionTemplateUserList =
+  (): ActionPerformerRequestParams => {
+    return {};
+  };
 
 export const createActionTemplateUser = (
   username: string,

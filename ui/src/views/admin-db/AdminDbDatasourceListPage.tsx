@@ -6,13 +6,7 @@ import {
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { sortBy } from "lodash-es";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import {
-  Caption2,
-  MessageBar,
-  MessageBarBody,
-  Text,
-  tokens,
-} from "@fluentui/react-components";
+import { Caption2, Text, tokens } from "@fluentui/react-components";
 import {
   DatabaseLinkRegular,
   DatabaseRegular,
@@ -20,7 +14,6 @@ import {
 } from "@fluentui/react-icons";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
-import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { CardGrid } from "@/components/layout/CardGrid.tsx";
 import {
   ViewLayoutHeader,
@@ -43,65 +36,52 @@ export function AdminDbDatasourceListPage() {
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: undefined,
     eyebrow: undefined,
-    title: "Databases & datasources",
+    title: t("adminDbDatasourceListPage_title"),
     titleIcon: <DatabaseRegular />,
     actions: {
-      label: "Actions",
+      label: t("adminDbDatasourceListPage_actions"),
       itemActions: actions,
       actionParams: createActionTemplateGeneral(),
       displayedSubject: displaySubjectNone,
     },
   };
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedHumanReadable>
-        <div
-          style={{
-            paddingLeft: tokens.spacingHorizontalM,
-            paddingRight: tokens.spacingHorizontalM,
-            paddingTop: tokens.spacingVerticalL,
-          }}
-        >
-          <ViewLayoutPageInfo>
-            <div>
-              Datasources are named connections to your running database (JDBC
-              URL and driver).
-            </div>
-            <div>
-              When importing or syncing models, you will select one of these
-              datasource.
-            </div>
-          </ViewLayoutPageInfo>
-          <CardGrid
-            data={datasources}
-            renderName={(item) => <Text weight="semibold">{item.id}</Text>}
-            renderDescription={(item) => null}
-            renderBody={(item) => (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "min-content 1fr",
-                  alignItems: "center",
-                  columnGap: tokens.spacingHorizontalS,
-                }}
-              >
-                <Text>
-                  <DatabaseLinkRegular />
-                </Text>{" "}
-                <Caption2>
-                  {drivers.find((d) => d.id === item.driver)?.name ??
-                    item.driver}
-                </Caption2>
-                <Text>
-                  <LinkRegular />
-                </Text>{" "}
-                <Caption2>{item.url}</Caption2>
-              </div>
-            )}
-            renderEmpty={() => "Datasources are yet to be created."}
-          />
-        </div>
-      </ContainedHumanReadable>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>
+        <div>{t("adminDbDatasourceListPage_descriptionLine1")}</div>
+        <div>{t("adminDbDatasourceListPage_descriptionLine2")}</div>
+      </ViewLayoutPageInfo>
+      <CardGrid
+        data={datasources}
+        renderName={(item) => <Text weight="semibold">{item.id}</Text>}
+        renderDescription={(item) => null}
+        renderBody={(item) => (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "min-content 1fr",
+              alignItems: "center",
+              columnGap: tokens.spacingHorizontalS,
+            }}
+          >
+            <Text>
+              <DatabaseLinkRegular />
+            </Text>{" "}
+            <Caption2>
+              {drivers.find((d) => d.id === item.driver)?.name ?? item.driver}
+            </Caption2>
+            <Text>
+              <LinkRegular />
+            </Text>{" "}
+            <Caption2>{item.url}</Caption2>
+          </div>
+        )}
+        renderEmpty={() => t("adminDbDatasourceListPage_empty")}
+      />
     </ViewLayoutContained>
   );
 }

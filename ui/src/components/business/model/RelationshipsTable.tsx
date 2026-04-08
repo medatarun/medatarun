@@ -1,4 +1,5 @@
 import {
+  Caption1,
   makeStyles,
   Table,
   TableBody,
@@ -14,25 +15,18 @@ import {
 } from "@/business/action_registry";
 import type { RelationshipDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
-import { ActionMenuButton } from "./TypesTable.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 import { createActionTemplateRelationship } from "./model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import type { ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import { Key } from "@/components/core/Key.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
-    paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
-    width: "20rem",
     verticalAlign: "baseline",
     wordBreak: "break-all",
-  },
-  flags: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    width: "1em",
-    verticalAlign: "baseline",
   },
   descriptionCell: {
     paddingTop: tokens.spacingVerticalM,
@@ -83,26 +77,17 @@ export function RelationshipsTable({
                   className={styles.titleCell}
                   onClick={() => onClick(r.id)}
                 >
-                  {r.name ?? r.key ?? r.id}
-                </TableCell>
-                <TableCell
-                  className={styles.flags}
-                  onClick={() => onClick(r.id)}
-                >
-                  {" "}
-                </TableCell>
-                <TableCell
-                  className={styles.descriptionCell}
-                  onClick={() => onClick(r.id)}
-                >
-                  <div>
-                    <RelationshipDescription rel={r} />
-                  </div>
-                  {isDetailLevelTech && (
+                  <div>{r.name ?? r.key ?? r.id}</div>
+                  {r.name && isDetailLevelTech && (
                     <div>
-                      <code>{r.key}</code>
+                      <Key value={r.key} />
                     </div>
                   )}
+                  {
+                    <Caption1>
+                      <RelationshipDescription rel={r} />
+                    </Caption1>
+                  }
                 </TableCell>
                 <TableCell className={styles.actionCell}>
                   <ActionMenuButton

@@ -1,7 +1,7 @@
 package io.medatarun.tags.core
 
-import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.lang.uuid.UuidUtils
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.platform.kernel.EventObserver
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.*
@@ -358,6 +358,18 @@ class TagTest {
     }
 
     @Test
+    fun `tag group update description to null`() {
+        // Test that we can update group description to null
+        val env = createEnvironment()
+        val groupKey = TagGroupKey("mykey1")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        env.dispatch(TagAction.TagGroupUpdateDescription(TagGroupRef.ByKey(groupKey), null))
+        val found = env.tagQueries.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(found)
+        assertNull(found.description)
+    }
+
+    @Test
     fun `tag group  update key`() {
         // given 2 groups with names set to null
         val env = createEnvironment()
@@ -693,6 +705,23 @@ class TagTest {
         )
         assertTagGlobalDescription("new-description-1", globalKey1)
         assertTagGlobalDescription("new-description-2", globalKey2)
+    }
+
+    @Test
+    fun `tag global update description to null`() {
+        val env = createEnvironment()
+
+        val groupKey = TagGroupKey("group-key")
+        env.dispatch(TagAction.TagGroupCreate(groupKey, null, null))
+        val group = env.tagQueries.findTagGroupByKeyOptional(groupKey)
+        assertNotNull(group)
+
+        val globalKey1 = TagKey("global-key1")
+        env.dispatch(TagAction.TagGlobalCreate(TagGroupRef.ById(group.id), globalKey1, null, "description-1"))
+        env.dispatch(TagAction.TagGlobalUpdateDescription(tagRef(groupKey, globalKey1), null))
+
+        val found = env.tagQueries.findTagByKeyOptional(group.id, globalKey1)
+        assertNotNull(found)
     }
 
     @Test

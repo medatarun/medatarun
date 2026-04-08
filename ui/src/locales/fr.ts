@@ -2,14 +2,16 @@ import { type Messages } from "./Messages";
 import { actionPerformerViewMessages } from "./fr/ActionPerformerViewMessages";
 import { adminActorPageMessages } from "./fr/AdminActorPageMessages";
 import { adminActorsPageMessages } from "./fr/AdminActorsPageMessages";
+import { adminDbDatasourceListPageMessages } from "./fr/AdminDbDatasourceListPageMessages";
+import { adminDbDriverListPageMessages } from "./fr/AdminDbDriverListPageMessages";
 import { adminUserPageMessages } from "./fr/AdminUserPageMessages";
 import { adminUsersPageMessages } from "./fr/AdminUsersPageMessages";
 import { authRolePageMessages } from "./fr/AuthRolePageMessages";
 import { authRolesPageMessages } from "./fr/AuthRolesPageMessages";
-import { attributePageMessages } from "./fr/AttributePageMessages";
-import { commandsPageMessages } from "./fr/CommandsPageMessages";
+import { attributeEditPageMessages } from "./fr/AttributeEditPageMessages";
+import { actionPageMessage } from "./fr/ActionPageMessage";
 import { dashboardPageMessages } from "./fr/DashboardPageMessages";
-import { entityPageMessages } from "./fr/EntityPageMessages";
+import { entityEditPageMessages } from "./fr/EntityEditPageMessages.ts";
 import { errorBoundaryMessages } from "./fr/ErrorBoundaryMessages";
 import { formValidationMessages } from "./fr/FormValidationMessages";
 import { inlineEditRichTextLayoutMessages } from "./fr/InlineEditRichTextLayoutMessages";
@@ -17,35 +19,37 @@ import { inlineEditSingleLineLayoutMessages } from "./fr/InlineEditSingleLineLay
 import { inlineEditTagsMessages } from "./fr/InlineEditTagsMessages";
 import { layoutMessages } from "./fr/LayoutMessages";
 import { loginPageMessages } from "./fr/LoginPageMessages";
-import { modelPageMessages } from "./fr/ModelPageMessages";
+import { modelEditPageMessages } from "./fr/ModelEditPageMessages.ts";
 import { modelComparePageMessages } from "./fr/ModelComparePageMessages";
 import { modelHistoryPageMessages } from "./fr/ModelHistoryPageMessages";
 import { modelReportsPageMessages } from "./fr/ModelReportsPageMessages";
-import { modelsPageMessages } from "./fr/ModelsPageMessages";
+import { modelListPageMessages } from "./fr/ModelListPageMessages.ts";
 import { preferencesPageMessages } from "./fr/PreferencesPageMessages";
 import { relationshipDescriptionMessages } from "./fr/RelationshipDescriptionMessages";
-import { relationshipPageMessages } from "./fr/RelationshipPageMessages";
+import { relationshipEditPageMessages } from "./fr/RelationshipEditPageMessages.ts";
 import { relationshipsTableMessages } from "./fr/RelationshipsTableMessages";
 import { sessionMessages } from "./fr/SessionMessages";
 import { tagEditMessages } from "./fr/TagEditMessages";
 import { tagGroupEditMessages } from "./fr/TagGroupEditMessages";
 import { tagGroupsPageMessages } from "./fr/TagGroupsPageMessages";
 import { tagsTableMessages } from "./fr/TagsTableMessages";
-import { typePageMessages } from "./fr/TypePageMessages";
+import { typeEditPageMessages } from "./fr/TypeEditPageMessages.ts";
 import { typesTableMessages } from "./fr/TypesTableMessages";
 import { menuMessages } from "./fr/MenuMessages.ts";
 
 export const messages = {
   ...sessionMessages,
-  ...attributePageMessages,
+  ...attributeEditPageMessages,
   ...actionPerformerViewMessages,
   ...adminActorPageMessages,
   ...adminActorsPageMessages,
+  ...adminDbDatasourceListPageMessages,
+  ...adminDbDriverListPageMessages,
   ...adminUserPageMessages,
   ...adminUsersPageMessages,
   ...authRolePageMessages,
   ...authRolesPageMessages,
-  ...commandsPageMessages,
+  ...actionPageMessage,
   ...dashboardPageMessages,
   ...preferencesPageMessages,
   ...relationshipDescriptionMessages,
@@ -57,18 +61,18 @@ export const messages = {
   ...inlineEditTagsMessages,
   ...layoutMessages,
   ...menuMessages,
-  ...modelsPageMessages,
+  ...modelListPageMessages,
   ...modelComparePageMessages,
   ...modelHistoryPageMessages,
-  ...modelPageMessages,
+  ...modelEditPageMessages,
   ...modelReportsPageMessages,
-  ...entityPageMessages,
+  ...entityEditPageMessages,
   ...loginPageMessages,
-  ...relationshipPageMessages,
+  ...relationshipEditPageMessages,
   ...tagGroupsPageMessages,
   ...tagGroupEditMessages,
   ...tagEditMessages,
   ...tagsTableMessages,
-  ...typePageMessages,
+  ...typeEditPageMessages,
   ...typesTableMessages,
 } satisfies Messages;

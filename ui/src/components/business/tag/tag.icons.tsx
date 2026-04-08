@@ -1,7 +1,4 @@
-import {
-  ClipboardBulletListRegular,
-  TextBulletListSquareRegular,
-} from "@fluentui/react-icons";
+import { TagMultipleRegular, TagRegular } from "@fluentui/react-icons";
 
-export const TagGroupIcon = ClipboardBulletListRegular;
-export const TagIcon = TextBulletListSquareRegular;
+export const TagGroupIcon = TagMultipleRegular;
+export const TagIcon = TagRegular;

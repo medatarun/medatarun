@@ -5,12 +5,6 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { useActorList } from "@/business/actor";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -22,7 +16,7 @@ import {
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ErrorBox, InfoBox } from "@seij/common-ui";
+import { ErrorBox } from "@seij/common-ui";
 import { formatLocalDateTime, toProblem } from "@seij/common-types";
 import {
   createActionTemplateActor,
@@ -38,6 +32,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminActorListPage() {
   const { t } = useAppI18n();
@@ -70,23 +65,21 @@ export function AdminActorListPage() {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <ViewLayoutPageInfo>
-              {t("adminActorsPage_description")}
-            </ViewLayoutPageInfo>
-            <SectionTable>
-              <AdminActorsTable
-                actors={actorItems}
-                itemActions={itemActions}
-                onClickActor={handleClickActor}
-              />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>
+        {t("adminActorsPage_description")}
+      </ViewLayoutPageInfo>
+      <SectionTable>
+        <AdminActorsTable
+          actors={actorItems}
+          itemActions={itemActions}
+          onClickActor={handleClickActor}
+        />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }

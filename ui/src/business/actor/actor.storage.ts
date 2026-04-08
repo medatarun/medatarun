@@ -47,9 +47,9 @@ export const useWhoami = (issuer: string | null, subject: string | null) => {
   return useQuery({
     queryKey: ["whoami", issuer, subject],
     queryFn: async () => {
-      if(!issuer || !subject) return null
+      if (!issuer || !subject) return null;
       return whoami();
-    }
+    },
   });
 };
 

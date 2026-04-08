@@ -4,13 +4,7 @@ import {
   ActionUILocations,
   useActionRegistry,
 } from "@/business/action_registry";
-import { useUserList, type UserInfoDto } from "@/business/auth_user";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
+import { type UserInfoDto, useUserList } from "@/business/auth_user";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -38,6 +32,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminUserListPage() {
   const { t } = useAppI18n();
@@ -47,7 +42,8 @@ export function AdminUserListPage() {
   const itemActions = actionRegistry.findActions(ActionUILocations.user);
 
   if (usersResult.isPending) return null;
-  if (usersResult.error) return <ErrorBox error={toProblem(usersResult.error)} />;
+  if (usersResult.error)
+    return <ErrorBox error={toProblem(usersResult.error)} />;
 
   const userItems = sortBy(usersResult.data.items, (it) =>
     it.fullname.toLowerCase(),
@@ -69,26 +65,24 @@ export function AdminUserListPage() {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <ViewLayoutPageInfo>
-              <div>{t("adminUsersPage_description")}</div>
-              <div style={{ marginTop: tokens.spacingVerticalS }}>
-                {t("adminUsersPage_roleReminder")}
-              </div>
-            </ViewLayoutPageInfo>
-            <SectionTable>
-              <AdminUsersTable
-                users={userItems}
-                itemActions={itemActions}
-                onClickUser={handleClickUser}
-              />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>
+        <div>{t("adminUsersPage_description")}</div>
+        <div style={{ marginTop: tokens.spacingVerticalS }}>
+          {t("adminUsersPage_roleReminder")}
+        </div>
+      </ViewLayoutPageInfo>
+      <SectionTable>
+        <AdminUsersTable
+          users={userItems}
+          itemActions={itemActions}
+          onClickUser={handleClickUser}
+        />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }

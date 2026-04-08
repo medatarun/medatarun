@@ -12,37 +12,21 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
 import { type TagScopeRef, useTags } from "@/business/tag";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
 import {
   createActionTemplateTag,
   detailActionLocation,
 } from "./tag.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
+import { Key } from "@/components/core/Key.tsx";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
-  titleCell: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    width: "20rem",
-    verticalAlign: "baseline",
-    wordBreak: "break-all",
-  },
-  descriptionCell: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    verticalAlign: "baseline",
-    "& p": {
-      marginTop: 0,
-    },
-    "& p:last-child": {
-      marginBottom: 0,
-    },
-  },
+  titleCell: {},
+  descriptionCell: {},
   actionCell: {
     paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
     width: "3em",
     verticalAlign: "baseline",
     textAlign: "right",
@@ -63,6 +47,7 @@ export function TagsTable({
   const actionRegistry = useActionRegistry();
   const tagsResult = useTags(scope);
   const styles = useStyles();
+  const detailLevelContext = useDetailLevelContext();
 
   if (tagsResult.isPending) return null;
   if (tagsResult.error) return <ErrorBox error={toProblem(tagsResult.error)} />;
@@ -95,18 +80,16 @@ export function TagsTable({
                 className={styles.titleCell}
                 onClick={() => handleClickTag(tag.id)}
               >
-                {tag.name ?? tag.key}
-              </TableCell>
-              <TableCell
-                className={styles.descriptionCell}
-                onClick={() => handleClickTag(tag.id)}
-              >
-                <div>
-                  <Markdown value={tag.description} />
-                </div>
-                <div>
-                  <code>{tag.key}</code>
-                </div>
+                {tag.name ?? (
+                  <div>
+                    <Key value={tag.key} />
+                  </div>
+                )}
+                {tag.name && detailLevelContext.isDetailLevelTech ? (
+                  <div>
+                    <Key value={tag.key} />
+                  </div>
+                ) : null}
               </TableCell>
               <TableCell className={styles.actionCell}>
                 <ActionMenuButton

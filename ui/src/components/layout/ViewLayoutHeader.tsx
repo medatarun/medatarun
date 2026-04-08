@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { tokens } from "@fluentui/react-components";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { ActionDescriptor } from "@/business/action_registry";
 import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
 } from "@/components/business/actions/ActionPerformer.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export interface ViewLayoutHeaderProps {
   breadcrumb?: ReactNode;

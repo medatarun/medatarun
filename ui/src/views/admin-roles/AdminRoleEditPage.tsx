@@ -11,7 +11,6 @@ import {
 } from "@/business/actor";
 import { usePermissionRegistry } from "@/business/config";
 import { refid } from "@/business/action_runner";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {
@@ -26,11 +25,6 @@ import {
   TableRow,
   Text,
 } from "@fluentui/react-components";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -51,6 +45,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();
@@ -115,41 +110,36 @@ export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={role.description}
-                placeholder={t("authRolePage_descriptionPlaceholder")}
-                onChange={handleChangeDescription}
-              />
-            </SectionPaper>
-            <SectionTitle
-              icon={undefined}
-              location={ActionUILocations.auth_role_permissions}
-              actionParams={createActionTemplateRole(role.id)}
-              displayedSubject={displayedSubject}
-            >
-              {t("authRolePage_permissionsLabel")}
-            </SectionTitle>
-            <SectionTable>
-              <PermissionTable
-                roleId={role.id}
-                permissions={details.permissions}
-              />
-            </SectionTable>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={role.description}
+          placeholder={t("authRolePage_descriptionPlaceholder")}
+          onChange={handleChangeDescription}
+        />
+      </SectionPaper>
+      <SectionTitle
+        icon={undefined}
+        location={ActionUILocations.auth_role_permissions}
+        actionParams={createActionTemplateRole(role.id)}
+        displayedSubject={displayedSubject}
+      >
+        {t("authRolePage_permissionsLabel")}
+      </SectionTitle>
+      <SectionTable>
+        <PermissionTable roleId={role.id} permissions={details.permissions} />
+      </SectionTable>
 
-            <ViewLayoutTechnicalInfos
-              technicalKey={role.key}
-              id={role.id}
-              keyLabel={t("authRolePage_keyLabel")}
-              idLabel={t("authRolePage_identifierLabel")}
-            />
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <ViewLayoutTechnicalInfos
+        technicalKey={role.key}
+        id={role.id}
+        keyLabel={t("authRolePage_keyLabel")}
+        idLabel={t("authRolePage_identifierLabel")}
+      />
     </ViewLayoutContained>
   );
 }

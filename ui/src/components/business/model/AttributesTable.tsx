@@ -1,59 +1,48 @@
 import {
+  Caption1,
   makeStyles,
   Table,
   TableBody,
   TableCell,
   TableRow,
   tokens,
+  Tooltip,
 } from "@fluentui/react-components";
 import {
   type ActionUILocation,
   useActionRegistry,
 } from "@/business/action_registry";
 import type { AttributeDto } from "@/business/model";
-import { ActionMenuButton } from "./TypesTable.tsx";
 import { useModelContext } from "./ModelContext.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
+import { modelTagScope, TagsCondensed } from "@/components/core/Tag.tsx";
 import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
 } from "@/components/business/actions/ActionPerformer.tsx";
+import { Key } from "@/components/core/Key.tsx";
+import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
+import {
+  KeyRegular,
+  SquareFilled,
+  SquareHintRegular,
+} from "@fluentui/react-icons";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
   titleCell: {
-    paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
-    width: "20rem",
-    verticalAlign: "baseline",
-    wordBreak: "break-all",
-  },
-  flags: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    width: "1em",
     verticalAlign: "baseline",
   },
   typeCell: {
-    width: "10em",
+    width: "20em",
     verticalAlign: "baseline",
-  },
-  descriptionCell: {
-    paddingTop: tokens.spacingVerticalM,
-    paddingBottom: tokens.spacingVerticalM,
-    verticalAlign: "baseline",
-    "& p": {
-      marginTop: 0,
-    },
-    "& p:last-child": {
-      marginBottom: 0,
-    },
+    textAlign: "right",
   },
   actionCell: {
     paddingTop: tokens.spacingVerticalM,
     paddingBottom: tokens.spacingVerticalM,
-    width: "3em",
+    width: "2em",
     verticalAlign: "baseline",
     textAlign: "right",
   },
@@ -90,46 +79,65 @@ export function AttributesTable({
                 className={styles.titleCell}
                 onClick={() => handleClickAttribute(attribute.id)}
               >
-                {attribute.optional ? "○" : "●"}{" "}
-                {attribute.name ?? attribute.key ?? attribute.id}{" "}
-                {isDetailLevelTech && (
-                  <span>
-                    {" "}
-                    (<code>{attribute.key}</code>)
-                  </span>
+                <div>
+                  {attribute.name ?? (
+                    <Key value={attribute.key ?? attribute.id} />
+                  )}
+                </div>
+                <div>
+                  {attribute.name && isDetailLevelTech && (
+                    <Key value={attribute.key} />
+                  )}
+                </div>
+                <div>
+                  <Caption1>
+                    <MarkdownSummary
+                      value={attribute.description}
+                      maxChars={200}
+                    />
+                  </Caption1>
+                </div>
+                {attribute.tags.length > 0 && (
+                  <div style={{ marginTop: tokens.spacingVerticalM }}>
+                    <TagsCondensed
+                      tags={attribute.tags}
+                      scope={modelTagScope(model.id)}
+                    />
+                  </div>
                 )}
-              </TableCell>
-
-              <TableCell
-                className={styles.flags}
-                onClick={() => handleClickAttribute(attribute.id)}
-              >
-                {" "}
-                {attribute.identifierAttribute ? "🔑" : ""}
               </TableCell>
 
               <TableCell
                 className={styles.typeCell}
                 onClick={() => handleClickAttribute(attribute.id)}
               >
-                {model.findTypeNameOrKey(attribute.type)}
-                {isDetailLevelTech && (
-                  <span>
-                    {" "}
-                    (<code>{model.findTypeKey(attribute.type)}</code>)
-                  </span>
-                )}
-              </TableCell>
-
-              <TableCell
-                className={styles.descriptionCell}
-                onClick={() => handleClickAttribute(attribute.id)}
-              >
-                <div>
-                  <Markdown value={attribute.description} />
+                <div
+                  style={{
+                    display: "inline-flex",
+                    columnGap: tokens.spacingVerticalS,
+                    alignContent: "baseline",
+                  }}
+                >
+                  <div>
+                    {attribute.identifierAttribute ? <KeyRegular /> : ""}{" "}
+                  </div>
+                  <div>{model.findTypeNameOrKey(attribute.type)}</div>
+                  <div style={{ width: "1em", verticalAlign: "middle" }}>
+                    {attribute.optional ? (
+                      <Tooltip content={"Obligatoire"} relationship={"label"}>
+                        <SquareHintRegular />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip content={"Optionel"} relationship={"label"}>
+                        <SquareFilled />
+                      </Tooltip>
+                    )}
+                  </div>
                 </div>
-                {attribute.tags.length > 0 && (
-                  <Tags tags={attribute.tags} scope={modelTagScope(model.id)} />
+                {isDetailLevelTech && (
+                  <div>
+                    <Key value={model.findTypeKey(attribute.type) ?? ""} />
+                  </div>
                 )}
               </TableCell>
 

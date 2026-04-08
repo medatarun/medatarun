@@ -1,6 +1,11 @@
 import type { PropsWithChildren } from "react";
 import { type ReactNode } from "react";
 import { makeStyles, tokens } from "@fluentui/react-components";
+import {
+  ContainedHumanReadable,
+  ContainedMixedScrolling,
+  ContainedScrollable,
+} from "@/components/layout/Contained.tsx";
 
 const useStyles = makeStyles({
   root: {
@@ -36,9 +41,27 @@ const useStyles = makeStyles({
 
 export function ViewLayoutContained({
   title,
+  contained = false,
+  scrollable = false,
   children,
-}: { title?: ReactNode } & PropsWithChildren) {
+}: {
+  title?: ReactNode;
+  contained?: boolean;
+  scrollable?: boolean;
+} & PropsWithChildren) {
   const styles = useStyles();
+  const containedComponent = contained ? (
+    <ContainedHumanReadable>{children}</ContainedHumanReadable>
+  ) : (
+    children
+  );
+  const scollableComponent = scrollable ? (
+    <ContainedMixedScrolling>
+      <ContainedScrollable>{containedComponent}</ContainedScrollable>
+    </ContainedMixedScrolling>
+  ) : (
+    containedComponent
+  );
   return (
     <div className={styles.root}>
       {title && (
@@ -46,7 +69,7 @@ export function ViewLayoutContained({
           <div className={styles.title}>{title}</div>
         </div>
       )}
-      <div className={styles.main}>{children}</div>
+      <div className={styles.main}>{scollableComponent}</div>
     </div>
   );
 }

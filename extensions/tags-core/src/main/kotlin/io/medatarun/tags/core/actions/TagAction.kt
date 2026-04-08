@@ -224,7 +224,7 @@ sealed interface TagAction {
             description = "Explain what this group is for and which tags belong in it.",
             order = 20,
         )
-        val value: String
+        val value: String?
     ) : TagAction
 
     @ActionDoc(
@@ -352,7 +352,7 @@ sealed interface TagAction {
             description = "Explain what this tag means and when it should be used.",
             order = 20,
         )
-        val value: String
+        val value: String?
     ) : TagAction
 
     @ActionDoc(

@@ -3,6 +3,7 @@ import { Key } from "@/components/core/Key.tsx";
 import { Caption1, tokens } from "@fluentui/react-components";
 import { Fragment } from "react";
 import type { ReactNode } from "react";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
 
 type ViewLayoutTechnicalInfosProps = {
   technicalKey?: string;
@@ -17,6 +18,13 @@ export function ViewLayoutTechnicalInfos({
   keyLabel,
   idLabel,
 }: ViewLayoutTechnicalInfosProps) {
+  // Hooks
+  const detailLevelContext = useDetailLevelContext();
+
+  // Don't display that to business users
+  if (!detailLevelContext.isDetailLevelTech) return null;
+
+  // Derived - compose depending on if key or id have been provided
   const keyLabelValue = keyLabel ?? "key";
   const idLabelValue = idLabel ?? "id";
   const items: Array<{ label: string; content: ReactNode }> = [];
@@ -27,6 +35,7 @@ export function ViewLayoutTechnicalInfos({
     items.push({ label: idLabelValue, content: <Identifier value={id} /> });
   }
 
+  // Dont display if nothing to display
   if (items.length === 0) {
     return null;
   }
@@ -43,8 +52,7 @@ export function ViewLayoutTechnicalInfos({
         {items.map((item, index) => (
           <Fragment key={String(index)}>
             {index > 0 ? " - " : null}
-            {item.label}:{" "}
-            {item.content}
+            {item.label}: {item.content}
           </Fragment>
         ))}
       </Caption1>

@@ -283,8 +283,7 @@ function FormFieldInput({
       return ActionPerformerInputModelAuthority;
     if (fieldType === "PermissionKey")
       return ActionPerformerInputSecurityPermission;
-    if (fieldType === "PasswordClear")
-      return ActionPerformerInputPasswordClear;
+    if (fieldType === "PasswordClear") return ActionPerformerInputPasswordClear;
     if (fieldType === "RoleRef") return ActionPerformerInputRoleRef;
     if (fieldType === "RelationshipCardinality")
       return ActionPerformerInputRelationshipCardinality;

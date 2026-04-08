@@ -1,5 +1,5 @@
 import { Text } from "@fluentui/react-components";
-import { ExternalUrl, Origin } from "../ModelPage.tsx";
+import { ExternalUrl, Origin } from "../model/ModelEditPage.tsx";
 import { Link } from "@tanstack/react-router";
 import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
 import {
@@ -63,7 +63,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>{t("entityPage_keyLabel")}</Text>
+          <Text>{t("entityEditPage_keyLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -76,7 +76,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
         </div>
       )}
       <div>
-        <Text>{t("entityPage_fromModelLabel")}</Text>
+        <Text>{t("entityEditPage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -85,7 +85,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>{t("entityPage_externalLinkLabel")}</Text>
+        <Text>{t("entityEditPage_externalLinkLabel")}</Text>
       </div>
       <div>
         <InlineEditSingleLine
@@ -94,7 +94,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
         >
           {!entity.documentationHome ? (
             <MissingInformation>
-              {t("entityPage_externalLinkEmpty")}
+              {t("entityEditPage_externalLinkEmpty")}
             </MissingInformation>
           ) : (
             <ExternalUrl url={entity.documentationHome} />
@@ -103,7 +103,7 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>{t("entityPage_tagsLabel")}</Text>
+        <Text>{t("entityEditPage_tagsLabel")}</Text>
       </div>
       <div>
         <InlineEditTags
@@ -113,7 +113,9 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
           displayedSubject={createDisplayedSubjectEntity(model.id, entity.id)}
         >
           {entity.tags.length === 0 ? (
-            <MissingInformation>{t("entityPage_tagsEmpty")}</MissingInformation>
+            <MissingInformation>
+              {t("entityEditPage_tagsEmpty")}
+            </MissingInformation>
           ) : (
             <Tags tags={entity.tags} scope={modelTagScope(model.id)} />
           )}
@@ -121,14 +123,14 @@ export function EntityOverview({ entity }: { entity: EntityDto }) {
       </div>
 
       <div>
-        <Text>{t("entityPage_originLabel")}</Text>
+        <Text>{t("entityEditPage_originLabel")}</Text>
       </div>
       <div>
         <Origin value={entity.origin} />
       </div>
       {isDetailLevelTech && (
         <div>
-          <Text>{t("entityPage_identifierLabel")}</Text>
+          <Text>{t("entityEditPage_identifierLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
