@@ -3,6 +3,12 @@ import pathlib
 import sqlite3
 from dataclasses import dataclass
 
+from database_baseline.utils.strip_simple_identifier_quotes import strip_simple_identifier_quotes
+
+TableName = str
+IndexName = str
+CreateSql = str
+
 
 @dataclass(frozen=True)
 class ModuleSpec:
@@ -11,10 +17,29 @@ class ModuleSpec:
     output_path: pathlib.Path
 
 
+@dataclass(frozen=True)
+class DbInspectionResult:
+    """
+    Snapshot of DDL objects read from sqlite_master.
+
+    tables:
+      key = table name from sqlite_master.name
+      value = normalized CREATE TABLE statement
+
+    indexes:
+      key = index name from sqlite_master.name
+      value = normalized CREATE INDEX statement
+    """
+
+    tables: dict[TableName, CreateSql]
+    indexes: dict[IndexName, CreateSql]
+
+
 MODULE_SPECS: tuple[ModuleSpec, ...] = (
     ModuleSpec(
         name="auth",
-        table_names=("actors", "auth_client", "auth_code", "auth_ctx", "users"),
+        table_names=("auth_actor", "auth_actor_role", "auth_role", "auth_role_permission", "auth_client", "auth_code",
+                     "auth_ctx", "users"),
         output_path=pathlib.Path(
             "libs/platform-auth/src/main/resources/io/medatarun/auth/infra/db/init__auth_sqlite.sql"
         ),
@@ -97,10 +122,10 @@ def main() -> None:
 def generate_for_sqlite(repo_root: pathlib.Path, db_path: pathlib.Path) -> None:
     with sqlite3.connect(str(db_path)) as connection:
         connection.row_factory = sqlite3.Row
-        sql_objects = read_sql_objects(connection)
-        ensure_all_tables_mapped(sql_objects)
+        db_inspection_result: DbInspectionResult = inspect_database(connection)
+        ensure_all_tables_mapped(db_inspection_result)
         for module_spec in MODULE_SPECS:
-            script = build_module_script(connection, sql_objects, module_spec)
+            script = build_module_script(connection, db_inspection_result, module_spec)
             output_path = repo_root / module_spec.output_path
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(script, encoding="utf-8")
@@ -111,36 +136,45 @@ def generate_for_postgresql(repo_root: pathlib.Path, db_path: pathlib.Path) -> N
     raise NotImplementedError("not implemented")
 
 
-def read_sql_objects(connection: sqlite3.Connection) -> dict[str, dict[str, str]]:
+def inspect_database(connection: sqlite3.Connection) -> DbInspectionResult:
     rows = connection.execute(
         """
         SELECT type, name, tbl_name, sql
         FROM sqlite_master
-        WHERE type IN ('table', 'index')
+        WHERE type IN ('table'
+            , 'index')
           AND name NOT LIKE 'sqlite_%'
           AND name != 'schema_version_history'
         ORDER BY type, name
         """
     ).fetchall()
 
-    objects = {"table": {}, "index": {}}
+    table_ddls: dict[TableName, CreateSql] = {}
+    index_ddls: dict[IndexName, CreateSql] = {}
     for row in rows:
         object_type = str(row["type"])
         name = str(row["name"])
         ddl = row["sql"]
         if ddl is None:
             continue
-        objects[object_type][name] = normalize_sql(str(ddl))
-    return objects
+        normalized_ddl = normalize_sql(str(ddl))
+        if object_type == "table":
+            table_ddls[name] = normalized_ddl
+            continue
+        if object_type == "index":
+            index_ddls[name] = normalized_ddl
+            continue
+        raise RuntimeError(f"Unsupported sqlite object type: {object_type}")
+    return DbInspectionResult(tables=table_ddls, indexes=index_ddls)
 
 
-def ensure_all_tables_mapped(sql_objects: dict[str, dict[str, str]]) -> None:
+def ensure_all_tables_mapped(db_inspection_result: DbInspectionResult) -> None:
     all_declared_tables = set()
     for module_spec in MODULE_SPECS:
         for table_name in module_spec.table_names:
             all_declared_tables.add(table_name)
 
-    source_tables = set(sql_objects["table"].keys())
+    source_tables = set(db_inspection_result.tables.keys())
     unknown_tables = sorted(source_tables - all_declared_tables)
     if unknown_tables:
         raise RuntimeError(f"Source database contains unmapped tables: {', '.join(unknown_tables)}")
@@ -151,23 +185,25 @@ def ensure_all_tables_mapped(sql_objects: dict[str, dict[str, str]]) -> None:
 
 
 def build_module_script(
-    connection: sqlite3.Connection, sql_objects: dict[str, dict[str, str]], module_spec: ModuleSpec
+        connection: sqlite3.Connection,
+        db_inspection_result: DbInspectionResult,
+        module_spec: ModuleSpec
 ) -> str:
     table_ddls: list[str] = []
     index_ddls: list[str] = []
 
     for table_name in sorted(module_spec.table_names):
-        table_sql = sql_objects["table"].get(table_name)
+        table_sql = db_inspection_result.tables.get(table_name)
         if table_sql is None:
             raise RuntimeError(f"Missing table SQL for [{table_name}] in module [{module_spec.name}]")
-        table_ddls.append(table_sql)
+        table_ddls.append(strip_simple_identifier_quotes(table_sql))
 
     module_table_set = set(module_spec.table_names)
-    for index_name in sorted(sql_objects["index"].keys()):
-        index_sql = sql_objects["index"][index_name]
+    for index_name in sorted(db_inspection_result.indexes.keys()):
+        index_sql = db_inspection_result.indexes[index_name]
         table_name = find_index_table_name(index_sql)
         if table_name in module_table_set:
-            index_ddls.append(index_sql)
+            index_ddls.append(strip_simple_identifier_quotes(index_sql))
 
     parts: list[str] = []
     parts.extend(table_ddls)
@@ -183,7 +219,7 @@ def find_index_table_name(index_sql: str) -> str:
     index_position = index_sql.upper().find(create_index_prefix)
     if index_position < 0:
         raise RuntimeError(f"Unable to parse index SQL: {index_sql}")
-    table_segment = index_sql[index_position + len(create_index_prefix) :]
+    table_segment = index_sql[index_position + len(create_index_prefix):]
     paren_position = table_segment.find("(")
     if paren_position < 0:
         raise RuntimeError(f"Unable to parse index SQL: {index_sql}")
@@ -193,8 +229,15 @@ def find_index_table_name(index_sql: str) -> str:
 def build_auth_system_maintenance_insert_sql(connection: sqlite3.Connection) -> str:
     row = connection.execute(
         """
-        SELECT id, issuer, subject, full_name, email, roles_json, disabled_date, created_at, last_seen_at
-        FROM actors
+        SELECT id,
+               issuer,
+               subject,
+               full_name,
+               email,
+               disabled_date,
+               created_at,
+               last_seen_at
+        FROM auth_actor
         WHERE issuer = ?
           AND subject = ?
         """,
@@ -214,14 +257,13 @@ def build_auth_system_maintenance_insert_sql(connection: sqlite3.Connection) -> 
         quote_sql_string(row["subject"]),
         quote_sql_string(row["full_name"]),
         quote_nullable_sql_string(row["email"]),
-        quote_sql_string(row["roles_json"]),
         quote_nullable_sql_string(row["disabled_date"]),
         quote_sql_string(row["created_at"]),
         quote_sql_string(row["last_seen_at"]),
     ]
 
     return (
-        "INSERT INTO actors (id, issuer, subject, full_name, email, roles_json, disabled_date, created_at, last_seen_at)\n"
+        "INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)\n"
         f"VALUES ({', '.join(values)});"
     )
 
