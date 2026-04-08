@@ -19,12 +19,6 @@ import {
   BreadcrumbItem,
   Text,
 } from "@fluentui/react-components";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ErrorBox } from "@seij/common-ui";
@@ -109,26 +103,24 @@ export function TagEditPage({ tagId }: { tagId: string }) {
   };
 
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={tag.description}
-                placeholder={t("tagEdit_descriptionPlaceholder")}
-                onChange={handleChangeDescription}
-              />
-            </SectionPaper>
-            <ViewLayoutTechnicalInfos
-              technicalKey={tag.key}
-              keyLabel={t("tagEdit_keyLabel")}
-              id={tag.id}
-              idLabel={t("tagEdit_identifierLabel")}
-            />
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={tag.description}
+          placeholder={t("tagEdit_descriptionPlaceholder")}
+          onChange={handleChangeDescription}
+        />
+      </SectionPaper>
+      <ViewLayoutTechnicalInfos
+        technicalKey={tag.key}
+        keyLabel={t("tagEdit_keyLabel")}
+        id={tag.id}
+        idLabel={t("tagEdit_identifierLabel")}
+      />
     </ViewLayoutContained>
   );
 }
@@ -212,23 +204,30 @@ function LocalModelBreadcrumb({ modelId }: { modelId: string }) {
 
   if (!model) {
     return (
-      <>
+      <Breadcrumb size="small">
         <BreadcrumbItem>
-          <Text>{t("tagEdit_localModelFallback")}</Text>
+          <BreadcrumbButton>
+            <Text>{t("tagEdit_localModelFallback")}</Text>
+          </BreadcrumbButton>
         </BreadcrumbItem>
         <BreadcrumbDivider />
-      </>
+      </Breadcrumb>
     );
   }
 
   return (
-    <>
+    <Breadcrumb size="small">
       <BreadcrumbItem>
         <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
           {model.nameOrKeyWithAuthorityEmoji}
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
-    </>
+      <BreadcrumbItem>
+        <BreadcrumbButton onClick={handleClickModel}>
+          {t("tagEdit_localEyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
   );
 }

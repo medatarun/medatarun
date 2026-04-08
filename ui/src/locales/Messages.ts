@@ -32,7 +32,7 @@ import { type TagEditMessages } from "./contracts/TagEditMessages";
 import { type TagGroupEditMessages } from "./contracts/TagGroupEditMessages";
 import { type TagGroupsPageMessages } from "./contracts/TagGroupsPageMessages";
 import { type TagsTableMessages } from "./contracts/TagsTableMessages";
-import { type TypePageMessages } from "./contracts/TypePageMessages";
+import { type TypeEditPageMessages } from "./contracts/TypeEditPageMessages.ts";
 import { type TypesTableMessages } from "./contracts/TypesTableMessages";
 import type { MenuMessages } from "@/locales/contracts/MenuMessages.ts";
 
@@ -71,5 +71,5 @@ export type Messages = SessionMessages &
   TagGroupEditMessages &
   TagEditMessages &
   TagsTableMessages &
-  TypePageMessages &
+  TypeEditPageMessages &
   TypesTableMessages;

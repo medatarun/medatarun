@@ -12,7 +12,6 @@ import {
   useTypeUpdateName,
 } from "@/business/model";
 import { ModelContext } from "@/components/business/model/ModelContext.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -22,11 +21,6 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import {
   createActionTemplateType,
@@ -39,11 +33,17 @@ import { toProblem } from "@seij/common-types";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { useMemo } from "react";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { ModelIcon } from "@/components/business/model/model.icons.tsx";
+import {
+  ModelIcon,
+  TypeIcon,
+} from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
-export function TypePage({
+export function TypeEditPage({
   modelId,
   typeId,
 }: {
@@ -61,7 +61,7 @@ export function TypePage({
   if (!model) return null;
 
   const type = model.findTypeDto(typeId);
-  if (!type) return <ErrorBox error={toProblem(t("typePage_notFound"))} />;
+  if (!type) return <ErrorBox error={toProblem(t("typeEditPage_notFound"))} />;
 
   return (
     <ModelContext value={model}>
@@ -94,90 +94,71 @@ function TypeView({ model, type }: { type: TypeDto; model: Model }) {
   };
   const actionParams = createActionTemplateType(model.id, type.id);
 
+  const breadcrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model.nameOrKeyWithAuthorityEmoji}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton current={true}>
+          {t("typeEditPage_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadcrumb,
+    title: (
+      <InlineEditSingleLine value={type.name ?? ""} onChange={handleChangeName}>
+        {type.name ? (
+          model.findTypeNameOrKey(type.id)
+        ) : (
+          <span
+            style={{
+              color: tokens.colorNeutralForeground4,
+              fontStyle: "italic",
+            }}
+          >
+            {model.findTypeNameOrKey(type.id)}
+          </span>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <TypeIcon />,
+    actions: {
+      label: t("typeEditPage_actions"),
+      itemActions: actions,
+      actionParams: actionParams,
+      displayedSubject: createDisplayedSubjectType(model.id, type.id),
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  icon={<ModelIcon />}
-                  onClick={handleClickModel}
-                >
-                  {model.nameOrKeyWithAuthorityEmoji}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-            </Breadcrumb>
-          </div>
-          <div>
-            <ViewTitle eyebrow={t("typePage_eyebrow")}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  paddingRight: tokens.spacingHorizontalL,
-                }}
-              >
-                <div style={{ width: "100%" }}>
-                  <InlineEditSingleLine
-                    value={type.name ?? ""}
-                    onChange={handleChangeName}
-                  >
-                    {type.name ? (
-                      model.findTypeNameOrKey(type.id)
-                    ) : (
-                      <span
-                        style={{
-                          color: tokens.colorNeutralForeground4,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {model.findTypeNameOrKey(type.id)}
-                      </span>
-                    )}{" "}
-                  </InlineEditSingleLine>
-                </div>
-                <div>
-                  <ActionMenuButton
-                    label={t("typePage_actions")}
-                    itemActions={actions}
-                    actionParams={actionParams}
-                    displayedSubject={createDisplayedSubjectType(
-                      model.id,
-                      type.id,
-                    )}
-                  />
-                </div>
-              </div>
-            </ViewTitle>
-          </div>
-        </div>
-      }
+      scrollable={true}
+      contained={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <TypeOverview model={model} type={type} />
-            </SectionPaper>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={type.description}
-                placeholder={t("typePage_descriptionPlaceholder")}
-                onChange={(v) =>
-                  typeUpdateDescription.mutateAsync({
-                    modelId: model.id,
-                    typeId: type.id,
-                    value: v,
-                  })
-                }
-              />
-            </SectionPaper>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <SectionPaper>
+        <TypeOverview model={model} type={type} />
+      </SectionPaper>
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={type.description}
+          placeholder={t("typeEditPage_descriptionPlaceholder")}
+          onChange={(v) =>
+            typeUpdateDescription.mutateAsync({
+              modelId: model.id,
+              typeId: type.id,
+              value: v,
+            })
+          }
+        />
+      </SectionPaper>
     </ViewLayoutContained>
   );
 }
@@ -199,7 +180,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <Text>{t("typePage_keyLabel")}</Text>
+          <Text>{t("typeEditPage_keyLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (
@@ -210,7 +191,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
         </InlineEditSingleLine>
       )}
       <div>
-        <Text>{t("typePage_fromModelLabel")}</Text>
+        <Text>{t("typeEditPage_fromModelLabel")}</Text>
       </div>
       <div>
         <Link to="/model/$modelId" params={{ modelId: model.id }}>
@@ -219,7 +200,7 @@ export function TypeOverview({ type, model }: { type: TypeDto; model: Model }) {
       </div>
       {isDetailLevelTech && (
         <div>
-          <Text>{t("typePage_identifierLabel")}</Text>
+          <Text>{t("typeEditPage_identifierLabel")}</Text>
         </div>
       )}
       {isDetailLevelTech && (

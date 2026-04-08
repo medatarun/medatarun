@@ -33,7 +33,7 @@ import { tagEditMessages } from "./en/TagEditMessages";
 import { tagGroupEditMessages } from "./en/TagGroupEditMessages";
 import { tagGroupsPageMessages } from "./en/TagGroupsPageMessages";
 import { tagsTableMessages } from "./en/TagsTableMessages";
-import { typePageMessages } from "./en/TypePageMessages";
+import { typeEditPageMessages } from "./en/TypeEditPageMessages.ts";
 import { typesTableMessages } from "./en/TypesTableMessages";
 import { menuMessages } from "./en/MenuMessages.ts";
 
@@ -73,6 +73,6 @@ export const messages = {
   ...tagGroupEditMessages,
   ...tagEditMessages,
   ...tagsTableMessages,
-  ...typePageMessages,
+  ...typeEditPageMessages,
   ...typesTableMessages,
 } satisfies Messages;

@@ -5,11 +5,6 @@ import {
 } from "@/business/action_registry";
 import { useTags } from "@/business/tag";
 import { TagGroupsTable } from "./TagGroupsTable.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
@@ -53,32 +48,28 @@ export function TagGroupListPage() {
     },
   };
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <ViewLayoutPageInfo>
-              {t("tagGroupsPage_description")}
-            </ViewLayoutPageInfo>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <ViewLayoutPageInfo>{t("tagGroupsPage_description")}</ViewLayoutPageInfo>
 
-            <SectionTitle
-              icon={<TagGroupIcon />}
-              location={ActionUILocations.tag_group_list}
-              actionParams={createActionTemplateTagGroupList()}
-              displayedSubject={displaySubjectNone}
-            >
-              {t("tagGroupsPage_sectionTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<TagGroupIcon />}
+        location={ActionUILocations.tag_group_list}
+        actionParams={createActionTemplateTagGroupList()}
+        displayedSubject={displaySubjectNone}
+      >
+        {t("tagGroupsPage_sectionTitle")}
+      </SectionTitle>
 
-            <SectionTable>
-              <TagGroupsTable
-                tagGroups={tagsResult.tags.listTagGroups()}
-                onClick={handleClickTagGroup}
-              />
-            </SectionTable>
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <SectionTable>
+        <TagGroupsTable
+          tagGroups={tagsResult.tags.listTagGroups()}
+          onClick={handleClickTagGroup}
+        />
+      </SectionTable>
     </ViewLayoutContained>
   );
 }

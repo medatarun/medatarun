@@ -35,6 +35,10 @@ import { FilterTextRowEditor } from "./components/FilterTextRowEditor.tsx";
 import { useCompactDropdownStyles } from "./components/Reports.styles.tsx";
 import { ButtonBar, Loader } from "@seij/common-ui";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader.tsx";
 
 const LOCAL_STORAGE_KEY = "reports-query-builder";
 
@@ -151,25 +155,16 @@ export function ReportsPage() {
     }));
   };
 
+  const headerProps: ViewLayoutHeaderProps = {
+    title: t("modelReportsPage_title"),
+    titleIcon: <DocumentBulletListRegular />,
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <ViewTitle>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingRight: tokens.spacingHorizontalL,
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <DocumentBulletListRegular /> {t("modelReportsPage_title")}
-              </div>
-            </div>
-          </ViewTitle>
-        </div>
-      }
+      contained={false}
+      scrollable={false}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
       <ContainedMixedScrolling>
         <ContainedFixed>

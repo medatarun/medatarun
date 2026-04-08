@@ -33,7 +33,7 @@ import { getOrDefault } from "@/utils/getOrDefault.ts";
 import { DetailLevelProvider } from "@/components/business/DetailLevelContext.tsx";
 import { PreferencesPage } from "@/views/preferences/PreferencesPage.tsx";
 import { AttributeEditPage } from "@/views/attribute/AttributeEditPage.tsx";
-import { TypePage } from "@/views/type/TypePage.tsx";
+import { TypeEditPage } from "@/views/type/TypeEditPage.tsx";
 import { RelationshipEditPage } from "@/views/relationship/RelationshipEditPage.tsx";
 import { ReportsPage } from "@/views/reports/ReportsPage.tsx";
 import { TagGroupListPage } from "@/views/tags/TagGroupListPage.tsx";
@@ -202,7 +202,7 @@ function TypeRouteComponent() {
   const { modelId, typeId } = useParams({
     from: "/model/$modelId/type/$typeId",
   });
-  return <TypePage modelId={modelId} typeId={typeId} />;
+  return <TypeEditPage modelId={modelId} typeId={typeId} />;
 }
 
 // Route tree keeps the shared layout and individual pages wired to TanStack Router.

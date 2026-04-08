@@ -19,11 +19,6 @@ import {
   BreadcrumbDivider,
   BreadcrumbItem,
 } from "@fluentui/react-components";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
 import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
@@ -126,43 +121,41 @@ export function TagGroupEditPage({ tagGroupId }: { tagGroupId: string }) {
     },
   };
   return (
-    <ViewLayoutContained title={<ViewLayoutHeader {...headerProps} />}>
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={tagGroup.description}
-                placeholder={t("tagGroupEdit_descriptionPlaceholder")}
-                onChange={handleChangeDescription}
-              />
-            </SectionPaper>
+    <ViewLayoutContained
+      contained={true}
+      scrollable={true}
+      title={<ViewLayoutHeader {...headerProps} />}
+    >
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={tagGroup.description}
+          placeholder={t("tagGroupEdit_descriptionPlaceholder")}
+          onChange={handleChangeDescription}
+        />
+      </SectionPaper>
 
-            <SectionTitle
-              icon={<TagGroupIcon />}
-              location={ActionUILocations.tag_global_list}
-              actionParams={createActionTemplateTagGlobalList(tagGroup.id)}
-              displayedSubject={displayedSubject}
-            >
-              {t("tagGroupEdit_tagsTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<TagGroupIcon />}
+        location={ActionUILocations.tag_global_list}
+        actionParams={createActionTemplateTagGlobalList(tagGroup.id)}
+        displayedSubject={displayedSubject}
+      >
+        {t("tagGroupEdit_tagsTitle")}
+      </SectionTitle>
 
-            <SectionTable>
-              <TagsTable
-                scope={{ type: "global", id: null }}
-                tagGroupId={tagGroup.id}
-                displayedSubject={displayedSubject}
-              />
-            </SectionTable>
-            <ViewLayoutTechnicalInfos
-              id={tagGroup.id}
-              idLabel={t("tagGroupEdit_identifierLabel")}
-              technicalKey={tagGroup.key}
-              keyLabel={t("tagGroupEdit_groupKeyLabel")}
-            />
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+      <SectionTable>
+        <TagsTable
+          scope={{ type: "global", id: null }}
+          tagGroupId={tagGroup.id}
+          displayedSubject={displayedSubject}
+        />
+      </SectionTable>
+      <ViewLayoutTechnicalInfos
+        id={tagGroup.id}
+        idLabel={t("tagGroupEdit_identifierLabel")}
+        technicalKey={tagGroup.key}
+        keyLabel={t("tagGroupEdit_groupKeyLabel")}
+      />
     </ViewLayoutContained>
   );
 }

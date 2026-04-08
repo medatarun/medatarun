@@ -7,6 +7,7 @@ import {
 } from "@/business/model";
 import { MissingInformation } from "@/components/core/MissingInformation.tsx";
 import {
+  ContainedFixed,
   ContainedHeader,
   ContainedMixedScrolling,
   ContainedScrollable,
@@ -76,7 +77,7 @@ export function ModelComparePage() {
       title={<ViewLayoutHeader {...headerProps} />}
     >
       <ContainedMixedScrolling>
-        <ContainedHeader>
+        <ContainedFixed>
           <div
             style={{
               display: "grid",
@@ -130,7 +131,7 @@ export function ModelComparePage() {
               </Button>
             </div>
           </div>
-        </ContainedHeader>
+        </ContainedFixed>
         <ContainedScrollable>
           <div
             style={{
