@@ -33,7 +33,6 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -58,6 +57,7 @@ import {
   ModelIcon,
 } from "@/components/business/model/model.icons.tsx";
 import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function RelationshipPage({
   modelId,

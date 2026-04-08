@@ -1,8 +1,8 @@
 import type { RelationshipDto, RelationshipRoleDto } from "@/business/model";
 import { useModelContext } from "./ModelContext.tsx";
 import { Link } from "@tanstack/react-router";
-import { Markdown } from "@/components/core/Markdown.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { MarkdownSummary } from "@/components/core/MarkdownSummary.tsx";
 
 export function RelationshipDescription(props: { rel: RelationshipDto }) {
   const { t } = useAppI18n();
@@ -66,7 +66,7 @@ export function RelationshipDescription(props: { rel: RelationshipDto }) {
   if (rel.description)
     return (
       <div>
-        <Markdown value={rel.description} />
+        <MarkdownSummary value={rel.description} maxChars={200} />
       </div>
     );
 

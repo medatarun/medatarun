@@ -5,7 +5,6 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { type UserInfoDto, useUserList } from "@/business/auth_user";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { SectionTable } from "@/components/layout/SecionTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import {
@@ -33,6 +32,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonRegular } from "@fluentui/react-icons";
 import { ViewLayoutPageInfo } from "@/components/layout/ViewLayoutPageInfo.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminUserListPage() {
   const { t } = useAppI18n();

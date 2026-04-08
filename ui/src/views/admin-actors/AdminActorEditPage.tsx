@@ -4,7 +4,6 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { ActorDetails, useActor, useRoleRegistry } from "@/business/actor";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
@@ -37,6 +36,7 @@ import {
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { PersonKeyRegular } from "@fluentui/react-icons";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminActorEditPage({ actorId }: { actorId: string }) {
   const { t } = useAppI18n();

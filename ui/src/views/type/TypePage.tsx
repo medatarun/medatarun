@@ -22,7 +22,6 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import {
   ContainedHumanReadable,
   ContainedMixedScrolling,
@@ -42,6 +41,7 @@ import { useMemo } from "react";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function TypePage({
   modelId,

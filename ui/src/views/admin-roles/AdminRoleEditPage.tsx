@@ -11,7 +11,6 @@ import {
 } from "@/business/actor";
 import { usePermissionRegistry } from "@/business/config";
 import { refid } from "@/business/action_runner";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
 import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
 import {
@@ -46,6 +45,7 @@ import {
 } from "@/components/layout/ViewLayoutHeader.tsx";
 import { LockClosedRegular } from "@fluentui/react-icons";
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function AdminRoleEditPage({ roleId }: { roleId: string }) {
   const { t } = useAppI18n();

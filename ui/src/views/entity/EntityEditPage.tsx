@@ -48,6 +48,7 @@ import {
   ViewLayoutHeader,
   type ViewLayoutHeaderProps,
 } from "@/components/layout/ViewLayoutHeader.tsx";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function EntityEditPage({
   modelId,
@@ -219,6 +220,13 @@ export function EntityView({ entity }: { entity: EntityDto }) {
           displayedSubject={displayedSubject}
         />
       </SectionTable>
+
+      <ViewLayoutTechnicalInfos
+        id={entity.id}
+        idLabel={t("entityEditPage_identifierLabel")}
+        technicalKey={entity.key}
+        keyLabel={t("entityEditPage_keyLabel")}
+      ></ViewLayoutTechnicalInfos>
     </ViewLayoutContained>
   );
 }

@@ -14,11 +14,10 @@ import {
 } from "@/business/action_registry";
 import type { TagGroup } from "@/business/tag";
 import { createActionTemplateTagGroup } from "@/components/business/tag/tag.actions.ts";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
   titleCell: {},

@@ -4,11 +4,11 @@ import {
   useActionRegistry,
 } from "@/business/action_registry";
 import { Text, tokens } from "@fluentui/react-components";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import type {
   ActionDisplayedSubject,
   ActionPerformerRequestParams,
 } from "@/components/business/actions/ActionPerformer.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function SectionTitle({
   icon,

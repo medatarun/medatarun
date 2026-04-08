@@ -1,7 +1,6 @@
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { tokens } from "@fluentui/react-components";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
 import {
   ActionUILocations,
   useActionRegistry,
@@ -11,6 +10,7 @@ import { ContainedHumanReadable } from "@/components/layout/Contained.tsx";
 import { createActionTemplateGeneral } from "@/components/business/model/model.actions.ts";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { displaySubjectNone } from "@/components/business/actions/ActionPerformer.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 export function DashboardPage() {
   const actionRegistry = useActionRegistry();

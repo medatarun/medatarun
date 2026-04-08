@@ -23,10 +23,7 @@ import { InfoLabel, Text, tokens } from "@fluentui/react-components";
 import { HistoryRegular } from "@fluentui/react-icons";
 import { EntityCard } from "@/components/business/model/EntityCard.tsx";
 import { RelationshipsTable } from "@/components/business/model/RelationshipsTable.tsx";
-import {
-  ActionMenuButton,
-  TypesTable,
-} from "@/components/business/model/TypesTable.tsx";
+import { TypesTable } from "@/components/business/model/TypesTable.tsx";
 import { TagsTable } from "@/components/business/tag/TagsTable.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { ViewTitle } from "@/components/core/ViewTitle.tsx";
@@ -56,6 +53,8 @@ import {
   TypeIcon,
 } from "@/components/business/model/model.icons.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 
 export function ModelPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
@@ -224,9 +223,9 @@ export function ModelView() {
               </p>
             )}
             {model.hasTypes && (
-              <SectionTable>
+              <SectionCards>
                 <TypesTable onClick={handleClickType} types={model.types} />
-              </SectionTable>
+              </SectionCards>
             )}
 
             <SectionTitle
@@ -246,6 +245,13 @@ export function ModelView() {
                 displayedSubject={displayedSubject}
               />
             </SectionTable>
+
+            <ViewLayoutTechnicalInfos
+              technicalKey={model.key}
+              keyLabel={t("modelPage_keyLabel")}
+              id={model.id}
+              idLabel={t("modelPage_identifierLabel")}
+            ></ViewLayoutTechnicalInfos>
           </ContainedHumanReadable>
         </ContainedScrollable>
       </ContainedMixedScrolling>
@@ -370,12 +376,6 @@ export function ModelOverview() {
           <Origin value={model.origin} />
         </div>
       )}
-      {isDetailLevelTech && <div>{t("modelPage_identifierLabel")}</div>}
-      {isDetailLevelTech && (
-        <div>
-          <code>{model.id}</code>
-        </div>
-      )}
     </PropertiesForm>
   );
 }
@@ -391,12 +391,13 @@ export function EntitiesCardList({
     <div>
       <div
         style={{
-          display: "flex",
+          display: "grid",
           columnGap: tokens.spacingHorizontalM,
           rowGap: tokens.spacingVerticalM,
           paddingTop: tokens.spacingVerticalM,
-          justifyContent: "left",
+          justifyContent: "space-evenly",
           flexWrap: "wrap",
+          gridTemplateColumns: "repeat(3, 1fr)",
         }}
       >
         {entities.map((entity) => (

@@ -12,8 +12,6 @@ import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
 import { useActionRegistry } from "@/business/action_registry";
 import { type TagScopeRef, useTags } from "@/business/tag";
-import { ActionMenuButton } from "@/components/business/model/TypesTable.tsx";
-import { Markdown } from "@/components/core/Markdown.tsx";
 import {
   createActionTemplateTag,
   detailActionLocation,
@@ -22,6 +20,7 @@ import { useAppI18n } from "@/services/appI18n.tsx";
 import { type ActionDisplayedSubject } from "@/components/business/actions/ActionPerformer.tsx";
 import { Key } from "@/components/core/Key.tsx";
 import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
 
 const useStyles = makeStyles({
   titleCell: {},
