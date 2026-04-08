@@ -365,7 +365,9 @@ export function ModelOverview() {
           displayedSubject={displayedSubject}
         >
           {!model.hasTags ? (
-            <MissingInformation>{t("modelEditPage_tagsEmpty")}</MissingInformation>
+            <MissingInformation>
+              {t("modelEditPage_tagsEmpty")}
+            </MissingInformation>
           ) : (
             <Tags tags={model.tags} scope={modelTagScope(model.id)} />
           )}
