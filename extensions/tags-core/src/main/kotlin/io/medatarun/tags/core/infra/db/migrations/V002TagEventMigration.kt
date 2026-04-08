@@ -11,11 +11,10 @@ import io.medatarun.security.AppActorId
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 /**
  * Backfills v002 `tag_event` and history tables from legacy v001 snapshot tables.
@@ -27,52 +26,46 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         if (ctx.dialect != DbDialect.SQLITE) {
             throw V002TagEventMigrationException("tags-core v002 backfill supports only sqlite, dialect=${ctx.dialect}.")
         }
-        val migrationInstant = Instant.now()
+        val createdAtDefault = Instant.ofEpochMilli(0)
         val streamRevisionTracker = StreamRevisionTracker()
         ctx.withConnection { connection ->
-            connection.prepareStatement(INSERT_TAG_EVENT_SQL).use { eventStatement ->
-                connection.prepareStatement(INSERT_TAG_HISTORY_SQL).use { tagHistoryStatement ->
-                    connection.prepareStatement(INSERT_TAG_GROUP_HISTORY_SQL).use { groupHistoryStatement ->
-                        migrateTagGroups(connection, eventStatement, groupHistoryStatement, streamRevisionTracker, migrationInstant)
-                        migrateTags(connection, eventStatement, tagHistoryStatement, streamRevisionTracker, migrationInstant)
-                    }
-                }
-            }
+                migrateTagGroups(connection, streamRevisionTracker, createdAtDefault)
+                migrateTags(connection, streamRevisionTracker, createdAtDefault)
         }
     }
 
     private fun migrateTagGroups(
         connection: Connection,
-        eventStatement: PreparedStatement,
-        historyStatement: PreparedStatement,
         streamRevisionTracker: StreamRevisionTracker,
-        migrationInstant: Instant
+        createdAtDefault: Instant
     ) {
-        connection.prepareStatement(SELECT_TAG_GROUPS_SQL).use { selectStatement ->
-            selectStatement.executeQuery().use { rs ->
+        connection.prepareStatement(SELECT_TAG_GROUPS_SQL).use { selectStmt ->
+            selectStmt.executeQuery().use { rs ->
                 while (rs.next()) {
                     val groupId = rs.getUuidFromString("id")
                         ?: throw V002TagEventMigrationException("tag_group.id must not be null.")
                     val eventId = UuidUtils.generateV7()
                     insertTagEvent(
-                        eventStatement,
-                        eventId,
-                        GLOBAL_SCOPE_TYPE,
-                        null,
-                        streamRevisionTracker.next(GLOBAL_SCOPE_TYPE, null),
-                        EVENT_TYPE_TAG_GROUP_CREATED,
-                        tagGroupCreatedPayload(rs, groupId.toString()),
-                        migrationInstant
+                        connection = connection,
+                        eventId = eventId,
+                        scopeType = GLOBAL_SCOPE_TYPE,
+                        scopeId = null,
+                        streamRevision = streamRevisionTracker.next(GLOBAL_SCOPE_TYPE, null),
+                        eventType = EVENT_TYPE_TAG_GROUP_CREATED,
+                        payload = tagGroupCreatedPayload(rs, groupId.toString()),
+                        createdAt = createdAtDefault
                     )
-                    historyStatement.setUUID(1, UuidUtils.generateV7())
-                    historyStatement.setUUID(2, eventId)
-                    historyStatement.setUUID(3, groupId)
-                    historyStatement.setString(4, rs.getString("key"))
-                    historyStatement.setString(5, rs.getString("name"))
-                    historyStatement.setString(6, rs.getString("description"))
-                    historyStatement.setInstant(7, migrationInstant)
-                    historyStatement.setNull(8, Types.VARCHAR)
-                    historyStatement.executeUpdate()
+                    connection.prepareStatement(INSERT_TAG_GROUP_HISTORY_SQL).use { tagGroupHistoryStmt ->
+                        tagGroupHistoryStmt.setUUID(1, UuidUtils.generateV7())
+                        tagGroupHistoryStmt.setUUID(2, eventId)
+                        tagGroupHistoryStmt.setUUID(3, groupId)
+                        tagGroupHistoryStmt.setString(4, rs.getString("key"))
+                        tagGroupHistoryStmt.setString(5, rs.getString("name"))
+                        tagGroupHistoryStmt.setString(6, rs.getString("description"))
+                        tagGroupHistoryStmt.setInstant(7, createdAtDefault)
+                        tagGroupHistoryStmt.setNull(8, Types.VARCHAR)
+                        tagGroupHistoryStmt.executeUpdate()
+                    }
                 }
             }
         }
@@ -80,10 +73,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
 
     private fun migrateTags(
         connection: Connection,
-        eventStatement: PreparedStatement,
-        historyStatement: PreparedStatement,
         streamRevisionTracker: StreamRevisionTracker,
-        migrationInstant: Instant
+        createdAtDefault: Instant
     ) {
         connection.prepareStatement(SELECT_TAGS_SQL).use { selectStatement ->
             selectStatement.executeQuery().use { rs ->
@@ -101,27 +92,29 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                     }
                     val eventId = UuidUtils.generateV7()
                     insertTagEvent(
-                        eventStatement,
+                        connection,
                         eventId,
                         scopeType,
                         scopeId,
                         streamRevisionTracker.next(scopeType, scopeId),
                         EVENT_TYPE_TAG_CREATED,
                         tagCreatedPayload(rs, tagId.toString(), scopeType, scopeId?.toString(), groupId?.toString()),
-                        migrationInstant
+                        createdAtDefault
                     )
-                    historyStatement.setUUID(1, UuidUtils.generateV7())
-                    historyStatement.setUUID(2, eventId)
-                    historyStatement.setUUID(3, tagId)
-                    historyStatement.setString(4, scopeType)
-                    historyStatement.setUUID(5, scopeId)
-                    historyStatement.setUUID(6, groupId)
-                    historyStatement.setString(7, rs.getString("key"))
-                    historyStatement.setString(8, rs.getString("name"))
-                    historyStatement.setString(9, rs.getString("description"))
-                    historyStatement.setInstant(10, migrationInstant)
-                    historyStatement.setNull(11, Types.VARCHAR)
-                    historyStatement.executeUpdate()
+                    connection.prepareStatement(INSERT_TAG_HISTORY_SQL).use { tagHistoryStmt ->
+                        tagHistoryStmt.setUUID(1, UuidUtils.generateV7())
+                        tagHistoryStmt.setUUID(2, eventId)
+                        tagHistoryStmt.setUUID(3, tagId)
+                        tagHistoryStmt.setString(4, scopeType)
+                        tagHistoryStmt.setUUID(5, scopeId)
+                        tagHistoryStmt.setUUID(6, groupId)
+                        tagHistoryStmt.setString(7, rs.getString("key"))
+                        tagHistoryStmt.setString(8, rs.getString("name"))
+                        tagHistoryStmt.setString(9, rs.getString("description"))
+                        tagHistoryStmt.setInstant(10, createdAtDefault)
+                        tagHistoryStmt.setNull(11, Types.VARCHAR)
+                        tagHistoryStmt.executeUpdate()
+                    }
                 }
             }
         }
@@ -140,7 +133,7 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
     }
 
     private fun insertTagEvent(
-        statement: PreparedStatement,
+        connection: Connection,
         eventId: UUID,
         scopeType: String,
         scopeId: UUID?,
@@ -149,17 +142,20 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
         payload: String,
         createdAt: Instant
     ) {
-        statement.setUUID(1, eventId)
-        statement.setString(2, scopeType)
-        statement.setUUID(3, scopeId)
-        statement.setInt(4, streamRevision)
-        statement.setString(5, eventType)
-        statement.setInt(6, EVENT_VERSION_1)
-        statement.setUUID(7, maintenanceActorId.value)
-        statement.setString(8, TRACEABILITY_ORIGIN)
-        statement.setInstant(9, createdAt)
-        statement.setString(10, payload)
-        statement.executeUpdate()
+        connection.prepareStatement("INSERT INTO tag_event (id, scope_type, scope_id, stream_revision, event_type, event_version, actor_id, traceability_origin, created_at, payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            .use { statement ->
+                statement.setUUID(1, eventId)
+                statement.setString(2, scopeType)
+                statement.setUUID(3, scopeId)
+                statement.setInt(4, streamRevision)
+                statement.setString(5, eventType)
+                statement.setInt(6, EVENT_VERSION_1)
+                statement.setUUID(7, maintenanceActorId.value)
+                statement.setString(8, TRACEABILITY_ORIGIN)
+                statement.setInstant(9, createdAt)
+                statement.setString(10, payload)
+                statement.executeUpdate()
+            }
     }
 
     private fun tagGroupCreatedPayload(rs: ResultSet, groupId: String): String {
@@ -228,12 +224,6 @@ ORDER BY key, id
 SELECT id, scope_type, scope_id, tag_group_id, key, name, description
 FROM tag
 ORDER BY CASE WHEN scope_type = 'global' AND scope_id IS NULL THEN 0 ELSE 1 END, scope_type, scope_id, key, id
-"""
-
-        private const val INSERT_TAG_EVENT_SQL = """
-INSERT INTO tag_event
-(id, scope_type, scope_id, stream_revision, event_type, event_version, actor_id, traceability_origin, created_at, payload)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
 
         private const val INSERT_TAG_HISTORY_SQL = """
