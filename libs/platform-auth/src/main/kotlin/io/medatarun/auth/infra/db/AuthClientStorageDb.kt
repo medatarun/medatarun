@@ -4,13 +4,13 @@ import io.medatarun.auth.internal.oidc.AuthClient
 import io.medatarun.auth.internal.oidc.AuthClientStorage
 import io.medatarun.auth.internal.oidc.OidcClientOrigin
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.exposed.instant
 import io.medatarun.platform.db.exposed.jsonb
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -130,8 +130,8 @@ class AuthClientStorageDb(
             val softwareVersionColumn = text("software_version").nullable()
             val tosUriColumn = text("tos_uri").nullable()
             val policyUriColumn = text("policy_uri").nullable()
-            val createdAtColumn = timestamp("created_at")
-            val lastUsedAtColumn = timestamp("last_used_at")
+            val createdAtColumn = instant("created_at")
+            val lastUsedAtColumn = instant("last_used_at")
         }
 
         private val listStringSerializer = ListSerializer(String.serializer())

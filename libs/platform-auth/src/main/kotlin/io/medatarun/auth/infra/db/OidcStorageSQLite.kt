@@ -4,8 +4,8 @@ import io.medatarun.auth.domain.oidc.OidcAuthorizeCode
 import io.medatarun.auth.domain.oidc.OidcAuthorizeCtx
 import io.medatarun.auth.ports.needs.OidcStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.exposed.instant
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -125,8 +125,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val codeChallengeColumn = text("code_challenge")
             val codeChallengeMethodColumn = text("code_challenge_method")
             val nonceColumn = text("nonce").nullable()
-            val createdAtColumn = timestamp("created_at")
-            val expiresAtColumn = timestamp("expires_at")
+            val createdAtColumn = instant("created_at")
+            val expiresAtColumn = instant("expires_at")
         }
 
         private object AuthCodeTable : Table("auth_code") {
@@ -138,8 +138,8 @@ class OidcStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val codeChallengeColumn = text("code_challenge")
             val codeChallengeMethodColumn = text("code_challenge_method")
             val nonceColumn = text("nonce").nullable()
-            val authTimeColumn = timestamp("auth_time")
-            val expiresAtColumn = timestamp("expires_at")
+            val authTimeColumn = instant("auth_time")
+            val expiresAtColumn = instant("expires_at")
         }
 
     }

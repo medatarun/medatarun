@@ -5,9 +5,9 @@ import io.medatarun.platform.db.exposed.jsonb
 import io.medatarun.tags.core.domain.TagEventId
 import io.medatarun.tags.core.domain.TagScopeId
 import io.medatarun.platform.db.exposed.IdTransformer
+import io.medatarun.platform.db.exposed.instant
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
 
 object TagEventTable : Table("tag_event") {
     val id = javaUUID("id").transform(IdTransformer(::TagEventId))
@@ -18,7 +18,7 @@ object TagEventTable : Table("tag_event") {
     val eventVersion = integer("event_version")
     val actorId = javaUUID("actor_id").transform(IdTransformer(::AppActorId))
     val traceabilityOrigin = text("traceability_origin")
-    val createdAt = timestamp("created_at")
+    val createdAt = instant("created_at")
     val payload = jsonb("payload")
 
     override val primaryKey = PrimaryKey(id)
