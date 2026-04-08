@@ -13,51 +13,54 @@ import {
   useRelationshipUpdateKey,
   useRelationshipUpdateName,
 } from "@/business/model";
-import { ModelContext } from "@/components/business/model/ModelContext.tsx";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
+import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
 import {
   createActionTemplateRelationship,
   createActionTemplateRelationshipAttribute,
   createActionTemplateRelationshipRole,
   createDisplayedSubjectRelationship,
 } from "@/components/business/model/model.actions.ts";
+import {
+  AttributeIcon,
+  EntityIcon,
+  ModelIcon,
+  RelationshipIcon,
+} from "@/components/business/model/model.icons.tsx";
+import { ModelContext } from "@/components/business/model/ModelContext.tsx";
+import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
+import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
+import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
+import { Key } from "@/components/core/Key";
+import { MissingInformation } from "@/components/core/MissingInformation.tsx";
+import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
+import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
+import { SectionTable } from "@/components/layout/SecionTable.tsx";
+import { SectionCards } from "@/components/layout/SectionCards.tsx";
+import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
+import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader";
+import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos";
+import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
 import {
   Breadcrumb,
   BreadcrumbButton,
   BreadcrumbDivider,
   BreadcrumbItem,
+  Caption1,
   Card,
   CardHeader,
   Text,
   tokens,
 } from "@fluentui/react-components";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
-import {
-  ContainedHumanReadable,
-  ContainedMixedScrolling,
-  ContainedScrollable,
-} from "@/components/layout/Contained.tsx";
-import { SectionPaper } from "@/components/layout/SectionPaper.tsx";
-import { MissingInformation } from "@/components/core/MissingInformation.tsx";
-import { ErrorBox } from "@seij/common-ui";
 import { toProblem } from "@seij/common-types";
-import { useDetailLevelContext } from "@/components/business/DetailLevelContext.tsx";
-import { PropertiesForm } from "@/components/layout/PropertiesForm.tsx";
-import { SectionTitle } from "@/components/layout/SectionTitle.tsx";
-import { SectionTable } from "@/components/layout/SecionTable.tsx";
-import { AttributesTable } from "@/components/business/model/AttributesTable.tsx";
-import { modelTagScope, Tags } from "@/components/core/Tag.tsx";
-import { SectionCards } from "@/components/layout/SectionCards.tsx";
-import { InlineEditDescription } from "@/components/core/InlineEditDescription.tsx";
-import { InlineEditSingleLine } from "@/components/core/InlineEditSingleLine.tsx";
-import { InlineEditTags } from "@/components/core/InlineEditTags.tsx";
-import {
-  AttributeIcon,
-  ModelIcon,
-} from "@/components/business/model/model.icons.tsx";
-import { type AppMessageKey, useAppI18n } from "@/services/appI18n.tsx";
-import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton.tsx";
+import { ErrorBox } from "@seij/common-ui";
+import { useNavigate } from "@tanstack/react-router";
 
 export function RelationshipPage({
   modelId,
@@ -133,202 +136,193 @@ export function RelationshipView({
     model.id,
     relationship.id,
   );
+
+  const breadCrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model.nameOrKeyWithAuthorityEmoji}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} current={true}>
+          {t("relationshipPage_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadCrumb,
+    title: (
+      <InlineEditSingleLine
+        value={relationship.name ?? ""}
+        onChange={handleChangeName}
+      >
+        {relationship.name ? (
+          model.findRelationshipNameOrKey(relationship.id)
+        ) : (
+          <span
+            style={{
+              color: tokens.colorNeutralForeground4,
+              fontStyle: "italic",
+            }}
+          >
+            {model.findRelationshipNameOrKey(relationship.id)}
+          </span>
+        )}{" "}
+      </InlineEditSingleLine>
+    ),
+    titleIcon: <RelationshipIcon />,
+    actions: {
+      label: t("relationshipPage_actions"),
+      itemActions: actions,
+      actionParams: actionParams,
+      displayedSubject: displayedSubject,
+    },
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <div style={{ marginLeft: "-22px" }}>
-            <Breadcrumb size="small">
-              <BreadcrumbItem>
-                <BreadcrumbButton
-                  icon={<ModelIcon />}
-                  onClick={handleClickModel}
-                >
-                  {model.nameOrKeyWithAuthorityEmoji}
-                </BreadcrumbButton>
-              </BreadcrumbItem>
-              <BreadcrumbDivider />
-            </Breadcrumb>
-          </div>
-          <div>
-            <ViewTitle eyebrow={t("relationshipPage_eyebrow")}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  paddingRight: tokens.spacingHorizontalL,
-                }}
-              >
-                <div style={{ width: "100%" }}>
-                  <InlineEditSingleLine
-                    value={relationship.name ?? ""}
-                    onChange={handleChangeName}
-                  >
-                    {relationship.name ? (
-                      model.findRelationshipNameOrKey(relationship.id)
-                    ) : (
-                      <span
-                        style={{
-                          color: tokens.colorNeutralForeground4,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {model.findRelationshipNameOrKey(relationship.id)}
-                      </span>
-                    )}{" "}
-                  </InlineEditSingleLine>
-                </div>
-                <div>
-                  <ActionMenuButton
-                    label={t("relationshipPage_actions")}
-                    itemActions={actions}
-                    actionParams={actionParams}
-                    displayedSubject={displayedSubject}
-                  />
-                </div>
-              </div>
-            </ViewTitle>
-          </div>
-        </div>
-      }
+      scrollable={true}
+      contained={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
-      <ContainedMixedScrolling>
-        <ContainedScrollable>
-          <ContainedHumanReadable>
-            <SectionPaper>
-              <RelationshipOverview model={model} relationship={relationship} />
-            </SectionPaper>
-            <SectionPaper topspacing="XXXL" nopadding>
-              <InlineEditDescription
-                value={relationship.description}
-                placeholder={t("relationshipPage_descriptionPlaceholder")}
-                onChange={(v) =>
-                  relationshipUpdateDescription.mutateAsync({
-                    modelId: model.id,
-                    relationshipId: relationship.id,
-                    value: v,
-                  })
-                }
-              />
-            </SectionPaper>
+      <SectionPaper>
+        <RelationshipOverview model={model} relationship={relationship} />
+      </SectionPaper>
+      <SectionPaper topspacing="XXXL" nopadding>
+        <InlineEditDescription
+          value={relationship.description}
+          placeholder={t("relationshipPage_descriptionPlaceholder")}
+          onChange={(v) =>
+            relationshipUpdateDescription.mutateAsync({
+              modelId: model.id,
+              relationshipId: relationship.id,
+              value: v,
+            })
+          }
+        />
+      </SectionPaper>
 
-            <SectionTitle
-              icon={<AttributeIcon />}
-              actionParams={createActionTemplateRelationship(
-                model.id,
-                relationship.id,
-              )}
-              displayedSubject={displayedSubject}
-              location={ActionUILocations.relationship_roles}
-            >
-              {t("relationshipPage_rolesTitle")}
-            </SectionTitle>
+      <SectionTitle
+        icon={<AttributeIcon />}
+        actionParams={createActionTemplateRelationship(
+          model.id,
+          relationship.id,
+        )}
+        displayedSubject={displayedSubject}
+        location={ActionUILocations.relationship_roles}
+      >
+        {t("relationshipPage_rolesTitle")}
+      </SectionTitle>
 
-            {relationship.roles.length === 0 && (
-              <p>
-                <MissingInformation>
-                  {t("relationshipPage_rolesEmpty")}
-                </MissingInformation>
-              </p>
-            )}
-            {relationship.roles.length > 0 && (
-              <SectionCards>
-                <div
-                  style={{
-                    display: "flex",
-                    columnGap: tokens.spacingHorizontalM,
-                    rowGap: tokens.spacingVerticalM,
-                    paddingTop: tokens.spacingVerticalM,
-                    justifyContent: "left",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {relationship.roles.map((role) => (
-                    <Card style={{ width: "30%" }} key={role.id}>
-                      <CardHeader
-                        style={{ height: "2em" }}
-                        header={
+      {relationship.roles.length === 0 && (
+        <p>
+          <MissingInformation>
+            {t("relationshipPage_rolesEmpty")}
+          </MissingInformation>
+        </p>
+      )}
+      {relationship.roles.length > 0 && (
+        <SectionCards>
+          <div
+            style={{
+              display: "flex",
+              columnGap: tokens.spacingHorizontalM,
+              rowGap: tokens.spacingVerticalM,
+              paddingTop: tokens.spacingVerticalM,
+              justifyContent: "left",
+              flexWrap: "wrap",
+            }}
+          >
+            {relationship.roles.map((role) => (
+              <Card style={{ width: "30%" }} key={role.id}>
+                <CardHeader
+                  style={{ height: "2em" }}
+                  header={
+                    <div>
+                      <div>
+                        <Text weight="semibold">
                           <div>
-                            <div>
-                              <Text weight="semibold">
-                                {model.findEntityNameOrKey(role.entityId)}
-                              </Text>
-                            </div>
-                            <Text>
-                              {roleCardinalityLabel(role.cardinality, t)}
-                            </Text>
+                            {roleCardinalityLabel(role.cardinality, t)}{" "}
+                            {role.name ?? <Key value={role.key} />}
                           </div>
-                        }
-                        action={
-                          <ActionMenuButton
-                            itemActions={actionRegistry.findActions(
-                              ActionUILocations.relationship_role,
-                            )}
-                            actionParams={createActionTemplateRelationshipRole(
-                              model.id,
-                              relationship.id,
-                              role.id,
-                            )}
-                            displayedSubject={displayedSubject}
-                          />
-                        }
-                      />
-                      <div>{role.name}</div>
-                      {isDetailLevelTech && (
-                        <div>
-                          <code>{role.key}</code>
-                        </div>
+                          {role.name && isDetailLevelTech && (
+                            <Caption1>
+                              <Key value={role.key} />
+                            </Caption1>
+                          )}
+                        </Text>
+                      </div>
+                    </div>
+                  }
+                  action={
+                    <ActionMenuButton
+                      itemActions={actionRegistry.findActions(
+                        ActionUILocations.relationship_role,
                       )}
-                      {isDetailLevelTech && (
-                        <div>
-                          🔗 <code>{model.findEntityKey(role.entityId)}</code>
-                        </div>
+                      actionParams={createActionTemplateRelationshipRole(
+                        model.id,
+                        relationship.id,
+                        role.id,
                       )}
-                    </Card>
-                  ))}
+                      displayedSubject={displayedSubject}
+                    />
+                  }
+                />
+                <div>
+                  <EntityIcon /> {model.findEntityNameOrKey(role.entityId)}
                 </div>
-              </SectionCards>
-            )}
+              </Card>
+            ))}
+          </div>
+        </SectionCards>
+      )}
 
-            <SectionTitle
-              icon={<AttributeIcon />}
-              actionParams={createActionTemplateRelationship(
+      <SectionTitle
+        icon={<AttributeIcon />}
+        actionParams={createActionTemplateRelationship(
+          model.id,
+          relationship.id,
+        )}
+        displayedSubject={displayedSubject}
+        location={ActionUILocations.relationship_attributes}
+      >
+        {t("relationshipPage_attributesTitle")}
+      </SectionTitle>
+
+      {relationship.attributes.length === 0 && (
+        <p>
+          <MissingInformation>
+            {t("relationshipPage_attributesEmpty")}
+          </MissingInformation>
+        </p>
+      )}
+      {relationship.attributes.length > 0 && (
+        <SectionTable>
+          <AttributesTable
+            attributes={relationship.attributes}
+            actionUILocation={ActionUILocations.relationship_attribute}
+            actionParamsFactory={(attributeId: string) =>
+              createActionTemplateRelationshipAttribute(
                 model.id,
                 relationship.id,
-              )}
-              displayedSubject={displayedSubject}
-              location={ActionUILocations.relationship_attributes}
-            >
-              {t("relationshipPage_attributesTitle")}
-            </SectionTitle>
-
-            {relationship.attributes.length === 0 && (
-              <p>
-                <MissingInformation>
-                  {t("relationshipPage_attributesEmpty")}
-                </MissingInformation>
-              </p>
-            )}
-            {relationship.attributes.length > 0 && (
-              <SectionTable>
-                <AttributesTable
-                  attributes={relationship.attributes}
-                  actionUILocation={ActionUILocations.relationship_attribute}
-                  actionParamsFactory={(attributeId: string) =>
-                    createActionTemplateRelationshipAttribute(
-                      model.id,
-                      relationship.id,
-                      attributeId,
-                    )
-                  }
-                  displayedSubject={displayedSubject}
-                  onClickAttribute={handleClickAttribute}
-                />
-              </SectionTable>
-            )}
-          </ContainedHumanReadable>
-        </ContainedScrollable>
-      </ContainedMixedScrolling>
+                attributeId,
+              )
+            }
+            displayedSubject={displayedSubject}
+            onClickAttribute={handleClickAttribute}
+          />
+        </SectionTable>
+      )}
+      <ViewLayoutTechnicalInfos
+        id={relationship.id}
+        idLabel={t("relationshipPage_identifierLabel")}
+        technicalKey={relationship.key}
+        keyLabel={t("relationshipPage_keyLabel")}
+      />
     </ViewLayoutContained>
   );
 }
@@ -390,14 +384,6 @@ export function RelationshipOverview({
         </InlineEditSingleLine>
       )}
       <div>
-        <Text>{t("relationshipPage_fromModelLabel")}</Text>
-      </div>
-      <div>
-        <Link to="/model/$modelId" params={{ modelId: model.id }}>
-          {model.nameOrKey}
-        </Link>
-      </div>
-      <div>
         <Text>{t("relationshipPage_tagsLabel")}</Text>
       </div>
       <div>
@@ -419,18 +405,6 @@ export function RelationshipOverview({
           )}
         </InlineEditTags>
       </div>
-      {isDetailLevelTech && (
-        <div>
-          <Text>{t("relationshipPage_identifierLabel")}</Text>
-        </div>
-      )}
-      {isDetailLevelTech && (
-        <div>
-          <Text>
-            <code>{relationship.id}</code>
-          </Text>
-        </div>
-      )}
     </PropertiesForm>
   );
 }

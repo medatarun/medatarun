@@ -6,7 +6,6 @@ import {
   useModelHistoryVersions,
 } from "@/business/model";
 import { ModelIcon } from "@/components/business/model/model.icons.tsx";
-import { ViewTitle } from "@/components/core/ViewTitle.tsx";
 import { ViewLayoutContained } from "@/components/layout/ViewLayoutContained.tsx";
 import { useAppI18n } from "@/services/appI18n.tsx";
 import { ModelHistoryVersionInput } from "@/views/model-history/components/ModelHistoryVersionInput.tsx";
@@ -26,6 +25,11 @@ import {
   useModelContext,
 } from "@/components/business/model/ModelContext.tsx";
 import { sortBy } from "lodash-es";
+import {
+  ViewLayoutHeader,
+  type ViewLayoutHeaderProps,
+} from "@/components/layout/ViewLayoutHeader";
+import { HistoryRegular } from "@fluentui/react-icons";
 
 export function ModelHistoryPage({ modelId }: { modelId: string }) {
   const navigate = useNavigate();
@@ -43,21 +47,28 @@ export function ModelHistoryPage({ modelId }: { modelId: string }) {
     });
   };
 
+  const breadCrumb = (
+    <Breadcrumb size="small">
+      <BreadcrumbItem>
+        <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
+          {model?.nameOrKeyWithAuthorityEmoji ?? ""}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+    </Breadcrumb>
+  );
+
+  const headerProps: ViewLayoutHeaderProps = {
+    breadcrumb: breadCrumb,
+    title: t("modelHistoryPage_title"),
+    titleIcon: <HistoryRegular />,
+  };
+
   return (
     <ViewLayoutContained
-      title={
-        <div>
-          <Breadcrumb style={{ marginLeft: "-22px" }} size="small">
-            <BreadcrumbItem>
-              <BreadcrumbButton icon={<ModelIcon />} onClick={handleClickModel}>
-                {model?.nameOrKeyWithAuthorityEmoji ?? ""}
-              </BreadcrumbButton>
-            </BreadcrumbItem>
-            <BreadcrumbDivider />
-          </Breadcrumb>
-          <ViewTitle eyebrow="">{t("modelHistoryPage_title")}</ViewTitle>
-        </div>
-      }
+      scrollable={true}
+      contained={true}
+      title={<ViewLayoutHeader {...headerProps} />}
     >
       {model ? (
         <ModelContext value={model}>
