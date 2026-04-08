@@ -124,12 +124,16 @@ export function EntityView({ entity }: { entity: EntityDto }) {
         </BreadcrumbButton>
       </BreadcrumbItem>
       <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton current={true}>
+          {t("entityEditPage_eyebrow")}
+        </BreadcrumbButton>
+      </BreadcrumbItem>
     </Breadcrumb>
   );
 
   const headerProps: ViewLayoutHeaderProps = {
     breadcrumb: breadcrumb,
-    eyebrow: t("entityEditPage_eyebrow"),
     title: (
       <InlineEditSingleLine
         value={entity.name ?? ""}
