@@ -1,0 +1,27 @@
+import { type ModelEditPageMessages } from "../contracts/ModelEditPageMessages";
+
+export const modelEditPageMessages: ModelEditPageMessages = {
+  modelEditPage_eyebrow: "Modèle",
+  modelEditPage_actions: "Actions",
+  modelEditPage_descriptionPlaceholder: "ajouter une description",
+  modelEditPage_entitiesTitle: "Entités",
+  modelEditPage_entitiesEmpty: "ajouter des entités",
+  modelEditPage_relationshipsTitle: "Relations",
+  modelEditPage_relationshipsEmpty: "ajouter des relations",
+  modelEditPage_dataTypesTitle: "Types de données",
+  modelEditPage_dataTypesEmpty: "ajouter des types de données",
+  modelEditPage_localTagsTitle: "Tags locaux",
+  modelEditPage_keyLabel: "Clé du modèle",
+  modelEditPage_authorityLabel: "Autorité",
+  modelEditPage_authorityCanonical: "Canonique",
+  modelEditPage_authoritySystem: "Système",
+  modelEditPage_versionLabel: "Version",
+  modelEditPage_historyLink: "historique",
+  modelEditPage_externalLinkLabel: "Lien externe",
+  modelEditPage_externalLinkEmpty: "ajouter un lien externe",
+  modelEditPage_tagsLabel: "Tags",
+  modelEditPage_tagsEmpty: "ajouter des tags",
+  modelEditPage_originLabel: "Origine",
+  modelEditPage_identifierLabel: "Identifiant",
+  modelEditPage_manualOrigin: "Medatarun (manuel)",
+};

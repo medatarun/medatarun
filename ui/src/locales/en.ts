@@ -19,7 +19,7 @@ import { inlineEditSingleLineLayoutMessages } from "./en/InlineEditSingleLineLay
 import { inlineEditTagsMessages } from "./en/InlineEditTagsMessages";
 import { layoutMessages } from "./en/LayoutMessages";
 import { loginPageMessages } from "./en/LoginPageMessages";
-import { modelPageMessages } from "./en/ModelPageMessages";
+import { modelEditPageMessages } from "./en/ModelEditPageMessages.ts";
 import { modelComparePageMessages } from "./en/ModelComparePageMessages";
 import { modelHistoryPageMessages } from "./en/ModelHistoryPageMessages";
 import { modelReportsPageMessages } from "./en/ModelReportsPageMessages";
@@ -64,7 +64,7 @@ export const messages = {
   ...modelListPageMessages,
   ...modelComparePageMessages,
   ...modelHistoryPageMessages,
-  ...modelPageMessages,
+  ...modelEditPageMessages,
   ...modelReportsPageMessages,
   ...entityEditPageMessages,
   ...loginPageMessages,

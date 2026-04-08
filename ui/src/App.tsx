@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { ActionRunnerPage } from "@/views/actions/ActionRunnerPage.tsx";
 import { ModelListPage } from "@/views/model/ModelListPage.tsx";
-import { ModelPage } from "@/views/model/ModelPage.tsx";
+import { ModelEditPage } from "@/views/model/ModelEditPage.tsx";
 import { EntityEditPage } from "@/views/entity/EntityEditPage.tsx";
 import { Layout } from "@/components/layout/layout.tsx";
 import { DashboardPage } from "@/views/dashboard/DashboardPage.tsx";
@@ -145,7 +145,7 @@ function ModelCompareRouteComponent() {
 
 function ModelRouteComponent() {
   const { modelId } = useParams({ from: "/model/$modelId" });
-  return <ModelPage modelId={modelId} />;
+  return <ModelEditPage modelId={modelId} />;
 }
 
 function ModelHistoryRouteComponent() {

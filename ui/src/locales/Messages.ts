@@ -18,7 +18,7 @@ import { type InlineEditTagsMessages } from "./contracts/InlineEditTagsMessages"
 import { type DashboardPageMessages } from "./contracts/DashboardPageMessages";
 import { type LayoutMessages } from "./contracts/LayoutMessages";
 import { type LoginPageMessages } from "./contracts/LoginPageMessages";
-import { type ModelPageMessages } from "./contracts/ModelPageMessages";
+import { type ModelEditPageMessages } from "./contracts/ModelEditPageMessages.ts";
 import { type ModelComparePageMessages } from "./contracts/ModelComparePageMessages";
 import { type ModelHistoryPageMessages } from "./contracts/ModelHistoryPageMessages";
 import { type ModelReportsPageMessages } from "./contracts/ModelReportsPageMessages";
@@ -62,7 +62,7 @@ export type Messages = SessionMessages &
   ModelListPageMessages &
   ModelComparePageMessages &
   ModelHistoryPageMessages &
-  ModelPageMessages &
+  ModelEditPageMessages &
   ModelReportsPageMessages &
   EntityEditPageMessages &
   LoginPageMessages &

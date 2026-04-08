@@ -57,7 +57,7 @@ import { ActionMenuButton } from "@/components/business/actions/ActionMenuButton
 import { ViewLayoutTechnicalInfos } from "@/components/layout/ViewLayoutTechnicalInfos.tsx";
 import { TagIcon } from "@/components/business/tag/tag.icons.tsx";
 
-export function ModelPage({ modelId }: { modelId: string }) {
+export function ModelEditPage({ modelId }: { modelId: string }) {
   const { data: model } = useModel(modelId);
 
   return (
@@ -111,7 +111,7 @@ export function ModelView() {
     <ViewLayoutContained
       title={
         <div>
-          <ViewTitle eyebrow={<span>{t("modelPage_eyebrow")}</span>}>
+          <ViewTitle eyebrow={<span>{t("modelEditPage_eyebrow")}</span>}>
             <div
               style={{
                 display: "flex",
@@ -129,7 +129,7 @@ export function ModelView() {
               </div>
               <div>
                 <ActionMenuButton
-                  label={t("modelPage_actions")}
+                  label={t("modelEditPage_actions")}
                   itemActions={actions}
                   actionParams={createActionTemplateModel(model.id)}
                   displayedSubject={displayedSubject}
@@ -149,7 +149,7 @@ export function ModelView() {
             <SectionPaper topspacing="XXXL" nopadding>
               <InlineEditDescription
                 value={model.description}
-                placeholder={t("modelPage_descriptionPlaceholder")}
+                placeholder={t("modelEditPage_descriptionPlaceholder")}
                 onChange={(v) =>
                   modelUpdateDescription.mutateAsync({
                     modelId: model.id,
@@ -165,13 +165,13 @@ export function ModelView() {
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_entities}
             >
-              {t("modelPage_entitiesTitle")}
+              {t("modelEditPage_entitiesTitle")}
             </SectionTitle>
 
             {!model.hasEntities && (
               <p>
                 <MissingInformation>
-                  {t("modelPage_entitiesEmpty")}
+                  {t("modelEditPage_entitiesEmpty")}
                 </MissingInformation>
               </p>
             )}
@@ -187,13 +187,13 @@ export function ModelView() {
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_relationships}
             >
-              {t("modelPage_relationshipsTitle")}
+              {t("modelEditPage_relationshipsTitle")}
             </SectionTitle>
 
             {!model.hasRelationships && (
               <p>
                 <MissingInformation>
-                  {t("modelPage_relationshipsEmpty")}
+                  {t("modelEditPage_relationshipsEmpty")}
                 </MissingInformation>
               </p>
             )}
@@ -213,13 +213,13 @@ export function ModelView() {
               displayedSubject={displayedSubject}
               location={ActionUILocations.model_types}
             >
-              {t("modelPage_dataTypesTitle")}
+              {t("modelEditPage_dataTypesTitle")}
             </SectionTitle>
 
             {!model.hasTypes && (
               <p>
                 <MissingInformation>
-                  {t("modelPage_dataTypesEmpty")}
+                  {t("modelEditPage_dataTypesEmpty")}
                 </MissingInformation>
               </p>
             )}
@@ -237,7 +237,7 @@ export function ModelView() {
               location={ActionUILocations.tag_local_list}
               displayedSubject={displayedSubject}
             >
-              {t("modelPage_localTagsTitle")}
+              {t("modelEditPage_localTagsTitle")}
             </SectionTitle>
 
             <SectionTable>
@@ -249,9 +249,9 @@ export function ModelView() {
 
             <ViewLayoutTechnicalInfos
               technicalKey={model.key}
-              keyLabel={t("modelPage_keyLabel")}
+              keyLabel={t("modelEditPage_keyLabel")}
               id={model.id}
-              idLabel={t("modelPage_identifierLabel")}
+              idLabel={t("modelEditPage_identifierLabel")}
             ></ViewLayoutTechnicalInfos>
           </ContainedHumanReadable>
         </ContainedScrollable>
@@ -271,8 +271,8 @@ export function ModelOverview() {
   const displayedSubject = createDisplayedSubjectModel(model.id);
   const authorityLabel =
     model.authority === "canonical"
-      ? t("modelPage_authorityCanonical")
-      : t("modelPage_authoritySystem");
+      ? t("modelEditPage_authorityCanonical")
+      : t("modelEditPage_authoritySystem");
 
   const handleChangeKey = (value: string) => {
     return modelUpdateKey.mutateAsync({ modelId: model.id, value: value });
@@ -301,7 +301,7 @@ export function ModelOverview() {
     <PropertiesForm>
       {isDetailLevelTech && (
         <div>
-          <InfoLabel>{t("modelPage_keyLabel")}</InfoLabel>
+          <InfoLabel>{t("modelEditPage_keyLabel")}</InfoLabel>
         </div>
       )}
       {isDetailLevelTech && (
@@ -314,10 +314,10 @@ export function ModelOverview() {
         </div>
       )}
 
-      <div>{t("modelPage_authorityLabel")}</div>
+      <div>{t("modelEditPage_authorityLabel")}</div>
       <div>{`${model.authorityEmoji} ${authorityLabel}`}</div>
 
-      <div>{t("modelPage_versionLabel")}</div>
+      <div>{t("modelEditPage_versionLabel")}</div>
       <div
         style={{
           display: "flex",
@@ -336,11 +336,11 @@ export function ModelOverview() {
           }}
         >
           <HistoryRegular />
-          <span>{t("modelPage_historyLink")}</span>
+          <span>{t("modelEditPage_historyLink")}</span>
         </Link>
       </div>
 
-      <div>{t("modelPage_externalLinkLabel")}</div>
+      <div>{t("modelEditPage_externalLinkLabel")}</div>
       <div>
         <InlineEditSingleLine
           value={model.documentationHome ?? ""}
@@ -348,7 +348,7 @@ export function ModelOverview() {
         >
           {!model.documentationHome ? (
             <MissingInformation>
-              {t("modelPage_externalLinkEmpty")}
+              {t("modelEditPage_externalLinkEmpty")}
             </MissingInformation>
           ) : (
             <ExternalUrl url={model.documentationHome} />
@@ -356,7 +356,7 @@ export function ModelOverview() {
         </InlineEditSingleLine>
       </div>
 
-      <div>{t("modelPage_tagsLabel")}</div>
+      <div>{t("modelEditPage_tagsLabel")}</div>
       <div>
         <InlineEditTags
           value={model.tags}
@@ -365,13 +365,13 @@ export function ModelOverview() {
           displayedSubject={displayedSubject}
         >
           {!model.hasTags ? (
-            <MissingInformation>{t("modelPage_tagsEmpty")}</MissingInformation>
+            <MissingInformation>{t("modelEditPage_tagsEmpty")}</MissingInformation>
           ) : (
             <Tags tags={model.tags} scope={modelTagScope(model.id)} />
           )}
         </InlineEditTags>
       </div>
-      {isDetailLevelTech && <div>{t("modelPage_originLabel")}</div>}
+      {isDetailLevelTech && <div>{t("modelEditPage_originLabel")}</div>}
       {isDetailLevelTech && (
         <div>
           <Origin value={model.origin} />
@@ -417,7 +417,7 @@ export function EntitiesCardList({
 
 export function Origin({ value }: { value: ElementOrigin }) {
   const { t } = useAppI18n();
-  if (value.type == "manual") return t("modelPage_manualOrigin");
+  if (value.type == "manual") return t("modelEditPage_manualOrigin");
   return <ExternalUrl url={value.uri} />;
 }
 
