@@ -1,3 +1,6 @@
+"""
+This file must be named exactly "conftest.py" so pytest can discover it
+"""
 from __future__ import annotations
 
 import pytest
