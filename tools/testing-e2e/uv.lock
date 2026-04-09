@@ -247,19 +247,16 @@ wheels = [
 name = "testing-e2e"
 version = "0.1.0"
 source = { editable = "." }
-
-[package.optional-dependencies]
-test = [
+dependencies = [
     { name = "pytest" },
     { name = "testcontainers" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
-    { name = "testcontainers", marker = "extra == 'test'", specifier = ">=4" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "testcontainers", specifier = ">=4" },
 ]
-provides-extras = ["test"]
 
 [[package]]
 name = "typing-extensions"

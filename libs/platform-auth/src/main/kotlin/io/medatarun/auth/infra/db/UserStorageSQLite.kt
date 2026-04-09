@@ -3,10 +3,10 @@ package io.medatarun.auth.infra.db
 import io.medatarun.auth.domain.user.*
 import io.medatarun.auth.ports.needs.UserStorage
 import io.medatarun.platform.db.DbConnectionFactory
+import io.medatarun.platform.db.exposed.instant
 import org.jetbrains.exposed.v1.core.ColumnTransformer
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.java.javaUUID
-import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -103,7 +103,7 @@ class UserStorageSQLite(private val dbConnectionFactory: DbConnectionFactory) : 
             val passwordHashColumn = text("password_hash")
             val adminColumn = bool("admin")
             val bootstrapColumn = bool("bootstrap")
-            val disabledDateColumn = timestamp("disabled_date").nullable()
+            val disabledDateColumn = instant("disabled_date").nullable()
         }
 
         private class UserIdColumnTransformer : ColumnTransformer<UUID, UserId> {

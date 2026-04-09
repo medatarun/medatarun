@@ -8,13 +8,10 @@ version = "0.1.0"
 description = "Automation tests for Medatarun"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["pytest>=8", "testcontainers>=4"]
 
 [project.scripts]
-testing-release = "testing_e2e.__main__:main"
-
-[project.optional-dependencies]
-test = ["pytest>=8", "testcontainers>=4"]
+tests = "testing_e2e.__main__:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -24,3 +21,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+log_cli=true
+log_cli_level="INFO"
+log_cli_format = "%(asctime)s %(levelname)s %(name)s - %(message)s"

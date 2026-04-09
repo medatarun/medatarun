@@ -36,15 +36,24 @@ def load_run_config(pytestconfig: pytest.Config) -> RunConfig:
 
     if from_gradle and dist_url is not None:
         raise RuntimeError("Use either --from-gradle or --from-dist-url, not both")
+
     if not from_gradle and dist_url is None:
-        raise RuntimeError("Pass either --from-gradle or --from-dist-url")
+        from_gradle = True
 
     run_config: RunConfig
     if from_gradle:
         medatarun_src = os.environ.get("MEDATARUN_SRC")
-        if medatarun_src is None:
-            raise RuntimeError("MEDATARUN_SRC must be set when using --from-gradle")
-        run_config = GradleRunConfig(Path(medatarun_src))
+        project_root:Path
+        if medatarun_src is not None:
+            project_root = Path(medatarun_src)
+        else:
+            project_root = Path(__file__).resolve().parents[4]
+        print(f"Gradle location resolved {project_root}")
+
+        if not (project_root / "settings.gradle.ks").exists:
+            raise RuntimeError("Location doesnt point to medatarun gradle project")
+    
+        run_config = GradleRunConfig(Path(project_root))
     else:
         run_config = DistributionUrlRunConfig(dist_url)
 
