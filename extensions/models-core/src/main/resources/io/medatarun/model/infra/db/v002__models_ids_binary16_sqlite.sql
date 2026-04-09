@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS model_event_v003
     model_version       TEXT,
     actor_id            BINARY(16) NOT NULL,
     traceability_origin TEXT       NOT NULL,
-    created_at          INT       NOT NULL,
+    created_at          INTEGER    NOT NULL,
     payload             TEXT       NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model_v003 (id) ON DELETE CASCADE,
     UNIQUE (model_id, stream_revision)
@@ -35,7 +35,7 @@ SELECT
     model_version,
     unhex(replace(actor_id, '-', '')),
     traceability_origin,
-    strftime('%Y-%m-%d %H:%M:%f', created_at),
+    CAST(unixepoch(created_at, 'subsec') * 1000 AS INTEGER),
     payload
 FROM model_event;
 
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS model_snapshot_v003
     up_to_revision         INTEGER    NOT NULL,
     model_event_release_id BINARY(16),
     version                TEXT       NOT NULL,
-    created_at             INT       NOT NULL,
-    updated_at             INT       NOT NULL,
+    created_at             INTEGER    NOT NULL,
+    updated_at             INTEGER    NOT NULL,
     FOREIGN KEY (model_id) REFERENCES model_v003 (id) ON DELETE CASCADE,
     FOREIGN KEY (model_event_release_id) REFERENCES model_event_v003 (id) ON DELETE CASCADE
 );
@@ -76,8 +76,8 @@ SELECT
         ELSE unhex(replace(model_event_release_id, '-', ''))
     END,
     version,
-    strftime('%Y-%m-%d %H:%M:%f', created_at),
-    strftime('%Y-%m-%d %H:%M:%f', updated_at)
+    CAST(unixepoch(created_at, 'subsec') * 1000 AS INTEGER),
+    CAST(unixepoch(updated_at, 'subsec') * 1000 AS INTEGER)
 FROM model_snapshot;
 
 CREATE TABLE IF NOT EXISTS model_tag_snapshot_v003

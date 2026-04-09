@@ -37,12 +37,12 @@ class AuthDbMigration(
 
             2 -> {
                 // Only SQLite exists in this version
-                migrationV002CreateActorSystemMaintenance.apply(ctx)
                 ctx.applySqlResource(v002_01_ids_binary16_sqlite)
                 ctx.applySqlResource(v002_02_roles_sqlite)
                 migrationV002SeedRolesAndActorAssignments.apply(ctx)
                 ctx.applySqlResource(v002_03_drop_actor_roles_json_sqlite)
                 ctx.applySqlResource(v002_04_client)
+                migrationV002CreateActorSystemMaintenance.apply(ctx)
             }
 
             else -> ctx.throwUnknownVersionException()

@@ -8,7 +8,7 @@ CREATE TABLE tag_event
     event_version INTEGER NOT NULL,
     actor_id BINARY(16) NOT NULL,
     traceability_origin TEXT NOT NULL,
-    created_at INT NOT NULL,
+    created_at INTEGER NOT NULL,
     payload TEXT NOT NULL,
     UNIQUE (scope_type, scope_id, stream_revision)
 );
@@ -44,8 +44,8 @@ CREATE TABLE tag_view_history_tag
     key TEXT NOT NULL,
     name TEXT,
     description TEXT,
-    valid_from INT NOT NULL,
-    valid_to INT,
+    valid_from INTEGER NOT NULL,
+    valid_to INTEGER,
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 
@@ -57,8 +57,8 @@ CREATE TABLE tag_view_history_tag_group
     key TEXT NOT NULL,
     name TEXT,
     description TEXT,
-    valid_from INT NOT NULL,
-    valid_to INT,
+    valid_from INTEGER NOT NULL,
+    valid_to INTEGER,
     FOREIGN KEY (tag_event_id) REFERENCES tag_event (id) ON DELETE CASCADE
 );
 

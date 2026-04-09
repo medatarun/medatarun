@@ -29,6 +29,6 @@ class ActionAuditRecorderDbMigration(override val pluginId: String) : DbMigratio
         const val init_actions_sqlite = "io/medatarun/actions/infra/db/init__actions_sqlite.sql"
         const val init_actions_postgresql = "io/medatarun/actions/infra/db/init__actions_postgresql.sql"
         const val v001 = "io/medatarun/actions/infra/db/v001__actions_init_db_sqlite.sql"
-        const val v002 = "io/medatarun/actions/infra/db/v002__actions_ids_timestamps_sqlite.sql"
+        const val v002 = "io/medatarun/actions/infra/db/v002__actions_uuid_binary_sqlite.sql"
     }
 }

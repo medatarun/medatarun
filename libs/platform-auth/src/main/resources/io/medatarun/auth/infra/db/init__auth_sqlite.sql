@@ -4,9 +4,9 @@ CREATE TABLE auth_actor (
     subject TEXT NOT NULL,
     full_name TEXT NOT NULL,
     email TEXT,
-    disabled_date INT,
-    created_at INT NOT NULL,
-    last_seen_at INT NOT NULL,
+    disabled_date INTEGER,
+    created_at INTEGER NOT NULL,
+    last_seen_at INTEGER NOT NULL,
     UNIQUE (issuer, subject)
 );
 
@@ -34,8 +34,8 @@ CREATE TABLE auth_client (
     software_version TEXT,
     tos_uri TEXT,
     policy_uri TEXT,
-    created_at INT NOT NULL,
-    last_used_at INT NOT NULL
+    created_at INTEGER NOT NULL,
+    last_used_at INTEGER NOT NULL
 );
 
 CREATE TABLE auth_code (
@@ -47,8 +47,8 @@ CREATE TABLE auth_code (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    auth_time INT NOT NULL,
-    expires_at INT NOT NULL
+    auth_time INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL
 );
 
 CREATE TABLE auth_ctx (
@@ -60,8 +60,8 @@ CREATE TABLE auth_ctx (
     code_challenge TEXT NOT NULL,
     code_challenge_method TEXT NOT NULL,
     nonce TEXT,
-    created_at INT NOT NULL,
-    expires_at INT NOT NULL
+    created_at INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL
 );
 
 CREATE TABLE auth_role (
@@ -69,8 +69,8 @@ CREATE TABLE auth_role (
     key VARCHAR(30) NOT NULL,
     name VARCHAR(30) NOT NULL,
     description TEXT,
-    created_at INT NOT NULL,
-    last_updated_at INT NOT NULL
+    created_at INTEGER NOT NULL,
+    last_updated_at INTEGER NOT NULL
 );
 
 CREATE TABLE auth_role_permission (
@@ -97,7 +97,16 @@ CREATE INDEX idx_auth_ctx_expires_at ON auth_ctx (expires_at);
 CREATE UNIQUE INDEX idx_auth_role_key ON auth_role (key);
 
 
-INSERT INTO auth_actor (id, issuer, subject, full_name, email, disabled_date, created_at, last_seen_at)
+INSERT INTO auth_actor (
+    id,
+    issuer,
+    subject,
+    full_name,
+    email,
+    disabled_date,
+    created_at,
+    last_seen_at
+)
 VALUES (
     X'01941F297C0070009A6567088EBCBABD',
     'urn:medatarun:system',

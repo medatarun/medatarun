@@ -17,12 +17,12 @@ fun PreparedStatement.setUUID(parameterIndex: Int, uuid: UUID?) {
     this.setBytes(parameterIndex, toBytes(uuid))
 }
 
-fun PreparedStatement.setInstant(parameterIndex: Int, value: Instant?) {
+fun PreparedStatement.setInstantSQLite(parameterIndex: Int, value: Instant?) {
     if (value == null) {
-        this.setNull(parameterIndex, Types.VARCHAR)
+        this.setNull(parameterIndex, Types.INTEGER)
         return
     }
-    this.setString(parameterIndex, InstantAdapters.toSqlTimestampString(value))
+    this.setLong(parameterIndex, value.toEpochMilli())
 }
 
 fun ResultSet.getUuidFromString(columnName: String): UUID? {

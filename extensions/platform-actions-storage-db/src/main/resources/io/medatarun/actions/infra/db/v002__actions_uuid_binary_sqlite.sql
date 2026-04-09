@@ -7,7 +7,7 @@ CREATE TABLE action_audit_event_v002 (
     actor_id BINARY(16) NULL,
     source TEXT NOT NULL,
     payload_serialized TEXT NOT NULL,
-    created_at INT NOT NULL,
+    created_at INTEGER NOT NULL,
     status TEXT NOT NULL,
     error_code TEXT NULL,
     error_message TEXT NULL
@@ -35,7 +35,7 @@ SELECT
     END,
     source,
     payload_serialized,
-    strftime('%Y-%m-%d %H:%M:%f', created_at / 1000.0, 'unixepoch', 'localtime'),
+    created_at,
     status,
     error_code,
     error_message
