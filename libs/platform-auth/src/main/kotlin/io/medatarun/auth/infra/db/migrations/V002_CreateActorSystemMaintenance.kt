@@ -3,7 +3,9 @@ package io.medatarun.auth.infra.db.migrations
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.platform.db.jdbc.setInstantSQLite
+import io.medatarun.platform.db.jdbc.setUUID
 import io.medatarun.security.AppActorSystemMaintenance
+import java.util.UUID
 
 class V002_CreateActorSystemMaintenance {
     /**
@@ -21,7 +23,7 @@ class V002_CreateActorSystemMaintenance {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """.trimIndent()
             ).use { statement ->
-                statement.setString(1, AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID_STR)
+                statement.setUUID(1, AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ACTOR_ID)
                 statement.setString(2, AppActorSystemMaintenance.SYSTEM_MAINTENANCE_ISSUER)
                 statement.setString(3, AppActorSystemMaintenance.SYSTEM_MAINTENANCE_SUBJECT)
                 statement.setString(4, AppActorSystemMaintenance.displayName)

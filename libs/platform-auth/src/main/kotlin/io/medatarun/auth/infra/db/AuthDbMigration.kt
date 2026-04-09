@@ -42,7 +42,9 @@ class AuthDbMigration(
                 migrationV002SeedRolesAndActorAssignments.apply(ctx)
                 ctx.applySqlResource(v002_03_drop_actor_roles_json_sqlite)
                 ctx.applySqlResource(v002_04_client)
+                ctx.applySqlResource(v002_05_rewrite_internal_issuer_sqlite)
                 migrationV002CreateActorSystemMaintenance.apply(ctx)
+
             }
 
             else -> ctx.throwUnknownVersionException()
@@ -67,6 +69,7 @@ class AuthDbMigration(
         const val v002_02_roles_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_02_roles_sqlite.sql"
         const val v002_03_drop_actor_roles_json_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_03_drop_actor_roles_sqlite.sql"
         const val v002_04_client = "io/medatarun/auth/infra/db/version_auth_v002_04_client_sqlite.sql"
+        const val v002_05_rewrite_internal_issuer_sqlite = "io/medatarun/auth/infra/db/version_auth_v002_05_rewrite_internal_issuer_sqlite.sql"
         //@formatter:on
     }
 }
