@@ -211,7 +211,7 @@ class AuthExtension(
 
         val jwtIssuer = ctx.getConfigProperty(
             ConfigProperties.JwtDefaultIssuer.key,
-            "urn:medatarun:${authEmbeddedKeys.kid}"
+            "urn:medatarun:internal"
         )
         val jwtAudience = ctx.getConfigProperty(
             ConfigProperties.JwtDefaultAudience.key,

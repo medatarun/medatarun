@@ -66,6 +66,12 @@ class OAuthServiceTest {
     }
 
     @Test
+    fun `should use stable default internal issuer when no issuer property is configured`() {
+        val env = AuthEnvTest()
+        assertEquals("urn:medatarun:internal", env.jwtConfig.issuer)
+    }
+
+    @Test
     fun `should respect custom configuration`() {
         val customConfig = JwtConfig(
             issuer = "custom-issuer",
