@@ -5,7 +5,7 @@ import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.platform.db.DbDialect
 import io.medatarun.platform.db.DbMigrationContext
 import io.medatarun.platform.db.jdbc.getUuidFromString
-import io.medatarun.platform.db.jdbc.setInstant
+import io.medatarun.platform.db.jdbc.setInstantSQLite
 import io.medatarun.platform.db.jdbc.setUUID
 import io.medatarun.security.AppActorId
 import kotlinx.serialization.json.buildJsonObject
@@ -62,8 +62,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                         tagGroupHistoryStmt.setString(4, rs.getString("key"))
                         tagGroupHistoryStmt.setString(5, rs.getString("name"))
                         tagGroupHistoryStmt.setString(6, rs.getString("description"))
-                        tagGroupHistoryStmt.setInstant(7, createdAtDefault)
-                        tagGroupHistoryStmt.setNull(8, Types.VARCHAR)
+                        tagGroupHistoryStmt.setInstantSQLite(7, createdAtDefault)
+                        tagGroupHistoryStmt.setInstantSQLite(8, null)
                         tagGroupHistoryStmt.executeUpdate()
                     }
                 }
@@ -111,8 +111,8 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                         tagHistoryStmt.setString(7, rs.getString("key"))
                         tagHistoryStmt.setString(8, rs.getString("name"))
                         tagHistoryStmt.setString(9, rs.getString("description"))
-                        tagHistoryStmt.setInstant(10, createdAtDefault)
-                        tagHistoryStmt.setNull(11, Types.VARCHAR)
+                        tagHistoryStmt.setInstantSQLite(10, createdAtDefault)
+                        tagHistoryStmt.setInstantSQLite(11, null)
                         tagHistoryStmt.executeUpdate()
                     }
                 }
@@ -152,7 +152,7 @@ internal class V002TagEventMigration(private val maintenanceActorId: AppActorId)
                 statement.setInt(6, EVENT_VERSION_1)
                 statement.setUUID(7, maintenanceActorId.value)
                 statement.setString(8, TRACEABILITY_ORIGIN)
-                statement.setInstant(9, createdAt)
+                statement.setInstantSQLite(9, createdAt)
                 statement.setString(10, payload)
                 statement.executeUpdate()
             }

@@ -3,8 +3,8 @@ CREATE TABLE auth_role (
   key VARCHAR(30) NOT NULL,
   name VARCHAR(30) NOT NULL,
   description TEXT,
-  created_at INT NOT NULL,
-  last_updated_at INT NOT NULL
+  created_at INTEGER NOT NULL,
+  last_updated_at INTEGER NOT NULL
 );
 
 CREATE TABLE auth_role_permission (
