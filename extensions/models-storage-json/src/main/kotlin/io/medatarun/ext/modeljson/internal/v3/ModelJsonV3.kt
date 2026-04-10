@@ -18,14 +18,14 @@ internal class ModelJsonV3(
     @SerialName($$"$schema")
     val schema: String,
     val version: String,
-    val name: @Contextual LocalizedText? = null,
-    val description: @Contextual LocalizedMarkdown? = null,
+    val name: String? = null,
+    val description: String? = null,
     val origin: String? = null,
     val authority: String? = null,
     val tags: List<String>? = emptyList(),
-    val types: List<ModelTypeJson>? = emptyList(),
+    val types: List<ModelTypeJsonV3>? = emptyList(),
     val entities: List<ModelEntityJsonV3>? = emptyList(),
-    val relationships: List<RelationshipJson> = emptyList(),
+    val relationships: List<RelationshipJsonV3> = emptyList(),
     val documentationHome: String? = null,
     val businessKeys: List<BusinessKeyJsonV3>? = emptyList()
     )
