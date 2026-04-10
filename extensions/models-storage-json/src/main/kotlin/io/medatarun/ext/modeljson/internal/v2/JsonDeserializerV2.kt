@@ -67,7 +67,7 @@ internal class JsonDeserializerV2(
         for (relationJson in modelJsonV2.relationships) {
             val relationshipId = relationJson.id?.let { RelationshipId.fromString(it) } ?: RelationshipId.generate()
 
-            val attributes = base.toAttributeList(types, relationJson.attributes, AttributeOwnerId.OwnerRelationshipId(relationshipId))
+            val attributes = base.toAttributeList(types, relationJson.attributes ?: emptyList(), AttributeOwnerId.OwnerRelationshipId(relationshipId))
             attributeCollector.addAll(attributes)
 
             val r = RelationshipInMemory(

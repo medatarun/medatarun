@@ -17,6 +17,6 @@ internal class ModelEntityJsonV3(
     val tags: List<String>? = emptyList(),
     val attributes: List<ModelAttributeJson>,
     val documentationHome: String? = null,
-    /** Attribute identifier ids that participate in primary key */
+    /** Attribute identifier ids that participate in the primary key */
     val primaryKey: List<String>? = emptyList()
     )

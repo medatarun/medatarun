@@ -6,6 +6,7 @@ import io.medatarun.ext.modeljson.internal.v2.ModelEntityJsonV2
 import io.medatarun.model.domain.LocalizedMarkdown
 import io.medatarun.model.domain.LocalizedText
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,8 +23,8 @@ internal class ModelJsonV3(
     val origin: String? = null,
     val authority: String? = null,
     val tags: List<String>? = emptyList(),
-    val types: List<ModelTypeJson>,
-    val entities: List<ModelEntityJsonV3>,
+    val types: List<ModelTypeJson>? = emptyList(),
+    val entities: List<ModelEntityJsonV3>? = emptyList(),
     val relationships: List<RelationshipJson> = emptyList(),
     val documentationHome: String? = null,
     val businessKeys: List<BusinessKeyJsonV3>? = emptyList()

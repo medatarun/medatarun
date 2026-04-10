@@ -183,6 +183,8 @@ internal class ModelJsonConverterV2Test {
                 addJsonObject {
                     put("id", TypeId.generate().value.toString())
                     put("key", "String")
+                    put("name", null)
+                    put("description", null)
                 }
             }
             putJsonArray("entities") {

@@ -19,5 +19,6 @@ dependencies {
     implementation(project(":extensions:tags-core"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
+    testImplementation(libs.kotestAssertionsJson)
 
 }

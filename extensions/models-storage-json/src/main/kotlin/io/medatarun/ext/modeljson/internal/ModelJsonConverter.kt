@@ -8,6 +8,8 @@ import io.medatarun.ext.modeljson.internal.serializers.valueClassSerializer
 import io.medatarun.ext.modeljson.internal.v2.JsonDeserializerV2
 import io.medatarun.ext.modeljson.internal.v2.JsonSerializerV2
 import io.medatarun.ext.modeljson.internal.v2.ModelJsonV2
+import io.medatarun.ext.modeljson.internal.v3.JsonSerializerV3
+import io.medatarun.ext.modeljson.internal.v3.ModelJsonV3
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.ModelAggregateInMemory
 import kotlinx.serialization.json.Json
@@ -32,6 +34,7 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
 
     val serializerBaseVersion = JsonSerializerBaseVersion()
     val serializerV2 = JsonSerializerV2(serializerBaseVersion)
+    val serializerV3 = JsonSerializerV3(serializerBaseVersion)
 
     val deserializerBase = JsonDeserializerBaseVersion()
     val deserializerV2 = JsonDeserializerV2(deserializerBase)
@@ -50,6 +53,11 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     fun fromJsonV2(@Language("json") jsonString: String): ModelAggregateInMemory {
         val modelJsonV2 = this.json.decodeFromString(ModelJsonV2.serializer(), jsonString)
         return deserializerV2.fromJsonV2(modelJsonV2)
+    }
+
+    fun toJsonStringV3(model: ModelAggregate): String {
+        val modelJson = serializerV3.toModelJson(model)
+        return this.json.encodeToString(ModelJsonV3.serializer(), modelJson)
     }
 }
 

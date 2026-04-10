@@ -13,6 +13,6 @@ internal class RelationshipJson(
     val name: @Contextual LocalizedText? = null,
     val description: @Contextual LocalizedMarkdown? = null,
     val roles: List<RelationshipRoleJson>,
-    val attributes: List<ModelAttributeJson>,
+    val attributes: List<ModelAttributeJson>? = emptyList(),
     val tags: List<String>? = emptyList()
 )
