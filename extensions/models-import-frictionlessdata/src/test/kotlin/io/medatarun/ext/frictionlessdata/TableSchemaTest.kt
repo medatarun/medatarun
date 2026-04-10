@@ -74,7 +74,7 @@ class TableSchemaTest {
     fun test() {
         val resource = "/budget.json"
         val rl = TestResourceLocatorURL(URI("classpath:$resource"))
-        val model = conv.convert(resource, rl, null, null)
+        val imported = conv.convert(resource, rl, null, null)
         // println(model)
         // TODO("Complete tests on tableSchema")
     }
@@ -83,7 +83,7 @@ class TableSchemaTest {
     fun testDataPackage() {
         val resource = URI("https://raw.githubusercontent.com/cnigfr/schema-paysage/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
-        val model = conv.convert(resource.toString(), locator, null, null)
+        val imported = conv.convert(resource.toString(), locator, null, null)
         // println(model)
         // TODO("Complete tests on DataPackage")
     }
@@ -93,14 +93,14 @@ class TableSchemaTest {
         val resource =
             URI("https://raw.githubusercontent.com/betagouv/schema-projet-collectivites-transition-ecologique/refs/heads/main/datapackage.json")
         val locator = TestResourceLocatorURL(resource)
-        val model = conv.convert(resource.toString(), locator, null, null)
+        val imported = conv.convert(resource.toString(), locator, null, null)
 
         fun checkPK(entityKey: String, attributeKey: String) {
             val projetsTerritoireRef = entityRefKey(entityKey)
             val projetsTerritoireIdRef = attributeRefKey(attributeKey)
-            val projetsTerritoire = model.model.findEntity(projetsTerritoireRef)
-            val projetsTerritoireId = model.model.findEntityAttribute(projetsTerritoire.ref, projetsTerritoireIdRef)
-            val projetsTerritoirePKFound = model.model.entityPrimaryKeys.firstOrNull() { it.entityId == projetsTerritoire.id }
+            val projetsTerritoire = imported.model.findEntity(projetsTerritoireRef)
+            val projetsTerritoireId = imported.model.findEntityAttribute(projetsTerritoire.ref, projetsTerritoireIdRef)
+            val projetsTerritoirePKFound = imported.model.entityPrimaryKeys.firstOrNull() { it.entityId == projetsTerritoire.id }
             assertNotNull(projetsTerritoirePKFound)
             assertTrue(projetsTerritoirePKFound.participants.any { p -> p.attributeId == projetsTerritoireId.id})
 
