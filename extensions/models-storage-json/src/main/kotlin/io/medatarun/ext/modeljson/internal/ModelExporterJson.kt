@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonObject
 
 internal class ModelExporterJson(val converter: ModelJsonConverter): ModelExporter {
     override fun exportJson(model: ModelAggregate): JsonObject {
-        return converter.toJsonObject(model)
+        return converter.toJsonObjectV2(model)
     }
 
 }

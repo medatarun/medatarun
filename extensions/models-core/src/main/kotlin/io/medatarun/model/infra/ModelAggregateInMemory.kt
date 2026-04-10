@@ -2,6 +2,7 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.model.infra.inmemory.PBKeyInMemory
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
@@ -15,6 +16,7 @@ data class ModelAggregateInMemory(
     override val attributes: List<AttributeInMemory>,
     override val relationships: List<RelationshipInMemory>,
     override val tags: List<TagId>,
+    override val pbKeys: List<PBKeyInMemory>
 ) : ModelAggregate, Model by model {
 
     companion object {
@@ -25,7 +27,8 @@ data class ModelAggregateInMemory(
                 entities = other.entities.map(EntityInMemory::of),
                 relationships = other.relationships.map(RelationshipInMemory::of),
                 tags = other.tags,
-                attributes = other.attributes.map(AttributeInMemory::of)
+                attributes = other.attributes.map(AttributeInMemory::of),
+                pbKeys = other.pbKeys.map(PBKeyInMemory::of)
             )
         }
 
@@ -42,7 +45,8 @@ data class ModelAggregateInMemory(
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),
             var authority: ModelAuthority = ModelAuthority.SYSTEM,
-            var attributes: MutableList<AttributeInMemory> = mutableListOf()
+            var attributes: MutableList<AttributeInMemory> = mutableListOf(),
+            var pbKeys: MutableList<PBKeyInMemory> = mutableListOf(),
         ) {
             fun build(): ModelAggregateInMemory {
                 return ModelAggregateInMemory(
@@ -61,6 +65,7 @@ data class ModelAggregateInMemory(
                     relationships = relationships,
                     attributes = attributes,
                     tags = tags,
+                    pbKeys = pbKeys
                 )
             }
 
@@ -73,6 +78,7 @@ data class ModelAggregateInMemory(
                 entities.add(e)
                 return e
             }
+
             fun addAttribute(attr: AttributeInMemory) {
                 this.attributes.add(attr)
             }

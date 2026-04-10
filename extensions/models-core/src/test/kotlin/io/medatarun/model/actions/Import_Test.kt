@@ -36,7 +36,8 @@ class Import_Test {
             entities = emptyList(),
             attributes = emptyList(),
             relationships = emptyList(),
-            tags = emptyList()
+            tags = emptyList(),
+            pbKeys = emptyList()
         )
         val env = ModelTestEnv(
             listOf(ImportFixtureExtension(sampleModel, emptyList()))

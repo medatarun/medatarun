@@ -39,6 +39,11 @@ interface ModelAggregate : Model {
      */
     val attributes: List<Attribute>
 
+    /**
+     * List of primary or business keys
+     */
+    val pbKeys: List<PBKey>
+
     fun findTypeOptional(typeKey: TypeKey): ModelType? = types.firstOrNull { it.key == typeKey }
     fun findTypeOptional(typeId: TypeId): ModelType? = types.firstOrNull { it.id == typeId }
     fun findTypeOptional(typeRef: TypeRef): ModelType? {
@@ -207,6 +212,10 @@ interface ModelAggregate : Model {
 
     fun countAttributes(id: EntityId): Int {
         return findEntityAttributes(EntityRef.ById(id)).count()
+    }
+
+    fun findEntityPrimaryKeyOptional(id: EntityId): PBKey? {
+        return pbKeys.firstOrNull { it.entityId == id }
     }
 
 }

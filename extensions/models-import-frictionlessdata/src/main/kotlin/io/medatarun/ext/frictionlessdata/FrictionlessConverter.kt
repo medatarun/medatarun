@@ -125,7 +125,8 @@ class FrictionlessConverter {
             },
             relationships = emptyList(),
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
-            attributes = attributesCollector
+            attributes = attributesCollector,
+            pbKeys = emptyList()
         )
         return model
     }
@@ -168,6 +169,7 @@ class FrictionlessConverter {
             relationships = emptyList(),
             attributes = entityAndAttributes.attributes,
             tags = tagImporter.importModelScopeTags(modelId, datapackage.keywords),
+            pbKeys = emptyList()
         )
         return model
     }
