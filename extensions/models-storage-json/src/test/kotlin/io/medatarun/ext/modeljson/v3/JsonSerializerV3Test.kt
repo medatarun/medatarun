@@ -4,14 +4,9 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.medatarun.ext.modeljson.ModelJsonSchemas
 import io.medatarun.ext.modeljson.internal.ModelJsonConverter
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.AttributeInMemory
-import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
-import io.medatarun.model.infra.ModelTypeInMemory
 import io.medatarun.model.infra.RelationshipInMemory
 import io.medatarun.model.infra.RelationshipRoleInMemory
-import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
-import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.tags.core.domain.TagId
@@ -28,24 +23,17 @@ internal class JsonSerializerV3Test {
 
         val modelId = Id.generate(::ModelId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
+        val model = ModelAggregateInMemory.builder(
+            ModelInMemory(
                 key = ModelKey("root-fields-test"),
+                version = ModelVersion("1.2.3"),
+                id = modelId,
                 name = null,
                 description = null,
-                version = ModelVersion("1.2.3"),
                 origin = ModelOrigin.Manual,
                 authority = ModelAuthority.CANONICAL,
                 documentationHome = URI("https://docs.example.org/model").toURL()
-            ),
-            types = emptyList(),
-            entities = emptyList(),
-            attributes = emptyList(),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
+            )
         )
 
         val actualJson = converter.toJsonStringV3(model)
@@ -69,38 +57,23 @@ internal class JsonSerializerV3Test {
         val typeWithLabelsId = Id.generate(::TypeId)
         val typeWithoutLabelsId = Id.generate(::TypeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("types-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(
-                    id = typeWithLabelsId,
-                    key = TypeKey("string"),
-                    name = LocalizedTextNotLocalized("String"),
-                    description = LocalizedMarkdownNotLocalized("String value type")
-                ),
-                ModelTypeInMemory(
-                    id = typeWithoutLabelsId,
-                    key = TypeKey("uuid"),
-                    name = null,
-                    description = null
-                )
-            ),
-            entities = emptyList(),
-            attributes = emptyList(),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            id = modelId,
+            key = ModelKey("types-test"),
+            version = ModelVersion("1.0.0")
+        ) {
+            addType(
+                id = typeWithLabelsId,
+                key = TypeKey("string"),
+                name = LocalizedTextNotLocalized("String"),
+                description = LocalizedMarkdownNotLocalized("String value type")
+            )
+            addType(
+                id = typeWithoutLabelsId,
+                key = TypeKey("uuid"),
+                description = null
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -137,91 +110,53 @@ internal class JsonSerializerV3Test {
         val attributeTag = Id.generate(::TagId)
         val relationshipTag = Id.generate(::TagId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("tags-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(
-                    id = typeId,
-                    key = TypeKey("text"),
-                    name = null,
-                    description = null
-                )
-            ),
-            entities = listOf(
-                EntityInMemory(
-                    id = entityWithTagId,
-                    key = EntityKey("customer"),
-                    name = null,
-                    description = null,
-                    identifierAttributeId = entityWithTagAttributeId,
-                    origin = EntityOrigin.Manual,
-                    documentationHome = null,
-                    tags = listOf(entityTag)
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("tags-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(key = TypeKey("text"), id = typeId, name = null, description = null)
+            addEntity(
+                id = entityWithTagId,
+                key = EntityKey("customer"),
+                identifierAttributeId = entityWithTagAttributeId,
+                tags = mutableListOf(entityTag)
+            )
+            addEntity(
+                id = entityWithoutTagId,
+                key = EntityKey("order"),
+                identifierAttributeId = entityWithoutTagAttributeId
+            )
+            addAttribute(
+                id = entityWithTagAttributeId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityWithTagId),
+                key = AttributeKey("customer-code"),
+                typeId = typeId,
+                tags = listOf(attributeTag)
+            )
+            addAttribute(
+                id = entityWithoutTagAttributeId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityWithoutTagId),
+                key = AttributeKey("order-code"),
+                typeId = typeId
+            )
+            addRelationship(
+                id = relationshipId,
+                key = RelationshipKey("customer-order"),
+                roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = relationshipRoleId,
+                        key = RelationshipRoleKey("customer-role"),
+                        entityId = entityWithTagId,
+                        name = null,
+                        cardinality = RelationshipCardinality.One
+                    )
                 ),
-                EntityInMemory(
-                    id = entityWithoutTagId,
-                    key = EntityKey("order"),
-                    name = null,
-                    description = null,
-                    identifierAttributeId = entityWithoutTagAttributeId,
-                    origin = EntityOrigin.Manual,
-                    documentationHome = null,
-                    tags = emptyList()
-                )
-            ),
-            attributes = listOf(
-                AttributeInMemory(
-                    id = entityWithTagAttributeId,
-                    ownerId = AttributeOwnerId.OwnerEntityId(entityWithTagId),
-                    key = AttributeKey("customer-code"),
-                    name = null,
-                    description = null,
-                    typeId = typeId,
-                    optional = false,
-                    tags = listOf(attributeTag)
-                ),
-                AttributeInMemory(
-                    id = entityWithoutTagAttributeId,
-                    ownerId = AttributeOwnerId.OwnerEntityId(entityWithoutTagId),
-                    key = AttributeKey("order-code"),
-                    name = null,
-                    description = null,
-                    typeId = typeId,
-                    optional = false,
-                    tags = emptyList()
-                )
-            ),
-            relationships = listOf(
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey("customer-order"),
-                    name = null,
-                    description = null,
-                    roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = relationshipRoleId,
-                            key = RelationshipRoleKey("customer-role"),
-                            entityId = entityWithTagId,
-                            name = null,
-                            cardinality = RelationshipCardinality.One
-                        )
-                    ),
-                    tags = listOf(relationshipTag)
-                )
-            ),
-            tags = listOf(modelTagA, modelTagB),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+                tags = listOf(relationshipTag)
+            )
+            addTag(modelTagA)
+            addTag(modelTagB)
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -269,49 +204,28 @@ internal class JsonSerializerV3Test {
         val entityOrigin = "https://example.org/entities/customer"
         val entityDoc = "https://docs.example.org/entities/customer"
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-fields-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(
-                    id = entityId,
-                    key = EntityKey("customer"),
-                    name = LocalizedTextNotLocalized("Customer"),
-                    description = LocalizedMarkdownNotLocalized("Customer description"),
-                    identifierAttributeId = attrId,
-                    origin = EntityOrigin.Uri(URI(entityOrigin)),
-                    documentationHome = URI(entityDoc).toURL(),
-                    tags = emptyList()
-                )
-            ),
-            attributes = listOf(
-                AttributeInMemory(
-                    id = attrId,
-                    ownerId = AttributeOwnerId.OwnerEntityId(entityId),
-                    key = AttributeKey("customer-code"),
-                    name = null,
-                    description = null,
-                    typeId = typeId,
-                    optional = false,
-                    tags = emptyList()
-                )
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("entity-fields-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(
+                id = entityId,
+                key = EntityKey("customer"),
+                name = LocalizedTextNotLocalized("Customer"),
+                description = LocalizedMarkdownNotLocalized("Customer description"),
+                identifierAttributeId = attrId,
+                origin = EntityOrigin.Uri(URI(entityOrigin)),
+                documentationHome = URI(entityDoc).toURL()
+            )
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("customer-code"),
+                typeId = typeId
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -346,49 +260,29 @@ internal class JsonSerializerV3Test {
         val entityId = Id.generate(::EntityId)
         val attrId = Id.generate(::AttributeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-without-optionals-test"),
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("entity-without-optionals-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(
+                id = entityId,
+                key = EntityKey("customer"),
                 name = null,
                 description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(
-                    id = entityId,
-                    key = EntityKey("customer"),
-                    name = null,
-                    description = null,
-                    identifierAttributeId = attrId,
-                    origin = EntityOrigin.Manual,
-                    documentationHome = null,
-                    tags = emptyList()
-                )
-            ),
-            attributes = listOf(
-                AttributeInMemory(
-                    id = attrId,
-                    ownerId = AttributeOwnerId.OwnerEntityId(entityId),
-                    key = AttributeKey("customer-code"),
-                    name = null,
-                    description = null,
-                    typeId = typeId,
-                    optional = false,
-                    tags = emptyList()
-                )
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+                identifierAttributeId = attrId,
+                origin = EntityOrigin.Manual,
+                documentationHome = null,
+                tags = mutableListOf()
+            )
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("customer-code"),
+                typeId = typeId
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -417,33 +311,27 @@ internal class JsonSerializerV3Test {
         val attrAId = Id.generate(::AttributeId)
         val attrBId = Id.generate(::AttributeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-ownership-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(entityAId, EntityKey("a"), null, null, attrAId, EntityOrigin.Manual, null, emptyList()),
-                EntityInMemory(entityBId, EntityKey("b"), null, null, attrBId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrAId, AttributeOwnerId.OwnerEntityId(entityAId), AttributeKey("a-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(attrBId, AttributeOwnerId.OwnerEntityId(entityBId), AttributeKey("b-code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("entity-ownership-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityAId, key = EntityKey("a"), identifierAttributeId = attrAId)
+            addEntity(id = entityBId, key = EntityKey("b"), identifierAttributeId = attrBId)
+            addAttribute(
+                id = attrAId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
+                key = AttributeKey("a-code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = attrBId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityBId),
+                key = AttributeKey("b-code"),
+                typeId = typeId
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -472,40 +360,24 @@ internal class JsonSerializerV3Test {
         val attrId = Id.generate(::AttributeId)
         val attrTag = Id.generate(::TagId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-attribute-fields-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(
-                    id = attrId,
-                    ownerId = AttributeOwnerId.OwnerEntityId(entityId),
-                    key = AttributeKey("customer-code"),
-                    name = LocalizedTextNotLocalized("Customer Code"),
-                    description = LocalizedMarkdownNotLocalized("Unique customer code"),
-                    typeId = typeId,
-                    optional = true,
-                    tags = listOf(attrTag)
-                )
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            id = modelId,
+            key = ModelKey("entity-attribute-fields-test"),
+            version = ModelVersion("1.0.0"),
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("customer-code"),
+                name = LocalizedTextNotLocalized("Customer Code"),
+                description = LocalizedMarkdownNotLocalized("Unique customer code"),
+                typeId = typeId,
+                optional = true,
+                tags = listOf(attrTag)
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -547,41 +419,34 @@ internal class JsonSerializerV3Test {
         val attrFirstId = Id.generate(::AttributeId)
         val attrSecondId = Id.generate(::AttributeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-primary-key-sorted-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrFirstId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrFirstId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(attrSecondId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("country"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = listOf(
-                EntityPrimaryKeyInMemory(
-                    id = Id.generate(::EntityPrimaryKeyId),
-                    entityId = entityId,
-                    participants = listOf(
-                        PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2),
-                        PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1)
-                    )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("entity-primary-key-sorted-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addAttribute(
+                id = attrFirstId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = attrSecondId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("country"),
+                typeId = typeId
+            )
+            addEntityPrimaryKey(
+                id = Id.generate(::EntityPrimaryKeyId),
+                entityId = entityId,
+                participants = listOf(
+                    PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2),
+                    PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1)
                 )
-            ),
-            businessKeys = emptyList()
-        )
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -616,31 +481,20 @@ internal class JsonSerializerV3Test {
         val entityId = Id.generate(::EntityId)
         val attrId = Id.generate(::AttributeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("entity-primary-key-empty-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(
-                ModelTypeInMemory(typeId, TypeKey("text"), null, null)
-            ),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("entity-primary-key-empty-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -671,46 +525,36 @@ internal class JsonSerializerV3Test {
         val roleId = Id.generate(::RelationshipRoleId)
         val relationshipTag = Id.generate(::TagId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("relationship-root-fields-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = listOf(
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey("customer-order"),
-                    name = LocalizedTextNotLocalized("Customer Order"),
-                    description = LocalizedMarkdownNotLocalized("Links customers to orders"),
-                    roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = roleId,
-                            key = RelationshipRoleKey("customer-role"),
-                            entityId = entityId,
-                            name = null,
-                            cardinality = RelationshipCardinality.One
-                        )
-                    ),
-                    tags = listOf(relationshipTag)
-                )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("relationship-root-fields-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+            addRelationship(
+                id = relationshipId,
+                key = RelationshipKey("customer-order"),
+                name = LocalizedTextNotLocalized("Customer Order"),
+                description = LocalizedMarkdownNotLocalized("Links customers to orders"),
+                roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = roleId,
+                        key = RelationshipRoleKey("customer-role"),
+                        entityId = entityId,
+                        name = null,
+                        cardinality = RelationshipCardinality.One
+                    )
+                ),
+                tags = listOf(relationshipTag)
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -748,46 +592,36 @@ internal class JsonSerializerV3Test {
         val relationshipId = Id.generate(::RelationshipId)
         val roleId = Id.generate(::RelationshipRoleId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("relationship-roles-test"),
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("relationship-roles-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+            addRelationship(
+                id = relationshipId,
+                key = RelationshipKey("rel"),
                 name = null,
                 description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = listOf(
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey("rel"),
-                    name = null,
-                    description = null,
-                    roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = roleId,
-                            key = RelationshipRoleKey("customer-role"),
-                            entityId = entityId,
-                            name = LocalizedTextNotLocalized("Customer"),
-                            cardinality = RelationshipCardinality.Many
-                        )
-                    ),
-                    tags = emptyList()
-                )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+                roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = roleId,
+                        key = RelationshipRoleKey("customer-role"),
+                        entityId = entityId,
+                        name = LocalizedTextNotLocalized("Customer"),
+                        cardinality = RelationshipCardinality.Many
+                    )
+                ),
+                tags = emptyList()
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -831,47 +665,39 @@ internal class JsonSerializerV3Test {
         val relationshipAttrId = Id.generate(::AttributeId)
         val roleId = Id.generate(::RelationshipRoleId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("relationship-owned-attributes-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, entityAttrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(entityAttrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("entity-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(relationshipAttrId, AttributeOwnerId.OwnerRelationshipId(relationshipId), AttributeKey("relationship-code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = listOf(
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey("rel"),
-                    name = null,
-                    description = null,
-                    roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = roleId,
-                            key = RelationshipRoleKey("customer-role"),
-                            entityId = entityId,
-                            name = null,
-                            cardinality = RelationshipCardinality.One
-                        )
-                    ),
-                    tags = emptyList()
-                )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("relationship-owned-attributes-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = entityAttrId)
+            addAttribute(
+                id = entityAttrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("entity-code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = relationshipAttrId,
+                ownerId = AttributeOwnerId.OwnerRelationshipId(relationshipId),
+                key = AttributeKey("relationship-code"),
+                typeId = typeId
+            )
+            addRelationship(
+                id = relationshipId,
+                key = RelationshipKey("rel"),
+                roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = roleId,
+                        key = RelationshipRoleKey("customer-role"),
+                        entityId = entityId,
+                        name = null,
+                        cardinality = RelationshipCardinality.One
+                    )
+                ),
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -909,56 +735,44 @@ internal class JsonSerializerV3Test {
         val roleId = Id.generate(::RelationshipRoleId)
         val attrTag = Id.generate(::TagId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("relationship-attribute-fields-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, entityAttrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(entityAttrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("entity-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(
-                    relationshipAttrId,
-                    AttributeOwnerId.OwnerRelationshipId(relationshipId),
-                    AttributeKey("relationship-code"),
-                    LocalizedTextNotLocalized("Relationship Code"),
-                    LocalizedMarkdownNotLocalized("Relationship attribute description"),
-                    typeId,
-                    true,
-                    listOf(attrTag)
-                )
-            ),
-            relationships = listOf(
-                RelationshipInMemory(
-                    id = relationshipId,
-                    key = RelationshipKey("rel"),
-                    name = null,
-                    description = null,
-                    roles = listOf(
-                        RelationshipRoleInMemory(
-                            id = roleId,
-                            key = RelationshipRoleKey("customer-role"),
-                            entityId = entityId,
-                            name = null,
-                            cardinality = RelationshipCardinality.One
-                        )
-                    ),
-                    tags = emptyList()
-                )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("relationship-attribute-fields-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = entityAttrId)
+            addAttribute(
+                id = entityAttrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("entity-code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = relationshipAttrId,
+                ownerId = AttributeOwnerId.OwnerRelationshipId(relationshipId),
+                key = AttributeKey("relationship-code"),
+                name = LocalizedTextNotLocalized("Relationship Code"),
+                description = LocalizedMarkdownNotLocalized("Relationship attribute description"),
+                typeId = typeId,
+                optional = true,
+                tags = listOf(attrTag)
+            )
+            addRelationship(
+                id = relationshipId,
+                key = RelationshipKey("rel"),
+                roles = listOf(
+                    RelationshipRoleInMemory(
+                        id = roleId,
+                        key = RelationshipRoleKey("customer-role"),
+                        entityId = entityId,
+                        name = null,
+                        cardinality = RelationshipCardinality.One
+                    )
+                ),
+                tags = emptyList()
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1004,25 +818,20 @@ internal class JsonSerializerV3Test {
         val relationshipId = Id.generate(::RelationshipId)
         val roleId = Id.generate(::RelationshipRoleId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("relationship-without-optionals-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = listOf(
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("relationship-without-optionals-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+            addRelationship(
                 RelationshipInMemory(
                     id = relationshipId,
                     key = RelationshipKey("rel"),
@@ -1039,11 +848,8 @@ internal class JsonSerializerV3Test {
                     ),
                     tags = emptyList()
                 )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1086,54 +892,75 @@ internal class JsonSerializerV3Test {
         val relTagA = Id.generate(::TagId)
         val relTagB = Id.generate(::TagId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("multiple-relationships-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityAId, EntityKey("customer"), null, null, entityAAttrId, EntityOrigin.Manual, null, emptyList()),
-                EntityInMemory(entityBId, EntityKey("order"), null, null, entityBAttrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(entityAAttrId, AttributeOwnerId.OwnerEntityId(entityAId), AttributeKey("customer-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(entityBAttrId, AttributeOwnerId.OwnerEntityId(entityBId), AttributeKey("order-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(relationshipAAttrId, AttributeOwnerId.OwnerRelationshipId(relationshipAId), AttributeKey("ra"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(relationshipBAttrId, AttributeOwnerId.OwnerRelationshipId(relationshipBId), AttributeKey("rb"), null, null, typeId, false, emptyList())
-            ),
-            relationships = listOf(
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("multiple-relationships-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityAId, key = EntityKey("customer"), identifierAttributeId = entityAAttrId)
+            addEntity(id = entityBId, key = EntityKey("order"), identifierAttributeId = entityBAttrId)
+            addAttribute(
+                id = entityAAttrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
+                key = AttributeKey("customer-code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = entityBAttrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityBId),
+                key = AttributeKey("order-code"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = relationshipAAttrId,
+                ownerId = AttributeOwnerId.OwnerRelationshipId(relationshipAId),
+                key = AttributeKey("ra"),
+                typeId = typeId
+            )
+            addAttribute(
+                id = relationshipBAttrId,
+                ownerId = AttributeOwnerId.OwnerRelationshipId(relationshipBId),
+                key = AttributeKey("rb"),
+                typeId = typeId
+            )
+            addRelationship(
                 RelationshipInMemory(
                     id = relationshipAId,
                     key = RelationshipKey("rel-a"),
                     name = null,
                     description = null,
                     roles = listOf(
-                        RelationshipRoleInMemory(roleAId, RelationshipRoleKey("role-a"), entityAId, null, RelationshipCardinality.One)
+                        RelationshipRoleInMemory(
+                            id = roleAId,
+                            key = RelationshipRoleKey("role-a"),
+                            entityId = entityAId,
+                            name = null,
+                            cardinality = RelationshipCardinality.One
+                        )
                     ),
                     tags = listOf(relTagA)
-                ),
+                )
+            )
+            addRelationship(
                 RelationshipInMemory(
                     id = relationshipBId,
                     key = RelationshipKey("rel-b"),
                     name = null,
                     description = null,
                     roles = listOf(
-                        RelationshipRoleInMemory(roleBId, RelationshipRoleKey("role-b"), entityBId, null, RelationshipCardinality.Many)
+                        RelationshipRoleInMemory(
+                            id = roleBId,
+                            key = RelationshipRoleKey("role-b"),
+                            entityId = entityBId,
+                            name = null,
+                            cardinality = RelationshipCardinality.Many
+                        )
                     ),
                     tags = listOf(relTagB)
                 )
-            ),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1180,42 +1007,37 @@ internal class JsonSerializerV3Test {
         val attrSecondId = Id.generate(::AttributeId)
         val businessKeyId = Id.generate(::BusinessKeyId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("business-key-full-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrFirstId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrFirstId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(attrSecondId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("country"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = listOf(
-                BusinessKeyInMemory(
-                    id = businessKeyId,
-                    key = BusinessKeyKey("customer-bk"),
-                    entityId = entityId,
-                    participants = listOf(
-                        PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1),
-                        PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2)
-                    ),
-                    name = "Customer BK",
-                    description = "Uniquely identifies customer"
-                )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("business-key-full-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addAttribute(
+                id = attrFirstId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
             )
-        )
+            addAttribute(
+                id = attrSecondId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("country"),
+                typeId = typeId
+            )
+            addBusinessKey(
+                id = businessKeyId,
+                key = BusinessKeyKey("customer-bk"),
+                entityId = entityId,
+                participants = listOf(
+                    PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1),
+                    PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2)
+                ),
+                name = "Customer BK",
+                description = "Uniquely identifies customer"
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1252,38 +1074,28 @@ internal class JsonSerializerV3Test {
         val attrId = Id.generate(::AttributeId)
         val businessKeyId = Id.generate(::BusinessKeyId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("business-key-without-optionals-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = listOf(
-                BusinessKeyInMemory(
-                    id = businessKeyId,
-                    key = BusinessKeyKey("customer-bk"),
-                    entityId = entityId,
-                    participants = listOf(PBKeyParticipantInMemory(attributeId = attrId, position = 1)),
-                    name = null,
-                    description = null
-                )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("business-key-without-optionals-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
             )
-        )
+            addBusinessKey(
+                id = businessKeyId,
+                key = BusinessKeyKey("customer-bk"),
+                entityId = entityId,
+                participants = listOf(PBKeyParticipantInMemory(attributeId = attrId, position = 1)),
+                name = null,
+                description = null
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1319,42 +1131,37 @@ internal class JsonSerializerV3Test {
         val attrSecondId = Id.generate(::AttributeId)
         val businessKeyId = Id.generate(::BusinessKeyId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("business-key-participants-order-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrFirstId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrFirstId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(attrSecondId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("country"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = listOf(
-                BusinessKeyInMemory(
-                    id = businessKeyId,
-                    key = BusinessKeyKey("customer-bk"),
-                    entityId = entityId,
-                    participants = listOf(
-                        PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2),
-                        PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1)
-                    ),
-                    name = null,
-                    description = null
-                )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("business-key-participants-order-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addAttribute(
+                id = attrFirstId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
             )
-        )
+            addAttribute(
+                id = attrSecondId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("country"),
+                typeId = typeId
+            )
+            addBusinessKey(
+                id = businessKeyId,
+                key = BusinessKeyKey("customer-bk"),
+                entityId = entityId,
+                participants = listOf(
+                    PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2),
+                    PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1)
+                ),
+                name = null,
+                description = null
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1392,48 +1199,43 @@ internal class JsonSerializerV3Test {
         val businessKeyAId = Id.generate(::BusinessKeyId)
         val businessKeyBId = Id.generate(::BusinessKeyId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("multiple-business-keys-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityAId, EntityKey("customer"), null, null, attrAId, EntityOrigin.Manual, null, emptyList()),
-                EntityInMemory(entityBId, EntityKey("order"), null, null, attrBId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrAId, AttributeOwnerId.OwnerEntityId(entityAId), AttributeKey("customer-code"), null, null, typeId, false, emptyList()),
-                AttributeInMemory(attrBId, AttributeOwnerId.OwnerEntityId(entityBId), AttributeKey("order-code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = listOf(
-                BusinessKeyInMemory(
-                    id = businessKeyAId,
-                    key = BusinessKeyKey("customer-bk"),
-                    entityId = entityAId,
-                    participants = listOf(PBKeyParticipantInMemory(attributeId = attrAId, position = 1)),
-                    name = "Customer BK",
-                    description = "Customer key"
-                ),
-                BusinessKeyInMemory(
-                    id = businessKeyBId,
-                    key = BusinessKeyKey("order-bk"),
-                    entityId = entityBId,
-                    participants = listOf(PBKeyParticipantInMemory(attributeId = attrBId, position = 1)),
-                    name = "Order BK",
-                    description = "Order key"
-                )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("multiple-business-keys-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityAId, key = EntityKey("customer"), identifierAttributeId = attrAId)
+            addEntity(id = entityBId, key = EntityKey("order"), identifierAttributeId = attrBId)
+            addAttribute(
+                id = attrAId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
+                key = AttributeKey("customer-code"),
+                typeId = typeId
             )
-        )
+            addAttribute(
+                id = attrBId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityBId),
+                key = AttributeKey("order-code"),
+                typeId = typeId
+            )
+            addBusinessKey(
+                id = businessKeyAId,
+                key = BusinessKeyKey("customer-bk"),
+                entityId = entityAId,
+                participants = listOf(PBKeyParticipantInMemory(attributeId = attrAId, position = 1)),
+                name = "Customer BK",
+                description = "Customer key"
+            )
+            addBusinessKey(
+                id = businessKeyBId,
+                key = BusinessKeyKey("order-bk"),
+                entityId = entityBId,
+                participants = listOf(PBKeyParticipantInMemory(attributeId = attrBId, position = 1)),
+                name = "Order BK",
+                description = "Order key"
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1480,29 +1282,20 @@ internal class JsonSerializerV3Test {
         val entityId = Id.generate(::EntityId)
         val attrId = Id.generate(::AttributeId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("business-keys-empty-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
-        )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("business-keys-empty-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """
@@ -1529,38 +1322,28 @@ internal class JsonSerializerV3Test {
         val attrId = Id.generate(::AttributeId)
         val businessKeyId = Id.generate(::BusinessKeyId)
 
-        val model = ModelAggregateInMemory(
-            model = ModelInMemory(
-                id = modelId,
-                key = ModelKey("business-key-entity-id-format-test"),
-                name = null,
-                description = null,
-                version = ModelVersion("1.0.0"),
-                origin = ModelOrigin.Manual,
-                authority = ModelAuthority.SYSTEM,
-                documentationHome = null
-            ),
-            types = listOf(ModelTypeInMemory(typeId, TypeKey("text"), null, null)),
-            entities = listOf(
-                EntityInMemory(entityId, EntityKey("customer"), null, null, attrId, EntityOrigin.Manual, null, emptyList())
-            ),
-            attributes = listOf(
-                AttributeInMemory(attrId, AttributeOwnerId.OwnerEntityId(entityId), AttributeKey("code"), null, null, typeId, false, emptyList())
-            ),
-            relationships = emptyList(),
-            tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
-            businessKeys = listOf(
-                BusinessKeyInMemory(
-                    id = businessKeyId,
-                    key = BusinessKeyKey("customer-bk"),
-                    entityId = entityId,
-                    participants = listOf(PBKeyParticipantInMemory(attributeId = attrId, position = 1)),
-                    name = null,
-                    description = null
-                )
+        val model = ModelAggregateInMemory.builder(
+            key = ModelKey("business-key-entity-id-format-test"),
+            version = ModelVersion("1.0.0"),
+            id = modelId
+        ) {
+            addType(id = typeId, key = TypeKey("text"))
+            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addAttribute(
+                id = attrId,
+                ownerId = AttributeOwnerId.OwnerEntityId(entityId),
+                key = AttributeKey("code"),
+                typeId = typeId
             )
-        )
+            addBusinessKey(
+                id = businessKeyId,
+                key = BusinessKeyKey("customer-bk"),
+                entityId = entityId,
+                participants = listOf(PBKeyParticipantInMemory(attributeId = attrId, position = 1)),
+                name = null,
+                description = null
+            )
+        }
 
         val actualJson = converter.toJsonStringV3(model)
         val expectedJson = """

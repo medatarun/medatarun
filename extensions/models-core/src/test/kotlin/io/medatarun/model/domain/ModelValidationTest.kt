@@ -30,7 +30,7 @@ class ModelValidationTest {
             )
             val goodAttributeId = AttributeId.generate()
             val badAttributeId = AttributeId.generate()
-            val e = addEntity(
+            val e = addEntityWithIdentifierAttributeId(
                 key = EntityKey("Contact"),
                 identifierAttributeId = badAttributeId
             ) {
@@ -77,7 +77,7 @@ class ModelValidationTest {
                     description = null
                 )
             )
-            val contact = addEntity(
+            val contact = addEntityWithIdentifierAttributeId(
                 key = EntityKey("Contact"),
                 identifierAttributeId = identifierAttribute,
             ) {
@@ -121,11 +121,11 @@ class ModelValidationTest {
             )
 
             val duplicateEntityKey = EntityKey("Contact")
-            val entityOne = addEntity(
+            val entityOne = addEntityWithIdentifierAttributeId(
                 key = duplicateEntityKey,
                 identifierAttributeId = entityOneIdentifier,
             ) {}
-            val entityTwo = addEntity(
+            val entityTwo = addEntityWithIdentifierAttributeId(
                 key = duplicateEntityKey,
                 identifierAttributeId = entityTwoIdentifier,
             ) {}

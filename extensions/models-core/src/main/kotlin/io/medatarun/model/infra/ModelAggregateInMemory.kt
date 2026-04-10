@@ -1,10 +1,12 @@
 package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
 import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
+import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.tags.core.domain.TagId
+import io.medatarun.type.commons.id.Id
 import java.net.URL
 
 /**
@@ -74,7 +76,53 @@ data class ModelAggregateInMemory(
                 )
             }
 
+
+            fun addType(type: ModelTypeInMemory): ModelTypeInMemory {
+                types.add(type)
+                return type
+            }
+
+            fun addType(
+                key: TypeKey,
+                id: TypeId = Id.generate(::TypeId),
+                name: LocalizedText? = null,
+                description: LocalizedMarkdown? = null
+            ): ModelTypeInMemory {
+                val type = ModelTypeInMemory(id, key, name, description)
+                types.add(type)
+                return type
+            }
+
+            fun addEntity(entity: EntityInMemory): EntityInMemory {
+                entities.add(entity)
+                return entity
+            }
+
             fun addEntity(
+                id: EntityId = EntityId.generate(),
+                key: EntityKey,
+                name: LocalizedText? = null,
+                description: LocalizedMarkdown? = null,
+                identifierAttributeId: AttributeId = Id.generate(::AttributeId),
+                origin: EntityOrigin = EntityOrigin.Manual,
+                documentationHome: URL? = null,
+                tags: MutableList<TagId> = mutableListOf()
+            ): EntityInMemory {
+                val entity = EntityInMemory(
+                    id = id,
+                    key = key,
+                    name = name,
+                    description = description,
+                    identifierAttributeId = identifierAttributeId,
+                    origin = origin,
+                    documentationHome = documentationHome,
+                    tags = tags
+                )
+                entities.add(entity)
+                return entity
+            }
+
+            fun addEntityWithIdentifierAttributeId(
                 key: EntityKey,
                 identifierAttributeId: AttributeId,
                 block: EntityInMemory.Companion.Builder.() -> Unit = {}
@@ -84,13 +132,121 @@ data class ModelAggregateInMemory(
                 return e
             }
 
+            fun addRelationship(relationship: RelationshipInMemory): RelationshipInMemory {
+                relationships.add(relationship)
+                return relationship
+            }
+
+            fun addRelationship(
+                id: RelationshipId = Id.generate(::RelationshipId),
+                key: RelationshipKey,
+                name: LocalizedText? = null,
+                description: LocalizedMarkdown? = null,
+                roles: List<RelationshipRoleInMemory>,
+                tags: List<TagId> = emptyList(),
+
+                ): RelationshipInMemory {
+                val relationship = RelationshipInMemory(
+                    id = id, key = key, name = name, description = description, roles = roles, tags = tags
+                )
+                relationships.add(relationship)
+                return relationship
+            }
+
             fun addAttribute(attr: AttributeInMemory) {
                 this.attributes.add(attr)
             }
+
+            fun addAttribute(
+                id: AttributeId,
+                ownerId: AttributeOwnerId,
+                key: AttributeKey,
+                name: LocalizedText? = null,
+                description: LocalizedMarkdown? = null,
+                typeId: TypeId,
+                optional: Boolean = false,
+                tags: List<TagId> = emptyList(),
+            ) {
+                val attr = AttributeInMemory(
+                    id = id,
+                    ownerId = ownerId,
+                    key = key,
+                    name = name,
+                    description = description,
+                    typeId = typeId,
+                    optional = optional,
+                    tags = tags
+                )
+                this.attributes.add(attr)
+            }
+
+            fun addTag(tagId: TagId): TagId {
+                tags.add(tagId)
+                return tagId
+            }
+
+            fun addEntityPrimaryKey(entityPrimaryKey: EntityPrimaryKeyInMemory): EntityPrimaryKeyInMemory {
+                entityPrimaryKeys.add(entityPrimaryKey)
+                return entityPrimaryKey
+            }
+
+            fun addEntityPrimaryKey(
+                id: EntityPrimaryKeyId = Id.generate(::EntityPrimaryKeyId),
+                entityId: EntityId,
+                participants: List<PBKeyParticipantInMemory>,
+            ): EntityPrimaryKeyInMemory {
+                val entityPrimaryKey =
+                    EntityPrimaryKeyInMemory(id = id, entityId = entityId, participants = participants)
+                entityPrimaryKeys.add(entityPrimaryKey)
+                return entityPrimaryKey
+            }
+
+            fun addBusinessKey(businessKey: BusinessKeyInMemory): BusinessKeyInMemory {
+                businessKeys.add(businessKey)
+                return businessKey
+            }
+
+            fun addBusinessKey(
+                id: BusinessKeyId = Id.generate(::BusinessKeyId),
+                key: BusinessKeyKey,
+                entityId: EntityId,
+                name: String? = null,
+                description: String? = null,
+                participants: List<PBKeyParticipantInMemory>,
+            ): BusinessKeyInMemory {
+                val bk = BusinessKeyInMemory(
+                    id = id,
+                    key = key,
+                    entityId = entityId,
+                    name = name,
+                    description = description,
+                    participants = participants
+                )
+                businessKeys.add(bk)
+                return bk
+            }
         }
 
-        fun builder(key: ModelKey, version: ModelVersion, block: Builder.() -> Unit): ModelAggregateInMemory {
-            return Builder(key = key, version = version).apply(block).build()
+        fun builder(
+            key: ModelKey,
+            version: ModelVersion,
+            id: ModelId = ModelId.generate(),
+            block: Builder.() -> Unit
+        ): ModelAggregateInMemory {
+            return Builder(id = id, key = key, version = version).apply(block).build()
+        }
+
+        fun builder(model: Model, block: Builder.() -> Unit = {}): ModelAggregateInMemory {
+            return Builder(
+                id = model.id,
+                key = model.key,
+                name = model.name,
+                description = model.description,
+                version = model.version,
+                origin = model.origin,
+                documentationHome = model.documentationHome,
+                authority = model.authority,
+            ).apply(block).build()
         }
 
     }
