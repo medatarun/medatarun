@@ -142,7 +142,8 @@ class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry
             relationships = relationships,
             tags = emptyList(),
             attributes = attributesCollector,
-            pbKeys = emptyList()
+            entityPrimaryKeys = emptyList(),
+            businessKeys = emptyList()
         )
         return ModelImporterData(
             model,

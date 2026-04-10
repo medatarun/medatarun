@@ -184,7 +184,8 @@ class ModelAggregateInMemoryTest {
             attributes = companyAttributes + personAttributes,
             relationships = emptyList(), // TODO tests on model in memory relationships
             tags = emptyList(),
-            pbKeys = emptyList()
+            entityPrimaryKeys = emptyList(),
+            businessKeys = emptyList()
         )
     }
 }

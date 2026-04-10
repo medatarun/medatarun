@@ -1,21 +1,21 @@
 package io.medatarun.model.domain
 
-interface PBKey {
+interface BusinessKey {
 
     /**
      * Identifier of the primary of business key
      */
-    val id: EntityPBKeyId
+    val id: BusinessKeyId
+
+    /**
+     * Unique key of the business key in the model
+     */
+    val key: BusinessKeyKey
 
     /**
      * Entity for which the key exists
      */
     val entityId: EntityId
-
-    /**
-     * Indicate this key is the primary key or a business key
-     */
-    val kind: PBKeyKind
 
     /**
      * Ordered set of attributes that contribute to the key

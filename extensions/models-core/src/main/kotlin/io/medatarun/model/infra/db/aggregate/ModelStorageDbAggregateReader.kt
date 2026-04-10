@@ -42,7 +42,8 @@ class ModelStorageDbAggregateReader {
             relationships = relationships,
             tags = loadModelTags(record.snapshotId),
             attributes = entityAttributes + relationshipAttributes,
-            pbKeys = emptyList()
+            entityPrimaryKeys = emptyList(),
+            businessKeys = emptyList()
         )
     }
 

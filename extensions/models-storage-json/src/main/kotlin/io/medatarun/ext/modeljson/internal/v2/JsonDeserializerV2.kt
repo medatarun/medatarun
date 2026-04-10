@@ -1,19 +1,16 @@
 package io.medatarun.ext.modeljson.internal.v2
 
-import io.medatarun.ext.modeljson.internal.ModelJsonEntityAttributeTypeNotFoundException
 import io.medatarun.ext.modeljson.internal.ModelJsonEntityIdentifierAttributeNotFound
 import io.medatarun.ext.modeljson.internal.ModelJsonReadEntityReferencedInRelationshipNotFound
 import io.medatarun.ext.modeljson.internal.base.JsonDeserializerBaseVersion
-import io.medatarun.ext.modeljson.internal.base.ModelAttributeJson
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.EntityOrigin.Uri
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
-import io.medatarun.model.infra.inmemory.PBKeyInMemory
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.type.commons.id.Id
-import kotlinx.serialization.json.Json
-import org.intellij.lang.annotations.Language
 import java.net.URI
 
 internal class JsonDeserializerV2(
@@ -32,7 +29,7 @@ internal class JsonDeserializerV2(
         val attributeCollector = mutableListOf<AttributeInMemory>()
         val entityCollector = mutableListOf<EntityInMemory>()
         val relationshipCollector = mutableListOf<RelationshipInMemory>()
-        val pbkCollector = mutableListOf<PBKeyInMemory>()
+        val pbkCollector = mutableListOf<EntityPrimaryKeyInMemory>()
 
         for (entityJson in modelJsonV2.entities) {
             val entityId = entityJson.id?.let { EntityId.fromString(it) } ?: EntityId.generate()
@@ -60,7 +57,7 @@ internal class JsonDeserializerV2(
             entityCollector.add(e)
 
             // Takes the key in JSON identifierAttribute and convert it to PBKey
-            pbkCollector.add(PBKeyInMemory.ofSingleAttribute(entityId, identifierAttribute.id))
+            pbkCollector.add(EntityPrimaryKeyInMemory.ofSingleAttribute(entityId, identifierAttribute.id))
         }
 
         fun findEntity(relationJsonKey: String, roleJsonKey: String, entityKey: EntityKey) = entityCollector
@@ -113,7 +110,8 @@ internal class JsonDeserializerV2(
             relationships = relationshipCollector,
             attributes = attributeCollector,
             tags = modelJsonV2.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList(),
-            pbKeys = pbkCollector
+            entityPrimaryKeys = pbkCollector,
+            businessKeys = emptyList()
         )
         return modelAggregate
     }

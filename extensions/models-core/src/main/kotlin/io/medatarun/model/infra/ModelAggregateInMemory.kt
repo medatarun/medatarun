@@ -2,7 +2,8 @@ package io.medatarun.model.infra
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
-import io.medatarun.model.infra.inmemory.PBKeyInMemory
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.tags.core.domain.TagId
 import java.net.URL
 
@@ -16,7 +17,8 @@ data class ModelAggregateInMemory(
     override val attributes: List<AttributeInMemory>,
     override val relationships: List<RelationshipInMemory>,
     override val tags: List<TagId>,
-    override val pbKeys: List<PBKeyInMemory>
+    override val entityPrimaryKeys: List<EntityPrimaryKeyInMemory>,
+    override val businessKeys: List<BusinessKeyInMemory>,
 ) : ModelAggregate, Model by model {
 
     companion object {
@@ -28,7 +30,8 @@ data class ModelAggregateInMemory(
                 relationships = other.relationships.map(RelationshipInMemory::of),
                 tags = other.tags,
                 attributes = other.attributes.map(AttributeInMemory::of),
-                pbKeys = other.pbKeys.map(PBKeyInMemory::of)
+                entityPrimaryKeys = other.entityPrimaryKeys.map(EntityPrimaryKeyInMemory::of),
+                businessKeys = other.businessKeys.map(BusinessKeyInMemory::of)
             )
         }
 
@@ -46,7 +49,8 @@ data class ModelAggregateInMemory(
             var tags: MutableList<TagId> = mutableListOf(),
             var authority: ModelAuthority = ModelAuthority.SYSTEM,
             var attributes: MutableList<AttributeInMemory> = mutableListOf(),
-            var pbKeys: MutableList<PBKeyInMemory> = mutableListOf(),
+            var entityPrimaryKeys: MutableList<EntityPrimaryKeyInMemory> = mutableListOf(),
+            var businessKeys: MutableList<BusinessKeyInMemory> = mutableListOf(),
         ) {
             fun build(): ModelAggregateInMemory {
                 return ModelAggregateInMemory(
@@ -65,7 +69,8 @@ data class ModelAggregateInMemory(
                     relationships = relationships,
                     attributes = attributes,
                     tags = tags,
-                    pbKeys = pbKeys
+                    entityPrimaryKeys = entityPrimaryKeys,
+                    businessKeys = businessKeys
                 )
             }
 
