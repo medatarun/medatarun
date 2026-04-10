@@ -3,6 +3,7 @@ package io.medatarun.ext.modeljson.internal.v2
 import io.medatarun.ext.modeljson.internal.ModelJsonEntityAttributeTypeNotFoundException
 import io.medatarun.ext.modeljson.internal.ModelJsonEntityIdentifierAttributeNotFound
 import io.medatarun.ext.modeljson.internal.ModelJsonReadEntityReferencedInRelationshipNotFound
+import io.medatarun.ext.modeljson.internal.base.JsonDeserializerBaseVersion
 import io.medatarun.ext.modeljson.internal.base.ModelAttributeJson
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.EntityOrigin.Uri
@@ -16,10 +17,10 @@ import org.intellij.lang.annotations.Language
 import java.net.URI
 
 internal class JsonDeserializerV2(
-    private val json: Json
+    private val base: JsonDeserializerBaseVersion
 ) {
-    fun fromJsonV2(@Language("json") jsonString: String): ModelAggregateInMemory {
-        val modelJsonV2 = this.json.decodeFromString(ModelJsonV2.serializer(), jsonString)
+    fun fromJsonV2(modelJsonV2: ModelJsonV2): ModelAggregateInMemory {
+
         val types = modelJsonV2.types.map { typeJson ->
             ModelTypeInMemory(
                 id = typeJson.id?.let { TypeId.fromString(it) } ?: TypeId.generate(),
@@ -36,7 +37,7 @@ internal class JsonDeserializerV2(
         for (entityJson in modelJsonV2.entities) {
             val entityId = entityJson.id?.let { EntityId.fromString(it) } ?: EntityId.generate()
 
-            val attributes = toAttributeList(types, entityJson.attributes, AttributeOwnerId.OwnerEntityId(entityId))
+            val attributes = base.toAttributeList(types, entityJson.attributes, AttributeOwnerId.OwnerEntityId(entityId))
             attributeCollector.addAll(attributes)
 
             val identifierAttribute = attributes
@@ -69,8 +70,7 @@ internal class JsonDeserializerV2(
         for (relationJson in modelJsonV2.relationships) {
             val relationshipId = relationJson.id?.let { RelationshipId.fromString(it) } ?: RelationshipId.generate()
 
-            val attributes =
-                toAttributeList(types, relationJson.attributes, AttributeOwnerId.OwnerRelationshipId(relationshipId))
+            val attributes = base.toAttributeList(types, relationJson.attributes, AttributeOwnerId.OwnerRelationshipId(relationshipId))
             attributeCollector.addAll(attributes)
 
             val r = RelationshipInMemory(
@@ -118,30 +118,4 @@ internal class JsonDeserializerV2(
         return modelAggregate
     }
 
-    companion object {
-        private fun toAttributeList(
-            types: List<ModelType>,
-            attrs: Collection<ModelAttributeJson>,
-            ownerId: AttributeOwnerId
-        ): List<AttributeInMemory> {
-
-            return attrs.map { attributeJson ->
-
-                val type = types.firstOrNull { t -> t.key == TypeKey(attributeJson.type) }
-                    ?: throw ModelJsonEntityAttributeTypeNotFoundException(attributeJson.key, attributeJson.type)
-
-                AttributeInMemory(
-                    id = attributeJson.id?.let { AttributeId.fromString(it) } ?: AttributeId.generate(),
-                    key = AttributeKey(attributeJson.key),
-                    name = attributeJson.name,
-                    description = attributeJson.description,
-                    optional = attributeJson.optional,
-                    typeId = type.id,
-                    tags = attributeJson.tags?.map { Id.fromString(it, ::TagId) } ?: emptyList(),
-                    ownerId = ownerId
-                )
-            }
-        }
-
-    }
 }

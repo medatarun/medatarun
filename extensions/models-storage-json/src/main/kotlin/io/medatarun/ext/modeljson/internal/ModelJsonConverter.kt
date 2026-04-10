@@ -1,5 +1,6 @@
 package io.medatarun.ext.modeljson.internal
 
+import io.medatarun.ext.modeljson.internal.base.JsonDeserializerBaseVersion
 import io.medatarun.ext.modeljson.internal.base.JsonSerializerBaseVersion
 import io.medatarun.ext.modeljson.internal.serializers.LocalizedMarkdownSerializer
 import io.medatarun.ext.modeljson.internal.serializers.LocalizedTextSerializer
@@ -32,7 +33,8 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
     val serializerBaseVersion = JsonSerializerBaseVersion()
     val serializerV2 = JsonSerializerV2(serializerBaseVersion)
 
-    val deserializerV2 = JsonDeserializerV2(json)
+    val deserializerBase = JsonDeserializerBaseVersion()
+    val deserializerV2 = JsonDeserializerV2(deserializerBase)
 
 
     fun toJsonStringV2(model: ModelAggregate): String {
@@ -44,8 +46,10 @@ internal class ModelJsonConverter(private val prettyPrint: Boolean) {
         val modelJson = serializerV2.toModelJsonV2(model)
         return this.json.encodeToJsonElement(ModelJsonV2.serializer(), modelJson).jsonObject
     }
+
     fun fromJsonV2(@Language("json") jsonString: String): ModelAggregateInMemory {
-        return deserializerV2.fromJsonV2(jsonString)
+        val modelJsonV2 = this.json.decodeFromString(ModelJsonV2.serializer(), jsonString)
+        return deserializerV2.fromJsonV2(modelJsonV2)
     }
 }
 
