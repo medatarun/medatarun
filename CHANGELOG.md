@@ -1,33 +1,28 @@
 # Changelog
 
-## [Unreleased 0.9.0]
+## [0.9.0]
 
 ### Added
 
-**General**
-
-- Changelog file (this file)
-
-**Tags and models**
-
-- Tags and tag groups event history
-
-**MCP and API authentication**
-
-- Support for OAuth2.0 in MCP (and APIs) with Dynamic Client Registration Protocol
-
-**Administration tools**
-
-- New admin menu
-- Admin page for database drivers
-- Admin page for configured datasources
-- Admin page to list roles, manage roles, add permissions to roles
-- Admin page to list actors, manage actors, add roles, enable or disable them
-
-**Storage**
-
-- PostgreSQL support. Default installations are still using SQLite, so they still run out-of-the box.
-- Tools to generale initial SQL for fresh installations
+- Tags and tag groups now have a full history of changes. In model history
+  views, you can see old tag names even if they were removed or renamed.
+- AI agents and API tools can now register themselves with OAuth 2.0 Dynamic
+  Client Registration Protocol. For example, tools like OpenAI ChatGPT Codex
+  show an "Authenticate" button and redirect users to a webpage
+  where they can authorize the connection in their browser.
+- Better RBAC: before this release, permissions were directly
+  attached to actors. From now on, you can create roles and add permissions to
+  roles. Actors can have multiple roles.
+- The user interface now has an administration menu where you can:
+    - list your installed database drivers and datasources
+    - manage users from our internal identity storage
+    - manage actors from our internal identity storage or external identity
+      providers like Google, Azure AD, or Auth0
+    - create roles and populate them with permissions
+    - attach roles to actors
+    - disable or re-enable actors
+- PostgreSQL support has been added. PostgreSQL is optional; fresh
+  installations still use SQLite out of the box.
 
 ### Breaking changes
 
@@ -54,8 +49,7 @@ permissions you can create yourself and affect to actors.
   The idea is that the fact that a tag is free to create or managed are linked
   permissions, and it is not intrinsic of where the tag belongs. So the feature
   is the same, with the same organization possibilities, but the wording changes
-  to
-  reflect the reality.
+  to reflect the reality.
 - Tags history implemented with event sourcing
 - A `System maintenance` actor is created automatically
   to identify data changes made by the system itself.
@@ -72,6 +66,10 @@ permissions you can create yourself and affect to actors.
 - Old roles had been renamed to permissions. A new role concept had been
   introduced as a set of permissions you can affect to actors.
 - New feature in security permissions declaration to rename permissions
+- Unit tests fully use the database, can run all tests on PostgreSQL too (via
+  TestContainers)
+- E2E testing tools to replace manual testing (Python scripting with pytest)
+- Largely improved database migration processes and tooling cross-modules
 
 **Database**
 
@@ -101,13 +99,20 @@ permissions you can create yourself and affect to actors.
 General:
 
 - SQLite tables moved ids from `TEXT` to `BINARY(16)`.
-- SQLite tables have a stronger TIMESTAMP usage where timestamps are needed,
-  still as text but in TIMESTAMP format.
+- SQLite tables have a stronger timestamp usage where timestamps are needed,
+  now using `INTEGER` instead of `TEXT`.
 
 **Permissions**
 
 - `tag_free_manage` renamed to `tag_local_manage`
 - `tag_managed_manage` renamed to `tag_global_manage`
+
+**Dependencies**
+
+- Typescript upgraded to 6.0
+- Eslint upgraded to 10.0
+- Kotlin upgrade to 2.3
+- Most dependencies patches to latest for security
 
 ### Fixed
 
