@@ -16,4 +16,8 @@ sealed interface EntityAttributeRef : Ref<EntityAttributeRef> {
     ) : EntityAttributeRef {
         override fun asString(): String = "key:" + key.value
     }
+
+    companion object {
+        fun attributeRefKey(value:String) = ByKey(AttributeKey(value))
+    }
 }
