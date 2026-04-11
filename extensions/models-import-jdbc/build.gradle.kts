@@ -19,5 +19,6 @@ dependencies {
     implementation(project(":libs:lang"))
     testImplementation(kotlin("test"))
     testImplementation(libs.jimfs)
+    testImplementation(libs.sqliteJdbc)
 
 }
