@@ -1,7 +1,7 @@
 package io.medatarun.ext.db.internal.modelimport
 
-import io.medatarun.ext.db.internal.drivers.DbDriverManager
-import io.medatarun.ext.db.model.DbDatasource
+import io.medatarun.ext.db.domain.DbDriverManager
+import io.medatarun.ext.db.domain.DbDatasource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.sql.DatabaseMetaData

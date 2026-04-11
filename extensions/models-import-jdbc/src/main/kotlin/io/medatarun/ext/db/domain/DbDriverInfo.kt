@@ -1,4 +1,4 @@
-package io.medatarun.ext.db.model
+package io.medatarun.ext.db.domain
 
 import kotlinx.serialization.Serializable
 import java.nio.file.Path

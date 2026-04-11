@@ -1,11 +1,11 @@
 package io.medatarun.ext.db.internal.modelimport
 
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
-import io.medatarun.ext.db.internal.drivers.DbDriverManager
-import io.medatarun.ext.db.model.DbConnectionNotFoundException
-import io.medatarun.ext.db.model.DbImportCouldNotFindAttributeFromPrimaryKeyException
-import io.medatarun.ext.db.model.DbImportCouldNotFindEntityForRelationship
-import io.medatarun.ext.db.model.DbImportTypeNotFoundException
+import io.medatarun.ext.db.domain.DbDriverManager
+import io.medatarun.ext.db.domain.DbConnectionNotFoundException
+import io.medatarun.ext.db.domain.DbImportCouldNotFindAttributeFromPrimaryKeyException
+import io.medatarun.ext.db.domain.DbImportCouldNotFindEntityForRelationship
+import io.medatarun.ext.db.domain.DbImportTypeNotFoundException
 import io.medatarun.lang.strings.trimToNull
 import io.medatarun.lang.uuid.UuidUtils
 import io.medatarun.model.domain.*

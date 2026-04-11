@@ -3,7 +3,7 @@ package io.medatarun.ext.db.actions
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
-import io.medatarun.ext.db.internal.drivers.DbDriverManager
+import io.medatarun.ext.db.domain.DbDriverManager
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -29,7 +29,7 @@ class DatabasesActionProvider(
             is DatabasesAction.DatabaseDrivers -> {
                 buildJsonObject {
                     putJsonArray("drivers") {
-                        dbDriverManager.driverRegistry.listDrivers().forEach {
+                        dbDriverManager.listDrivers().forEach {
                             addJsonObject {
                                 put("id", it.id)
                                 put("name", it.name)

@@ -1,4 +1,4 @@
-package io.medatarun.ext.db.model
+package io.medatarun.ext.db.domain
 
 /**
  * A connection to a database, identified by an abstract name amongst all available datasources

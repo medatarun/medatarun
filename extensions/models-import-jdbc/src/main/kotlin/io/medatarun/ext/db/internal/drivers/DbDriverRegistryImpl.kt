@@ -1,20 +1,23 @@
 package io.medatarun.ext.db.internal.drivers
 
-import io.medatarun.ext.db.model.DbDriverInfo
-import io.medatarun.ext.db.model.DbDriverManagerUnknownDatabaseException
+import io.medatarun.ext.db.domain.DbDriverRegistry
+import io.medatarun.ext.db.domain.DbDriverInfo
+import io.medatarun.ext.db.domain.DbDriverManagerUnknownDatabaseException
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-class DbDriverRegistry(driversJsonPath: Path, val jdbcDriversPath: Path) {
+class DbDriverRegistryImpl(driversJsonPath: Path, val jdbcDriversPath: Path) : DbDriverRegistry {
     private val descriptionFile = driversJsonPath
     private val knownDrivers: MutableList<DbDriverInfo> = mutableListOf()
+
     init {
         knownDrivers.addAll(loadDriverDescriptions())
     }
-    fun loadDriverDescriptions():List<DbDriverInfo> {
+
+    fun loadDriverDescriptions(): List<DbDriverInfo> {
         if (!descriptionFile.exists()) return emptyList()
         val d = Json.decodeFromString<DriversJson>(descriptionFile.readText())
         val drivers = d.drivers.map {
@@ -30,11 +33,11 @@ class DbDriverRegistry(driversJsonPath: Path, val jdbcDriversPath: Path) {
 
     }
 
-    fun listDrivers(): List<DbDriverInfo> {
+    override fun listDrivers(): List<DbDriverInfo> {
         return knownDrivers
     }
 
-    fun find(database: String): DbDriverInfo {
+    override fun find(database: String): DbDriverInfo {
         return knownDrivers.firstOrNull { it.id == database } ?: throw DbDriverManagerUnknownDatabaseException(database)
     }
 

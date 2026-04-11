@@ -1,16 +1,13 @@
 package io.medatarun.ext.db.internal.drivers
 
-import io.medatarun.ext.db.model.DbDatasource
+import io.medatarun.ext.db.domain.DbDriverRegistry
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.net.URLClassLoader
-import java.nio.file.Path
-import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverManager
-import java.util.*
 
-class DbDriverLoader(val registry: DbDriverRegistry) {
+internal class DbDriverLoader(val registry: DbDriverRegistry) {
     private val loadedDrivers = mutableSetOf<String>()
 
 
@@ -42,21 +39,5 @@ class DbDriverLoader(val registry: DbDriverRegistry) {
     }
 }
 
-class DriverRattachedToCurrentClassloaded(val driver: Driver) : Driver by driver
-
-class DbDriverManager(driversJsonPath: Path, jdbcDriversPath: Path) {
-
-    val driverRegistry: DbDriverRegistry = DbDriverRegistry(driversJsonPath, jdbcDriversPath)
-    val driverLoader: DbDriverLoader = DbDriverLoader(driverRegistry)
-
-    fun getConnection(connection: DbDatasource): Connection {
-        driverLoader.loadDriverIfNeeded(connection.driver)
-        val info = Properties()
-        info["user"] = connection.username
-        info["password"] = connection.secret.value
-        info.putAll(connection.properties)
-        return DriverManager.getConnection(connection.url, info)
-    }
-
-}
+private class DriverRattachedToCurrentClassloaded(val driver: Driver) : Driver by driver
 

@@ -1,4 +1,4 @@
-package io.medatarun.ext.db.model
+package io.medatarun.ext.db.domain
 
 import io.medatarun.lang.exceptions.MedatarunException
 
