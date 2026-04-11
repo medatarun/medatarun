@@ -172,20 +172,20 @@ internal class JsonSerializerV3Test {
                 {
                   "id":"${entityWithTagId.asString()}",
                   "key":"customer",
-                  "attributes":[{"id":"${entityWithTagAttributeId.asString()}","key":"customer-code","type":"text","tags":["${attributeTag.asString()}"]}],
+                  "attributes":[{"id":"${entityWithTagAttributeId.asString()}","key":"customer-code","type":"key:text","tags":["${attributeTag.asString()}"]}],
                   "tags":["${entityTag.asString()}"]
                 },
                 {
                   "id":"${entityWithoutTagId.asString()}",
                   "key":"order",
-                  "attributes":[{"id":"${entityWithoutTagAttributeId.asString()}","key":"order-code","type":"text"}]
+                  "attributes":[{"id":"${entityWithoutTagAttributeId.asString()}","key":"order-code","type":"key:text"}]
                 }
               ],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
                   "key":"customer-order",
-                  "roles":[{"id":"${relationshipRoleId.asString()}","key":"customer-role","entityId":"customer","cardinality":"one"}],
+                  "roles":[{"id":"${relationshipRoleId.asString()}","key":"customer-role","entity":"key:customer","cardinality":"one"}],
                   "tags":["${relationshipTag.asString()}"]
                 }
               ]
@@ -243,7 +243,7 @@ internal class JsonSerializerV3Test {
                   "name":"Customer",
                   "description":"Customer description",
                   "origin":"$entityOrigin",
-                  "attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"text"}],
+                  "attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"key:text"}],
                   "documentationHome":"$entityDoc"
                 }
               ]
@@ -294,7 +294,7 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"text"}]}
+                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"key:text"}]}
               ]
             }
         """.trimIndent()
@@ -343,8 +343,8 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"a","attributes":[{"id":"${attrAId.asString()}","key":"a-code","type":"text"}]},
-                {"id":"${entityBId.asString()}","key":"b","attributes":[{"id":"${attrBId.asString()}","key":"b-code","type":"text"}]}
+                {"id":"${entityAId.asString()}","key":"a","attributes":[{"id":"${attrAId.asString()}","key":"a-code","type":"key:text"}]},
+                {"id":"${entityBId.asString()}","key":"b","attributes":[{"id":"${attrBId.asString()}","key":"b-code","type":"key:text"}]}
               ]
             }
         """.trimIndent()
@@ -398,7 +398,7 @@ internal class JsonSerializerV3Test {
                       "key":"customer-code",
                       "name":"Customer Code",
                       "description":"Unique customer code",
-                      "type":"text",
+                      "type":"key:text",
                       "optional":true,
                       "tags":["${attrTag.asString()}"]
                     }
@@ -462,8 +462,8 @@ internal class JsonSerializerV3Test {
                   "id":"${entityId.asString()}",
                   "key":"customer",
                   "attributes":[
-                    {"id":"${attrFirstId.asString()}","key":"code","type":"text"},
-                    {"id":"${attrSecondId.asString()}","key":"country","type":"text"}
+                    {"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},
+                    {"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}
                   ],
                   "primaryKey":["${attrFirstId.asString()}","${attrSecondId.asString()}"]
                 }
@@ -506,7 +506,7 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}
+                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}
               ]
             }
         """.trimIndent()
@@ -565,14 +565,14 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
                   "key":"customer-order",
                   "name":"Customer Order",
                   "description":"Links customers to orders",
-                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entityId":"customer","cardinality":"one"}],
+                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entity":"key:customer","cardinality":"one"}],
                   "tags":["${relationshipTag.asString()}"]
                 }
               ]
@@ -632,7 +632,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -641,7 +641,7 @@ internal class JsonSerializerV3Test {
                     {
                       "id":"${roleId.asString()}",
                       "key":"customer-role",
-                      "entityId":"customer",
+                      "entity":"key:customer",
                       "name":"Customer",
                       "cardinality":"many"
                     }
@@ -708,13 +708,13 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
                   "key":"rel",
-                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entityId":"customer","cardinality":"one"}],
-                  "attributes":[{"id":"${relationshipAttrId.asString()}","key":"relationship-code","type":"text"}]
+                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entity":"key:customer","cardinality":"one"}],
+                  "attributes":[{"id":"${relationshipAttrId.asString()}","key":"relationship-code","type":"key:text"}]
                 }
               ]
             }
@@ -783,19 +783,19 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
                   "key":"rel",
-                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entityId":"customer","cardinality":"one"}],
+                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entity":"key:customer","cardinality":"one"}],
                   "attributes":[
                     {
                       "id":"${relationshipAttrId.asString()}",
                       "key":"relationship-code",
                       "name":"Relationship Code",
                       "description":"Relationship attribute description",
-                      "type":"text",
+                      "type":"key:text",
                       "optional":true,
                       "tags":["${attrTag.asString()}"]
                     }
@@ -860,12 +860,12 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
                   "key":"rel",
-                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entityId":"customer","cardinality":"one"}]
+                  "roles":[{"id":"${roleId.asString()}","key":"customer-role","entity":"key:customer","cardinality":"one"}]
                 }
               ]
             }
@@ -972,22 +972,22 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${entityAAttrId.asString()}","key":"customer-code","type":"text"}]},
-                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${entityBAttrId.asString()}","key":"order-code","type":"text"}]}
+                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${entityAAttrId.asString()}","key":"customer-code","type":"key:text"}]},
+                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${entityBAttrId.asString()}","key":"order-code","type":"key:text"}]}
               ],
               "relationships":[
                 {
                   "id":"${relationshipAId.asString()}",
                   "key":"rel-a",
-                  "roles":[{"id":"${roleAId.asString()}","key":"role-a","entityId":"customer","cardinality":"one"}],
-                  "attributes":[{"id":"${relationshipAAttrId.asString()}","key":"ra","type":"text"}],
+                  "roles":[{"id":"${roleAId.asString()}","key":"role-a","entity":"key:customer","cardinality":"one"}],
+                  "attributes":[{"id":"${relationshipAAttrId.asString()}","key":"ra","type":"key:text"}],
                   "tags":["${relTagA.asString()}"]
                 },
                 {
                   "id":"${relationshipBId.asString()}",
                   "key":"rel-b",
-                  "roles":[{"id":"${roleBId.asString()}","key":"role-b","entityId":"order","cardinality":"many"}],
-                  "attributes":[{"id":"${relationshipBAttrId.asString()}","key":"rb","type":"text"}],
+                  "roles":[{"id":"${roleBId.asString()}","key":"role-b","entity":"key:order","cardinality":"many"}],
+                  "attributes":[{"id":"${relationshipBAttrId.asString()}","key":"rb","type":"key:text"}],
                   "tags":["${relTagB.asString()}"]
                 }
               ]
@@ -1048,13 +1048,13 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"text"},{"id":"${attrSecondId.asString()}","key":"country","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
                   "key":"customer-bk",
-                  "entityId":"${entityId.asString()}",
-                  "participants":["${attrFirstId.asString()}","${attrSecondId.asString()}"],
+                  "entity":"key:customer",
+                  "participants":["key:code","key:country"],
                   "name":"Customer BK",
                   "description":"Uniquely identifies customer"
                 }
@@ -1106,13 +1106,13 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
                   "key":"customer-bk",
-                  "entityId":"${entityId.asString()}",
-                  "participants":["${attrId.asString()}"]
+                  "entity":"key:customer",
+                  "participants":["key:code"]
                 }
               ]
             }
@@ -1172,13 +1172,13 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"text"},{"id":"${attrSecondId.asString()}","key":"country","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
                   "key":"customer-bk",
-                  "entityId":"${entityId.asString()}",
-                  "participants":["${attrFirstId.asString()}","${attrSecondId.asString()}"]
+                  "entity":"key:customer",
+                  "participants":["key:code","key:country"]
                 }
               ]
             }
@@ -1247,23 +1247,23 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${attrAId.asString()}","key":"customer-code","type":"text"}]},
-                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${attrBId.asString()}","key":"order-code","type":"text"}]}
+                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${attrAId.asString()}","key":"customer-code","type":"key:text"}]},
+                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${attrBId.asString()}","key":"order-code","type":"key:text"}]}
               ],
               "businessKeys":[
                 {
                   "id":"${businessKeyAId.asString()}",
                   "key":"customer-bk",
-                  "entityId":"${entityAId.asString()}",
-                  "participants":["${attrAId.asString()}"],
+                  "entity":"key:customer",
+                  "participants":["key:customer-code"],
                   "name":"Customer BK",
                   "description":"Customer key"
                 },
                 {
                   "id":"${businessKeyBId.asString()}",
                   "key":"order-bk",
-                  "entityId":"${entityBId.asString()}",
-                  "participants":["${attrBId.asString()}"],
+                  "entity":"key:order",
+                  "participants":["key:order-code"],
                   "name":"Order BK",
                   "description":"Order key"
                 }
@@ -1306,7 +1306,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}]
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}]
             }
         """.trimIndent()
 
@@ -1354,13 +1354,13 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
                   "key":"customer-bk",
-                  "entityId":"${entityId.asString()}",
-                  "participants":["${attrId.asString()}"]
+                  "entity":"key:customer",
+                  "participants":["key:code"]
                 }
               ]
             }

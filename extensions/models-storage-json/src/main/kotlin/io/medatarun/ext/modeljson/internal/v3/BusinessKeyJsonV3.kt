@@ -15,7 +15,7 @@ internal class BusinessKeyJsonV3(
     /**
      * Entity id must be specified
      */
-    val entityId: String,
+    val entity: String,
     /**
      * Participants is an ordered list of attribute ids and should contain one or more elements
      */

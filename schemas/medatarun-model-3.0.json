@@ -114,6 +114,42 @@
         }
       ]
     },
+    "objectReference": {
+      "type": "string",
+      "description": "Reference to an object by id:<uuid> or key:<string>.",
+      "anyOf": [
+        {
+          "pattern": "^id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        {
+          "pattern": "^key:.+$"
+        }
+      ]
+    },
+    "typeReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to a model type by id:<uuid> or key:<typeKey>."
+    },
+    "entityReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to an entity by id:<uuid> or key:<entityKey>."
+    },
+    "attributeReference": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/objectReference"
+        }
+      ],
+      "description": "Reference to an attribute by id:<uuid> or key:<attributeKey>."
+    },
     "modelType": {
       "type": "object",
       "properties": {
@@ -150,10 +186,12 @@
           "$ref": "#/$defs/stringOrNull"
         },
         "description": {
-          "$ref": "#/$defs/stringOrNull"
+          "$ref": "#/$defs/stringOrNull",
+          "description": "Optional human-readable description of the attribute."
         },
         "type": {
-          "type": "string"
+          "$ref": "#/$defs/typeReference",
+          "description": "Reference to the attribute type by id:<uuid> or key:<typeKey>."
         },
         "optional": {
           "type": "boolean",
@@ -248,9 +286,9 @@
           "type": "string",
           "description": "Unique key of the business key in the scope of the model"
         },
-        "entityId": {
-          "type": "string",
-          "description": "On which entity the key applies"
+        "entity": {
+          "$ref": "#/$defs/entityReference",
+          "description": "Entity targeted by the business key."
         },
         "name": {
           "anyOf": [
@@ -277,15 +315,15 @@
         "participants": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/attributeReference"
           },
-          "description": "Ordered list of attribute ids that participate in the business key"
+          "description": "Ordered list of attribute references that participate in the business key."
         }
       },
       "required": [
         "id",
         "key",
-        "entityId",
+        "entity",
         "participants"
       ],
       "additionalProperties": false
@@ -300,8 +338,8 @@
           "type": "string",
           "description": "Unique relationship role key."
         },
-        "entityId": {
-          "type": "string"
+        "entity": {
+          "$ref": "#/$defs/entityReference"
         },
         "name": {
           "$ref": "#/$defs/stringOrNull"
@@ -317,7 +355,7 @@
       },
       "required": [
         "id",
-        "entityId",
+        "entity",
         "cardinality"
       ],
       "additionalProperties": false

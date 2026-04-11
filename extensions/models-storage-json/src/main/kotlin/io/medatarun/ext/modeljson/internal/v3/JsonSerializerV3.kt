@@ -1,14 +1,10 @@
 package io.medatarun.ext.modeljson.internal.v3
 
 import io.medatarun.ext.modeljson.ModelJsonSchemas
-import io.medatarun.ext.modeljson.ModelJsonSchemas.v_2_0
 import io.medatarun.ext.modeljson.ModelJsonSchemas.v_3_0
 import io.medatarun.ext.modeljson.internal.base.JsonSerializerBaseVersion
-import io.medatarun.ext.modeljson.internal.base.ModelAttributeJson
-import io.medatarun.ext.modeljson.internal.base.ModelTypeJson
-import io.medatarun.ext.modeljson.internal.base.RelationshipJson
-import io.medatarun.ext.modeljson.internal.base.RelationshipRoleJson
 import io.medatarun.model.domain.Attribute
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.ModelAggregate
 import io.medatarun.model.domain.TypeRef
 
@@ -48,11 +44,14 @@ internal class JsonSerializerV3(
                 )
             },
             businessKeys = model.businessKeys.map { bk ->
+                val e = model.findEntity(bk.entityId)
                 BusinessKeyJsonV3(
                     id = bk.id.asString(),
                     key = bk.key.value,
-                    entityId = bk.entityId.asString(),
-                    participants = bk.participants.sortedBy { it.position }.map { it.attributeId.asString() },
+                    entity = "key:"+e.key.asString(),
+                    participants = bk.participants.sortedBy { it.position }.map {
+                        val attr = model.findEntityAttribute(e.ref, EntityAttributeRef.ById(it.attributeId))
+                        "key:" + attr.key.asString() },
                     name = bk.name,
                     description = bk.description
                 )
@@ -79,7 +78,7 @@ internal class JsonSerializerV3(
                 key = it.key.value,
                 name = it.name?.name,
                 description = it.description?.name,
-                type = model.findType(TypeRef.ById(it.typeId)).key.value,
+                type = "key:"+model.findType(TypeRef.ById(it.typeId)).key.value,
                 optional = it.optional,
                 tags = it.tags.map { it.value.toString() }
             )
@@ -96,7 +95,7 @@ internal class JsonSerializerV3(
                     RelationshipRoleJsonV3(
                         id = role.id.value.toString(),
                         key = role.key.value,
-                        entityId = model.findEntity(role.entityId).key.value,
+                        entity = "key:"+model.findEntity(role.entityId).key.value,
                         name = role.name?.name,
                         cardinality = role.cardinality.code
                     )
