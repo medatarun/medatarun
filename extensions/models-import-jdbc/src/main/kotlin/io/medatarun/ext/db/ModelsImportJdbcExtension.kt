@@ -10,6 +10,8 @@ import io.medatarun.ext.db.internal.modelimport.DbModelImporter
 import io.medatarun.model.ports.needs.ModelImporter
 import io.medatarun.platform.kernel.MedatarunExtension
 import io.medatarun.platform.kernel.MedatarunExtensionCtx
+import io.medatarun.platform.kernel.MedatarunServiceCtx
+import io.medatarun.platform.kernel.getService
 import org.slf4j.LoggerFactory
 
 class ModelsImportJdbcExtension(
@@ -17,7 +19,8 @@ class ModelsImportJdbcExtension(
 ) : MedatarunExtension {
 
     override val id = "models-import-jdbc"
-    override fun initContributions(ctx: MedatarunExtensionCtx) {
+
+    override fun initServices(ctx: MedatarunServiceCtx) {
         // read configuration
         val datasourcesPath = ctx.resolveApplicationHomePath("config/datasources")
         logger.debug("datasourcesPath: {}", datasourcesPath)
@@ -34,8 +37,13 @@ class ModelsImportJdbcExtension(
         val dbModelImporter = DbModelImporter(dbDriverManager, dbConnectionRegistry)
         val dbActionProvider = DatabasesActionProvider(dbDriverManager, dbConnectionRegistry)
 
-        ctx.registerContribution(ModelImporter::class, dbModelImporter)
-        ctx.registerContribution(ActionProvider::class, dbActionProvider)
+        ctx.register(DbModelImporter::class, dbModelImporter)
+        ctx.register(DatabasesActionProvider::class, dbActionProvider)
+    }
+
+    override fun initContributions(ctx: MedatarunExtensionCtx) {
+        ctx.registerContribution(ModelImporter::class, ctx.getService<DbModelImporter>())
+        ctx.registerContribution(ActionProvider::class, ctx.getService<DatabasesActionProvider>())
     }
 
     companion object {
