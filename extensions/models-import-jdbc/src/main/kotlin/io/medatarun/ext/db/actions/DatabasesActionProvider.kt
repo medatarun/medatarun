@@ -2,7 +2,7 @@ package io.medatarun.ext.db.actions
 
 import io.medatarun.actions.ports.needs.ActionCtx
 import io.medatarun.actions.ports.needs.ActionProvider
-import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
+import io.medatarun.ext.db.domain.DbConnectionRegistry
 import io.medatarun.ext.db.domain.DbDriverManager
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject

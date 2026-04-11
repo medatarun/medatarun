@@ -9,7 +9,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.util.Properties
 
-class DbDriverManagerImpl(driversJsonPath: Path, jdbcDriversPath: Path): DbDriverManager {
+internal class DbDriverManagerImpl(driversJsonPath: Path, jdbcDriversPath: Path): DbDriverManager {
 
     private val driverRegistry: DbDriverRegistry = DbDriverRegistryImpl(driversJsonPath, jdbcDriversPath)
     private val driverLoader: DbDriverLoader = DbDriverLoader(driverRegistry)

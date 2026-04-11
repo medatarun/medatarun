@@ -3,7 +3,7 @@ package io.medatarun.ext.db
 import io.medatarun.actions.ports.needs.ActionProvider
 import io.medatarun.ext.db.actions.DatabasesActionProvider
 import io.medatarun.ext.db.domain.DbDriverManager
-import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
+import io.medatarun.ext.db.domain.DbConnectionRegistry
 import io.medatarun.ext.db.internal.connection.DbConnectionRegistryImpl
 import io.medatarun.ext.db.internal.drivers.DbDriverManagerImpl
 import io.medatarun.ext.db.internal.modelimport.DbModelImporter
@@ -33,7 +33,7 @@ class ModelsImportJdbcExtension(
 
         val dbModelImporter = DbModelImporter(dbDriverManager, dbConnectionRegistry)
         val dbActionProvider = DatabasesActionProvider(dbDriverManager, dbConnectionRegistry)
-        
+
         ctx.registerContribution(ModelImporter::class, dbModelImporter)
         ctx.registerContribution(ActionProvider::class, dbActionProvider)
     }

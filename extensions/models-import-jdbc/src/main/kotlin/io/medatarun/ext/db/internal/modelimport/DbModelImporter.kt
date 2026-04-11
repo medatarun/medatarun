@@ -1,6 +1,6 @@
 package io.medatarun.ext.db.internal.modelimport
 
-import io.medatarun.ext.db.internal.connection.DbConnectionRegistry
+import io.medatarun.ext.db.domain.DbConnectionRegistry
 import io.medatarun.ext.db.domain.DbDriverManager
 import io.medatarun.ext.db.domain.DbConnectionNotFoundException
 import io.medatarun.ext.db.domain.DbImportCouldNotFindAttributeFromPrimaryKeyException
@@ -18,7 +18,7 @@ import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
 
-class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
+internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectionRegistry: DbConnectionRegistry) :
     ModelImporter {
 
     private val introspect = DbIntrospect(dbDriverManager)

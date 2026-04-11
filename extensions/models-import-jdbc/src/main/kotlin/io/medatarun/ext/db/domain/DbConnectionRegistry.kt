@@ -1,6 +1,4 @@
-package io.medatarun.ext.db.internal.connection
-
-import io.medatarun.ext.db.domain.DbDatasource
+package io.medatarun.ext.db.domain
 
 interface DbConnectionRegistry {
     fun findByNameOptional(connectionName: String): DbDatasource?

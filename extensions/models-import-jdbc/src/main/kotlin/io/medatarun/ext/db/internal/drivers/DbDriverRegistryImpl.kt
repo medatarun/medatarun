@@ -9,7 +9,7 @@ import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-class DbDriverRegistryImpl(driversJsonPath: Path, val jdbcDriversPath: Path) : DbDriverRegistry {
+internal class DbDriverRegistryImpl(driversJsonPath: Path, val jdbcDriversPath: Path) : DbDriverRegistry {
     private val descriptionFile = driversJsonPath
     private val knownDrivers: MutableList<DbDriverInfo> = mutableListOf()
 

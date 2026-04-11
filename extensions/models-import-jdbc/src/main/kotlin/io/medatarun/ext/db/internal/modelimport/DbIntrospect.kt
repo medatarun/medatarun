@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import java.sql.DatabaseMetaData
 import java.sql.ResultSet
 
-class DbIntrospect(val dbDriverManager: DbDriverManager) {
+internal class DbIntrospect(val dbDriverManager: DbDriverManager) {
 
     fun introspect(connection: DbDatasource): IntrospectResult {
         val extractedTables = mutableListOf<IntrospectTable>()

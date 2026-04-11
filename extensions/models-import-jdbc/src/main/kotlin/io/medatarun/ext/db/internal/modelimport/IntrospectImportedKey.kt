@@ -1,6 +1,6 @@
 package io.medatarun.ext.db.internal.modelimport
 
-data class IntrospectImportedKey(
+internal data class IntrospectImportedKey(
     val pkTableCat: String?,
     val pkTableSchem: String?,
     val pkTableName: String,

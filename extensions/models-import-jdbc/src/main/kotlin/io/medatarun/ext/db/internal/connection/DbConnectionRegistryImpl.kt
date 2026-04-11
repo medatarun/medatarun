@@ -1,5 +1,6 @@
 package io.medatarun.ext.db.internal.connection
 
+import io.medatarun.ext.db.domain.DbConnectionRegistry
 import io.medatarun.ext.db.domain.DbConnectionSecret
 import io.medatarun.ext.db.domain.DbDatasource
 import kotlinx.serialization.json.Json
@@ -11,7 +12,7 @@ import kotlin.io.path.readText
  * Repository for database connections stored in Json
  * file format
  */
-class DbConnectionRegistryImpl(
+internal class DbConnectionRegistryImpl(
     /** absolute path the "connections.json" file */
     val path: Path
 ): DbConnectionRegistry {

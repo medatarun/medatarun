@@ -3,7 +3,7 @@ package io.medatarun.ext.db.internal.connection
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DbConnectionSecretJson(
+internal data class DbConnectionSecretJson(
     /**
      * RAW is the only supported value yet
      */
