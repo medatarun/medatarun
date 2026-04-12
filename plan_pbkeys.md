@@ -45,11 +45,11 @@ Cleanup phase:
 - [X] create snapshot tables in init scripts to store primary keys and business
   keys in `init__models_postgresql.sql` and `init__models_sqlite.sql` (
   description below)
-- [ ] make a migration version `version_models_v003_01_pk_bk_sqlite.sql` that
+- [x] make a migration version `version_models_v003_01_pk_bk_sqlite.sql` that
   creates tables in SQLite when dialect is SQLite
-- [ ] make a migration version `version_models_v003_01_pk_bk_postgresql.sql`
+- [x] make a migration version `version_models_v003_01_pk_bk_postgresql.sql`
   that creates tables in Postgresql when dialect is Postgresql
-- [ ] make a version `V003_IdentifierAttributeToPrimaryKeys` in
+- [x] make a version `V003_IdentifierAttributeToPrimaryKeys` in
   `ModelStorageDbMigration` that takes `identifierAttribute` column in snapshots
   and convert it to snapshot primary keys. Should run whatever the dialect
   Postgresql and SQLite
