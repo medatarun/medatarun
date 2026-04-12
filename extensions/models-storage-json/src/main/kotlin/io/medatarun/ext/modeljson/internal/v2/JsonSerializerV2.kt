@@ -2,8 +2,9 @@ package io.medatarun.ext.modeljson.internal.v2
 
 import io.medatarun.ext.modeljson.ModelJsonSchemas
 import io.medatarun.ext.modeljson.ModelJsonSchemas.v_2_0
-import io.medatarun.ext.modeljson.internal.ModelJsonWriterEntityIdentifierAttributeNotFoundInAttributes
+import io.medatarun.ext.modeljson.internal.ModelJsonWriterEntityPKIncompatibleException
 import io.medatarun.ext.modeljson.internal.base.JsonSerializerBaseVersion
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.ModelAggregate
 
 internal class JsonSerializerV2(
@@ -23,10 +24,17 @@ internal class JsonSerializerV2(
             types = baseVersion.toTypeJsonList(model),
             relationships = baseVersion.toRelationshipJsonList(model),
             entities = model.entities.map { entity ->
-                val attributesJson = baseVersion.toAttributeJsonList(model, model.attributes.filter { it.ownedBy(entity.id) })
-                val attributeKey = model.attributes
-                    .firstOrNull { attribute -> entity.identifierAttributeId == attribute.id }?.key
-                    ?: throw ModelJsonWriterEntityIdentifierAttributeNotFoundInAttributes(
+                val attributesJson = baseVersion.toAttributeJsonList(
+                    model,
+                    model.attributes.filter { it.ownedBy(entity.id) }
+                )
+                val attributeKey = model.entityPrimaryKeys.firstOrNull { pk -> pk.entityId == entity.id }
+                    ?.participants
+                    ?.firstOrNull()
+                    ?.attributeId
+                    ?.let { model.findEntityAttribute(entity.ref, EntityAttributeRef.ById(it)) }
+                    ?.key
+                    ?: throw ModelJsonWriterEntityPKIncompatibleException(
                         entity.id,
                         entity.identifierAttributeId
                     )
