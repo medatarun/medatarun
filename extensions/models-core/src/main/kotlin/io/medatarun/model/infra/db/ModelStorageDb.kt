@@ -8,6 +8,7 @@ import io.medatarun.model.infra.db.events.ModelEventSystem
 import io.medatarun.model.infra.db.records.ModelEventRecord
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbProjection.ProjectionEventCtx
+import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotCreate
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshotWriter
 import io.medatarun.model.infra.db.snapshots.ModelStorageDbSnapshots
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector.CurrentHeadByModelId
@@ -33,9 +34,17 @@ class ModelStorageDb(
     private val searchWrite = ModelStorageDbSearchWrite()
     private val eventSystem = ModelEventSystem()
     private val snapshots = ModelStorageDbSnapshots()
+    private val snapshotWriter = ModelStorageDbSnapshotWriter(snapshots, clock)
+    private val snapshotCreate = ModelStorageDbSnapshotCreate(clock, snapshotWriter)
     private val aggregateReader = ModelStorageDbAggregateReader()
     private val read = ModelStorageDbRead(eventSystem.registry, aggregateReader)
-    private val projection = ModelStorageDbProjection(searchWrite, snapshots, clock, ModelStorageDbSnapshotWriter(snapshots, clock))
+    private val projection = ModelStorageDbProjection(
+        searchWrite = searchWrite,
+        snapshots = snapshots,
+        clock = clock,
+        snapWrite = snapshotWriter,
+        snapshotCreate = snapshotCreate
+    )
 
     override fun existsModelById(id: ModelId): Boolean {
         return db.withExposed {
