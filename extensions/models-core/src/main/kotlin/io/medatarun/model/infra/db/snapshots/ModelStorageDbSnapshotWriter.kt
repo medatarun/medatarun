@@ -186,6 +186,29 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
+    fun insertBusinessKey(record: BusinessKeyRecord) {
+        BusinessKeyTable.insert { row ->
+            row[BusinessKeyTable.id] = record.snapshotId
+            row[BusinessKeyTable.lineageId] = record.lineageId
+            row[BusinessKeyTable.entitySnapshotId] = record.modelEntitySnapshotId
+            row[BusinessKeyTable.key] = record.key
+            row[BusinessKeyTable.name] = record.name
+            row[BusinessKeyTable.description] = record.description
+        }
+    }
+
+    fun insertBusinessKeyAttribute(
+        businessKeySnapshotId: BusinessKeySnapshotId,
+        attributeSnapshotId: AttributeSnapshotId,
+        priority: Int
+    ) {
+        BusinessKeyAttributeTable.insert { row ->
+            row[BusinessKeyAttributeTable.businessKeySnapshotId] = businessKeySnapshotId
+            row[BusinessKeyAttributeTable.attributeSnapshotId] = attributeSnapshotId
+            row[BusinessKeyAttributeTable.priority] = priority
+        }
+    }
+
     fun updateEntityKey(modelSnapshotId: ModelSnapshotId, entityId: EntityId, key: EntityKey) {
         EntityTable.update(
             where = {

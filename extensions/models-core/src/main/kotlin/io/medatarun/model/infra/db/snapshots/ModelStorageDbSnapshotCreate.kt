@@ -59,6 +59,8 @@ internal class ModelStorageDbSnapshotCreate(
 
         cloneTypeSnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
         cloneEntitySnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
+        cloneEntityPrimaryKeySnapshots(currentHeadSnapshotId, converters)
+        cloneBusinessKeySnapshots(currentHeadSnapshotId, converters)
         cloneRelationshipSnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
 
         cloneEntityTags(converters)
@@ -199,6 +201,87 @@ internal class ModelStorageDbSnapshotCreate(
         }
     }
 
+    /**
+     * Clones entity primary keys once entity and entity-attribute snapshots have been remapped.
+     */
+    private fun cloneEntityPrimaryKeySnapshots(
+        currentHeadSnapshotId: ModelSnapshotId,
+        converters: Converters
+    ) {
+        val rows = EntityPKTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = EntityPKTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).selectAll().where {
+            EntityTable.modelSnapshotId eq currentHeadSnapshotId
+        }
+        for (row in rows) {
+            val record = EntityPKRecord.read(row)
+            val snapshotId = converters.entityPrimaryKey.generate(record.snapshotId)
+            snapWrite.insertEntityPrimaryKey(
+                EntityPKRecord(
+                    snapshotId = snapshotId,
+                    lineageId = record.lineageId,
+                    modelEntitySnapshotId = converters.entity.convert(record.modelEntitySnapshotId)
+                )
+            )
+        }
+
+        val attributeRows = EntityPKAttributeTable.selectAll().where {
+            EntityPKAttributeTable.entityPKSnapshotId inList converters.entityPrimaryKey.map.keys.toList()
+        }
+        for (row in attributeRows) {
+            snapWrite.insertEntityPrimaryKeyAttribute(
+                entityPrimaryKeySnapshotId = converters.entityPrimaryKey.convert(row[EntityPKAttributeTable.entityPKSnapshotId]),
+                attributeSnapshotId = converters.entityAttribute.convert(row[EntityPKAttributeTable.attributeSnapshotId]),
+                priority = row[EntityPKAttributeTable.priority]
+            )
+        }
+    }
+
+    /**
+     * Clones business keys once entity and entity-attribute snapshots have been remapped.
+     */
+    private fun cloneBusinessKeySnapshots(
+        currentHeadSnapshotId: ModelSnapshotId,
+        converters: Converters
+    ) {
+        val rows = BusinessKeyTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).selectAll().where {
+            EntityTable.modelSnapshotId eq currentHeadSnapshotId
+        }
+        for (row in rows) {
+            val record = BusinessKeyRecord.read(row)
+            val versionBusinessKeySnapshotId = converters.businessKey.generate(record.snapshotId)
+            snapWrite.insertBusinessKey(
+                BusinessKeyRecord(
+                    snapshotId = versionBusinessKeySnapshotId,
+                    lineageId = record.lineageId,
+                    modelEntitySnapshotId = converters.entity.convert(record.modelEntitySnapshotId),
+                    key = record.key,
+                    name = record.name,
+                    description = record.description
+                )
+            )
+        }
+
+        val attributeRows = BusinessKeyAttributeTable.selectAll().where {
+            BusinessKeyAttributeTable.businessKeySnapshotId inList converters.businessKey.map.keys.toList()
+        }
+        for (row in attributeRows) {
+            snapWrite.insertBusinessKeyAttribute(
+                businessKeySnapshotId = converters.businessKey.convert(row[BusinessKeyAttributeTable.businessKeySnapshotId]),
+                attributeSnapshotId = converters.entityAttribute.convert(row[BusinessKeyAttributeTable.attributeSnapshotId]),
+                priority = row[BusinessKeyAttributeTable.priority]
+            )
+        }
+    }
+
     private fun cloneRelationshipTags(converters: Converters) {
         for (entry in converters.relationship.map.entries) {
             val tagIds = RelationshipTagTable.select(RelationshipTagTable.tagId)
@@ -272,6 +355,8 @@ internal class ModelStorageDbSnapshotCreate(
         val type = IdConv("type_snapshot_id", TypeSnapshotId::generate)
         val entity = IdConv("entity_snapshot_id", EntitySnapshotId::generate)
         val entityAttribute = IdConv("entity_attribute_snapshot_id", AttributeSnapshotId::generate)
+        val entityPrimaryKey = IdConv("entity_primary_key_snapshot_id", EntityPKSnapshotId::generate)
+        val businessKey = IdConv("business_key_snapshot_id", BusinessKeySnapshotId::generate)
         val relationship = IdConv("relationship_snapshot_id", RelationshipSnapshotId::generate)
         val relationshipAttribute = IdConv("relationship_attribute_snapshot_id", AttributeSnapshotId::generate)
     }
