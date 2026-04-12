@@ -200,7 +200,6 @@ data class ModelDiffEntitySnapshot(
     val key: EntityKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val identifierAttributeKey: AttributeKey,
     val origin: EntityOrigin,
     val documentationHome: URL?,
     val tags: List<TagId>

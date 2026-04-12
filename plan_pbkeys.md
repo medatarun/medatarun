@@ -23,3 +23,19 @@ Documentation on tableschema imports pk
 - in Model history: entity_identifier_attribute_updated
 - in UI.kt manage the keys
 - in UI display attributes with the key if they are in the entity primary key
+
+## Copy
+- faire des tests sur PK et BK copy
+
+## History
+- faire des tests sur PK et BK copy a l'écran
+- voir les changements bk et pk
+
+## Diff
+- gestion des keys pk et bk
+- isEntityStructuralChanged doit dire si les pk ont changé
+
+## Model validation
+- [x] suppression du check specifique
+- [ ] revoir les TU
+- [ ] au niveau TU ajouter des controles sur les relations pk/bk vers entityId, attributeId pour voir si on pointe bien sur des références valides

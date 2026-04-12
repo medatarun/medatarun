@@ -23,6 +23,8 @@
   anymore. You must call `entity_attribute_create` after entity creation to add
   the previous identifier attribute separaterly and call primary key actions to
   set it as a primary key participant.
+- `inspect_models_json` action removed `identifierAttribute`, added
+  `businessKeys` in the model, `primaryKey` in each Entity.
 
 ## [0.9.0]
 

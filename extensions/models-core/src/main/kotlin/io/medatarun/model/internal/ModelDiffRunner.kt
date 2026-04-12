@@ -276,13 +276,10 @@ class ModelDiffRunner {
     }
 
     private fun toEntitySnapshot(model: ModelAggregate, entity: Entity): ModelDiffEntitySnapshot {
-        val identifierAttribute = model.findEntityAttributeOptional(entity.ref, entity.identifierAttributeId)
-            ?: throw ModelDiffEntityIdentifierAttributeNotFoundException(model.key, entity.key, entity.identifierAttributeId)
         return ModelDiffEntitySnapshot(
             key = entity.key,
             name = entity.name,
             description = entity.description,
-            identifierAttributeKey = identifierAttribute.key,
             origin = entity.origin,
             documentationHome = entity.documentationHome,
             tags = entity.tags.sortedBy { it.value.toString() }
@@ -374,8 +371,7 @@ class ModelDiffRunner {
     }
 
     private fun isEntityStructuralChanged(left: ModelDiffEntitySnapshot, right: ModelDiffEntitySnapshot): Boolean {
-        return left.key != right.key ||
-                left.identifierAttributeKey != right.identifierAttributeKey
+        return left.key != right.key
     }
 
     private fun isEntityAttributeStructuralChanged(

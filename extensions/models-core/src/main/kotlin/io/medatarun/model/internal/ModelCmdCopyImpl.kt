@@ -2,7 +2,10 @@ package io.medatarun.model.internal
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.model.ports.needs.ModelTagResolver.Companion.modelTagScopeRef
@@ -97,6 +100,8 @@ class ModelCmdCopyImpl(
         val entityIds = IdConv("entity") { EntityId.generate() }
         val relationshipId = IdConv("relationship") { RelationshipId.generate() }
         val attributeIds = IdConv("attribute") { AttributeId.generate() }
+        val entityPrimaryKeyIds = IdConv("pk") { EntityPrimaryKeyId.generate() }
+        val businessKeyIds = IdConv("bk") { BusinessKeyId.generate() }
 
         // Respect the order otherwise id conversion will fail!
 
@@ -141,6 +146,22 @@ class ModelCmdCopyImpl(
             )
         }
 
+        val primaryKeys = model.entityPrimaryKeys.map { pk ->
+            EntityPrimaryKeyInMemory.of(pk).copy(
+                id = entityPrimaryKeyIds.convert(pk.id),
+                entityId = entityIds.convert(pk.entityId),
+                participants = pk.participants.map { PBKeyParticipantInMemory.of(it).copy(attributeId = attributeIds.convert(it.attributeId)) }
+            )
+        }
+
+        val businessKeys = model.businessKeys.map { bk ->
+            BusinessKeyInMemory.of(bk).copy(
+                id = businessKeyIds.convert(bk.id),
+                entityId = entityIds.convert(bk.entityId),
+                participants = bk.participants.map { PBKeyParticipantInMemory.of(it).copy(attributeId = attributeIds.convert(it.attributeId)) }
+            )
+        }
+
         val next = ModelAggregateInMemory.of(model)
             .copy(
                 model = ModelInMemory.of(model).copy(
@@ -152,7 +173,9 @@ class ModelCmdCopyImpl(
                 types = newTypes,
                 entities = newEntities,
                 relationships = newRelationships,
-                attributes = attributes
+                attributes = attributes,
+                entityPrimaryKeys = primaryKeys,
+                businessKeys = businessKeys
             )
         val idMaps = CopyModelSourceDestIdConv(
             entityIds = entityIds,

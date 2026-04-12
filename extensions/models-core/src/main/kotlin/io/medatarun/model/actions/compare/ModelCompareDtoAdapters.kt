@@ -209,7 +209,6 @@ private fun toSnapshotJson(snapshot: ModelDiffSnapshot): JsonObject {
             put("key", snapshot.key.value)
             putNullableJsonField(this, "name", toLocalizedTextJson(snapshot.name))
             putNullableJsonField(this, "description", toLocalizedMarkdownJson(snapshot.description))
-            put("identifierAttributeKey", snapshot.identifierAttributeKey.value)
             put("origin", toEntityOriginCode(snapshot.origin))
             put("documentationHome", snapshot.documentationHome?.toExternalForm())
             putJsonArray("tags") {
