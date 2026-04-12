@@ -200,7 +200,6 @@ class UI(runtime: PlatformRuntime) {
                         put("description", attr.description?.get(locale))
                         put("type", attr.typeId.value.toString())
                         put("optional", attr.optional)
-                        put("identifierAttribute", e.identifierAttributeId == attr.id)
                         putJsonArray("tags") {
                             attr.tags.forEach { add(it.value.toString()) }
                         }
