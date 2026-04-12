@@ -88,6 +88,35 @@ class UI(runtime: PlatformRuntime) {
                     }
                 }
             }
+            putJsonArray("entityPrimaryKeys") {
+                model.entityPrimaryKeys.forEach { t ->
+                    addJsonObject {
+                        put("id", t.id.value.toString())
+                        put("entityId", t.entityId.asString())
+                        putJsonArray("participants") {
+                            for (participant in t.participants) {
+                                add(participant.attributeId.asString())
+                            }
+                        }
+                    }
+                }
+            }
+            putJsonArray("businessKeys") {
+                model.businessKeys.forEach { t ->
+                    addJsonObject {
+                        put("id", t.id.value.toString())
+                        put("entityId", t.entityId.asString())
+                        put("key", t.key.asString())
+                        put("name", t.name)
+                        put("description", t.description)
+                        putJsonArray("participants") {
+                            for (participant in t.participants) {
+                                add(participant.attributeId.asString())
+                            }
+                        }
+                    }
+                }
+            }
         }.toString()
     }
 

@@ -17,3 +17,9 @@
 
 Documentation on database imports pk
 Documentation on tableschema imports pk
+
+## UI
+
+- in Model history: entity_identifier_attribute_updated
+- in UI.kt manage the keys
+- in UI display attributes with the key if they are in the entity primary key
