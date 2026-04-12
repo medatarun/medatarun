@@ -453,8 +453,16 @@ class Model_Copy_Test {
         val copiedModel = env.queries.findModelByKey(copiedKey)
         val copiedEntity = copiedModel.findEntity(entityRef)
         val copiedIdentity = copiedModel.findEntityAttributeOptional(copiedEntity.ref, copiedEntity.identifierAttributeId)
+
         assertNotNull(copiedIdentity)
+
         assertEquals(AttributeKey("id"), copiedIdentity.key)
+
+        val copiedPrimaryKey = copiedModel.findEntityPrimaryKeyOptional(copiedEntity.id)
+        assertNotNull(copiedPrimaryKey)
+        assertEquals(copiedEntity.id, copiedPrimaryKey.entityId)
+        assertEquals(1, copiedPrimaryKey.participants.size)
+        assertEquals(copiedEntity.identifierAttributeId, copiedPrimaryKey.participants.first().attributeId)
     }
 
     // ------------------------------------------------------------------------

@@ -57,7 +57,7 @@ Cleanup phase:
 Those are commands in `ModelStorageCmd` that need to be interpreted differently
 in `ModelStorageDbProjection`
 
-- [ ] `model_aggregate_stored`: especially the entity creation section, we need
+- [X] `model_aggregate_stored`: especially the entity creation section, we need
   to create the corresponding primary key in `model_entity_pk_snapshot`
 - [ ] `model_release` command shall handle the cloning for
   `model_entity_pk_snapshot` and `model_entity_pk_attribute_snapshot`
@@ -85,7 +85,8 @@ Next operations
 - [ ] adjust reads in `ModelStorageDbRead` to read identifierAttribute from
   primary keys. If there is no primary key that matches throw exception (it's a
   transitory compatibility state anyway)
-- [ ] adjust reads in `ModelStorageDbRead` to read primary keys and business keys and put them in `ModelAggregate`
+- [X] adjust reads in `ModelStorageDbRead` to read primary keys and business keys and put them in `ModelAggregate`
+
 
 ➡️ at this point we know how to read and don't use identifierAttribute to read
 
@@ -121,6 +122,13 @@ Next operations
 - changer l'interprétation de `model_aggregate_stored` pour aller vers la
   nouvelle table
 - changer l'interprétation de `entity_created` pour aller vers la nouvelle table
+
+### Post cleanup
+
+- [ ] unit tests that update PK reads pk
+- [ ] unit tests that update bk reads bk
+- [ ] unit tests that model copy with complex bk and pk
+- [ ] unit tests that model imports with complex bk and pk
 
 ### Table specs
 

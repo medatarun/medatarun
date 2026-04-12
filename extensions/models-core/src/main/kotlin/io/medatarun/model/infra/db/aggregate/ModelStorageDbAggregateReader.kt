@@ -1,7 +1,9 @@
 package io.medatarun.model.infra.db.aggregate
 
 import io.medatarun.model.domain.AttributeSnapshotId
+import io.medatarun.model.domain.BusinessKeySnapshotId
 import io.medatarun.model.domain.EntitySnapshotId
+import io.medatarun.model.domain.EntityPKSnapshotId
 import io.medatarun.model.domain.ModelSnapshotId
 import io.medatarun.model.domain.RelationshipSnapshotId
 import io.medatarun.model.infra.*
@@ -15,6 +17,9 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toType
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
@@ -34,6 +39,8 @@ class ModelStorageDbAggregateReader {
         val entityAttributes = loadEntityAttributes(modelSnapshotId)
         val relationships = loadRelationships(modelSnapshotId)
         val relationshipAttributes = loadRelationshipAttributes(modelSnapshotId)
+        val entityPrimaryKeys = loadEntityPrimaryKeys(modelSnapshotId)
+        val businessKeys = loadBusinessKeys(modelSnapshotId)
 
         return ModelAggregateInMemory(
             model = toModel(record),
@@ -42,8 +49,8 @@ class ModelStorageDbAggregateReader {
             relationships = relationships,
             tags = loadModelTags(record.snapshotId),
             attributes = entityAttributes + relationshipAttributes,
-            entityPrimaryKeys = emptyList(),
-            businessKeys = emptyList()
+            entityPrimaryKeys = entityPrimaryKeys,
+            businessKeys = businessKeys
         )
     }
 
@@ -237,6 +244,117 @@ class ModelStorageDbAggregateReader {
             .mapValues { entry ->
                 entry.value.map { row -> row[RelationshipAttributeTagTable.tagId] }
             }
+    }
+
+    private fun loadEntityPrimaryKeys(modelSnapshotId: ModelSnapshotId): List<EntityPrimaryKeyInMemory> {
+        val rows = EntityPKTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = EntityPKTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }
+            .orderBy(EntityPKTable.id to SortOrder.ASC)
+            .toList()
+        if (rows.isEmpty()) {
+            return emptyList()
+        }
+        val participantsByPrimaryKey = loadEntityPrimaryKeyParticipants(rows.map { row -> row[EntityPKTable.id] })
+        return rows.map { row ->
+            val participants = participantsByPrimaryKey[row[EntityPKTable.id]] ?: emptyList()
+            EntityPrimaryKeyInMemory(
+                id = row[EntityPKTable.lineageId],
+                entityId = row[EntityTable.lineageId],
+                participants = participants
+            )
+        }
+    }
+
+    /**
+     * Primary key participants reference attribute snapshots, while aggregate expects lineage attribute ids.
+     */
+    private fun loadEntityPrimaryKeyParticipants(
+        primaryKeySnapshotIds: List<EntityPKSnapshotId>
+    ): Map<EntityPKSnapshotId, List<PBKeyParticipantInMemory>> {
+        if (primaryKeySnapshotIds.isEmpty()) {
+            return emptyMap()
+        }
+        return EntityPKAttributeTable.join(
+            EntityAttributeTable,
+            JoinType.INNER,
+            onColumn = EntityPKAttributeTable.attributeSnapshotId,
+            otherColumn = EntityAttributeTable.id
+        ).selectAll().where {
+            EntityPKAttributeTable.entityPKSnapshotId inList primaryKeySnapshotIds
+        }.orderBy(
+            EntityPKAttributeTable.entityPKSnapshotId to SortOrder.ASC,
+            EntityPKAttributeTable.priority to SortOrder.ASC
+        ).groupBy { row ->
+            row[EntityPKAttributeTable.entityPKSnapshotId]
+        }.mapValues { entry ->
+            entry.value.map { row ->
+                PBKeyParticipantInMemory(
+                    attributeId = row[EntityAttributeTable.lineageId],
+                    position = row[EntityPKAttributeTable.priority]
+                )
+            }
+        }
+    }
+
+    private fun loadBusinessKeys(modelSnapshotId: ModelSnapshotId): List<BusinessKeyInMemory> {
+        val rows = BusinessKeyTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }
+            .orderBy(BusinessKeyTable.id to SortOrder.ASC)
+            .toList()
+        if (rows.isEmpty()) {
+            return emptyList()
+        }
+        val participantsByBusinessKey = loadBusinessKeyParticipants(rows.map { row -> row[BusinessKeyTable.id] })
+        return rows.map { row ->
+            val participants = participantsByBusinessKey[row[BusinessKeyTable.id]] ?: emptyList()
+            BusinessKeyInMemory(
+                id = row[BusinessKeyTable.lineageId],
+                key = row[BusinessKeyTable.key],
+                entityId = row[EntityTable.lineageId],
+                name = row[BusinessKeyTable.name],
+                description = row[BusinessKeyTable.description],
+                participants = participants
+            )
+        }
+    }
+
+    /**
+     * Business key participants reference attribute snapshots, while aggregate expects lineage attribute ids.
+     */
+    private fun loadBusinessKeyParticipants(
+        businessKeySnapshotIds: List<BusinessKeySnapshotId>
+    ): Map<BusinessKeySnapshotId, List<PBKeyParticipantInMemory>> {
+        if (businessKeySnapshotIds.isEmpty()) {
+            return emptyMap()
+        }
+        return BusinessKeyAttributeTable.join(
+            EntityAttributeTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyAttributeTable.attributeSnapshotId,
+            otherColumn = EntityAttributeTable.id
+        ).selectAll().where {
+            BusinessKeyAttributeTable.businessKeySnapshotId inList businessKeySnapshotIds
+        }.orderBy(
+            BusinessKeyAttributeTable.businessKeySnapshotId to SortOrder.ASC,
+            BusinessKeyAttributeTable.priority to SortOrder.ASC
+        ).groupBy { row ->
+            row[BusinessKeyAttributeTable.businessKeySnapshotId]
+        }.mapValues { entry ->
+            entry.value.map { row ->
+                PBKeyParticipantInMemory(
+                    attributeId = row[EntityAttributeTable.lineageId],
+                    position = row[BusinessKeyAttributeTable.priority]
+                )
+            }
+        }
     }
 
 }

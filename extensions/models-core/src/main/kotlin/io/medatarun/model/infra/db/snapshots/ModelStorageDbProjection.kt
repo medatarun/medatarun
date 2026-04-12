@@ -153,6 +153,7 @@ internal class ModelStorageDbProjection(
             val identifierAttributeSnapshotId = entityAttributeSnapshotIds.getOrPut(entity.identifierAttributeId) {
                 AttributeSnapshotId.generate()
             }
+            val entityPrimaryKeySnapshotId = EntityPKSnapshotId(entitySnapshotId.value)
             insertEntity(
                 EntityRecord(
                     snapshotId = entitySnapshotId,
@@ -164,6 +165,13 @@ internal class ModelStorageDbProjection(
                     identifierAttributeSnapshotId = identifierAttributeSnapshotId,
                     origin = entity.origin,
                     documentationHome = entity.documentationHome?.toExternalForm(),
+                )
+            )
+            insertEntityPrimaryKey(
+                EntityPKRecord(
+                    snapshotId = entityPrimaryKeySnapshotId,
+                    lineageId = EntityPrimaryKeyId(entity.id.value),
+                    modelEntitySnapshotId = entitySnapshotId
                 )
             )
             searchWrite.refreshEntityBranch(modelSnapshotId, entity.id)
@@ -186,6 +194,11 @@ internal class ModelStorageDbProjection(
                 )
                 searchWrite.refreshEntityAttributeBranch(modelSnapshotId, entity.id, attr.id)
             }
+            insertEntityPrimaryKeyAttribute(
+                entityPrimaryKeySnapshotId = entityPrimaryKeySnapshotId,
+                attributeSnapshotId = identifierAttributeSnapshotId,
+                priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
+            )
         }
 
         for (relationship in cmd.relationships) {
@@ -789,6 +802,26 @@ internal class ModelStorageDbProjection(
         }
     }
 
+    private fun insertEntityPrimaryKey(record: EntityPKRecord) {
+        EntityPKTable.insert { row ->
+            row[EntityPKTable.id] = record.snapshotId
+            row[EntityPKTable.lineageId] = record.lineageId
+            row[EntityPKTable.entitySnapshotId] = record.modelEntitySnapshotId
+        }
+    }
+
+    private fun insertEntityPrimaryKeyAttribute(
+        entityPrimaryKeySnapshotId: EntityPKSnapshotId,
+        attributeSnapshotId: AttributeSnapshotId,
+        priority: Int
+    ) {
+        EntityPKAttributeTable.insert { row ->
+            row[EntityPKAttributeTable.entityPKSnapshotId] = entityPrimaryKeySnapshotId
+            row[EntityPKAttributeTable.priority] = priority
+            row[EntityPKAttributeTable.attributeSnapshotId] = attributeSnapshotId
+        }
+    }
+
     // Entity attribute
     // ------------------------------------------------------------------------
 
@@ -1319,6 +1352,10 @@ internal class ModelStorageDbProjection(
                     (RelationshipAttributeTagTable.tagId eq cmd.tagId)
         }
         searchWrite.refreshRelationshipAttributeBranch(ctx.modelSnapshotId, cmd.relationshipId, cmd.attributeId)
+    }
+
+    companion object {
+        private const val DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY = 0
     }
 
 }
