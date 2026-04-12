@@ -1,5 +1,6 @@
 package io.medatarun.model.internal
 
+import io.medatarun.lang.idconv.IdConv
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.*
 import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
@@ -39,23 +40,6 @@ class ModelCmdCopyImpl(
             tagWriter = tagWriter
         )
         return copied
-    }
-
-    class IdConv<T>(val name: String, val factory: () -> T) {
-        val map = mutableMapOf<T, T>()
-        fun generate(old: T): T {
-            val newId = factory()
-            map[old] = newId
-            return newId
-        }
-
-        fun register(old: T, new: T) {
-            map[old] = new
-        }
-
-        fun convert(old: T): T {
-            return map[old] ?: throw CopyModelIdConversionFailedException(name, old.toString())
-        }
     }
 
     private class CopyModelSourceDestIdConv(

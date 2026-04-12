@@ -194,8 +194,6 @@ class RelationshipAttributeUpdateDuplicateKeyException(
 )
 
 class ModelExportNoPluginFoundException : MedatarunException("No model exporters found in extensions")
-class CopyModelIdConversionFailedException(name: String, oldId: String) :
-    MedatarunException("While copying model, could not get new $name identifier for old id $oldId")
 
 class ModelQuerySearchCouldNotResolveTagRef(tagRef: TagRef) :
     MedatarunException("Could not resolve tag reference [${tagRef.asString()}")
