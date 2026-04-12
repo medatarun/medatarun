@@ -82,7 +82,7 @@ in `ModelStorageDbProjection`
 
 Next operations
 
-- [ ] adjust reads in `ModelStorageDbRead` to read identifierAttribute from
+- [X] adjust reads in `ModelStorageDbRead` to read identifierAttribute from
   primary keys. If there is no primary key that matches throw exception (it's a
   transitory compatibility state anyway)
 - [X] adjust reads in `ModelStorageDbRead` to read primary keys and business keys and put them in `ModelAggregate`
