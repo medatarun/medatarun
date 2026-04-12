@@ -1,7 +1,9 @@
 package io.medatarun.model.infra.db.aggregate
 
 import io.medatarun.model.domain.AttributeSnapshotId
+import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.BusinessKeySnapshotId
+import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.EntitySnapshotId
 import io.medatarun.model.domain.EntityPKSnapshotId
 import io.medatarun.model.domain.ModelSnapshotId
@@ -14,6 +16,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
+import io.medatarun.model.infra.db.ModelStorageDbCompatibilityReads.findIdentifierAttributeIdFromPrimaryKey
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
@@ -67,13 +70,7 @@ class ModelStorageDbAggregateReader {
     }
 
     private fun loadEntities(modelSnapshotId: ModelSnapshotId): List<EntityInMemory> {
-        val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
-        val rows = EntityTable.join(
-            identifierAttributeTable,
-            JoinType.INNER,
-            onColumn = EntityTable.identifierAttributeSnapshotId,
-            otherColumn = identifierAttributeTable[EntityAttributeTable.id]
-        ).selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }
+        val rows = EntityTable.selectAll().where { EntityTable.modelSnapshotId eq modelSnapshotId }
             .orderBy(EntityTable.key to SortOrder.ASC)
             .toList()
         val entityTagsBySnapshotId = loadEntityTagsByModelSnapshotId(modelSnapshotId)
@@ -82,7 +79,10 @@ class ModelStorageDbAggregateReader {
             toEntity(
                 record,
                 entityTagsBySnapshotId[record.snapshotId] ?: emptyList(),
-                row[identifierAttributeTable[EntityAttributeTable.lineageId]]
+                findIdentifierAttributeIdFromPrimaryKey(
+                    entitySnapshotId = record.snapshotId,
+                    entityId = record.lineageId
+                )
             )
         }
     }

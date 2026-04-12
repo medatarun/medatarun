@@ -26,6 +26,11 @@ class ModelStorageDbMissingEntitySnapshotException(entityId: EntityId) :
 class ModelStorageDbMissingAttributeSnapshotException(attributeId: AttributeId) :
     MedatarunException("Could not find CURRENT_HEAD attribute snapshot for attribute [${attributeId.asString()}]")
 
+class ModelStorageDbMissingCompatibilityIdentifierPrimaryKeyException(entityId: EntityId) :
+    MedatarunException(
+        "Could not derive entity identifier attribute from compatibility primary key for entity [${entityId.asString()}]."
+    )
+
 class ModelStorageDbMissingRelationshipSnapshotException(relationshipId: RelationshipId) :
     MedatarunException("Could not find CURRENT_HEAD relationship snapshot for relationship [${relationshipId.asString()}]")
 

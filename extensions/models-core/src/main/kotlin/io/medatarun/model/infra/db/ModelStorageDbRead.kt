@@ -9,6 +9,7 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
+import io.medatarun.model.infra.db.ModelStorageDbCompatibilityReads.findIdentifierAttributeIdFromPrimaryKey
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
 import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
@@ -268,18 +269,12 @@ class ModelStorageDbRead(
         modelId: ModelId,
         criterion: Op<Boolean>
     ): Entity? {
-        val identifierAttributeTable = EntityAttributeTable.alias("identifier_attribute_snapshot")
         val entityTagTable = EntityTagTable.alias("entity_tag_snapshot")
         return EntityTable.join(
             ModelSnapshotTable,
             JoinType.INNER,
             onColumn = EntityTable.modelSnapshotId,
             otherColumn = ModelSnapshotTable.id
-        ).join(
-            identifierAttributeTable,
-            JoinType.INNER,
-            onColumn = EntityTable.identifierAttributeSnapshotId,
-            otherColumn = identifierAttributeTable[EntityAttributeTable.id]
         ).join(
             entityTagTable,
             JoinType.LEFT,
@@ -298,7 +293,11 @@ class ModelStorageDbRead(
                     val tags = rows
                         .mapNotNull { tagRow -> readOptionalTagId(tagRow, entityTagTable[EntityTagTable.tagId]) }
                         .distinct()
-                    toEntity(record, tags, row[identifierAttributeTable[EntityAttributeTable.lineageId]])
+                    toEntity(
+                        record,
+                        tags,
+                        findIdentifierAttributeIdFromPrimaryKey(record.snapshotId, record.lineageId)
+                    )
                 }
             }
     }
