@@ -54,8 +54,10 @@ export function AttributesTable({
   onClickAttribute,
   actionParamsFactory,
   displayedSubject,
+  parentId,
 }: {
   attributes: AttributeDto[];
+  parentId: string;
   actionParamsFactory: (attributeId: string) => ActionPerformerRequestParams;
   displayedSubject: ActionDisplayedSubject;
   actionUILocation: ActionUILocation;
@@ -119,7 +121,11 @@ export function AttributesTable({
                   }}
                 >
                   <div>
-                    {attribute.identifierAttribute ? <KeyRegular /> : ""}{" "}
+                    {model.isEntityAttributePK(parentId, attribute.id) ? (
+                      <KeyRegular />
+                    ) : (
+                      ""
+                    )}{" "}
                   </div>
                   <div>{model.findTypeNameOrKey(attribute.type)}</div>
                   <div style={{ width: "1em", verticalAlign: "middle" }}>

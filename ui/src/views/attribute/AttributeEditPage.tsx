@@ -384,6 +384,10 @@ export function AttributeOverview({
   const relationshipAttributeUpdateOptional =
     useRelationshipAttributeUpdateOptional();
 
+  const isPKParticipant =
+    parentAsEntity &&
+    model.isEntityAttributePK(parentAsEntity.id, attribute.id);
+
   const handleChangeKey = (value: string) => {
     if (parentAsEntity) {
       return entityAttributeUpdateKey.mutateAsync({
@@ -532,13 +536,19 @@ export function AttributeOverview({
           >
             {model.findTypeNameOrKey(attribute.type)}
           </Link>{" "}
-          <Text>
-            {attribute.identifierAttribute
-              ? "🔑 " + t("attributeEditPage_identifierBadge")
-              : ""}
-          </Text>
         </InlineEditCombobox>
       </div>
+
+      {isPKParticipant && (
+        <div>
+          <Text>{t("attributeEditPage_primaryKeyLabel")}</Text>
+        </div>
+      )}
+      {isPKParticipant && (
+        <div>
+          <Text>🔑 {t("attributeEditPage_primaryKeyYes")}</Text>
+        </div>
+      )}
 
       <div>
         <Text>{t("attributeEditPage_requiredLabel")}</Text>

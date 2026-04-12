@@ -199,32 +199,29 @@ function CardinalityValue({ cardinality }: { cardinality: unknown }) {
 
 const eventMap: Record<string, EventDisplayMode> = {
   model_aggregate_stored: {
-    label: (event: ModelChangeEventDto) =>
-      renderTranslatedSlots("created from import"),
-    payload: (event: ModelChangeEventDto) => null,
+    label: () => renderTranslatedSlots("created from import"),
+    payload: () => null,
   },
   model_created: {
-    label: (event: ModelChangeEventDto) =>
-      renderTranslatedSlots("created manually"),
-    payload: (event: ModelChangeEventDto) => null,
+    label: () => renderTranslatedSlots("created manually"),
+    payload: () => null,
   },
   model_name_updated: {
     label: (event: ModelChangeEventDto) =>
       renderTranslatedSlots("changed name to {name}", {
         name: <SlotTextValue value={event.payload.name} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_key_updated: {
     label: (event: ModelChangeEventDto) =>
       renderTranslatedSlots("changed key to {key}", {
         key: <SlotTextValue value={event.payload.key} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_description_updated: {
-    label: (event: ModelChangeEventDto) =>
-      renderTranslatedSlots("changed model description"),
+    label: () => renderTranslatedSlots("changed model description"),
     payload: (event: ModelChangeEventDto) => (
       <Markdown value={(event.payload.description as string) ?? ""} />
     ),
@@ -234,14 +231,14 @@ const eventMap: Record<string, EventDisplayMode> = {
       renderTranslatedSlots("changed authority to {authority}", {
         authority: <SlotTextValue value={event.payload.authority} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_release: {
     label: (event: ModelChangeEventDto) =>
       renderTranslatedSlots("released version {version}", {
         version: <SlotTextValue value={event.payload.version} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_documentation_home_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -253,7 +250,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_tag_added: {
     label: (event: ModelChangeEventDto) =>
@@ -265,7 +262,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           />
         ),
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_tag_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -277,19 +274,18 @@ const eventMap: Record<string, EventDisplayMode> = {
           />
         ),
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   model_deleted: {
-    label: (event: ModelChangeEventDto) =>
-      renderTranslatedSlots("deleted model"),
-    payload: (event: ModelChangeEventDto) => null,
+    label: () => renderTranslatedSlots("deleted model"),
+    payload: () => null,
   },
   type_created: {
     label: (event: ModelChangeEventDto) =>
       renderTranslatedSlots("created type {type}", {
         type: <SlotTextValue value={event.payload.name ?? event.payload.key} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   type_key_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -297,7 +293,7 @@ const eventMap: Record<string, EventDisplayMode> = {
         type: <TypeNameOf typeId={event.payload.typeId as string} />,
         key: <SlotTextValue value={event.payload.key} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   type_name_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -305,7 +301,7 @@ const eventMap: Record<string, EventDisplayMode> = {
         type: <TypeNameOf typeId={event.payload.typeId as string} />,
         name: <SlotTextValue value={event.payload.name} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   type_description_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -321,7 +317,7 @@ const eventMap: Record<string, EventDisplayMode> = {
       renderTranslatedSlots("deleted type {type}", {
         type: <TypeNameOf typeId={event.payload.typeId as string} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_created: {
     label: (event: ModelChangeEventDto) =>
@@ -361,7 +357,7 @@ const eventMap: Record<string, EventDisplayMode> = {
         entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         key: <SlotTextValue value={event.payload.key} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_name_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -369,7 +365,7 @@ const eventMap: Record<string, EventDisplayMode> = {
         entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         name: <SlotTextValue value={event.payload.name} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_description_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -379,22 +375,6 @@ const eventMap: Record<string, EventDisplayMode> = {
     payload: (event: ModelChangeEventDto) => (
       <Markdown value={(event.payload.description as string) ?? ""} />
     ),
-  },
-  entity_identifier_attribute_updated: {
-    label: (event: ModelChangeEventDto) =>
-      renderTranslatedSlots(
-        "changed identifier attribute of entity {entity} to {attribute}",
-        {
-          entity: <EntityNameOf entityId={event.payload.entityId as string} />,
-          attribute: (
-            <EntityAttributeNameOf
-              entityId={event.payload.entityId as string}
-              attributeId={event.payload.identifierAttributeId as string}
-            />
-          ),
-        },
-      ),
-    payload: (event: ModelChangeEventDto) => null,
   },
   entity_documentation_home_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -407,7 +387,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_tag_added: {
     label: (event: ModelChangeEventDto) =>
@@ -420,7 +400,7 @@ const eventMap: Record<string, EventDisplayMode> = {
         ),
         entity: <EntityNameOf entityId={event.payload.entityId as string} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_tag_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -433,14 +413,14 @@ const eventMap: Record<string, EventDisplayMode> = {
         ),
         entity: <EntityNameOf entityId={event.payload.entityId as string} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_deleted: {
     label: (event: ModelChangeEventDto) =>
       renderTranslatedSlots("deleted entity {entity}", {
         entity: <EntityNameOf entityId={event.payload.entityId as string} />,
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_created: {
     label: (event: ModelChangeEventDto) =>
@@ -475,7 +455,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_key_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -492,7 +472,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           key: <SlotTextValue value={event.payload.key} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_name_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -509,7 +489,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           name: <SlotTextValue value={event.payload.name} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_description_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -544,7 +524,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           type: <TypeNameOf typeId={event.payload.typeId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_optional_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -563,7 +543,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_tag_added: {
     label: (event: ModelChangeEventDto) =>
@@ -585,7 +565,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   entity_attribute_tag_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -607,7 +587,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_created: {
     label: (event: ModelChangeEventDto) =>
@@ -642,7 +622,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           key: <SlotTextValue value={event.payload.key} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_name_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -657,7 +637,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           name: <SlotTextValue value={event.payload.name} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_description_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -717,7 +697,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           key: <SlotTextValue value={event.payload.key} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_role_name_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -738,7 +718,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           name: <SlotTextValue value={event.payload.name} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_role_entity_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -759,7 +739,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           entity: <EntityNameOf entityId={event.payload.entityId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_role_cardinality_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -782,7 +762,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_tag_added: {
     label: (event: ModelChangeEventDto) =>
@@ -799,7 +779,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           />
         ),
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_tag_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -819,7 +799,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -830,7 +810,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           />
         ),
       }),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_role_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -850,7 +830,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_created: {
     label: (event: ModelChangeEventDto) =>
@@ -894,7 +874,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           name: <SlotTextValue value={event.payload.name} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_description_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -937,7 +917,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           key: <SlotTextValue value={event.payload.key} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_type_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -958,7 +938,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           type: <TypeNameOf typeId={event.payload.typeId as string} />,
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_optional_updated: {
     label: (event: ModelChangeEventDto) =>
@@ -981,7 +961,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_tag_added: {
     label: (event: ModelChangeEventDto) =>
@@ -1007,7 +987,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_tag_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -1033,7 +1013,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
   relationship_attribute_deleted: {
     label: (event: ModelChangeEventDto) =>
@@ -1053,7 +1033,7 @@ const eventMap: Record<string, EventDisplayMode> = {
           ),
         },
       ),
-    payload: (event: ModelChangeEventDto) => null,
+    payload: () => null,
   },
 };
 

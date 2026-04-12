@@ -1,4 +1,5 @@
 import type { ModelDto, TypeDto } from "./model.dto.ts";
+import { includes } from "lodash-es";
 
 export interface TypeOption {
   code: string;
@@ -198,5 +199,17 @@ export class Model {
         code: entity.id,
         label: entity.name ?? entity.key ?? entity.id,
       }));
+  }
+
+  /**
+   * Returns true if the given attribute id is part of an entity primary key
+   */
+  isEntityAttributePK(entityId: string, attributeId: string): boolean {
+    return (
+      this.dto.entityPrimaryKeys.find(
+        (it) =>
+          it.entityId === entityId && includes(it.participants, attributeId),
+      ) !== undefined
+    );
   }
 }
