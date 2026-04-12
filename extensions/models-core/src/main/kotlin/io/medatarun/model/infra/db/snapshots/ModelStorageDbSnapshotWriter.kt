@@ -248,17 +248,53 @@ internal class ModelStorageDbSnapshotWriter(
         entityId: EntityId,
         identifierAttributeId: AttributeId
     ) {
+        // Resolve the current entity snapshot row in this model snapshot branch.
         val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+        // Resolve the target attribute snapshot row from the requested attribute lineage id.
         val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
             (EntityAttributeTable.lineageId eq identifierAttributeId) and
                     (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
         }.single()[EntityAttributeTable.id]
+        // Keep legacy compatibility column aligned with the command.
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
             }
         ) { row ->
             row[EntityTable.identifierAttributeSnapshotId] = attributeSnapshotId
+        }
+
+        // Locate all primary key snapshots attached to this entity snapshot.
+        val entityPrimaryKeySnapshotIds = EntityPKTable.select(EntityPKTable.id).where {
+            EntityPKTable.entitySnapshotId eq entitySnapshotId
+        }.map { row ->
+            row[EntityPKTable.id]
+        }
+        // Compatibility guard: if no PK snapshot exists yet, create one so PK participants can be written.
+        val primaryKeySnapshotIdsToUpdate = if (entityPrimaryKeySnapshotIds.isEmpty()) {
+            val createdSnapshotId = EntityPKSnapshotId.generate()
+            insertEntityPrimaryKey(
+                EntityPKRecord(
+                    snapshotId = createdSnapshotId,
+                    lineageId = EntityPrimaryKeyId.generate(),
+                    modelEntitySnapshotId = entitySnapshotId
+                )
+            )
+            listOf(createdSnapshotId)
+        } else {
+            entityPrimaryKeySnapshotIds
+        }
+
+        // Rewrite each PK participant bag to a single participant matching the updated identifier attribute.
+        for (primaryKeySnapshotId in primaryKeySnapshotIdsToUpdate) {
+            EntityPKAttributeTable.deleteWhere {
+                EntityPKAttributeTable.entityPKSnapshotId eq primaryKeySnapshotId
+            }
+            insertEntityPrimaryKeyAttribute(
+                entityPrimaryKeySnapshotId = primaryKeySnapshotId,
+                attributeSnapshotId = attributeSnapshotId,
+                priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
+            )
         }
     }
 
@@ -828,5 +864,9 @@ internal class ModelStorageDbSnapshotWriter(
                     (RelationshipAttributeTagTable.tagId eq tagId)
         }
 
+    }
+
+    companion object {
+        private const val DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY = 0
     }
 }

@@ -174,7 +174,7 @@ internal class ModelStorageDbProjection(
             val identifierAttributeSnapshotId = entityAttributeSnapshotIds.getOrPut(entity.identifierAttributeId) {
                 AttributeSnapshotId.generate()
             }
-            val entityPrimaryKeySnapshotId = EntityPKSnapshotId(entitySnapshotId.value)
+            val entityPKSnapshotId = EntityPKSnapshotId.generate()
             snapWrite.insertEntity(
                 EntityRecord(
                     snapshotId = entitySnapshotId,
@@ -190,8 +190,8 @@ internal class ModelStorageDbProjection(
             )
             snapWrite.insertEntityPrimaryKey(
                 EntityPKRecord(
-                    snapshotId = entityPrimaryKeySnapshotId,
-                    lineageId = EntityPrimaryKeyId(entity.id.value),
+                    snapshotId = entityPKSnapshotId,
+                    lineageId = EntityPrimaryKeyId.generate(),
                     modelEntitySnapshotId = entitySnapshotId
                 )
             )
@@ -216,7 +216,7 @@ internal class ModelStorageDbProjection(
                 searchWrite.refreshEntityAttributeBranch(modelSnapshotId, entity.id, attr.id)
             }
             snapWrite.insertEntityPrimaryKeyAttribute(
-                entityPrimaryKeySnapshotId = entityPrimaryKeySnapshotId,
+                entityPrimaryKeySnapshotId = entityPKSnapshotId,
                 attributeSnapshotId = identifierAttributeSnapshotId,
                 priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
             )
@@ -359,7 +359,7 @@ internal class ModelStorageDbProjection(
     private fun createEntity(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntity) {
         val entitySnapshotId = EntitySnapshotId.generate()
         val identifierAttributeSnapshotId = AttributeSnapshotId.generate()
-        val entityPrimaryKeySnapshotId = EntityPKSnapshotId(entitySnapshotId.value)
+        val entityPrimaryKeySnapshotId = EntityPKSnapshotId.generate()
         val record = EntityRecord(
             snapshotId = entitySnapshotId,
             lineageId = cmd.entityId,
@@ -390,7 +390,7 @@ internal class ModelStorageDbProjection(
         snapWrite.insertEntityPrimaryKey(
             EntityPKRecord(
                 snapshotId = entityPrimaryKeySnapshotId,
-                lineageId = EntityPrimaryKeyId(cmd.entityId.value),
+                lineageId = EntityPrimaryKeyId.generate(),
                 modelEntitySnapshotId = entitySnapshotId
             )
         )

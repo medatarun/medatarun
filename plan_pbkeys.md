@@ -73,7 +73,7 @@ in `ModelStorageDbProjection`
 - [X] `entity_attribute_deleted`: we need to make sure that matching
   `model_entity_pk_attribute_snapshot` is deleted (should be done with foreign
   keys)
-- [ ] `entity_identifier_attribute_updated` command shall be interpreted as
+- [X] `entity_identifier_attribute_updated` command shall be interpreted as
   removing matching rows in model_entity_pk_attribute_snapshot based on the
   entity and recreating one row with the entity and attribute's snapshot_id
   based on the command.
