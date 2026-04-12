@@ -59,7 +59,7 @@ in `ModelStorageDbProjection`
 
 - [X] `model_aggregate_stored`: especially the entity creation section, we need
   to create the corresponding primary key in `model_entity_pk_snapshot`
-- [ ] `model_release` command shall handle the cloning for
+- [X] `model_release` command shall handle the cloning for
   `model_entity_pk_snapshot` and `model_entity_pk_attribute_snapshot`
 - [ ] `model_deleted` command already deletes via foreign keys the entities;
   therefore, we must be sure that `model_entity_pk_snapshot` and
@@ -129,6 +129,7 @@ Next operations
 - [ ] unit tests that update bk reads bk
 - [ ] unit tests that model copy with complex bk and pk
 - [ ] unit tests that model imports with complex bk and pk
+- [ ] in Model_Release_Test add test with all possible objects, bk et pk, to verify that we don't have old pointers somewhere
 
 ### Table specs
 
