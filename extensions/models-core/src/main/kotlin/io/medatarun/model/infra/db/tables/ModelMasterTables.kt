@@ -81,6 +81,37 @@ object EntityAttributeTable : Table("model_entity_attribute_snapshot") {
     override val primaryKey = PrimaryKey(id)
 }
 
+object EntityPKTable : Table("model_entity_pk_snapshot") {
+    val id = javaUUID("id").transform(IdTransformer(::EntityPKSnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::EntityPrimaryKeyId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object EntityPKAttributeTable : Table("model_entity_pk_attribute_snapshot") {
+    val entityPKSnapshotId = javaUUID("model_entity_pk_snapshot_id").transform(IdTransformer(::EntityPKSnapshotId))
+    val priority = integer("priority")
+    val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+}
+
+object BusinessKeyTable : Table("model_business_key_snapshot") {
+    val id = javaUUID("id").transform(IdTransformer(::BusinessKeySnapshotId))
+    val lineageId = javaUUID("lineage_id").transform(IdTransformer(::BusinessKeyId))
+    val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
+    val key = text("key").transform(KeyTransformer(::BusinessKeyKey))
+    val name = text("name").nullable()
+    val description = text("description").nullable()
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object BusinessKeyAttributeTable : Table("model_business_key_attribute_snapshot") {
+    val businessKeySnapshotId = javaUUID("model_business_key_snapshot_id").transform(IdTransformer(::BusinessKeySnapshotId))
+    val priority = integer("priority")
+    val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
+}
+
 object EntityAttributeTagTable : Table("model_entity_attribute_tag_snapshot") {
     val attributeSnapshotId = javaUUID("model_entity_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
     val tagId = javaUUID("tag_id").transform(IdTransformer(::TagId))

@@ -40,9 +40,9 @@ Cleanup phase:
 
 ### Compatibility phase:
 
-- [ ] create type `EntityPKSnapshotId`
-- [ ] create type `BusinessKeySnapshotId`
-- [ ] create snapshot tables in init scripts to store primary keys and business
+- [X] create type `EntityPKSnapshotId`
+- [X] create type `BusinessKeySnapshotId`
+- [X] create snapshot tables in init scripts to store primary keys and business
   keys in `init__models_postgresql.sql` and `init__models_sqlite.sql` (
   description below)
 - [ ] make a migration version `version_models_v003_01_pk_bk_sqlite.sql` that
@@ -129,7 +129,7 @@ table `model_entity_pk_snapshot`, `EntityPKTable` in kotlin:
 
 - `id` with type `EntityPKSnapshotId`, not null
 - `lineage_id` with type `EntityPrimaryKeyId`, not null
-- `entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
+- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
   `model_entity_snapshot.id`
 
 table `model_entity_pk_attribute_snapshot`: like an id bag ()
@@ -141,26 +141,33 @@ table `model_entity_pk_attribute_snapshot`: like an id bag ()
 
 Must be unique in `model_entity_pk_attribute_snapshot` :
 `(model_entity_pk_snapshot_id, model_entity_attribute_snapshot_id)`
+and
+`(model_entity_pk_snapshot_id, priority)`
 
 table `model_business_key_snapshot`, `BusinessKeyTable` in kotlin:
 
 - `id` with type `BusinessKeySnapshotId`, not null
 - `lineage_id` with type `BusinessKeyId`, not null
-- `entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
+- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
   `model_entity_snapshot.id`
 - `key` TEXT NOT NULL
 - `name` TEXT nullable
 - `description` TEXT nullable
 
-table `model_business_key_attribute_snapshot`, `BusinesKeyTable` in kotlin:
+Must be unique in `model_business_key_snapshot` :
+`(model_entity_snapshot_id, key)`
 
-- `model_business_key_snapshot_id` with type `EntityPKSnapshotId`, not null
+table `model_business_key_attribute_snapshot`, `BusinessKeyAttributeTable` in kotlin:
+
+- `model_business_key_snapshot_id` with type `BusinessKeySnapshotId`, not null
 - `priority`: Integer, not null
 - `model_entity_attribute_snapshot_id` with type `AttributeSnapshotId`, not
   null, foreign key on `model_entity_attribute_snapshot.id`
 
 Must be unique in `model_business_key_attribute_snapshot` :
 `(model_business_key_snapshot_id, model_entity_attribute_snapshot_id)`
+and
+`(model_business_key_snapshot_id, priority)`
 
 
 
