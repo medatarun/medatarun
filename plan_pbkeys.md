@@ -12,4 +12,8 @@
 - add "businessKeys" to attributes { id: string, entityId: string, attributeIds: string[], name: string?, description:string? } 
 - remove "identifierAttribute" from entity, 
 - add tests for pbkeys
-- 
+
+## Documentation
+
+Documentation on database imports pk
+Documentation on tableschema imports pk

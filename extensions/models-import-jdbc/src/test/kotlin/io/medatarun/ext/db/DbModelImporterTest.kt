@@ -2,6 +2,7 @@ package io.medatarun.ext.db
 
 import io.medatarun.ext.db.domain.DbConnectionNotFoundException
 import io.medatarun.ext.db.fixtures.ModelImportJdbcTestEnv
+import io.medatarun.model.domain.EntityAttributeRef.Companion.attributeRefKey
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.RelationshipCardinality
@@ -10,6 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DbModelImporterTest {
@@ -27,7 +29,72 @@ class DbModelImporterTest {
     }
 
     @Test
+    fun `that table with one primary key we have primary key in model`() {
+        val dbPath = ModelImportJdbcTestEnv.createSqliteDatabaseFile()
+        val datasource = ModelImportJdbcTestEnv.sqliteDatasource("demo", dbPath)
+        val env = ModelImportJdbcTestEnv(
+            datasources = listOf(datasource),
+            schemaStatements = listOf(
+                "CREATE TABLE books (identifier INTEGER PRIMARY KEY, title TEXT NOT NULL)",
+                "CREATE TABLE author (identifier INTEGER PRIMARY KEY, name TEXT NOT NULL)"
+            )
+        )
+
+        val imported = env.importer.toModel(
+            path = "datasource:demo",
+            resourceLocator = env.resourceLocator,
+            modelKeyChoosen = ModelKey("jdbc-pk-single"),
+            modelNameChoosen = "JDBC PK Single"
+        )
+
+        val books = imported.model.findEntity(EntityKey("books"))
+        val booksPK = imported.model.findEntityPrimaryKeyOptional(books.id)
+        val bookIdentifier = imported.model.findEntityAttribute(books.ref, attributeRefKey("identifier"))
+        assertEquals(2, imported.model.entityPrimaryKeys.size)
+        assertNotNull(booksPK)
+        assertTrue(booksPK.participants.any { it.position == 0 && it.attributeId == bookIdentifier.id})
+
+        val author = imported.model.findEntity(EntityKey("author"))
+        val authorPK = imported.model.findEntityPrimaryKeyOptional(author.id)
+        val authorIdentifier = imported.model.findEntityAttribute(author.ref, attributeRefKey("identifier"))
+        assertNotNull(authorPK)
+        assertEquals(2, imported.model.entityPrimaryKeys.size)
+        assertTrue(authorPK.participants.any { it.position == 0 && it.attributeId == authorIdentifier.id})
+    }
+
+    @Test
+    fun `that table with composite primary key we have primary key in model`() {
+        val dbPath = ModelImportJdbcTestEnv.createSqliteDatabaseFile()
+        val datasource = ModelImportJdbcTestEnv.sqliteDatasource("demo", dbPath)
+        val env = ModelImportJdbcTestEnv(
+            datasources = listOf(datasource),
+            schemaStatements = listOf(
+                "CREATE TABLE user_roles (user_id INTEGER NOT NULL, role_id INTEGER NOT NULL, PRIMARY KEY (user_id, role_id))"
+            )
+        )
+
+        val imported = env.importer.toModel(
+            path = "datasource:demo",
+            resourceLocator = env.resourceLocator,
+            modelKeyChoosen = ModelKey("jdbc-pk-composite"),
+            modelNameChoosen = "JDBC PK Composite"
+        )
+
+        val userRoles = imported.model.findEntity(EntityKey("user_roles"))
+        val userRolesPrimaryKey = imported.model.entityPrimaryKeys.first { it.entityId == userRoles.id }
+        val userRolesAttributes = imported.model.findEntityAttributes(userRoles.ref)
+        val pkAttributeNames = userRolesPrimaryKey.participants.map { participant ->
+            userRolesAttributes.first { it.id == participant.attributeId }.key.value
+        }.toSet()
+
+        assertEquals(1, imported.model.entityPrimaryKeys.size)
+        assertEquals(2, userRolesPrimaryKey.participants.size)
+        assertEquals(setOf("user_id", "role_id"), pkAttributeNames)
+    }
+
+    @Test
     fun `toModel imports schema from sqlite datasource`() {
+        // TODO this tes must be split in multiple tests, too big
         val dbPath = ModelImportJdbcTestEnv.createSqliteDatabaseFile()
         val datasource = ModelImportJdbcTestEnv.sqliteDatasource("demo", dbPath)
         val env = ModelImportJdbcTestEnv(
@@ -42,8 +109,8 @@ class DbModelImporterTest {
         val imported = env.importer.toModel(
             path = "datasource:demo",
             resourceLocator = env.resourceLocator,
-            modelKey = ModelKey("jdbc-test-model"),
-            modelName = "JDBC Test Model"
+            modelKeyChoosen = ModelKey("jdbc-test-model"),
+            modelNameChoosen = "JDBC Test Model"
         )
 
         assertEquals(ModelKey("jdbc-test-model"), imported.model.key)
@@ -93,8 +160,8 @@ class DbModelImporterTest {
             env.importer.toModel(
                 path = "datasource:unknown",
                 resourceLocator = env.resourceLocator,
-                modelKey = ModelKey("ignored"),
-                modelName = "Ignored"
+                modelKeyChoosen = ModelKey("ignored"),
+                modelNameChoosen = "Ignored"
             )
         }
     }

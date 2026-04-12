@@ -35,8 +35,7 @@ Data schema for French administration, provides a lot of links and the content o
 - Files can be accessed on disk. We don't know if it's a good idea or not to keep it
 - All types from the Frictionless specs are imported as is, as Frictionless doesn't declare types and are built-ins.
 - Relationships are not available in the specs, so you end up with no real relationships
-- Primary keys can be composites, but this is not supported in Medatarun. You may end-up with an entity identifier
-  that doesn't match any attributes in the entity (composite primary key items are joined as a single string).
+
 
 
 

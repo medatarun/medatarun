@@ -74,8 +74,8 @@ class Import_Test {
         override fun toModel(
             path: String,
             resourceLocator: ResourceLocator,
-            modelKey: ModelKey?,
-            modelName: String?
+            modelKeyChoosen: ModelKey?,
+            modelNameChoosen: String?
         ): ModelImporterData {
             if (path == "test:recipe") {
                 return ModelImporterData(
