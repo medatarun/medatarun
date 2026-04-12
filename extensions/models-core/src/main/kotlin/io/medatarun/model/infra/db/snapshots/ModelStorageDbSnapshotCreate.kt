@@ -1,5 +1,6 @@
 package io.medatarun.model.infra.db.snapshots
 
+import io.medatarun.lang.idconv.IdConv
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.ModelStorageDbMissingCurrentHeadModelSnapshotException
 import io.medatarun.model.infra.db.records.*
@@ -27,6 +28,7 @@ internal class ModelStorageDbSnapshotCreate(
         modelEventId: ModelEventId,
         version: ModelVersion
     ) {
+        val converters = Converters()
         val currentHeadRow =
             ModelSnapshotTable.selectAll().where { ModelSnapshotTable.id eq currentHeadSnapshotId }.singleOrNull()
                 ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(modelId)
@@ -55,14 +57,14 @@ internal class ModelStorageDbSnapshotCreate(
 
         cloneModelTags(currentHeadSnapshotId, versionSnapshotId)
 
-        val typeSnapshotIdMap = cloneTypeSnapshots(currentHeadSnapshotId, versionSnapshotId)
-        val entitySnapshotIdMap = cloneEntitySnapshots(currentHeadSnapshotId, versionSnapshotId, typeSnapshotIdMap)
-        val relationshipSnapshotIdMap = cloneRelationshipSnapshots(currentHeadSnapshotId, versionSnapshotId)
+        cloneTypeSnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
+        cloneEntitySnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
+        cloneRelationshipSnapshots(currentHeadSnapshotId, versionSnapshotId, converters)
 
-        cloneEntityTags(entitySnapshotIdMap)
-        cloneRelationshipTags(relationshipSnapshotIdMap)
-        cloneRelationshipRoleSnapshots(relationshipSnapshotIdMap, entitySnapshotIdMap)
-        cloneRelationshipAttributeSnapshots(relationshipSnapshotIdMap, typeSnapshotIdMap)
+        cloneEntityTags(converters)
+        cloneRelationshipTags(converters)
+        cloneRelationshipRoleSnapshots(converters)
+        cloneRelationshipAttributeSnapshots(converters)
     }
 
     private fun cloneModelTags(currentHeadSnapshotId: ModelSnapshotId, versionSnapshotId: ModelSnapshotId) {
@@ -76,14 +78,13 @@ internal class ModelStorageDbSnapshotCreate(
 
     private fun cloneTypeSnapshots(
         currentHeadSnapshotId: ModelSnapshotId,
-        versionSnapshotId: ModelSnapshotId
-    ): Map<TypeSnapshotId, TypeSnapshotId> {
+        versionSnapshotId: ModelSnapshotId,
+        converters: Converters
+    ) {
         val rows = ModelTypeTable.selectAll().where { ModelTypeTable.modelSnapshotId eq currentHeadSnapshotId }
-        val snapshotIdMap = mutableMapOf<TypeSnapshotId, TypeSnapshotId>()
         for (row in rows) {
             val record = ModelTypeRecord.read(row)
-            val versionTypeSnapshotId = TypeSnapshotId.generate()
-            snapshotIdMap[record.snapshotId] = versionTypeSnapshotId
+            val versionTypeSnapshotId = converters.type.generate(record.snapshotId)
             snapWrite.insertType(
                 ModelTypeRecord(
                     snapshotId = versionTypeSnapshotId,
@@ -95,14 +96,13 @@ internal class ModelStorageDbSnapshotCreate(
                 )
             )
         }
-        return snapshotIdMap
     }
 
     private fun cloneEntitySnapshots(
         currentHeadSnapshotId: ModelSnapshotId,
         versionSnapshotId: ModelSnapshotId,
-        typeSnapshotIdMap: Map<TypeSnapshotId, TypeSnapshotId>
-    ): Map<EntitySnapshotId, EntitySnapshotId> {
+        converters: Converters
+    ) {
         val entityRows = EntityTable.selectAll().where { EntityTable.modelSnapshotId eq currentHeadSnapshotId }
         val currentHeadEntityRecords = entityRows.map { EntityRecord.read(it) }
         val currentHeadAttributeRecords = EntityAttributeTable.join(
@@ -113,26 +113,23 @@ internal class ModelStorageDbSnapshotCreate(
         ).selectAll().where { EntityTable.modelSnapshotId eq currentHeadSnapshotId }
             .map { EntityAttributeRecord.read(it) }
 
-        val entitySnapshotIdMap = mutableMapOf<EntitySnapshotId, EntitySnapshotId>()
-        val attributeSnapshotIdMap = mutableMapOf<AttributeSnapshotId, AttributeSnapshotId>()
-
         for (record in currentHeadEntityRecords) {
-            entitySnapshotIdMap[record.snapshotId] = EntitySnapshotId.generate()
+            converters.entity.generate(record.snapshotId)
         }
         for (record in currentHeadAttributeRecords) {
-            attributeSnapshotIdMap[record.snapshotId] = AttributeSnapshotId.generate()
+            converters.entityAttribute.generate(record.snapshotId)
         }
 
         for (record in currentHeadEntityRecords) {
             snapWrite.insertEntity(
                 EntityRecord(
-                    snapshotId = entitySnapshotIdMap.getValue(record.snapshotId),
+                    snapshotId = converters.entity.convert(record.snapshotId),
                     lineageId = record.lineageId,
                     modelSnapshotId = versionSnapshotId,
                     key = record.key,
                     name = record.name,
                     description = record.description,
-                    identifierAttributeSnapshotId = attributeSnapshotIdMap.getValue(record.identifierAttributeSnapshotId),
+                    identifierAttributeSnapshotId = converters.entityAttribute.convert(record.identifierAttributeSnapshotId),
                     origin = record.origin,
                     documentationHome = record.documentationHome
                 )
@@ -142,24 +139,23 @@ internal class ModelStorageDbSnapshotCreate(
         for (record in currentHeadAttributeRecords) {
             snapWrite.insertEntityAttribute(
                 EntityAttributeRecord(
-                    snapshotId = attributeSnapshotIdMap.getValue(record.snapshotId),
+                    snapshotId = converters.entityAttribute.convert(record.snapshotId),
                     lineageId = record.lineageId,
-                    entitySnapshotId = entitySnapshotIdMap.getValue(record.entitySnapshotId),
+                    entitySnapshotId = converters.entity.convert(record.entitySnapshotId),
                     key = record.key,
                     name = record.name,
                     description = record.description,
-                    typeSnapshotId = typeSnapshotIdMap.getValue(record.typeSnapshotId),
+                    typeSnapshotId = converters.type.convert(record.typeSnapshotId),
                     optional = record.optional
                 )
             )
         }
 
-        cloneEntityAttributeTags(attributeSnapshotIdMap)
-        return entitySnapshotIdMap
+        cloneEntityAttributeTags(converters)
     }
 
-    private fun cloneEntityTags(entitySnapshotIdMap: Map<EntitySnapshotId, EntitySnapshotId>) {
-        for (entry in entitySnapshotIdMap.entries) {
+    private fun cloneEntityTags(converters: Converters) {
+        for (entry in converters.entity.map.entries) {
             val tagIds = EntityTagTable.select(EntityTagTable.tagId)
                 .where { EntityTagTable.entitySnapshotId eq entry.key }
                 .map { it[EntityTagTable.tagId] }
@@ -169,8 +165,8 @@ internal class ModelStorageDbSnapshotCreate(
         }
     }
 
-    private fun cloneEntityAttributeTags(attributeSnapshotIdMap: Map<AttributeSnapshotId, AttributeSnapshotId>) {
-        for (entry in attributeSnapshotIdMap.entries) {
+    private fun cloneEntityAttributeTags(converters: Converters) {
+        for (entry in converters.entityAttribute.map.entries) {
             val tagIds = EntityAttributeTagTable.select(EntityAttributeTagTable.tagId)
                 .where { EntityAttributeTagTable.attributeSnapshotId eq entry.key }
                 .map { it[EntityAttributeTagTable.tagId] }
@@ -182,14 +178,13 @@ internal class ModelStorageDbSnapshotCreate(
 
     private fun cloneRelationshipSnapshots(
         currentHeadSnapshotId: ModelSnapshotId,
-        versionSnapshotId: ModelSnapshotId
-    ): Map<RelationshipSnapshotId, RelationshipSnapshotId> {
+        versionSnapshotId: ModelSnapshotId,
+        converters: Converters
+    ) {
         val rows = RelationshipTable.selectAll().where { RelationshipTable.modelSnapshotId eq currentHeadSnapshotId }
-        val snapshotIdMap = mutableMapOf<RelationshipSnapshotId, RelationshipSnapshotId>()
         for (row in rows) {
             val record = RelationshipRecord.read(row)
-            val versionRelationshipSnapshotId = RelationshipSnapshotId.generate()
-            snapshotIdMap[record.snapshotId] = versionRelationshipSnapshotId
+            val versionRelationshipSnapshotId = converters.relationship.generate(record.snapshotId)
             snapWrite.insertRelationship(
                 RelationshipRecord(
                     snapshotId = versionRelationshipSnapshotId,
@@ -202,11 +197,10 @@ internal class ModelStorageDbSnapshotCreate(
                 emptyList()
             )
         }
-        return snapshotIdMap
     }
 
-    private fun cloneRelationshipTags(relationshipSnapshotIdMap: Map<RelationshipSnapshotId, RelationshipSnapshotId>) {
-        for (entry in relationshipSnapshotIdMap.entries) {
+    private fun cloneRelationshipTags(converters: Converters) {
+        for (entry in converters.relationship.map.entries) {
             val tagIds = RelationshipTagTable.select(RelationshipTagTable.tagId)
                 .where { RelationshipTagTable.relationshipSnapshotId eq entry.key }
                 .map { it[RelationshipTagTable.tagId] }
@@ -216,15 +210,12 @@ internal class ModelStorageDbSnapshotCreate(
         }
     }
 
-    private fun cloneRelationshipRoleSnapshots(
-        relationshipSnapshotIdMap: Map<RelationshipSnapshotId, RelationshipSnapshotId>,
-        entitySnapshotIdMap: Map<EntitySnapshotId, EntitySnapshotId>
-    ) {
-        if (relationshipSnapshotIdMap.isEmpty()) {
+    private fun cloneRelationshipRoleSnapshots(converters: Converters) {
+        if (converters.relationship.map.isEmpty()) {
             return
         }
         val rows = RelationshipRoleTable.selectAll().where {
-            RelationshipRoleTable.relationshipSnapshotId inList relationshipSnapshotIdMap.keys.toList()
+            RelationshipRoleTable.relationshipSnapshotId inList converters.relationship.map.keys.toList()
         }
         for (row in rows) {
             val record = RelationshipRoleRecord.read(row)
@@ -232,9 +223,9 @@ internal class ModelStorageDbSnapshotCreate(
                 RelationshipRoleRecord(
                     snapshotId = RelationshipRoleSnapshotId.generate(),
                     lineageId = record.lineageId,
-                    relationshipSnapshotId = relationshipSnapshotIdMap.getValue(record.relationshipSnapshotId),
+                    relationshipSnapshotId = converters.relationship.convert(record.relationshipSnapshotId),
                     key = record.key,
-                    entitySnapshotId = entitySnapshotIdMap.getValue(record.entitySnapshotId),
+                    entitySnapshotId = converters.entity.convert(record.entitySnapshotId),
                     name = record.name,
                     cardinality = record.cardinality
                 )
@@ -242,37 +233,32 @@ internal class ModelStorageDbSnapshotCreate(
         }
     }
 
-    private fun cloneRelationshipAttributeSnapshots(
-        relationshipSnapshotIdMap: Map<RelationshipSnapshotId, RelationshipSnapshotId>,
-        typeSnapshotIdMap: Map<TypeSnapshotId, TypeSnapshotId>
-    ) {
-        if (relationshipSnapshotIdMap.isEmpty()) {
+    private fun cloneRelationshipAttributeSnapshots(converters: Converters) {
+        if (converters.relationship.map.isEmpty()) {
             return
         }
         val rows = RelationshipAttributeTable.selectAll().where {
-            RelationshipAttributeTable.relationshipSnapshotId inList relationshipSnapshotIdMap.keys.toList()
+            RelationshipAttributeTable.relationshipSnapshotId inList converters.relationship.map.keys.toList()
         }
-        val attributeSnapshotIdMap = mutableMapOf<AttributeSnapshotId, AttributeSnapshotId>()
 
         for (row in rows) {
             val record = RelationshipAttributeRecord.read(row)
-            val versionAttributeSnapshotId = AttributeSnapshotId.generate()
-            attributeSnapshotIdMap[record.snapshotId] = versionAttributeSnapshotId
+            val versionAttributeSnapshotId = converters.relationshipAttribute.generate(record.snapshotId)
             snapWrite.insertRelationshipAttribute(
                 RelationshipAttributeRecord(
                     snapshotId = versionAttributeSnapshotId,
                     lineageId = record.lineageId,
-                    relationshipSnapshotId = relationshipSnapshotIdMap.getValue(record.relationshipSnapshotId),
+                    relationshipSnapshotId = converters.relationship.convert(record.relationshipSnapshotId),
                     key = record.key,
                     name = record.name,
                     description = record.description,
-                    typeSnapshotId = typeSnapshotIdMap.getValue(record.typeSnapshotId),
+                    typeSnapshotId = converters.type.convert(record.typeSnapshotId),
                     optional = record.optional
                 )
             )
         }
 
-        for (entry in attributeSnapshotIdMap.entries) {
+        for (entry in converters.relationshipAttribute.map.entries) {
             val tagIds = RelationshipAttributeTagTable.select(RelationshipAttributeTagTable.tagId)
                 .where { RelationshipAttributeTagTable.attributeSnapshotId eq entry.key }
                 .map { it[RelationshipAttributeTagTable.tagId] }
@@ -280,5 +266,13 @@ internal class ModelStorageDbSnapshotCreate(
                 snapWrite.insertRelationshipAttributeTag(entry.value, tagId)
             }
         }
+    }
+
+    private class Converters {
+        val type = IdConv("type_snapshot_id", TypeSnapshotId::generate)
+        val entity = IdConv("entity_snapshot_id", EntitySnapshotId::generate)
+        val entityAttribute = IdConv("entity_attribute_snapshot_id", AttributeSnapshotId::generate)
+        val relationship = IdConv("relationship_snapshot_id", RelationshipSnapshotId::generate)
+        val relationshipAttribute = IdConv("relationship_attribute_snapshot_id", AttributeSnapshotId::generate)
     }
 }
