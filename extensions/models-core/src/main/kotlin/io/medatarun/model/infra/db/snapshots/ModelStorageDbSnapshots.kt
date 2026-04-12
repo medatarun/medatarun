@@ -3,7 +3,6 @@ package io.medatarun.model.infra.db.snapshots
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.*
 import io.medatarun.model.infra.db.tables.*
-import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
@@ -11,9 +10,19 @@ import org.jetbrains.exposed.v1.jdbc.select
 class ModelStorageDbSnapshots {
 
     fun currentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId {
-        return findCurrentHeadModelSnapshotId(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(
+        return currentHeadModelSnapshotIdOptional(modelId) ?: throw ModelStorageDbMissingCurrentHeadModelSnapshotException(
             modelId
         )
+    }
+
+    private fun currentHeadModelSnapshotIdOptional(modelId: ModelId): ModelSnapshotId? {
+        val row = ModelSnapshotTable.select(ModelSnapshotTable.id).where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
+        }.singleOrNull()
+        if (row == null) {
+            return null
+        }
+        return row[ModelSnapshotTable.id]
     }
 
     fun currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId: ModelSnapshotId, typeId: TypeId): TypeSnapshotId {
@@ -39,41 +48,6 @@ class ModelStorageDbSnapshots {
         return row[EntityTable.id]
     }
 
-    fun currentHeadAttributeSnapshotIdInModelSnapshot(
-        modelSnapshotId: ModelSnapshotId,
-        attributeId: AttributeId
-    ): AttributeSnapshotId {
-        val entityAttributeRow = EntityAttributeTable.join(
-            EntityTable,
-            JoinType.INNER,
-            EntityAttributeTable.entitySnapshotId,
-            EntityTable.id
-        ).select(EntityAttributeTable.id)
-            .where {
-                (EntityAttributeTable.lineageId eq attributeId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
-            }
-            .singleOrNull()
-        if (entityAttributeRow != null) {
-            return entityAttributeRow[EntityAttributeTable.id]
-        }
-        val relationshipAttributeRow = RelationshipAttributeTable.join(
-            RelationshipTable,
-            JoinType.INNER,
-            RelationshipAttributeTable.relationshipSnapshotId,
-            RelationshipTable.id
-        ).select(RelationshipAttributeTable.id)
-            .where {
-                (RelationshipAttributeTable.lineageId eq attributeId) and
-                        (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-            }
-            .singleOrNull()
-        if (relationshipAttributeRow != null) {
-            return relationshipAttributeRow[RelationshipAttributeTable.id]
-        }
-        throw ModelStorageDbMissingAttributeSnapshotException(attributeId)
-    }
-
-
     fun currentHeadRelationshipSnapshotIdInModelSnapshot(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId
@@ -87,14 +61,5 @@ class ModelStorageDbSnapshots {
         return row[RelationshipTable.id]
     }
 
-    private fun findCurrentHeadModelSnapshotId(modelId: ModelId): ModelSnapshotId? {
-        val row = ModelSnapshotTable.select(ModelSnapshotTable.id).where {
-            SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
-        }.singleOrNull()
-        if (row == null) {
-            return null
-        }
-        return row[ModelSnapshotTable.id]
-    }
 
 }
