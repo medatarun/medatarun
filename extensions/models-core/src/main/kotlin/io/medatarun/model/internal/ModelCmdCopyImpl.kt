@@ -132,7 +132,7 @@ class ModelCmdCopyImpl(
 
         val primaryKeys = model.entityPrimaryKeys.map { pk ->
             EntityPrimaryKeyInMemory.of(pk).copy(
-                id = entityPrimaryKeyIds.convert(pk.id),
+                id = entityPrimaryKeyIds.generate(pk.id),
                 entityId = entityIds.convert(pk.entityId),
                 participants = pk.participants.map { PBKeyParticipantInMemory.of(it).copy(attributeId = attributeIds.convert(it.attributeId)) }
             )
@@ -140,7 +140,7 @@ class ModelCmdCopyImpl(
 
         val businessKeys = model.businessKeys.map { bk ->
             BusinessKeyInMemory.of(bk).copy(
-                id = businessKeyIds.convert(bk.id),
+                id = businessKeyIds.generate(bk.id),
                 entityId = entityIds.convert(bk.entityId),
                 participants = bk.participants.map { PBKeyParticipantInMemory.of(it).copy(attributeId = attributeIds.convert(it.attributeId)) }
             )

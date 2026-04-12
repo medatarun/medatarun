@@ -61,16 +61,16 @@ in `ModelStorageDbProjection`
   to create the corresponding primary key in `model_entity_pk_snapshot`
 - [X] `model_release` command shall handle the cloning for
   `model_entity_pk_snapshot` and `model_entity_pk_attribute_snapshot`
-- [ ] `model_deleted` command already deletes via foreign keys the entities;
+- [X] `model_deleted` command already deletes via foreign keys the entities;
   therefore, we must be sure that `model_entity_pk_snapshot` and
-  `model_entity_pk_attribute_snapshot` and `model_entity_pk_attribute_snapshot`
+  `model_entity_pk_attribute_snapshot` and `model_business_key_attribute_snapshot`
   and `model_business_key_snapshot` are deleted too when entities are deleted
-- [ ] `entity_created`: we need to create the corresponding primary key in
+- [X] `entity_created`: we need to create the corresponding primary key in
   `model_entity_pk_snapshot`
-- [ ] `entity_deleted`: we need to make sure that matching
+- [X] `entity_deleted`: we need to make sure that matching
   `model_entity_pk_attribute_snapshot` is deleted (should be done with foreign
   keys)
-- [ ] `entity_attribute_deleted`: we need to make sure that matching
+- [X] `entity_attribute_deleted`: we need to make sure that matching
   `model_entity_pk_attribute_snapshot` is deleted (should be done with foreign
   keys)
 - [ ] `entity_identifier_attribute_updated` command shall be interpreted as

@@ -359,6 +359,7 @@ internal class ModelStorageDbProjection(
     private fun createEntity(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntity) {
         val entitySnapshotId = EntitySnapshotId.generate()
         val identifierAttributeSnapshotId = AttributeSnapshotId.generate()
+        val entityPrimaryKeySnapshotId = EntityPKSnapshotId(entitySnapshotId.value)
         val record = EntityRecord(
             snapshotId = entitySnapshotId,
             lineageId = cmd.entityId,
@@ -385,6 +386,18 @@ internal class ModelStorageDbProjection(
                 ),
                 optional = cmd.identityAttributeIdOptional
             )
+        )
+        snapWrite.insertEntityPrimaryKey(
+            EntityPKRecord(
+                snapshotId = entityPrimaryKeySnapshotId,
+                lineageId = EntityPrimaryKeyId(cmd.entityId.value),
+                modelEntitySnapshotId = entitySnapshotId
+            )
+        )
+        snapWrite.insertEntityPrimaryKeyAttribute(
+            entityPrimaryKeySnapshotId = entityPrimaryKeySnapshotId,
+            attributeSnapshotId = identifierAttributeSnapshotId,
+            priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
         )
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.identityAttributeId)

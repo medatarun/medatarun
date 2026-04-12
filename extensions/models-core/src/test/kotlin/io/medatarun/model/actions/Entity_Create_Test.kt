@@ -5,6 +5,7 @@ import io.medatarun.model.domain.*
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @EnableDatabaseTests
@@ -37,12 +38,14 @@ class Entity_Create_Test {
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
         assertEquals(URI.create(docHome).toURL(), reloaded.documentationHome)
-        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(reloaded.ref)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(reloaded.ref)
         assertEquals(1, attributes.size)
         val attrId = attributes[0]
         assertEquals(AttributeKey("id"), attrId.key)
         assertEquals("Identifier", attrId.name?.name)
         assertNull(attrId.description?.name)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attrId.id)
     }
 
     @Test
@@ -70,8 +73,10 @@ class Entity_Create_Test {
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
-        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(entityRef)
         assertEquals(1, attributes.size)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
     }
 
     @Test
@@ -99,6 +104,9 @@ class Entity_Create_Test {
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(entityRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
     }
 
     @Test
@@ -121,9 +129,11 @@ class Entity_Create_Test {
             )
         )
 
-        val attributes = env.query.findModel(env.modelRef).findEntityAttributes(entityRef)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(entityRef)
         assertNull(attributes[0].name)
         assertNull(attributes[0].description)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
     }
 
     @Test
@@ -144,6 +154,9 @@ class Entity_Create_Test {
             )
         )
         assertNull(env.query.findEntity(env.modelRef, entityRef).documentationHome)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(entityRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
     }
 
     @Test
@@ -165,6 +178,20 @@ class Entity_Create_Test {
             )
         )
         assertEquals(url, env.query.findEntity(env.modelRef, entityRef).documentationHome)
+        val model = env.query.findModel(env.modelRef)
+        val attributes = model.findEntityAttributes(entityRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+    }
+
+    private fun assertEntityPrimaryKeyMatchesIdentityAttribute(
+        model: ModelAggregate,
+        entityRef: EntityRef,
+        expectedIdentityAttributeId: AttributeId
+    ) {
+        val entity = model.findEntity(entityRef)
+        val primaryKey = assertNotNull(model.findEntityPrimaryKeyOptional(entity.id))
+        assertEquals(listOf(expectedIdentityAttributeId), primaryKey.participants.map { it.attributeId })
+        assertEquals(listOf(0), primaryKey.participants.map { it.position })
     }
 
 }
