@@ -54,5 +54,19 @@ sealed interface ModelStorageCmdOld : ModelStorageCmdAnyVersion {
         val identityAttributeIdOptional: Boolean,
 
         ) : ModelStorageCmdOld
+    @Serializable
+    @StorageEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
+    data class UpdateEntityIdentifierAttribute(
+        @Contextual
+        @SerialName("modelId")
+        val modelId: ModelId,
+        @Contextual
+        @SerialName("entityId")
+        val entityId: EntityId,
+        @Contextual
+        @SerialName("identifierAttributeId")
+        val identifierAttributeId: AttributeId
+    ) : ModelStorageCmdOld
+
 
 }

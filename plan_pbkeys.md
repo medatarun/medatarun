@@ -110,7 +110,7 @@ Next operations
   `version_models_v003_02_remove_identifier_attribute.sql` to remove the old
   column. Remove it from `EntityTable`
  
-- [ ] Create version 2 of command `entity_created` where we don't specify
+- [X] Create version 2 of command `entity_created` where we don't specify
   identifierAttribute, use it in projection
 
 

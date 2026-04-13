@@ -47,7 +47,6 @@ internal class ModelStorageDbProjection(
             is ModelStorageCmd.UpdateEntityName -> updateEntityName(ctx, cmd)
             is ModelStorageCmd.UpdateEntityDescription -> updateEntityDescription(ctx, cmd)
             is ModelStorageCmd.Entity_PrimaryKey_Set -> entityPrimaryKeySet(ctx, cmd)
-            is ModelStorageCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(ctx, cmd)
             is ModelStorageCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(ctx, cmd)
             is ModelStorageCmd.UpdateEntityTagAdd -> addEntityTag(ctx, cmd)
             is ModelStorageCmd.UpdateEntityTagDelete -> deleteEntityTag(ctx, cmd)
@@ -387,17 +386,6 @@ internal class ModelStorageDbProjection(
             modelSnapshotId = ctx.modelSnapshotId,
             entityId = cmd.entityId,
             attributeIds = cmd.attributeIds
-        )
-    }
-
-    private fun updateEntityIdentifierAttribute(
-        ctx: ProjectionEventCtx,
-        cmd: ModelStorageCmd.UpdateEntityIdentifierAttribute
-    ) {
-        snapWrite.entityUpdateIdentifierAttribute(
-            modelSnapshotId = ctx.modelSnapshotId,
-            entityId = cmd.entityId,
-            identifierAttributeId = cmd.identifierAttributeId
         )
     }
 

@@ -197,13 +197,6 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun entityUpdateIdentifierAttribute(
-        modelSnapshotId: ModelSnapshotId,
-        entityId: EntityId,
-        identifierAttributeId: AttributeId
-    ) {
-        entityPrimaryKeyUpdate(modelSnapshotId, entityId, listOf(identifierAttributeId))
-    }
 
     fun entityUpdateDocumentationHome(
         modelSnapshotId: ModelSnapshotId,

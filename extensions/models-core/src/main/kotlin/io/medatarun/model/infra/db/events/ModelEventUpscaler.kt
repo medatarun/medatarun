@@ -10,7 +10,16 @@ class ModelEventUpscaler {
     fun upscale(cmd: ModelStorageCmdOld): List<ModelStorageCmd> {
         return when(cmd) {
             is ModelStorageCmdOld.CreateEntity -> upscaleCreateEntity(cmd)
+            is ModelStorageCmdOld.UpdateEntityIdentifierAttribute -> upscaleUpdateEntityIdentifierAttribute(cmd)
         }
+    }
+    private fun upscaleUpdateEntityIdentifierAttribute(cmd: ModelStorageCmdOld.UpdateEntityIdentifierAttribute): List<ModelStorageCmd> {
+        val next = ModelStorageCmd.Entity_PrimaryKey_Set(
+            modelId = cmd.modelId,
+            entityId = cmd.entityId,
+            attributeIds = listOf(cmd.identifierAttributeId)
+        )
+        return listOf(next)
     }
     private fun upscaleCreateEntity(cmd: ModelStorageCmdOld.CreateEntity): List<ModelStorageCmd> {
         val cmdCreateEntity = ModelStorageCmd.CreateEntity(
