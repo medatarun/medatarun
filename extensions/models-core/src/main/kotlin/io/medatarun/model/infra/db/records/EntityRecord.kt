@@ -11,7 +11,6 @@ data class EntityRecord(
     val key: EntityKey,
     val name: LocalizedText?,
     val description: LocalizedMarkdown?,
-    val identifierAttributeSnapshotId: AttributeSnapshotId,
     val origin: EntityOrigin,
     val documentationHome: String?
 ) {
@@ -24,7 +23,6 @@ data class EntityRecord(
                 key = row[EntityTable.key],
                 name = row[EntityTable.name],
                 description = row[EntityTable.description],
-                identifierAttributeSnapshotId = row[EntityTable.identifierAttributeSnapshotId],
                 origin = row[EntityTable.origin],
                 documentationHome = row[EntityTable.documentationHome]
             )

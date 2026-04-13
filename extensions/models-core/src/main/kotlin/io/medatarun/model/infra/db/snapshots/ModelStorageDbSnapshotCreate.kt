@@ -131,7 +131,6 @@ internal class ModelStorageDbSnapshotCreate(
                     key = record.key,
                     name = record.name,
                     description = record.description,
-                    identifierAttributeSnapshotId = converters.entityAttribute.convert(record.identifierAttributeSnapshotId),
                     origin = record.origin,
                     documentationHome = record.documentationHome
                 )

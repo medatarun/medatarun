@@ -185,7 +185,6 @@ internal class ModelStorageDbProjection(
                     key = entity.key,
                     name = entity.name,
                     description = entity.description,
-                    identifierAttributeSnapshotId = identifierAttributeSnapshotId,
                     origin = entity.origin,
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
@@ -358,7 +357,6 @@ internal class ModelStorageDbProjection(
             key = cmd.key,
             name = cmd.name,
             description = cmd.description,
-            identifierAttributeSnapshotId = identifierAttributeSnapshotId,
             origin = cmd.origin,
             documentationHome = cmd.documentationHome?.toExternalForm()
         )

@@ -55,7 +55,6 @@ CREATE TABLE model_entity_snapshot (
     key TEXT NOT NULL,
     name TEXT,
     description TEXT,
-    identifier_attribute_snapshot_id UUID NOT NULL,
     origin TEXT NOT NULL,
     documentation_home TEXT,
     FOREIGN KEY (model_snapshot_id) REFERENCES model_snapshot (id) ON DELETE CASCADE,

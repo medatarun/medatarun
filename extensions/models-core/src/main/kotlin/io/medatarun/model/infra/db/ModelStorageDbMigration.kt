@@ -38,6 +38,7 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
                     DbDialect.POSTGRESQL -> ctx.applySqlResource(v003_01_pk_bk_postgresql)
                 }
                 v003IdentifierAttributeToPrimaryKeys.migrate(ctx)
+                ctx.applySqlResource(v003_02_remove_identifier_attribute)
             }
             else -> ctx.throwUnknownVersionException()
         }
@@ -51,5 +52,6 @@ class ModelStorageDbMigration(override val pluginId: String) : DbMigration {
         const val v002_uids_binary = "io/medatarun/model/infra/db/version_models_v002_02_ids_binary16_sqlite.sql"
         const val v003_01_pk_bk_sqlite = "io/medatarun/model/infra/db/version_models_v003_01_pk_bk_sqlite.sql"
         const val v003_01_pk_bk_postgresql = "io/medatarun/model/infra/db/version_models_v003_01_pk_bk_postgresql.sql"
+        const val v003_02_remove_identifier_attribute = "io/medatarun/model/infra/db/version_models_v003_02_remove_identifier_attribute.sql"
     }
 }

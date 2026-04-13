@@ -158,7 +158,6 @@ internal class ModelStorageDbSnapshotWriter(
             row[EntityTable.key] = record.key
             row[EntityTable.name] = record.name
             row[EntityTable.description] = record.description
-            row[EntityTable.identifierAttributeSnapshotId] = record.identifierAttributeSnapshotId
             row[EntityTable.origin] = record.origin
             row[EntityTable.documentationHome] = record.documentationHome
         }
@@ -203,21 +202,6 @@ internal class ModelStorageDbSnapshotWriter(
         entityId: EntityId,
         identifierAttributeId: AttributeId
     ) {
-        // Resolve the current entity snapshot row in this model snapshot branch.
-        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
-        // Resolve the target attribute snapshot row from the requested attribute lineage id.
-        val attributeSnapshotId = EntityAttributeTable.select(EntityAttributeTable.id).where {
-            (EntityAttributeTable.lineageId eq identifierAttributeId) and
-                    (EntityAttributeTable.entitySnapshotId eq entitySnapshotId)
-        }.single()[EntityAttributeTable.id]
-        // Keep legacy compatibility column aligned with the command.
-        EntityTable.update(
-            where = {
-                (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
-            }
-        ) { row ->
-            row[EntityTable.identifierAttributeSnapshotId] = attributeSnapshotId
-        }
         entityPrimaryKeyUpdate(modelSnapshotId, entityId, listOf(identifierAttributeId))
     }
 

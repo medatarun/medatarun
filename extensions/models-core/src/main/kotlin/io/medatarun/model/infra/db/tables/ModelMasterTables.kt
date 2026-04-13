@@ -56,7 +56,6 @@ object EntityTable : Table("model_entity_snapshot") {
     val key = text("key").transform(KeyTransformer(::EntityKey))
     val name = text("name").transform(LocalizedTextTransformer()).nullable()
     val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
-    val identifierAttributeSnapshotId = javaUUID("identifier_attribute_snapshot_id").transform(IdTransformer(::AttributeSnapshotId))
     val origin = text("origin").transform(EntityOriginTransformer())
     val documentationHome = text("documentation_home").nullable()
 
