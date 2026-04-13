@@ -332,6 +332,20 @@ sealed interface ModelStorageCmd: StorageCmd {
     ) : ModelStorageCmdOnModel
 
     @Serializable
+    @StorageEventContract(eventType = "entity_primary_key_set", eventVersion = 1)
+    data class Entity_PrimaryKey_Set(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("entityId")
+        val entityId: EntityId,
+        @Contextual
+        @SerialName("attributeIds")
+        val attributeIds: List<@Contextual AttributeId>
+    ) : ModelStorageCmdOnModel
+
+    @Serializable
     @StorageEventContract(eventType = "entity_identifier_attribute_updated", eventVersion = 1)
     data class UpdateEntityIdentifierAttribute(
         @Contextual

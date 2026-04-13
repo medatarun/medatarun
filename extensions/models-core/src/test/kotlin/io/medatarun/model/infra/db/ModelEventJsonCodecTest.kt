@@ -237,6 +237,12 @@ class ModelEventJsonCodecTest {
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","description":"Client entity"}"""
             ),
             CmdTestCase(
+                eventType = "entity_primary_key_set",
+                eventVersion = 1,
+                cmd = ModelStorageCmd.Entity_PrimaryKey_Set(modelId, entityId, listOf(entityAttributeId)),
+                json = """{"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","attributeIds":["00000000-0000-0000-0000-000000000006"]}"""
+            ),
+            CmdTestCase(
                 eventType = "entity_identifier_attribute_updated",
                 eventVersion = 1,
                 cmd = ModelStorageCmd.UpdateEntityIdentifierAttribute(modelId, entityId, entityAttributeId),

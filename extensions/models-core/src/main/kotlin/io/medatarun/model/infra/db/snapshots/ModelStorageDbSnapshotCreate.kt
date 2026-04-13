@@ -36,7 +36,7 @@ internal class ModelStorageDbSnapshotCreate(
         val versionSnapshotId = ModelSnapshotId.generate()
         val now = clock.now()
 
-        snapWrite.insertModel(
+        snapWrite.modelInsert(
             ModelRecord(
                 snapshotId = versionSnapshotId,
                 modelId = currentHeadRecord.modelId,
@@ -74,7 +74,7 @@ internal class ModelStorageDbSnapshotCreate(
             .where { ModelTagTable.modelSnapshotId eq currentHeadSnapshotId }
             .map { it[ModelTagTable.tagId] }
         for (tagId in tagIds) {
-            snapWrite.insertModelTag(versionSnapshotId, tagId)
+            snapWrite.modelAddTag(versionSnapshotId, tagId)
         }
     }
 
@@ -87,7 +87,7 @@ internal class ModelStorageDbSnapshotCreate(
         for (row in rows) {
             val record = ModelTypeRecord.read(row)
             val versionTypeSnapshotId = converters.type.generate(record.snapshotId)
-            snapWrite.insertType(
+            snapWrite.typeInsert(
                 ModelTypeRecord(
                     snapshotId = versionTypeSnapshotId,
                     lineageId = record.lineageId,
@@ -123,7 +123,7 @@ internal class ModelStorageDbSnapshotCreate(
         }
 
         for (record in currentHeadEntityRecords) {
-            snapWrite.insertEntity(
+            snapWrite.entityInsert(
                 EntityRecord(
                     snapshotId = converters.entity.convert(record.snapshotId),
                     lineageId = record.lineageId,
@@ -139,7 +139,7 @@ internal class ModelStorageDbSnapshotCreate(
         }
 
         for (record in currentHeadAttributeRecords) {
-            snapWrite.insertEntityAttribute(
+            snapWrite.entityAttributeInsert(
                 EntityAttributeRecord(
                     snapshotId = converters.entityAttribute.convert(record.snapshotId),
                     lineageId = record.lineageId,
@@ -162,7 +162,7 @@ internal class ModelStorageDbSnapshotCreate(
                 .where { EntityTagTable.entitySnapshotId eq entry.key }
                 .map { it[EntityTagTable.tagId] }
             for (tagId in tagIds) {
-                snapWrite.insertEntityTag(entry.value, tagId)
+                snapWrite.entityAddTag(entry.value, tagId)
             }
         }
     }
@@ -173,7 +173,7 @@ internal class ModelStorageDbSnapshotCreate(
                 .where { EntityAttributeTagTable.attributeSnapshotId eq entry.key }
                 .map { it[EntityAttributeTagTable.tagId] }
             for (tagId in tagIds) {
-                snapWrite.insertEntityAttributeTag(entry.value, tagId)
+                snapWrite.entityAttributeAddTag(entry.value, tagId)
             }
         }
     }
@@ -187,7 +187,7 @@ internal class ModelStorageDbSnapshotCreate(
         for (row in rows) {
             val record = RelationshipRecord.read(row)
             val versionRelationshipSnapshotId = converters.relationship.generate(record.snapshotId)
-            snapWrite.insertRelationship(
+            snapWrite.relationshipInsert(
                 RelationshipRecord(
                     snapshotId = versionRelationshipSnapshotId,
                     lineageId = record.lineageId,
@@ -219,7 +219,7 @@ internal class ModelStorageDbSnapshotCreate(
         for (row in rows) {
             val record = EntityPKRecord.read(row)
             val snapshotId = converters.entityPrimaryKey.generate(record.snapshotId)
-            snapWrite.insertEntityPrimaryKey(
+            snapWrite.entityPrimaryKeyInsert(
                 EntityPKRecord(
                     snapshotId = snapshotId,
                     lineageId = record.lineageId,
@@ -232,7 +232,7 @@ internal class ModelStorageDbSnapshotCreate(
             EntityPKAttributeTable.entityPKSnapshotId inList converters.entityPrimaryKey.map.keys.toList()
         }
         for (row in attributeRows) {
-            snapWrite.insertEntityPrimaryKeyAttribute(
+            snapWrite.entityPrimaryKeyAttributeInsert(
                 entityPrimaryKeySnapshotId = converters.entityPrimaryKey.convert(row[EntityPKAttributeTable.entityPKSnapshotId]),
                 attributeSnapshotId = converters.entityAttribute.convert(row[EntityPKAttributeTable.attributeSnapshotId]),
                 priority = row[EntityPKAttributeTable.priority]
@@ -258,7 +258,7 @@ internal class ModelStorageDbSnapshotCreate(
         for (row in rows) {
             val record = BusinessKeyRecord.read(row)
             val versionBusinessKeySnapshotId = converters.businessKey.generate(record.snapshotId)
-            snapWrite.insertBusinessKey(
+            snapWrite.businessKeyInsert(
                 BusinessKeyRecord(
                     snapshotId = versionBusinessKeySnapshotId,
                     lineageId = record.lineageId,
@@ -274,7 +274,7 @@ internal class ModelStorageDbSnapshotCreate(
             BusinessKeyAttributeTable.businessKeySnapshotId inList converters.businessKey.map.keys.toList()
         }
         for (row in attributeRows) {
-            snapWrite.insertBusinessKeyAttribute(
+            snapWrite.businessKeyAttributeInsert(
                 businessKeySnapshotId = converters.businessKey.convert(row[BusinessKeyAttributeTable.businessKeySnapshotId]),
                 attributeSnapshotId = converters.entityAttribute.convert(row[BusinessKeyAttributeTable.attributeSnapshotId]),
                 priority = row[BusinessKeyAttributeTable.priority]
@@ -288,7 +288,7 @@ internal class ModelStorageDbSnapshotCreate(
                 .where { RelationshipTagTable.relationshipSnapshotId eq entry.key }
                 .map { it[RelationshipTagTable.tagId] }
             for (tagId in tagIds) {
-                snapWrite.insertRelationshipTag(entry.value, tagId)
+                snapWrite.relationshipAddTag(entry.value, tagId)
             }
         }
     }
@@ -302,7 +302,7 @@ internal class ModelStorageDbSnapshotCreate(
         }
         for (row in rows) {
             val record = RelationshipRoleRecord.read(row)
-            snapWrite.insertRelationshipRole(
+            snapWrite.relationshipRoleInsert(
                 RelationshipRoleRecord(
                     snapshotId = RelationshipRoleSnapshotId.generate(),
                     lineageId = record.lineageId,
@@ -327,7 +327,7 @@ internal class ModelStorageDbSnapshotCreate(
         for (row in rows) {
             val record = RelationshipAttributeRecord.read(row)
             val versionAttributeSnapshotId = converters.relationshipAttribute.generate(record.snapshotId)
-            snapWrite.insertRelationshipAttribute(
+            snapWrite.relationshipAttributeInsert(
                 RelationshipAttributeRecord(
                     snapshotId = versionAttributeSnapshotId,
                     lineageId = record.lineageId,
@@ -346,7 +346,7 @@ internal class ModelStorageDbSnapshotCreate(
                 .where { RelationshipAttributeTagTable.attributeSnapshotId eq entry.key }
                 .map { it[RelationshipAttributeTagTable.tagId] }
             for (tagId in tagIds) {
-                snapWrite.insertRelationshipAttributeTag(entry.value, tagId)
+                snapWrite.relationshipAttributeAddTag(entry.value, tagId)
             }
         }
     }

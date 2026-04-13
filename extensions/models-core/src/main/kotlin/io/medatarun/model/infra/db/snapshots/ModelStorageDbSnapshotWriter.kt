@@ -5,14 +5,12 @@ import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.ports.needs.ModelClock
 import io.medatarun.tags.core.domain.TagId
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inSubQuery
 import org.jetbrains.exposed.v1.core.statements.UpdateStatement
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.update
+import org.jetbrains.exposed.v1.jdbc.*
 
 internal class ModelStorageDbSnapshotWriter(
     private val snapshots: ModelStorageDbSnapshots,
@@ -22,7 +20,7 @@ internal class ModelStorageDbSnapshotWriter(
     // Model
     // ------------------------------------------------------------------------
 
-    fun insertModel(record: ModelRecord) {
+    fun modelInsert(record: ModelRecord) {
         ModelSnapshotTable.insert { row ->
             row[ModelSnapshotTable.id] = record.snapshotId
             row[ModelSnapshotTable.modelId] = record.modelId
@@ -41,59 +39,59 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateModelName(modelSnapshotId: ModelSnapshotId, name: LocalizedText?) {
+    fun modelUpdateName(modelSnapshotId: ModelSnapshotId, name: LocalizedText?) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.name] = name
         }
     }
 
-    fun updateModelKey(modelSnapshotId: ModelSnapshotId, key: ModelKey) {
+    fun modelUpdateKey(modelSnapshotId: ModelSnapshotId, key: ModelKey) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.key] = key
         }
     }
 
-    fun updateModelDescription(modelSnapshotId: ModelSnapshotId, description: LocalizedMarkdown?) {
+    fun modelUpdateDescription(modelSnapshotId: ModelSnapshotId, description: LocalizedMarkdown?) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.description] = description
         }
     }
 
-    fun updateModelAuthority(modelSnapshotId: ModelSnapshotId, authority: ModelAuthority) {
+    fun modelUpdateAuthority(modelSnapshotId: ModelSnapshotId, authority: ModelAuthority) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.authority] = authority
         }
     }
 
-    fun updateModelDocumentationHome(modelSnapshotId: ModelSnapshotId, documentationHome: String?) {
+    fun modelUpdateDocumentationHome(modelSnapshotId: ModelSnapshotId, documentationHome: String?) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.documentationHome] = documentationHome
         }
     }
 
-    fun updateModelVersion(modelSnapshotId: ModelSnapshotId, version: ModelVersion) {
+    fun modelUpdateVersion(modelSnapshotId: ModelSnapshotId, version: ModelVersion) {
         ModelSnapshotTable.update(where = { ModelSnapshotTable.id eq modelSnapshotId }) { row ->
             row[ModelSnapshotTable.version] = version
         }
     }
 
-    fun addModelTag(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
+    fun modelAddTagIfNotExists(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
         val exists = ModelTagTable.select(ModelTagTable.modelSnapshotId).where {
             (ModelTagTable.modelSnapshotId eq modelSnapshotId) and (ModelTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            insertModelTag(modelSnapshotId, tagId)
+            modelAddTag(modelSnapshotId, tagId)
         }
     }
 
-    fun insertModelTag(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
+    fun modelAddTag(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
         ModelTagTable.insert { row ->
             row[ModelTagTable.modelSnapshotId] = modelSnapshotId
             row[ModelTagTable.tagId] = tagId
         }
     }
 
-    fun deleteModelTag(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
+    fun modelDeleteTag(modelSnapshotId: ModelSnapshotId, tagId: TagId) {
         ModelTagTable.deleteWhere {
             (ModelTagTable.modelSnapshotId eq modelSnapshotId) and (ModelTagTable.tagId eq tagId)
         }
@@ -102,7 +100,7 @@ internal class ModelStorageDbSnapshotWriter(
     // Types
     // ------------------------------------------------------------------------
 
-    fun insertType(record: ModelTypeRecord) {
+    fun typeInsert(record: ModelTypeRecord) {
         ModelTypeTable.insert { row ->
             row[ModelTypeTable.id] = record.snapshotId
             row[ModelTypeTable.lineageId] = record.lineageId
@@ -113,7 +111,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateTypeKey(modelSnapshotId: ModelSnapshotId, typeId: TypeId, key: TypeKey) {
+    fun typeUpdateKey(modelSnapshotId: ModelSnapshotId, typeId: TypeId, key: TypeKey) {
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -123,7 +121,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateTypeName(modelSnapshotId: ModelSnapshotId, typeId: TypeId, name: LocalizedText?) {
+    fun typeUpdateName(modelSnapshotId: ModelSnapshotId, typeId: TypeId, name: LocalizedText?) {
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -133,7 +131,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateTypeDescription(modelSnapshotId: ModelSnapshotId, typeId: TypeId, description: LocalizedMarkdown?) {
+    fun typeUpdateDescription(modelSnapshotId: ModelSnapshotId, typeId: TypeId, description: LocalizedMarkdown?) {
         ModelTypeTable.update(
             where = {
                 (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
@@ -143,7 +141,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun deleteType(modelSnapshotId: ModelSnapshotId, typeId: TypeId) {
+    fun typeDelete(modelSnapshotId: ModelSnapshotId, typeId: TypeId) {
         ModelTypeTable.deleteWhere {
             (ModelTypeTable.lineageId eq typeId) and (ModelTypeTable.modelSnapshotId eq modelSnapshotId)
         }
@@ -152,7 +150,7 @@ internal class ModelStorageDbSnapshotWriter(
     // Entity
     // ------------------------------------------------------------------------
 
-    fun insertEntity(record: EntityRecord) {
+    fun entityInsert(record: EntityRecord) {
         EntityTable.insert { row ->
             row[EntityTable.id] = record.snapshotId
             row[EntityTable.lineageId] = record.lineageId
@@ -166,50 +164,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun insertEntityPrimaryKey(record: EntityPKRecord) {
-        EntityPKTable.insert { row ->
-            row[EntityPKTable.id] = record.snapshotId
-            row[EntityPKTable.lineageId] = record.lineageId
-            row[EntityPKTable.entitySnapshotId] = record.modelEntitySnapshotId
-        }
-    }
-
-    fun insertEntityPrimaryKeyAttribute(
-        entityPrimaryKeySnapshotId: EntityPKSnapshotId,
-        attributeSnapshotId: AttributeSnapshotId,
-        priority: Int
-    ) {
-        EntityPKAttributeTable.insert { row ->
-            row[EntityPKAttributeTable.entityPKSnapshotId] = entityPrimaryKeySnapshotId
-            row[EntityPKAttributeTable.priority] = priority
-            row[EntityPKAttributeTable.attributeSnapshotId] = attributeSnapshotId
-        }
-    }
-
-    fun insertBusinessKey(record: BusinessKeyRecord) {
-        BusinessKeyTable.insert { row ->
-            row[BusinessKeyTable.id] = record.snapshotId
-            row[BusinessKeyTable.lineageId] = record.lineageId
-            row[BusinessKeyTable.entitySnapshotId] = record.modelEntitySnapshotId
-            row[BusinessKeyTable.key] = record.key
-            row[BusinessKeyTable.name] = record.name
-            row[BusinessKeyTable.description] = record.description
-        }
-    }
-
-    fun insertBusinessKeyAttribute(
-        businessKeySnapshotId: BusinessKeySnapshotId,
-        attributeSnapshotId: AttributeSnapshotId,
-        priority: Int
-    ) {
-        BusinessKeyAttributeTable.insert { row ->
-            row[BusinessKeyAttributeTable.businessKeySnapshotId] = businessKeySnapshotId
-            row[BusinessKeyAttributeTable.attributeSnapshotId] = attributeSnapshotId
-            row[BusinessKeyAttributeTable.priority] = priority
-        }
-    }
-
-    fun updateEntityKey(modelSnapshotId: ModelSnapshotId, entityId: EntityId, key: EntityKey) {
+    fun entityUpdateKey(modelSnapshotId: ModelSnapshotId, entityId: EntityId, key: EntityKey) {
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -219,7 +174,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateEntityName(modelSnapshotId: ModelSnapshotId, entityId: EntityId, name: LocalizedText?) {
+    fun entityUpdateName(modelSnapshotId: ModelSnapshotId, entityId: EntityId, name: LocalizedText?) {
         EntityTable.update(
             where = {
                 (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
@@ -229,7 +184,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateEntityDescription(
+    fun entityUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         description: LocalizedMarkdown?
@@ -243,7 +198,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateEntityIdentifierAttribute(
+    fun entityUpdateIdentifierAttribute(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         identifierAttributeId: AttributeId
@@ -263,42 +218,10 @@ internal class ModelStorageDbSnapshotWriter(
         ) { row ->
             row[EntityTable.identifierAttributeSnapshotId] = attributeSnapshotId
         }
-
-        // Locate all primary key snapshots attached to this entity snapshot.
-        val entityPrimaryKeySnapshotIds = EntityPKTable.select(EntityPKTable.id).where {
-            EntityPKTable.entitySnapshotId eq entitySnapshotId
-        }.map { row ->
-            row[EntityPKTable.id]
-        }
-        // Compatibility guard: if no PK snapshot exists yet, create one so PK participants can be written.
-        val primaryKeySnapshotIdsToUpdate = if (entityPrimaryKeySnapshotIds.isEmpty()) {
-            val createdSnapshotId = EntityPKSnapshotId.generate()
-            insertEntityPrimaryKey(
-                EntityPKRecord(
-                    snapshotId = createdSnapshotId,
-                    lineageId = EntityPrimaryKeyId.generate(),
-                    modelEntitySnapshotId = entitySnapshotId
-                )
-            )
-            listOf(createdSnapshotId)
-        } else {
-            entityPrimaryKeySnapshotIds
-        }
-
-        // Rewrite each PK participant bag to a single participant matching the updated identifier attribute.
-        for (primaryKeySnapshotId in primaryKeySnapshotIdsToUpdate) {
-            EntityPKAttributeTable.deleteWhere {
-                EntityPKAttributeTable.entityPKSnapshotId eq primaryKeySnapshotId
-            }
-            insertEntityPrimaryKeyAttribute(
-                entityPrimaryKeySnapshotId = primaryKeySnapshotId,
-                attributeSnapshotId = attributeSnapshotId,
-                priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
-            )
-        }
+        entityPrimaryKeyUpdate(modelSnapshotId, entityId, listOf(identifierAttributeId))
     }
 
-    fun updateEntityDocumentationHome(
+    fun entityUpdateDocumentationHome(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         documentationHome: String?
@@ -312,31 +235,127 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun addEntityTag(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
+    fun entityAddTagIfNotExist(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
         val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
         val exists = EntityTagTable.select(EntityTagTable.entitySnapshotId).where {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            insertEntityTag(entitySnapshotId, tagId)
+            entityAddTag(entitySnapshotId, tagId)
         }
     }
 
-    fun insertEntityTag(entityId: EntitySnapshotId, tagId: TagId) {
+    fun entityAddTag(entityId: EntitySnapshotId, tagId: TagId) {
         EntityTagTable.insert { row ->
             row[EntityTagTable.entitySnapshotId] = entityId
             row[EntityTagTable.tagId] = tagId
         }
     }
 
-    fun deleteEntityTag(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
+    fun entityDeleteTag(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
         val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
         EntityTagTable.deleteWhere {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }
     }
 
-    fun deleteEntity(modelSnapshotId: ModelSnapshotId, entityId: EntityId) {
+    fun entityPrimaryKeyInsert(
+        entityPKSnapshotId: EntityPKSnapshotId,
+        entitySnapshotId: EntitySnapshotId,
+        identifierAttributeSnapshotId: List<AttributeSnapshotId>
+    ) {
+        entityPrimaryKeyInsert(
+            EntityPKRecord(
+                snapshotId = entityPKSnapshotId,
+                lineageId = EntityPrimaryKeyId.generate(),
+                modelEntitySnapshotId = entitySnapshotId
+            )
+        )
+        entityPrimaryKeyAttributesInsert(entityPKSnapshotId, identifierAttributeSnapshotId)
+    }
+
+    fun entityPrimaryKeyInsert(record: EntityPKRecord) {
+        EntityPKTable.insert { row ->
+            row[EntityPKTable.id] = record.snapshotId
+            row[EntityPKTable.lineageId] = record.lineageId
+            row[EntityPKTable.entitySnapshotId] = record.modelEntitySnapshotId
+        }
+    }
+
+    private fun entityPrimaryKeyAttributesInsert(
+        entityPKSnapshotId: EntityPKSnapshotId,
+        identifierAttributeSnapshotId: List<AttributeSnapshotId>
+    ) {
+        var currentPosition = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
+        for (attributeSnapshotId in identifierAttributeSnapshotId) {
+            entityPrimaryKeyAttributeInsert(
+                entityPrimaryKeySnapshotId = entityPKSnapshotId,
+                attributeSnapshotId = attributeSnapshotId,
+                priority = currentPosition++
+            )
+        }
+    }
+
+    fun entityPrimaryKeyAttributeInsert(
+        entityPrimaryKeySnapshotId: EntityPKSnapshotId,
+        attributeSnapshotId: AttributeSnapshotId,
+        priority: Int
+    ) {
+        EntityPKAttributeTable.insert { row ->
+            row[EntityPKAttributeTable.entityPKSnapshotId] = entityPrimaryKeySnapshotId
+            row[EntityPKAttributeTable.priority] = priority
+            row[EntityPKAttributeTable.attributeSnapshotId] = attributeSnapshotId
+        }
+    }
+    /**
+     *
+     */
+    fun entityPrimaryKeyUpdate(
+        modelSnapshotId: ModelSnapshotId,
+        entityId: EntityId,
+        attributeIds: List<AttributeId>
+    ) {
+
+
+        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+        val entityPKSnapshotIds = EntityPKTable.select(EntityPKTable.id)
+            .where { EntityPKTable.entitySnapshotId eq entitySnapshotId }
+            .orderBy(EntityPKTable.id to SortOrder.ASC)
+            .map { it[EntityPKTable.id] }
+
+        fun toAttributeSnapshotIds(): List<AttributeSnapshotId> {
+            return attributeIds.map { attributeId ->
+                EntityAttributeTable.selectAll()
+                    .where { (EntityAttributeTable.entitySnapshotId eq entitySnapshotId) and (EntityAttributeTable.lineageId eq attributeId) }
+                    .single()[EntityAttributeTable.id]
+            }
+        }
+
+        if (entityPKSnapshotIds.isEmpty() && attributeIds.isNotEmpty()) {
+            // no pk exist, and we get some attributes -> create
+            entityPrimaryKeyInsert(
+                entityPKSnapshotId = EntityPKSnapshotId.generate(),
+                entitySnapshotId = entitySnapshotId,
+                identifierAttributeSnapshotId = toAttributeSnapshotIds()
+            )
+        } else if (attributeIds.isEmpty()) {
+            // attributeIds is empty (it's a deletion request), and some pk exist -> delete all
+            for (pkId in entityPKSnapshotIds) {
+                EntityPKTable.deleteWhere { EntityPKTable.id eq pkId }
+            }
+        } else {
+            // update: remove all attributes from found PK and recreate them in order
+            // don't try to fix each row here because mostly there are 1 or 2 records max
+            val attributeSnapshotIds = toAttributeSnapshotIds()
+            for (id in entityPKSnapshotIds) {
+                EntityPKAttributeTable.deleteWhere { EntityPKAttributeTable.entityPKSnapshotId eq id }
+                entityPrimaryKeyAttributesInsert(id, attributeSnapshotIds)
+            }
+        }
+    }
+
+
+    fun entityDelete(modelSnapshotId: ModelSnapshotId, entityId: EntityId) {
         EntityTable.deleteWhere {
             (EntityTable.lineageId eq entityId) and (EntityTable.modelSnapshotId eq modelSnapshotId)
         }
@@ -345,7 +364,7 @@ internal class ModelStorageDbSnapshotWriter(
     // Entity attribute
     // ------------------------------------------------------------------------
 
-    fun insertEntityAttribute(record: EntityAttributeRecord) {
+    fun entityAttributeInsert(record: EntityAttributeRecord) {
         EntityAttributeTable.insert { row ->
             row[EntityAttributeTable.id] = record.snapshotId
             row[EntityAttributeTable.lineageId] = record.lineageId
@@ -358,7 +377,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    private fun updateEntityAttribute(
+    private fun entityAttributeUpdate(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
@@ -378,63 +397,63 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateEntityAttributeKey(
+    fun entityAttributeUpdateKey(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
         key: AttributeKey
     ) {
-        updateEntityAttribute(modelSnapshotId, entityId, attributeId) { row ->
+        entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.key] = key
         }
     }
 
-    fun updateEntityAttributeName(
+    fun entityAttributeUpdateName(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
         name: LocalizedText?
     ) {
-        updateEntityAttribute(modelSnapshotId, entityId, attributeId) { row ->
+        entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.name] = name
         }
     }
 
-    fun updateEntityAttributeDescription(
+    fun entityAttributeUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
         description: LocalizedMarkdown?
     ) {
-        updateEntityAttribute(modelSnapshotId, entityId, attributeId) { row ->
+        entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.description] = description
         }
     }
 
-    fun updateEntityAttributeType(
+    fun entityAttributeUpdateType(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
         typeId: TypeId
     ) {
-        updateEntityAttribute(modelSnapshotId, entityId, attributeId) { row ->
+        entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.typeSnapshotId] =
                 snapshots.currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
         }
     }
 
-    fun updateEntityAttributeOptional(
+    fun entityAttributeUpdateOptional(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
         optional: Boolean
     ) {
-        updateEntityAttribute(modelSnapshotId, entityId, attributeId) { row ->
+        entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.optional] = optional
         }
     }
 
-    fun addEntityAttributeTag(
+    fun entityAttributeAddTagIfNotExists(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
@@ -452,18 +471,18 @@ internal class ModelStorageDbSnapshotWriter(
             (EntityAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (EntityAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            insertEntityAttributeTag(attributeSnapshotId, tagId)
+            entityAttributeAddTag(attributeSnapshotId, tagId)
         }
     }
 
-    fun insertEntityAttributeTag(attributeId: AttributeSnapshotId, tagId: TagId) {
+    fun entityAttributeAddTag(attributeId: AttributeSnapshotId, tagId: TagId) {
         EntityAttributeTagTable.insert { row ->
             row[EntityAttributeTagTable.attributeSnapshotId] = attributeId
             row[EntityAttributeTagTable.tagId] = tagId
         }
     }
 
-    fun deleteEntityAttributeTag(
+    fun entityAttributeDeleteTag(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId,
@@ -482,7 +501,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun deleteEntityAttribute(
+    fun entityAttributeDelete(
         modelSnapshotId: ModelSnapshotId,
         entityId: EntityId,
         attributeId: AttributeId
@@ -502,7 +521,7 @@ internal class ModelStorageDbSnapshotWriter(
     // Relationship
     // ------------------------------------------------------------------------
 
-    fun insertRelationship(record: RelationshipRecord, roles: List<RelationshipRoleRecord>) {
+    fun relationshipInsert(record: RelationshipRecord, roles: List<RelationshipRoleRecord>) {
         RelationshipTable.insert { row ->
             row[RelationshipTable.id] = record.snapshotId
             row[RelationshipTable.lineageId] = record.lineageId
@@ -512,23 +531,12 @@ internal class ModelStorageDbSnapshotWriter(
             row[RelationshipTable.description] = record.description
         }
         for (roleRecord in roles) {
-            insertRelationshipRole(roleRecord)
+            relationshipRoleInsert(roleRecord)
         }
     }
 
-    fun insertRelationshipRole(record: RelationshipRoleRecord) {
-        RelationshipRoleTable.insert { row ->
-            row[RelationshipRoleTable.id] = record.snapshotId
-            row[RelationshipRoleTable.lineageId] = record.lineageId
-            row[RelationshipRoleTable.relationshipSnapshotId] = record.relationshipSnapshotId
-            row[RelationshipRoleTable.key] = record.key
-            row[RelationshipRoleTable.entitySnapshotId] = record.entitySnapshotId
-            row[RelationshipRoleTable.name] = record.name
-            row[RelationshipRoleTable.cardinality] = record.cardinality
-        }
-    }
 
-    fun updateRelationshipKey(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, key: RelationshipKey) {
+    fun relationshipUpdateKey(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, key: RelationshipKey) {
         RelationshipTable.update(where = {
             (RelationshipTable.lineageId eq relationshipId) and
                     (RelationshipTable.modelSnapshotId eq modelSnapshotId)
@@ -537,7 +545,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateRelationshipName(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, name: LocalizedText?) {
+    fun relationshipUpdateName(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, name: LocalizedText?) {
         RelationshipTable.update(where = {
             (RelationshipTable.lineageId eq relationshipId) and
                     (RelationshipTable.modelSnapshotId eq modelSnapshotId)
@@ -546,7 +554,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateRelationshipDescription(
+    fun relationshipUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         description: LocalizedMarkdown?
@@ -559,7 +567,19 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun createRelationshipRole(
+    fun relationshipRoleInsert(record: RelationshipRoleRecord) {
+        RelationshipRoleTable.insert { row ->
+            row[RelationshipRoleTable.id] = record.snapshotId
+            row[RelationshipRoleTable.lineageId] = record.lineageId
+            row[RelationshipRoleTable.relationshipSnapshotId] = record.relationshipSnapshotId
+            row[RelationshipRoleTable.key] = record.key
+            row[RelationshipRoleTable.entitySnapshotId] = record.entitySnapshotId
+            row[RelationshipRoleTable.name] = record.name
+            row[RelationshipRoleTable.cardinality] = record.cardinality
+        }
+    }
+
+    fun relationshipRoleInsert(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
@@ -584,7 +604,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    private fun updateRelationshipRole(
+    private fun relationshipRoleUpdate(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
@@ -602,52 +622,52 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateRelationshipRoleKey(
+    fun relationshipRoleUpdateKey(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
         key: RelationshipRoleKey
     ) {
-        updateRelationshipRole(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
+        relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.key] = key
         }
     }
 
-    fun updateRelationshipRoleName(
+    fun relationshipRoleUpdateName(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
         name: LocalizedText?
     ) {
-        updateRelationshipRole(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
+        relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.name] = name
         }
     }
 
-    fun updateRelationshipRoleEntity(
+    fun relationshipRoleUpdateEntity(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
         entityId: EntityId
     ) {
-        updateRelationshipRole(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
+        relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.entitySnapshotId] =
                 snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
         }
     }
 
-    fun updateRelationshipRoleCardinality(
+    fun relationshipRoleUpdateCardinality(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId,
         cardinality: String
     ) {
-        updateRelationshipRole(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
+        relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.cardinality] = cardinality
         }
     }
 
-    fun deleteRelationshipRole(
+    fun relationshipRoleDelete(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         relationshipRoleId: RelationshipRoleId
@@ -662,7 +682,7 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun addRelationshipTag(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
+    fun relationshipAddTagIfNotExists(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
         val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
             modelSnapshotId,
             relationshipId
@@ -672,24 +692,18 @@ internal class ModelStorageDbSnapshotWriter(
                     (RelationshipTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            insertRelationshipTag(relationshipSnapshotId, tagId)
+            relationshipAddTag(relationshipSnapshotId, tagId)
         }
     }
 
-    fun insertRelationshipTag(relationshipId: RelationshipSnapshotId, tagId: TagId) {
+    fun relationshipAddTag(relationshipId: RelationshipSnapshotId, tagId: TagId) {
         RelationshipTagTable.insert { row ->
             row[RelationshipTagTable.relationshipSnapshotId] = relationshipId
             row[RelationshipTagTable.tagId] = tagId
         }
     }
 
-    fun deleteRelationship(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId) {
-        RelationshipTable.deleteWhere {
-            (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-        }
-    }
-
-    fun deleteRelationshipTag(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
+    fun relationshipDeleteTag(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
         val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
             modelSnapshotId,
             relationshipId
@@ -700,10 +714,32 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
+    fun relationshipDelete(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId) {
+        RelationshipTable.deleteWhere {
+            (RelationshipTable.lineageId eq relationshipId) and (RelationshipTable.modelSnapshotId eq modelSnapshotId)
+        }
+    }
+
+
     // Relationship attribute
     // ------------------------------------------------------------------------
 
-    private fun updateRelationshipAttribute(
+    fun relationshipAttributeInsert(
+        record: RelationshipAttributeRecord
+    ) {
+        RelationshipAttributeTable.insert { row ->
+            row[RelationshipAttributeTable.id] = record.snapshotId
+            row[RelationshipAttributeTable.lineageId] = record.lineageId
+            row[RelationshipAttributeTable.relationshipSnapshotId] = record.relationshipSnapshotId
+            row[RelationshipAttributeTable.key] = record.key
+            row[RelationshipAttributeTable.name] = record.name
+            row[RelationshipAttributeTable.description] = record.description
+            row[RelationshipAttributeTable.typeSnapshotId] = record.typeSnapshotId
+            row[RelationshipAttributeTable.optional] = record.optional
+        }
+
+    }
+    private fun relationshipAttributeUpdate(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
@@ -724,63 +760,63 @@ internal class ModelStorageDbSnapshotWriter(
         }
     }
 
-    fun updateRelationshipAttributeKey(
+    fun relationshipAttributeUpdateKey(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
         key: AttributeKey
     ) {
-        updateRelationshipAttribute(modelSnapshotId, relationshipId, attributeId) { row ->
+        relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.key] = key
         }
     }
 
-    fun updateRelationshipAttributeName(
+    fun relationshipAttributeUpdateName(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
         name: LocalizedText?
     ) {
-        updateRelationshipAttribute(modelSnapshotId, relationshipId, attributeId) { row ->
+        relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.name] = name
         }
     }
 
-    fun updateRelationshipAttributeDescription(
+    fun relationshipAttributeUpdateDescription(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
         description: LocalizedMarkdown?
     ) {
-        updateRelationshipAttribute(modelSnapshotId, relationshipId, attributeId) { row ->
+        relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.description] = description
         }
     }
 
-    fun updateRelationshipAttributeType(
+    fun relationshipAttributeUpdateType(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
         typeId: TypeId
     ) {
-        updateRelationshipAttribute(modelSnapshotId, relationshipId, attributeId) { row ->
+        relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             val typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
             row[RelationshipAttributeTable.typeSnapshotId] = typeSnapshotId
         }
     }
 
-    fun updateRelationshipAttributeOptional(
+    fun relationshipAttributeUpdateOptional(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
         optional: Boolean
     ) {
-        updateRelationshipAttribute(modelSnapshotId, relationshipId, attributeId) { row ->
+        relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
             row[RelationshipAttributeTable.optional] = optional
         }
     }
 
-    fun addRelationshipAttributeTag(
+    fun relationshipAttributeAddTag(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
@@ -799,53 +835,19 @@ internal class ModelStorageDbSnapshotWriter(
             (RelationshipAttributeTagTable.attributeSnapshotId eq attributeSnapshotId) and (RelationshipAttributeTagTable.tagId eq tagId)
         }.limit(1).any()
         if (!exists) {
-            insertRelationshipAttributeTag(attributeSnapshotId, tagId)
+            relationshipAttributeAddTag(attributeSnapshotId, tagId)
         }
 
     }
 
-    fun insertRelationshipAttributeTag(attributeId: AttributeSnapshotId, tagId: TagId) {
+    fun relationshipAttributeAddTag(attributeId: AttributeSnapshotId, tagId: TagId) {
         RelationshipAttributeTagTable.insert { row ->
             row[RelationshipAttributeTagTable.attributeSnapshotId] = attributeId
             row[RelationshipAttributeTagTable.tagId] = tagId
         }
     }
 
-    fun insertRelationshipAttribute(
-        record: RelationshipAttributeRecord
-    ) {
-        RelationshipAttributeTable.insert { row ->
-            row[RelationshipAttributeTable.id] = record.snapshotId
-            row[RelationshipAttributeTable.lineageId] = record.lineageId
-            row[RelationshipAttributeTable.relationshipSnapshotId] = record.relationshipSnapshotId
-            row[RelationshipAttributeTable.key] = record.key
-            row[RelationshipAttributeTable.name] = record.name
-            row[RelationshipAttributeTable.description] = record.description
-            row[RelationshipAttributeTable.typeSnapshotId] = record.typeSnapshotId
-            row[RelationshipAttributeTable.optional] = record.optional
-        }
-
-    }
-
-    fun deleteRelationshipAttribute(
-        modelSnapshotId: ModelSnapshotId,
-        relationshipId: RelationshipId,
-        attributeId: AttributeId
-    ) {
-        val relationshipIds = RelationshipTable.select(RelationshipTable.id).where {
-            (RelationshipTable.lineageId eq relationshipId) and
-                    (RelationshipTable.modelSnapshotId eq modelSnapshotId)
-        }
-        val attributeIds = RelationshipAttributeTable.select(RelationshipAttributeTable.id).where {
-            (RelationshipAttributeTable.lineageId eq attributeId) and
-                    (RelationshipAttributeTable.relationshipSnapshotId inSubQuery relationshipIds)
-        }
-        RelationshipAttributeTable.deleteWhere {
-            RelationshipAttributeTable.id inSubQuery attributeIds
-        }
-    }
-
-    fun deleteRelationshipAttributeTag(
+    fun relationshipAttributeDeleteTag(
         modelSnapshotId: ModelSnapshotId,
         relationshipId: RelationshipId,
         attributeId: AttributeId,
@@ -866,7 +868,53 @@ internal class ModelStorageDbSnapshotWriter(
 
     }
 
+    fun relationshipAttributeDelete(
+        modelSnapshotId: ModelSnapshotId,
+        relationshipId: RelationshipId,
+        attributeId: AttributeId
+    ) {
+        val relationshipIds = RelationshipTable.select(RelationshipTable.id).where {
+            (RelationshipTable.lineageId eq relationshipId) and
+                    (RelationshipTable.modelSnapshotId eq modelSnapshotId)
+        }
+        val attributeIds = RelationshipAttributeTable.select(RelationshipAttributeTable.id).where {
+            (RelationshipAttributeTable.lineageId eq attributeId) and
+                    (RelationshipAttributeTable.relationshipSnapshotId inSubQuery relationshipIds)
+        }
+        RelationshipAttributeTable.deleteWhere {
+            RelationshipAttributeTable.id inSubQuery attributeIds
+        }
+    }
+
+
+    // Business key
+    // -------------------------------------------------------------------------
+
+    fun businessKeyInsert(record: BusinessKeyRecord) {
+        BusinessKeyTable.insert { row ->
+            row[BusinessKeyTable.id] = record.snapshotId
+            row[BusinessKeyTable.lineageId] = record.lineageId
+            row[BusinessKeyTable.entitySnapshotId] = record.modelEntitySnapshotId
+            row[BusinessKeyTable.key] = record.key
+            row[BusinessKeyTable.name] = record.name
+            row[BusinessKeyTable.description] = record.description
+        }
+    }
+
+    fun businessKeyAttributeInsert(
+        businessKeySnapshotId: BusinessKeySnapshotId,
+        attributeSnapshotId: AttributeSnapshotId,
+        priority: Int
+    ) {
+        BusinessKeyAttributeTable.insert { row ->
+            row[BusinessKeyAttributeTable.businessKeySnapshotId] = businessKeySnapshotId
+            row[BusinessKeyAttributeTable.attributeSnapshotId] = attributeSnapshotId
+            row[BusinessKeyAttributeTable.priority] = priority
+        }
+    }
+
     companion object {
         private const val DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY = 0
     }
+
 }

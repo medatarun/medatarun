@@ -46,6 +46,7 @@ internal class ModelStorageDbProjection(
             is ModelStorageCmd.UpdateEntityKey -> updateEntityKey(ctx, cmd)
             is ModelStorageCmd.UpdateEntityName -> updateEntityName(ctx, cmd)
             is ModelStorageCmd.UpdateEntityDescription -> updateEntityDescription(ctx, cmd)
+            is ModelStorageCmd.Entity_PrimaryKey_Set -> entityPrimaryKeySet(ctx, cmd)
             is ModelStorageCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(ctx, cmd)
             is ModelStorageCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(ctx, cmd)
             is ModelStorageCmd.UpdateEntityTagAdd -> addEntityTag(ctx, cmd)
@@ -103,7 +104,7 @@ internal class ModelStorageDbProjection(
             documentationHome = cmd.documentationHome,
         )
         val now = clock.now()
-        snapWrite.insertModel(
+        snapWrite.modelInsert(
             ModelRecord(
                 snapshotId = ctx.modelSnapshotId,
                 modelId = inMemoryModel.id,
@@ -128,7 +129,7 @@ internal class ModelStorageDbProjection(
 
         val now = clock.now()
         val modelSnapshotId = ctx.modelSnapshotId
-        snapWrite.insertModel(
+        snapWrite.modelInsert(
             ModelRecord(
                 snapshotId = modelSnapshotId,
                 modelId = cmd.model.id,
@@ -156,7 +157,7 @@ internal class ModelStorageDbProjection(
         for (type in cmd.types) {
             val typeSnapshotId = TypeSnapshotId.generate()
             typeSnapshotIds[type.id] = typeSnapshotId
-            snapWrite.insertType(
+            snapWrite.typeInsert(
                 ModelTypeRecord(
                     snapshotId = typeSnapshotId,
                     lineageId = type.id,
@@ -171,11 +172,12 @@ internal class ModelStorageDbProjection(
         for (entity in cmd.entities) {
             val entitySnapshotId = EntitySnapshotId.generate()
             entitySnapshotIds[entity.id] = entitySnapshotId
-            val identifierAttributeSnapshotId = entityAttributeSnapshotIds.getOrPut(entity.identifierAttributeId) {
-                AttributeSnapshotId.generate()
-            }
+
+            val identifierAttributeSnapshotId = entityAttributeSnapshotIds
+                .getOrPut(entity.identifierAttributeId) { AttributeSnapshotId.generate() }
+
             val entityPKSnapshotId = EntityPKSnapshotId.generate()
-            snapWrite.insertEntity(
+            snapWrite.entityInsert(
                 EntityRecord(
                     snapshotId = entitySnapshotId,
                     lineageId = entity.id,
@@ -188,20 +190,13 @@ internal class ModelStorageDbProjection(
                     documentationHome = entity.documentationHome?.toExternalForm(),
                 )
             )
-            snapWrite.insertEntityPrimaryKey(
-                EntityPKRecord(
-                    snapshotId = entityPKSnapshotId,
-                    lineageId = EntityPrimaryKeyId.generate(),
-                    modelEntitySnapshotId = entitySnapshotId
-                )
-            )
             searchWrite.refreshEntityBranch(modelSnapshotId, entity.id)
 
             for (attr in cmd.entityAttributes.filter { it.entityId == entity.id }) {
                 val attributeSnapshotId = entityAttributeSnapshotIds.getOrPut(attr.id) {
                     AttributeSnapshotId.generate()
                 }
-                snapWrite.insertEntityAttribute(
+                snapWrite.entityAttributeInsert(
                     EntityAttributeRecord(
                         snapshotId = attributeSnapshotId,
                         lineageId = attr.id,
@@ -215,17 +210,13 @@ internal class ModelStorageDbProjection(
                 )
                 searchWrite.refreshEntityAttributeBranch(modelSnapshotId, entity.id, attr.id)
             }
-            snapWrite.insertEntityPrimaryKeyAttribute(
-                entityPrimaryKeySnapshotId = entityPKSnapshotId,
-                attributeSnapshotId = identifierAttributeSnapshotId,
-                priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
-            )
+            snapWrite.entityPrimaryKeyInsert(entityPKSnapshotId, entitySnapshotId, listOf(identifierAttributeSnapshotId))
         }
 
         for (relationship in cmd.relationships) {
             val relationshipSnapshotId = RelationshipSnapshotId.generate()
             relationshipSnapshotIds[relationship.id] = relationshipSnapshotId
-            snapWrite.insertRelationship(
+            snapWrite.relationshipInsert(
                 record = RelationshipRecord(
                     snapshotId = relationshipSnapshotId,
                     lineageId = relationship.id,
@@ -252,7 +243,7 @@ internal class ModelStorageDbProjection(
                 val attributeSnapshotId = relationshipAttributeSnapshotIds.getOrPut(attr.id) {
                     AttributeSnapshotId.generate()
                 }
-                snapWrite.insertRelationshipAttribute(
+                snapWrite.relationshipAttributeInsert(
                     RelationshipAttributeRecord(
                         snapshotId = attributeSnapshotId,
                         lineageId = attr.id,
@@ -274,26 +265,26 @@ internal class ModelStorageDbProjection(
 
 
     private fun updateModelName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelName) {
-        snapWrite.updateModelName(ctx.modelSnapshotId, cmd.name)
+        snapWrite.modelUpdateName(ctx.modelSnapshotId, cmd.name)
         searchWrite.refreshModelBranch(ctx.modelSnapshotId)
     }
 
     private fun updateModelKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelKey) {
-        snapWrite.updateModelKey(ctx.modelSnapshotId, cmd.key)
+        snapWrite.modelUpdateKey(ctx.modelSnapshotId, cmd.key)
         searchWrite.refreshModelBranch(ctx.modelSnapshotId)
     }
 
     private fun updateModelDescription(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelDescription) {
-        snapWrite.updateModelDescription(ctx.modelSnapshotId, cmd.description)
+        snapWrite.modelUpdateDescription(ctx.modelSnapshotId, cmd.description)
         searchWrite.refreshModelBranch(ctx.modelSnapshotId)
     }
 
     private fun updateModelAuthority(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelAuthority) {
-        snapWrite.updateModelAuthority(ctx.modelSnapshotId, cmd.authority)
+        snapWrite.modelUpdateAuthority(ctx.modelSnapshotId, cmd.authority)
     }
 
     private fun releaseModel(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.ModelRelease) {
-        snapWrite.updateModelVersion(ctx.modelSnapshotId, cmd.version)
+        snapWrite.modelUpdateVersion(ctx.modelSnapshotId, cmd.version)
         snapshotCreate.createVersionSnapshotFromCurrentHead(
             modelId = ctx.modelId,
             currentHeadSnapshotId = ctx.modelSnapshotId,
@@ -307,16 +298,16 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateModelDocumentationHome
     ) {
-        snapWrite.updateModelDocumentationHome(ctx.modelSnapshotId, cmd.documentationHome?.toExternalForm())
+        snapWrite.modelUpdateDocumentationHome(ctx.modelSnapshotId, cmd.documentationHome?.toExternalForm())
     }
 
     private fun addModelTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelTagAdd) {
-        snapWrite.addModelTag(ctx.modelSnapshotId, cmd.tagId)
+        snapWrite.modelAddTagIfNotExists(ctx.modelSnapshotId, cmd.tagId)
         searchWrite.refreshModelBranch(ctx.modelSnapshotId)
     }
 
     private fun deleteModelTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateModelTagDelete) {
-        snapWrite.deleteModelTag(ctx.modelSnapshotId, cmd.tagId)
+        snapWrite.modelDeleteTag(ctx.modelSnapshotId, cmd.tagId)
         searchWrite.refreshModelBranch(ctx.modelSnapshotId)
     }
 
@@ -333,23 +324,23 @@ internal class ModelStorageDbProjection(
             name = cmd.name,
             description = cmd.description
         )
-        snapWrite.insertType(record)
+        snapWrite.typeInsert(record)
     }
 
     private fun updateTypeKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateTypeKey) {
-        snapWrite.updateTypeKey(ctx.modelSnapshotId, cmd.typeId, cmd.key)
+        snapWrite.typeUpdateKey(ctx.modelSnapshotId, cmd.typeId, cmd.key)
     }
 
     private fun updateTypeName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateTypeName) {
-        snapWrite.updateTypeName(ctx.modelSnapshotId, cmd.typeId, cmd.name)
+        snapWrite.typeUpdateName(ctx.modelSnapshotId, cmd.typeId, cmd.name)
     }
 
     private fun updateTypeDescription(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateTypeDescription) {
-        snapWrite.updateTypeDescription(ctx.modelSnapshotId, cmd.typeId, cmd.description)
+        snapWrite.typeUpdateDescription(ctx.modelSnapshotId, cmd.typeId, cmd.description)
     }
 
     private fun deleteType(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteType) {
-        snapWrite.deleteType(ctx.modelSnapshotId, cmd.typeId)
+        snapWrite.typeDelete(ctx.modelSnapshotId, cmd.typeId)
     }
 
     // Entity
@@ -371,8 +362,8 @@ internal class ModelStorageDbProjection(
             origin = cmd.origin,
             documentationHome = cmd.documentationHome?.toExternalForm()
         )
-        snapWrite.insertEntity(record)
-        snapWrite.insertEntityAttribute(
+        snapWrite.entityInsert(record)
+        snapWrite.entityAttributeInsert(
             EntityAttributeRecord(
                 snapshotId = identifierAttributeSnapshotId,
                 lineageId = cmd.identityAttributeId,
@@ -387,42 +378,40 @@ internal class ModelStorageDbProjection(
                 optional = cmd.identityAttributeIdOptional
             )
         )
-        snapWrite.insertEntityPrimaryKey(
-            EntityPKRecord(
-                snapshotId = entityPrimaryKeySnapshotId,
-                lineageId = EntityPrimaryKeyId.generate(),
-                modelEntitySnapshotId = entitySnapshotId
-            )
-        )
-        snapWrite.insertEntityPrimaryKeyAttribute(
-            entityPrimaryKeySnapshotId = entityPrimaryKeySnapshotId,
-            attributeSnapshotId = identifierAttributeSnapshotId,
-            priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
-        )
+        snapWrite.entityPrimaryKeyInsert(entityPrimaryKeySnapshotId, entitySnapshotId, listOf(identifierAttributeSnapshotId))
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.identityAttributeId)
     }
 
+
     private fun updateEntityKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityKey) {
-        snapWrite.updateEntityKey(ctx.modelSnapshotId, cmd.entityId, cmd.key)
+        snapWrite.entityUpdateKey(ctx.modelSnapshotId, cmd.entityId, cmd.key)
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
     }
 
     private fun updateEntityName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityName) {
-        snapWrite.updateEntityName(ctx.modelSnapshotId, cmd.entityId, cmd.name)
+        snapWrite.entityUpdateName(ctx.modelSnapshotId, cmd.entityId, cmd.name)
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
     }
 
     private fun updateEntityDescription(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityDescription) {
-        snapWrite.updateEntityDescription(ctx.modelSnapshotId, cmd.entityId, cmd.description)
+        snapWrite.entityUpdateDescription(ctx.modelSnapshotId, cmd.entityId, cmd.description)
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
+    }
+
+    private fun entityPrimaryKeySet(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.Entity_PrimaryKey_Set) {
+        snapWrite.entityPrimaryKeyUpdate(
+            modelSnapshotId = ctx.modelSnapshotId,
+            entityId = cmd.entityId,
+            attributeIds = cmd.attributeIds
+        )
     }
 
     private fun updateEntityIdentifierAttribute(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityIdentifierAttribute
     ) {
-        snapWrite.updateEntityIdentifierAttribute(
+        snapWrite.entityUpdateIdentifierAttribute(
             modelSnapshotId = ctx.modelSnapshotId,
             entityId = cmd.entityId,
             identifierAttributeId = cmd.identifierAttributeId
@@ -433,7 +422,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityDocumentationHome
     ) {
-        snapWrite.updateEntityDocumentationHome(
+        snapWrite.entityUpdateDocumentationHome(
             modelSnapshotId = ctx.modelSnapshotId,
             entityId = cmd.entityId,
             documentationHome = cmd.documentationHome?.toExternalForm()
@@ -441,18 +430,18 @@ internal class ModelStorageDbProjection(
     }
 
     private fun addEntityTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityTagAdd) {
-        snapWrite.addEntityTag(ctx.modelSnapshotId, cmd.entityId, cmd.tagId)
+        snapWrite.entityAddTagIfNotExist(ctx.modelSnapshotId, cmd.entityId, cmd.tagId)
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
     }
 
     private fun deleteEntityTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityTagDelete) {
-        snapWrite.deleteEntityTag(ctx.modelSnapshotId, cmd.entityId, cmd.tagId)
+        snapWrite.entityDeleteTag(ctx.modelSnapshotId, cmd.entityId, cmd.tagId)
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
     }
 
     private fun deleteEntity(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteEntity) {
         searchWrite.deleteEntityBranch(cmd.entityId)
-        snapWrite.deleteEntity(ctx.modelSnapshotId, cmd.entityId)
+        snapWrite.entityDelete(ctx.modelSnapshotId, cmd.entityId)
     }
 
     // Entity attribute
@@ -461,7 +450,7 @@ internal class ModelStorageDbProjection(
 
     private fun createEntityAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntityAttribute) {
         val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
-        snapWrite.insertEntityAttribute(
+        snapWrite.entityAttributeInsert(
             EntityAttributeRecord(
                 snapshotId = AttributeSnapshotId.generate(),
                 lineageId = cmd.attributeId,
@@ -477,12 +466,12 @@ internal class ModelStorageDbProjection(
     }
 
     private fun updateEntityAttributeKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeKey) {
-        snapWrite.updateEntityAttributeKey(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.key)
+        snapWrite.entityAttributeUpdateKey(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.key)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
     private fun updateEntityAttributeName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeName) {
-        snapWrite.updateEntityAttributeName(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.name)
+        snapWrite.entityAttributeUpdateName(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.name)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
@@ -490,12 +479,12 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityAttributeDescription
     ) {
-        snapWrite.updateEntityAttributeDescription(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.description)
+        snapWrite.entityAttributeUpdateDescription(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.description)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
     private fun updateEntityAttributeType(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeType) {
-        snapWrite.updateEntityAttributeType(
+        snapWrite.entityAttributeUpdateType(
             modelSnapshotId = ctx.modelSnapshotId,
             entityId = cmd.entityId,
             attributeId = cmd.attributeId,
@@ -507,23 +496,23 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateEntityAttributeOptional
     ) {
-        snapWrite.updateEntityAttributeOptional(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.optional)
+        snapWrite.entityAttributeUpdateOptional(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.optional)
     }
 
 
     private fun addEntityAttributeTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeTagAdd) {
-        snapWrite.addEntityAttributeTag(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.tagId)
+        snapWrite.entityAttributeAddTagIfNotExists(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.tagId)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
     private fun deleteEntityAttributeTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateEntityAttributeTagDelete) {
-        snapWrite.deleteEntityAttributeTag(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.tagId)
+        snapWrite.entityAttributeDeleteTag(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId, cmd.tagId)
         searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
     private fun deleteEntityAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteEntityAttribute) {
         searchWrite.deleteEntityAttributeBranch(cmd.attributeId)
-        snapWrite.deleteEntityAttribute(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
+        snapWrite.entityAttributeDelete(ctx.modelSnapshotId, cmd.entityId, cmd.attributeId)
     }
 
 
@@ -554,17 +543,17 @@ internal class ModelStorageDbProjection(
                 cardinality = role.cardinality.code
             )
         }
-        snapWrite.insertRelationship(record, roles)
+        snapWrite.relationshipInsert(record, roles)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
     private fun updateRelationshipKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipKey) {
-        snapWrite.updateRelationshipKey(ctx.modelSnapshotId, cmd.relationshipId, cmd.key)
+        snapWrite.relationshipUpdateKey(ctx.modelSnapshotId, cmd.relationshipId, cmd.key)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
     private fun updateRelationshipName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipName) {
-        snapWrite.updateRelationshipName(ctx.modelSnapshotId, cmd.relationshipId, cmd.name)
+        snapWrite.relationshipUpdateName(ctx.modelSnapshotId, cmd.relationshipId, cmd.name)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
@@ -572,12 +561,12 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipDescription
     ) {
-        snapWrite.updateRelationshipDescription(ctx.modelSnapshotId, cmd.relationshipId, cmd.description)
+        snapWrite.relationshipUpdateDescription(ctx.modelSnapshotId, cmd.relationshipId, cmd.description)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
     private fun createRelationshipRole(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateRelationshipRole) {
-        snapWrite.createRelationshipRole(
+        snapWrite.relationshipRoleInsert(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             relationshipRoleId = cmd.relationshipRoleId,
@@ -590,18 +579,18 @@ internal class ModelStorageDbProjection(
 
 
     private fun updateRelationshipRoleKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleKey) {
-        snapWrite.updateRelationshipRoleKey(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId, cmd.key)
+        snapWrite.relationshipRoleUpdateKey(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId, cmd.key)
     }
 
     private fun updateRelationshipRoleName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipRoleName) {
-        snapWrite.updateRelationshipRoleName(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId, cmd.name)
+        snapWrite.relationshipRoleUpdateName(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId, cmd.name)
     }
 
     private fun updateRelationshipRoleEntity(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipRoleEntity
     ) {
-        snapWrite.updateRelationshipRoleEntity(
+        snapWrite.relationshipRoleUpdateEntity(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             relationshipRoleId = cmd.relationshipRoleId,
@@ -613,7 +602,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipRoleCardinality
     ) {
-        snapWrite.updateRelationshipRoleCardinality(
+        snapWrite.relationshipRoleUpdateCardinality(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             relationshipRoleId = cmd.relationshipRoleId,
@@ -622,21 +611,21 @@ internal class ModelStorageDbProjection(
     }
 
     private fun deleteRelationshipRole(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteRelationshipRole) {
-        snapWrite.deleteRelationshipRole(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId)
+        snapWrite.relationshipRoleDelete(ctx.modelSnapshotId, cmd.relationshipId, cmd.relationshipRoleId)
     }
 
     private fun addRelationshipTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipTagAdd) {
-        snapWrite.addRelationshipTag(ctx.modelSnapshotId, cmd.relationshipId, cmd.tagId)
+        snapWrite.relationshipAddTagIfNotExists(ctx.modelSnapshotId, cmd.relationshipId, cmd.tagId)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
     private fun deleteRelationship(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.DeleteRelationship) {
         searchWrite.deleteRelationshipBranch(cmd.relationshipId)
-        snapWrite.deleteRelationship(ctx.modelSnapshotId, cmd.relationshipId)
+        snapWrite.relationshipDelete(ctx.modelSnapshotId, cmd.relationshipId)
     }
 
     private fun deleteRelationshipTag(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.UpdateRelationshipTagDelete) {
-        snapWrite.deleteRelationshipTag(ctx.modelSnapshotId, cmd.relationshipId, cmd.tagId)
+        snapWrite.relationshipDeleteTag(ctx.modelSnapshotId, cmd.relationshipId, cmd.tagId)
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
     // Relationship attribute
@@ -657,7 +646,7 @@ internal class ModelStorageDbProjection(
             typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.typeId),
             optional = cmd.optional
         )
-        snapWrite.insertRelationshipAttribute(record)
+        snapWrite.relationshipAttributeInsert(record)
         searchWrite.refreshRelationshipAttributeBranch(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
@@ -669,7 +658,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeKey
     ) {
-        snapWrite.updateRelationshipAttributeKey(
+        snapWrite.relationshipAttributeUpdateKey(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -686,7 +675,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeName
     ) {
-        snapWrite.updateRelationshipAttributeName(
+        snapWrite.relationshipAttributeUpdateName(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -703,7 +692,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeDescription
     ) {
-        snapWrite.updateRelationshipAttributeDescription(
+        snapWrite.relationshipAttributeUpdateDescription(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -720,7 +709,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeType
     ) {
-        snapWrite.updateRelationshipAttributeType(
+        snapWrite.relationshipAttributeUpdateType(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -732,7 +721,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeOptional
     ) {
-        snapWrite.updateRelationshipAttributeOptional(
+        snapWrite.relationshipAttributeUpdateOptional(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -745,7 +734,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeTagAdd
     ) {
-        snapWrite.addRelationshipAttributeTag(
+        snapWrite.relationshipAttributeAddTag(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -763,7 +752,7 @@ internal class ModelStorageDbProjection(
         cmd: ModelStorageCmd.DeleteRelationshipAttribute
     ) {
         searchWrite.deleteRelationshipAttributeBranch(cmd.attributeId)
-        snapWrite.deleteRelationshipAttribute(
+        snapWrite.relationshipAttributeDelete(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId
@@ -774,7 +763,7 @@ internal class ModelStorageDbProjection(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.UpdateRelationshipAttributeTagDelete
     ) {
-        snapWrite.deleteRelationshipAttributeTag(
+        snapWrite.relationshipAttributeDeleteTag(
             modelSnapshotId = ctx.modelSnapshotId,
             relationshipId = cmd.relationshipId,
             attributeId = cmd.attributeId,
@@ -787,8 +776,5 @@ internal class ModelStorageDbProjection(
         )
     }
 
-    companion object {
-        private const val DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY = 0
-    }
 
 }

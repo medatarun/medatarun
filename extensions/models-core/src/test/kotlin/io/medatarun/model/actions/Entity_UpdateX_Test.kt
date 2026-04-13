@@ -90,6 +90,33 @@ class Entity_UpdateX_Test {
         assertEquals(newIdentifierAttribute.id, entityAfter.identifierAttributeId)
         assertEquals(listOf(newIdentifierAttribute.id), primaryKeyAfter.participants.map { it.attributeId })
         assertEquals(listOf(0), primaryKeyAfter.participants.map { it.position })
+
+        val modelId = env.query.findModel(env.modelRef).id
+        val events = env.runtime.storageDb.findAllModelEvents(modelId)
+        assertEquals("entity_primary_key_set", events.last().eventType)
+    }
+
+    @Test
+    fun `update entity identifier attribute with already matching pk does not append storage event`() {
+        val env = TestEnvEntityUpdate()
+        val modelId = env.query.findModel(env.modelRef).id
+        val eventCountBefore = env.runtime.storageDb.findAllModelEvents(modelId).size
+        val currentIdentifierAttributeId = env.query.findEntity(env.modelRef, env.primaryEntityRef).identifierAttributeId
+
+        val modelCmds = env.runtime.platform.services.getService(ModelCmds::class)
+        modelCmds.dispatch(
+            ModelCmdEnveloppe(
+                traceabilityRecord = AppTraceabilityRecord.fromRaw("test", ModelTestEnv.testPrincipal.id),
+                cmd = ModelCmd.UpdateEntityIdentifierAttribute(
+                    modelRef = env.modelRef,
+                    entityRef = env.primaryEntityRef,
+                    value = EntityAttributeRef.ById(currentIdentifierAttributeId)
+                )
+            )
+        )
+
+        val eventCountAfter = env.runtime.storageDb.findAllModelEvents(modelId).size
+        assertEquals(eventCountBefore, eventCountAfter)
     }
 
 }

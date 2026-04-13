@@ -92,7 +92,7 @@ Next operations
 
 Next operations
 
-- [ ] Create new command
+- [X] Create new command
   `entity_primary_key_set { entityId: EntityId, attributeIds: List<AttributeId> }`
   and interpret in projection.
     - If list is empty then pk is deleted if exists.
@@ -100,7 +100,7 @@ Next operations
     - If matching pk exists
         - If attributes are the same in same order, do nothing
         - Or else recreate the rows in the pk's attributes table
-- [ ] switch `ModelCmd` to use command `entity_primary_key_set` instead of
+- [X] switch `ModelCmd` to use command `entity_primary_key_set` instead of
   `entity_identifier_attribute_updated`. `ModelCmd` shall ensure not sending the
   command to storage if pk is already good (same attributes in same order)
 
