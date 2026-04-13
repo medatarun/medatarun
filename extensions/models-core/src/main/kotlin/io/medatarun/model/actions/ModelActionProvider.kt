@@ -123,13 +123,28 @@ class ModelActionProvider(
             is ModelAction.RelationshipAttribute_UpdateType -> handler.relationshipAttributeUpdateType(action)
             is ModelAction.RelationshipAttribute_UpdateOptional -> handler.relationshipAttributeUpdateOptional(action)
             is ModelAction.RelationshipAttribute_UpdateName -> handler.relationshipAttributeUpdateName(action)
-            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(
-                action
-            )
+            is ModelAction.RelationshipAttribute_UpdateDescription -> handler.relationshipAttributeUpdateDescription(action)
 
             is ModelAction.RelationshipAttribute_AddTag -> handler.relationshipAttributeAddTag(action)
             is ModelAction.RelationshipAttribute_DeleteTag -> handler.relationshipAttributeDeleteTag(action)
             is ModelAction.RelationshipAttribute_Delete -> handler.relationshipAttributeDelete(action)
+
+            // ------------------------------------------------------------------------
+            // Primary keys
+            // ------------------------------------------------------------------------
+
+            is ModelAction.EntityPrimaryKey_Update -> TODO()
+            
+            // ------------------------------------------------------------------------
+            // Business keys
+            // ------------------------------------------------------------------------
+
+            is ModelAction.BusinessKey_Create -> TODO()
+            is ModelAction.BusinessKey_Update_Key -> TODO()
+            is ModelAction.BusinessKey_Update_Name -> TODO()
+            is ModelAction.BusinessKey_Update_Description -> TODO()
+            is ModelAction.BusinessKey_Update_Participants -> TODO()
+            is ModelAction.BusinessKey_Delete -> TODO()
 
             // History
 

@@ -17,6 +17,7 @@ class ModelValidationTest {
     @Test
     fun `model with bad attribute type`() {
         val identifierAttribute = AttributeId.generate()
+        val contactEntityId= EntityId.generate()
         val typeIdString = TypeId.generate()
         val typeIdInvalid = TypeId.generate()
         val model = ModelAggregateInMemory.builder(
@@ -33,12 +34,8 @@ class ModelValidationTest {
                     description = null
                 )
             )
-            val contact = addEntityWithIdentifierAttributeId(
-                key = EntityKey("Contact"),
-                identifierAttributeId = identifierAttribute,
-            ) {
-
-            }
+            val contact = addEntity(id = contactEntityId, key = EntityKey("Contact"))
+            addEntityPrimaryKeySingle(contactEntityId, identifierAttribute)
             addAttribute(
                 AttributeInMemory(
                     id = identifierAttribute,
@@ -62,6 +59,8 @@ class ModelValidationTest {
     @Test
     fun `model with duplicate keys`() {
         val typeId = TypeId.generate()
+        val entityOneId = EntityId.generate()
+        val entityTwoId = EntityId.generate()
         val entityOneIdentifier = AttributeId.generate()
         val entityTwoIdentifier = AttributeId.generate()
         val relationshipId = RelationshipId.generate()
@@ -77,14 +76,12 @@ class ModelValidationTest {
             )
 
             val duplicateEntityKey = EntityKey("Contact")
-            val entityOne = addEntityWithIdentifierAttributeId(
-                key = duplicateEntityKey,
-                identifierAttributeId = entityOneIdentifier,
-            ) {}
-            val entityTwo = addEntityWithIdentifierAttributeId(
-                key = duplicateEntityKey,
-                identifierAttributeId = entityTwoIdentifier,
-            ) {}
+
+            val entityOne = addEntity(id = entityOneId, key = duplicateEntityKey)
+            val entityTwo = addEntity(id = entityTwoId, key = duplicateEntityKey)
+
+            addEntityPrimaryKeySingle(entityOneId, entityOneIdentifier)
+            addEntityPrimaryKeySingle(entityTwoId, entityTwoIdentifier)
 
             addAttribute(
                 AttributeInMemory(

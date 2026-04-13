@@ -220,9 +220,6 @@ class FrictionlessConverter {
             )
         }
 
-        val identifierAttribute = attributes.firstOrNull { it.key.value == pk }
-        if (identifierAttribute == null) throw FrictionlessConverterEntityIdentifierNotFound(entityKey, pk)
-
         val entity = EntityInMemory(
             id = entityId,
             key = EntityKey(entityKey),
@@ -230,8 +227,7 @@ class FrictionlessConverter {
             description = entityDescription?.let(::LocalizedMarkdownNotLocalized),
             origin = EntityOrigin.Uri(uri),
             documentationHome = toURLSafe(documentationHome),
-            tags = tags,
-            identifierAttributeId = identifierAttribute.id
+            tags = tags
         )
 
         // Get ids from primary key for this entity

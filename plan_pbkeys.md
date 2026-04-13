@@ -34,7 +34,7 @@ Compatibility phase:
 
 Cleanup phase:
 
-- [ ] remove `identifierAttribute` from Entity
+- [X] remove `identifierAttribute` from Entity
 
 ## Model storage
 
@@ -63,7 +63,8 @@ in `ModelStorageDbProjection`
   `model_entity_pk_snapshot` and `model_entity_pk_attribute_snapshot`
 - [X] `model_deleted` command already deletes via foreign keys the entities;
   therefore, we must be sure that `model_entity_pk_snapshot` and
-  `model_entity_pk_attribute_snapshot` and `model_business_key_attribute_snapshot`
+  `model_entity_pk_attribute_snapshot` and
+  `model_business_key_attribute_snapshot`
   and `model_business_key_snapshot` are deleted too when entities are deleted
 - [X] `entity_created`: we need to create the corresponding primary key in
   `model_entity_pk_snapshot`
@@ -78,15 +79,15 @@ in `ModelStorageDbProjection`
   entity and recreating one row with the entity and attribute's snapshot_id
   based on the command.
 
-➡️ at this point we know how to write 
+➡️ at this point we know how to write
 
 Next operations
 
 - [X] adjust reads in `ModelStorageDbRead` to read identifierAttribute from
   primary keys. If there is no primary key that matches throw exception (it's a
   transitory compatibility state anyway)
-- [X] adjust reads in `ModelStorageDbRead` to read primary keys and business keys and put them in `ModelAggregate`
-
+- [X] adjust reads in `ModelStorageDbRead` to read primary keys and business
+  keys and put them in `ModelAggregate`
 
 ➡️ at this point we know how to read and don't use identifierAttribute to read
 
@@ -106,26 +107,36 @@ Next operations
 
 ➡️ at this point identifierAttribute column should be useless
 
-- [X] Replace `model_entity_snapshot.identifier_attribute_snapshot_id` with a new
+- [X] Replace `model_entity_snapshot.identifier_attribute_snapshot_id` with a
+  new
   `version_models_v003_02_remove_identifier_attribute.sql` to remove the old
-  column. Remove it from `EntityTable`. 
- 
+  column. Remove it from `EntityTable`.
+
 - [X] Create version 2 of command `entity_created` where we don't specify
-  identifierAttribute, use it in projection. Don't use `entity_created` version 1 anymore (upscale to newer versions)
+  identifierAttribute, use it in projection. Don't use `entity_created` version
+  1 anymore (upscale to newer versions)
 
-- [X] make command `entity_identifier_attribute_updated` deprecated and don't use it anymore (upscale to newer versions)
+- [X] make command `entity_identifier_attribute_updated` deprecated and don't
+  use it anymore (upscale to newer versions)
 
-- [X] make command `model_aggregate_stored` V1 deprecated and create a v2 that doest require `identifierAttribute` but accepts bk and pk
+- [X] make command `model_aggregate_stored` V1 deprecated and create a v2 that
+  doest require `identifierAttribute` but accepts bk and pk
+
+➡️ at this point identifierAttribute column is removed we can begin to remove
+identifierAttribute from the business class `Entity`
 
 ### Cleanup phase:
 
-- [ ] changer l'interprétation de `model_aggregate_stored` pour aller vers la nouvelle table
-- [ ] changer l'interprétation de `entity_created` pour aller vers la nouvelle table
+- [X] changer l'interprétation de `model_aggregate_stored` pour aller vers la
+  nouvelle table
+- [X] changer l'interprétation de `entity_created` pour aller vers la nouvelle
+  table
 
 We can do that much later
 
 - [ ] completely delete `entity_created` v1 from event stack
-- [ ] completely delete `entity_identifier_attribute_updated` v1 from event stack
+- [ ] completely delete `entity_identifier_attribute_updated` v1 from event
+  stack
 - [ ] completely delete `model_aggregate_stored` v1 from event stack
 
 ### Post cleanup
@@ -134,16 +145,18 @@ We can do that much later
 - [ ] unit tests that update bk reads bk
 - [ ] unit tests that model copy with complex bk and pk
 - [ ] unit tests that model imports with complex bk and pk
-- [ ] in Model_Release_Test add test with all possible objects, bk et pk, to verify that we don't have old pointers somewhere
+- [ ] in Model_Release_Test add test with all possible objects, bk et pk, to
+  verify that we don't have old pointers somewhere
+- [ ] `EntityAttribute_Delete_Test` we had a test `delete entity attribute used as identifier throws error` but is now useless because the rules changed. It had been deleted. But, now, we need to test that if attributes are removed, business keys and primary keys don't have the attribute anymore. We need to decide if attribute as business key can be deleted or not and if yes, it we delete the bk if empty. 
 
 ### Table specs
-
 
 table `model_entity_pk_snapshot`, `EntityPKTable` in kotlin:
 
 - `id` with type `EntityPKSnapshotId`, not null
 - `lineage_id` with type `EntityPrimaryKeyId`, not null
-- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
+- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key
+  on
   `model_entity_snapshot.id`
 
 table `model_entity_pk_attribute_snapshot`: like an id bag ()
@@ -162,7 +175,8 @@ table `model_business_key_snapshot`, `BusinessKeyTable` in kotlin:
 
 - `id` with type `BusinessKeySnapshotId`, not null
 - `lineage_id` with type `BusinessKeyId`, not null
-- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key on
+- `model_entity_snapshot_id` with type `EntitySnapshotId`, not null, foreign key
+  on
   `model_entity_snapshot.id`
 - `key` TEXT NOT NULL
 - `name` TEXT nullable
@@ -171,7 +185,8 @@ table `model_business_key_snapshot`, `BusinessKeyTable` in kotlin:
 Must be unique in `model_business_key_snapshot` :
 `(model_entity_snapshot_id, key)`
 
-table `model_business_key_attribute_snapshot`, `BusinessKeyAttributeTable` in kotlin:
+table `model_business_key_attribute_snapshot`, `BusinessKeyAttributeTable` in
+kotlin:
 
 - `model_business_key_snapshot_id` with type `BusinessKeySnapshotId`, not null
 - `priority`: Integer, not null
@@ -182,8 +197,6 @@ Must be unique in `model_business_key_attribute_snapshot` :
 `(model_business_key_snapshot_id, model_entity_attribute_snapshot_id)`
 and
 `(model_business_key_snapshot_id, priority)`
-
-
 
 ## External databases JDBC imports
 
@@ -215,9 +228,9 @@ Compatibility phase:
 
 Cleanup phase:
 
-- [ ] delete all usage of `ModelAggregate.identifierAttribute` in
+- [X] delete all usage of `ModelAggregate.identifierAttribute` in
   JsonDeserializerV2
-- [ ] delete all usage of `ModelAggregate.identifierAttribute` in
+- [X] delete all usage of `ModelAggregate.identifierAttribute` in
   JsonDeserializerV3
 
 ## Json export
@@ -238,8 +251,8 @@ Compatibility phase:
 
 Cleanup phase:
 
-- [ ] remove usages of `identifierAttribute` in FrictionlessConverter
-- [ ] supprimer toute notion de `identifierAttribute`
+- [X] remove usages of `identifierAttribute` in FrictionlessConverter
+- [X] supprimer toute notion de `identifierAttribute`
 
 ## Elements impactés
 

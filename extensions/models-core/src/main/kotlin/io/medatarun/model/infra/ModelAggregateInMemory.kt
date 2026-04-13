@@ -103,7 +103,6 @@ data class ModelAggregateInMemory(
                 key: EntityKey,
                 name: LocalizedText? = null,
                 description: LocalizedMarkdown? = null,
-                identifierAttributeId: AttributeId = Id.generate(::AttributeId),
                 origin: EntityOrigin = EntityOrigin.Manual,
                 documentationHome: URL? = null,
                 tags: MutableList<TagId> = mutableListOf()
@@ -113,23 +112,12 @@ data class ModelAggregateInMemory(
                     key = key,
                     name = name,
                     description = description,
-                    identifierAttributeId = identifierAttributeId,
                     origin = origin,
                     documentationHome = documentationHome,
                     tags = tags
                 )
                 entities.add(entity)
                 return entity
-            }
-
-            fun addEntityWithIdentifierAttributeId(
-                key: EntityKey,
-                identifierAttributeId: AttributeId,
-                block: EntityInMemory.Companion.Builder.() -> Unit = {}
-            ): EntityInMemory {
-                val e = EntityInMemory.builder(key, identifierAttributeId, block)
-                entities.add(e)
-                return e
             }
 
             fun addRelationship(relationship: RelationshipInMemory): RelationshipInMemory {
@@ -197,6 +185,17 @@ data class ModelAggregateInMemory(
             ): EntityPrimaryKeyInMemory {
                 val entityPrimaryKey =
                     EntityPrimaryKeyInMemory(id = id, entityId = entityId, participants = participants)
+                entityPrimaryKeys.add(entityPrimaryKey)
+                return entityPrimaryKey
+            }
+
+            fun addEntityPrimaryKeySingle(
+                entityId: EntityId,
+                attributeId: AttributeId,
+                id: EntityPrimaryKeyId = Id.generate(::EntityPrimaryKeyId),
+            ): EntityPrimaryKeyInMemory {
+                val entityPrimaryKey =
+                    EntityPrimaryKeyInMemory(id = id, entityId = entityId, participants = listOf(PBKeyParticipantInMemory(attributeId, 0)))
                 entityPrimaryKeys.add(entityPrimaryKey)
                 return entityPrimaryKey
             }

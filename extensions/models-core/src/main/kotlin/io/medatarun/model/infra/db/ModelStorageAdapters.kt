@@ -35,14 +35,12 @@ object ModelStorageAdapters {
     fun toEntity(
         record: EntityRecord,
         tags: List<TagId>,
-        identifierAttributeId: AttributeId
     ): EntityInMemory {
         return EntityInMemory(
             id = record.lineageId,
             key = record.key,
             name = record.name,
             description = record.description,
-            identifierAttributeId = identifierAttributeId,
             origin = record.origin,
             documentationHome = record.documentationHome?.let { URI(it).toURL() },
             tags = tags

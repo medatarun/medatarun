@@ -1,9 +1,7 @@
 package io.medatarun.model.infra.db.aggregate
 
 import io.medatarun.model.domain.AttributeSnapshotId
-import io.medatarun.model.domain.AttributeId
 import io.medatarun.model.domain.BusinessKeySnapshotId
-import io.medatarun.model.domain.EntityId
 import io.medatarun.model.domain.EntitySnapshotId
 import io.medatarun.model.domain.EntityPKSnapshotId
 import io.medatarun.model.domain.ModelSnapshotId
@@ -16,7 +14,6 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
-import io.medatarun.model.infra.db.ModelStorageDbCompatibilityReads.findIdentifierAttributeIdFromPrimaryKey
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
@@ -76,14 +73,7 @@ class ModelStorageDbAggregateReader {
         val entityTagsBySnapshotId = loadEntityTagsByModelSnapshotId(modelSnapshotId)
         return rows.map { row ->
             val record = EntityRecord.read(row)
-            toEntity(
-                record,
-                entityTagsBySnapshotId[record.snapshotId] ?: emptyList(),
-                findIdentifierAttributeIdFromPrimaryKey(
-                    entitySnapshotId = record.snapshotId,
-                    entityId = record.lineageId
-                )
-            )
+            toEntity(record, entityTagsBySnapshotId[record.snapshotId] ?: emptyList())
         }
     }
 

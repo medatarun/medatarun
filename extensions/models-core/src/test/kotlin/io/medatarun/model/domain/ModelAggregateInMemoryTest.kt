@@ -4,6 +4,7 @@ import io.medatarun.model.infra.AttributeInMemory
 import io.medatarun.model.infra.EntityInMemory
 import io.medatarun.model.infra.ModelAggregateInMemory
 import io.medatarun.model.infra.ModelTypeInMemory
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,15 +55,14 @@ class ModelAggregateInMemoryTest {
         val typeString = ModelTypeInMemory.of("String")
         val typeMarkdown = ModelTypeInMemory.of("Markdown")
         val personIdentifierAttributeId = AttributeId.generate()
+        val personEntityId = EntityId.generate()
         val personEntity = EntityInMemory.builder(
             key = EntityKey("person"),
-            identifierAttributeId = personIdentifierAttributeId,
         ) {
+            id = personEntityId
             name = LocalizedTextNotLocalized("Person")
         }
         val personAttributes = listOf(
-
-
             AttributeInMemory(
                 id = personIdentifierAttributeId,
                 key = AttributeKey("id"),
@@ -116,10 +116,11 @@ class ModelAggregateInMemoryTest {
         )
 
         val companyIdentifierAttributeId = AttributeId.generate()
+        val companyEntityId = EntityId.generate()
         val companyEntity = EntityInMemory.builder(
             key = EntityKey("company"),
-            identifierAttributeId = companyIdentifierAttributeId,
         ) {
+            id = companyEntityId
             name = LocalizedTextNotLocalized("Company")
 
 
@@ -184,7 +185,10 @@ class ModelAggregateInMemoryTest {
             attributes = companyAttributes + personAttributes,
             relationships = emptyList(), // TODO tests on model in memory relationships
             tags = emptyList(),
-            entityPrimaryKeys = emptyList(),
+            entityPrimaryKeys = listOf(
+                EntityPrimaryKeyInMemory.ofSingleAttribute(personEntityId, personIdentifierAttributeId),
+                EntityPrimaryKeyInMemory.ofSingleAttribute(companyEntityId, companyIdentifierAttributeId),
+            ),
             businessKeys = emptyList()
         )
     }

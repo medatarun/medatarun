@@ -12,7 +12,6 @@ data class EntityInMemory(
     override val key: EntityKey,
     override val name: LocalizedText?,
     override val description: LocalizedMarkdown?,
-    override val identifierAttributeId: AttributeId,
     override val origin: EntityOrigin,
     override val documentationHome: URL?,
     override val tags: List<TagId>,
@@ -25,7 +24,6 @@ data class EntityInMemory(
                 key = other.key,
                 name = other.name,
                 description = other.description,
-                identifierAttributeId = other.identifierAttributeId,
                 origin = other.origin,
                 documentationHome = other.documentationHome,
                 tags = other.tags,
@@ -33,11 +31,10 @@ data class EntityInMemory(
         }
 
         class Builder(
-            val id: EntityId = EntityId.generate(),
-            val key: EntityKey,
+            var id: EntityId = EntityId.generate(),
+            var key: EntityKey,
             var name: LocalizedText? = null,
             var description: LocalizedMarkdown? = null,
-            var identifierAttributeId: AttributeId,
             var origin: EntityOrigin = EntityOrigin.Manual,
             var documentationHome: URL? = null,
             var tags: MutableList<TagId> = mutableListOf(),
@@ -49,7 +46,6 @@ data class EntityInMemory(
                     key = key,
                     name = name,
                     description = description,
-                    identifierAttributeId = identifierAttributeId,
                     origin = origin,
                     documentationHome = documentationHome,
                     tags = tags,
@@ -59,10 +55,9 @@ data class EntityInMemory(
 
         fun builder(
             key: EntityKey,
-            identifierAttributeId: AttributeId,
             block: Builder.() -> Unit = {}
         ): EntityInMemory {
-            return Builder(key = key, identifierAttributeId = identifierAttributeId).also(block).build()
+            return Builder(key = key).also(block).build()
         }
     }
 }

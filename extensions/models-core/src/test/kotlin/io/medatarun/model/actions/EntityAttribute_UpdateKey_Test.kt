@@ -8,6 +8,7 @@ import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
 @EnableDatabaseTests
 class EntityAttribute_UpdateKey_Test {
@@ -57,27 +58,43 @@ class EntityAttribute_UpdateKey_Test {
     }
 
     @Test
-    fun `update attribute key does not loose entity identifier attribute`() {
+    fun `update attribute key does not loose entity pk attribute`() {
+
+        // Create model with entity and an attribute "id" defined as primary key
+
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val e = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        val attrId = e.identifierAttributeId
-        val newKey = AttributeKey("id_next")
-        // Be careful to specify "reloadId" because the attribute's id changed
-        val attributeRef = entityAttributeRef(attrId)
+        val m = env.query.findModel(env.sampleModelRef)
+
+        val pk = m.findEntityPrimaryKeyOptional(e.ref)
+        assertNotNull(pk)
+
+        val pkAttributeId = pk.participants.firstOrNull()?.attributeId
+        assertNotNull(pkAttributeId)
+
+        // Change attribute key
+        val attributeNewKey = AttributeKey("id_next")
+        val attributeRef = entityAttributeRef(pkAttributeId)
         env.runtime.dispatch(
             EntityAttribute_UpdateKey(
                 env.sampleModelRef,
                 env.sampleEntityRef,
                 attributeRef = attributeRef,
-                value = newKey
+                value = attributeNewKey
             )
         )
-        env.reloadAttribute(
-            attributeRef, entityAttributeRef(newKey)
-        )
-        val reloadedEntity = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        assertEquals(attrId, reloadedEntity.identifierAttributeId)
+        env.reloadAttribute(attributeRef, entityAttributeRef(attributeNewKey))
+
+        // Reload model
+        val m2 = env.query.findModel(env.sampleModelRef)
+        val pk2 = assertNotNull(m2.findEntityPrimaryKeyOptional(e.ref))
+        val pk2AttributeId = assertNotNull(pk2.participants.firstOrNull()?.attributeId)
+
+        assertEquals(pkAttributeId, pk2AttributeId)
+
+
+
 
     }
 

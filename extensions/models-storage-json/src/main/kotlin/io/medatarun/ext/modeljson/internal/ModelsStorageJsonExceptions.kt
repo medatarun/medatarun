@@ -10,7 +10,7 @@ internal class ModelJsonEntityAttributeTypeNotFoundException(attributeKey: Strin
         MedatarunException("Error on entity storage. In Json, key [$attributeKey] declares type [$attributeType] that was not found in Json types. Storage needs to be fixed manually.")
 internal class ModelJsonReadBusinessKeyAttributeNotFoundException(entity: String, attribute: String) :
         MedatarunException("Error while reading model, attribute $attribute not found in entity $entity.")
-internal class ModelJsonWriterEntityPKIncompatibleException(entityId: EntityId, attributeId: AttributeId) :
+internal class ModelJsonWriterEntityPKIncompatibleException(entityId: EntityId) :
         MedatarunException("Error on entity ${entityId.value} while converting to Json. This version of export doesn't support entities without primary keys or composite primary keys, use version 3.0.")
 internal class ModelJsonReadEntityReferencedInRelationshipNotFound(relationJsonKey: String, relationshipRoleId: String, entityJsnoKey: String) :
         MedatarunException("Error while reading model. Relationship [$relationJsonKey] has role [$relationshipRoleId] which references entity with key [$entityJsnoKey] that could not be found.")

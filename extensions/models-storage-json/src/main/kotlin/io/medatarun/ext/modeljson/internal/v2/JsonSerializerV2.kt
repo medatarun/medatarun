@@ -34,10 +34,8 @@ internal class JsonSerializerV2(
                     ?.attributeId
                     ?.let { model.findEntityAttribute(entity.ref, EntityAttributeRef.ById(it)) }
                     ?.key
-                    ?: throw ModelJsonWriterEntityPKIncompatibleException(
-                        entity.id,
-                        entity.identifierAttributeId
-                    )
+                    ?: throw ModelJsonWriterEntityPKIncompatibleException(entity.id)
+
                 ModelEntityJsonV2(
                     id = entity.id.value.toString(),
                     key = entity.key.value,

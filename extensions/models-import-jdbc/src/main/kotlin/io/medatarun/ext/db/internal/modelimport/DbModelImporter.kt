@@ -125,9 +125,7 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
             val pk = toEntityPrimaryKey(table, collector, entityId)
             if (pk != null) pkCollector.add(pk)
 
-            val pkAttributeId = toOldDeprecatedEntityIdentifierAttribute(table, collector, entityId)
-
-            val e = toEntity(entityId, table, pkAttributeId, path)
+            val e = toEntity(entityId, table, path)
             collector.addEntity(e)
         }
 
@@ -199,7 +197,6 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
     private fun toEntity(
         entityId: EntityId,
         table: IntrospectTable,
-        pkAttributeId: AttributeId,
         path: String
     ): EntityInMemory {
         val e = EntityInMemory(
@@ -207,8 +204,6 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
             key = EntityKey(table.tableName),
             name = null,
             description = table.remarks?.let(::LocalizedMarkdownNotLocalized),
-            // TODO a supprimer plus tard
-            identifierAttributeId = pkAttributeId,
             origin = EntityOrigin.Uri(URI(path)),
             documentationHome = null,
             tags = emptyList()
@@ -216,20 +211,6 @@ internal class DbModelImporter(dbDriverManager: DbDriverManager, val dbConnectio
         return e
     }
 
-    @Deprecated("to be removed")
-    private fun toOldDeprecatedEntityIdentifierAttribute(
-        table: IntrospectTable,
-        collector: Collector,
-        entityId: EntityId
-    ): AttributeId {
-        // TODO a supprimer quand on aura fini
-        val pkAttributeKey = table.pkNameOrFirstColumn()
-        val pkAttribute = collector.findAttributeOptional(entityId, pkAttributeKey)
-            ?: throw DbImportCouldNotFindAttributeFromPrimaryKeyException(table.tableName, pkAttributeKey.value)
-        val pkAttributeId = pkAttribute.id
-        // -- fin du TODO a supprimer quand on aura fini
-        return pkAttributeId
-    }
 
     private fun toAttribute(
         collector: Collector,

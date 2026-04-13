@@ -37,16 +37,11 @@ internal class JsonDeserializerV2(
             val attributes = base.toAttributeList(types, entityJson.attributes, AttributeOwnerId.OwnerEntityId(entityId))
             attributeCollector.addAll(attributes)
 
-            val identifierAttribute = attributes
-                .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute) }
-                ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
-
             val e = EntityInMemory(
                 id = entityId,
                 key = EntityKey(entityJson.key),
                 name = entityJson.name,
                 description = entityJson.description,
-                identifierAttributeId = identifierAttribute.id,
                 origin = when (entityJson.origin) {
                     null -> EntityOrigin.Manual
                     else -> Uri(URI(entityJson.origin))
@@ -56,7 +51,11 @@ internal class JsonDeserializerV2(
             )
             entityCollector.add(e)
 
+            // V002 still has "identifierAttribute" to defined primary key of entity
             // Takes the key in JSON identifierAttribute and convert it to PBKey
+            val identifierAttribute = attributes
+                .firstOrNull { it.key == AttributeKey(entityJson.identifierAttribute) }
+                ?: throw ModelJsonEntityIdentifierAttributeNotFound(entityJson.key)
             pbkCollector.add(EntityPrimaryKeyInMemory.ofSingleAttribute(entityId, identifierAttribute.id))
         }
 

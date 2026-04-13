@@ -101,19 +101,11 @@ internal class JsonDeserializerV3(
 
             if (entityPk != null) collectors.pbkCollector.add(entityPk)
 
-
-            // TODO on sait ici que c'est faux mais c'est le temps de terminer le chantier complet
-            val identifierAttribute = entityPk?.participants?.firstOrNull()?.attributeId
-                ?: Id.generate(::AttributeId)
-
-
             val e = EntityInMemory(
                 id = entityId,
                 key = EntityKey(entityJson.key),
                 name = entityJson.name?.let { LocalizedTextNotLocalized(it) },
                 description = entityJson.description?.let { LocalizedMarkdownNotLocalized(it) },
-                // TODO on sait ici que c'est faux mais c'est le temps de terminer le chantier complet
-                identifierAttributeId = identifierAttribute,
                 origin = when (entityJson.origin) {
                     null -> EntityOrigin.Manual
                     else -> Uri(URI(entityJson.origin))

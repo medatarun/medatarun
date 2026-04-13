@@ -62,7 +62,6 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateEntityKey -> updateEntityKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
-                is ModelCmd.UpdateEntityIdentifierAttribute -> updateEntityIdentifierAttribute(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmdEnv, cmd)
@@ -525,28 +524,6 @@ class ModelCmdsImpl(
         storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
     }
 
-    private fun updateEntityIdentifierAttribute(
-        cmdEnv: ModelCmdEnveloppe,
-        cmd: ModelCmd.UpdateEntityIdentifierAttribute
-    ) {
-        val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.value)
-        val targetAttributeIds = listOf(attribute.id)
-        val currentPrimaryKeyAttributeIds = storage.findModelAggregate(ModelRef.ById(model.id))
-            .findEntityPrimaryKeyOptional(entity.id)
-            ?.participants
-            ?.map { participant -> participant.attributeId }
-            ?: emptyList()
-        if (currentPrimaryKeyAttributeIds == targetAttributeIds) return
-        storageDispatch(
-            cmdEnv,
-            ModelStorageCmd.Entity_PrimaryKey_Set(
-                modelId = model.id,
-                entityId = entity.id,
-                attributeIds = targetAttributeIds
-            )
-        )
-    }
-
     private fun updateEntityDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDocumentationHome) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.documentationHome?.toExternalForm() == cmd.value?.toExternalForm()) return
@@ -647,8 +624,6 @@ class ModelCmdsImpl(
 
     private fun deleteEntityAttribute(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntityAttribute) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
-        if (entity.identifierAttributeId == attribute.id)
-            throw DeleteAttributeIdentifierException(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
         storageDispatch(
             cmdEnv,
             ModelStorageCmd.DeleteEntityAttribute(

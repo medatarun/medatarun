@@ -218,9 +218,17 @@ interface ModelAggregate : Model {
     fun countAttributes(id: EntityId): Int {
         return findEntityAttributes(EntityRef.ById(id)).count()
     }
-
+    fun findEntityPrimaryKeyOptional(entityRef: EntityRef): EntityPrimaryKey? {
+        val entityId = findEntity(entityRef).id
+        return findEntityPrimaryKeyOptional(entityId)
+    }
     fun findEntityPrimaryKeyOptional(id: EntityId): EntityPrimaryKey? {
         return entityPrimaryKeys.firstOrNull { it.entityId == id }
+    }
+    fun isEntityPrimaryKey(id: EntityId, attributeId: AttributeId): Boolean {
+        val pk = findEntityPrimaryKeyOptional(id) ?: return false
+        if (pk.participants.size != 1) return false
+        return pk.participants.map { it.attributeId }.contains(attributeId)
     }
 
 }

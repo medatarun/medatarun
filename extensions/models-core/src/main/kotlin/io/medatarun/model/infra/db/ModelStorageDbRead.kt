@@ -9,7 +9,6 @@ import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationship
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipAttribute
 import io.medatarun.model.infra.db.ModelStorageAdapters.toRelationshipRole
 import io.medatarun.model.infra.db.ModelStorageAdapters.toType
-import io.medatarun.model.infra.db.ModelStorageDbCompatibilityReads.findIdentifierAttributeIdFromPrimaryKey
 import io.medatarun.model.infra.db.aggregate.ModelStorageDbAggregateReader
 import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
@@ -293,11 +292,7 @@ class ModelStorageDbRead(
                     val tags = rows
                         .mapNotNull { tagRow -> readOptionalTagId(tagRow, entityTagTable[EntityTagTable.tagId]) }
                         .distinct()
-                    toEntity(
-                        record,
-                        tags,
-                        findIdentifierAttributeIdFromPrimaryKey(record.snapshotId, record.lineageId)
-                    )
+                    toEntity(record, tags)
                 }
             }
     }

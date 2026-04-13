@@ -130,9 +130,6 @@ class TypeUpdateDuplicateKeyException(typeKey: TypeKey) :
     MedatarunException("Another type uses the key [${typeKey.value}].", StatusCode.BAD_REQUEST)
 
 
-class DeleteAttributeIdentifierException(modelId: ModelRef, entityId: EntityRef, attributeRef: EntityAttributeRef) :
-    MedatarunException("Can not delete attribute [${attributeRef.asString()}] in entity [${entityId.asString()}] of model [${modelId.asString()}] because it is used as the entity's identifier")
-
 class ModelInvalidException(modelId: ModelId, errors: List<ModelValidationError>) :
     MedatarunException(
         "Model with id [${modelId.asString()}] could not be validated. " + errors.joinToString(". ") { it.message },

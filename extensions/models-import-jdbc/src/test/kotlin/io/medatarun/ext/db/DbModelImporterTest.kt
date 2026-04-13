@@ -131,9 +131,9 @@ class DbModelImporterTest {
         val ordersId = ordersAttributes.first { it.key.value == "id" }
         val profilesId = profilesAttributes.first { it.key.value == "id" }
 
-        assertEquals(usersId.id, users.identifierAttributeId)
-        assertEquals(ordersId.id, orders.identifierAttributeId)
-        assertEquals(profilesId.id, profiles.identifierAttributeId)
+        assertTrue(imported.model.isEntityPrimaryKey(users.id, usersId.id))
+        assertTrue(imported.model.isEntityPrimaryKey(orders.id, ordersId.id))
+        assertTrue(imported.model.isEntityPrimaryKey(profiles.id, profilesId.id))
 
         val orderRelationship = imported.model.relationships.first { relationship ->
             relationship.roles.any { role -> role.key == RelationshipRoleKey("orders.user_id") }

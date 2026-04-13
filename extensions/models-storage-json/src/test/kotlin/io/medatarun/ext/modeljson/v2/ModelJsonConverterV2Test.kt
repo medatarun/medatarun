@@ -74,7 +74,7 @@ internal class ModelJsonConverterV2Test {
         val contactEntity = modelRead.findEntity(contactEntityRef)
         assertEquals(contactEntity.key, EntityKey("contact"))
         assertEquals(contactEntity.name?.name, "Contact")
-        assertEquals(contactNameAttributeId, contactEntity.identifierAttributeId)
+        assertTrue(modelRead.isEntityPrimaryKey(contactEntity.id, contactNameAttributeId))
         assertEquals(
             setOf(
                 "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1",
@@ -91,7 +91,7 @@ internal class ModelJsonConverterV2Test {
 
         val companyEntity = modelRead.findEntity(companyRef)
         assertEquals(companyEntity.key, EntityKey("company"))
-        assertEquals(companyNameAttributeId, companyEntity.identifierAttributeId)
+        assertTrue(modelRead.isEntityPrimaryKey(companyEntity.id, companyNameAttributeId))
         assertEquals(companyEntity.name?.name, "Company")
         assertEquals(companyEntity.name?.get("fr"), "Entreprise")
         assertEquals(companyEntity.name?.get("de"), "Company")

@@ -97,10 +97,7 @@ class ModelCmdCopyImpl(
             attributeIds.generate(attr.id)
         }
         val newEntities = model.entities.map { entity ->
-            EntityInMemory.of(entity).copy(
-                id = entityIds.generate(entity.id),
-                identifierAttributeId = attributeIds.convert(entity.identifierAttributeId),
-            )
+            EntityInMemory.of(entity).copy(id = entityIds.generate(entity.id))
         }
         val newRelationships = model.relationships.map { rel ->
             RelationshipInMemory.of(rel).copy(

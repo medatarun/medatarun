@@ -119,14 +119,14 @@ internal class JsonSerializerV3Test {
             addEntity(
                 id = entityWithTagId,
                 key = EntityKey("customer"),
-                identifierAttributeId = entityWithTagAttributeId,
                 tags = mutableListOf(entityTag)
             )
+            addEntityPrimaryKeySingle(entityWithTagId, entityWithTagAttributeId)
             addEntity(
                 id = entityWithoutTagId,
                 key = EntityKey("order"),
-                identifierAttributeId = entityWithoutTagAttributeId
             )
+            addEntityPrimaryKeySingle(entityWithoutTagId, entityWithoutTagAttributeId)
             addAttribute(
                 id = entityWithTagAttributeId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityWithTagId),
@@ -173,12 +173,14 @@ internal class JsonSerializerV3Test {
                   "id":"${entityWithTagId.asString()}",
                   "key":"customer",
                   "attributes":[{"id":"${entityWithTagAttributeId.asString()}","key":"customer-code","type":"key:text","tags":["${attributeTag.asString()}"]}],
+                  "primaryKey":["${entityWithTagAttributeId.asString()}"],
                   "tags":["${entityTag.asString()}"]
                 },
                 {
                   "id":"${entityWithoutTagId.asString()}",
                   "key":"order",
-                  "attributes":[{"id":"${entityWithoutTagAttributeId.asString()}","key":"order-code","type":"key:text"}]
+                  "attributes":[{"id":"${entityWithoutTagAttributeId.asString()}","key":"order-code","type":"key:text"}],
+                  "primaryKey":["${entityWithoutTagAttributeId.asString()}"]
                 }
               ],
               "relationships":[
@@ -215,10 +217,10 @@ internal class JsonSerializerV3Test {
                 key = EntityKey("customer"),
                 name = LocalizedTextNotLocalized("Customer"),
                 description = LocalizedMarkdownNotLocalized("Customer description"),
-                identifierAttributeId = attrId,
                 origin = EntityOrigin.Uri(URI(entityOrigin)),
                 documentationHome = URI(entityDoc).toURL()
             )
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -244,6 +246,7 @@ internal class JsonSerializerV3Test {
                   "description":"Customer description",
                   "origin":"$entityOrigin",
                   "attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"key:text"}],
+                  "primaryKey":["${attrId.asString()}"],
                   "documentationHome":"$entityDoc"
                 }
               ]
@@ -271,11 +274,11 @@ internal class JsonSerializerV3Test {
                 key = EntityKey("customer"),
                 name = null,
                 description = null,
-                identifierAttributeId = attrId,
                 origin = EntityOrigin.Manual,
                 documentationHome = null,
                 tags = mutableListOf()
             )
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -294,7 +297,7 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"key:text"}]}
+                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"customer-code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}
               ]
             }
         """.trimIndent()
@@ -317,8 +320,10 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityAId, key = EntityKey("a"), identifierAttributeId = attrAId)
-            addEntity(id = entityBId, key = EntityKey("b"), identifierAttributeId = attrBId)
+            addEntity(id = entityAId, key = EntityKey("a"))
+            addEntityPrimaryKeySingle(entityAId, attrAId)
+            addEntity(id = entityBId, key = EntityKey("b"))
+            addEntityPrimaryKeySingle(entityBId, attrBId)
             addAttribute(
                 id = attrAId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
@@ -343,8 +348,8 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"a","attributes":[{"id":"${attrAId.asString()}","key":"a-code","type":"key:text"}]},
-                {"id":"${entityBId.asString()}","key":"b","attributes":[{"id":"${attrBId.asString()}","key":"b-code","type":"key:text"}]}
+                {"id":"${entityAId.asString()}","key":"a","attributes":[{"id":"${attrAId.asString()}","key":"a-code","type":"key:text"}],"primaryKey":["${attrAId.asString()}"]},
+                {"id":"${entityBId.asString()}","key":"b","attributes":[{"id":"${attrBId.asString()}","key":"b-code","type":"key:text"}],"primaryKey":["${attrBId.asString()}"]}
               ]
             }
         """.trimIndent()
@@ -366,7 +371,8 @@ internal class JsonSerializerV3Test {
             version = ModelVersion("1.0.0"),
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -402,7 +408,8 @@ internal class JsonSerializerV3Test {
                       "optional":true,
                       "tags":["${attrTag.asString()}"]
                     }
-                  ]
+                  ],
+                  "primaryKey":["${attrId.asString()}"]
                 }
               ]
             }
@@ -425,7 +432,7 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addEntity(id = entityId, key = EntityKey("customer"))
             addAttribute(
                 id = attrFirstId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -487,7 +494,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -506,7 +514,7 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}
+                {"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}
               ]
             }
         """.trimIndent()
@@ -531,7 +539,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -565,7 +574,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -598,7 +607,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -632,7 +642,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -671,7 +681,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = entityAttrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, entityAttrId)
             addAttribute(
                 id = entityAttrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -708,7 +719,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}],"primaryKey":["${entityAttrId.asString()}"]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -741,7 +752,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = entityAttrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, entityAttrId)
             addAttribute(
                 id = entityAttrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -783,7 +795,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${entityAttrId.asString()}","key":"entity-code","type":"key:text"}],"primaryKey":["${entityAttrId.asString()}"]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -824,7 +836,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -860,7 +873,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}],
               "relationships":[
                 {
                   "id":"${relationshipId.asString()}",
@@ -898,8 +911,10 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityAId, key = EntityKey("customer"), identifierAttributeId = entityAAttrId)
-            addEntity(id = entityBId, key = EntityKey("order"), identifierAttributeId = entityBAttrId)
+            addEntity(id = entityAId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityAId, entityAAttrId)
+            addEntity(id = entityBId, key = EntityKey("order"))
+            addEntityPrimaryKeySingle(entityBId, entityBAttrId)
             addAttribute(
                 id = entityAAttrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
@@ -972,8 +987,8 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${entityAAttrId.asString()}","key":"customer-code","type":"key:text"}]},
-                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${entityBAttrId.asString()}","key":"order-code","type":"key:text"}]}
+                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${entityAAttrId.asString()}","key":"customer-code","type":"key:text"}],"primaryKey":["${entityAAttrId.asString()}"]},
+                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${entityBAttrId.asString()}","key":"order-code","type":"key:text"}],"primaryKey":["${entityBAttrId.asString()}"]}
               ],
               "relationships":[
                 {
@@ -1013,7 +1028,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrFirstId)
             addAttribute(
                 id = attrFirstId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -1048,7 +1064,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}],"primaryKey":["${attrFirstId.asString()}"]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
@@ -1080,7 +1096,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -1106,7 +1123,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
@@ -1137,7 +1154,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrFirstId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrFirstId)
             addAttribute(
                 id = attrFirstId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -1172,7 +1190,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrFirstId.asString()}","key":"code","type":"key:text"},{"id":"${attrSecondId.asString()}","key":"country","type":"key:text"}],"primaryKey":["${attrFirstId.asString()}"]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",
@@ -1205,8 +1223,10 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityAId, key = EntityKey("customer"), identifierAttributeId = attrAId)
-            addEntity(id = entityBId, key = EntityKey("order"), identifierAttributeId = attrBId)
+            addEntity(id = entityAId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityAId, attrAId)
+            addEntity(id = entityBId, key = EntityKey("order"))
+            addEntityPrimaryKeySingle(entityBId, attrBId)
             addAttribute(
                 id = attrAId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityAId),
@@ -1247,8 +1267,8 @@ internal class JsonSerializerV3Test {
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
               "entities":[
-                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${attrAId.asString()}","key":"customer-code","type":"key:text"}]},
-                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${attrBId.asString()}","key":"order-code","type":"key:text"}]}
+                {"id":"${entityAId.asString()}","key":"customer","attributes":[{"id":"${attrAId.asString()}","key":"customer-code","type":"key:text"}],"primaryKey":["${attrAId.asString()}"]},
+                {"id":"${entityBId.asString()}","key":"order","attributes":[{"id":"${attrBId.asString()}","key":"order-code","type":"key:text"}],"primaryKey":["${attrBId.asString()}"]}
               ],
               "businessKeys":[
                 {
@@ -1288,7 +1308,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -1306,7 +1327,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}]
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}]
             }
         """.trimIndent()
 
@@ -1328,7 +1349,8 @@ internal class JsonSerializerV3Test {
             id = modelId
         ) {
             addType(id = typeId, key = TypeKey("text"))
-            addEntity(id = entityId, key = EntityKey("customer"), identifierAttributeId = attrId)
+            addEntity(id = entityId, key = EntityKey("customer"))
+            addEntityPrimaryKeySingle(entityId, attrId)
             addAttribute(
                 id = attrId,
                 ownerId = AttributeOwnerId.OwnerEntityId(entityId),
@@ -1354,7 +1376,7 @@ internal class JsonSerializerV3Test {
               "version":"1.0.0",
               "authority":"system",
               "types":[{"id":"${typeId.asString()}","key":"text"}],
-              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}]}],
+              "entities":[{"id":"${entityId.asString()}","key":"customer","attributes":[{"id":"${attrId.asString()}","key":"code","type":"key:text"}],"primaryKey":["${attrId.asString()}"]}],
               "businessKeys":[
                 {
                   "id":"${businessKeyId.asString()}",

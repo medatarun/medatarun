@@ -425,6 +425,15 @@ class Model_Copy_Test {
         assertEquals(source.documentationHome, copied.documentationHome)
     }
 
+    /**
+     * After model copy, the copied entity must reference its own "id" attribute.
+     *
+     * This prevents a broken copy where the copied entity still references
+     * the identity attribute from the source model.
+     *
+     * The test also checks that the copied primary key points to that same
+     * copied identity attribute.
+     */
     @Test
     fun `copy model keeps each entity identity attribute pointing to an attribute of that copied entity`() {
         val env = createEnv()
@@ -448,21 +457,27 @@ class Model_Copy_Test {
             )
         )
 
+        val sourceModel = env.queries.findModelByKey(sourceKey)
+        val sourceEntity = sourceModel.findEntity(entityRef)
+        val sourcePrimaryKey = assertNotNull(sourceModel.findEntityPrimaryKeyOptional(sourceEntity.id))
+        val sourceIdentityAttributeId = sourcePrimaryKey.participants.first().attributeId
+
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
         val copiedModel = env.queries.findModelByKey(copiedKey)
         val copiedEntity = copiedModel.findEntity(entityRef)
-        val copiedIdentity = copiedModel.findEntityAttributeOptional(copiedEntity.ref, copiedEntity.identifierAttributeId)
+        val copiedPrimaryKey = assertNotNull(copiedModel.findEntityPrimaryKeyOptional(copiedEntity.id))
 
-        assertNotNull(copiedIdentity)
-
-        assertEquals(AttributeKey("id"), copiedIdentity.key)
-
-        val copiedPrimaryKey = copiedModel.findEntityPrimaryKeyOptional(copiedEntity.id)
-        assertNotNull(copiedPrimaryKey)
         assertEquals(copiedEntity.id, copiedPrimaryKey.entityId)
         assertEquals(1, copiedPrimaryKey.participants.size)
-        assertEquals(copiedEntity.identifierAttributeId, copiedPrimaryKey.participants.first().attributeId)
+        val copiedIdentityAttributeId = copiedPrimaryKey.participants.first().attributeId
+        val copiedIdentity = copiedModel.findEntityAttributeOptional(
+            copiedEntity.ref,
+            EntityAttributeRef.ById(copiedIdentityAttributeId)
+        )
+        assertNotNull(copiedIdentity)
+        assertEquals(AttributeKey("id"), copiedIdentity.key)
+        assertNotEquals(sourceIdentityAttributeId, copiedIdentityAttributeId)
     }
 
     // ------------------------------------------------------------------------

@@ -139,12 +139,6 @@ sealed interface ModelCmd {
         val value: LocalizedMarkdown?
     ) : ModelCmdOnModel
 
-    data class UpdateEntityIdentifierAttribute(
-        override val modelRef: ModelRef,
-        val entityRef: EntityRef,
-        val value: EntityAttributeRef
-    ) : ModelCmdOnModel
-
     data class UpdateEntityDocumentationHome(
         override val modelRef: ModelRef,
         val entityRef: EntityRef,
