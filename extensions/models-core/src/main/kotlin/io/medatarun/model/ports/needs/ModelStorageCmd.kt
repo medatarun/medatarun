@@ -20,20 +20,24 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 1)
+    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 2)
     data class StoreModelAggregate(
         @SerialName("model")
         val model: StoreModelAggregateModel,
         @SerialName("types")
         val types: List<StoreModelAggregateType>,
         @SerialName("entities")
-        val entities: List<StoreModelAggregateEntity>,
+        val entities: List<StoreModelAggregateEntityCurrent>,
         @SerialName("entityAttributes")
         val entityAttributes: List<StoreModelAggregateEntityAttribute>,
         @SerialName("relationships")
         val relationships: List<StoreModelAggregateRelationship>,
         @SerialName("relationshipAttributes")
         val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
+        @SerialName("entityPrimaryKeys")
+        val entityPrimaryKeys: List<StoreModelAggregatePrimaryKey>,
+        @SerialName("businessKeys")
+        val businessKeys: List<StoreModelAggregateBusinessKey>,
     ) : ModelStorageCmd
 
     @Serializable

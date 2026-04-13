@@ -11,6 +11,23 @@ import java.net.URL
 sealed interface ModelStorageCmdOld : ModelStorageCmdAnyVersion {
 
     @Serializable
+    @StorageEventContract(eventType = "model_aggregate_stored", eventVersion = 1)
+    data class StoreModelAggregate(
+        @SerialName("model")
+        val model: StoreModelAggregateModel,
+        @SerialName("types")
+        val types: List<StoreModelAggregateType>,
+        @SerialName("entities")
+        val entities: List<StoreModelAggregateEntityDeprecated>,
+        @SerialName("entityAttributes")
+        val entityAttributes: List<StoreModelAggregateEntityAttribute>,
+        @SerialName("relationships")
+        val relationships: List<StoreModelAggregateRelationship>,
+        @SerialName("relationshipAttributes")
+        val relationshipAttributes: List<StoreModelAggregateRelationshipAttribute>,
+    ) : ModelStorageCmdOld
+
+    @Serializable
     @StorageEventContract(eventType = "entity_created", eventVersion = 1)
     @Deprecated("Use v2")
     data class CreateEntity(

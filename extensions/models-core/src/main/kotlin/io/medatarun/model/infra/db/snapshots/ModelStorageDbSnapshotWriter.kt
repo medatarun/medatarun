@@ -239,7 +239,7 @@ internal class ModelStorageDbSnapshotWriter(
     fun entityPrimaryKeyInsert(
         entityPKSnapshotId: EntityPKSnapshotId,
         entitySnapshotId: EntitySnapshotId,
-        identifierAttributeSnapshotId: List<AttributeSnapshotId>
+        attributeSnapshotIds: List<AttributeSnapshotId>
     ) {
         entityPrimaryKeyInsert(
             EntityPKRecord(
@@ -248,7 +248,7 @@ internal class ModelStorageDbSnapshotWriter(
                 modelEntitySnapshotId = entitySnapshotId
             )
         )
-        entityPrimaryKeyAttributesInsert(entityPKSnapshotId, identifierAttributeSnapshotId)
+        entityPrimaryKeyAttributesInsert(entityPKSnapshotId, attributeSnapshotIds)
     }
 
     fun entityPrimaryKeyInsert(record: EntityPKRecord) {
@@ -261,10 +261,10 @@ internal class ModelStorageDbSnapshotWriter(
 
     private fun entityPrimaryKeyAttributesInsert(
         entityPKSnapshotId: EntityPKSnapshotId,
-        identifierAttributeSnapshotId: List<AttributeSnapshotId>
+        attributeSnapshotIds: List<AttributeSnapshotId>
     ) {
         var currentPosition = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
-        for (attributeSnapshotId in identifierAttributeSnapshotId) {
+        for (attributeSnapshotId in attributeSnapshotIds) {
             entityPrimaryKeyAttributeInsert(
                 entityPrimaryKeySnapshotId = entityPKSnapshotId,
                 attributeSnapshotId = attributeSnapshotId,
@@ -313,7 +313,7 @@ internal class ModelStorageDbSnapshotWriter(
             entityPrimaryKeyInsert(
                 entityPKSnapshotId = EntityPKSnapshotId.generate(),
                 entitySnapshotId = entitySnapshotId,
-                identifierAttributeSnapshotId = toAttributeSnapshotIds()
+                attributeSnapshotIds = toAttributeSnapshotIds()
             )
         } else if (attributeIds.isEmpty()) {
             // attributeIds is empty (it's a deletion request), and some pk exist -> delete all
@@ -867,6 +867,13 @@ internal class ModelStorageDbSnapshotWriter(
     // Business key
     // -------------------------------------------------------------------------
 
+    fun businessKeyInsert(record: BusinessKeyRecord, attributeSnapshotIds: List<AttributeSnapshotId>) {
+        businessKeyInsert(record)
+        var priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
+        for (attrId in attributeSnapshotIds) {
+            businessKeyAttributeInsert(record.snapshotId, attrId, priority++)
+        }
+    }
     fun businessKeyInsert(record: BusinessKeyRecord) {
         BusinessKeyTable.insert { row ->
             row[BusinessKeyTable.id] = record.snapshotId

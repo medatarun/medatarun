@@ -29,6 +29,7 @@ object ModelJsonSerializers {
     val relationshipId = stringSerializer("RelationshipId", RelationshipId.Companion::fromString) { it.value.toString() }
     val relationshipRoleId = stringSerializer("RelationshipRoleId", RelationshipRoleId.Companion::fromString) { it.value.toString() }
     val typeId = stringSerializer("TypeId", TypeId.Companion::fromString) { it.value.toString() }
+    val businessKeyId = stringSerializer("BusinessKeyId", BusinessKeyId.Companion::fromString) { it.value.toString() }
 
 
     val modelKey = stringSerializer("ModelKey", { ModelKey(it) }) { it.value }
@@ -37,6 +38,7 @@ object ModelJsonSerializers {
     val relationshipKey = stringSerializer("RelationshipKey", { RelationshipKey(it) }) { it.value }
     val relationshipRoleKey = stringSerializer("RelationshipRoleKey", { RelationshipRoleKey(it) }) { it.value }
     val typeKey = stringSerializer("TypeKey", { TypeKey(it) }) { it.value }
+    val businessKeyKey = stringSerializer("BusinessKeyKey", { BusinessKeyKey(it) }) { it.value }
     val modelVersion = object : KSerializer<ModelVersion> {
         override val descriptor = PrimitiveSerialDescriptor("ModelVersion", PrimitiveKind.STRING)
 
@@ -194,6 +196,7 @@ object ModelJsonSerializers {
             contextual(RelationshipId::class, relationshipId)
             contextual(RelationshipRoleId::class, relationshipRoleId)
             contextual(TypeId::class, typeId)
+            contextual(BusinessKeyId::class, businessKeyId)
             contextual(TagId::class, TagsJsonSerializers.tagId)
             contextual(ModelKey::class, modelKey)
             contextual(EntityKey::class, entityKey)
@@ -201,6 +204,7 @@ object ModelJsonSerializers {
             contextual(RelationshipKey::class, relationshipKey)
             contextual(RelationshipRoleKey::class, relationshipRoleKey)
             contextual(TypeKey::class, typeKey)
+            contextual(BusinessKeyKey::class, businessKeyKey)
             contextual(ModelVersion::class, modelVersion)
             contextual(URL::class, url)
             contextual(LocalizedText::class, localizedTextAsString)

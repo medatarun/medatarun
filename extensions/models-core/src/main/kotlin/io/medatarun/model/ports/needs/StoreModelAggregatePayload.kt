@@ -58,7 +58,7 @@ data class StoreModelAggregateType(
 )
 
 @Serializable
-data class StoreModelAggregateEntity(
+data class StoreModelAggregateEntityDeprecated(
     @Contextual
     @SerialName("id")
     val id: EntityId,
@@ -74,6 +74,28 @@ data class StoreModelAggregateEntity(
     @Contextual
     @SerialName("identifierAttributeId")
     val identifierAttributeId: AttributeId,
+    @Contextual
+    @SerialName("origin")
+    val origin: EntityOrigin,
+    @Contextual
+    @SerialName("documentationHome")
+    val documentationHome: URL?
+)
+
+@Serializable
+data class StoreModelAggregateEntityCurrent(
+    @Contextual
+    @SerialName("id")
+    val id: EntityId,
+    @Contextual
+    @SerialName("key")
+    val key: EntityKey,
+    @Contextual
+    @SerialName("name")
+    val name: LocalizedText?,
+    @Contextual
+    @SerialName("description")
+    val description: LocalizedMarkdown?,
     @Contextual
     @SerialName("origin")
     val origin: EntityOrigin,
@@ -167,6 +189,38 @@ data class StoreModelAggregateRelationshipAttribute(
     val optional: Boolean
 )
 
+@Serializable
+data class StoreModelAggregatePrimaryKey(
+    @Contextual
+    @SerialName("entityId")
+    val entityId: EntityId,
+    @Contextual
+    @SerialName("participants")
+    val participants: List<@Contextual AttributeId>,
+)
+
+@Serializable
+data class StoreModelAggregateBusinessKey(
+    @Contextual
+    @SerialName("businessKeyId")
+    val businessKeyId: BusinessKeyId,
+    @Contextual
+    @SerialName("entityId")
+    val entityId: EntityId,
+    @Contextual
+    @SerialName("key")
+    val key: BusinessKeyKey,
+    @Contextual
+    @SerialName("name")
+    val name: String?,
+    @Contextual
+    @SerialName("description")
+    val description: String?,
+    @Contextual
+    @SerialName("participants")
+    val participants: List<@Contextual AttributeId>,
+)
+
 /**
  * Converts a domain aggregate into the event payload contract stored by
  * ModelRepoCmd.StoreModelAggregate.
@@ -193,12 +247,11 @@ object StoreModelAggregatePayloadFactory {
                 )
             },
             entities = modelAggregate.entities.map { entity ->
-                StoreModelAggregateEntity(
+                StoreModelAggregateEntityCurrent(
                     id = entity.id,
                     key = entity.key,
                     name = entity.name,
                     description = entity.description,
-                    identifierAttributeId = entity.identifierAttributeId,
                     origin = entity.origin,
                     documentationHome = entity.documentationHome
                 )
@@ -247,7 +300,21 @@ object StoreModelAggregatePayloadFactory {
                         typeId = attribute.typeId,
                         optional = attribute.optional
                     )
-                }
+                },
+            businessKeys = modelAggregate.businessKeys.map {
+                StoreModelAggregateBusinessKey(
+                    businessKeyId = it.id,
+                    entityId = it.entityId,
+                    key = it.key,
+                    name = it.name,
+                    description = it.description,
+                    participants = it.participants.sortedBy { p -> p.position }.map { p ->p.attributeId })
+            },
+            entityPrimaryKeys = modelAggregate.entityPrimaryKeys.map {
+                StoreModelAggregatePrimaryKey(
+                    entityId = it.entityId,
+                    participants = it.participants.sortedBy { p -> p.position }.map { p ->p.attributeId })
+            }
         )
     }
 }

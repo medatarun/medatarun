@@ -106,22 +106,27 @@ Next operations
 
 ➡️ at this point identifierAttribute column should be useless
 
-- [X] remove `model_entity_snapshot.identifier_attribute_snapshot_id` with a new
+- [X] Replace `model_entity_snapshot.identifier_attribute_snapshot_id` with a new
   `version_models_v003_02_remove_identifier_attribute.sql` to remove the old
-  column. Remove it from `EntityTable`
+  column. Remove it from `EntityTable`. 
  
 - [X] Create version 2 of command `entity_created` where we don't specify
-  identifierAttribute, use it in projection
+  identifierAttribute, use it in projection. Don't use `entity_created` version 1 anymore (upscale to newer versions)
 
+- [X] make command `entity_identifier_attribute_updated` deprecated and don't use it anymore (upscale to newer versions)
+
+- [X] make command `model_aggregate_stored` V1 deprecated and create a v2 that doest require `identifierAttribute` but accepts bk and pk
 
 ### Cleanup phase:
 
+- [ ] changer l'interprétation de `model_aggregate_stored` pour aller vers la nouvelle table
+- [ ] changer l'interprétation de `entity_created` pour aller vers la nouvelle table
 
-- [ ] remove command `entity_identifier_attribute_updated`
+We can do that much later
 
-- changer l'interprétation de `model_aggregate_stored` pour aller vers la
-  nouvelle table
-- changer l'interprétation de `entity_created` pour aller vers la nouvelle table
+- [ ] completely delete `entity_created` v1 from event stack
+- [ ] completely delete `entity_identifier_attribute_updated` v1 from event stack
+- [ ] completely delete `model_aggregate_stored` v1 from event stack
 
 ### Post cleanup
 

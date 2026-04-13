@@ -1,8 +1,7 @@
 package io.medatarun.model.infra.db.snapshots
 
 import io.medatarun.model.domain.*
-import io.medatarun.model.infra.db.ModelStorageDbSearchWrite
-import io.medatarun.model.infra.db.ModelStorageDbUnsupportedProjectedDeleteException
+import io.medatarun.model.infra.db.*
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.needs.ModelClock
@@ -172,10 +171,6 @@ internal class ModelStorageDbProjection(
             val entitySnapshotId = EntitySnapshotId.generate()
             entitySnapshotIds[entity.id] = entitySnapshotId
 
-            val identifierAttributeSnapshotId = entityAttributeSnapshotIds
-                .getOrPut(entity.identifierAttributeId) { AttributeSnapshotId.generate() }
-
-            val entityPKSnapshotId = EntityPKSnapshotId.generate()
             snapWrite.entityInsert(
                 EntityRecord(
                     snapshotId = entitySnapshotId,
@@ -208,11 +203,6 @@ internal class ModelStorageDbProjection(
                 )
                 searchWrite.refreshEntityAttributeBranch(modelSnapshotId, entity.id, attr.id)
             }
-            snapWrite.entityPrimaryKeyInsert(
-                entityPKSnapshotId,
-                entitySnapshotId,
-                listOf(identifierAttributeSnapshotId)
-            )
         }
 
         for (relationship in cmd.relationships) {
@@ -259,6 +249,38 @@ internal class ModelStorageDbProjection(
                 )
                 searchWrite.refreshRelationshipAttributeBranch(modelSnapshotId, relationship.id, attr.id)
             }
+
+        }
+
+        for (pk in cmd.entityPrimaryKeys) {
+            snapWrite.entityPrimaryKeyInsert(
+                entityPKSnapshotId = EntityPKSnapshotId.generate(),
+                entitySnapshotId = entitySnapshotIds[pk.entityId]
+                    ?: throw ModelStorageDbStoreModelAggregatePKEntityNotFound(pk.entityId),
+                attributeSnapshotIds = pk.participants.map { a ->
+                    entityAttributeSnapshotIds[a]
+                        ?: throw ModelStorageDbStoreModelAggregatePKAttributeNotFound(a)
+                }
+            )
+        }
+
+        for (bk in cmd.businessKeys) {
+            val bkSnapshotId = BusinessKeySnapshotId.generate()
+            snapWrite.businessKeyInsert(
+                record = BusinessKeyRecord(
+                    snapshotId = bkSnapshotId,
+                    lineageId = bk.businessKeyId,
+                    modelEntitySnapshotId = entitySnapshotIds[bk.entityId]
+                        ?: throw ModelStorageDbStoreModelAggregateBKEntityNotFound(bk.entityId),
+                    key = bk.key,
+                    name = bk.name,
+                    description = bk.description
+                ),
+                attributeSnapshotIds = bk.participants.map { a ->
+                    entityAttributeSnapshotIds[a]
+                        ?: throw ModelStorageDbStoreModelAggregateBKAttributeNotFound(a)
+                }
+            )
         }
 
         searchWrite.refreshModelBranch(modelSnapshotId)

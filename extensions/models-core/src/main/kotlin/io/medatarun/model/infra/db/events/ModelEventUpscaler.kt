@@ -2,17 +2,21 @@ package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.ports.needs.ModelStorageCmd
 import io.medatarun.model.ports.needs.ModelStorageCmdOld
+import io.medatarun.model.ports.needs.StoreModelAggregateEntityCurrent
+import io.medatarun.model.ports.needs.StoreModelAggregatePrimaryKey
 
 /**
  * Convert old events to new
  */
 class ModelEventUpscaler {
     fun upscale(cmd: ModelStorageCmdOld): List<ModelStorageCmd> {
-        return when(cmd) {
+        return when (cmd) {
             is ModelStorageCmdOld.CreateEntity -> upscaleCreateEntity(cmd)
             is ModelStorageCmdOld.UpdateEntityIdentifierAttribute -> upscaleUpdateEntityIdentifierAttribute(cmd)
+            is ModelStorageCmdOld.StoreModelAggregate -> upscaleStoreModelAggregate(cmd)
         }
     }
+
     private fun upscaleUpdateEntityIdentifierAttribute(cmd: ModelStorageCmdOld.UpdateEntityIdentifierAttribute): List<ModelStorageCmd> {
         val next = ModelStorageCmd.Entity_PrimaryKey_Set(
             modelId = cmd.modelId,
@@ -21,6 +25,7 @@ class ModelEventUpscaler {
         )
         return listOf(next)
     }
+
     private fun upscaleCreateEntity(cmd: ModelStorageCmdOld.CreateEntity): List<ModelStorageCmd> {
         val cmdCreateEntity = ModelStorageCmd.CreateEntity(
             modelId = cmd.modelId,
@@ -47,5 +52,33 @@ class ModelEventUpscaler {
             attributeIds = listOf(cmd.identityAttributeId)
         )
         return listOf(cmdCreateEntity, cmdCreateAttr, cmdSetPK)
+    }
+
+    private fun upscaleStoreModelAggregate(cmd: ModelStorageCmdOld.StoreModelAggregate): List<ModelStorageCmd> {
+        val next = ModelStorageCmd.StoreModelAggregate(
+            model = cmd.model,
+            types = cmd.types,
+            entities = cmd.entities.map { e ->
+                StoreModelAggregateEntityCurrent(
+                    id = e.id,
+                    key = e.key,
+                    name = e.name,
+                    description = e.description,
+                    origin = e.origin,
+                    documentationHome = e.documentationHome
+                )
+            },
+            entityAttributes = cmd.entityAttributes,
+            relationships = cmd.relationships,
+            relationshipAttributes = cmd.relationshipAttributes,
+            entityPrimaryKeys = cmd.entities.map { e ->
+                StoreModelAggregatePrimaryKey(
+                    entityId = e.id,
+                    participants = listOf(e.identifierAttributeId)
+                )
+            },
+            businessKeys = emptyList()
+        )
+        return listOf(next)
     }
 }
