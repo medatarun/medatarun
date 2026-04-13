@@ -106,7 +106,7 @@ Next operations
 
 ➡️ at this point identifierAttribute column should be useless
 
-- [ ] remove `model_entity_snapshot.identifier_attribute_snapshot_id` with a new
+- [X] remove `model_entity_snapshot.identifier_attribute_snapshot_id` with a new
   `version_models_v003_02_remove_identifier_attribute.sql` to remove the old
   column. Remove it from `EntityTable`
  

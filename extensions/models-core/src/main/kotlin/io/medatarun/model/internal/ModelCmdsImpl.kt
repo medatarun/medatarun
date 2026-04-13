@@ -580,25 +580,39 @@ class ModelCmdsImpl(
         val model = storage.findModel(c.modelRef)
         val type = storage.findType(model.id, c.entityInitializer.identityAttribute.type)
         val identityAttributeId = AttributeId.generate()
+        val entityId = EntityId.generate()
+
         storageDispatch(
-            cmdEnv,
-            ModelStorageCmd.CreateEntity(
+            cmdEnv, ModelStorageCmd.CreateEntity(
                 modelId = model.id,
-                entityId = EntityId.generate(),
+                entityId = entityId,
                 key = c.entityInitializer.entityKey,
                 name = c.entityInitializer.name,
                 description = c.entityInitializer.description,
-                origin = EntityOrigin.Manual,
                 documentationHome = c.entityInitializer.documentationHome,
-                identityAttributeId = identityAttributeId,
-                identityAttributeKey = c.entityInitializer.identityAttribute.attributeKey,
-                identityAttributeName = c.entityInitializer.identityAttribute.name,
-                identityAttributeDescription = c.entityInitializer.identityAttribute.description,
-                identityAttributeTypeId = type.id,
-                identityAttributeIdOptional = false, // because it's identity, can never be optional
-
+                origin = EntityOrigin.Manual
             )
         )
+        storageDispatch(
+            cmdEnv, ModelStorageCmd.CreateEntityAttribute(
+                modelId = model.id,
+                entityId = entityId,
+                attributeId = identityAttributeId,
+                key = c.entityInitializer.identityAttribute.attributeKey,
+                name = c.entityInitializer.identityAttribute.name,
+                description = c.entityInitializer.identityAttribute.description,
+                typeId = type.id,
+                optional = false // because it's identity, can never be optional
+            )
+        )
+        storageDispatch(
+            cmdEnv, ModelStorageCmd.Entity_PrimaryKey_Set(
+                modelId = model.id,
+                entityId = entityId,
+                attributeIds = listOf(identityAttributeId)
+            )
+        )
+
     }
 
     private fun deleteEntity(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntity) {

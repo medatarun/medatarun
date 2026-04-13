@@ -344,14 +344,18 @@ class ModelStorageDb(
             streamRevision = streamNumberCtx.nextRevision(),
             createdAt = clock.now()
         )
-        processEvent(modelId,record) {
+        processEvent(modelId, record) {
             appendModelEvent(streamNumberCtx, record)
         }
     }
 
+    /**
+     * Process a single event from the event source
+     */
     private fun processEvent(modelId: ModelId, record: ModelEventRecord, storeEventIfNeeded: () -> Unit) {
 
-        val cmd = eventSystem.codec.decode(
+        // Decode event in JSON into a real command
+        val cmdAnyVersion: ModelStorageCmdAnyVersion = eventSystem.codec.decode(
             StorageEventEncoded(
                 eventType = record.eventType,
                 eventVersion = record.eventVersion,
@@ -359,27 +363,47 @@ class ModelStorageDb(
             )
         )
 
-        val modelSnapshotId = prepareStorageForAppend(cmd, modelId)
+        // Old events may be translated into new events. An old event may be
+        // converted into a succession of smaller events, so we may end up with
+        // a list of events.
+        val cmds: List<ModelStorageCmd> = eventSystem.upscale(cmdAnyVersion)
 
-        storeEventIfNeeded()
+        // Treat each event independently, but only current versions
+        for (cmd in cmds) {
+            // Events are stored in a model, so we need to be sure the model
+            // exists before doing anything. This happens when we see special
+            // creation events like model_created or model_aggregate_stored.
+            val modelSnapshotId = prepareStorageForAppend(cmd, modelId)
 
+            // Event may be stored, or not. In a normal scenario when we receive
+            // an event, we need to store it in the model. When we are just
+            // replaying a stack of events, we won't.
+            // It is the caller's responsibility to do that when storage is ready.
+            storeEventIfNeeded()
 
-        if (cmd is ModelStorageCmd.DeleteModel) {
-            deleteModel(cmd.modelId)
-        } else {
-
-            projection.projectCommand(
-                ProjectionEventCtx(
-                    cmd = cmd,
-                    modelId = record.modelId,
-                    modelSnapshotId = modelSnapshotId,
-                    modelEventId = record.id,
-                    streamRevision = record.streamRevision
+            if (cmd is ModelStorageCmd.DeleteModel) {
+                // Deleting a model is a special command because it removes the
+                // model and all the event stack (complete destruction)
+                deleteModel(cmd.modelId)
+            } else {
+                // Normal case, we maintain the current state (head snapshot)
+                // and versions snapshot when we see model_released commands.
+                // Note that this will incrementally manage the search engine
+                // too.
+                projection.projectCommand(
+                    ProjectionEventCtx(
+                        cmd = cmd,
+                        modelId = record.modelId,
+                        modelSnapshotId = modelSnapshotId,
+                        modelEventId = record.id,
+                        streamRevision = record.streamRevision
+                    )
                 )
-            )
-            updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
+                // Finally, we set in the head snapshot the current event
+                // revision number we just processed and last update time.
+                updateCurrentHeadProjectionMetadata(extractModelId(cmd), record.streamRevision)
+            }
         }
-
     }
 
 

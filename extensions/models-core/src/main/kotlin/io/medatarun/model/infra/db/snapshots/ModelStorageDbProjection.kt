@@ -209,7 +209,11 @@ internal class ModelStorageDbProjection(
                 )
                 searchWrite.refreshEntityAttributeBranch(modelSnapshotId, entity.id, attr.id)
             }
-            snapWrite.entityPrimaryKeyInsert(entityPKSnapshotId, entitySnapshotId, listOf(identifierAttributeSnapshotId))
+            snapWrite.entityPrimaryKeyInsert(
+                entityPKSnapshotId,
+                entitySnapshotId,
+                listOf(identifierAttributeSnapshotId)
+            )
         }
 
         for (relationship in cmd.relationships) {
@@ -348,8 +352,6 @@ internal class ModelStorageDbProjection(
 
     private fun createEntity(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntity) {
         val entitySnapshotId = EntitySnapshotId.generate()
-        val identifierAttributeSnapshotId = AttributeSnapshotId.generate()
-        val entityPrimaryKeySnapshotId = EntityPKSnapshotId.generate()
         val record = EntityRecord(
             snapshotId = entitySnapshotId,
             lineageId = cmd.entityId,
@@ -361,24 +363,7 @@ internal class ModelStorageDbProjection(
             documentationHome = cmd.documentationHome?.toExternalForm()
         )
         snapWrite.entityInsert(record)
-        snapWrite.entityAttributeInsert(
-            EntityAttributeRecord(
-                snapshotId = identifierAttributeSnapshotId,
-                lineageId = cmd.identityAttributeId,
-                entitySnapshotId = entitySnapshotId,
-                key = cmd.identityAttributeKey,
-                name = cmd.identityAttributeName,
-                description = cmd.identityAttributeDescription,
-                typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(
-                    ctx.modelSnapshotId,
-                    cmd.identityAttributeTypeId
-                ),
-                optional = cmd.identityAttributeIdOptional
-            )
-        )
-        snapWrite.entityPrimaryKeyInsert(entityPrimaryKeySnapshotId, entitySnapshotId, listOf(identifierAttributeSnapshotId))
         searchWrite.refreshEntityBranch(ctx.modelSnapshotId, cmd.entityId)
-        searchWrite.refreshEntityAttributeBranch(ctx.modelSnapshotId, cmd.entityId, cmd.identityAttributeId)
     }
 
 

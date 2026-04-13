@@ -1,7 +1,6 @@
 package io.medatarun.model.ports.needs
 
 import io.medatarun.model.domain.*
-import io.medatarun.storage.eventsourcing.StorageCmd
 import io.medatarun.storage.eventsourcing.StorageEventContract
 import io.medatarun.tags.core.domain.TagId
 import kotlinx.serialization.Contextual
@@ -9,13 +8,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.net.URL
 
+/**
+ * Current storage commands
+ */
 @Serializable
-sealed interface ModelStorageCmdOnModel : ModelStorageCmd {
-    val modelId: ModelId
-}
-
-@Serializable
-sealed interface ModelStorageCmd: StorageCmd {
+sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
 
 
     // ------------------------------------------------------------------------
@@ -246,7 +243,7 @@ sealed interface ModelStorageCmd: StorageCmd {
     // ------------------------------------------------------------------------
 
     @Serializable
-    @StorageEventContract(eventType = "entity_created", eventVersion = 1)
+    @StorageEventContract(eventType = "entity_created", eventVersion = 2)
     data class CreateEntity(
         @Contextual
         @SerialName("modelId")
@@ -269,24 +266,6 @@ sealed interface ModelStorageCmd: StorageCmd {
         @Contextual
         @SerialName("origin")
         val origin: EntityOrigin,
-        @Contextual
-        @SerialName("identityAttributeId")
-        val identityAttributeId: AttributeId,
-        @Contextual
-        @SerialName("identityAttributeKey")
-        val identityAttributeKey: AttributeKey,
-        @Contextual
-        @SerialName("identityAttributeTypeId")
-        val identityAttributeTypeId: TypeId,
-        @Contextual
-        @SerialName("identityAttributeName")
-        val identityAttributeName: LocalizedText?,
-        @Contextual
-        @SerialName("identityAttributeDescription")
-        val identityAttributeDescription: LocalizedMarkdown?,
-        @SerialName("identityAttributeOptional")
-        val identityAttributeIdOptional: Boolean,
-
     ) : ModelStorageCmdOnModel
 
     @Serializable

@@ -2,8 +2,8 @@ package io.medatarun.model.infra.db
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.events.ModelEventSystem
-import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.model.ports.needs.*
+import io.medatarun.storage.eventsourcing.StorageEventEncoded
 import io.medatarun.storage.eventsourcing.StorageEventUnknownContractException
 import io.medatarun.tags.core.domain.TagId
 import kotlinx.serialization.json.Json
@@ -21,14 +21,33 @@ class ModelEventJsonCodecTest {
     private val codec = sys.codec
 
     @Test
+    fun `test cases contains all possible cmds`() {
+        val testCases = cmdTestCases()
+        sys.registry.findAllDescripors().forEach { desc->
+            assertTrue(testCases.any { testCase ->
+                testCase.eventType == desc.eventType
+                        && testCase.eventVersion == desc.eventVersion
+            }, "Storage command ${desc.eventType} ${desc.eventVersion} not covered by tests")
+        }
+    }
+
+    @Test
     fun `encode uses the expected event contract`() {
         val testCases = cmdTestCases()
 
         for (testCase in testCases) {
             val encoded = codec.encode(testCase.cmd)
 
-            assertEquals(testCase.eventType, encoded.eventType, "Wrong event type for ${testCase.cmd::class.simpleName}")
-            assertEquals(testCase.eventVersion, encoded.eventVersion, "Wrong event version for ${testCase.cmd::class.simpleName}")
+            assertEquals(
+                testCase.eventType,
+                encoded.eventType,
+                "Wrong event type for ${testCase.cmd::class.simpleName}"
+            )
+            assertEquals(
+                testCase.eventVersion,
+                encoded.eventVersion,
+                "Wrong event version for ${testCase.cmd::class.simpleName}"
+            )
             assertJsonEquals(testCase.json, encoded.payload, "Wrong payload for ${testCase.cmd::class.simpleName}")
         }
     }
@@ -66,8 +85,20 @@ class ModelEventJsonCodecTest {
 
         assertTrue(
             actual = optionalParametersByCommand.isEmpty(),
-            message = "ModelRepoCmd constructors must not define default values. Offenders: ${optionalParametersByCommand.joinToString("; ")}"
+            message = "ModelRepoCmd constructors must not define default values. Offenders: ${
+                optionalParametersByCommand.joinToString("; ")
+            }"
         )
+    }
+
+    @Test
+    fun `upscaled versions`() {
+        val testCases = cmdTestCases()
+        for (testCase in testCases) {
+            val results = sys.upscale(testCase.cmd)
+            assertEquals(testCase.upscaled, results)
+        }
+
     }
 
     private fun cmdTestCases(): List<CmdTestCase> {
@@ -199,7 +230,7 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "entity_created",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.CreateEntity(
+                cmd = ModelStorageCmdOld.CreateEntity(
                     modelId = modelId,
                     entityId = entityId,
                     key = EntityKey("customer"),
@@ -216,6 +247,48 @@ class ModelEventJsonCodecTest {
                 ),
                 json = """
                     {"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"},"identityAttributeId":"00000000-0000-0000-0000-000000000006","identityAttributeKey":"customer_id","identityAttributeTypeId":"00000000-0000-0000-0000-000000000002","identityAttributeName":"Customer Id","identityAttributeDescription":"Identity attribute","identityAttributeOptional":false}
+                """.trimIndent(),
+                upscaled = listOf(
+                    ModelStorageCmd.CreateEntity(
+                        modelId = modelId,
+                        entityId = entityId,
+                        key = EntityKey("customer"),
+                        name = text("Customer"),
+                        description = markdown("Customer entity"),
+                        documentationHome = URL("https://example.com/docs/entities/customer"),
+                        origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
+                    ),
+                    ModelStorageCmd.CreateEntityAttribute(
+                        modelId = modelId,
+                        entityId = entityId,
+                        attributeId = entityAttributeId,
+                        key = AttributeKey("customer_id"),
+                        typeId = typeId,
+                        name = text("Customer Id"),
+                        description = markdown("Identity attribute"),
+                        optional = false
+                    ),
+                    ModelStorageCmd.Entity_PrimaryKey_Set(
+                        modelId = modelId,
+                        entityId = entityId,
+                        attributeIds = listOf(entityAttributeId),
+                    )
+                )
+            ),
+            CmdTestCase(
+                eventType = "entity_created",
+                eventVersion = 2,
+                cmd = ModelStorageCmd.CreateEntity(
+                    modelId = modelId,
+                    entityId = entityId,
+                    key = EntityKey("customer"),
+                    name = text("Customer"),
+                    description = markdown("Customer entity"),
+                    documentationHome = URL("https://example.com/docs/entities/customer"),
+                    origin = EntityOrigin.Uri(URI("https://example.com/origin/customer")),
+                ),
+                json = """
+                    {"modelId":"00000000-0000-0000-0000-000000000001","entityId":"00000000-0000-0000-0000-000000000003","key":"customer","name":"Customer","description":"Customer entity","documentationHome":"https://example.com/docs/entities/customer","origin":{"origin_type":"uri","uri":"https://example.com/origin/customer"}}
                 """.trimIndent()
             ),
             CmdTestCase(
@@ -380,7 +453,11 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "relationship_key_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipKey(modelId, relationshipId, RelationshipKey("customer_invoice")),
+                cmd = ModelStorageCmd.UpdateRelationshipKey(
+                    modelId,
+                    relationshipId,
+                    RelationshipKey("customer_invoice")
+                ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","key":"customer_invoice"}"""
             ),
             CmdTestCase(
@@ -438,7 +515,12 @@ class ModelEventJsonCodecTest {
             CmdTestCase(
                 eventType = "relationship_role_entity_updated",
                 eventVersion = 1,
-                cmd = ModelStorageCmd.UpdateRelationshipRoleEntity(modelId, relationshipId, relationshipRoleId, entityId),
+                cmd = ModelStorageCmd.UpdateRelationshipRoleEntity(
+                    modelId,
+                    relationshipId,
+                    relationshipRoleId,
+                    entityId
+                ),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","relationshipRoleId":"00000000-0000-0000-0000-000000000005","entityId":"00000000-0000-0000-0000-000000000003"}"""
             ),
             CmdTestCase(
@@ -709,7 +791,8 @@ class ModelEventJsonCodecTest {
     data class CmdTestCase(
         val eventType: String,
         val eventVersion: Int,
-        val cmd: ModelStorageCmd,
-        val json: String
+        val cmd: ModelStorageCmdAnyVersion,
+        val json: String,
+        val upscaled: List<ModelStorageCmdAnyVersion> = listOf(cmd)
     )
 }

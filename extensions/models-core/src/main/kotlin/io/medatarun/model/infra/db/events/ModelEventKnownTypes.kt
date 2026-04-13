@@ -1,6 +1,7 @@
 package io.medatarun.model.infra.db.events
 
 import io.medatarun.model.ports.needs.ModelStorageCmd
+import io.medatarun.model.ports.needs.ModelStorageCmdAnyVersion
 import io.medatarun.storage.eventsourcing.StorageEventRegistry
 
 /**
@@ -9,7 +10,7 @@ import io.medatarun.storage.eventsourcing.StorageEventRegistry
  * Descriptors are taken from the [StorageEventRegistry]
  */
 class ModelEventKnownTypes(
-    storageEventRegistry: StorageEventRegistry<ModelStorageCmd>
+    private val storageEventRegistry: StorageEventRegistry<ModelStorageCmdAnyVersion>
 
 ) {
 
@@ -19,5 +20,7 @@ class ModelEventKnownTypes(
     fun modelReleaseEventType(): String {
         return releaseEventType
     }
+
+    fun findAllDescripors() = storageEventRegistry.findAllDescriptor()
 
 }
