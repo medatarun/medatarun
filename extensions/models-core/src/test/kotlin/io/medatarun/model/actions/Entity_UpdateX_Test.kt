@@ -23,7 +23,7 @@ class Entity_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(

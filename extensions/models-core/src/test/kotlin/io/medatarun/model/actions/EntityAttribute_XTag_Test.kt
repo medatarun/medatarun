@@ -28,7 +28,7 @@ class EntityAttribute_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -78,7 +78,7 @@ class EntityAttribute_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -116,7 +116,7 @@ class EntityAttribute_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,

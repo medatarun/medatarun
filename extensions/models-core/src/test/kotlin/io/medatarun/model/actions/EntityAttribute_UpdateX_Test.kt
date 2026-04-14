@@ -4,7 +4,6 @@ import io.medatarun.model.domain.EntityAttributeNotFoundException
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityNotFoundException
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
-import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
@@ -27,7 +26,7 @@ class EntityAttribute_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -63,7 +62,7 @@ class EntityAttribute_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -99,7 +98,7 @@ class EntityAttribute_UpdateX_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,

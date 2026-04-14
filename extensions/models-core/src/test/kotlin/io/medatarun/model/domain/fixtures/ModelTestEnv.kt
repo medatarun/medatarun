@@ -124,7 +124,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
     }
 
     // Entity_Create2
-    fun entityCreate2(
+    fun entityCreate(
         modelRef: ModelRef,
         entityKey: EntityKey,
         name: LocalizedText? = null,

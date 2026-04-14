@@ -24,7 +24,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
@@ -50,7 +50,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
@@ -81,7 +81,7 @@ class Entity_UpdateDocumentationHome_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
         env.dispatch(
             ModelAction.Entity_UpdateDocumentationHome(
                 modelRef = modelRef,

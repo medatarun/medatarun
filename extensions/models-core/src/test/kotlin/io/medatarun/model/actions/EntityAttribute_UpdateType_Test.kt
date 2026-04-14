@@ -26,7 +26,7 @@ class EntityAttribute_UpdateType_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeStringRef.key)
         env.typeCreate(modelRef, typeMarkdownRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -66,7 +66,7 @@ class EntityAttribute_UpdateType_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeStringRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -101,7 +101,7 @@ class EntityAttribute_UpdateType_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeStringRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,

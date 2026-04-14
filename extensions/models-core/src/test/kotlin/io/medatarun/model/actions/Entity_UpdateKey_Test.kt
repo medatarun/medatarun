@@ -25,8 +25,8 @@ class Entity_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
-        env.entityCreate2(modelRef, secondaryEntityRef.key, LocalizedTextNotLocalized("Entity secondary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, secondaryEntityRef.key, LocalizedTextNotLocalized("Entity secondary"))
 
         assertFailsWith<EntityUpdateKeyDuplicateKeyException> {
             env.dispatch(
@@ -49,7 +49,7 @@ class Entity_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_UpdateKey(
@@ -74,7 +74,7 @@ class Entity_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
         env.dispatch(

@@ -22,7 +22,7 @@ class Entity_Delete_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("To delete"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("To delete"))
         env.dispatch(ModelAction.Entity_Delete(modelRef, entityRef))
 
         env.replayWithRebuild {
@@ -42,8 +42,8 @@ class Entity_Delete_Test {
         env.typeCreate(modelRef1, typeRef.key)
         env.modelCreate(modelRef2.key)
         env.typeCreate(modelRef2, typeRef.key)
-        env.entityCreate2(modelRef1, entityRef.key, LocalizedTextNotLocalized("Entity"))
-        env.entityCreate2(modelRef2, entityRef.key, LocalizedTextNotLocalized("Entity"))
+        env.entityCreate(modelRef1, entityRef.key, LocalizedTextNotLocalized("Entity"))
+        env.entityCreate(modelRef2, entityRef.key, LocalizedTextNotLocalized("Entity"))
         env.dispatch(ModelAction.Entity_Delete(modelRef1, entityRef))
 
         assertNull(env.queries.findEntityOptional(modelRef1, entityRef))

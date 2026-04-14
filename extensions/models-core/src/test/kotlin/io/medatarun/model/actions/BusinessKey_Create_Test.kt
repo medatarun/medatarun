@@ -28,7 +28,7 @@ class BusinessKey_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
         env.entityAttributeCreate(modelRef, entityRef, codeAttributeRef.key, typeRef)
         env.businessKeyCreate(
@@ -100,7 +100,7 @@ class BusinessKey_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         assertThrows<EntityAttributeNotFoundException> {
             env.businessKeyCreate(
@@ -123,7 +123,7 @@ class BusinessKey_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
         env.businessKeyCreate(
             modelRef = modelRef,

@@ -29,7 +29,7 @@ class BusinessKey_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
         env.businessKeyCreate(
             modelRef = modelRef,
@@ -61,7 +61,7 @@ class BusinessKey_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef = modelRef, typeKey = typeRef.key)
-        env.entityCreate2(modelRef = modelRef, entityKey = entityRef.key)
+        env.entityCreate(modelRef = modelRef, entityKey = entityRef.key)
         env.entityAttributeCreate(modelRef = modelRef, entityRef = entityRef, attributeKey = idAttributeRef.key, type = typeRef)
         env.businessKeyCreate(
             modelRef = modelRef,
@@ -102,7 +102,7 @@ class BusinessKey_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
         env.businessKeyCreate(
             modelRef = modelRef,
@@ -132,7 +132,7 @@ class BusinessKey_UpdateKey_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
         env.businessKeyCreate(
             modelRef = modelRef,

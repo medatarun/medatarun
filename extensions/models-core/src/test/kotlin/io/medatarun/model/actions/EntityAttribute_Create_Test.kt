@@ -26,7 +26,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_Create(
@@ -61,7 +61,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_Create(
@@ -89,7 +89,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_Create(
@@ -117,7 +117,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_Create(
@@ -147,7 +147,7 @@ class EntityAttribute_Create_Test {
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeStringRef.key)
         env.typeCreate(modelRef, typeBooleanRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_Create(
@@ -176,7 +176,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
@@ -215,7 +215,7 @@ class EntityAttribute_Create_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key)
+        env.entityCreate(modelRef, entityRef.key)
 
         assertFailsWith<TypeNotFoundException> {
             env.dispatch(

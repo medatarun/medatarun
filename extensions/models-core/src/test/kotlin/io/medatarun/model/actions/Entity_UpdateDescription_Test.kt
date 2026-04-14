@@ -25,7 +25,7 @@ class Entity_UpdateDescription_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(
+        env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
             name = LocalizedTextNotLocalized("Entity primary"),
@@ -55,7 +55,7 @@ class Entity_UpdateDescription_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(
+        env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
             name = LocalizedTextNotLocalized("Entity primary"),
@@ -84,7 +84,7 @@ class Entity_UpdateDescription_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(
+        env.entityCreate(
             modelRef = modelRef,
             entityKey = entityRef.key,
             name = LocalizedTextNotLocalized("Entity primary"),

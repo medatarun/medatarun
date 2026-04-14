@@ -27,7 +27,7 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         env.dispatch(
             ModelAction.Entity_AddTag(
@@ -60,7 +60,7 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
         val localTag = env.createLocalTagInModelScope(modelRef, "local-entity-tag")
 
         env.dispatch(
@@ -83,7 +83,7 @@ class Entity_XTag_Test {
 
         env.modelCreate(modelRef.key)
         env.typeCreate(modelRef, typeRef.key)
-        env.entityCreate2(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
+        env.entityCreate(modelRef, entityRef.key, LocalizedTextNotLocalized("Entity primary"))
         env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("model-entity-update-2"),
