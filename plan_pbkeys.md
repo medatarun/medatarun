@@ -198,14 +198,42 @@ Must be unique in `model_business_key_attribute_snapshot` :
 and
 `(model_business_key_snapshot_id, priority)`
 
+## ModelAction
+
+Ajustements to do once there is no more `identifierAttribute` in Entity and everything is ok in database. 
+
+- [ ] `ModelAction.Inspect_Json` remove identifier attribute from result, add pk and bk, test. Tests still to do.  
+- [ ] `ModelAction.Compare` do something (i don't know what), but we must see business key changes and pk changes  
+- [ ] `ModelAction.MaintenanceRebuildCaches` need to test manually  
+- [ ] `ModelAction.Model_Export` need to test manually  
+- [ ] `ModelAction.Model_Export_Version` need to test manually  
+- [ ] `ModelAction.Model_Create` adapt creation to remove required identifier attribute if there is one   
+- [ ] `ModelAction.Model_Copy` check if tests are done and bk and pk are copied  
+- [ ] `ModelAction.Model_Release` check if tests are done and bk and pk are fixed  
+- [ ] `ModelAction.Model_Delete` manual test  
+- [ ] `ModelAction.Entity_Create` : remove identifier attribute, implement and test  
+- [ ] `ModelAction.Entity_Delete` : manual test and database check
+- [ ] `ModelAction.EntityAttribute_Delete` : manual test
+- [ ] `ModelAction.HistoryVersionChanges` : adapt
+
+To create
+
+- [ ] `ModelAction.EntityPrimaryKey_Update` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Create` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Update_Key` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Update_Name` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Update_Description` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Update_Participants` : implement and test each 
+- [ ] `ModelAction.BusinessKey_Delete` : implement and test each 
+
 ## External databases JDBC imports
 
-- [x] when reading table columns from JDBC metadata, interpret primary keys as
+- [X] when reading table columns from JDBC metadata, interpret primary keys as
   `entityPrimaryKeys:EntityPrimaryKey`, even with composite keys
 
 Cleanup phase
 
-- [ ] remove old autodetection from compatibility
+- [X] remove old autodetection from compatibility
   `toOldDeprecatedEntityIdentifierAttribute`, and
   `val pkAttributeId = toOldDeprecatedEntityIdentifierAttribute(table, collector, entityId)`
 
@@ -271,26 +299,15 @@ Cleanup phase:
 
 - [x] Documentation on database imports pk
 - [x] Documentation on tableschema imports pk
+- [ ] Documentation on business keys
+- [ ] Documentation on primary keys
 
 ## UI
 
-- in Model history: entity_identifier_attribute_updated
-- in UI.kt manage the keys
-- in UI display attributes with the key if they are in the entity primary key
-
-## Copy
-
-- faire des tests sur PK et BK copy
-
-## History
-
-- faire des tests sur PK et BK copy a l'écran
-- voir les changements bk et pk
-
-## Diff
-
-- gestion des keys pk et bk
-- isEntityStructuralChanged doit dire si les pk ont changé
+- [ ] Adapt in Model history: entity_identifier_attribute_updated
+- [ ] Adapt in Model comparison. `isEntityStructuralChanged` from backend must say if pk changed (not the bk, just the PK)
+- [ ] display and manage the entity PK
+- [ ] display and manage business keys
 
 ## Model validation
 
