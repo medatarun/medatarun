@@ -15,10 +15,10 @@ class Model_UpdateX_Test {
         val env = createEnv()
         val query: ModelQueries = env.queries
 
-        val modelKey = ModelKey("m1")
+        val modelRef = modelRefKey("m1")
         env.dispatch(
             ModelAction.Model_Create(
-                key = modelKey,
+                key = modelRef.key,
                 name = LocalizedTextNotLocalized("Model name"),
                 description = null,
                 version = ModelVersion("2.0.0")
@@ -67,11 +67,11 @@ class Model_UpdateX_Test {
         }
         env.dispatch(
             ModelAction.Model_UpdateName(
-                modelRef = modelRefKey(modelKey),
+                modelRef = modelRef,
                 value = LocalizedTextNotLocalized("Model name 2")
             )
         )
-        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelAggregateByKey(modelKey).name)
+        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelRoot(modelRef).name)
     }
 
 }

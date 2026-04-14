@@ -90,6 +90,6 @@ class Model_Release_Test {
         )
 
         env.dispatch(ModelAction.Model_Release(modelRefKey(modelKey), ModelVersion("4.5.6")))
-        assertEquals(ModelVersion("4.5.6"), env.queries.findModelAggregateByKey(modelKey).version)
+        assertEquals(ModelVersion("4.5.6"), env.queries.findModelRoot(modelRefKey(modelKey)).version)
     }
 }

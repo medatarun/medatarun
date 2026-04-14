@@ -17,6 +17,7 @@ interface ModelQueries {
      * Find a model by its id or throw exception
      */
     fun findModelRoot(modelRef: ModelRef): Model
+    fun findModelRootOptional(modelRef: ModelRef): Model?
     fun existsModel(modelRef: ModelRef): Boolean
 
 
@@ -66,7 +67,19 @@ interface ModelQueries {
     // Types
     // -------------------------------------------------------------------------
 
+    /**
+     * Find a type, throw error if the model or type don't exist
+     */
     fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
+    /**
+     * Find a type, return null if the model or type don't exist
+     */
+    fun findTypeOptional(modelRef: ModelRef, typeRef: TypeRef): ModelType?
+
+    /**
+     * Find types, throw error if the model doesn't exist
+     */
+    fun findTypes(modelRef: ModelRef): List<ModelType>
 
     // -------------------------------------------------------------------------
     // Entities
@@ -119,5 +132,7 @@ interface ModelQueries {
     ): ModelDiff
 
     fun search(query: SearchQuery): SearchResults
+
+
 
 }

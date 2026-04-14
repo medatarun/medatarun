@@ -2,7 +2,6 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.AttributeKey
 import io.medatarun.model.domain.EntityAttributeRef
-import io.medatarun.model.domain.entityAttributeRef
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
@@ -30,21 +29,21 @@ class EntityAttribute_Delete_Test {
             env.query.findEntityAttributeOptional(
                 env.sampleModelRef,
                 env.sampleEntityRef,
-                entityAttributeRef("bk")
+                EntityAttributeRef.entityAttributeRefKey("bk")
             )
         )
         assertNull(
             env.query.findEntityAttributeOptional(
                 env.sampleModelRef,
                 env.sampleEntityRef,
-                entityAttributeRef("firstname")
+                EntityAttributeRef.entityAttributeRefKey("firstname")
             )
         )
         assertNotNull(
             env.query.findEntityAttributeOptional(
                 env.sampleModelRef,
                 env.sampleEntityRef,
-                entityAttributeRef("lastname")
+                EntityAttributeRef.entityAttributeRefKey("lastname")
             )
         )
 

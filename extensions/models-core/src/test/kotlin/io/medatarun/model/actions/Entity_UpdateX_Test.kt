@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
@@ -72,7 +73,7 @@ class TestEnvEntityUpdate {
                 name = LocalizedTextNotLocalized("Entity primary"),
                 description = LocalizedMarkdownNotLocalized("Entity primary description"),
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -84,7 +85,7 @@ class TestEnvEntityUpdate {
                 name = LocalizedTextNotLocalized("Entity secondary"),
                 description = LocalizedMarkdownNotLocalized("Entity secondary description"),
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )

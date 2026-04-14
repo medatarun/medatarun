@@ -16,4 +16,10 @@ sealed interface TypeRef : Ref<TypeRef> {
             return "key:" + key.value
         }
     }
+
+    companion object {
+        fun typeRefKey(value:String) = ByKey(TypeKey(value))
+        fun typeRefKey(value: TypeKey) = ByKey(value)
+        fun typeRefId(value: TypeId) = ById(value)
+    }
 }

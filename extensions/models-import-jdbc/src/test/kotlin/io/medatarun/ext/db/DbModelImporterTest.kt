@@ -2,7 +2,7 @@ package io.medatarun.ext.db
 
 import io.medatarun.ext.db.domain.DbConnectionNotFoundException
 import io.medatarun.ext.db.fixtures.ModelImportJdbcTestEnv
-import io.medatarun.model.domain.EntityAttributeRef.Companion.attributeRefKey
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityKey
 import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.RelationshipCardinality
@@ -49,14 +49,14 @@ class DbModelImporterTest {
 
         val books = imported.model.findEntity(EntityKey("books"))
         val booksPK = imported.model.findEntityPrimaryKeyOptional(books.id)
-        val bookIdentifier = imported.model.findEntityAttribute(books.ref, attributeRefKey("identifier"))
+        val bookIdentifier = imported.model.findEntityAttribute(books.ref, entityAttributeRefKey("identifier"))
         assertEquals(2, imported.model.entityPrimaryKeys.size)
         assertNotNull(booksPK)
         assertTrue(booksPK.participants.any { it.position == 0 && it.attributeId == bookIdentifier.id})
 
         val author = imported.model.findEntity(EntityKey("author"))
         val authorPK = imported.model.findEntityPrimaryKeyOptional(author.id)
-        val authorIdentifier = imported.model.findEntityAttribute(author.ref, attributeRefKey("identifier"))
+        val authorIdentifier = imported.model.findEntityAttribute(author.ref, entityAttributeRefKey("identifier"))
         assertNotNull(authorPK)
         assertEquals(2, imported.model.entityPrimaryKeys.size)
         assertTrue(authorPK.participants.any { it.position == 0 && it.attributeId == authorIdentifier.id})

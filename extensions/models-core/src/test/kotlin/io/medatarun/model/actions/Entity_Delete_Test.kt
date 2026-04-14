@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
@@ -24,7 +25,7 @@ class Entity_Delete_Test {
                 name = LocalizedTextNotLocalized("To delete"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -72,7 +73,7 @@ class Entity_Delete_Test {
                 name = LocalizedTextNotLocalized("Entity"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -84,7 +85,7 @@ class Entity_Delete_Test {
                 name = LocalizedTextNotLocalized("Entity"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )

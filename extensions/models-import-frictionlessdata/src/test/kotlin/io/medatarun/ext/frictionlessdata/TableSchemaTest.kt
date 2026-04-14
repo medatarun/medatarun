@@ -1,6 +1,6 @@
 package io.medatarun.ext.frictionlessdata
 
-import io.medatarun.model.domain.EntityAttributeRef.Companion.attributeRefKey
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.platform.kernel.ResourceLocator
 import org.junit.jupiter.api.Test
@@ -97,7 +97,7 @@ class TableSchemaTest {
 
         fun checkPK(entityKey: String, attributeKey: String) {
             val projetsTerritoireRef = entityRefKey(entityKey)
-            val projetsTerritoireIdRef = attributeRefKey(attributeKey)
+            val projetsTerritoireIdRef = entityAttributeRefKey(attributeKey)
             val projetsTerritoire = imported.model.findEntity(projetsTerritoireRef)
             val projetsTerritoireId = imported.model.findEntityAttribute(projetsTerritoire.ref, projetsTerritoireIdRef)
             val projetsTerritoirePKFound = imported.model.entityPrimaryKeys.firstOrNull() { it.entityId == projetsTerritoire.id }

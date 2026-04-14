@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -141,7 +142,7 @@ class Relationship_XTag_Test {
                 modelRef = env.modelRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("startDate"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -202,7 +203,7 @@ class Relationship_XTag_Test {
                 modelRef = env.modelRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("startDate"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null
@@ -251,7 +252,7 @@ class Relationship_XTag_Test {
                 modelRef = env.modelRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("startDate"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = null,
                 description = null

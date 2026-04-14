@@ -19,7 +19,7 @@ class EntityAttribute_UpdateX_Test {
                 ModelAction.EntityAttribute_UpdateName(
                     modelRef = modelRefKey(ModelKey("unknown")),
                     entityRef = EntityRef.ByKey(EntityKey("unknownEntity")),
-                    attributeRef = entityAttributeRef("unknownAttribute"),
+                    attributeRef = EntityAttributeRef.entityAttributeRefKey("unknownAttribute"),
                     value = null
                 )
             )
@@ -37,7 +37,7 @@ class EntityAttribute_UpdateX_Test {
                 ModelAction.EntityAttribute_UpdateName(
                     modelRef = env.sampleModelRef,
                     entityRef = EntityRef.ByKey(EntityKey("unknownEntity")),
-                    attributeRef = entityAttributeRef("unknownAttribute"),
+                    attributeRef = EntityAttributeRef.entityAttributeRefKey("unknownAttribute"),
                     value = null
                 )
             )
@@ -54,7 +54,7 @@ class EntityAttribute_UpdateX_Test {
                 ModelAction.EntityAttribute_UpdateName(
                     modelRef = env.sampleModelRef,
                     entityRef = env.sampleEntityRef,
-                    attributeRef = entityAttributeRef("unknownAttribute"),
+                    attributeRef = EntityAttributeRef.entityAttributeRefKey("unknownAttribute"),
                     value = null
                 )
             )

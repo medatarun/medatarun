@@ -3,8 +3,8 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateKey
 import io.medatarun.model.domain.AttributeKey
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.UpdateAttributeDuplicateKeyException
-import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -21,7 +21,7 @@ class EntityAttribute_UpdateKey_Test {
         env.createAttribute(attributeKey = AttributeKey("firstname"))
         assertFailsWith<UpdateAttributeDuplicateKeyException> {
             // Rename firstname to lastname causes exception because lastname already exists
-            val attributeRef = entityAttributeRef("firstname")
+            val attributeRef = EntityAttributeRef.entityAttributeRefKey("firstname")
             env.runtime.dispatch(
                 EntityAttribute_UpdateKey(
                     env.sampleModelRef,
@@ -31,7 +31,7 @@ class EntityAttribute_UpdateKey_Test {
                 )
             )
             env.reloadAttribute(
-                attributeRef, entityAttributeRef("firstname")
+                attributeRef, EntityAttributeRef.entityAttributeRefKey("firstname")
             )
         }
     }
@@ -42,7 +42,7 @@ class EntityAttribute_UpdateKey_Test {
         env.addSampleEntity()
         env.createAttribute(AttributeKey("lastname"))
         env.createAttribute(AttributeKey("firstname"))
-        val attributeRef = entityAttributeRef("firstname")
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey("firstname")
         env.runtime.dispatch(
             EntityAttribute_UpdateKey(
                 env.sampleModelRef,
@@ -52,7 +52,7 @@ class EntityAttribute_UpdateKey_Test {
             )
         )
         val reloaded = env.reloadAttribute(
-            attributeRef, entityAttributeRef("nextname")
+            attributeRef, EntityAttributeRef.entityAttributeRefKey("nextname")
         )
         assertEquals(AttributeKey("nextname"), reloaded.key)
     }
@@ -75,7 +75,7 @@ class EntityAttribute_UpdateKey_Test {
 
         // Change attribute key
         val attributeNewKey = AttributeKey("id_next")
-        val attributeRef = entityAttributeRef(pkAttributeId)
+        val attributeRef = EntityAttributeRef.entityAttributeRefId(pkAttributeId)
         env.runtime.dispatch(
             EntityAttribute_UpdateKey(
                 env.sampleModelRef,
@@ -84,7 +84,7 @@ class EntityAttribute_UpdateKey_Test {
                 value = attributeNewKey
             )
         )
-        env.reloadAttribute(attributeRef, entityAttributeRef(attributeNewKey))
+        env.reloadAttribute(attributeRef, EntityAttributeRef.entityAttributeRefKey(attributeNewKey))
 
         // Reload model
         val m2 = env.query.findModelAggregate(env.sampleModelRef)

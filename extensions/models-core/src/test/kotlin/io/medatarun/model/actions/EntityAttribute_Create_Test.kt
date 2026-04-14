@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.TypeKey
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -17,12 +18,12 @@ class EntityAttribute_Create_Test {
         env.addSampleEntity()
         val reloaded = env.createAttribute(
             attributeKey = AttributeKey("businesskey"),
-            type = typeRef("String"),
+            type = TypeRef.typeRefKey(TypeKey("String")),
             optional = false,
             name = LocalizedTextNotLocalized("Business Key"),
             description = LocalizedMarkdownNotLocalized("Unique business key"),
         )
-        val type = env.query.findType(env.sampleModelRef, typeRef("String"))
+        val type = env.query.findType(env.sampleModelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertEquals(AttributeKey("businesskey"), reloaded.key)
         assertEquals(LocalizedTextNotLocalized("Business Key"), reloaded.name)
         assertEquals(LocalizedMarkdownNotLocalized("Unique business key"), reloaded.description)
@@ -61,7 +62,7 @@ class EntityAttribute_Create_Test {
         val typeKey = TypeKey("Boolean")
         env.dispatch(ModelAction.Type_Create(env.sampleModelRef, typeKey, null, null))
         val type = env.query.findType(env.sampleModelRef, TypeRef.ByKey(typeKey))
-        val reloaded = env.createAttribute(type = typeRef("Boolean"))
+        val reloaded = env.createAttribute(type = TypeRef.typeRefKey(TypeKey("Boolean")))
         assertEquals(type.id, reloaded.typeId)
     }
 
@@ -80,7 +81,9 @@ class EntityAttribute_Create_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         assertFailsWith<TypeNotFoundException> {
-            env.createAttribute(attributeKey = AttributeKey("lastname"), type = typeRef("UnknownType"))
+            env.createAttribute(attributeKey = AttributeKey("lastname"),
+                type = TypeRef.typeRefKey(TypeKey("UnknownType"))
+            )
         }
     }
 }

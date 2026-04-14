@@ -4,6 +4,7 @@ import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.compare.ModelCompareDto
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import kotlin.test.*
@@ -260,7 +261,7 @@ class Model_Compare_Test {
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -270,7 +271,7 @@ class Model_Compare_Test {
                 modelRef = leftModelRef,
                 entityRef = customerEntityRef,
                 attributeKey = AttributeKey("email"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null
@@ -306,7 +307,7 @@ class Model_Compare_Test {
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -316,7 +317,7 @@ class Model_Compare_Test {
                 modelRef = rightModelRef,
                 entityRef = customerEntityRef,
                 attributeKey = AttributeKey("email"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null
@@ -394,7 +395,7 @@ class Model_Compare_Test {
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -404,7 +405,7 @@ class Model_Compare_Test {
                 modelRef = modelRef,
                 entityRef = entityRef,
                 attributeKey = AttributeKey("email"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null

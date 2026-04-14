@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.TypeKey
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
@@ -28,7 +29,7 @@ class Entity_Create_Test {
                 identityAttributeKey = AttributeKey("id"),
                 identityAttributeName = LocalizedTextNotLocalized("Identifier"),
                 documentationHome = docHome,
-                identityAttributeType = typeRef("String")
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String"))
             )
         )
 
@@ -62,7 +63,7 @@ class Entity_Create_Test {
                 name = null,
                 description = description,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -93,7 +94,7 @@ class Entity_Create_Test {
                 name = name,
                 description = null,
                 identityAttributeKey = AttributeKey("String"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -123,7 +124,7 @@ class Entity_Create_Test {
                 name = null,
                 description = description,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -148,7 +149,7 @@ class Entity_Create_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -172,7 +173,7 @@ class Entity_Create_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = url.toString()
             )

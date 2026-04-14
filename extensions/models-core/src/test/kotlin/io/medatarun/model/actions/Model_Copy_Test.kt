@@ -3,6 +3,9 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.RelationshipRef.Companion.relationshipRefKey
+import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.ports.needs.ModelTagResolver
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.TagKey
@@ -21,14 +24,14 @@ class Model_Copy_Test {
     @Test
     fun `copy model creates an independent model with the requested key`() {
         val env = createEnv()
-        val sourceKey = ModelKey("copy-source-core")
-        val copiedKey = ModelKey("copy-target-core")
+        val sourceRef = modelRefKey("copy-source-core")
+        val copiedRef = modelRefKey("copy-target-core")
         val sourceName = LocalizedTextNotLocalized("Source model")
 
         val version = ModelVersion("1.2.3")
         env.dispatch(
             ModelAction.Model_Create(
-                key = sourceKey,
+                key = sourceRef.key,
                 name = sourceName,
                 description = LocalizedMarkdownNotLocalized("Source description"),
                 version = version
@@ -37,14 +40,14 @@ class Model_Copy_Test {
 
         env.dispatch(
             ModelAction.Model_Copy(
-                modelRef = modelRefKey(sourceKey),
-                modelNewKey = copiedKey
+                modelRef = sourceRef,
+                modelNewKey = copiedRef.key
             )
         )
 
-        val source = env.queries.findModelAggregateByKey(sourceKey)
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
-        assertEquals(copiedKey, copied.key)
+        val source = env.queries.findModelRoot(sourceRef)
+        val copied = env.queries.findModelRoot(copiedRef)
+        assertEquals(copiedRef.key, copied.key)
         assertEquals(sourceName, copied.name)
         assertNotEquals(source.id, copied.id)
 
@@ -55,27 +58,30 @@ class Model_Copy_Test {
     @Test
     fun `copy model does not modify the source model`() {
         val env = createEnv()
-        val sourceKey = ModelKey("copy-source-unchanged")
-        val copiedKey = ModelKey("copy-target-unchanged")
+        val sourceRef = modelRefKey("copy-source-unchanged")
+        val copiedRef = modelRefKey("copy-target-unchanged")
 
         env.dispatch(
             ModelAction.Model_Create(
-                key = sourceKey,
+                key = sourceRef.key,
                 name = LocalizedTextNotLocalized("Source model"),
                 description = LocalizedMarkdownNotLocalized("Before copy"),
                 version = ModelVersion("2.0.0")
             )
         )
-        val sourceBefore = env.queries.findModelAggregateByKey(sourceKey)
+
+        // Legitimate use of aggregate because we need to test everything it contains
+        val sourceBefore = env.queries.findModelAggregate(sourceRef)
 
         env.dispatch(
             ModelAction.Model_Copy(
-                modelRef = modelRefKey(sourceKey),
-                modelNewKey = copiedKey
+                modelRef = sourceRef,
+                modelNewKey = copiedRef.key
             )
         )
 
-        val sourceAfter = env.queries.findModelAggregateByKey(sourceKey)
+        // Legitimate use of aggregate because we need to test everything it contains
+        val sourceAfter = env.queries.findModelAggregate(sourceRef)
         assertEquals(sourceBefore.id, sourceAfter.id)
         assertEquals(sourceBefore.key, sourceAfter.key)
         assertEquals(sourceBefore.name, sourceAfter.name)
@@ -93,16 +99,20 @@ class Model_Copy_Test {
     @Test
     fun `copy model assigns new ids to copied model, types, entities, relationships, roles and attributes`() {
         val env = createEnv()
-        val sourceKey = ModelKey("copy-source-ids")
-        val copiedKey = ModelKey("copy-target-ids")
-        val sourceRef = modelRefKey(sourceKey)
-        val customerRef = EntityRef.ByKey(EntityKey("customer"))
-        val orderRef = EntityRef.ByKey(EntityKey("order"))
-        val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
+        val sourceRef = modelRefKey("copy-source-ids")
+        val copiedRef = modelRefKey("copy-target-ids")
+
+        val customerRef = EntityRef.entityRefKey("customer")
+        val orderRef = EntityRef.entityRefKey("order")
+        val relationshipRef = relationshipRefKey("places")
+
+        val typeStringRef = typeRefKey("String")
+        val typeBooleanRef = typeRefKey("Boolean")
+
+        env.dispatch(ModelAction.Model_Create(sourceRef.key, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(ModelAction.Type_Create(sourceRef, typeStringRef.key, null, null))
+        env.dispatch(ModelAction.Type_Create(sourceRef, typeBooleanRef.key, null, null))
         env.dispatch(
             ModelAction.Entity_Create(
                 modelRef = sourceRef,
@@ -110,7 +120,7 @@ class Model_Copy_Test {
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = typeStringRef,
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -122,7 +132,7 @@ class Model_Copy_Test {
                 name = LocalizedTextNotLocalized("Order"),
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = typeStringRef,
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -132,7 +142,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 entityRef = customerRef,
                 attributeKey = AttributeKey("vip"),
-                type = typeRef("Boolean"),
+                type = typeBooleanRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("VIP"),
                 description = null
@@ -159,17 +169,17 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("confirmed"),
-                type = typeRef("Boolean"),
+                type = typeBooleanRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Confirmed"),
                 description = null
             )
         )
 
-        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
+        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedRef.key))
 
-        val source = env.queries.findModelAggregateByKey(sourceKey)
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
+        val source = env.queries.findModelAggregate(sourceRef)
+        val copied = env.queries.findModelAggregate(copiedRef)
         assertNotEquals(source.id, copied.id)
 
         for (sourceType in source.types) {
@@ -317,13 +327,12 @@ class Model_Copy_Test {
     @Test
     fun `copy model always sets copied model authority to system`() {
         val env = createEnv()
-        val sourceKey = ModelKey("copy-source-model-authority")
-        val copiedKey = ModelKey("copy-target-model-authority")
-        val sourceRef = modelRefKey(sourceKey)
+        val sourceRef = modelRefKey("copy-source-model-authority")
+        val copiedRef = modelRefKey("copy-target-model-authority")
 
         env.dispatch(
             ModelAction.Model_Create(
-                key = sourceKey,
+                key = sourceRef.key,
                 name = LocalizedTextNotLocalized("Source model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -331,10 +340,10 @@ class Model_Copy_Test {
         )
         env.dispatch(ModelAction.Model_UpdateAuthority(sourceRef, ModelAuthority.CANONICAL))
 
-        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
+        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedRef.key))
 
-        val source = env.queries.findModelAggregateByKey(sourceKey)
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
+        val source = env.queries.findModelRoot(sourceRef)
+        val copied = env.queries.findModelRoot(copiedRef)
         assertEquals(ModelAuthority.CANONICAL, source.authority)
         assertEquals(ModelAuthority.SYSTEM, copied.authority)
     }
@@ -346,12 +355,13 @@ class Model_Copy_Test {
     @Test
     fun `copy model keeps same type keys names and descriptions`() {
         val env = createEnv()
-        val sourceKey = ModelKey("copy-source-types")
-        val copiedKey = ModelKey("copy-target-types")
-        val sourceRef = modelRefKey(sourceKey)
+
+        val sourceRef = modelRefKey("copy-source-types")
+        val copiedRef = modelRefKey("copy-target-types")
+
         env.dispatch(
             ModelAction.Model_Create(
-                key = sourceKey,
+                key = sourceRef.key,
                 name = LocalizedTextNotLocalized("Type source"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -374,13 +384,14 @@ class Model_Copy_Test {
             )
         )
 
-        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
+        env.dispatch(ModelAction.Model_Copy(sourceRef, copiedRef.key))
 
-        val source = env.queries.findModelAggregateByKey(sourceKey)
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
-        assertEquals(source.types.size, copied.types.size)
-        for (sourceType in source.types) {
-            val copiedType = copied.findType(sourceType.key)
+        val sourceTypes = env.queries.findTypes(sourceRef)
+        val copiedTypes = env.queries.findTypes(copiedRef)
+        assertEquals(sourceTypes.size, copiedTypes.size)
+
+        for (sourceType in sourceTypes) {
+            val copiedType = env.queries.findType(sourceRef, TypeRef.typeRefKey(sourceType.key))
             assertEquals(sourceType.name, copiedType.name)
             assertEquals(sourceType.description, copiedType.description)
         }
@@ -409,7 +420,7 @@ class Model_Copy_Test {
                 name = LocalizedTextNotLocalized("Customer"),
                 description = LocalizedMarkdownNotLocalized("Customer aggregate"),
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = docHome
             )
@@ -451,7 +462,7 @@ class Model_Copy_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -502,7 +513,7 @@ class Model_Copy_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -512,7 +523,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 entityRef = entityRef,
                 attributeKey = AttributeKey("email"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = true,
                 name = LocalizedTextNotLocalized("Email"),
                 description = LocalizedMarkdownNotLocalized("Customer email")
@@ -550,7 +561,7 @@ class Model_Copy_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -560,7 +571,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 entityRef = entityRef,
                 attributeKey = AttributeKey("vip"),
-                type = typeRef("Boolean"),
+                type = TypeRef.typeRefKey(TypeKey("Boolean")),
                 optional = false,
                 name = null,
                 description = null
@@ -592,8 +603,10 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -630,8 +643,10 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -671,8 +686,10 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -728,7 +745,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("person"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("person"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -776,8 +794,10 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -799,7 +819,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("startedAt"),
-                type = typeRef("String"),
+                type = TypeRef.typeRefKey(TypeKey("String")),
                 optional = true,
                 name = LocalizedTextNotLocalized("Started at"),
                 description = LocalizedMarkdownNotLocalized("Relationship start time")
@@ -829,8 +849,10 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -852,7 +874,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("confirmed"),
-                type = typeRef("Boolean"),
+                type = TypeRef.typeRefKey(TypeKey("Boolean")),
                 optional = false,
                 name = null,
                 description = null
@@ -948,7 +970,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         val sourceModelId = env.queries.findModelAggregate(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
@@ -980,7 +1003,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         val sourceModelId = env.queries.findModelAggregate(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
@@ -1013,8 +1037,10 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -1064,8 +1090,10 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -1087,7 +1115,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("confirmed"),
-                type = typeRef("Boolean"),
+                type = TypeRef.typeRefKey(TypeKey("Boolean")),
                 optional = false,
                 name = null,
                 description = null
@@ -1128,8 +1156,10 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"), typeRef("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"), typeRef("String"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, AttributeKey("id"),
+            TypeRef.typeRefKey(TypeKey("String")), null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -1151,7 +1181,7 @@ class Model_Copy_Test {
                 modelRef = sourceRef,
                 relationshipRef = relationshipRef,
                 attributeKey = AttributeKey("confirmed"),
-                type = typeRef("Boolean"),
+                type = TypeRef.typeRefKey(TypeKey("Boolean")),
                 optional = false,
                 name = null,
                 description = null

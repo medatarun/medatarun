@@ -55,7 +55,7 @@ class RelationshipRole_UpdateX_Test {
         assertFailsWith<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.RelationshipRole_UpdateName(
-                    modelRef = modelRef(ModelKey("unknown-model")),
+                    modelRef = ModelRef.modelRefKey(ModelKey("unknown-model")),
                     relationshipRef = env.relationshipRef,
                     relationshipRoleRef = env.roleARef,
                     value = LocalizedTextNotLocalized("Ignored")

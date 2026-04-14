@@ -2,8 +2,8 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateDescription
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
-import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -17,7 +17,7 @@ class EntityAttribute_UpdateDescription_Test {
         env.addSampleEntity()
         val attr = env.createAttribute(description = null)
         val nextValue = LocalizedMarkdownNotLocalized("New description")
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateDescription(env.sampleModelRef, env.sampleEntityRef, attributeRef, nextValue)
         )
@@ -30,7 +30,7 @@ class EntityAttribute_UpdateDescription_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(description = LocalizedMarkdownNotLocalized("New description"))
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateDescription(env.sampleModelRef, env.sampleEntityRef, attributeRef, null)
         )

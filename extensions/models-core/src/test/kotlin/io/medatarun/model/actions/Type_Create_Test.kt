@@ -1,13 +1,13 @@
 package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
 import io.medatarun.model.domain.LocalizedTextNotLocalized
 import io.medatarun.model.domain.ModelNotFoundException
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeCreateDuplicateException
 import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.TypeRef
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -28,8 +28,10 @@ class Type_Create_Test {
                 description = LocalizedMarkdownNotLocalized("Simple string description")
             )
         )
-        assertEquals(1, env.model.types.size)
-        val type = env.model.findTypeOptional(TypeKey("String"))
+
+        assertEquals(1, env.query.findTypes(env.modelRef).size)
+
+        val type = env.query.findTypeOptional(env.modelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertNotNull(type)
         assertEquals(LocalizedTextNotLocalized("Simple string"), type.name)
         assertEquals(LocalizedMarkdownNotLocalized("Simple string description"), type.description)
@@ -46,8 +48,10 @@ class Type_Create_Test {
                 description = null
             )
         )
-        assertEquals(1, env.model.types.size)
-        val type = env.model.findTypeOptional(TypeKey("String"))
+        val types = env.query.findTypes(env.modelRef)
+        assertEquals(1, types.size)
+
+        val type = env.query.findTypeOptional(env.modelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertNotNull(type)
         assertNull(type.name)
         assertNull(type.description)

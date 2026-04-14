@@ -2,8 +2,8 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateName
+import io.medatarun.model.domain.EntityAttributeRef
 import io.medatarun.model.domain.LocalizedTextNotLocalized
-import io.medatarun.model.domain.entityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -17,7 +17,7 @@ class EntityAttribute_UpdateName_Test {
         env.addSampleEntity()
         val attr = env.createAttribute(name = null)
         val nextValue = LocalizedTextNotLocalized("New name")
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateName(
                 env.sampleModelRef,
@@ -35,7 +35,7 @@ class EntityAttribute_UpdateName_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val attr = env.createAttribute(name = LocalizedTextNotLocalized("Name"))
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateName(
                 env.sampleModelRef,

@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 
@@ -17,7 +18,7 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
         get() = env
     val query: ModelQueries = env.queries
     private val modelKey = ModelKey("m1")
-    val modelRef = modelRef(modelKey)
+    val modelRef = modelRefKey(modelKey)
     val dispatch = env::dispatch
 
     init {
@@ -58,11 +59,6 @@ class TestEnvTypes {
             )
         )
     }
-
-    val model: ModelAggregate
-        get() {
-            return query.findModelAggregateByKey(modelKey)
-        }
 }
 
 class TestEnvEntityAttribute {
@@ -94,7 +90,7 @@ class TestEnvEntityAttribute {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -103,7 +99,7 @@ class TestEnvEntityAttribute {
 
     fun createAttribute(
         attributeKey: AttributeKey = AttributeKey("myattribute"),
-        type: TypeRef = typeRef("String"),
+        type: TypeRef = TypeRef.typeRefKey(TypeKey("String")),
         optional: Boolean = false,
         name: LocalizedText? = null,
         description: LocalizedMarkdown? = null
@@ -174,7 +170,7 @@ class TestEnvRelationshipRole {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )
@@ -186,7 +182,7 @@ class TestEnvRelationshipRole {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )

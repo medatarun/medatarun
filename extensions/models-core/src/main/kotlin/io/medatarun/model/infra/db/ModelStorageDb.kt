@@ -124,6 +124,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findTypes(modelId: ModelId): List<ModelType> {
+        return db.withExposed {
+            logger.debug("findTypes modelId={}", modelId)
+            read.findTypes(modelId)
+        }
+    }
+
     override fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity? {
         return db.withExposed {
             logger.debug("findEntityByIdOptional modelId={} entityId={}", modelId, entityId)

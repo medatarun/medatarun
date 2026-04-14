@@ -85,6 +85,8 @@ interface ModelStorage {
         return type
     }
 
+    fun findTypes(modelId: ModelId): List<ModelType>
+
     // Entity
 
     fun findEntityByIdOptional(modelId: ModelId, entityId: EntityId): Entity?

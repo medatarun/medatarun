@@ -26,7 +26,7 @@ class Type_UpdateDescription_Test {
                 value = LocalizedMarkdownNotLocalized("This is a string")
             )
         )
-        val t = env.model.findTypeOptional(typeRef)
+        val t = env.query.findTypeOptional(env.modelRef, typeRef)
         assertNotNull(t)
         assertEquals(LocalizedMarkdownNotLocalized("This is a string"), t.description)
     }
@@ -38,7 +38,7 @@ class Type_UpdateDescription_Test {
         val typeRef = TypeRef.ByKey(typeKey)
         env.dispatch(ModelAction.Type_Create(env.modelRef, typeKey, null, null))
         env.dispatch(ModelAction.Type_UpdateDescription(env.modelRef, typeRef, null))
-        val t = env.model.findTypeOptional(typeRef)
+        val t = env.query.findTypeOptional(env.modelRef, typeRef)
         assertNotNull(t)
         assertNull(t.description)
     }

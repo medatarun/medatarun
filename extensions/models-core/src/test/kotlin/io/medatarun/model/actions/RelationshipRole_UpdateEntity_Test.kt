@@ -2,6 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.TypeKey
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -48,7 +49,7 @@ class RelationshipRole_UpdateEntity_Test {
         val env = TestEnvRelationshipRole()
 
         val otherModelKey = ModelKey("other-model")
-        val otherModelRef = modelRef(otherModelKey)
+        val otherModelRef = ModelRef.modelRefKey(otherModelKey)
         val otherEntityRef = EntityRef.ByKey(EntityKey("other-entity"))
         env.dispatch(
             ModelAction.Model_Create(
@@ -66,7 +67,7 @@ class RelationshipRole_UpdateEntity_Test {
                 name = null,
                 description = null,
                 identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = typeRef("String"),
+                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
                 identityAttributeName = null,
                 documentationHome = null
             )

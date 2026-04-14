@@ -2,7 +2,7 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateOptional
-import io.medatarun.model.domain.entityAttributeRef
+import io.medatarun.model.domain.EntityAttributeRef
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -15,7 +15,7 @@ class EntityAttribute_UpdateOptional_Test {
         env.addSampleEntity()
         val attr = env.createAttribute(optional = true)
         val nextValue = false
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateOptional(env.sampleModelRef, env.sampleEntityRef, attributeRef, nextValue)
         )
@@ -29,7 +29,7 @@ class EntityAttribute_UpdateOptional_Test {
         env.addSampleEntity()
         val attr = env.createAttribute(optional = false)
         val nextValue = true
-        val attributeRef = entityAttributeRef(attr.key)
+        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
         env.runtime.dispatch(
             EntityAttribute_UpdateOptional(env.sampleModelRef, env.sampleEntityRef, attributeRef, nextValue)
         )

@@ -255,6 +255,18 @@ class ModelStorageDbRead(
         }.singleOrNull()?.let { row -> toType(ModelTypeRecord.read(row)) }
     }
 
+
+    fun findTypes(modelId: ModelId): List<ModelType> {
+        return ModelTypeTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = ModelTypeTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion()
+        }.map { row -> toType(ModelTypeRecord.read(row)) }
+    }
+
     fun findEntityByIdOptional(
         modelId: ModelId, entityId: EntityId
     ): Entity? {
@@ -789,5 +801,6 @@ class ModelStorageDbRead(
             ?: return null
         return toModelChangeEvent(record)
     }
+
 
 }

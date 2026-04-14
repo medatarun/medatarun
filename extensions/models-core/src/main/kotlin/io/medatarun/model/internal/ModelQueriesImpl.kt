@@ -8,6 +8,7 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.*
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagRef
+import kotlinx.serialization.EncodeDefault
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*
@@ -17,6 +18,7 @@ class ModelQueriesImpl(
     private val tagResolver: ModelTagResolver
 ) : ModelQueries {
     private val diffRunner = ModelDiffRunner()
+
 
     override fun findAllModelIds(): List<ModelId> {
         return storage.findAllModelIds()
@@ -93,11 +95,18 @@ class ModelQueriesImpl(
         return storage.findEntityPrimaryKeyOptional(model.id, entity.id)
     }
 
-    override fun findType(
-        modelRef: ModelRef,
-        typeRef: TypeRef
-    ): ModelType {
-        return findModelAggregate(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+    override fun findTypeOptional(modelRef: ModelRef, typeRef: TypeRef): ModelType? {
+        val modelId = storage.findModelOptional(modelRef)?.id ?: return null
+        return storage.findTypeOptional(modelId, typeRef)
+    }
+
+    override fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType {
+        return findTypeOptional(modelRef, typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+    }
+
+    override fun findTypes(modelRef: ModelRef): List<ModelType> {
+        val model = storage.findModel(modelRef)
+        return storage.findTypes(model.id)
     }
 
     override fun diff(
@@ -139,6 +148,10 @@ class ModelQueriesImpl(
 
     override fun findModelRoot(modelRef: ModelRef): Model {
         return storage.findModel(modelRef)
+    }
+
+    override fun findModelRootOptional(modelRef: ModelRef): Model? {
+        return storage.findModelOptional(modelRef)
     }
 
     override fun existsModel(modelRef: ModelRef): Boolean {

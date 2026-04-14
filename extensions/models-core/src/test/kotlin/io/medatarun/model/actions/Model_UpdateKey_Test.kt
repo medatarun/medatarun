@@ -28,8 +28,8 @@ class Model_UpdateKey_Test {
         )
 
         env.runtime.replayWithRebuild {
-            assertNull(env.query.findModelAggregateOptional(modelRefKey(oldKey)))
-            assertEquals(newKey, env.query.findModelAggregateByKey(newKey).key)
+            assertNull(env.query.findModelRootOptional(modelRefKey(oldKey)))
+            assertEquals(newKey, env.query.findModelRoot(modelRefKey(newKey)).key)
         }
     }
 
