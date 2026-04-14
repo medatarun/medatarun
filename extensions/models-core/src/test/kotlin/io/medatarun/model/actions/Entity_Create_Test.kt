@@ -61,14 +61,11 @@ class Entity_Create_Test {
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
         assertEquals(URI.create(docHome).toURL(), reloaded.documentationHome)
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(reloaded.ref)
-        assertEquals(1, attributes.size)
-        val attrId = attributes[0]
-        assertEquals(identityAttributeRef.key, attrId.key)
-        assertEquals("Identifier", attrId.name?.name)
-        assertNull(attrId.description?.name)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attrId.id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertEquals(identityAttributeRef.key, identityAttribute.key)
+        assertEquals("Identifier", identityAttribute.name?.name)
+        assertNull(identityAttribute.description?.name)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     @Test
@@ -114,10 +111,8 @@ class Entity_Create_Test {
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(entityRef)
-        assertEquals(1, attributes.size)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     @Test
@@ -163,9 +158,8 @@ class Entity_Create_Test {
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(entityRef)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     @Test
@@ -206,11 +200,10 @@ class Entity_Create_Test {
             )
         )
 
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(entityRef)
-        assertNull(attributes[0].name)
-        assertNull(attributes[0].description)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertNull(identityAttribute.name)
+        assertNull(identityAttribute.description)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     @Test
@@ -249,9 +242,8 @@ class Entity_Create_Test {
             )
         )
         assertNull(env.queries.findEntity(modelRef, entityRef).documentationHome)
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(entityRef)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     @Test
@@ -291,18 +283,17 @@ class Entity_Create_Test {
             )
         )
         assertEquals(url, env.queries.findEntity(modelRef, entityRef).documentationHome)
-        val model = env.queries.findModelAggregate(modelRef)
-        val attributes = model.findEntityAttributes(entityRef)
-        assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attributes[0].id)
+        val identityAttribute = env.queries.findEntityAttribute(modelRef, entityRef, identityAttributeRef)
+        assertEntityPrimaryKeyMatchesIdentityAttribute(env, modelRef, entityRef, identityAttribute.id)
     }
 
     private fun assertEntityPrimaryKeyMatchesIdentityAttribute(
-        model: ModelAggregate,
+        env: ModelTestEnv,
+        modelRef: ModelRef,
         entityRef: EntityRef,
         expectedIdentityAttributeId: AttributeId
     ) {
-        val entity = model.findEntity(entityRef)
-        val primaryKey = assertNotNull(model.findEntityPrimaryKeyOptional(entity.id))
+        val primaryKey = assertNotNull(env.queries.findEntityPrimaryKeyOptional(modelRef, entityRef))
         assertEquals(listOf(expectedIdentityAttributeId), primaryKey.participants.map { it.attributeId })
         assertEquals(listOf(0), primaryKey.participants.map { it.position })
     }
