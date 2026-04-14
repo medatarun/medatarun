@@ -84,6 +84,15 @@ class ModelQueriesImpl(
             ?: throw EntityAttributeNotFoundException(modelRef, entityRef, attributeRef)
     }
 
+    override fun findEntityPrimaryKeyOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef
+    ): EntityPrimaryKey? {
+        val model = storage.findModel(modelRef)
+        val entity = storage.findEntity(model.id, entityRef)
+        return storage.findEntityPrimaryKeyOptional(model.id, entity.id)
+    }
+
     override fun findType(
         modelRef: ModelRef,
         typeRef: TypeRef
@@ -126,6 +135,10 @@ class ModelQueriesImpl(
             is ModelRef.ById -> findModelById(modelRef.id)
             is ModelRef.ByKey -> findModelByKey(modelRef.key)
         }
+    }
+
+    override fun findModelRoot(modelRef: ModelRef): Model {
+        return storage.findModel(modelRef)
     }
 
     override fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {

@@ -8,6 +8,7 @@ import io.medatarun.model.ModelExtension
 import io.medatarun.model.ModelExtensionConfigProd
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.actions.ModelActionProvider
+import io.medatarun.model.domain.ModelChangeEvent
 import io.medatarun.model.domain.ModelId
 import io.medatarun.model.domain.ModelRef
 import io.medatarun.model.domain.ModelVersion
@@ -28,9 +29,9 @@ import io.medatarun.security.*
 import io.medatarun.tags.core.TagsCoreExtension
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.actions.TagActionProvider
-import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
-import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
 import io.medatarun.tags.core.adapters.security.TagGlobalManagePermission
+import io.medatarun.tags.core.adapters.security.TagGroupManagePermission
+import io.medatarun.tags.core.adapters.security.TagLocalManagePermission
 import io.medatarun.tags.core.domain.*
 import io.medatarun.type.commons.id.Id
 import io.medatarun.types.TypeSystemExtension
@@ -64,8 +65,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         get() = platform.services.getService(DbMigrationChecker::class)
     val dbConnectionFactory
         get() = platform.services.getService(DbConnectionFactory::class)
-    val storageDb
-        get() = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
+    private val storageDb = ModelStorageDb(dbConnectionFactory, ModelExtensionConfigProd().modelClock)
     private val actionPlatform get() = platform.services.getService<ActionPlatform>()
 
     fun dispatch(action: ModelAction): Any? {
@@ -150,7 +150,32 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         val versions = queries.findModelVersions(ModelRef.modelRefId(modelId))
         assertEquals(1, versions.size, "Model should have exactly one version released")
         val foundVersion = versions.first().modelVersion
-        assertEquals(expectedVersion, foundVersion, "Model expected version should be $expectedVersion but was $foundVersion")
+        assertEquals(
+            expectedVersion,
+            foundVersion,
+            "Model expected version should be $expectedVersion but was $foundVersion"
+        )
+    }
+
+    /**
+     * Returns the latest raw event stored for this model.
+     * This bypasses query-layer history filtering logic and reads persisted events directly.
+     */
+    fun findLastStoredModelChangeEvent(modelRef: ModelRef): ModelChangeEvent {
+        val modelId = storageDb.findModel(modelRef).id
+        return findLastStoredModelChangeEvent(modelId)
+    }
+
+    fun findLastStoredModelChangeEvent(modelId: ModelId): ModelChangeEvent {
+        return storageDb.findLastModelChangeEvent(modelId)
+    }
+
+    /**
+     * Returns all raw events stored for this model.
+     * This bypasses query-layer history filtering logic and reads persisted events directly.
+     */
+    fun findAllModelEvents(modelId: ModelId): List<ModelChangeEvent> {
+        return storageDb.findAllModelChangeEvent(modelId)
     }
 
     companion object {
@@ -174,7 +199,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
             override val subject: String = ""
             override val isAdmin: Boolean = false
             override val fullname: String = "user"
-            override val permissions=setOf(
+            override val permissions = setOf(
                 TagLocalManagePermission,
                 TagGroupManagePermission,
                 TagGlobalManagePermission

@@ -95,6 +95,8 @@ interface ModelStorage {
         return findEntityOptional(modelId, entityRef) ?: throw EntityNotFoundException(ModelRef.ById(modelId), entityRef)
     }
 
+    fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey?
+
     // Entity attribute
 
     fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?
@@ -174,8 +176,15 @@ interface ModelStorage {
     // -------------------------------------------------------------------------
 
     fun findModelVersions(modelId: ModelId): List<ModelChangeEvent>
+    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent>
     fun findModelChangeEventsInVersion(modelId: ModelId, version: ModelVersion): List<ModelChangeEvent>
     fun findModelChangeEventsSinceLastReleaseEvent(modelId: ModelId): List<ModelChangeEvent>
+    /**
+     * Finds the latest known model change event
+     */
+    fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent?
+    fun findLastModelChangeEvent(modelId: ModelId): ModelChangeEvent = findLastModelChangeEventOptional(modelId)
+        ?: throw ModelNotFoundByIdException(modelId)
 
     // -------------------------------------------------------------------------
     // Search
@@ -208,6 +217,5 @@ interface ModelStorage {
      * projection data is suspected to be out of sync with event storage.
      */
     fun maintenanceRebuildCaches()
-
 
 }

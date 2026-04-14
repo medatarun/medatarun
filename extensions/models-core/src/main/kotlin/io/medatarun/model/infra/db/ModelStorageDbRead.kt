@@ -14,6 +14,8 @@ import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
+import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -22,7 +24,6 @@ class ModelStorageDbRead(
     private val modelEventKnownTypes: ModelEventKnownTypes,
     private val aggregateReader: ModelStorageDbAggregateReader
 ) {
-
 
 
     // -------------------------------------------------------------------------
@@ -64,11 +65,12 @@ class ModelStorageDbRead(
         )
     }
 
-    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
+    fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
         return ModelEventTable.selectAll()
             .where { ModelEventTable.modelId eq modelId }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
+            .map { record -> toModelChangeEvent(record) }
     }
 
     fun findModelByKeyOptional(key: ModelKey): Model? {
@@ -89,7 +91,7 @@ class ModelStorageDbRead(
         return ModelEventTable.select(ModelEventTable.modelVersion)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -264,6 +266,52 @@ class ModelStorageDbRead(
         return findEntityByOptional(modelId, EntityTable.key eq entityKey)
     }
 
+    fun findEntityPrimaryKeyOptional(
+        modelId: ModelId,
+        entityId: EntityId
+    ): EntityPrimaryKey? {
+        val row = EntityPKTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = EntityPKTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = EntityTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
+                    (EntityTable.lineageId eq entityId)
+        }.singleOrNull() ?: return null
+
+        val primaryKeySnapshotId = row[EntityPKTable.id]
+        val participants = EntityPKAttributeTable
+            .join(
+                EntityAttributeTable,
+                JoinType.INNER,
+                onColumn = EntityPKAttributeTable.attributeSnapshotId,
+                otherColumn = EntityAttributeTable.id
+            )
+            .selectAll()
+            .where {
+                EntityPKAttributeTable.entityPKSnapshotId eq primaryKeySnapshotId
+            }
+            .orderBy(EntityPKAttributeTable.priority to SortOrder.ASC)
+            .map { participantRow ->
+                PBKeyParticipantInMemory(
+                    attributeId = participantRow[EntityAttributeTable.lineageId],
+                    position = participantRow[EntityPKAttributeTable.priority]
+                )
+            }
+
+        return EntityPrimaryKeyInMemory(
+            id = row[EntityPKTable.lineageId],
+            entityId = row[EntityTable.lineageId],
+            participants = participants
+        )
+    }
+
     private fun findEntityByOptional(
         modelId: ModelId,
         criterion: Op<Boolean>
@@ -297,7 +345,10 @@ class ModelStorageDbRead(
             }
     }
 
-    private fun readOptionalTagId(row: ResultRow, column: Column<io.medatarun.tags.core.domain.TagId>): io.medatarun.tags.core.domain.TagId? {
+    private fun readOptionalTagId(
+        row: ResultRow,
+        column: Column<io.medatarun.tags.core.domain.TagId>
+    ): io.medatarun.tags.core.domain.TagId? {
         return try {
             row.getOrNull(column)
         } catch (_: IllegalStateException) {
@@ -346,11 +397,14 @@ class ModelStorageDbRead(
             otherColumn = typeTable[ModelTypeTable.id]
         ).join(
             attributeTagTable,
-                JoinType.LEFT,
-                onColumn = EntityAttributeTable.id,
-                otherColumn = attributeTagTable[EntityAttributeTagTable.attributeSnapshotId]
-            ).selectAll()
-            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (EntityTable.lineageId eq entityId) and criterion }
+            JoinType.LEFT,
+            onColumn = EntityAttributeTable.id,
+            otherColumn = attributeTagTable[EntityAttributeTagTable.attributeSnapshotId]
+        ).selectAll()
+            .where {
+                SnapshotSelector.CurrentHeadByModelId(modelId)
+                    .criterion() and (EntityTable.lineageId eq entityId) and criterion
+            }
             .orderBy(attributeTagTable[EntityAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -360,7 +414,12 @@ class ModelStorageDbRead(
                     val row = rows.first()
                     val record = EntityAttributeRecord.read(row)
                     val tags = rows
-                        .mapNotNull { tagRow -> readOptionalTagId(tagRow, attributeTagTable[EntityAttributeTagTable.tagId]) }
+                        .mapNotNull { tagRow ->
+                            readOptionalTagId(
+                                tagRow,
+                                attributeTagTable[EntityAttributeTagTable.tagId]
+                            )
+                        }
                         .distinct()
                     toEntityAttribute(
                         record,
@@ -459,7 +518,8 @@ class ModelStorageDbRead(
             onColumn = RelationshipRoleTable.entitySnapshotId,
             otherColumn = roleEntityTable[EntityTable.id]
         ).selectAll().where {
-            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
+            SnapshotSelector.CurrentHeadByModelId(modelId)
+                .criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
         }.singleOrNull()?.let { row ->
             toRelationshipRole(
                 RelationshipRoleRecord.read(row),
@@ -508,11 +568,14 @@ class ModelStorageDbRead(
             otherColumn = typeTable[ModelTypeTable.id]
         ).join(
             attributeTagTable,
-                JoinType.LEFT,
-                onColumn = RelationshipAttributeTable.id,
-                otherColumn = attributeTagTable[RelationshipAttributeTagTable.attributeSnapshotId]
-            ).selectAll()
-            .where { SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion }
+            JoinType.LEFT,
+            onColumn = RelationshipAttributeTable.id,
+            otherColumn = attributeTagTable[RelationshipAttributeTagTable.attributeSnapshotId]
+        ).selectAll()
+            .where {
+                SnapshotSelector.CurrentHeadByModelId(modelId)
+                    .criterion() and (RelationshipTable.lineageId eq relationshipId) and criterion
+            }
             .orderBy(attributeTagTable[RelationshipAttributeTagTable.tagId] to SortOrder.ASC)
             .toList()
             .let { rows ->
@@ -522,7 +585,12 @@ class ModelStorageDbRead(
                     val row = rows.first()
                     val record = RelationshipAttributeRecord.read(row)
                     val tags = rows
-                        .mapNotNull { tagRow -> readOptionalTagId(tagRow, attributeTagTable[RelationshipAttributeTagTable.tagId]) }
+                        .mapNotNull { tagRow ->
+                            readOptionalTagId(
+                                tagRow,
+                                attributeTagTable[RelationshipAttributeTagTable.tagId]
+                            )
+                        }
                         .distinct()
                     toRelationshipAttribute(
                         record,
@@ -555,7 +623,7 @@ class ModelStorageDbRead(
         ).selectAll().where {
             SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
                     (ModelTypeTable.lineageId eq typeId) and
-                (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
+                    (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }
 
@@ -580,7 +648,7 @@ class ModelStorageDbRead(
         ).selectAll().where {
             SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and
                     (ModelTypeTable.lineageId eq typeId) and
-                (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
+                    (ModelTypeTable.modelSnapshotId eq ModelSnapshotTable.id)
         }.any()
     }
 
@@ -601,8 +669,8 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
-                    (ModelEventTable.modelVersion eq version)
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
+                        (ModelEventTable.modelVersion eq version)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .limit(1)
@@ -614,8 +682,8 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
-                    (ModelEventTable.streamRevision less releaseRevision)
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType()) and
+                        (ModelEventTable.streamRevision less releaseRevision)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -625,12 +693,12 @@ class ModelStorageDbRead(
         return ModelEventTable.selectAll()
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.streamRevision lessEq releaseRevision) and
-                    if (previousReleaseRevision == null) {
-                        Op.TRUE
-                    } else {
-                        ModelEventTable.streamRevision greater previousReleaseRevision
-                    }
+                        (ModelEventTable.streamRevision lessEq releaseRevision) and
+                        if (previousReleaseRevision == null) {
+                            Op.TRUE
+                        } else {
+                            ModelEventTable.streamRevision greater previousReleaseRevision
+                        }
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
@@ -642,7 +710,7 @@ class ModelStorageDbRead(
             .select(ModelEventTable.streamRevision)
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
+                        (ModelEventTable.eventType eq modelEventKnownTypes.modelReleaseEventType())
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
             .limit(1)
@@ -653,11 +721,22 @@ class ModelStorageDbRead(
         return ModelEventTable.selectAll()
             .where {
                 (ModelEventTable.modelId eq modelId) and
-                    (ModelEventTable.streamRevision greater releaseRevision)
+                        (ModelEventTable.streamRevision greater releaseRevision)
             }
             .orderBy(ModelEventTable.streamRevision to SortOrder.ASC)
             .map(ModelEventRecord::read)
             .map { record -> toModelChangeEvent(record) }
+    }
+
+    fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent? {
+        val record = ModelEventTable.selectAll()
+            .where { ModelEventTable.modelId eq modelId }
+            .orderBy(ModelEventTable.streamRevision to SortOrder.DESC)
+            .limit(1)
+            .singleOrNull()
+            ?.let { row -> ModelEventRecord.read(row) }
+            ?: return null
+        return toModelChangeEvent(record)
     }
 
 }

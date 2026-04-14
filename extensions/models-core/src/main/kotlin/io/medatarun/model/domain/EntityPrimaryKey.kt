@@ -17,4 +17,15 @@ interface EntityPrimaryKey {
      */
     val participants: List<PBKeyParticipant>
 
+    /**
+     * Returns true when this primary key contains exactly the provided attributes,
+     * in the same order.
+     */
+    fun containsInOrder(attributeIds: List<AttributeId>): Boolean {
+        val orderedAttributeIds = participants
+            .sortedBy { participant -> participant.position }
+            .map { participant -> participant.attributeId }
+        return orderedAttributeIds == attributeIds
+    }
+
 }

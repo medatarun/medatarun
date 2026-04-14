@@ -138,6 +138,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey? {
+        return db.withExposed {
+            logger.debug("findEntityPrimaryKeyOptional modelId={} entityId={}", modelId, entityId)
+            read.findEntityPrimaryKeyOptional(modelId, entityId)
+        }
+    }
+
     override fun findEntityAttributeByIdOptional(
         modelId: ModelId,
         entityId: EntityId,
@@ -260,13 +267,6 @@ class ModelStorageDb(
         }
     }
 
-    fun findAllModelEvents(modelId: ModelId): List<ModelEventRecord> {
-        return db.withExposed {
-            logger.debug("findAllModelEvents modelId={}", modelId)
-            read.findAllModelEvents(modelId)
-        }
-    }
-
     // -------------------------------------------------------------------------
     // History
     // -------------------------------------------------------------------------
@@ -275,6 +275,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findModelVersions modelId={}", modelId)
             read.findModelVersions(modelId)
+        }
+    }
+
+    override fun findAllModelChangeEvent(modelId: ModelId): List<ModelChangeEvent> {
+        return db.withExposed {
+            logger.debug("findAllModelChangeEvent modelId={}", modelId)
+            read.findAllModelChangeEvent(modelId)
         }
     }
 
@@ -289,6 +296,13 @@ class ModelStorageDb(
         return db.withExposed {
             logger.debug("findModelChangeEventsSinceLastReleaseEvent modelId={}", modelId)
             read.findModelChangeEventsSinceLastReleaseEvent(modelId)
+        }
+    }
+
+    override fun findLastModelChangeEventOptional(modelId: ModelId): ModelChangeEvent? {
+        return db.withExposed {
+            logger.debug("findLastModelChangeEventOptional modelId={}", modelId)
+            read.findLastModelChangeEventOptional(modelId)
         }
     }
 

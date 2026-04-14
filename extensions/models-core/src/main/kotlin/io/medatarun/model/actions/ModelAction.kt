@@ -1161,7 +1161,7 @@ sealed interface ModelAction {
             order = 30
         )
         val attributeRef: List<EntityAttributeRef>,
-    )
+    ) : ModelAction
 
     // ------------------------------------------------------------------------
     // Relationships

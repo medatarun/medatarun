@@ -10,14 +10,32 @@ import java.util.*
 
 interface ModelQueries {
 
+    // -------------------------------------------------------------------------
+    // Model (just the model, not the full graph)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Find a model by its id or throw exception
+     */
+    fun findModelRoot(modelRef: ModelRef): Model
+
+    // -------------------------------------------------------------------------
+    // Model aggregate
+    // -------------------------------------------------------------------------
+
     /**
      * Find a model by its id or throw [io.medatarun.model.domain.ModelNotFoundByKeyException]
      */
     fun findModelByKey(modelKey: ModelKey): ModelAggregate
     fun findModelById(modelId: ModelId): ModelAggregate
     fun findModel(modelRef: ModelRef): ModelAggregate
+
     fun findModelOptional(modelRef: ModelRef): ModelAggregate?
     fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
+
+    // -------------------------------------------------------------------------
+    // Model events
+    // -------------------------------------------------------------------------
 
     /**
      * Returns the list of all known versions of this model. Versions are
@@ -43,14 +61,22 @@ interface ModelQueries {
      */
     fun findModelChangeEventsSinceLastReleaseEvent(modelRef: ModelRef): List<ModelChangeEvent>
 
+    // -------------------------------------------------------------------------
+    // Types
+    // -------------------------------------------------------------------------
+
+    fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
+
+    // -------------------------------------------------------------------------
+    // Entities
+    // -------------------------------------------------------------------------
+
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
 
-    /**
-     * Returns a complete list of all known model ids in this application
-     * instance.
-     */
-    fun findAllModelIds(): List<ModelId>
-    fun findAllModelSummaries(locale: Locale): List<ModelSummary>
+    // -------------------------------------------------------------------------
+    // Entity attributes
+    // -------------------------------------------------------------------------
+
     fun findEntityAttribute(modelRef: ModelRef, entityRef: EntityRef, attributeRef: EntityAttributeRef): Attribute
     fun findEntityAttributeOptional(
         modelRef: ModelRef,
@@ -58,7 +84,26 @@ interface ModelQueries {
         attributeRef: EntityAttributeRef
     ): Attribute?
 
-    fun findType(modelRef: ModelRef, typeRef: TypeRef): ModelType
+    // -------------------------------------------------------------------------
+    // Entity PK
+    // -------------------------------------------------------------------------
+
+    fun findEntityPrimaryKeyOptional(modelRef: ModelRef, entityRef: EntityRef): EntityPrimaryKey?
+
+    // -------------------------------------------------------------------------
+    // Summaries
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns a complete list of all known model ids in this application
+     * instance.
+     */
+    fun findAllModelIds(): List<ModelId>
+    fun findAllModelSummaries(locale: Locale): List<ModelSummary>
+
+    // -------------------------------------------------------------------------
+    // Diff
+    // -------------------------------------------------------------------------
 
     /**
      * Compares the current model state when version is null, otherwise compares the released snapshot

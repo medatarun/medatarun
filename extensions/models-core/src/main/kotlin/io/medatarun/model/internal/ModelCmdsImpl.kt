@@ -62,6 +62,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateEntityKey -> updateEntityKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
+                is ModelCmd.UpdateEntityPrimaryKey -> updateEntityPrimaryKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmdEnv, cmd)
@@ -522,6 +523,25 @@ class ModelCmdsImpl(
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
         if (entity.description == cmd.value) return
         storageDispatch(cmdEnv, ModelStorageCmd.UpdateEntityDescription(model.id, entity.id, cmd.value))
+    }
+
+    private fun updateEntityPrimaryKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityPrimaryKey) {
+        val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
+        val attributeIds = cmd.attributeRefs.map { attributeRef ->
+            storage.findEntityAttribute(model.id, entity.id, attributeRef).id
+        }
+        val currentPrimaryKey = storage.findEntityPrimaryKeyOptional(model.id, entity.id)
+        val hasChanges = (attributeIds.isEmpty() && currentPrimaryKey != null)
+                || (currentPrimaryKey != null && !currentPrimaryKey.containsInOrder(attributeIds))
+        if (hasChanges) {
+            storageDispatch(
+                cmdEnv, ModelStorageCmd.Entity_PrimaryKey_Set(
+                    modelId = model.id,
+                    entityId = entity.id,
+                    attributeIds = attributeIds
+                )
+            )
+        }
     }
 
     private fun updateEntityDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDocumentationHome) {

@@ -296,6 +296,16 @@ class ModelActionHandler(
         )
     }
 
+    fun entityPrimaryKeyUpdate(cmd: ModelAction.EntityPrimaryKey_Update) {
+        dispatch(
+            ModelCmd.UpdateEntityPrimaryKey(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                attributeRefs = cmd.attributeRef
+            )
+        )
+    }
+
     fun entityUpdateDocumentationHome(cmd: ModelAction.Entity_UpdateDocumentationHome) {
         val value = try {
             val value = cmd.value?.trimToNull()

@@ -133,7 +133,7 @@ class ModelActionProvider(
             // Primary keys
             // ------------------------------------------------------------------------
 
-            is ModelAction.EntityPrimaryKey_Update -> TODO()
+            is ModelAction.EntityPrimaryKey_Update -> handler.entityPrimaryKeyUpdate(action)
             
             // ------------------------------------------------------------------------
             // Business keys
@@ -163,6 +163,5 @@ class ModelActionProvider(
         const val ACTION_GROUP_KEY = "model"
     }
 }
-
 
 
