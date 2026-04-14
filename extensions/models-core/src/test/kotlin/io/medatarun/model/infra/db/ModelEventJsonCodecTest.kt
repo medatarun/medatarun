@@ -675,6 +675,12 @@ class ModelEventJsonCodecTest {
                 cmd = ModelStorageCmd.DeleteRelationshipAttribute(modelId, relationshipId, relationshipAttributeId),
                 json = """{"modelId":"00000000-0000-0000-0000-000000000001","relationshipId":"00000000-0000-0000-0000-000000000004","attributeId":"00000000-0000-0000-0000-000000000007"}"""
             ),
+            business_key_created_v1,
+            business_key_key_updated_v1,
+            business_key_name_updated_v1,
+            business_key_description_updated_v1,
+            business_key_participants_updated_v1,
+            business_key_deleted_v1,
         )
     }
 
