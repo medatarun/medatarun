@@ -1,7 +1,12 @@
 package io.medatarun.model.actions
 
-import io.medatarun.platform.db.testkit.EnableDatabaseTests
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.LocalizedMarkdownNotLocalized
+import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -11,22 +16,89 @@ class Entity_UpdateDescription_Test {
 
     @Test
     fun `update entity description not null persisted`() {
-        val env = TestEnvEntityUpdate()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-description")
+        val typeRef = typeRefKey("String")
+        val entityRef = entityRefKey("entity-primary")
+        val initialDescription = LocalizedMarkdownNotLocalized("Entity primary description")
         val newDescription = LocalizedMarkdownNotLocalized("Primary entity updated description")
 
-        env.dispatch(ModelAction.Entity_UpdateDescription(env.modelRef, env.primaryEntityRef, newDescription))
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(
+            modelRef = modelRef,
+            entityKey = entityRef.key,
+            name = LocalizedTextNotLocalized("Entity primary"),
+            description = initialDescription
+        )
 
-        val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
-        assertEquals(newDescription, reloaded.description)
+        env.dispatch(
+            ModelAction.Entity_UpdateDescription(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                value = newDescription
+            )
+        )
+
+        env.replayWithRebuild {
+            val reloaded = env.queries.findEntity(modelRef, entityRef)
+            assertEquals(newDescription, reloaded.description)
+        }
     }
 
     @Test
     fun `update entity description with null then description is null`() {
-        val env = TestEnvEntityUpdate()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-description-null")
+        val typeRef = typeRefKey("String")
+        val entityRef = entityRefKey("entity-primary")
 
-        env.dispatch(ModelAction.Entity_UpdateDescription(env.modelRef, env.primaryEntityRef, null))
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(
+            modelRef = modelRef,
+            entityKey = entityRef.key,
+            name = LocalizedTextNotLocalized("Entity primary"),
+            description = LocalizedMarkdownNotLocalized("Entity primary description")
+        )
 
-        val reloaded = env.query.findEntity(env.modelRef, env.primaryEntityRef)
+        env.dispatch(
+            ModelAction.Entity_UpdateDescription(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                value = null
+            )
+        )
+
+        val reloaded = env.queries.findEntity(modelRef, entityRef)
         assertNull(reloaded.description)
+    }
+
+    @Test
+    fun `update entity description with same value does not create new event`() {
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-description-noop")
+        val typeRef = typeRefKey("String")
+        val entityRef = entityRefKey("entity-primary")
+        val currentDescription = LocalizedMarkdownNotLocalized("Entity primary description")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(
+            modelRef = modelRef,
+            entityKey = entityRef.key,
+            name = LocalizedTextNotLocalized("Entity primary"),
+            description = currentDescription
+        )
+
+        val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+        env.dispatch(ModelAction.Entity_UpdateDescription(
+            modelRef = modelRef,
+            entityRef = entityRef,
+            value = currentDescription
+        ))
+        val afterEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+
+        assertEquals(beforeEventId, afterEventId)
     }
 }

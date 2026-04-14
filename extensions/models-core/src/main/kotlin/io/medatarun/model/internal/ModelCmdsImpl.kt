@@ -521,6 +521,7 @@ class ModelCmdsImpl(
 
     private fun updateEntityKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityKey) {
         val (model, entity) = findModelAndEntity(cmd.modelRef, cmd.entityRef)
+        if (entity.key == cmd.value) return
         val duplicate = storage.findEntityByKeyOptional(model.id, cmd.value)
 
         if (duplicate != null && duplicate.id != entity.id) {

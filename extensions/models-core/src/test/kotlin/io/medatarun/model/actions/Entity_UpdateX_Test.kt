@@ -1,8 +1,10 @@
 package io.medatarun.model.actions
 
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
@@ -13,15 +15,22 @@ class Entity_UpdateX_Test {
 
     @Test
     fun `update entity with wrong model id throws ModelNotFoundException`() {
-        val env = TestEnvEntityUpdate()
-        val wrongModelKey = modelRefKey("unknown-model")
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-x-model-not-found")
+        val typeRef = typeRefKey("String")
+        val primaryEntityRef = entityRefKey("entity-primary")
+        val wrongModelRef = modelRefKey("unknown-model")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, primaryEntityRef.key, LocalizedTextNotLocalized("Entity primary"))
 
         assertFailsWith<ModelNotFoundException> {
-            env.runtime.dispatch(
+            env.dispatch(
                 ModelAction.Entity_UpdateName(
-                    wrongModelKey,
-                    env.primaryEntityRef,
-                    LocalizedTextNotLocalized("Updated name")
+                    modelRef = wrongModelRef,
+                    entityRef = primaryEntityRef,
+                    value = LocalizedTextNotLocalized("Updated name")
                 )
             )
         }
@@ -29,16 +38,20 @@ class Entity_UpdateX_Test {
 
     @Test
     fun `update entity with wrong entity id throws EntityNotFoundException`() {
-        val env = TestEnvEntityUpdate()
-        val wrongEntityId = EntityKey("unknown-entity")
-        val wrongEntityRef = EntityRef.ByKey(wrongEntityId)
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-update-x-entity-not-found")
+        val typeRef = typeRefKey("String")
+        val wrongEntityRef = entityRefKey("unknown-entity")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
 
         assertFailsWith<EntityNotFoundException> {
             env.dispatch(
                 ModelAction.Entity_UpdateName(
-                    env.modelRef,
-                    wrongEntityRef,
-                    LocalizedTextNotLocalized("Updated name")
+                    modelRef = modelRef,
+                    entityRef = wrongEntityRef,
+                    value = LocalizedTextNotLocalized("Updated name")
                 )
             )
         }

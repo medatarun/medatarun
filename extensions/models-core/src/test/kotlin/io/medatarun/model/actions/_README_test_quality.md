@@ -25,3 +25,6 @@
   modèle entier doit être chargé. Privilégier les méthodes de query.xxx pour
   faire des lectures ciblées. Si ces fonctions manquent demander l'autorisation
   de les créer. 
+- Arguments nommés :on fait positionnel par défaut pour les appels courts et stables (1-2 args, ou helpers connus en test setup).
+- Named arguments obligatoires dès qu’il y a risque d’ambiguïté: même type répété, null, booléens, 3+ paramètres métier, ou action domain sensible.
+- Dans ce repo de tests: setup helper ModelTestEnv plutôt positionnel; ModelAction.* plutôt nommé.
