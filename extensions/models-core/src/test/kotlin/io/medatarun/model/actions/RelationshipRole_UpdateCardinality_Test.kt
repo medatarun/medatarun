@@ -19,7 +19,7 @@ class RelationshipRole_UpdateCardinality_Test {
                 value = RelationshipCardinality.Many
             )
         )
-        val reloadedRelationship = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+        val reloadedRelationship = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
         val reloadedRole = reloadedRelationship.roles.first { role -> role.key == env.roleAKey }
         assertEquals(RelationshipCardinality.Many, reloadedRole.cardinality)
     }
@@ -36,7 +36,7 @@ class RelationshipRole_UpdateCardinality_Test {
                     value = cardinality
                 )
             )
-            val reloadedRelationship = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+            val reloadedRelationship = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
             val reloadedRole = reloadedRelationship.roles.first { role -> role.key == env.roleAKey }
             assertEquals(cardinality, reloadedRole.cardinality)
         }

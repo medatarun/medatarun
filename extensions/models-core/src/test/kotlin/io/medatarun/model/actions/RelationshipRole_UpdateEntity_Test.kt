@@ -23,7 +23,7 @@ class RelationshipRole_UpdateEntity_Test {
             )
         )
 
-        val reloadedRelationship = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+        val reloadedRelationship = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
         val reloadedRole = reloadedRelationship.roles.first { role -> role.key == env.roleAKey }
         assertEquals(targetEntityId, reloadedRole.entityId)
     }

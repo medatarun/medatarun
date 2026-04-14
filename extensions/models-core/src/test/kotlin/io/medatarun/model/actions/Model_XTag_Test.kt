@@ -20,10 +20,10 @@ class Model_XTag_Test {
         val globalTag = env.runtime.createGlobalTag("g-model", "t-model")
 
         env.dispatch(ModelAction.Model_AddTag(env.modelRef, globalTag.ref))
-        assertEquals(listOf(globalTag.id), env.query.findModel(env.modelRef).tags)
+        assertEquals(listOf(globalTag.id), env.query.findModelAggregate(env.modelRef).tags)
 
         env.dispatch(ModelAction.Model_DeleteTag(env.modelRef, globalTag.ref))
-        assertTrue(env.query.findModel(env.modelRef).tags.isEmpty())
+        assertTrue(env.query.findModelAggregate(env.modelRef).tags.isEmpty())
     }
 
     @Test
@@ -32,7 +32,7 @@ class Model_XTag_Test {
         val localTag = env.runtime.createLocalTagInModelScope(env.modelRef, "local-model-tag")
 
         env.dispatch(ModelAction.Model_AddTag(env.modelRef, localTag.ref))
-        assertEquals(listOf(localTag.id), env.query.findModel(env.modelRef).tags)
+        assertEquals(listOf(localTag.id), env.query.findModelAggregate(env.modelRef).tags)
     }
 
     @Test

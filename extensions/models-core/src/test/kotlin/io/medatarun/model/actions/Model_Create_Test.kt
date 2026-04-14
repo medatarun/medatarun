@@ -23,7 +23,7 @@ class Model_Create_Test {
         env.dispatch(ModelAction.Model_Create(modelKey, name, description, version))
 
         env.replayWithRebuild {
-            val reloaded = query.findModelByKey(modelKey)
+            val reloaded = query.findModelAggregateByKey(modelKey)
             assertEquals(name, reloaded.name)
             assertEquals(description, reloaded.description)
             assertEquals(version, reloaded.version)
@@ -44,7 +44,7 @@ class Model_Create_Test {
 
         env.dispatch(ModelAction.Model_Create(modelKey, name, null, version))
 
-        val found = query.findModelByKey(modelKey)
+        val found = query.findModelAggregateByKey(modelKey)
         assertEquals(name, found.name)
         assertNull(found.description)
         assertEquals(version, found.version)

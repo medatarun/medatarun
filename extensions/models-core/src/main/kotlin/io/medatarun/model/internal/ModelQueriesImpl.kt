@@ -27,7 +27,7 @@ class ModelQueriesImpl(
         val modelIds = storage.findAllModelIds()
         return modelIds.map { id ->
             try {
-                val model = findModelById(id)
+                val model = findModelAggregateById(id)
                 ModelSummary(
                     id = model.id,
                     key = model.key,
@@ -62,7 +62,7 @@ class ModelQueriesImpl(
         modelRef: ModelRef,
         entityRef: EntityRef
     ): Entity {
-        val model = findModel(modelRef)
+        val model = findModelAggregate(modelRef)
         return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
     }
 
@@ -71,7 +71,7 @@ class ModelQueriesImpl(
         entityRef: EntityRef,
         attributeRef: EntityAttributeRef
     ): Attribute? {
-        val model = findModel(modelRef)
+        val model = findModelAggregate(modelRef)
         return model.findEntityAttributeOptional(entityRef, attributeRef)
     }
 
@@ -97,7 +97,7 @@ class ModelQueriesImpl(
         modelRef: ModelRef,
         typeRef: TypeRef
     ): ModelType {
-        return findModel(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
+        return findModelAggregate(modelRef).findTypeOptional(typeRef) ?: throw TypeNotFoundException(modelRef, typeRef)
     }
 
     override fun diff(
@@ -108,32 +108,32 @@ class ModelQueriesImpl(
         scope: ModelDiffScope
     ): ModelDiff {
         val leftModel = if (leftModelVersion == null) {
-            findModel(leftModelRef)
+            findModelAggregate(leftModelRef)
         } else {
-            findModelAtVersion(leftModelRef, leftModelVersion)
+            findModelAggregateAtVersion(leftModelRef, leftModelVersion)
         }
         val rightModel = if (rightModelVersion == null) {
-            findModel(rightModelRef)
+            findModelAggregate(rightModelRef)
         } else {
-            findModelAtVersion(rightModelRef, rightModelVersion)
+            findModelAggregateAtVersion(rightModelRef, rightModelVersion)
         }
         return diffRunner.diff(leftModel, rightModel, scope)
     }
 
-    override fun findModelByKey(modelKey: ModelKey): ModelAggregate {
+    override fun findModelAggregateByKey(modelKey: ModelKey): ModelAggregate {
         return storage.findModelAggregateByKeyOptional(modelKey)
             ?: throw ModelNotFoundByKeyException(modelKey)
     }
 
-    override fun findModelById(modelId: ModelId): ModelAggregate {
+    override fun findModelAggregateById(modelId: ModelId): ModelAggregate {
         return storage.findModelAggregateByIdOptional(modelId)
             ?: throw ModelNotFoundByIdException(modelId)
     }
 
-    override fun findModel(modelRef: ModelRef): ModelAggregate {
+    override fun findModelAggregate(modelRef: ModelRef): ModelAggregate {
         return when (modelRef) {
-            is ModelRef.ById -> findModelById(modelRef.id)
-            is ModelRef.ByKey -> findModelByKey(modelRef.key)
+            is ModelRef.ById -> findModelAggregateById(modelRef.id)
+            is ModelRef.ByKey -> findModelAggregateByKey(modelRef.key)
         }
     }
 
@@ -141,7 +141,11 @@ class ModelQueriesImpl(
         return storage.findModel(modelRef)
     }
 
-    override fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {
+    override fun existsModel(modelRef: ModelRef): Boolean {
+        return storage.existsModel(modelRef)
+    }
+
+    override fun findModelAggregateAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate {
         val model = storage.findModel(modelRef)
         return storage.findModelAggregateVersion(model.id, modelVersion)
     }
@@ -168,7 +172,7 @@ class ModelQueriesImpl(
         return storage.findModelChangeEventsSinceLastReleaseEvent(model.id)
     }
 
-    override fun findModelOptional(modelRef: ModelRef): ModelAggregate? {
+    override fun findModelAggregateOptional(modelRef: ModelRef): ModelAggregate? {
         return when (modelRef) {
             is ModelRef.ById -> storage.findModelAggregateByIdOptional(modelRef.id)
             is ModelRef.ByKey -> storage.findModelAggregateByKeyOptional(modelRef.key)

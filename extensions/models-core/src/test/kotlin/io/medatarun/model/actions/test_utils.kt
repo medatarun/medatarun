@@ -61,7 +61,7 @@ class TestEnvTypes {
 
     val model: ModelAggregate
         get() {
-            return query.findModelByKey(modelKey)
+            return query.findModelAggregateByKey(modelKey)
         }
 }
 
@@ -120,7 +120,7 @@ class TestEnvEntityAttribute {
                 description = description
             )
         )
-        val model = query.findModel(sampleModelRef)
+        val model = query.findModelAggregate(sampleModelRef)
         val attributeRef = EntityAttributeRef.ByKey(attributeKey)
         val reloaded = model.findEntityAttributeOptional(sampleEntityRef, attributeRef)
             ?: throw EntityAttributeNotFoundException(sampleModelRef, sampleEntityRef, attributeRef)

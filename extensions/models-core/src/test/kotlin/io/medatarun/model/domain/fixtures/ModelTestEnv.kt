@@ -131,7 +131,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
      * This keeps scope checks explicit in tests that validate tag attachment rules.
      */
     fun createLocalTagInModelScope(modelRef: ModelRef, tagKeyValue: String): Tag {
-        val modelId = queries.findModel(modelRef).id
+        val modelId = queries.findModelAggregate(modelRef).id
         val scopeRef = ModelTagResolver.modelTagScopeRef(modelId)
         val tagKey = TagKey(tagKeyValue)
         val tagRef = TagRef.ByKey(

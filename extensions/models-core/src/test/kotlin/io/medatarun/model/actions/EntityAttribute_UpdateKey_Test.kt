@@ -65,7 +65,7 @@ class EntityAttribute_UpdateKey_Test {
         val env = TestEnvEntityAttribute()
         env.addSampleEntity()
         val e = env.query.findEntity(env.sampleModelRef, env.sampleEntityRef)
-        val m = env.query.findModel(env.sampleModelRef)
+        val m = env.query.findModelAggregate(env.sampleModelRef)
 
         val pk = m.findEntityPrimaryKeyOptional(e.ref)
         assertNotNull(pk)
@@ -87,7 +87,7 @@ class EntityAttribute_UpdateKey_Test {
         env.reloadAttribute(attributeRef, entityAttributeRef(attributeNewKey))
 
         // Reload model
-        val m2 = env.query.findModel(env.sampleModelRef)
+        val m2 = env.query.findModelAggregate(env.sampleModelRef)
         val pk2 = assertNotNull(m2.findEntityPrimaryKeyOptional(e.ref))
         val pk2AttributeId = assertNotNull(pk2.participants.firstOrNull()?.attributeId)
 

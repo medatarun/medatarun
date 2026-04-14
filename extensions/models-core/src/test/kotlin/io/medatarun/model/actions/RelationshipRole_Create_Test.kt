@@ -24,7 +24,7 @@ class RelationshipRole_Create_Test {
             )
         )
 
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
         assertNotNull(reloaded.roles.firstOrNull { role -> role.key == roleKey })
     }
 

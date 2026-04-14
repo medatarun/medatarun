@@ -323,7 +323,7 @@ class Search_Test {
         val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
-        val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
+        val crmModelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
 
         val results = search(
             fixture,
@@ -351,7 +351,7 @@ class Search_Test {
         val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
-        val cookingModelId = fixture.env.queries.findModel(refs.cooking.ref).id
+        val cookingModelId = fixture.env.queries.findModelAggregate(refs.cooking.ref).id
 
         val results = search(
             fixture,
@@ -426,7 +426,7 @@ class Search_Test {
         val fixture = SearchFixture.builder()
             .addCrmCookingAndTags()
             .build()
-        val crmModelId = fixture.env.queries.findModel(refs.crm.ref).id
+        val crmModelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
         val unknownLocalTag = TagRef.ByKey(
             scopeRef = ModelTagResolver.modelTagScopeRef(crmModelId),
             groupKey = null,
@@ -462,7 +462,7 @@ class Search_Test {
                     SearchFilterTags.AnyOf(
                         listOf(
                             refs.tags.local.cooking.imported.ref(
-                                fixture.env.queries.findModel(
+                                fixture.env.queries.findModelAggregate(
                                     refs.cooking.ref
                                 ).id
                             )
@@ -514,7 +514,7 @@ class Search_Test {
             SearchFilters(
                 operator = SearchFiltersLogicalOperator.OR,
                 items = listOf(
-                    SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_result.ref(fixture.env.queries.findModel(refs.crm.ref).id))),
+                    SearchFilterTags.AnyOf(listOf(refs.tags.local.crm.ui_result.ref(fixture.env.queries.findModelAggregate(refs.crm.ref).id))),
                     SearchFilterTags.AnyOf(listOf(refs.tags.global.gdpr.special_category_data.ref))
                 )
             )

@@ -38,11 +38,11 @@ class Relationship_XTag_Test {
         )
 
         env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, globalTag.ref))
-        assertEquals(listOf(globalTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
+        assertEquals(listOf(globalTag.id), env.query.findModelAggregate(env.modelRef).findRelationship(relationshipRef).tags)
 
         env.dispatch(ModelAction.Relationship_DeleteTag(env.modelRef, relationshipRef, globalTag.ref))
         env.runtime.replayWithRebuild {
-            assertTrue(env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
+            assertTrue(env.query.findModelAggregate(env.modelRef).findRelationship(relationshipRef).tags.isEmpty())
         }
     }
 
@@ -71,7 +71,7 @@ class Relationship_XTag_Test {
         )
 
         env.dispatch(ModelAction.Relationship_AddTag(env.modelRef, relationshipRef, localTag.ref))
-        assertEquals(listOf(localTag.id), env.query.findModel(env.modelRef).findRelationship(relationshipRef).tags)
+        assertEquals(listOf(localTag.id), env.query.findModelAggregate(env.modelRef).findRelationship(relationshipRef).tags)
     }
 
     @Test
@@ -156,7 +156,7 @@ class Relationship_XTag_Test {
                 globalTag.ref
             )
         )
-        val added = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        val added = env.query.findModelAggregate(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(added)
         assertEquals(listOf(globalTag.id), added.tags)
 
@@ -168,7 +168,7 @@ class Relationship_XTag_Test {
                 globalTag.ref
             )
         )
-        val deleted = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        val deleted = env.query.findModelAggregate(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(deleted)
         assertTrue(deleted.tags.isEmpty())
     }
@@ -217,7 +217,7 @@ class Relationship_XTag_Test {
                 localTag.ref
             )
         )
-        val added = env.query.findModel(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
+        val added = env.query.findModelAggregate(env.modelRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)
         assertNotNull(added)
         assertEquals(listOf(localTag.id), added.tags)
     }

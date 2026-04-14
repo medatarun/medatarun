@@ -12,6 +12,6 @@ class Model_UpdateAuthority_Test {
     fun `updates on model authority persists the authority`() {
         val env = TestEnvOneModel()
         env.dispatch(ModelAction.Model_UpdateAuthority(env.modelRef, ModelAuthority.CANONICAL))
-        assertEquals(ModelAuthority.CANONICAL, env.query.findModel(env.modelRef).authority)
+        assertEquals(ModelAuthority.CANONICAL, env.query.findModelAggregate(env.modelRef).authority)
     }
 }

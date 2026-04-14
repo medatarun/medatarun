@@ -21,6 +21,13 @@ interface ModelStorage {
 
     fun existsModelByKey(key: ModelKey): Boolean
 
+    fun existsModel(ref: ModelRef): Boolean {
+        return when(ref) {
+            is ModelRef.ById -> existsModelById(ref.id)
+            is ModelRef.ByKey -> existsModelByKey(ref.key)
+        }
+    }
+
     fun findAllModelIds(): List<ModelId>
 
     fun findModelByKeyOptional(key: ModelKey): Model?

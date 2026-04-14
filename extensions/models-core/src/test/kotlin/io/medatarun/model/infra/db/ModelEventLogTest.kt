@@ -1,27 +1,20 @@
 package io.medatarun.model.infra.db
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.actions.adapters.ActionTraceabilityRecord
-import io.medatarun.actions.domain.ActionInstanceId
 import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.infra.db.tables.ModelEventTable
 import io.medatarun.model.infra.db.tables.ModelSnapshotTable
-import io.medatarun.model.internal.ModelCmdCopyImpl
-import io.medatarun.model.ports.exposed.ModelCmd
-import io.medatarun.model.ports.exposed.ModelCmdEnveloppe
-import io.medatarun.model.ports.exposed.ModelCmds
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-// TODO this is not correct, see val modelCmds = env.platform.services.getService(ModelCmds::class) in the last test shall not happen
+
 
 @EnableDatabaseTests
 class ModelEventLogTest {
@@ -39,7 +32,7 @@ class ModelEventLogTest {
             )
         )
 
-        val model = env.queries.findModel(ModelRef.ByKey(ModelKey("crm")))
+        val model = env.queries.findModelAggregate(ModelRef.ByKey(ModelKey("crm")))
 
         env.dispatch(
             ModelAction.Model_UpdateName(

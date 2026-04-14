@@ -40,7 +40,7 @@ class UI(runtime: PlatformRuntime) {
     }
 
     fun modelJson(modelId: ModelId, locale: Locale): String {
-        val model = modelQueries.findModelById(modelId)
+        val model = modelQueries.findModelAggregateById(modelId)
 
         return buildJsonObject {
             put("id", model.id.asString())

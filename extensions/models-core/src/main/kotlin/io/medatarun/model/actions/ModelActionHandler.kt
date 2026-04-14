@@ -744,7 +744,7 @@ class ModelActionHandler(
 
     fun modelExport(cmd: ModelAction.Model_Export): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModel(cmd.modelRef)
+        val model = modelQueries.findModelAggregate(cmd.modelRef)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 
@@ -752,7 +752,7 @@ class ModelActionHandler(
 
     fun modelExportVersion(cmd: ModelAction.Model_Export_Version): JsonObject {
         val exporters = extensionRegistry.findContributionsFlat(ModelExporter::class)
-        val model = modelQueries.findModelAtVersion(cmd.modelRef, cmd.version)
+        val model = modelQueries.findModelAggregateAtVersion(cmd.modelRef, cmd.version)
         val exporter = exporters.firstOrNull() ?: throw ModelExportNoPluginFoundException()
         return exporter.exportJson(model)
 

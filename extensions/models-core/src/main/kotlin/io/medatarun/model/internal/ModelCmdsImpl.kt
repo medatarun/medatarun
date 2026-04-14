@@ -1100,10 +1100,7 @@ class ModelCmdsImpl(
     }
 
     fun ensureModelExists(modelRef: ModelRef) {
-        val exists = when (modelRef) {
-            is ModelRef.ByKey -> storage.existsModelByKey(modelRef.key)
-            is ModelRef.ById -> storage.existsModelById(modelRef.id)
-        }
+        val exists = storage.existsModel(modelRef)
         if (!exists) throw ModelNotFoundException(modelRef)
     }
 

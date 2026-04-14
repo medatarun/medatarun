@@ -31,7 +31,7 @@ class Entity_Delete_Test {
         )
         env.dispatch(ModelAction.Entity_Delete(env.modelRef, entityRef))
 
-        val reloaded = env.query.findModel(env.modelRef)
+        val reloaded = env.query.findModelAggregate(env.modelRef)
         assertNull(reloaded.findEntityOptional(entityId))
     }
 
@@ -92,8 +92,8 @@ class Entity_Delete_Test {
 
         runtime.dispatch(ModelAction.Entity_Delete(modelRef1, entityRef))
 
-        val reloadedModel1 = query.findModel(modelRef1)
-        val reloadedModel2 = query.findModel(modelRef2)
+        val reloadedModel1 = query.findModelAggregate(modelRef1)
+        val reloadedModel2 = query.findModelAggregate(modelRef2)
 
         assertNull(reloadedModel1.findEntityOptional(entityKey))
         assertNotNull(reloadedModel2.findEntityOptional(entityKey))

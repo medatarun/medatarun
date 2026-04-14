@@ -361,7 +361,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
             createLocalTag(
                 modelId = modelId,
                 key = refs.tags.local.crm.ui_result.key,
@@ -378,7 +378,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun declareCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.cooking.ref).id
             createLocalTag(
                 modelId = modelId,
                 key = refs.tags.local.cooking.imported.key,
@@ -389,7 +389,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun tagWithCrmTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.crm.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.crm.ref).id
             val uiResult = refs.tags.local.crm.ui_result.ref(modelId)
             val uiSearch = refs.tags.local.crm.ui_search.ref(modelId)
             val gdprPersonalData = refs.tags.global.gdpr.personal_data.ref
@@ -422,7 +422,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         }
 
         fun tagWithCookingTags(): Builder {
-            val modelId = fixture.env.queries.findModel(refs.cooking.ref).id
+            val modelId = fixture.env.queries.findModelAggregate(refs.cooking.ref).id
             val imported = refs.tags.local.cooking.imported.ref(modelId)
             val gdprSpecialCategoryData = refs.tags.global.gdpr.special_category_data.ref
             val securityPublic = refs.tags.global.security.public.ref

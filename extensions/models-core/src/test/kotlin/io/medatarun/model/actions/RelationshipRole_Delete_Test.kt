@@ -33,7 +33,7 @@ class RelationshipRole_Delete_Test {
                 relationshipRoleRef = RelationshipRoleRef.ByKey(roleKey)
             )
         )
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
         assertNull(reloaded.roles.firstOrNull { role -> role.key == roleKey })
     }
 
@@ -51,7 +51,7 @@ class RelationshipRole_Delete_Test {
                 roleCardinality = io.medatarun.model.domain.RelationshipCardinality.Many
             )
         )
-        val roleId = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef).roles
+        val roleId = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef).roles
             .first { role -> role.key == roleKey }
             .id
         env.dispatch(
@@ -61,7 +61,7 @@ class RelationshipRole_Delete_Test {
                 relationshipRoleRef = RelationshipRoleRef.ById(roleId)
             )
         )
-        val reloaded = env.query.findModel(env.modelRef).findRelationship(env.relationshipRef)
+        val reloaded = env.query.findModelAggregate(env.modelRef).findRelationship(env.relationshipRef)
         assertNull(reloaded.roles.firstOrNull { role -> role.id == roleId })
     }
 

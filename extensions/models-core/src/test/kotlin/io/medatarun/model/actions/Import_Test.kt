@@ -44,7 +44,7 @@ class Import_Test {
             listOf(ImportFixtureExtension(sampleModel, emptyList()))
         )
         env.dispatch(ModelAction.Import("test:recipe", null, null))
-        val found = env.queries.findModel(ModelRef.modelRefKey("recipe"))
+        val found = env.queries.findModelAggregate(ModelRef.modelRefKey("recipe"))
         assertEquals(sampleModel.id, found.id)
         assertEquals(sampleModel.key, found.key)
         assertEquals(sampleModel.name, found.name)

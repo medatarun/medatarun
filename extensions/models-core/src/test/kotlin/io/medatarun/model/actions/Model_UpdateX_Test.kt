@@ -71,7 +71,7 @@ class Model_UpdateX_Test {
                 value = LocalizedTextNotLocalized("Model name 2")
             )
         )
-        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelByKey(modelKey).name)
+        assertEquals(LocalizedTextNotLocalized("Model name 2"), query.findModelAggregateByKey(modelKey).name)
     }
 
 }

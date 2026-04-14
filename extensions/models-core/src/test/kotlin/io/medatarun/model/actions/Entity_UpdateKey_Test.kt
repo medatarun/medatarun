@@ -34,7 +34,7 @@ class Entity_UpdateKey_Test {
 
         env.dispatch(ModelAction.Entity_UpdateKey(env.modelRef, env.primaryEntityRef, newId))
 
-        val reloaded = env.query.findModel(env.modelRef)
+        val reloaded = env.query.findModelAggregate(env.modelRef)
         assertNull(reloaded.findEntityOptional(env.primaryEntityKey))
         assertNotNull(reloaded.findEntityOptional(newId))
     }

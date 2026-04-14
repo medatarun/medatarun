@@ -1,6 +1,5 @@
 package io.medatarun.model.ports.exposed
 
-import io.medatarun.model.actions.ModelAction
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.diff.ModelDiff
 import io.medatarun.model.domain.diff.ModelDiffScope
@@ -18,6 +17,8 @@ interface ModelQueries {
      * Find a model by its id or throw exception
      */
     fun findModelRoot(modelRef: ModelRef): Model
+    fun existsModel(modelRef: ModelRef): Boolean
+
 
     // -------------------------------------------------------------------------
     // Model aggregate
@@ -26,12 +27,12 @@ interface ModelQueries {
     /**
      * Find a model by its id or throw [io.medatarun.model.domain.ModelNotFoundByKeyException]
      */
-    fun findModelByKey(modelKey: ModelKey): ModelAggregate
-    fun findModelById(modelId: ModelId): ModelAggregate
-    fun findModel(modelRef: ModelRef): ModelAggregate
+    fun findModelAggregateByKey(modelKey: ModelKey): ModelAggregate
+    fun findModelAggregateById(modelId: ModelId): ModelAggregate
+    fun findModelAggregate(modelRef: ModelRef): ModelAggregate
 
-    fun findModelOptional(modelRef: ModelRef): ModelAggregate?
-    fun findModelAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
+    fun findModelAggregateOptional(modelRef: ModelRef): ModelAggregate?
+    fun findModelAggregateAtVersion(modelRef: ModelRef, modelVersion: ModelVersion): ModelAggregate
 
     // -------------------------------------------------------------------------
     // Model events

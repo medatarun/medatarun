@@ -95,7 +95,7 @@ open class ModelExtension(
 
             override fun localScopeExists(scopeRef: TagScopeRef.Local): Boolean {
                 val modelId = ModelId(scopeRef.localScopeId.value)
-                return modelQueries.findModelOptional(ModelRef.ById(modelId)) != null
+                return modelQueries.existsModel(ModelRef.ById(modelId))
             }
         }
 

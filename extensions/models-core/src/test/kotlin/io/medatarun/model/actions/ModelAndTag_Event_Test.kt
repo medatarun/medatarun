@@ -292,8 +292,8 @@ class ModelAndTag_Event_Test {
 
         // Only the removed tag disappears. Tags that were not part of the deletion stay attached.
         env.replayWithRebuild {
-            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
             assertEquals(
                 emptyList(),
                 env.queries.findEntityAttribute(
@@ -302,16 +302,16 @@ class ModelAndTag_Event_Test {
                     cooking.recipeDescriptionRef
                 ).tags
             )
-            assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findRelationship(cooking.usageRef).tags)
             assertEquals(
                 emptyList(),
-                env.queries.findModel(cooking.modelRef)
+                env.queries.findModelAggregate(cooking.modelRef)
                     .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
                     .tags
             )
 
-            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).tags)
-            assertEquals(emptyList(), env.queries.findModel(crm.modelRef).findEntity(crm.personRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crm.modelRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crm.modelRef).findEntity(crm.personRef).tags)
         }
     }
 
@@ -346,8 +346,8 @@ class ModelAndTag_Event_Test {
         env.dispatchTag(TagAction.TagGlobalDelete(personalDataTag.ref))
 
         env.replayWithRebuild {
-            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModel(cookingRef).tags)
-            assertEquals(emptyList(), env.queries.findModel(crmRef).tags)
+            assertEquals(listOf(publicVisibilityTag.id), env.queries.findModelAggregate(cookingRef).tags)
+            assertEquals(emptyList(), env.queries.findModelAggregate(crmRef).tags)
         }
     }
 
@@ -402,24 +402,24 @@ class ModelAndTag_Event_Test {
         env.dispatchTag(TagAction.TagGroupDelete(TagGroupRef.ByKey(groupKey)))
 
         // The deleted group tags disappear everywhere, but the unrelated tag remains attached.
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
         assertEquals(
             emptyList(),
-            env.queries.findModel(cooking.modelRef).findEntityAttribute(
+            env.queries.findModelAggregate(cooking.modelRef).findEntityAttribute(
                 cooking.recipeRef,
                 cooking.recipeDescriptionRef
             ).tags
         )
         assertEquals(
             listOf(securityPublicTag.id),
-            env.queries.findModel(crm.modelRef)
+            env.queries.findModelAggregate(crm.modelRef)
                 .findRelationship(crm.employmentRef)
                 .tags
         )
         assertEquals(
             emptyList(),
-            env.queries.findModel(crm.modelRef)
+            env.queries.findModelAggregate(crm.modelRef)
                 .findRelationshipAttributeOptional(crm.employmentRef, crm.employmentSinceRef)!!
                 .tags
         )
@@ -479,19 +479,19 @@ class ModelAndTag_Event_Test {
         // Deleting the scoped tag must clean every attachment inside the model and keep the sibling tag alive.
         env.dispatchTag(TagAction.TagLocalDelete(draftOnlyTag.ref))
 
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).tags)
-        assertEquals(listOf(reviewedTag.id), env.queries.findModel(cooking.modelRef).findEntity(cooking.recipeRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).tags)
+        assertEquals(listOf(reviewedTag.id), env.queries.findModelAggregate(cooking.modelRef).findEntity(cooking.recipeRef).tags)
         assertEquals(
             emptyList(),
-            env.queries.findModel(cooking.modelRef).findEntityAttribute(
+            env.queries.findModelAggregate(cooking.modelRef).findEntityAttribute(
                 cooking.recipeRef,
                 cooking.recipeDescriptionRef
             ).tags
         )
-        assertEquals(emptyList(), env.queries.findModel(cooking.modelRef).findRelationship(cooking.usageRef).tags)
+        assertEquals(emptyList(), env.queries.findModelAggregate(cooking.modelRef).findRelationship(cooking.usageRef).tags)
         assertEquals(
             listOf(reviewedTag.id),
-            env.queries.findModel(cooking.modelRef)
+            env.queries.findModelAggregate(cooking.modelRef)
                 .findRelationshipAttributeOptional(cooking.usageRef, cooking.usageQuantityRef)!!
                 .tags
         )
