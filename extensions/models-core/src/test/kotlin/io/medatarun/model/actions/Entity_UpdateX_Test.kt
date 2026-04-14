@@ -80,26 +80,20 @@ class TestEnvEntityUpdate {
         )
         runtime.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
         runtime.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = modelRef,
                 entityKey = primaryEntityKey,
                 name = LocalizedTextNotLocalized("Entity primary"),
                 description = LocalizedMarkdownNotLocalized("Entity primary description"),
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
         runtime.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = modelRef,
                 entityKey = secondaryEntityKey,
                 name = LocalizedTextNotLocalized("Entity secondary"),
                 description = LocalizedMarkdownNotLocalized("Entity secondary description"),
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )

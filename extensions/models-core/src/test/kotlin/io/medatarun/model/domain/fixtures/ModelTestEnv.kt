@@ -123,31 +123,6 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         )
     }
 
-    // Entity_Create
-    fun entityCreate(
-        modelRef: ModelRef,
-        entityKey: EntityKey,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null,
-        identityAttributeKey: AttributeKey = AttributeKey("id"),
-        identityAttributeType: TypeRef = typeRefKey("String"),
-        identityAttributeName: LocalizedText? = null,
-        documentationHome: String? = null
-    ): Any? {
-        return dispatch(
-            ModelAction.Entity_Create(
-                modelRef = modelRef,
-                entityKey = entityKey,
-                name = name,
-                description = description,
-                identityAttributeKey = identityAttributeKey,
-                identityAttributeType = identityAttributeType,
-                identityAttributeName = identityAttributeName,
-                documentationHome = documentationHome
-            )
-        )
-    }
-
     // Entity_Create2
     fun entityCreate2(
         modelRef: ModelRef,
