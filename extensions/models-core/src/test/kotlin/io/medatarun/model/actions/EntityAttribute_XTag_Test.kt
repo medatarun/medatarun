@@ -1,9 +1,14 @@
 package io.medatarun.model.actions
 
-import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
+import io.medatarun.model.domain.ModelKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.ModelVersion
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.tags.core.domain.TagAttachScopeMismatchException
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -14,88 +19,133 @@ class EntityAttribute_XTag_Test {
 
     @Test
     fun `add and delete tag on entity attribute persists tag ids`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
-        val globalTag = env.runtime.createGlobalTag("g-ea", "t-ea")
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-xtag")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("tagged")
+        val globalTag = env.createGlobalTag("g-ea", "t-ea")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
 
         env.dispatch(
             ModelAction.EntityAttribute_AddTag(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                EntityAttributeRef.ById(attribute.id),
-                globalTag.ref
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                tag = globalTag.ref
             )
         )
-        val added = env.query.findEntityAttribute(
-            env.sampleModelRef,
-            env.sampleEntityRef,
-            EntityAttributeRef.ById(attribute.id)
-        )
-        assertEquals(listOf(globalTag.id), added.tags)
+
+        env.replayWithRebuild {
+            val added = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
+            assertEquals(listOf(globalTag.id), added.tags)
+        }
 
         env.dispatch(
             ModelAction.EntityAttribute_DeleteTag(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                EntityAttributeRef.ById(attribute.id),
-                globalTag.ref
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                tag = globalTag.ref
             )
         )
-        val deleted = env.query.findEntityAttribute(
-            env.sampleModelRef,
-            env.sampleEntityRef,
-            EntityAttributeRef.ById(attribute.id)
-        )
+
+        val deleted = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
         assertTrue(deleted.tags.isEmpty())
     }
 
     @Test
     fun `add local tag of same model on entity attribute persists tag ids`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
-        val localTag = env.runtime.createLocalTagInModelScope(env.sampleModelRef, "local-ea-tag")
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-xtag-local")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("tagged")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+        val localTag = env.createLocalTagInModelScope(modelRef, "local-ea-tag")
 
         env.dispatch(
             ModelAction.EntityAttribute_AddTag(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                EntityAttributeRef.ById(attribute.id),
-                localTag.ref
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                tag = localTag.ref
             )
         )
-        val added = env.query.findEntityAttribute(
-            env.sampleModelRef,
-            env.sampleEntityRef,
-            EntityAttributeRef.ById(attribute.id)
-        )
+
+        val added = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
         assertEquals(listOf(localTag.id), added.tags)
     }
 
     @Test
     fun `add local tag of another model on entity attribute then error`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        val attribute = env.createAttribute(attributeKey = AttributeKey("tagged"))
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-xtag-foreign")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("tagged")
         val foreignModelRef = modelRefKey("sample-model-2")
-        env.runtime.dispatch(
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
+            )
+        )
+
+        env.dispatch(
             ModelAction.Model_Create(
                 key = ModelKey("sample-model-2"),
-                name = LocalizedTextNotLocalized("Sample model 2"),
+                name = io.medatarun.model.domain.LocalizedTextNotLocalized("Sample model 2"),
                 description = null,
                 version = ModelVersion("1.0.0")
             )
         )
-        val foreignTag = env.runtime.createLocalTagInModelScope(foreignModelRef, "foreign-ea-tag")
+        val foreignTag = env.createLocalTagInModelScope(foreignModelRef, "foreign-ea-tag")
 
         assertFailsWith<TagAttachScopeMismatchException> {
             env.dispatch(
                 ModelAction.EntityAttribute_AddTag(
-                    env.sampleModelRef,
-                    env.sampleEntityRef,
-                    EntityAttributeRef.ById(attribute.id),
-                    foreignTag.ref
+                    modelRef = modelRef,
+                    entityRef = entityRef,
+                    attributeRef = attributeRef,
+                    tag = foreignTag.ref
                 )
             )
         }

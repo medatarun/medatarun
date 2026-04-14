@@ -1,9 +1,12 @@
 package io.medatarun.model.actions
 
-import io.medatarun.platform.db.testkit.EnableDatabaseTests
-import io.medatarun.model.actions.ModelAction.EntityAttribute_UpdateName
-import io.medatarun.model.domain.EntityAttributeRef
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.LocalizedTextNotLocalized
+import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -13,38 +16,114 @@ class EntityAttribute_UpdateName_Test {
 
     @Test
     fun `update attribute name is persisted`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        val attr = env.createAttribute(name = null)
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-update-name")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("myattribute")
         val nextValue = LocalizedTextNotLocalized("New name")
-        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
-        env.runtime.dispatch(
-            EntityAttribute_UpdateName(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                attributeRef,
-                nextValue
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = null,
+                description = null
             )
         )
-        val reloaded = env.reloadAttribute(attributeRef)
-        assertEquals(nextValue, reloaded.name)
+
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateName(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                value = nextValue
+            )
+        )
+
+        env.replayWithRebuild {
+            val reloaded = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
+            assertEquals(nextValue, reloaded.name)
+        }
     }
 
     @Test
     fun `update attribute name to null stays null`() {
-        val env = TestEnvEntityAttribute()
-        env.addSampleEntity()
-        val attr = env.createAttribute(name = LocalizedTextNotLocalized("Name"))
-        val attributeRef = EntityAttributeRef.entityAttributeRefKey(attr.key)
-        env.runtime.dispatch(
-            EntityAttribute_UpdateName(
-                env.sampleModelRef,
-                env.sampleEntityRef,
-                attributeRef,
-                null
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-update-name-null")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("myattribute")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = LocalizedTextNotLocalized("Name"),
+                description = null
             )
         )
-        val reloaded = env.reloadAttribute(attributeRef)
+
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateName(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                value = null
+            )
+        )
+
+        val reloaded = env.queries.findEntityAttribute(modelRef, entityRef, attributeRef)
         assertNull(reloaded.name)
+    }
+
+    @Test
+    fun `update attribute name with same value does not create new event`() {
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("entity-attribute-update-name-noop")
+        val entityRef = entityRefKey("entity-a")
+        val typeRef = typeRefKey("String")
+        val attributeRef = entityAttributeRefKey("myattribute")
+        val name = LocalizedTextNotLocalized("My name")
+
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeKey = attributeRef.key,
+                type = typeRef,
+                optional = false,
+                name = name,
+                description = null
+            )
+        )
+
+        val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+        env.dispatch(
+            ModelAction.EntityAttribute_UpdateName(
+                modelRef = modelRef,
+                entityRef = entityRef,
+                attributeRef = attributeRef,
+                value = name
+            )
+        )
+        val afterEventId = env.findLastStoredModelChangeEvent(modelRef).eventId
+
+        assertEquals(beforeEventId, afterEventId)
     }
 }

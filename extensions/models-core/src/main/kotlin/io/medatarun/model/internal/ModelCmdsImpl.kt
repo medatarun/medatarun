@@ -792,6 +792,7 @@ class ModelCmdsImpl(
 
     private fun updateEntityAttributeKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityAttributeKey) {
         val (model, entity, attribute) = findModelAndEntityAndAttribute(cmd.modelRef, cmd.entityRef, cmd.attributeRef)
+        if (attribute.key == cmd.value) return
         val found = storage.findEntityAttributeByKeyOptional(model.id, entity.id, cmd.value)
         if (found != null && found.id != attribute.id) throw UpdateAttributeDuplicateKeyException(
             cmd.entityRef,
