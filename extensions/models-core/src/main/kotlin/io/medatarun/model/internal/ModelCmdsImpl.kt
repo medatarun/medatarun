@@ -59,6 +59,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateTypeDescription -> updateTypeDescription(cmdEnv, cmd)
                 is ModelCmd.DeleteType -> deleteType(cmdEnv, cmd)
                 is ModelCmd.CreateEntity -> createEntity(cmdEnv, cmd)
+                is ModelCmd.CreateEntity2 -> createEntity2(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityKey -> updateEntityKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
@@ -723,6 +724,23 @@ class ModelCmdsImpl(
             )
         )
 
+    }
+
+    private fun createEntity2(cmdEnv: ModelCmdEnveloppe, c: ModelCmd.CreateEntity2) {
+        val model = storage.findModel(c.modelRef)
+        val entityId = EntityId.generate()
+
+        storageDispatch(
+            cmdEnv, ModelStorageCmd.CreateEntity(
+                modelId = model.id,
+                entityId = entityId,
+                key = c.entityKey,
+                name = c.name,
+                description = c.description,
+                documentationHome = c.documentationHome,
+                origin = EntityOrigin.Manual
+            )
+        )
     }
 
     private fun deleteEntity(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.DeleteEntity) {

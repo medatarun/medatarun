@@ -61,6 +61,24 @@ class TestEnvTypes {
     }
 }
 
+class TestEnvBusinessKey {
+    val runtime = createEnv()
+    val query: ModelQueries = runtime.queries
+    val dispatch = runtime::dispatch
+    val modelRef = modelRefKey(ModelKey("m1"))
+
+    init {
+        runtime.dispatch(
+            ModelAction.Model_Create(
+                key = modelRef.key,
+                name = LocalizedTextNotLocalized("Model name"),
+                description = null,
+                version = ModelVersion("2.0.0")
+            )
+        )
+    }
+}
+
 class TestEnvEntityAttribute {
     val runtime = createEnv()
     val dispatch = runtime::dispatch

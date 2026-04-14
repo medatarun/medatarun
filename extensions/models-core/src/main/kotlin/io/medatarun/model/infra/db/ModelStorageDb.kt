@@ -166,6 +166,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
+        return db.withExposed {
+            logger.debug("findBusinessKeys modelId={}", modelId)
+            read.findBusinessKeys(modelId)
+        }
+    }
+
     override fun findEntityAttributeByIdOptional(
         modelId: ModelId,
         entityId: EntityId,

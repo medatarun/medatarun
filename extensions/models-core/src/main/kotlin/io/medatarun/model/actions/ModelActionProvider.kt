@@ -78,6 +78,7 @@ class ModelActionProvider(
             // ------------------------------------------------------------------------
 
             is ModelAction.Entity_Create -> handler.entityCreate(action)
+            is ModelAction.Entity_Create2 -> handler.entityCreate2(action)
             is ModelAction.Entity_UpdateKey -> handler.entityUpdateKey(action)
             is ModelAction.Entity_UpdateName -> handler.entityUpdateName(action)
             is ModelAction.Entity_UpdateDescription -> handler.entityUpdateDescription(action)

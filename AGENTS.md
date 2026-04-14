@@ -31,11 +31,19 @@
 - Do not mistake genericity, permissiveness, or future-proofing for simplicity.
 - Prefer fewer props, fewer branches, and fewer abstraction layers unless the current feature clearly requires them.
 
-## Unit tests
+## Kotlin Unit tests
 
 - tests classes with @EnableDatabaseTests require a database. 
 - if MEDATARUN_STORAGE_DATASOURCE_JDBC_DBENGINE=postgresql is provided tests will be run on a TestContainer PostgreSQL database.
 - if no environment variable is provided tests will be run SQLite
+- Tests never share the same data
+- Tests are testing business, not technical implementations
+- Ask for validation of your test plans before writing tests
+- Do not create unit tests when not explicitely asked
+- Immediately stop and report the situation if the current architecture doesn't allow writing smooth tests
+- Build refs with domain helper constructors (for example `entityRefKey("...")`, `entityAttributeRefKey("...")`, `businessKeyRefKey("...")`) and reuse `ref.key` instead of re-creating key objects inline.
+- When in models or tag tests include at least one `replayWithRebuild` assertion block on the nominal scenario to verify behavior after projection rebuild from events.
+- If writing a test lacks simple tooling for creating or reading the domain model, stop immediately and ask for validation before even searching for solutions or adding abstractions or widening scope.
 
 ## AI behavior
 

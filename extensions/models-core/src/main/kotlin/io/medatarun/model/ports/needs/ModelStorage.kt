@@ -112,6 +112,8 @@ interface ModelStorage {
 
     fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey?
 
+    fun findBusinessKeys(modelId: ModelId): List<BusinessKey>
+
     fun findBusinessKeyOptional(modelId: ModelId, ref: BusinessKeyRef): BusinessKey? {
         return when (ref) {
             is BusinessKeyRef.ById -> findBusinessKeyByIdOptional(modelId, ref.id)

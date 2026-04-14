@@ -105,6 +105,25 @@ interface ModelQueries {
     fun findEntityPrimaryKeyOptional(modelRef: ModelRef, entityRef: EntityRef): EntityPrimaryKey?
 
     // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    /**
+     * Find a business key, throw error if the model or business key doesn't exist.
+     */
+    fun findBusinessKey(modelRef: ModelRef, businessKeyRef: BusinessKeyRef): BusinessKey
+
+    /**
+     * Find a business key, return null if the model or business key doesn't exist.
+     */
+    fun findBusinessKeyOptional(modelRef: ModelRef, businessKeyRef: BusinessKeyRef): BusinessKey?
+
+    /**
+     * Find all business keys for a model, throw error if the model doesn't exist.
+     */
+    fun findBusinessKeys(modelRef: ModelRef): List<BusinessKey>
+
+    // -------------------------------------------------------------------------
     // Summaries
     // -------------------------------------------------------------------------
 

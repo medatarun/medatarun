@@ -14,4 +14,9 @@ sealed interface BusinessKeyRef: Ref<BusinessKeyRef> {
     ) : BusinessKeyRef {
         override fun asString(): String = "key:" + key.value
     }
+
+    companion object {
+        fun businessKeyRefKey(value: String) = ByKey(BusinessKeyKey(value))
+        fun businessKeyRefKey(value: BusinessKeyKey) = ByKey(value)
+    }
 }

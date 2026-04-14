@@ -333,8 +333,16 @@ class ModelStorageDbRead(
         return findBusinessKeyByOptional(modelId, BusinessKeyTable.key eq key)
     }
 
+    fun findBusinessKeys(modelId: ModelId): List<BusinessKey> {
+        return findBusinessKeys(modelId, Op.TRUE)
+    }
+
     private fun findBusinessKeyByOptional(modelId: ModelId, criterion: Op<Boolean>): BusinessKey? {
-        val row = BusinessKeyTable.join(
+        return findBusinessKeys(modelId, criterion).firstOrNull()
+    }
+
+    private fun findBusinessKeys(modelId: ModelId, criterion: Op<Boolean>): List<BusinessKey> {
+        val rows = BusinessKeyTable.join(
             EntityTable,
             JoinType.INNER,
             onColumn = BusinessKeyTable.entitySnapshotId,
@@ -346,16 +354,18 @@ class ModelStorageDbRead(
             otherColumn = ModelSnapshotTable.id
         ).selectAll().where {
             SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and criterion
-        }.limit(1).singleOrNull() ?: return null
+        }
 
-        return BusinessKeyInMemory(
-            id = row[BusinessKeyTable.lineageId],
-            key = row[BusinessKeyTable.key],
-            entityId = row[EntityTable.lineageId],
-            name = row[BusinessKeyTable.name],
-            description = row[BusinessKeyTable.description],
-            participants = findBusinessKeyParticipantsBySnapshotId(row[BusinessKeyTable.id])
-        )
+        return rows.map { row ->
+            BusinessKeyInMemory(
+                id = row[BusinessKeyTable.lineageId],
+                key = row[BusinessKeyTable.key],
+                entityId = row[EntityTable.lineageId],
+                name = row[BusinessKeyTable.name],
+                description = row[BusinessKeyTable.description],
+                participants = findBusinessKeyParticipantsBySnapshotId(row[BusinessKeyTable.id])
+            )
+        }
     }
 
     private fun findBusinessKeyParticipantsBySnapshotId(businessKeySnapshotId: BusinessKeySnapshotId): List<PBKeyParticipantInMemory> {

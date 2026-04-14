@@ -95,6 +95,27 @@ class ModelQueriesImpl(
         return storage.findEntityPrimaryKeyOptional(model.id, entity.id)
     }
 
+    override fun findBusinessKeyOptional(
+        modelRef: ModelRef,
+        businessKeyRef: BusinessKeyRef
+    ): BusinessKey? {
+        val model = storage.findModelOptional(modelRef) ?: return null
+        return storage.findBusinessKeyOptional(model.id, businessKeyRef)
+    }
+
+    override fun findBusinessKey(
+        modelRef: ModelRef,
+        businessKeyRef: BusinessKeyRef
+    ): BusinessKey {
+        return findBusinessKeyOptional(modelRef, businessKeyRef)
+            ?: throw BusinessKeyNotFoundException(modelRef, businessKeyRef)
+    }
+
+    override fun findBusinessKeys(modelRef: ModelRef): List<BusinessKey> {
+        val model = storage.findModel(modelRef)
+        return storage.findBusinessKeys(model.id)
+    }
+
     override fun findTypeOptional(modelRef: ModelRef, typeRef: TypeRef): ModelType? {
         val modelId = storage.findModelOptional(modelRef)?.id ?: return null
         return storage.findTypeOptional(modelId, typeRef)

@@ -266,6 +266,18 @@ class ModelActionHandler(
         )
     }
 
+    fun entityCreate2(cmd: ModelAction.Entity_Create2) {
+        dispatch(
+            ModelCmd.CreateEntity2(
+                modelRef = cmd.modelRef,
+                entityKey = cmd.entityKey,
+                name = cmd.name,
+                description = cmd.description,
+                documentationHome = cmd.documentationHome?.let { URI(it).toURL() }
+            )
+        )
+    }
+
     fun entityUpdateKey(cmd: ModelAction.Entity_UpdateKey) {
         dispatch(
             ModelCmd.UpdateEntityKey(
