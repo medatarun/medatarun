@@ -548,8 +548,12 @@ class ModelCmdsImpl(
             storage.findEntityAttribute(model.id, entity.id, attributeRef).id
         }
         val currentPrimaryKey = storage.findEntityPrimaryKeyOptional(model.id, entity.id)
-        val hasChanges = (attributeIds.isEmpty() && currentPrimaryKey != null)
-                || (currentPrimaryKey != null && !currentPrimaryKey.containsInOrder(attributeIds))
+        val hasChanges = if (currentPrimaryKey==null) {
+            attributeIds.isNotEmpty()
+        } else {
+            !currentPrimaryKey.containsInOrder(attributeIds)
+
+        }
         if (hasChanges) {
             storageDispatch(
                 cmdEnv, ModelStorageCmd.Entity_PrimaryKey_Set(

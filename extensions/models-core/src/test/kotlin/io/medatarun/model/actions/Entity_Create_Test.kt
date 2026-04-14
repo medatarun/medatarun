@@ -2,7 +2,9 @@ package io.medatarun.model.actions
 
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
-import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import org.junit.jupiter.api.Test
 import java.net.URI
 import kotlin.test.assertEquals
@@ -15,26 +17,41 @@ class Entity_Create_Test {
     @Test
     fun `create entity then id and name shall persist`() {
         val env = TestEnvOneModel()
-        val entityId = EntityKey("entity")
-        val entityRef = EntityRef.ByKey(entityId)
+        val entityRef = entityRefKey("entity")
         val name = LocalizedTextNotLocalized("Order")
         val description = LocalizedMarkdownNotLocalized("Order description")
         val docHome = "http://test.dev/local=123"
+        val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create(
-                env.modelRef,
-                entityKey = entityId,
+            ModelAction.Entity_Create2(
+                modelRef = env.modelRef,
+                entityKey = entityRef.key,
                 name = name,
                 description = description,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeName = LocalizedTextNotLocalized("Identifier"),
-                documentationHome = docHome,
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String"))
+                documentationHome = docHome
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = LocalizedTextNotLocalized("Identifier"),
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
 
         val reloaded = env.query.findEntity(env.modelRef, entityRef)
-        assertEquals(entityId, reloaded.key)
+        assertEquals(entityRef.key, reloaded.key)
         assertEquals(name, reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
@@ -43,7 +60,7 @@ class Entity_Create_Test {
         val attributes = model.findEntityAttributes(reloaded.ref)
         assertEquals(1, attributes.size)
         val attrId = attributes[0]
-        assertEquals(AttributeKey("id"), attrId.key)
+        assertEquals(identityAttributeRef.key, attrId.key)
         assertEquals("Identifier", attrId.name?.name)
         assertNull(attrId.description?.name)
         assertEntityPrimaryKeyMatchesIdentityAttribute(model, entityRef, attrId.id)
@@ -52,25 +69,40 @@ class Entity_Create_Test {
     @Test
     fun `create entity with null name then name shall be null`() {
         val env = TestEnvOneModel()
-        val entityKey = EntityKey("entity-null-name")
-        val entityRef = EntityRef.ByKey(entityKey)
+        val entityRef = entityRefKey("entity-null-name")
         val description = LocalizedMarkdownNotLocalized("Entity without name")
+        val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
-                entityKey = entityKey,
+                entityKey = entityRef.key,
                 name = null,
                 description = description,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = null,
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
 
         val reloaded = env.query.findEntity(env.modelRef, entityRef)
-        assertEquals(entityKey, reloaded.key)
+        assertEquals(entityRef.key, reloaded.key)
         assertNull(reloaded.name)
         assertEquals(description, reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
@@ -83,25 +115,40 @@ class Entity_Create_Test {
     @Test
     fun `create entity with null description then description shall be null`() {
         val env = TestEnvOneModel()
-        val entityKey = EntityKey("entity-null-description")
-        val entityRef = EntityRef.ByKey(entityKey)
+        val entityRef = entityRefKey("entity-null-description")
         val name = LocalizedTextNotLocalized("Entity without description")
+        val identityAttributeRef = entityAttributeRefKey("String")
 
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
-                entityKey = entityKey,
+                entityKey = entityRef.key,
                 name = name,
                 description = null,
-                identityAttributeKey = AttributeKey("String"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = null,
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
 
         val reloaded = env.query.findEntity(env.modelRef, entityRef)
-        assertEquals(entityKey, reloaded.key)
+        assertEquals(entityRef.key, reloaded.key)
         assertEquals(name, reloaded.name)
         assertNull(reloaded.description)
         assertEquals(EntityOrigin.Manual, reloaded.origin)
@@ -113,20 +160,35 @@ class Entity_Create_Test {
     @Test
     fun `create entity with null attribute name and description then name and desc shall be null`() {
         val env = TestEnvOneModel()
-        val entityKey = EntityKey("entity-null-attr-name")
-        val entityRef = EntityRef.ByKey(entityKey)
+        val entityRef = entityRefKey("entity-null-attr-name")
         val description = LocalizedMarkdownNotLocalized("Entity without name")
+        val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
-                entityKey = entityKey,
+                entityKey = entityRef.key,
                 name = null,
                 description = description,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = null,
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
 
@@ -140,18 +202,33 @@ class Entity_Create_Test {
     @Test
     fun `create entity with documentation home null`() {
         val env = TestEnvOneModel()
-        val entityKey = EntityKey("entity-null-attr-name")
-        val entityRef = EntityRef.ByKey(entityKey)
+        val entityRef = entityRefKey("entity-null-attr-name")
+        val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
-                entityKey = entityKey,
+                entityKey = entityRef.key,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = null,
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
         assertNull(env.query.findEntity(env.modelRef, entityRef).documentationHome)
@@ -163,19 +240,34 @@ class Entity_Create_Test {
     @Test
     fun `create entity with documentation home not null`() {
         val env = TestEnvOneModel()
-        val entityKey = EntityKey("entity-null-attr-name")
-        val entityRef = EntityRef.ByKey(entityKey)
+        val entityRef = entityRefKey("entity-null-attr-name")
         val url = URI("http://localhost:8080").toURL()
+        val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
-                entityKey = entityKey,
+                entityKey = entityRef.key,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = url.toString()
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                name = null,
+                attributeKey = identityAttributeRef.key,
+                type = typeRefKey("String"),
+                optional = false,
+                description = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeRef = listOf(identityAttributeRef)
             )
         )
         assertEquals(url, env.query.findEntity(env.modelRef, entityRef).documentationHome)
