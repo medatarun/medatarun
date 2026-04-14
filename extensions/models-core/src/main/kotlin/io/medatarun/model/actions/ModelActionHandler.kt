@@ -719,6 +719,26 @@ class ModelActionHandler(
         )
     }
 
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    fun businessKeyCreate(cmd: ModelAction.BusinessKey_Create) {
+        dispatch(
+            ModelCmd.BusinessKeyCreate(
+                modelRef = cmd.modelRef,
+                entityRef = cmd.entityRef,
+                key = cmd.key,
+                name = cmd.name,
+                description = cmd.description,
+                participants = cmd.participants
+            )
+        )
+    }
+
+    // -------------------------------------------------------------------------
+    // Other
+    // -------------------------------------------------------------------------
 
     fun historyVersions(action: ModelAction.HistoryVersions): ModelChangeEventListDto {
         val changes = modelQueries.findModelVersions(action.modelRef)

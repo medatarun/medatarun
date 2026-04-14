@@ -382,6 +382,20 @@ sealed interface ModelCmd {
         val attributeRef: RelationshipAttributeRef,
     ) : ModelCmdOnModel
 
+    // -------------------------------------------------------------------------
+    // Business key create
+    // -------------------------------------------------------------------------
+
+    data class BusinessKeyCreate(
+        override val modelRef: ModelRef,
+        val entityRef: EntityRef,
+        val key: BusinessKeyKey,
+        val name: LocalizedText?,
+        val description: LocalizedMarkdown?,
+        val participants: List<EntityAttributeRef>
+    ) : ModelCmdOnModel
+
+
 
 }
 

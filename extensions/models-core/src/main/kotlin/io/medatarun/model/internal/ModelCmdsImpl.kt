@@ -63,6 +63,7 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityPrimaryKey -> updateEntityPrimaryKey(cmdEnv, cmd)
+                is ModelCmd.BusinessKeyCreate -> createBusinessKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDocumentationHome -> updateEntityDocumentationHome(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagAdd -> updateEntityTagAdd(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityTagDelete -> updateEntityTagDelete(cmdEnv, cmd)
@@ -542,6 +543,26 @@ class ModelCmdsImpl(
                 )
             )
         }
+    }
+
+    private fun createBusinessKey(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyCreate) {
+        val model = storage.findModel(cmd.modelRef)
+        val entity = storage.findEntity(model.id, cmd.entityRef)
+        val participantAttributeIds = cmd.participants.map { participantRef ->
+            storage.findEntityAttribute(model.id, entity.id, participantRef).id
+        }
+        storageDispatch(
+            cmdEnv,
+            ModelStorageCmd.BusinessKeyCreate(
+                modelId = model.id,
+                entityId = entity.id,
+                businessKeyId = BusinessKeyId.generate(),
+                key = cmd.key,
+                name = cmd.name,
+                description = cmd.description,
+                participantAttributeIds = participantAttributeIds
+            )
+        )
     }
 
     private fun updateEntityDocumentationHome(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.UpdateEntityDocumentationHome) {

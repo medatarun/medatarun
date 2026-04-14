@@ -81,6 +81,7 @@ internal class ModelStorageDbProjection(
             is ModelStorageCmd.UpdateRelationshipAttributeTagAdd -> addRelationshipAttributeTag(ctx, cmd)
             is ModelStorageCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(ctx, cmd)
             is ModelStorageCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyCreate -> businessKeyCreate(ctx, cmd)
             is ModelStorageCmd.DeleteModel -> throw ModelStorageDbUnsupportedProjectedDeleteException("model_deleted")
             //@formatter:on
         }
@@ -622,7 +623,7 @@ internal class ModelStorageDbProjection(
         searchWrite.refreshRelationshipBranch(ctx.modelSnapshotId, cmd.relationshipId)
     }
     // Relationship attribute
-    // ------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     private fun createRelationshipAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateRelationshipAttribute) {
         val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
@@ -768,6 +769,14 @@ internal class ModelStorageDbProjection(
             attributeId = cmd.attributeId
         )
     }
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    private fun businessKeyCreate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyCreate) {
+        TODO()
+    }
+
 
 
 }

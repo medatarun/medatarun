@@ -940,5 +940,34 @@ sealed interface ModelStorageCmd: ModelStorageCmdAnyVersion {
         val attributeId: AttributeId,
     ) : ModelStorageCmdOnModel
 
+    // -------------------------------------------------------------------------
+    // Business keys
+    // -------------------------------------------------------------------------
+
+    @Serializable
+    @StorageEventContract(eventType = "business_key_created", eventVersion = 1)
+    data class BusinessKeyCreate(
+        @Contextual
+        @SerialName("modelId")
+        override val modelId: ModelId,
+        @Contextual
+        @SerialName("entityId")
+        val entityId: EntityId,
+        @Contextual
+        @SerialName("businessKeyId")
+        val businessKeyId: BusinessKeyId,
+        @Contextual
+        @SerialName("key")
+        val key: BusinessKeyKey,
+        @Contextual
+        @SerialName("name")
+        val name: LocalizedText?,
+        @Contextual
+        @SerialName("description")
+        val description: LocalizedMarkdown?,
+        @SerialName("participantAttributeIds")
+        val participantAttributeIds: List<@Contextual AttributeId>,
+    ) : ModelStorageCmdOnModel
+
 
 }
