@@ -3,13 +3,17 @@ package io.medatarun.model.infra.db.snapshots
 import io.medatarun.model.domain.*
 import io.medatarun.model.infra.db.*
 import io.medatarun.model.infra.db.records.*
+import io.medatarun.model.infra.db.tables.EntityAttributeTable
 import io.medatarun.model.infra.inmemory.ModelInMemory
 import io.medatarun.model.ports.needs.ModelClock
 import io.medatarun.model.ports.needs.ModelStorageCmd
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.select
 
 internal class ModelStorageDbProjection(
     private val searchWrite: ModelStorageDbSearchWrite,
-    private val snapshots: ModelStorageDbSnapshots,
+    private val snapshotHead: ModelStorageDbSnapshotHead,
     private val clock: ModelClock,
     private val snapWrite: ModelStorageDbSnapshotWriter,
     private val snapshotCreate: ModelStorageDbSnapshotCreate
@@ -448,7 +452,7 @@ internal class ModelStorageDbProjection(
 
 
     private fun createEntityAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateEntityAttribute) {
-        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.entityId)
+        val entitySnapshotId = snapshotHead.toEntitySnapshotId(ctx.modelSnapshotId, cmd.entityId)
         snapWrite.entityAttributeInsert(
             EntityAttributeRecord(
                 snapshotId = AttributeSnapshotId.generate(),
@@ -457,7 +461,7 @@ internal class ModelStorageDbProjection(
                 key = cmd.key,
                 name = cmd.name,
                 description = cmd.description,
-                typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.typeId),
+                typeSnapshotId = snapshotHead.toTypeSnapshotId(ctx.modelSnapshotId, cmd.typeId),
                 optional = cmd.optional
             )
         )
@@ -535,10 +539,7 @@ internal class ModelStorageDbProjection(
                 relationshipSnapshotId = record.snapshotId,
                 key = role.key,
                 name = role.name,
-                entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(
-                    ctx.modelSnapshotId,
-                    role.entityId
-                ),
+                entitySnapshotId = snapshotHead.toEntitySnapshotId(ctx.modelSnapshotId, role.entityId),
                 cardinality = role.cardinality.code
             )
         }
@@ -631,10 +632,7 @@ internal class ModelStorageDbProjection(
     // -------------------------------------------------------------------------
 
     private fun createRelationshipAttribute(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.CreateRelationshipAttribute) {
-        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
-            ctx.modelSnapshotId,
-            cmd.relationshipId
-        )
+        val relationshipSnapshotId = snapshotHead.toRelationshipSnapshotId(ctx.modelSnapshotId, cmd.relationshipId)
         val record = RelationshipAttributeRecord(
             snapshotId = AttributeSnapshotId.generate(),
             lineageId = cmd.attributeId,
@@ -642,7 +640,7 @@ internal class ModelStorageDbProjection(
             name = cmd.name,
             key = cmd.key,
             description = cmd.description,
-            typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(ctx.modelSnapshotId, cmd.typeId),
+            typeSnapshotId = snapshotHead.toTypeSnapshotId(ctx.modelSnapshotId, cmd.typeId),
             optional = cmd.optional
         )
         snapWrite.relationshipAttributeInsert(record)
@@ -779,32 +777,66 @@ internal class ModelStorageDbProjection(
     // -------------------------------------------------------------------------
 
     private fun businessKeyCreate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyCreate) {
-        TODO()
+        val entitySnapshotId = snapshotHead.toEntitySnapshotId(ctx.modelSnapshotId, cmd.entityId)
+        val record = BusinessKeyRecord(
+            snapshotId = BusinessKeySnapshotId.generate(),
+            lineageId = cmd.businessKeyId,
+            modelEntitySnapshotId = entitySnapshotId,
+            key = cmd.key,
+            name = cmd.name,
+            description = cmd.description
+        )
+        val participantSnapshotIds = snapshotHead.toEntityAttributeSnapshotIds(
+            entitySnapshotId = entitySnapshotId,
+            attributeIds = cmd.participantAttributeIds
+        )
+        snapWrite.businessKeyInsert(record, participantSnapshotIds)
     }
 
     private fun businessKeyUpdateKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateKey) {
-        TODO()
+        snapWrite.businessKeyUpdateKey(
+            modelSnapshotId = ctx.modelSnapshotId,
+            businessKeyId = cmd.businessKeyId,
+            key = cmd.key
+        )
     }
 
     private fun businessKeyUpdateName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateName) {
-        TODO()
+        snapWrite.businessKeyUpdateName(
+            modelSnapshotId = ctx.modelSnapshotId,
+            businessKeyId = cmd.businessKeyId,
+            name = cmd.name
+        )
     }
 
-    private fun businessKeyUpdateDescription(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateDescription) {
-        TODO()
+    private fun businessKeyUpdateDescription(
+        ctx: ProjectionEventCtx,
+        cmd: ModelStorageCmd.BusinessKeyUpdateDescription
+    ) {
+        snapWrite.businessKeyUpdateDescription(
+            modelSnapshotId = ctx.modelSnapshotId,
+            businessKeyId = cmd.businessKeyId,
+            description = cmd.description
+        )
     }
 
     private fun businessKeyUpdateParticipants(
         ctx: ProjectionEventCtx,
         cmd: ModelStorageCmd.BusinessKeyUpdateParticipants
     ) {
-        TODO()
+        snapWrite.businessKeyUpdateParticipants(
+            modelSnapshotId = ctx.modelSnapshotId,
+            businessKeyId = cmd.businessKeyId,
+            participantAttributeIds = cmd.participantAttributeIds
+        )
     }
 
     private fun BusinessKeyDelete(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyDelete) {
-        TODO()
+        snapWrite.businessKeyDelete(
+            modelSnapshotId = ctx.modelSnapshotId,
+            businessKeyId = cmd.businessKeyId
+        )
     }
-
 
 
 }

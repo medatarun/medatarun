@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.core.statements.UpdateStatement
 import org.jetbrains.exposed.v1.jdbc.*
 
 internal class ModelStorageDbSnapshotWriter(
-    private val snapshots: ModelStorageDbSnapshots,
+    private val snapshotHead: ModelStorageDbSnapshotHead,
     private val clock: ModelClock,
 ) {
 
@@ -213,7 +213,7 @@ internal class ModelStorageDbSnapshotWriter(
     }
 
     fun entityAddTagIfNotExist(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
-        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+        val entitySnapshotId = snapshotHead.toEntitySnapshotId(modelSnapshotId, entityId)
         val exists = EntityTagTable.select(EntityTagTable.entitySnapshotId).where {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }.limit(1).any()
@@ -230,7 +230,7 @@ internal class ModelStorageDbSnapshotWriter(
     }
 
     fun entityDeleteTag(modelSnapshotId: ModelSnapshotId, entityId: EntityId, tagId: TagId) {
-        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+        val entitySnapshotId = snapshotHead.toEntitySnapshotId(modelSnapshotId, entityId)
         EntityTagTable.deleteWhere {
             (EntityTagTable.entitySnapshotId eq entitySnapshotId) and (EntityTagTable.tagId eq tagId)
         }
@@ -294,7 +294,7 @@ internal class ModelStorageDbSnapshotWriter(
     ) {
 
 
-        val entitySnapshotId = snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+        val entitySnapshotId = snapshotHead.toEntitySnapshotId(modelSnapshotId, entityId)
         val entityPKSnapshotIds = EntityPKTable.select(EntityPKTable.id)
             .where { EntityPKTable.entitySnapshotId eq entitySnapshotId }
             .orderBy(EntityPKTable.id to SortOrder.ASC)
@@ -415,7 +415,7 @@ internal class ModelStorageDbSnapshotWriter(
     ) {
         entityAttributeUpdate(modelSnapshotId, entityId, attributeId) { row ->
             row[EntityAttributeTable.typeSnapshotId] =
-                snapshots.currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
+                snapshotHead.toTypeSnapshotId(modelSnapshotId, typeId)
         }
     }
 
@@ -565,7 +565,7 @@ internal class ModelStorageDbSnapshotWriter(
         entityId: EntityId,
         cardinality: String
     ) {
-        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+        val relationshipSnapshotId = snapshotHead.toRelationshipSnapshotId(
             modelSnapshotId,
             relationshipId
         )
@@ -575,7 +575,7 @@ internal class ModelStorageDbSnapshotWriter(
             row[RelationshipRoleTable.relationshipSnapshotId] = relationshipSnapshotId
             row[RelationshipRoleTable.key] = key
             row[RelationshipRoleTable.entitySnapshotId] =
-                snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+                snapshotHead.toEntitySnapshotId(modelSnapshotId, entityId)
             row[RelationshipRoleTable.name] = name
             row[RelationshipRoleTable.cardinality] = cardinality
         }
@@ -629,7 +629,7 @@ internal class ModelStorageDbSnapshotWriter(
     ) {
         relationshipRoleUpdate(modelSnapshotId, relationshipId, relationshipRoleId) { row ->
             row[RelationshipRoleTable.entitySnapshotId] =
-                snapshots.currentHeadEntitySnapshotIdInModelSnapshot(modelSnapshotId, entityId)
+                snapshotHead.toEntitySnapshotId(modelSnapshotId, entityId)
         }
     }
 
@@ -660,7 +660,7 @@ internal class ModelStorageDbSnapshotWriter(
     }
 
     fun relationshipAddTagIfNotExists(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
-        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+        val relationshipSnapshotId = snapshotHead.toRelationshipSnapshotId(
             modelSnapshotId,
             relationshipId
         )
@@ -681,7 +681,7 @@ internal class ModelStorageDbSnapshotWriter(
     }
 
     fun relationshipDeleteTag(modelSnapshotId: ModelSnapshotId, relationshipId: RelationshipId, tagId: TagId) {
-        val relationshipSnapshotId = snapshots.currentHeadRelationshipSnapshotIdInModelSnapshot(
+        val relationshipSnapshotId = snapshotHead.toRelationshipSnapshotId(
             modelSnapshotId,
             relationshipId
         )
@@ -777,7 +777,7 @@ internal class ModelStorageDbSnapshotWriter(
         typeId: TypeId
     ) {
         relationshipAttributeUpdate(modelSnapshotId, relationshipId, attributeId) { row ->
-            val typeSnapshotId = snapshots.currentHeadTypeSnapshotIdInModelSnapshot(modelSnapshotId, typeId)
+            val typeSnapshotId = snapshotHead.toTypeSnapshotId(modelSnapshotId, typeId)
             row[RelationshipAttributeTable.typeSnapshotId] = typeSnapshotId
         }
     }
@@ -866,6 +866,81 @@ internal class ModelStorageDbSnapshotWriter(
 
     // Business key
     // -------------------------------------------------------------------------
+
+
+    private fun businessKeyUpdate(
+        modelSnapshotId: ModelSnapshotId,
+        businessKeyId: BusinessKeyId,
+        block: (UpdateStatement) -> Unit
+    ) {
+        val businessKeySnapshotId =
+            snapshotHead.toBusinessKeySnapshotId(modelSnapshotId, businessKeyId)
+        BusinessKeyTable.update(where = {
+            BusinessKeyTable.id eq businessKeySnapshotId
+        }) { row ->
+            block(row)
+        }
+    }
+
+    fun businessKeyUpdateKey(modelSnapshotId: ModelSnapshotId, businessKeyId: BusinessKeyId, key: BusinessKeyKey) {
+        businessKeyUpdate(modelSnapshotId, businessKeyId) { row ->
+            row[BusinessKeyTable.key] = key
+        }
+    }
+
+    fun businessKeyUpdateName(modelSnapshotId: ModelSnapshotId, businessKeyId: BusinessKeyId, name: LocalizedText?) {
+        businessKeyUpdate(modelSnapshotId, businessKeyId) { row ->
+            row[BusinessKeyTable.name] = name
+        }
+    }
+
+    fun businessKeyUpdateDescription(
+        modelSnapshotId: ModelSnapshotId,
+        businessKeyId: BusinessKeyId,
+        description: LocalizedMarkdown?
+    ) {
+        businessKeyUpdate(modelSnapshotId, businessKeyId) { row ->
+            row[BusinessKeyTable.description] = description
+        }
+    }
+
+    fun businessKeyUpdateParticipants(
+        modelSnapshotId: ModelSnapshotId,
+        businessKeyId: BusinessKeyId,
+        participantAttributeIds: List<AttributeId>
+    ) {
+        val refs = snapshotHead.toBusinessKeyAndEntitySnapshotId(modelSnapshotId, businessKeyId)
+        val businessKeySnapshotId = refs.businessKeySnapshotId
+        val entitySnapshotId = refs.entitySnapshotId
+
+        BusinessKeyAttributeTable.deleteWhere {
+            BusinessKeyAttributeTable.businessKeySnapshotId eq businessKeySnapshotId
+        }
+
+        val participantSnapshotIds = snapshotHead.toEntityAttributeSnapshotIds(
+            entitySnapshotId = entitySnapshotId,
+            attributeIds = participantAttributeIds
+        )
+        var priority = DEFAULT_ENTITY_PRIMARY_KEY_PRIORITY
+        for (participantAttributeSnapshotId in participantSnapshotIds) {
+            businessKeyAttributeInsert(
+                businessKeySnapshotId = businessKeySnapshotId,
+                attributeSnapshotId = participantAttributeSnapshotId,
+                priority = priority++
+            )
+        }
+    }
+
+    fun businessKeyDelete(modelSnapshotId: ModelSnapshotId, businessKeyId: BusinessKeyId) {
+        val businessKeySnapshotId =
+            snapshotHead.toBusinessKeySnapshotId(modelSnapshotId, businessKeyId)
+        BusinessKeyAttributeTable.deleteWhere {
+            BusinessKeyAttributeTable.businessKeySnapshotId eq businessKeySnapshotId
+        }
+        BusinessKeyTable.deleteWhere {
+            BusinessKeyTable.id eq businessKeySnapshotId
+        }
+    }
 
     fun businessKeyInsert(record: BusinessKeyRecord, attributeSnapshotIds: List<AttributeSnapshotId>) {
         businessKeyInsert(record)

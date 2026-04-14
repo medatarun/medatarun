@@ -33,6 +33,9 @@ class ModelStorageDbMissingCompatibilityIdentifierPrimaryKeyException(entityId: 
 class ModelStorageDbMissingRelationshipSnapshotException(relationshipId: RelationshipId) :
     MedatarunException("Could not find CURRENT_HEAD relationship snapshot for relationship [${relationshipId.asString()}]")
 
+class ModelStorageDbMissingBusinessKeySnapshotException(businessKeyId: BusinessKeyId) :
+    MedatarunException("Could not find CURRENT_HEAD business key snapshot for business key [${businessKeyId.asString()}]")
+
 class ModelStorageDbUnsupportedProjectedDeleteException(eventType: String) :
     MedatarunException("CURRENT_HEAD projector does not handle delete event [$eventType].")
 
