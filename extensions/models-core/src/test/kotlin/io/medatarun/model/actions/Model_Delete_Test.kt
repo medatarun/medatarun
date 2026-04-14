@@ -3,6 +3,7 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,7 +15,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model fails if model Id not found in any storage`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         env.dispatch(
             ModelAction.Model_Create(
                 ModelKey("recipe"),
@@ -38,7 +39,7 @@ class Model_Delete_Test {
 
     @Test
     fun `delete model removes it from storage`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val query: ModelQueries = env.queries
 
         env.dispatch(

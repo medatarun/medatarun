@@ -77,7 +77,7 @@ class Model_Release_Test {
 
     @Test
     fun `release without content change is allowed`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val modelKey = ModelKey("m1")
 
         env.dispatch(

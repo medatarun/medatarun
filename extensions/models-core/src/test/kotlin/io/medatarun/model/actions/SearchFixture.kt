@@ -293,7 +293,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
     }
 
     class Builder {
-        private val fixture = SearchFixture(createEnv())
+        private val fixture = SearchFixture(ModelTestEnv())
 
         fun addGlobalTags(): Builder {
             createTagGroup(

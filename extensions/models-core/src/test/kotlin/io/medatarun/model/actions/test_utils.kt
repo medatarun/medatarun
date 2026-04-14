@@ -7,13 +7,8 @@ import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.exposed.ModelQueries
 
 
-fun createEnv(): ModelTestEnv {
-    return ModelTestEnv()
-}
-
-
 class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
-    private val env = createEnv()
+    private val env = ModelTestEnv()
     val runtime: ModelTestEnv
         get() = env
     val query: ModelQueries = env.queries
@@ -43,7 +38,7 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
 
 
 class TestEnvTypes {
-    val runtime = createEnv()
+    val runtime = ModelTestEnv()
     val query: ModelQueries = runtime.queries
     private val modelKey = ModelKey("m1")
     val modelRef = modelRefKey(ModelKey("m1"))
@@ -62,7 +57,7 @@ class TestEnvTypes {
 }
 
 class TestEnvBusinessKey {
-    val runtime = createEnv()
+    val runtime = ModelTestEnv()
     val query: ModelQueries = runtime.queries
     val dispatch = runtime::dispatch
     val modelRef = modelRefKey(ModelKey("m1"))
@@ -80,7 +75,7 @@ class TestEnvBusinessKey {
 }
 
 class TestEnvEntityAttribute {
-    val runtime = createEnv()
+    val runtime = ModelTestEnv()
     val dispatch = runtime::dispatch
     val query: ModelQueries = runtime.queries
     private val sampleModelKey = ModelKey("model-1")
@@ -152,7 +147,7 @@ class TestEnvEntityAttribute {
 }
 
 class TestEnvRelationshipRole {
-    val runtime = createEnv()
+    val runtime = ModelTestEnv()
     val dispatch = runtime::dispatch
     val query: ModelQueries = runtime.queries
 

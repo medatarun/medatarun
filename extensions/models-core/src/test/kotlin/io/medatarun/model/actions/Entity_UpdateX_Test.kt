@@ -59,7 +59,7 @@ class Entity_UpdateX_Test {
 }
 
 class TestEnvEntityUpdate {
-    val runtime = createEnv()
+    val runtime = ModelTestEnv()
     val dispatch = runtime::dispatch
     val query: ModelQueries = runtime.queries
     private val modelKey = ModelKey("model-entity-update")

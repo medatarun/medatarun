@@ -252,7 +252,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a global tag removes it from every model location`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
 
@@ -317,7 +317,7 @@ class ModelAndTag_Event_Test {
 
     @Test
     fun `delete a global tag removes model-level tags after rebuild`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cookingRef = ModelRef.modelRefKey("cooking-rebuild")
         val crmRef = ModelRef.modelRefKey("crm-rebuild")
         env.dispatch(
@@ -359,7 +359,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a tag group removes its global tags from all model locations`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
         val crm = CrmModelSetup(env)
 
@@ -434,7 +434,7 @@ class ModelAndTag_Event_Test {
      */
     @Test
     fun `delete a scoped tag removes it from every location in the model`() {
-        val env = createEnv()
+        val env = ModelTestEnv()
         val cooking = CookingModelSetup(env)
 
         val draftOnlyTag = env.createLocalTagInModelScope(cooking.modelRef, "draft-only")
