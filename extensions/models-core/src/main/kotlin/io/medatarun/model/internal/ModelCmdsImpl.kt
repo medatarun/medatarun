@@ -59,7 +59,6 @@ class ModelCmdsImpl(
                 is ModelCmd.UpdateTypeDescription -> updateTypeDescription(cmdEnv, cmd)
                 is ModelCmd.DeleteType -> deleteType(cmdEnv, cmd)
                 is ModelCmd.CreateEntity -> createEntity(cmdEnv, cmd)
-                is ModelCmd.CreateEntity2 -> createEntity2(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityKey -> updateEntityKey(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityName -> updateEntityName(cmdEnv, cmd)
                 is ModelCmd.UpdateEntityDescription -> updateEntityDescription(cmdEnv, cmd)
@@ -691,47 +690,7 @@ class ModelCmdsImpl(
         )
     }
 
-
     private fun createEntity(cmdEnv: ModelCmdEnveloppe, c: ModelCmd.CreateEntity) {
-        val model = storage.findModel(c.modelRef)
-        val type = storage.findType(model.id, c.entityInitializer.identityAttribute.type)
-        val identityAttributeId = AttributeId.generate()
-        val entityId = EntityId.generate()
-
-        storageDispatch(
-            cmdEnv, ModelStorageCmd.CreateEntity(
-                modelId = model.id,
-                entityId = entityId,
-                key = c.entityInitializer.entityKey,
-                name = c.entityInitializer.name,
-                description = c.entityInitializer.description,
-                documentationHome = c.entityInitializer.documentationHome,
-                origin = EntityOrigin.Manual
-            )
-        )
-        storageDispatch(
-            cmdEnv, ModelStorageCmd.CreateEntityAttribute(
-                modelId = model.id,
-                entityId = entityId,
-                attributeId = identityAttributeId,
-                key = c.entityInitializer.identityAttribute.attributeKey,
-                name = c.entityInitializer.identityAttribute.name,
-                description = c.entityInitializer.identityAttribute.description,
-                typeId = type.id,
-                optional = false // because it's identity, can never be optional
-            )
-        )
-        storageDispatch(
-            cmdEnv, ModelStorageCmd.Entity_PrimaryKey_Set(
-                modelId = model.id,
-                entityId = entityId,
-                attributeIds = listOf(identityAttributeId)
-            )
-        )
-
-    }
-
-    private fun createEntity2(cmdEnv: ModelCmdEnveloppe, c: ModelCmd.CreateEntity2) {
         val model = storage.findModel(c.modelRef)
         val entityId = EntityId.generate()
 

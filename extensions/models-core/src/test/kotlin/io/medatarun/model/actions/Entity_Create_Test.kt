@@ -28,7 +28,7 @@ class Entity_Create_Test {
         val docHome = "http://test.dev/local=123"
         val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = name,
@@ -79,7 +79,7 @@ class Entity_Create_Test {
         val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = null,
@@ -126,7 +126,7 @@ class Entity_Create_Test {
         val identityAttributeRef = entityAttributeRefKey("String")
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = name,
@@ -173,7 +173,7 @@ class Entity_Create_Test {
         val identityAttributeRef = entityAttributeRefKey("id")
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = null,
@@ -215,7 +215,7 @@ class Entity_Create_Test {
         val entityRef = entityRefKey("entity-null-attr-name")
         val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = null,
@@ -256,7 +256,7 @@ class Entity_Create_Test {
         val url = URI("http://localhost:8080").toURL()
         val identityAttributeRef = entityAttributeRefKey("id")
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = null,

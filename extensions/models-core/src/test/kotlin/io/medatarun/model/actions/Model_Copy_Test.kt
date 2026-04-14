@@ -114,8 +114,8 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceRef.key, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, typeStringRef.key, null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, typeBooleanRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), LocalizedTextNotLocalized("Customer"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), LocalizedTextNotLocalized("Order"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), LocalizedTextNotLocalized("Customer"), null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), LocalizedTextNotLocalized("Order"), null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -393,7 +393,7 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = sourceRef,
                 entityKey = entityKey,
                 name = LocalizedTextNotLocalized("Customer"),
@@ -431,7 +431,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -489,7 +489,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -526,7 +526,7 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -564,8 +564,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -602,8 +602,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -643,8 +643,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -700,7 +700,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("person"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("person"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -748,8 +748,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -801,8 +801,8 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -920,7 +920,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -963,7 +963,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -1007,8 +1007,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -1058,8 +1058,8 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.Relationship_Create(
                 modelRef = sourceRef,
@@ -1122,8 +1122,8 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("customer"), null, null, null))
-        env.dispatch(ModelAction.Entity_Create2(sourceRef, EntityKey("order"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
+        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,

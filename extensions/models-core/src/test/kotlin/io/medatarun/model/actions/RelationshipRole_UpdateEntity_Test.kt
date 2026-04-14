@@ -61,7 +61,7 @@ class RelationshipRole_UpdateEntity_Test {
         )
         env.dispatch(ModelAction.Type_Create(otherModelRef, TypeKey("String"), null, null))
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = otherModelRef,
                 entityKey = EntityKey("other-entity"),
                 name = null,

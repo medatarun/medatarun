@@ -258,7 +258,7 @@ class Model_Compare_Test {
             )
         )
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = leftModelRef,
                 entityKey = customerEntityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),
@@ -303,7 +303,7 @@ class Model_Compare_Test {
             )
         )
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = rightModelRef,
                 entityKey = customerEntityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),
@@ -394,7 +394,7 @@ class Model_Compare_Test {
         )
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),

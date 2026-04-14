@@ -80,7 +80,7 @@ class TestEnvEntityUpdate {
         )
         runtime.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
         runtime.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = primaryEntityKey,
                 name = LocalizedTextNotLocalized("Entity primary"),
@@ -89,7 +89,7 @@ class TestEnvEntityUpdate {
             )
         )
         runtime.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = secondaryEntityKey,
                 name = LocalizedTextNotLocalized("Entity secondary"),

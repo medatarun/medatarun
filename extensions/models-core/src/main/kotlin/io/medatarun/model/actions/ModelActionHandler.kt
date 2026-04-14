@@ -246,29 +246,10 @@ class ModelActionHandler(
     // Entities
     // ------------------------------------------------------------------------
 
+
     fun entityCreate(cmd: ModelAction.Entity_Create) {
         dispatch(
             ModelCmd.CreateEntity(
-                modelRef = cmd.modelRef,
-                entityInitializer = EntityInitializer(
-                    entityKey = cmd.entityKey,
-                    name = cmd.name,
-                    description = cmd.description,
-                    documentationHome = cmd.documentationHome?.let { URI(it).toURL() },
-                    identityAttribute = AttributeIdentityInitializer(
-                        attributeKey = cmd.identityAttributeKey,
-                        type = cmd.identityAttributeType,
-                        name = cmd.identityAttributeName,
-                        description = null,
-                    )
-                ),
-            )
-        )
-    }
-
-    fun entityCreate2(cmd: ModelAction.Entity_Create2) {
-        dispatch(
-            ModelCmd.CreateEntity2(
                 modelRef = cmd.modelRef,
                 entityKey = cmd.entityKey,
                 name = cmd.name,

@@ -118,11 +118,6 @@ sealed interface ModelCmd {
 
     data class CreateEntity(
         override val modelRef: ModelRef,
-        val entityInitializer: EntityInitializer
-    ) : ModelCmdOnModel
-
-    data class CreateEntity2(
-        override val modelRef: ModelRef,
         val entityKey: EntityKey,
         val name: LocalizedText?,
         val description: LocalizedMarkdown?,

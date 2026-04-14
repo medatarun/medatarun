@@ -132,7 +132,7 @@ class ModelTestEnv(otherExtesions: List<MedatarunExtension> = emptyList()) {
         documentationHome: String? = null
     ): Any? {
         return dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = modelRef,
                 entityKey = entityKey,
                 name = name,

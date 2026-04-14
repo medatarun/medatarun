@@ -590,65 +590,6 @@ sealed interface ModelAction {
         )
         val description: LocalizedMarkdown?,
         @ActionParamDoc(
-            name = "Identity attribute key",
-            description = "Provide a stable code for the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 60
-        )
-        val identityAttributeKey: AttributeKey,
-        @ActionParamDoc(
-            name = "Identity attribute type",
-            description = "Choose the data type of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 70
-        )
-        val identityAttributeType: TypeRef,
-        @ActionParamDoc(
-            name = "Identity attribute name",
-            description = "Name of the attribute that will identify this entity. This first attribute is created together with the entity and is used to identify each occurrence of it.",
-            order = 50
-        )
-        val identityAttributeName: LocalizedText?,
-        @ActionParamDoc(
-            name = "External documentation",
-            description = "Link to external documentation for this entity.",
-            order = 80
-        )
-        val documentationHome: String?
-    ) : ModelAction
-
-
-    @ActionDoc(
-        key = "entity_create_next",
-        title = "Create entity",
-        description = "Creates an entity in an existing model.",
-        uiLocations = [ActionUILocation.model_entities],
-        securityRule = SecurityRuleNames.SIGNED_IN
-    )
-    data class Entity_Create2(
-        @ActionParamDoc(
-            name = "Model",
-            description = "Model where this entity will be created.",
-            order = 10
-        )
-        val modelRef: ModelRef,
-        @ActionParamDoc(
-            name = "Key",
-            description = "Provide a stable code for this entity. This code is used to identify it uniquely in the model. Use a short value, keep it stable over time, and avoid quotes, backslashes, and unusual special characters.",
-            order = 30
-        )
-        val entityKey: EntityKey,
-        @ActionParamDoc(
-            name = "Name",
-            description = "Name of this entity.",
-            order = 20
-        )
-        val name: LocalizedText?,
-        @ActionParamDoc(
-            name = "Description",
-            description = "Provide a comprehensive description of what this entity represents in the domain. Explain the business concept behind it, what belongs in it, the main rules that apply to it, how it should be used, etc.",
-            order = 40
-        )
-        val description: LocalizedMarkdown?,
-        @ActionParamDoc(
             name = "External documentation",
             description = "Link to external documentation for this entity.",
             order = 80

@@ -512,7 +512,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         env.dispatch(ModelAction.Type_Create(refs.crm.ref, TypeKey("String"), null, null))
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = refs.crm.ref,
                 entityKey = refs.crm.person.key,
                 name = null,
@@ -566,7 +566,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         )
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = refs.crm.ref,
                 entityKey = refs.crm.company.key,
                 name = null,
@@ -649,7 +649,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         env.dispatch(ModelAction.Type_Create(refs.cooking.ref, TypeKey("String"), null, null))
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = refs.cooking.ref,
                 entityKey = refs.cooking.ingredient.key,
                 name = null,
@@ -692,7 +692,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         )
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = refs.cooking.ref,
                 entityKey = refs.cooking.recipe.key,
                 name = null,
@@ -735,7 +735,7 @@ internal class SearchFixture private constructor(val env: ModelTestEnv) {
         )
 
         env.dispatch(
-            ModelAction.Entity_Create2(
+            ModelAction.Entity_Create(
                 modelRef = refs.cooking.ref,
                 entityKey = refs.cooking.chef.key,
                 name = null,
