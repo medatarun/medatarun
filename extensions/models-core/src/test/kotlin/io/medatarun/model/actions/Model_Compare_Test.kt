@@ -3,8 +3,11 @@ package io.medatarun.model.actions
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.actions.compare.ModelCompareDto
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import kotlin.test.*
@@ -15,16 +18,16 @@ class Model_Compare_Test {
     @Test
     fun `compare action returns model diff result`() {
         val env = ModelTestEnv()
-        val leftKey = ModelKey("left-model")
-        val rightKey = ModelKey("right-model")
-        createBaseModel(env, leftKey)
-        createBaseModel(env, rightKey)
+        val leftRef = modelRefKey("left-model")
+        val rightRef = modelRefKey("right-model")
+        createBaseModel(env, leftRef.key)
+        createBaseModel(env, rightRef.key)
 
         val result = env.dispatch(
             ModelAction.Compare(
-                leftModelRef = modelRefKey(leftKey),
+                leftModelRef = leftRef,
                 leftModelVersion = null,
-                rightModelRef = modelRefKey(rightKey),
+                rightModelRef = rightRef,
                 rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
@@ -36,14 +39,14 @@ class Model_Compare_Test {
     @Test
     fun `compare structural includes attribute optional change`() {
         val env = ModelTestEnv()
-        val leftKey = ModelKey("left-model-optional")
-        val rightKey = ModelKey("right-model-optional")
-        createBaseModel(env, leftKey)
-        createBaseModel(env, rightKey)
+        val leftRef = modelRefKey("left-model-optional")
+        val rightRef = modelRefKey("right-model-optional")
+        createBaseModel(env, leftRef.key)
+        createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateOptional(
-                modelRef = modelRefKey(rightKey),
+                modelRef = rightRef,
                 entityRef = EntityRef.ByKey(EntityKey("Customer")),
                 attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
                 value = true
@@ -52,9 +55,9 @@ class Model_Compare_Test {
 
         val result = env.dispatch(
             ModelAction.Compare(
-                leftModelRef = modelRefKey(leftKey),
+                leftModelRef = leftRef,
                 leftModelVersion = null,
-                rightModelRef = modelRefKey(rightKey),
+                rightModelRef = rightRef,
                 rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
@@ -73,14 +76,14 @@ class Model_Compare_Test {
     @Test
     fun `compare complete includes description changes but structural ignores them`() {
         val env = ModelTestEnv()
-        val leftKey = ModelKey("left-model-content")
-        val rightKey = ModelKey("right-model-content")
-        createBaseModel(env, leftKey)
-        createBaseModel(env, rightKey)
+        val leftRef = modelRefKey("left-model-content")
+        val rightRef = modelRefKey("right-model-content")
+        createBaseModel(env, leftRef.key)
+        createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateDescription(
-                modelRef = modelRefKey(rightKey),
+                modelRef = rightRef,
                 entityRef = EntityRef.ByKey(EntityKey("Customer")),
                 attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
                 value = LocalizedMarkdownNotLocalized("email used for notifications")
@@ -89,9 +92,9 @@ class Model_Compare_Test {
 
         val structuralResult = env.dispatch(
             ModelAction.Compare(
-                leftModelRef = modelRefKey(leftKey),
+                leftModelRef = leftRef,
                 leftModelVersion = null,
-                rightModelRef = modelRefKey(rightKey),
+                rightModelRef = rightRef,
                 rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
@@ -102,9 +105,9 @@ class Model_Compare_Test {
 
         val completeResult = env.dispatch(
             ModelAction.Compare(
-                leftModelRef = modelRefKey(leftKey),
+                leftModelRef = leftRef,
                 leftModelVersion = null,
-                rightModelRef = modelRefKey(rightKey),
+                rightModelRef = rightRef,
                 rightModelVersion = null,
                 scope = ModelDiffScope.COMPLETE
             )
@@ -122,14 +125,14 @@ class Model_Compare_Test {
     @Test
     fun `compare without requested version uses current model state`() {
         val env = ModelTestEnv()
-        val leftKey = ModelKey("left-model-current-version")
-        val rightKey = ModelKey("right-model-current-version")
-        createBaseModel(env, leftKey)
-        createBaseModel(env, rightKey)
+        val leftRef = modelRefKey("left-model-current-version")
+        val rightRef = modelRefKey("right-model-current-version")
+        createBaseModel(env, leftRef.key)
+        createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateOptional(
-                modelRef = modelRefKey(leftKey),
+                modelRef = leftRef,
                 entityRef = EntityRef.ByKey(EntityKey("Customer")),
                 attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
                 value = true
@@ -137,16 +140,16 @@ class Model_Compare_Test {
         )
         env.dispatch(
             ModelAction.Model_Release(
-                modelRef = modelRefKey(leftKey),
+                modelRef = leftRef,
                 value = ModelVersion("2.0.0")
             )
         )
 
         val result = env.dispatch(
             ModelAction.Compare(
-                leftModelRef = modelRefKey(leftKey),
+                leftModelRef = leftRef,
                 leftModelVersion = null,
-                rightModelRef = modelRefKey(rightKey),
+                rightModelRef = rightRef,
                 rightModelVersion = null,
                 scope = ModelDiffScope.STRUCTURAL
             )
@@ -217,12 +220,12 @@ class Model_Compare_Test {
     @Test
     fun `compare with requested right version ignores changes made after that release`() {
         val env = ModelTestEnv()
-        val leftKey = ModelKey("crm-canonical")
-        val rightKey = ModelKey("crm-prod")
-        val leftModelRef = modelRefKey(leftKey)
-        val rightModelRef = modelRefKey(rightKey)
-        val customerEntityRef = EntityRef.ByKey(EntityKey("Customer"))
-        val emailAttributeRef = EntityAttributeRef.ByKey(AttributeKey("email"))
+        val leftModelRef = modelRefKey("crm-canonical")
+        val rightModelRef = modelRefKey("crm-prod")
+        val customerEntityRef = entityRefKey("Customer")
+        val emailAttributeRef = entityAttributeRefKey("email")
+        val idAttributeRef = entityAttributeRefKey("id")
+        val stringTypeRef = typeRefKey("String")
 
         // - create crm-canonical 1.0.0
         // - crm-canonical create type String
@@ -240,7 +243,7 @@ class Model_Compare_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                key = leftKey,
+                key = leftModelRef.key,
                 name = LocalizedTextNotLocalized("Left model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -249,29 +252,28 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Type_Create(
                 modelRef = leftModelRef,
-                typeKey = TypeKey("String"),
+                typeKey = stringTypeRef.key,
                 name = null,
                 description = null
             )
         )
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = leftModelRef,
-                entityKey = EntityKey("Customer"),
+                entityKey = customerEntityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
+        env.dispatch(ModelAction.EntityAttribute_Create(leftModelRef, customerEntityRef, null, idAttributeRef.key, stringTypeRef, false, null))
+        env.dispatch(ModelAction.EntityPrimaryKey_Update(leftModelRef, customerEntityRef, listOf(idAttributeRef)))
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = leftModelRef,
                 entityRef = customerEntityRef,
                 attributeKey = AttributeKey("email"),
-                type = TypeRef.typeRefKey(TypeKey("String")),
+                type = stringTypeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null
@@ -286,7 +288,7 @@ class Model_Compare_Test {
 
         env.dispatch(
             ModelAction.Model_Create(
-                key = rightKey,
+                key = rightModelRef.key,
                 name = LocalizedTextNotLocalized("Right model"),
                 description = null,
                 version = ModelVersion("1.0.0")
@@ -295,29 +297,29 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Type_Create(
                 modelRef = rightModelRef,
-                typeKey = TypeKey("String"),
+                typeKey = stringTypeRef.key,
                 name = null,
                 description = null
             )
         )
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = rightModelRef,
-                entityKey = EntityKey("Customer"),
+                entityKey = customerEntityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
+        env.dispatch(ModelAction.EntityAttribute_Create(rightModelRef, customerEntityRef, null, idAttributeRef.key, stringTypeRef, false, null))
+        env.dispatch(ModelAction.EntityPrimaryKey_Update(rightModelRef, customerEntityRef, listOf(idAttributeRef)))
+
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = rightModelRef,
                 entityRef = customerEntityRef,
                 attributeKey = AttributeKey("email"),
-                type = TypeRef.typeRefKey(TypeKey("String")),
+                type = stringTypeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null
@@ -370,7 +372,9 @@ class Model_Compare_Test {
 
     private fun createBaseModel(env: ModelTestEnv, modelKey: ModelKey) {
         val modelRef = modelRefKey(modelKey)
-        val entityRef = EntityRef.ByKey(EntityKey("Customer"))
+        val entityRef = entityRefKey("Customer")
+        val typeRef = typeRefKey("String")
+        val attributeIdRef = entityAttributeRefKey("id")
 
         env.dispatch(
             ModelAction.Model_Create(
@@ -388,15 +392,13 @@ class Model_Compare_Test {
                 description = null
             )
         )
+
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = modelRef,
-                entityKey = EntityKey("Customer"),
+                entityKey = entityRef.key,
                 name = LocalizedTextNotLocalized("Customer"),
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
@@ -404,12 +406,25 @@ class Model_Compare_Test {
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
                 entityRef = entityRef,
+                name = null,
+                description = null,
+                attributeKey = attributeIdRef.key,
+                type = typeRef
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = modelRef,
+                entityRef = entityRef,
                 attributeKey = AttributeKey("email"),
-                type = TypeRef.typeRefKey(TypeKey("String")),
+                type = typeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
                 description = null
             )
+        )
+        env.dispatch(
+            ModelAction.EntityPrimaryKey_Update(modelRef, entityRef, listOf(attributeIdRef))
         )
     }
 }
