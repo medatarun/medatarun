@@ -145,6 +145,20 @@ class ModelStorageDb(
         }
     }
 
+    override fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByIdOptional modelId={} id={}", modelId, id)
+            read.findBusinessKeyByIdOptional(modelId, id)
+        }
+    }
+
+    override fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
+        return db.withExposed {
+            logger.debug("findBusinessKeyByKeyOptional modelId={} key={}", modelId, key)
+            read.findBusinessKeyByKeyOptional(modelId, key)
+        }
+    }
+
     override fun findEntityAttributeByIdOptional(
         modelId: ModelId,
         entityId: EntityId,

@@ -736,6 +736,55 @@ class ModelActionHandler(
         )
     }
 
+    fun businessKeyUpdateKey(cmd: ModelAction.BusinessKey_Update_Key) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateKey(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateName(cmd: ModelAction.BusinessKey_Update_Name) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateName(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateDescription(cmd: ModelAction.BusinessKey_Update_Description) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateDescription(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyUpdateParticipants(cmd: ModelAction.BusinessKey_Update_Participants) {
+        dispatch(
+            ModelCmd.BusinessKeyUpdateParticipants(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef,
+                value = cmd.value
+            )
+        )
+    }
+
+    fun businessKeyDelete(cmd: ModelAction.BusinessKey_Delete) {
+        dispatch(
+            ModelCmd.BusinessKeyDelete(
+                modelRef = cmd.modelRef,
+                businessKeyRef = cmd.businessKeyRef
+            )
+        )
+    }
+
     // -------------------------------------------------------------------------
     // Other
     // -------------------------------------------------------------------------

@@ -14,6 +14,7 @@ import io.medatarun.model.infra.db.events.ModelEventKnownTypes
 import io.medatarun.model.infra.db.records.*
 import io.medatarun.model.infra.db.snapshots.SnapshotSelector
 import io.medatarun.model.infra.db.tables.*
+import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
 import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
 import org.jetbrains.exposed.v1.core.*
@@ -310,6 +311,56 @@ class ModelStorageDbRead(
             entityId = row[EntityTable.lineageId],
             participants = participants
         )
+    }
+
+    fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey? {
+        return findBusinessKeyByOptional(modelId, BusinessKeyTable.lineageId eq id)
+    }
+
+    fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey? {
+        return findBusinessKeyByOptional(modelId, BusinessKeyTable.key eq key)
+    }
+
+    private fun findBusinessKeyByOptional(modelId: ModelId, criterion: Op<Boolean>): BusinessKey? {
+        val row = BusinessKeyTable.join(
+            EntityTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyTable.entitySnapshotId,
+            otherColumn = EntityTable.id
+        ).join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = EntityTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(modelId).criterion() and criterion
+        }.limit(1).singleOrNull() ?: return null
+
+        return BusinessKeyInMemory(
+            id = row[BusinessKeyTable.lineageId],
+            key = row[BusinessKeyTable.key],
+            entityId = row[EntityTable.lineageId],
+            name = row[BusinessKeyTable.name],
+            description = row[BusinessKeyTable.description],
+            participants = findBusinessKeyParticipantsBySnapshotId(row[BusinessKeyTable.id])
+        )
+    }
+
+    private fun findBusinessKeyParticipantsBySnapshotId(businessKeySnapshotId: BusinessKeySnapshotId): List<PBKeyParticipantInMemory> {
+        return BusinessKeyAttributeTable.join(
+            EntityAttributeTable,
+            JoinType.INNER,
+            onColumn = BusinessKeyAttributeTable.attributeSnapshotId,
+            otherColumn = EntityAttributeTable.id
+        ).selectAll().where {
+            BusinessKeyAttributeTable.businessKeySnapshotId eq businessKeySnapshotId
+        }.orderBy(BusinessKeyAttributeTable.priority to SortOrder.ASC)
+            .map { row ->
+                PBKeyParticipantInMemory(
+                    attributeId = row[EntityAttributeTable.lineageId],
+                    position = row[BusinessKeyAttributeTable.priority]
+                )
+            }
     }
 
     private fun findEntityByOptional(

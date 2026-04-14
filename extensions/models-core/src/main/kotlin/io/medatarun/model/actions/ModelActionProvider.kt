@@ -8,7 +8,6 @@ import io.medatarun.platform.kernel.ExtensionRegistry
 import io.medatarun.platform.kernel.ResourceLocator
 import io.medatarun.security.AppActorResolver
 import io.medatarun.tags.core.domain.TagQueries
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class ModelActionProvider(
@@ -140,11 +139,11 @@ class ModelActionProvider(
             // ------------------------------------------------------------------------
 
             is ModelAction.BusinessKey_Create -> handler.businessKeyCreate(action)
-            is ModelAction.BusinessKey_Update_Key -> TODO()
-            is ModelAction.BusinessKey_Update_Name -> TODO()
-            is ModelAction.BusinessKey_Update_Description -> TODO()
-            is ModelAction.BusinessKey_Update_Participants -> TODO()
-            is ModelAction.BusinessKey_Delete -> TODO()
+            is ModelAction.BusinessKey_Update_Key -> handler.businessKeyUpdateKey(action)
+            is ModelAction.BusinessKey_Update_Name -> handler.businessKeyUpdateName(action)
+            is ModelAction.BusinessKey_Update_Description -> handler.businessKeyUpdateDescription(action)
+            is ModelAction.BusinessKey_Update_Participants -> handler.businessKeyUpdateParticipants(action)
+            is ModelAction.BusinessKey_Delete -> handler.businessKeyDelete(action)
 
             // History
 
@@ -163,4 +162,3 @@ class ModelActionProvider(
         const val ACTION_GROUP_KEY = "model"
     }
 }
-

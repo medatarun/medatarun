@@ -52,6 +52,12 @@ class RelationshipAttributeNotFoundException(
         StatusCode.NOT_FOUND
     )
 
+class BusinessKeyNotFoundException(modelRef: ModelRef, businessKeyRef: BusinessKeyRef) :
+    MedatarunException(
+        "Business key [${businessKeyRef.asString()}] not found in model [${modelRef.asString()}]",
+        StatusCode.NOT_FOUND
+    )
+
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
@@ -187,6 +193,23 @@ class RelationshipAttributeUpdateDuplicateKeyException(
     newKey: AttributeKey
 ) : MedatarunException(
     "Cannot change key of attribute [${attributeRef.asString()}] in relationship [${relationshipRef.asString()}] of model [${modelRef.asString()}] to value [${newKey.value}] because it is already used by another attribute.",
+    StatusCode.BAD_REQUEST
+)
+
+class BusinessKeyCreateDuplicateKeyException(
+    modelRef: ModelRef,
+    key: BusinessKeyKey
+) : MedatarunException(
+    "Cannot create business key in model [${modelRef.asString()}] because key [${key.value}] already exists.",
+    StatusCode.BAD_REQUEST
+)
+
+class BusinessKeyUpdateDuplicateKeyException(
+    modelRef: ModelRef,
+    businessKeyRef: BusinessKeyRef,
+    key: BusinessKeyKey
+) : MedatarunException(
+    "Cannot update business key [${businessKeyRef.asString()}] in model [${modelRef.asString()}] to key [${key.value}] because this key already exists.",
     StatusCode.BAD_REQUEST
 )
 

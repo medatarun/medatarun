@@ -31,4 +31,15 @@ interface BusinessKey {
      * Description of the key
      */
     val description: String?
+
+    /**
+     * Returns true when this business key contains exactly the provided attributes,
+     * in the same order.
+     */
+    fun containsInOrder(attributeIds: List<AttributeId>): Boolean {
+        val orderedAttributeIds = participants
+            .sortedBy { participant -> participant.position }
+            .map { participant -> participant.attributeId }
+        return orderedAttributeIds == attributeIds
+    }
 }

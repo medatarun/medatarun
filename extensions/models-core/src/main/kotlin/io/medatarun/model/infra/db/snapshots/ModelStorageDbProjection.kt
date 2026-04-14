@@ -82,6 +82,11 @@ internal class ModelStorageDbProjection(
             is ModelStorageCmd.UpdateRelationshipAttributeTagDelete -> deleteRelationshipAttributeTag(ctx, cmd)
             is ModelStorageCmd.DeleteRelationshipAttribute -> deleteRelationshipAttribute(ctx, cmd)
             is ModelStorageCmd.BusinessKeyCreate -> businessKeyCreate(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyUpdateKey -> businessKeyUpdateKey(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyUpdateName -> businessKeyUpdateName(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyUpdateDescription -> businessKeyUpdateDescription(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyUpdateParticipants -> businessKeyUpdateParticipants(ctx, cmd)
+            is ModelStorageCmd.BusinessKeyDelete -> BusinessKeyDelete(ctx, cmd)
             is ModelStorageCmd.DeleteModel -> throw ModelStorageDbUnsupportedProjectedDeleteException("model_deleted")
             //@formatter:on
         }
@@ -774,6 +779,29 @@ internal class ModelStorageDbProjection(
     // -------------------------------------------------------------------------
 
     private fun businessKeyCreate(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyCreate) {
+        TODO()
+    }
+
+    private fun businessKeyUpdateKey(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateKey) {
+        TODO()
+    }
+
+    private fun businessKeyUpdateName(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateName) {
+        TODO()
+    }
+
+    private fun businessKeyUpdateDescription(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyUpdateDescription) {
+        TODO()
+    }
+
+    private fun businessKeyUpdateParticipants(
+        ctx: ProjectionEventCtx,
+        cmd: ModelStorageCmd.BusinessKeyUpdateParticipants
+    ) {
+        TODO()
+    }
+
+    private fun BusinessKeyDelete(ctx: ProjectionEventCtx, cmd: ModelStorageCmd.BusinessKeyDelete) {
         TODO()
     }
 

@@ -383,7 +383,7 @@ sealed interface ModelCmd {
     ) : ModelCmdOnModel
 
     // -------------------------------------------------------------------------
-    // Business key create
+    // Business keys
     // -------------------------------------------------------------------------
 
     data class BusinessKeyCreate(
@@ -393,6 +393,35 @@ sealed interface ModelCmd {
         val name: LocalizedText?,
         val description: LocalizedMarkdown?,
         val participants: List<EntityAttributeRef>
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateKey(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: BusinessKeyKey
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateName(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: LocalizedText?
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateDescription(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: LocalizedMarkdown?
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyUpdateParticipants(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
+        val value: List<EntityAttributeRef>
+    ) : ModelCmdOnModel
+
+    data class BusinessKeyDelete(
+        override val modelRef: ModelRef,
+        val businessKeyRef: BusinessKeyRef,
     ) : ModelCmdOnModel
 
 

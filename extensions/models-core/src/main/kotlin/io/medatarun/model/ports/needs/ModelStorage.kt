@@ -104,6 +104,19 @@ interface ModelStorage {
 
     fun findEntityPrimaryKeyOptional(modelId: ModelId, entityId: EntityId): EntityPrimaryKey?
 
+    // Business key
+
+    fun findBusinessKeyByIdOptional(modelId: ModelId, id: BusinessKeyId): BusinessKey?
+
+    fun findBusinessKeyByKeyOptional(modelId: ModelId, key: BusinessKeyKey): BusinessKey?
+
+    fun findBusinessKeyOptional(modelId: ModelId, ref: BusinessKeyRef): BusinessKey? {
+        return when (ref) {
+            is BusinessKeyRef.ById -> findBusinessKeyByIdOptional(modelId, ref.id)
+            is BusinessKeyRef.ByKey -> findBusinessKeyByKeyOptional(modelId, ref.key)
+        }
+    }
+
     // Entity attribute
 
     fun findEntityAttributeByIdOptional(modelId: ModelId, entityId: EntityId, attributeId: AttributeId): Attribute?
