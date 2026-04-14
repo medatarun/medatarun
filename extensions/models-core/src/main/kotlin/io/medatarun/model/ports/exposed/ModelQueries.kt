@@ -86,6 +86,7 @@ interface ModelQueries {
     // -------------------------------------------------------------------------
 
     fun findEntity(modelRef: ModelRef, entityRef: EntityRef): Entity
+    fun findEntityOptional(modelRef: ModelRef, entityRef: EntityRef): Entity?
 
     // -------------------------------------------------------------------------
     // Entity attributes

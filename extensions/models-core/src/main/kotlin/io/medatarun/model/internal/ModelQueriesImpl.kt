@@ -64,8 +64,15 @@ class ModelQueriesImpl(
         modelRef: ModelRef,
         entityRef: EntityRef
     ): Entity {
-        val model = findModelAggregate(modelRef)
-        return model.findEntityOptional(entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+        return findEntityOptional(modelRef, entityRef) ?: throw EntityNotFoundException(modelRef, entityRef)
+    }
+
+    override fun findEntityOptional(
+        modelRef: ModelRef,
+        entityRef: EntityRef
+    ): Entity? {
+        val model = storage.findModel(modelRef)
+        return storage.findEntityOptional(model.id, entityRef)
     }
 
     override fun findEntityAttributeOptional(
