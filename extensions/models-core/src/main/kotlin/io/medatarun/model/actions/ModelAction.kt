@@ -1820,7 +1820,7 @@ sealed interface ModelAction {
             order = 30
         )
         val participants: List<EntityAttributeRef>,
-    )
+    ) : ModelAction
     @ActionDoc(
         key = "business_key_update_key",
         title = "Update business key's key",
@@ -1847,7 +1847,7 @@ sealed interface ModelAction {
             order = 30
         )
         val value: BusinessKeyKey,
-    )
+    ) : ModelAction
 
     @ActionDoc(
         key = "business_key_update_name",
@@ -1875,7 +1875,7 @@ sealed interface ModelAction {
             order = 30
         )
         val value: LocalizedText?,
-    )
+    ) : ModelAction
     @ActionDoc(
         key = "business_key_update_description",
         title = "Update business key description",
@@ -1902,7 +1902,7 @@ sealed interface ModelAction {
             order = 30
         )
         val value: LocalizedMarkdown?,
-    )
+    ) : ModelAction
 
     @ActionDoc(
         key = "business_key_update_participants",
@@ -1930,7 +1930,7 @@ sealed interface ModelAction {
             order = 30
         )
         val value: List<EntityAttributeRef>,
-    )
+    ) : ModelAction
 
     @ActionDoc(
         key = "business_key_delete",
@@ -1952,7 +1952,7 @@ sealed interface ModelAction {
             order = 20
         )
         val businessKeyRef: BusinessKeyRef
-    )
+    ) : ModelAction
 
 
     // ------------------------------------------------------------------------
