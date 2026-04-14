@@ -40,111 +40,17 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
 class TestEnvTypes {
     val runtime = ModelTestEnv()
     val query: ModelQueries = runtime.queries
-    private val modelKey = ModelKey("m1")
+
     val modelRef = modelRefKey(ModelKey("m1"))
     val dispatch = runtime::dispatch
 
     init {
-        runtime.dispatch(
-            ModelAction.Model_Create(
-                key = modelKey,
-                name = LocalizedTextNotLocalized("Model name"),
-                description = null,
-                version = ModelVersion("2.0.0")
-            )
-        )
+        runtime.modelCreate(modelRef.key)
+
     }
 }
 
-class TestEnvBusinessKey {
-    val runtime = ModelTestEnv()
-    val query: ModelQueries = runtime.queries
-    val dispatch = runtime::dispatch
-    val modelRef = modelRefKey(ModelKey("m1"))
 
-    init {
-        runtime.dispatch(
-            ModelAction.Model_Create(
-                key = modelRef.key,
-                name = LocalizedTextNotLocalized("Model name"),
-                description = null,
-                version = ModelVersion("2.0.0")
-            )
-        )
-    }
-}
-
-class TestEnvEntityAttribute {
-    val runtime = ModelTestEnv()
-    val dispatch = runtime::dispatch
-    val query: ModelQueries = runtime.queries
-    private val sampleModelKey = ModelKey("model-1")
-    val sampleModelRef = modelRefKey(sampleModelKey)
-    val sampleEntityKey = EntityKey("Entity1")
-    val sampleEntityRef = EntityRef.ByKey(sampleEntityKey)
-
-    init {
-        runtime.dispatch(
-            ModelAction.Model_Create(
-                sampleModelKey,
-                LocalizedTextNotLocalized("Model 1"),
-                null,
-                ModelVersion("1.0.0")
-            )
-        )
-        runtime.dispatch(ModelAction.Type_Create(sampleModelRef, TypeKey("String"), null, null))
-    }
-
-    fun addSampleEntity() {
-        runtime.dispatch(
-            ModelAction.Entity_Create(
-                modelRef = sampleModelRef,
-                entityKey = sampleEntityKey,
-                name = null,
-                description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
-                documentationHome = null
-            )
-        )
-    }
-
-    fun createAttribute(
-        attributeKey: AttributeKey = AttributeKey("myattribute"),
-        type: TypeRef = TypeRef.typeRefKey(TypeKey("String")),
-        optional: Boolean = false,
-        name: LocalizedText? = null,
-        description: LocalizedMarkdown? = null
-    ): Attribute {
-
-        runtime.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = sampleModelRef,
-                entityRef = sampleEntityRef,
-                attributeKey = attributeKey,
-                type = type,
-                optional = optional,
-                name = name,
-                description = description
-            )
-        )
-        val model = query.findModelAggregate(sampleModelRef)
-        val attributeRef = EntityAttributeRef.ByKey(attributeKey)
-        val reloaded = model.findEntityAttributeOptional(sampleEntityRef, attributeRef)
-            ?: throw EntityAttributeNotFoundException(sampleModelRef, sampleEntityRef, attributeRef)
-        return reloaded
-    }
-
-    fun reloadAttribute(
-        attributeRef: EntityAttributeRef,
-        reloadId: EntityAttributeRef? = null
-    ): Attribute {
-        val reloaded = query.findEntityAttribute(sampleModelRef, sampleEntityRef, reloadId ?: attributeRef)
-        return reloaded
-    }
-
-}
 
 class TestEnvRelationshipRole {
     val runtime = ModelTestEnv()
@@ -177,26 +83,20 @@ class TestEnvRelationshipRole {
         )
         runtime.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
         runtime.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = modelRef,
                 entityKey = primaryEntityKey,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )
         runtime.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = modelRef,
                 entityKey = secondaryEntityKey,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("id"),
-                identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                identityAttributeName = null,
                 documentationHome = null
             )
         )

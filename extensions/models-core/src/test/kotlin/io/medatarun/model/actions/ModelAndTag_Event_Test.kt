@@ -31,14 +31,11 @@ class ModelAndTag_Event_Test {
             )
             env.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
             env.dispatch(
-                ModelAction.Entity_Create(
+                ModelAction.Entity_Create2(
                     modelRef = modelRef,
                     entityKey = EntityKey("ingredient"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -65,14 +62,11 @@ class ModelAndTag_Event_Test {
                 )
             )
             env.dispatch(
-                ModelAction.Entity_Create(
+                ModelAction.Entity_Create2(
                     modelRef = modelRef,
                     entityKey = EntityKey("recipe"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -147,14 +141,11 @@ class ModelAndTag_Event_Test {
             )
             env.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
             env.dispatch(
-                ModelAction.Entity_Create(
+                ModelAction.Entity_Create2(
                     modelRef = modelRef,
                     entityKey = EntityKey("person"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )
@@ -181,14 +172,11 @@ class ModelAndTag_Event_Test {
                 )
             )
             env.dispatch(
-                ModelAction.Entity_Create(
+                ModelAction.Entity_Create2(
                     modelRef = modelRef,
                     entityKey = EntityKey("company"),
                     name = null,
                     description = null,
-                    identityAttributeKey = AttributeKey("id"),
-                    identityAttributeType = TypeRef.typeRefKey(TypeKey("String")),
-                    identityAttributeName = null,
                     documentationHome = null
                 )
             )

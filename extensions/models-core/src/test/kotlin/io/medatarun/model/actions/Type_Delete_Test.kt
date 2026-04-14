@@ -64,15 +64,23 @@ class Type_Delete_Test {
         val relationshipRef = RelationshipRef.ByKey(relationshipKey)
 
         env.dispatch(
-            ModelAction.Entity_Create(
+            ModelAction.Entity_Create2(
                 modelRef = env.modelRef,
                 entityKey = entityKey,
                 name = null,
                 description = null,
-                identityAttributeKey = AttributeKey("name"),
-                identityAttributeType = typeString,
-                identityAttributeName = null,
                 documentationHome = null
+            )
+        )
+        env.dispatch(
+            ModelAction.EntityAttribute_Create(
+                modelRef = env.modelRef,
+                entityRef = entityRef,
+                attributeKey = AttributeKey("name"),
+                type = typeString,
+                optional = false,
+                name = null,
+                description = null
             )
         )
         env.dispatch(
