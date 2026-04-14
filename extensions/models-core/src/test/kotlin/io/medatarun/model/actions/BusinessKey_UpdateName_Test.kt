@@ -26,29 +26,17 @@ class BusinessKey_UpdateName_Test {
         val businessKeyRef = businessKeyRefKey("order_business_key")
         val newName = LocalizedTextNotLocalized("Updated business key name")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = LocalizedTextNotLocalized("Order business key"),
-                key = businessKeyRef.key,
-                description = LocalizedMarkdownNotLocalized("Order business key description"),
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef),
+            name = LocalizedTextNotLocalized("Order business key"),
+            description = LocalizedMarkdownNotLocalized("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Name(modelRef, businessKeyRef, newName))
@@ -68,29 +56,17 @@ class BusinessKey_UpdateName_Test {
         val idAttributeRef = entityAttributeRefKey("id")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = LocalizedTextNotLocalized("Order business key"),
-                key = businessKeyRef.key,
-                description = LocalizedMarkdownNotLocalized("Order business key description"),
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef),
+            name = LocalizedTextNotLocalized("Order business key"),
+            description = LocalizedMarkdownNotLocalized("Order business key description")
         )
 
         env.dispatch(ModelAction.BusinessKey_Update_Name(modelRef, businessKeyRef, null))
@@ -109,29 +85,17 @@ class BusinessKey_UpdateName_Test {
         val idAttributeRef = entityAttributeRefKey("id")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = LocalizedTextNotLocalized("Order business key"),
-                key = businessKeyRef.key,
-                description = LocalizedMarkdownNotLocalized("Order business key description"),
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef),
+            name = LocalizedTextNotLocalized("Order business key"),
+            description = LocalizedMarkdownNotLocalized("Order business key description")
         )
 
         val beforeEventId = env.findLastStoredModelChangeEvent(modelRef).eventId

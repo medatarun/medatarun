@@ -26,40 +26,18 @@ class BusinessKey_Create_Test {
         val codeAttributeRef = entityAttributeRefKey("code")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = codeAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = LocalizedTextNotLocalized("Order business key"),
-                key = businessKeyRef.key,
-                description = LocalizedMarkdownNotLocalized("Identifies an order in business flows"),
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef, codeAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.entityAttributeCreate(modelRef, entityRef, codeAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef, codeAttributeRef),
+            name = LocalizedTextNotLocalized("Order business key"),
+            description = LocalizedMarkdownNotLocalized("Identifies an order in business flows")
         )
 
         env.replayWithRebuild {
@@ -84,15 +62,11 @@ class BusinessKey_Create_Test {
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
         assertThrows<ModelNotFoundException> {
-            env.dispatch(
-                ModelAction.BusinessKey_Create(
-                    modelRef = modelRefKey("unknown-model"),
-                    name = null,
-                    key = businessKeyRef.key,
-                    description = null,
-                    entityRef = entityRef,
-                    participants = listOf(idAttributeRef)
-                )
+            env.businessKeyCreate(
+                modelRef = modelRefKey("unknown-model"),
+                key = businessKeyRef.key,
+                entityRef = entityRef,
+                participants = listOf(idAttributeRef)
             )
         }
     }
@@ -104,18 +78,14 @@ class BusinessKey_Create_Test {
         val businessKeyRef = businessKeyRefKey("order_business_key")
         val idAttributeRef = entityAttributeRefKey("id")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
+        env.modelCreate(modelRef.key)
 
         assertThrows<EntityNotFoundException> {
-            env.dispatch(
-                ModelAction.BusinessKey_Create(
-                    modelRef = modelRef,
-                    name = null,
-                    key = businessKeyRef.key,
-                    description = null,
-                    entityRef = entityRefKey("unknown-entity"),
-                    participants = listOf(idAttributeRef)
-                )
+            env.businessKeyCreate(
+                modelRef = modelRef,
+                key = businessKeyRef.key,
+                entityRef = entityRefKey("unknown-entity"),
+                participants = listOf(idAttributeRef)
             )
         }
     }
@@ -128,20 +98,16 @@ class BusinessKey_Create_Test {
         val entityRef = entityRefKey("order")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
 
         assertThrows<EntityAttributeNotFoundException> {
-            env.dispatch(
-                ModelAction.BusinessKey_Create(
-                    modelRef = modelRef,
-                    name = null,
-                    key = businessKeyRef.key,
-                    description = null,
-                    entityRef = entityRef,
-                    participants = listOf(entityAttributeRefKey("unknown-attribute"))
-                )
+            env.businessKeyCreate(
+                modelRef = modelRef,
+                key = businessKeyRef.key,
+                entityRef = entityRef,
+                participants = listOf(entityAttributeRefKey("unknown-attribute"))
             )
         }
     }
@@ -155,41 +121,23 @@ class BusinessKey_Create_Test {
         val idAttributeRef = entityAttributeRefKey("id")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = null,
-                key = businessKeyRef.key,
-                description = null,
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef)
         )
 
         assertThrows<BusinessKeyCreateDuplicateKeyException> {
-            env.dispatch(
-                ModelAction.BusinessKey_Create(
-                    modelRef = modelRef,
-                    name = null,
-                    key = businessKeyRef.key,
-                    description = null,
-                    entityRef = entityRef,
-                    participants = listOf(idAttributeRef)
-                )
+            env.businessKeyCreate(
+                modelRef = modelRef,
+                key = businessKeyRef.key,
+                entityRef = entityRef,
+                participants = listOf(idAttributeRef)
             )
         }
         val reloaded = env.queries.findBusinessKeyOptional(modelRef, businessKeyRef)

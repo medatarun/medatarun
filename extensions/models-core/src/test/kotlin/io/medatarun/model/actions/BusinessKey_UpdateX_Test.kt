@@ -2,7 +2,10 @@ package io.medatarun.model.actions
 
 import io.medatarun.model.domain.*
 import io.medatarun.model.domain.BusinessKeyRef.Companion.businessKeyRefKey
+import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
+import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import org.junit.jupiter.api.Test
@@ -15,34 +18,22 @@ class BusinessKey_UpdateX_Test {
     fun `update business key with model not found`() {
         val env = ModelTestEnv()
         val modelRef = modelRefKey("business-key-update-x-model-not-found")
-        val typeRef = TypeRef.typeRefKey("String")
-        val entityRef = EntityRef.entityRefKey("order")
-        val idAttributeRef = EntityAttributeRef.entityAttributeRefKey("id")
+        val typeRef = typeRefKey("String")
+        val entityRef = entityRefKey("order")
+        val idAttributeRef = entityAttributeRefKey("id")
         val businessKeyRef = businessKeyRefKey("order_business_key")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
-        env.dispatch(ModelAction.Type_Create(modelRef, typeRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create2(modelRef, entityRef.key, null, null, null))
-        env.dispatch(
-            ModelAction.EntityAttribute_Create(
-                modelRef = modelRef,
-                entityRef = entityRef,
-                name = null,
-                attributeKey = idAttributeRef.key,
-                type = typeRef,
-                optional = false,
-                description = null
-            )
-        )
-        env.dispatch(
-            ModelAction.BusinessKey_Create(
-                modelRef = modelRef,
-                name = LocalizedTextNotLocalized("Order business key"),
-                key = businessKeyRef.key,
-                description = LocalizedMarkdownNotLocalized("Order business key description"),
-                entityRef = entityRef,
-                participants = listOf(idAttributeRef)
-            )
+        env.modelCreate(modelRef.key)
+        env.typeCreate(modelRef, typeRef.key)
+        env.entityCreate2(modelRef, entityRef.key)
+        env.entityAttributeCreate(modelRef, entityRef, idAttributeRef.key, typeRef)
+        env.businessKeyCreate(
+            modelRef = modelRef,
+            key = businessKeyRef.key,
+            entityRef = entityRef,
+            participants = listOf(idAttributeRef),
+            name = LocalizedTextNotLocalized("Order business key"),
+            description = LocalizedMarkdownNotLocalized("Order business key description")
         )
 
         assertThrows<ModelNotFoundException> {
@@ -61,7 +52,7 @@ class BusinessKey_UpdateX_Test {
         val env = ModelTestEnv()
         val modelRef = modelRefKey("business-key-update-x-bk-not-found")
 
-        env.dispatch(ModelAction.Model_Create(modelRef.key, LocalizedTextNotLocalized("Model"), null, ModelVersion("1.0.0")))
+        env.modelCreate(modelRef.key)
 
         assertThrows<BusinessKeyNotFoundException> {
             env.dispatch(
