@@ -8,6 +8,7 @@ import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.TypeCreateDuplicateException
 import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef
+import io.medatarun.model.domain.fixtures.ModelTestEnv
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -19,19 +20,21 @@ class Type_Create_Test {
 
     @Test
     fun `create type`() {
-        val env = TestEnvTypes()
-        env.runtime.dispatch(
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
+        env.dispatch(
             ModelAction.Type_Create(
-                modelRef = env.modelRef,
+                modelRef = modelRef,
                 typeKey = TypeKey("String"),
                 name = LocalizedTextNotLocalized("Simple string"),
                 description = LocalizedMarkdownNotLocalized("Simple string description")
             )
         )
 
-        assertEquals(1, env.query.findTypes(env.modelRef).size)
+        assertEquals(1, env.queries.findTypes(modelRef).size)
 
-        val type = env.query.findTypeOptional(env.modelRef, TypeRef.typeRefKey(TypeKey("String")))
+        val type = env.queries.findTypeOptional(modelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertNotNull(type)
         assertEquals(LocalizedTextNotLocalized("Simple string"), type.name)
         assertEquals(LocalizedMarkdownNotLocalized("Simple string description"), type.description)
@@ -39,19 +42,21 @@ class Type_Create_Test {
 
     @Test
     fun `create type without name and description`() {
-        val env = TestEnvTypes()
-        env.runtime.dispatch(
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
+        env.dispatch(
             ModelAction.Type_Create(
-                modelRef = env.modelRef,
+                modelRef = modelRef,
                 typeKey = TypeKey("String"),
                 name = null,
                 description = null
             )
         )
-        val types = env.query.findTypes(env.modelRef)
+        val types = env.queries.findTypes(modelRef)
         assertEquals(1, types.size)
 
-        val type = env.query.findTypeOptional(env.modelRef, TypeRef.typeRefKey(TypeKey("String")))
+        val type = env.queries.findTypeOptional(modelRef, TypeRef.typeRefKey(TypeKey("String")))
         assertNotNull(type)
         assertNull(type.name)
         assertNull(type.description)
@@ -59,7 +64,9 @@ class Type_Create_Test {
 
     @Test
     fun `create type on unknown model throw ModelNotFoundException`() {
-        val env = TestEnvTypes()
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
         assertThrows<ModelNotFoundException> {
             env.dispatch(
                 ModelAction.Type_Create(
@@ -74,12 +81,14 @@ class Type_Create_Test {
 
     @Test
     fun `create type with duplicate name throws DuplicateTypeException`() {
-        val env = TestEnvTypes()
-        env.dispatch(ModelAction.Type_Create(env.modelRef, TypeKey("String"), null, null))
+        val env = ModelTestEnv()
+        val modelRef = modelRefKey("m1")
+        env.modelCreate(modelRef.key)
+        env.dispatch(ModelAction.Type_Create(modelRef, TypeKey("String"), null, null))
         assertThrows<TypeCreateDuplicateException> {
             env.dispatch(
                 ModelAction.Type_Create(
-                    modelRef = env.modelRef,
+                    modelRef = modelRef,
                     typeKey = TypeKey("String"),
                     name = null,
                     description = null

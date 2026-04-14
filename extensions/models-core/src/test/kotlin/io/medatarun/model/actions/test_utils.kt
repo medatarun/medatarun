@@ -37,21 +37,6 @@ class TestEnvOneModel(version: ModelVersion = ModelVersion("2.0.0")) {
 }
 
 
-class TestEnvTypes {
-    val runtime = ModelTestEnv()
-    val query: ModelQueries = runtime.queries
-
-    val modelRef = modelRefKey(ModelKey("m1"))
-    val dispatch = runtime::dispatch
-
-    init {
-        runtime.modelCreate(modelRef.key)
-
-    }
-}
-
-
-
 class TestEnvRelationshipRole {
     val runtime = ModelTestEnv()
     val dispatch = runtime::dispatch
