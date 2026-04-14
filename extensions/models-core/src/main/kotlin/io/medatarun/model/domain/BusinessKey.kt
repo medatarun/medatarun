@@ -25,12 +25,12 @@ interface BusinessKey {
     /**
      * Name of the key
      */
-    val name: String?
+    val name: LocalizedText?
 
     /**
      * Description of the key
      */
-    val description: String?
+    val description: LocalizedMarkdown?
 
     /**
      * Returns true when this business key contains exactly the provided attributes,

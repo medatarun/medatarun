@@ -207,11 +207,10 @@ private fun sampleStoreModelAggregateCurrent(): ModelStorageCmd.StoreModelAggreg
                 businessKeyId = businessKeyId,
                 entityId = entityId,
                 key = BusinessKeyKey("bk"),
-                name = "Invoice ERP Key",
-                description = "Invoice number stored in ERP",
+                name = LocalizedTextNotLocalized("Invoice ERP Key"),
+                description = LocalizedMarkdownNotLocalized("Invoice number stored in ERP"),
                 participants = listOf(entityAttributeErpId)
             )
         ),
     )
 }
-

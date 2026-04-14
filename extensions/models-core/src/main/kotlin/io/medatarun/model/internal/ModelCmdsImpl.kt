@@ -602,7 +602,7 @@ class ModelCmdsImpl(
 
     private fun businessKeyUpdateName(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyUpdateName) {
         val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
-        if (businessKey.name == cmd.value?.name) return
+        if (businessKey.name == cmd.value) return
         storageDispatch(
             cmdEnv,
             ModelStorageCmd.BusinessKeyUpdateName(
@@ -615,7 +615,7 @@ class ModelCmdsImpl(
 
     private fun businessKeyUpdateDescription(cmdEnv: ModelCmdEnveloppe, cmd: ModelCmd.BusinessKeyUpdateDescription) {
         val (model, businessKey) = findModelAndBusinessKey(cmd.modelRef, cmd.businessKeyRef)
-        if (businessKey.description == cmd.value?.name) return
+        if (businessKey.description == cmd.value) return
         storageDispatch(
             cmdEnv,
             ModelStorageCmd.BusinessKeyUpdateDescription(

@@ -9,8 +9,8 @@ data class BusinessKeyRecord(
     val lineageId: BusinessKeyId,
     val modelEntitySnapshotId: EntitySnapshotId,
     val key: BusinessKeyKey,
-    val name: String?,
-    val description: String?
+    val name: LocalizedText?,
+    val description: LocalizedMarkdown?
 ) {
     companion object {
         fun read(row: ResultRow): BusinessKeyRecord {

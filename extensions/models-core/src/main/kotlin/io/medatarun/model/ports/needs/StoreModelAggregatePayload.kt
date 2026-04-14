@@ -212,10 +212,10 @@ data class StoreModelAggregateBusinessKey(
     val key: BusinessKeyKey,
     @Contextual
     @SerialName("name")
-    val name: String?,
+    val name: LocalizedText?,
     @Contextual
     @SerialName("description")
-    val description: String?,
+    val description: LocalizedMarkdown?,
     @Contextual
     @SerialName("participants")
     val participants: List<@Contextual AttributeId>,

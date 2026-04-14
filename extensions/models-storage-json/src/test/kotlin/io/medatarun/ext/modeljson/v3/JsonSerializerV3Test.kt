@@ -1050,8 +1050,8 @@ internal class JsonSerializerV3Test {
                     PBKeyParticipantInMemory(attributeId = attrFirstId, position = 1),
                     PBKeyParticipantInMemory(attributeId = attrSecondId, position = 2)
                 ),
-                name = "Customer BK",
-                description = "Uniquely identifies customer"
+                name = LocalizedTextNotLocalized("Customer BK"),
+                description = LocalizedMarkdownNotLocalized("Uniquely identifies customer")
             )
         }
 
@@ -1244,16 +1244,16 @@ internal class JsonSerializerV3Test {
                 key = BusinessKeyKey("customer-bk"),
                 entityId = entityAId,
                 participants = listOf(PBKeyParticipantInMemory(attributeId = attrAId, position = 1)),
-                name = "Customer BK",
-                description = "Customer key"
+                name = LocalizedTextNotLocalized("Customer BK"),
+                description = LocalizedMarkdownNotLocalized("Customer key")
             )
             addBusinessKey(
                 id = businessKeyBId,
                 key = BusinessKeyKey("order-bk"),
                 entityId = entityBId,
                 participants = listOf(PBKeyParticipantInMemory(attributeId = attrBId, position = 1)),
-                name = "Order BK",
-                description = "Order key"
+                name = LocalizedTextNotLocalized("Order BK"),
+                description = LocalizedMarkdownNotLocalized("Order key")
             )
         }
 

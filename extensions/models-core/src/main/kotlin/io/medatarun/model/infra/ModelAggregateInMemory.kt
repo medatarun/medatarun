@@ -209,8 +209,8 @@ data class ModelAggregateInMemory(
                 id: BusinessKeyId = Id.generate(::BusinessKeyId),
                 key: BusinessKeyKey,
                 entityId: EntityId,
-                name: String? = null,
-                description: String? = null,
+                name: LocalizedText? = null,
+                description: LocalizedMarkdown? = null,
                 participants: List<PBKeyParticipantInMemory>,
             ): BusinessKeyInMemory {
                 val bk = BusinessKeyInMemory(

@@ -52,8 +52,8 @@ internal class JsonSerializerV3(
                     participants = bk.participants.sortedBy { it.position }.map {
                         val attr = model.findEntityAttribute(e.ref, EntityAttributeRef.ById(it.attributeId))
                         "key:" + attr.key.asString() },
-                    name = bk.name,
-                    description = bk.description
+                    name = bk.name?.name,
+                    description = bk.description?.name
                 )
             },
             tags = baseVersion.toTagList(model)

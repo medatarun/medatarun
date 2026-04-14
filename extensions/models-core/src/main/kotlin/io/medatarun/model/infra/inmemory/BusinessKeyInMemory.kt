@@ -4,13 +4,15 @@ import io.medatarun.model.domain.BusinessKey
 import io.medatarun.model.domain.BusinessKeyId
 import io.medatarun.model.domain.BusinessKeyKey
 import io.medatarun.model.domain.EntityId
+import io.medatarun.model.domain.LocalizedMarkdown
+import io.medatarun.model.domain.LocalizedText
 
 data class BusinessKeyInMemory(
     override val id: BusinessKeyId,
     override val key: BusinessKeyKey,
     override val entityId: EntityId,
-    override val name: String?,
-    override val description: String?,
+    override val name: LocalizedText?,
+    override val description: LocalizedMarkdown?,
     override val participants: List<PBKeyParticipantInMemory>,
 ) : BusinessKey {
     companion object {

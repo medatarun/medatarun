@@ -69,8 +69,8 @@ class ModelInspectJsonAction(private val modelQueries: ModelQueries) {
                                     put("id", bk.id.asString())
                                     put("entityId", bk.entityId.asString())
                                     put("key", bk.key.asString())
-                                    put("name", bk.name)
-                                    put("description", bk.description)
+                                    put("name", localizedTextToJson(bk.name))
+                                    put("description", localizedTextToJson(bk.description))
                                     putJsonArray("participants", {
                                         for (p in bk.participants.sortedBy { it.position }) {
                                             add(p.attributeId.asString())

@@ -107,8 +107,8 @@ class UI(runtime: PlatformRuntime) {
                         put("id", t.id.value.toString())
                         put("entityId", t.entityId.asString())
                         put("key", t.key.asString())
-                        put("name", t.name)
-                        put("description", t.description)
+                        put("name", t.name?.name)
+                        put("description", t.description?.name)
                         putJsonArray("participants") {
                             for (participant in t.participants) {
                                 add(participant.attributeId.asString())

@@ -99,8 +99,8 @@ object BusinessKeyTable : Table("model_business_key_snapshot") {
     val lineageId = javaUUID("lineage_id").transform(IdTransformer(::BusinessKeyId))
     val entitySnapshotId = javaUUID("model_entity_snapshot_id").transform(IdTransformer(::EntitySnapshotId))
     val key = text("key").transform(KeyTransformer(::BusinessKeyKey))
-    val name = text("name").nullable()
-    val description = text("description").nullable()
+    val name = text("name").transform(LocalizedTextTransformer()).nullable()
+    val description = text("description").transform(LocalizedMarkdownTransformer()).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }

@@ -194,8 +194,8 @@ internal class JsonDeserializerV3(
             id = id,
             key = key,
             entityId = entity.id,
-            name = bkJson.name,
-            description = bkJson.description,
+            name = bkJson.name?.let { LocalizedTextNotLocalized(it) },
+            description = bkJson.description?.let { LocalizedMarkdownNotLocalized(it) },
             participants = participants
         )
         return bk
