@@ -18,6 +18,7 @@ class ConfigActionProvider(
 ) : ActionProvider<ConfigAction> {
     override val actionGroupKey: String = "config"
 
+    val inspectTypeSystem = ConfigAction_InspectTypeSystem_Handler(extensionRegistry)
 
     override fun findCommandClass() = ConfigAction::class
     override fun dispatch(action: ConfigAction, actionCtx: ActionCtx): Any {
@@ -28,6 +29,7 @@ class ConfigActionProvider(
             is ConfigAction.InspectActions -> inspectActions(actionCtx)
             is ConfigAction.InspectSecurityRules -> inspectSecurityRules(actionCtx)
             is ConfigAction.InspectPermissions -> inspectPermissions(actionCtx)
+            is ConfigAction.InspectTypeSystem -> inspectTypeSystem.run(action, actionCtx)
         }
     }
 
