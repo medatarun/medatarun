@@ -6,7 +6,6 @@ import io.medatarun.model.domain.*
 import io.medatarun.model.domain.EntityAttributeRef.Companion.entityAttributeRefKey
 import io.medatarun.model.domain.EntityRef.Companion.entityRefKey
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
-import io.medatarun.model.domain.TypeKey
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.fixtures.ModelTestEnv
@@ -41,14 +40,16 @@ class Model_Compare_Test {
         val env = ModelTestEnv()
         val leftRef = modelRefKey("left-model-optional")
         val rightRef = modelRefKey("right-model-optional")
+        val customerEntityRef = entityRefKey("Customer")
+        val emailAttributeRef = entityAttributeRefKey("email")
         createBaseModel(env, leftRef.key)
         createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateOptional(
                 modelRef = rightRef,
-                entityRef = EntityRef.ByKey(EntityKey("Customer")),
-                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
                 value = true
             )
         )
@@ -78,14 +79,16 @@ class Model_Compare_Test {
         val env = ModelTestEnv()
         val leftRef = modelRefKey("left-model-content")
         val rightRef = modelRefKey("right-model-content")
+        val customerEntityRef = entityRefKey("Customer")
+        val emailAttributeRef = entityAttributeRefKey("email")
         createBaseModel(env, leftRef.key)
         createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateDescription(
                 modelRef = rightRef,
-                entityRef = EntityRef.ByKey(EntityKey("Customer")),
-                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
                 value = LocalizedMarkdownNotLocalized("email used for notifications")
             )
         )
@@ -127,14 +130,16 @@ class Model_Compare_Test {
         val env = ModelTestEnv()
         val leftRef = modelRefKey("left-model-current-version")
         val rightRef = modelRefKey("right-model-current-version")
+        val customerEntityRef = entityRefKey("Customer")
+        val emailAttributeRef = entityAttributeRefKey("email")
         createBaseModel(env, leftRef.key)
         createBaseModel(env, rightRef.key)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateOptional(
                 modelRef = leftRef,
-                entityRef = EntityRef.ByKey(EntityKey("Customer")),
-                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
                 value = true
             )
         )
@@ -171,14 +176,16 @@ class Model_Compare_Test {
         val env = ModelTestEnv()
         val leftKey = ModelKey("left-model-requested-version")
         val rightKey = ModelKey("right-model-requested-version")
+        val customerEntityRef = entityRefKey("Customer")
+        val emailAttributeRef = entityAttributeRefKey("email")
         createBaseModel(env, leftKey)
         createBaseModel(env, rightKey)
 
         env.dispatch(
             ModelAction.EntityAttribute_UpdateOptional(
                 modelRef = modelRefKey(leftKey),
-                entityRef = EntityRef.ByKey(EntityKey("Customer")),
-                attributeRef = EntityAttributeRef.ByKey(AttributeKey("email")),
+                entityRef = customerEntityRef,
+                attributeRef = emailAttributeRef,
                 value = true
             )
         )
@@ -272,7 +279,7 @@ class Model_Compare_Test {
             ModelAction.EntityAttribute_Create(
                 modelRef = leftModelRef,
                 entityRef = customerEntityRef,
-                attributeKey = AttributeKey("email"),
+                attributeKey = emailAttributeRef.key,
                 type = stringTypeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
@@ -318,7 +325,7 @@ class Model_Compare_Test {
             ModelAction.EntityAttribute_Create(
                 modelRef = rightModelRef,
                 entityRef = customerEntityRef,
-                attributeKey = AttributeKey("email"),
+                attributeKey = emailAttributeRef.key,
                 type = stringTypeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),
@@ -375,6 +382,7 @@ class Model_Compare_Test {
         val entityRef = entityRefKey("Customer")
         val typeRef = typeRefKey("String")
         val attributeIdRef = entityAttributeRefKey("id")
+        val emailAttributeRef = entityAttributeRefKey("email")
 
         env.dispatch(
             ModelAction.Model_Create(
@@ -387,7 +395,7 @@ class Model_Compare_Test {
         env.dispatch(
             ModelAction.Type_Create(
                 modelRef = modelRef,
-                typeKey = TypeKey("String"),
+                typeKey = typeRef.key,
                 name = null,
                 description = null
             )
@@ -416,7 +424,7 @@ class Model_Compare_Test {
             ModelAction.EntityAttribute_Create(
                 modelRef = modelRef,
                 entityRef = entityRef,
-                attributeKey = AttributeKey("email"),
+                attributeKey = emailAttributeRef.key,
                 type = typeRef,
                 optional = false,
                 name = LocalizedTextNotLocalized("Email"),

@@ -8,7 +8,6 @@ import io.medatarun.model.ports.exposed.ModelQueries
 import io.medatarun.model.ports.needs.*
 import io.medatarun.tags.core.domain.TagId
 import io.medatarun.tags.core.domain.TagRef
-import kotlinx.serialization.EncodeDefault
 import java.text.Collator
 import java.text.Normalizer
 import java.util.*
@@ -84,6 +83,29 @@ class ModelQueriesImpl(
         return model.findEntityAttributeOptional(entityRef, attributeRef)
     }
 
+    override fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship {
+        val model = storage.findModel(modelRef)
+        return storage.findRelationship(model.id, relationshipRef)
+    }
+
+    override fun findRelationshipOptional(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship? {
+        val model = storage.findModel(modelRef)
+        return storage.findRelationshipOptional(model.id, relationshipRef)
+    }
+
+    override fun findRelationshipAttribute(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute {
+        val model = storage.findModel(modelRef)
+        val relationship = storage.findRelationship(model.id, relationshipRef)
+        return storage.findRelationshipAttribute(model.id, relationship.id, attributeRef)
+    }
+
+    override fun findRelationshipAttributeOptional(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute? {
+        val model = storage.findModel(modelRef)
+        val relationship = storage.findRelationship(model.id, relationshipRef)
+        return storage.findRelationshipAttributeOptional(model.id, relationship.id, attributeRef)
+
+    }
+
     override fun findEntityAttribute(
         modelRef: ModelRef,
         entityRef: EntityRef,
@@ -121,6 +143,11 @@ class ModelQueriesImpl(
     override fun findBusinessKeys(modelRef: ModelRef): List<BusinessKey> {
         val model = storage.findModel(modelRef)
         return storage.findBusinessKeys(model.id)
+    }
+
+    override fun findModelTags(modelRef: ModelRef): List<TagId> {
+        val modelId = storage.findModel(modelRef).id
+        return storage.findModelTags(modelId)
     }
 
     override fun findTypeOptional(modelRef: ModelRef, typeRef: TypeRef): ModelType? {
@@ -285,5 +312,7 @@ class ModelQueriesImpl(
         )
         return storage.search(storageQuery)
     }
+
+
 
 }

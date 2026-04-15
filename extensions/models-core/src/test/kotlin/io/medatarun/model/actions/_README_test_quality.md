@@ -58,7 +58,7 @@ Indique si on a déjà tout checké dans fichiers ou s'il reste des choses à fa
 - [X] [EntityAttribute_XTag_Test.kt](EntityAttribute_XTag_Test.kt)
 - [X] [EntityPrimaryKey_Update_Test.kt](EntityPrimaryKey_Update_Test.kt)
 - [X] [Import_Test.kt](Import_Test.kt)
-- [ ] [Model_Compare_Test.kt](Model_Compare_Test.kt)
+- [X] [Model_Compare_Test.kt](Model_Compare_Test.kt)
 - [ ] [Model_Copy_Test.kt](Model_Copy_Test.kt)
 - [ ] [Model_Create_Test.kt](Model_Create_Test.kt)
 - [ ] [Model_Delete_Test.kt](Model_Delete_Test.kt)

@@ -1,13 +1,14 @@
 package io.medatarun.model.actions
 
-import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.model.domain.*
+import io.medatarun.model.domain.EntityRef.Companion.entityRefId
 import io.medatarun.model.domain.ModelRef.Companion.modelRefKey
 import io.medatarun.model.domain.RelationshipRef.Companion.relationshipRefKey
-import io.medatarun.model.domain.TypeKey
+import io.medatarun.model.domain.TypeRef.Companion.typeRefId
 import io.medatarun.model.domain.TypeRef.Companion.typeRefKey
 import io.medatarun.model.domain.fixtures.ModelTestEnv
 import io.medatarun.model.ports.needs.ModelTagResolver
+import io.medatarun.platform.db.testkit.EnableDatabaseTests
 import io.medatarun.tags.core.actions.TagAction
 import io.medatarun.tags.core.domain.TagKey
 import io.medatarun.tags.core.domain.TagRef
@@ -111,11 +112,34 @@ class Model_Copy_Test {
         val typeStringRef = typeRefKey("String")
         val typeBooleanRef = typeRefKey("Boolean")
 
-        env.dispatch(ModelAction.Model_Create(sourceRef.key, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceRef.key,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, typeStringRef.key, null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, typeBooleanRef.key, null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), LocalizedTextNotLocalized("Customer"), null, null))
-        env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), LocalizedTextNotLocalized("Order"), null, null))
+        env.dispatch(
+            ModelAction.Entity_Create(
+                sourceRef,
+                EntityKey("customer"),
+                LocalizedTextNotLocalized("Customer"),
+                null,
+                null
+            )
+        )
+        env.dispatch(
+            ModelAction.Entity_Create(
+                sourceRef,
+                EntityKey("order"),
+                LocalizedTextNotLocalized("Order"),
+                null,
+                null
+            )
+        )
         env.dispatch(
             ModelAction.EntityAttribute_Create(
                 modelRef = sourceRef,
@@ -157,7 +181,9 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedRef.key))
 
+        // Legitimate usage of findModelAggregate
         val source = env.queries.findModelAggregate(sourceRef)
+        // Legitimate usage of findModelAggregate
         val copied = env.queries.findModelAggregate(copiedRef)
         assertNotEquals(source.id, copied.id)
 
@@ -186,6 +212,7 @@ class Model_Copy_Test {
                         EntityAttributeRef.ByKey(sourceAttribute.key)
                     )
                 }
+
                 is AttributeOwnerId.OwnerRelationshipId -> {
                     val sourceOwnerKey = source.findRelationship(ownerId.id).key
                     copied.findRelationshipAttributeOptional(
@@ -260,6 +287,7 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(modelRefKey(sourceKey), copiedKey))
 
+        // Legitimate usage of findModelAggregate
         val copied = env.queries.findModelAggregateByKey(copiedKey)
         assertTrue(copied.types.isEmpty())
         assertTrue(copied.entities.isEmpty())
@@ -277,6 +305,7 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-model-fields")
         val copiedKey = ModelKey("copy-target-model-fields")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val sourceName = LocalizedTextNotLocalized("Billing model")
         val sourceDescription = LocalizedMarkdownNotLocalized("Billing domain model")
         val sourceVersion = ModelVersion("3.4.5")
@@ -294,8 +323,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val source = env.queries.findModelAggregateByKey(sourceKey)
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
+        val source = env.queries.findModelRoot(sourceRef)
+        val copied = env.queries.findModelRoot(copiedRef)
         assertEquals(source.name, copied.name)
         assertEquals(source.description, copied.description)
         assertEquals(source.version, copied.version)
@@ -386,11 +415,19 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-entity-fields")
         val copiedKey = ModelKey("copy-target-entity-fields")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityKey = EntityKey("customer")
         val entityRef = EntityRef.ByKey(entityKey)
         val docHome = URI("https://example.org/entities/customer").toString()
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceRef.key,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(
             ModelAction.Entity_Create(
@@ -404,8 +441,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val source = env.queries.findModelAggregateByKey(sourceKey).findEntity(entityRef)
-        val copied = env.queries.findModelAggregateByKey(copiedKey).findEntity(entityRef)
+        val source = env.queries.findEntity(sourceRef, entityRef)
+        val copied = env.queries.findEntity(copiedRef, entityRef)
         assertEquals(source.key, copied.key)
         assertEquals(source.name, copied.name)
         assertEquals(source.description, copied.description)
@@ -427,9 +464,17 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-identity-attr")
         val copiedKey = ModelKey("copy-target-identity-attr")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceRef.key,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
@@ -451,22 +496,20 @@ class Model_Copy_Test {
             )
         )
 
-        val sourceModel = env.queries.findModelAggregateByKey(sourceKey)
-        val sourceEntity = sourceModel.findEntity(entityRef)
-        val sourcePrimaryKey = assertNotNull(sourceModel.findEntityPrimaryKeyOptional(sourceEntity.id))
+
+        val sourcePrimaryKey = assertNotNull(env.queries.findEntityPrimaryKeyOptional(sourceRef, entityRef))
         val sourceIdentityAttributeId = sourcePrimaryKey.participants.first().attributeId
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedModel = env.queries.findModelAggregateByKey(copiedKey)
-        val copiedEntity = copiedModel.findEntity(entityRef)
-        val copiedPrimaryKey = assertNotNull(copiedModel.findEntityPrimaryKeyOptional(copiedEntity.id))
 
-        assertEquals(copiedEntity.id, copiedPrimaryKey.entityId)
+        val copiedPrimaryKey = assertNotNull(env.queries.findEntityPrimaryKeyOptional(copiedRef, entityRef))
+
         assertEquals(1, copiedPrimaryKey.participants.size)
         val copiedIdentityAttributeId = copiedPrimaryKey.participants.first().attributeId
-        val copiedIdentity = copiedModel.findEntityAttributeOptional(
-            copiedEntity.ref,
+        val copiedIdentity = env.queries.findEntityAttributeOptional(
+            copiedRef,
+            entityRef,
             EntityAttributeRef.ById(copiedIdentityAttributeId)
         )
         assertNotNull(copiedIdentity)
@@ -484,10 +527,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-entity-attrs")
         val copiedKey = ModelKey("copy-target-entity-attrs")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
         val attributeRef = EntityAttributeRef.ByKey(AttributeKey("email"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
@@ -505,13 +556,15 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
         val sourceAttr = env.queries.findEntityAttribute(sourceRef, entityRef, attributeRef)
-        val copiedRef = modelRefKey(copiedKey)
         val copiedAttr = env.queries.findEntityAttribute(copiedRef, entityRef, attributeRef)
         assertEquals(sourceAttr.key, copiedAttr.key)
         assertEquals(sourceAttr.name, copiedAttr.name)
         assertEquals(sourceAttr.description, copiedAttr.description)
         assertEquals(sourceAttr.optional, copiedAttr.optional)
-        assertEquals(sourceAttr.ownerId is AttributeOwnerId.OwnerEntityId, copiedAttr.ownerId is AttributeOwnerId.OwnerEntityId)
+        assertEquals(
+            sourceAttr.ownerId is AttributeOwnerId.OwnerEntityId,
+            copiedAttr.ownerId is AttributeOwnerId.OwnerEntityId
+        )
     }
 
     @Test
@@ -523,7 +576,14 @@ class Model_Copy_Test {
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
         val attributeRef = EntityAttributeRef.ByKey(AttributeKey("vip"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
@@ -542,9 +602,8 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
         val copiedRef = modelRefKey(copiedKey)
-        val copiedModel = env.queries.findModelAggregate(copiedRef)
         val copiedAttr = env.queries.findEntityAttribute(copiedRef, entityRef, attributeRef)
-        val copiedType = copiedModel.findType(copiedAttr.typeId)
+        val copiedType = env.queries.findType(copiedRef, typeRefId(copiedAttr.typeId))
         assertEquals(TypeKey("Boolean"), copiedType.key)
     }
 
@@ -558,11 +617,19 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-rel-fields")
         val copiedKey = ModelKey("copy-target-rel-fields")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val customerRef = EntityRef.ByKey(EntityKey("customer"))
         val orderRef = EntityRef.ByKey(EntityKey("order"))
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
@@ -585,8 +652,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val sourceRel = env.queries.findModelAggregate(sourceRef).findRelationship(relationshipRef)
-        val copiedRel = env.queries.findModelAggregateByKey(copiedKey).findRelationship(relationshipRef)
+        val sourceRel = env.queries.findRelationship(sourceRef, relationshipRef)
+        val copiedRel = env.queries.findRelationship(copiedRef, relationshipRef)
         assertEquals(sourceRel.key, copiedRel.key)
         assertEquals(sourceRel.name, copiedRel.name)
         assertEquals(sourceRel.description, copiedRel.description)
@@ -598,9 +665,17 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-role-fields")
         val copiedKey = ModelKey("copy-target-role-fields")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
@@ -623,8 +698,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val sourceRel = env.queries.findModelAggregate(sourceRef).findRelationship(relationshipRef)
-        val copiedRel = env.queries.findModelAggregateByKey(copiedKey).findRelationship(relationshipRef)
+        val sourceRel = env.queries.findRelationship(sourceRef,relationshipRef)
+        val copiedRel = env.queries.findRelationship(copiedRef,relationshipRef)
         assertEquals(sourceRel.roles.size, copiedRel.roles.size)
         for (sourceRole in sourceRel.roles) {
             val copiedRole = copiedRel.roles.first { role -> role.key == sourceRole.key }
@@ -639,9 +714,17 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-role-entity")
         val copiedKey = ModelKey("copy-target-role-entity")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
@@ -664,15 +747,14 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val sourceModel = env.queries.findModelAggregate(sourceRef)
-        val copiedModel = env.queries.findModelAggregateByKey(copiedKey)
-        val sourceRelationship = sourceModel.findRelationship(relationshipRef)
-        val copiedRelationship = copiedModel.findRelationship(relationshipRef)
+        val sourceRelationship = env.queries.findRelationship(sourceRef, relationshipRef)
+        val copiedRelationship = env.queries.findRelationship(copiedRef, relationshipRef)
         for (sourceRole in sourceRelationship.roles) {
             val copiedRole = copiedRelationship.roles.first { role -> role.key == sourceRole.key }
-            val sourceEntityKey = sourceModel.findEntity(sourceRole.entityId).key
-            val copiedEntityKey = copiedModel.findEntity(copiedRole.entityId).key
+            val sourceEntityKey = env.queries.findEntity(sourceRef, entityRefId(sourceRole.entityId)).key
+            val copiedEntityKey = env.queries.findEntity(copiedRef, entityRefId(copiedRole.entityId)).key
             assertEquals(sourceEntityKey, copiedEntityKey)
+            assertNotEquals(sourceRole.id, copiedRole.id)
         }
     }
 
@@ -695,10 +777,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-self-rel")
         val copiedKey = ModelKey("copy-target-self-rel")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("mentors"))
         val personRef = EntityRef.ByKey(EntityKey("person"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("person"), null, null, null))
         env.dispatch(
@@ -720,11 +810,9 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val sourceModel = env.queries.findModelAggregate(sourceRef)
-        val copiedModel = env.queries.findModelAggregateByKey(copiedKey)
-        val sourcePersonId = sourceModel.findEntity(personRef).id
-        val copiedPersonId = copiedModel.findEntity(personRef).id
-        val copiedRelationship = copiedModel.findRelationship(relationshipRef)
+        val sourcePersonId = env.queries.findEntity(sourceRef, personRef).id
+        val copiedPersonId = env.queries.findEntity(copiedRef, personRef).id
+        val copiedRelationship = env.queries.findRelationship(copiedRef, relationshipRef)
         val mentorRole = copiedRelationship.roles.first { role -> role.key == RelationshipRoleKey("mentor") }
         val menteeRole = copiedRelationship.roles.first { role -> role.key == RelationshipRoleKey("mentee") }
         assertEquals(copiedPersonId, mentorRole.entityId)
@@ -743,10 +831,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-rel-attrs")
         val copiedKey = ModelKey("copy-target-rel-attrs")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("startedAt"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
@@ -780,13 +876,16 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val sourceAttr = env.queries.findModelAggregate(sourceRef).findRelationshipAttributeOptional(relationshipRef, attributeRef)!!
-        val copiedAttr = env.queries.findModelAggregateByKey(copiedKey).findRelationshipAttributeOptional(relationshipRef, attributeRef)!!
+        val sourceAttr = env.queries.findRelationshipAttribute(sourceRef, relationshipRef, attributeRef)
+        val copiedAttr = env.queries.findRelationshipAttribute(copiedRef, relationshipRef, attributeRef)
         assertEquals(sourceAttr.key, copiedAttr.key)
         assertEquals(sourceAttr.name, copiedAttr.name)
         assertEquals(sourceAttr.description, copiedAttr.description)
         assertEquals(sourceAttr.optional, copiedAttr.optional)
-        assertEquals(sourceAttr.ownerId is AttributeOwnerId.OwnerRelationshipId, copiedAttr.ownerId is AttributeOwnerId.OwnerRelationshipId)
+        assertEquals(
+            sourceAttr.ownerId is AttributeOwnerId.OwnerRelationshipId,
+            copiedAttr.ownerId is AttributeOwnerId.OwnerRelationshipId
+        )
     }
 
     @Test
@@ -795,10 +894,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-rel-attr-type")
         val copiedKey = ModelKey("copy-target-rel-attr-type")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val attributeRef = RelationshipAttributeRef.ByKey(AttributeKey("confirmed"))
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
@@ -833,9 +940,8 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedModel = env.queries.findModelAggregateByKey(copiedKey)
-        val copiedAttr = copiedModel.findRelationshipAttributeOptional(relationshipRef, attributeRef)!!
-        val copiedType = copiedModel.findType(copiedAttr.typeId)
+        val copiedAttr = env.queries.findRelationshipAttributeOptional(copiedRef, relationshipRef, attributeRef)!!
+        val copiedType = env.queries.findType(copiedRef, typeRefId(copiedAttr.typeId))
         assertEquals(TypeKey("Boolean"), copiedType.key)
     }
 
@@ -849,12 +955,20 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-local-model-tag")
         val copiedKey = ModelKey("copy-target-local-model-tag")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val sourceTagKey = TagKey("local-model-tag")
         val sourceTagName = "Local model tag"
         val sourceTagDescription = "Model local tag description"
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
         env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, sourceTagName, sourceTagDescription))
@@ -863,10 +977,11 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copied = env.queries.findModelAggregateByKey(copiedKey)
-        assertEquals(1, copied.tags.size)
-        assertNotEquals(sourceTag.id, copied.tags[0])
-        val copiedTag = env.tagQueries.findTagByIdOptional(copied.tags[0])!!
+        val copied = env.queries.findModelRoot(copiedRef)
+        val modelTagIds = env.queries.findModelTags(copiedRef)
+        assertEquals(1, modelTagIds.size)
+        assertNotEquals(sourceTag.id, modelTagIds[0])
+        val copiedTag = env.tagQueries.findTagByIdOptional(modelTagIds[0])!!
         val copiedScope = ModelTagResolver.modelTagScopeRef(copied.id)
         assertEquals(sourceTag.key, copiedTag.key)
         assertEquals(sourceTag.name, copiedTag.name)
@@ -880,13 +995,21 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("model-source")
         val copiedKey = ModelKey("model-dest")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val localTagKey = TagKey("rgpd")
         val localTagName = "RGPD"
         val localTagDescription = "Personal data"
 
         // Arrange: create source model and a local tag in its scope, without attaching it.
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, localTagKey)
         env.dispatchTag(TagAction.TagLocalCreate(sourceScope, localTagKey, localTagName, localTagDescription))
@@ -895,12 +1018,13 @@ class Model_Copy_Test {
         // Act: copy the model.
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        // Assert: the unassigned tag must remain unassigned in the copied model aggregate.
-        val copiedAggregate = env.queries.findModelAggregateByKey(copiedKey)
-        assertTrue(copiedAggregate.tags.isEmpty())
+        // Assert: the unassigned tag must remain unassigned in the copied model
+        val copiedTags = env.queries.findModelTags(copiedRef)
+        assertTrue(copiedTags.isEmpty())
 
         // Assert: the copied model local scope contains an equivalent recreated tag.
-        val copiedScope = ModelTagResolver.modelTagScopeRef(copiedAggregate.id)
+        val copied = env.queries.findModelRoot(copiedRef)
+        val copiedScope = ModelTagResolver.modelTagScopeRef(copied.id)
         val copiedLocalTags = env.tagQueries.findAllTagByScopeRef(copiedScope)
         val copiedLocalTag = copiedLocalTags.firstOrNull { tag -> tag.key == localTagKey }
         assertNotNull(copiedLocalTag)
@@ -915,10 +1039,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-local-entity-tag")
         val copiedKey = ModelKey("copy-target-local-entity-tag")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
         val sourceTagKey = TagKey("local-entity-tag")
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
@@ -932,7 +1064,7 @@ class Model_Copy_Test {
                 description = null
             )
         )
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
         env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, "Entity local", "Entity local tag"))
@@ -941,14 +1073,15 @@ class Model_Copy_Test {
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copied = env.queries.findModelAggregateByKey(copiedKey).findEntity(entityRef)
-        assertEquals(1, copied.tags.size)
-        assertNotEquals(sourceTag.id, copied.tags[0])
-        val copiedTag = env.tagQueries.findTagByIdOptional(copied.tags[0])!!
+        val copiedModel = env.queries.findModelRoot(copiedRef)
+        val copiedEntity = env.queries.findEntity(copiedRef, entityRef)
+        assertEquals(1, copiedEntity.tags.size)
+        assertNotEquals(sourceTag.id, copiedEntity.tags[0])
+        val copiedTag = env.tagQueries.findTagByIdOptional(copiedEntity.tags[0])!!
         assertEquals(sourceTag.key, copiedTag.key)
         assertEquals(sourceTag.name, copiedTag.name)
         assertEquals(sourceTag.description, copiedTag.description)
-        assertEquals(ModelTagResolver.modelTagScopeRef(env.queries.findModelAggregateByKey(copiedKey).id), copiedTag.scope)
+        assertEquals(ModelTagResolver.modelTagScopeRef(copiedModel.id), copiedTag.scope)
     }
 
     @Test
@@ -957,11 +1090,19 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-local-entity-attr-tag")
         val copiedKey = ModelKey("copy-target-local-entity-attr-tag")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
         val attributeRef = EntityAttributeRef.ByKey(AttributeKey("id"))
         val sourceTagKey = TagKey("local-entity-attr-tag")
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(
@@ -975,21 +1116,28 @@ class Model_Copy_Test {
                 description = null
             )
         )
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
-        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, "Entity attr local", "Entity attribute local tag"))
+        env.dispatchTag(
+            TagAction.TagLocalCreate(
+                sourceScope,
+                sourceTagKey,
+                "Entity attr local",
+                "Entity attribute local tag"
+            )
+        )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
         env.dispatch(ModelAction.EntityAttribute_AddTag(sourceRef, entityRef, attributeRef, sourceTagRef))
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedRef = modelRefKey(copiedKey)
         val copiedAttr = env.queries.findEntityAttribute(copiedRef, entityRef, attributeRef)
         assertEquals(1, copiedAttr.tags.size)
         assertNotEquals(sourceTag.id, copiedAttr.tags[0])
         val copiedTag = env.tagQueries.findTagByIdOptional(copiedAttr.tags[0])!!
-        val copiedScope = ModelTagResolver.modelTagScopeRef(env.queries.findModelAggregate(copiedRef).id)
+        val copiedModel = env.queries.findModelRoot(copiedRef)
+        val copiedScope = ModelTagResolver.modelTagScopeRef(copiedModel.id)
         assertEquals(sourceTag.key, copiedTag.key)
         assertEquals(sourceTag.name, copiedTag.name)
         assertEquals(sourceTag.description, copiedTag.description)
@@ -1002,10 +1150,18 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-local-rel-tag")
         val copiedKey = ModelKey("copy-target-local-rel-tag")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val sourceTagKey = TagKey("local-rel-tag")
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("order"), null, null, null))
@@ -1025,20 +1181,28 @@ class Model_Copy_Test {
                 roleBCardinality = RelationshipCardinality.Many
             )
         )
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
-        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, "Relationship local", "Relationship local tag"))
+        env.dispatchTag(
+            TagAction.TagLocalCreate(
+                sourceScope,
+                sourceTagKey,
+                "Relationship local",
+                "Relationship local tag"
+            )
+        )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
         env.dispatch(ModelAction.Relationship_AddTag(sourceRef, relationshipRef, sourceTagRef))
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedRel = env.queries.findModelAggregateByKey(copiedKey).findRelationship(relationshipRef)
+        val copiedModel = env.queries.findModelRoot(copiedRef)
+        val copiedRel = env.queries.findRelationship(copiedRef, relationshipRef)
         assertEquals(1, copiedRel.tags.size)
         assertNotEquals(sourceTag.id, copiedRel.tags[0])
         val copiedTag = env.tagQueries.findTagByIdOptional(copiedRel.tags[0])!!
-        val copiedScope = ModelTagResolver.modelTagScopeRef(env.queries.findModelAggregateByKey(copiedKey).id)
+        val copiedScope = ModelTagResolver.modelTagScopeRef(copiedModel.id)
         assertEquals(sourceTag.key, copiedTag.key)
         assertEquals(sourceTag.name, copiedTag.name)
         assertEquals(sourceTag.description, copiedTag.description)
@@ -1051,11 +1215,19 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-local-rel-attr-tag")
         val copiedKey = ModelKey("copy-target-local-rel-attr-tag")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val relationshipAttributeRef = RelationshipAttributeRef.ByKey(AttributeKey("confirmed"))
         val sourceTagKey = TagKey("local-rel-attr-tag")
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
@@ -1087,20 +1259,35 @@ class Model_Copy_Test {
                 description = null
             )
         )
-        val sourceModelId = env.queries.findModelAggregate(sourceRef).id
+        val sourceModelId = env.queries.findModelRoot(sourceRef).id
         val sourceScope = ModelTagResolver.modelTagScopeRef(sourceModelId)
         val sourceTagRef = TagRef.ByKey(sourceScope, null, sourceTagKey)
-        env.dispatchTag(TagAction.TagLocalCreate(sourceScope, sourceTagKey, "Relationship attr local", "Relationship attribute local tag"))
+        env.dispatchTag(
+            TagAction.TagLocalCreate(
+                sourceScope,
+                sourceTagKey,
+                "Relationship attr local",
+                "Relationship attribute local tag"
+            )
+        )
         val sourceTag = env.tagQueries.findTagByRef(sourceTagRef)
-        env.dispatch(ModelAction.RelationshipAttribute_AddTag(sourceRef, relationshipRef, relationshipAttributeRef, sourceTagRef))
+        env.dispatch(
+            ModelAction.RelationshipAttribute_AddTag(
+                sourceRef,
+                relationshipRef,
+                relationshipAttributeRef,
+                sourceTagRef
+            )
+        )
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedAttr = env.queries.findModelAggregateByKey(copiedKey).findRelationshipAttributeOptional(relationshipRef, relationshipAttributeRef)!!
+        val copiedModel = env.queries.findModelRoot(copiedRef)
+        val copiedAttr = env.queries.findRelationshipAttribute(copiedRef, relationshipRef, relationshipAttributeRef)
         assertEquals(1, copiedAttr.tags.size)
         assertNotEquals(sourceTag.id, copiedAttr.tags[0])
         val copiedTag = env.tagQueries.findTagByIdOptional(copiedAttr.tags[0])!!
-        val copiedScope = ModelTagResolver.modelTagScopeRef(env.queries.findModelAggregateByKey(copiedKey).id)
+        val copiedScope = ModelTagResolver.modelTagScopeRef(copiedModel.id)
         assertEquals(sourceTag.key, copiedTag.key)
         assertEquals(sourceTag.name, copiedTag.name)
         assertEquals(sourceTag.description, copiedTag.description)
@@ -1113,13 +1300,21 @@ class Model_Copy_Test {
         val sourceKey = ModelKey("copy-source-global-tags")
         val copiedKey = ModelKey("copy-target-global-tags")
         val sourceRef = modelRefKey(sourceKey)
+        val copiedRef = modelRefKey(copiedKey)
         val entityRef = EntityRef.ByKey(EntityKey("customer"))
         val relationshipRef = RelationshipRef.ByKey(RelationshipKey("places"))
         val entityAttributeRef = EntityAttributeRef.ByKey(AttributeKey("id"))
         val relationshipAttributeRef = RelationshipAttributeRef.ByKey(AttributeKey("confirmed"))
         val globalTag = env.createGlobalTag("copy-global-group", "copy-global-tag")
 
-        env.dispatch(ModelAction.Model_Create(sourceKey, LocalizedTextNotLocalized("Source"), null, ModelVersion("1.0.0")))
+        env.dispatch(
+            ModelAction.Model_Create(
+                sourceKey,
+                LocalizedTextNotLocalized("Source"),
+                null,
+                ModelVersion("1.0.0")
+            )
+        )
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("String"), null, null))
         env.dispatch(ModelAction.Type_Create(sourceRef, TypeKey("Boolean"), null, null))
         env.dispatch(ModelAction.Entity_Create(sourceRef, EntityKey("customer"), null, null, null))
@@ -1167,19 +1362,29 @@ class Model_Copy_Test {
         env.dispatch(ModelAction.Entity_AddTag(sourceRef, entityRef, globalTag.ref))
         env.dispatch(ModelAction.EntityAttribute_AddTag(sourceRef, entityRef, entityAttributeRef, globalTag.ref))
         env.dispatch(ModelAction.Relationship_AddTag(sourceRef, relationshipRef, globalTag.ref))
-        env.dispatch(ModelAction.RelationshipAttribute_AddTag(sourceRef, relationshipRef, relationshipAttributeRef, globalTag.ref))
+        env.dispatch(
+            ModelAction.RelationshipAttribute_AddTag(
+                sourceRef,
+                relationshipRef,
+                relationshipAttributeRef,
+                globalTag.ref
+            )
+        )
 
         env.dispatch(ModelAction.Model_Copy(sourceRef, copiedKey))
 
-        val copiedRef = modelRefKey(copiedKey)
-        val copiedModel = env.queries.findModelAggregate(copiedRef)
-        assertEquals(listOf(globalTag.id), copiedModel.tags)
-        assertEquals(listOf(globalTag.id), copiedModel.findEntity(entityRef).tags)
-        assertEquals(listOf(globalTag.id), env.queries.findEntityAttribute(copiedRef, entityRef, entityAttributeRef).tags)
-        assertEquals(listOf(globalTag.id), copiedModel.findRelationship(relationshipRef).tags)
+
+        val copiedModel = env.queries.findModelRoot(copiedRef)
+        assertEquals(listOf(globalTag.id), env.queries.findModelTags(copiedRef))
+        assertEquals(listOf(globalTag.id), env.queries.findEntity(copiedRef, entityRef).tags)
         assertEquals(
             listOf(globalTag.id),
-            copiedModel.findRelationshipAttributeOptional(relationshipRef, relationshipAttributeRef)!!.tags
+            env.queries.findEntityAttribute(copiedRef, entityRef, entityAttributeRef).tags
+        )
+        assertEquals(listOf(globalTag.id), env.queries.findRelationship(copiedRef, relationshipRef).tags)
+        assertEquals(
+            listOf(globalTag.id),
+            env.queries.findRelationshipAttributeOptional(copiedRef, relationshipRef, relationshipAttributeRef)!!.tags
         )
     }
 

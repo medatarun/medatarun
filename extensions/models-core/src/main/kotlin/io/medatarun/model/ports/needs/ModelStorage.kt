@@ -45,6 +45,8 @@ interface ModelStorage {
         return findModelOptional(ref) ?: throw ModelNotFoundException(ref)
     }
 
+    fun findModelTags(modelId:ModelId): List<TagId>
+
     fun findModelAggregateVersionOptional(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate?
 
     fun findModelAggregateVersion(modelId: ModelId, modelVersion: ModelVersion): ModelAggregate=
@@ -241,5 +243,6 @@ interface ModelStorage {
      * projection data is suspected to be out of sync with event storage.
      */
     fun maintenanceRebuildCaches()
+
 
 }

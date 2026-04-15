@@ -81,6 +81,13 @@ class ModelStorageDb(
         }
     }
 
+    override fun findModelTags(id: ModelId): List<TagId> {
+        return db.withExposed {
+            logger.debug("findModelTags id={}", id)
+            read.findAllModelTags(id)
+        }
+    }
+
     override fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {
         return db.withExposed {
             logger.debug("findLatestModelReleaseVersionOptional modelId={}", modelId)

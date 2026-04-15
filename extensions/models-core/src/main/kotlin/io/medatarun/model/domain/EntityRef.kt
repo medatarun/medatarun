@@ -21,5 +21,6 @@ sealed interface EntityRef : Ref<EntityRef> {
     }
     companion object {
         fun entityRefKey(value: String) =  EntityRef.ByKey(EntityKey(value))
+        fun entityRefId(value: EntityId) =  EntityRef.ById(value)
     }
 }

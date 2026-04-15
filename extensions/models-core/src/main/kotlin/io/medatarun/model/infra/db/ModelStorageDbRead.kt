@@ -17,6 +17,7 @@ import io.medatarun.model.infra.db.tables.*
 import io.medatarun.model.infra.inmemory.BusinessKeyInMemory
 import io.medatarun.model.infra.inmemory.EntityPrimaryKeyInMemory
 import io.medatarun.model.infra.inmemory.PBKeyParticipantInMemory
+import io.medatarun.tags.core.domain.TagId
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -86,6 +87,17 @@ class ModelStorageDbRead(
             (ModelSnapshotTable.snapshotKind eq ModelSnapshotKind.CURRENT_HEAD) and (ModelSnapshotTable.modelId eq id)
         }.singleOrNull()
         return if (row == null) null else toModel(ModelRecord.read(row))
+    }
+
+    fun findAllModelTags(id: ModelId): List<TagId> {
+        return ModelTagTable.join(
+            ModelSnapshotTable,
+            JoinType.INNER,
+            onColumn = ModelTagTable.modelSnapshotId,
+            otherColumn = ModelSnapshotTable.id
+        ).selectAll().where {
+            SnapshotSelector.CurrentHeadByModelId(id).criterion()
+        }.map { row -> row[ModelTagTable.tagId] }
     }
 
     fun findLatestModelReleaseVersionOptional(modelId: ModelId): ModelVersion? {

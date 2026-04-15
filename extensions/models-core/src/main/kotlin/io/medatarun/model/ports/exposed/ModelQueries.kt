@@ -5,6 +5,7 @@ import io.medatarun.model.domain.diff.ModelDiff
 import io.medatarun.model.domain.diff.ModelDiffScope
 import io.medatarun.model.domain.search.SearchQuery
 import io.medatarun.model.domain.search.SearchResults
+import io.medatarun.tags.core.domain.TagId
 import java.util.*
 
 interface ModelQueries {
@@ -100,6 +101,20 @@ interface ModelQueries {
     ): Attribute?
 
     // -------------------------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------------------------
+
+    fun findRelationship(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship
+    fun findRelationshipOptional(modelRef: ModelRef, relationshipRef: RelationshipRef): Relationship?
+
+    // -------------------------------------------------------------------------
+    // Relationship attributes
+    // -------------------------------------------------------------------------
+
+    fun findRelationshipAttribute(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute
+    fun findRelationshipAttributeOptional(modelRef: ModelRef, relationshipRef: RelationshipRef, attributeRef: RelationshipAttributeRef): Attribute?
+
+    // -------------------------------------------------------------------------
     // Entity PK
     // -------------------------------------------------------------------------
 
@@ -123,6 +138,12 @@ interface ModelQueries {
      * Find all business keys for a model, throw error if the model doesn't exist.
      */
     fun findBusinessKeys(modelRef: ModelRef): List<BusinessKey>
+
+    // -------------------------------------------------------------------------
+    // Tags
+    // -------------------------------------------------------------------------
+
+    fun findModelTags(modelRef: ModelRef): List<TagId>
 
     // -------------------------------------------------------------------------
     // Summaries
