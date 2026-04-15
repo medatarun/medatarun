@@ -8,7 +8,12 @@ import type {
 } from "@/business/types/TypeDeclaration.ts";
 import { isArray, isNil } from "lodash-es";
 import { throwError } from "@seij/common-types";
-import { invalid, type ValidationResult } from "@seij/common-validation";
+import {
+  combineValidationResults,
+  invalid,
+  valid,
+  type ValidationResult,
+} from "@seij/common-validation";
 import { appT } from "@/services/appI18n.tsx";
 
 const t = appT;
@@ -104,6 +109,23 @@ export class TypeRegistry {
     typeDeclared: TypeDeclaration<unknown>,
     value: unknown,
   ) {
+    if (value === undefined || value === null) {
+      if (!ctx.optional) {
+        return invalid(t("formValidation_required"));
+      }
+      return valid;
+    }
+    if (isArray(value)) {
+      if (!ctx.optional && value.length === 0) {
+        return invalid(t("formValidation_required"));
+      } else if (value.length === 0) {
+        return valid;
+      } else {
+        return combineValidationResults(
+          value.map((v) => this.validate(typeDeclared.id, ctx, v)),
+        );
+      }
+    }
     return this.#validationUknownType("List<" + typeDeclared.id + ">");
   }
 
